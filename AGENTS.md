@@ -23,7 +23,7 @@ sdks/core-sdk/AGENTS.md                                  the extension contract:
 sdks/scylla-base-sdk/AGENTS.md                           the public API of scylla-base for other extensions
 extensions/scylla-base/AGENTS.md                         the Scylla extension
 extensions/scylla-base/src/features/<feature>/AGENTS.md  the 15 business modules
-extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc, user-state
+extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc, legal, trackers, user-state
 extensions/scylla-base/src/shell/AGENTS.md               module list, ShellModule, Scylla shell parts
 extensions/scylla-base/src/shared/AGENTS.md              shared code with a business meaning
 ```
@@ -162,8 +162,8 @@ shell/                    the module list (modules.ts) and ShellModule: mounts, 
 features/                 the business modules.  May import platform + shared, never the shell,
                           and never another feature's internals.
   ↓
-platform/                 cross-cutting capabilities that own a domain: authz, context, grpc,
-                          user-state.
+platform/                 cross-cutting capabilities that own a domain: authz, consent,
+                          context, grpc, legal, trackers, user-state.
                           MUST NEVER import a feature.
   ↓
 shared/                   shared code with a business meaning (ScyllaError, status presentation).
@@ -388,10 +388,13 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
 - `packages/ui` — primitives (adapted from shadcn/ui), generic composites, rune states, stores, i18n runtime, theme.
 - scylla-base `shell/` — `modules.ts` (the feature list), `ShellModule` (mounts, sidebar
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
-- scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
-  (current org/project/pipeline + navigation), `grpc`, `user-state` (the interface state of a
-  person on the server, with `localStorage` as its read copy).
-- scylla-base `features/` — `apps`, `dashboard`, `extensions`, `integrations`, `jobs`, `login`, `marketplace`,
+- scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `consent`
+  (the banner and the cookie settings, hidden while each tracker is exempt), `context`
+  (current org/project/pipeline + navigation), `grpc`, `legal` (the legal documents and the
+  operator, public), `trackers` (the registry of the cookies and the storage keys),
+  `user-state` (the interface state of a person on the server, with `localStorage` as its read
+  copy).
+- scylla-base `features/` — `apps`, `dashboard`, `extensions`, `integrations`, `jobs`, `legal`, `login`, `marketplace`,
   `membership`, `workspace`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
 - scylla-base `shared/` — shared code with a business meaning. **No feature imports.**
 
@@ -428,7 +431,7 @@ Rules that matter:
   re-exported UI would drag every page back into the entry chunk.
 - The **frame** is declared by modules too, with optional fields: `mounts` (where routes graft),
   `navSections` (the sections a `nav.section` names), `access` (`can`, `ready`, `guard` — at most
-  one module), `shell` (sidebar footer, overlays, nav badge, breadcrumb and link parameters, links
+  one module), `shell` (sidebar footer, overlays, overlays of each page, nav badge, breadcrumb and link parameters, links
   of data in the second sidebar),
   `onQueryError`, `fallback` (exactly one module). In scylla-base they are all in `ShellModule`.
 - A route's `permission` has the type that one extension registers on `Register`
@@ -517,8 +520,17 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
   the router.
 - **Global state**: only `contextStore` (current org/project), `selectionStore` and
   `dialogHoldStore` (the guided tour holds the dialogs open) are app-wide, plus `permissionsStore` in
-  `@platform/authz`. Everything else = TanStack Query (server) or local
-  `$state`.
+  `@platform/authz` and `cookieSettings` in `@platform/consent` (the one dialog of the cookie
+  settings, which the footer, the user menu and the account page open). Everything else =
+  TanStack Query (server) or local `$state`.
+- **Cookies and browser storage: no cookie and no storage key without a registry entry.** A
+  change that reads or writes a new cookie, a new `localStorage` key or a new `sessionStorage`
+  key adds its entry to the tracker registry (`@platform/trackers`) in the same change: owner,
+  purpose, lifetime, `exempt`. A tracker that is not exempt also names its `consent` purpose,
+  and loads only through `whenGranted(purpose, load)` of `@platform/consent`. The cookie page and
+  the consent framework read the registry: one entry that is not exempt shows the banner, the
+  cookie settings and their entries. `platform/trackers/__test__/trackers.registry.test.ts` fails
+  when the code and the registry are not equal. See `platform/trackers/AGENTS.md`.
 - **Batch loads**: use `createQueries` to avoid N+1 (see jobs-per-pipeline).
 
 ### Query keys

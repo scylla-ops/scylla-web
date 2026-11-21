@@ -6,6 +6,12 @@ import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
 import { loginPath } from '@base/features/login/presentation/mappers/return-path.mapper.ts';
+import {
+  legalDocument,
+  legalInfo,
+  termsToAcceptAt,
+  withLegalInfo,
+} from '../../__test__/legal-info.fixture.ts';
 import LoginPage from './Login.page.svelte';
 
 const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
@@ -19,6 +25,8 @@ const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
     pendingLink: vi.fn(),
     linkPendingIdentity: vi.fn(),
     verifyEmail: vi.fn(),
+    termsStatus: vi.fn(),
+    acceptTerms: vi.fn(),
     ...overrides,
   };
   return { repository, login };
@@ -155,6 +163,59 @@ describe('LoginPage', () => {
     expect(href.pathname).toBe('/auth/github/start');
     expect(href.searchParams.get('return_to')).toBe(`${window.location.origin}/acme/projects`);
     expect(button).toHaveAttribute('rel', 'external');
+  });
+
+  describe('the notice of the terms under the providers', () => {
+    const withGitHub = () =>
+      makeFakeRepository({
+        listSignInMethods: vi.fn().mockResolvedValue({
+          providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
+          signUpMode: 'open',
+        }),
+      }).repository;
+
+    it('links the terms to accept and the privacy policy, in a new tab', async () => {
+      setUp(withGitHub());
+      teardown.push(withLegalInfo(termsToAcceptAt('2.0')).restore);
+      render(LoginPage);
+
+      const terms = await screen.findByRole('link', { name: 'Terms of service' });
+      const notice = terms.closest('p');
+      expect(notice).toHaveTextContent(
+        'By continuing, you agree to the Terms of service and acknowledge the Privacy policy.',
+      );
+      expect(terms).toHaveAttribute('href', '/legal/terms');
+      expect(terms).toHaveAttribute('target', '_blank');
+      expect(screen.getByRole('link', { name: 'Privacy policy' })).toHaveAttribute(
+        'href',
+        '/legal/privacy',
+      );
+    });
+
+    it('names the terms alone when the privacy policy is off', async () => {
+      setUp(withGitHub());
+      const terms = legalDocument('terms', { version: '2.0', acceptanceRequired: true });
+      teardown.push(withLegalInfo(legalInfo(terms)).restore);
+      render(LoginPage);
+
+      const link = await screen.findByRole('link', { name: 'Terms of service' });
+      expect(link.closest('p')).toHaveTextContent(
+        'By continuing, you agree to the Terms of service.',
+      );
+    });
+
+    it('shows no notice when the terms need no acceptance', async () => {
+      setUp(withGitHub());
+      const { info, restore } = withLegalInfo(
+        legalInfo(legalDocument('terms', { version: '2.0' })),
+      );
+      teardown.push(restore);
+      render(LoginPage);
+
+      await screen.findByRole('link', { name: 'Continue with GitHub' });
+      await waitFor(() => expect(info).toHaveBeenCalled());
+      expect(screen.queryByText(/By continuing/)).not.toBeInTheDocument();
+    });
   });
 
   it('links to the sign-up page only when the sign-up is open', async () => {

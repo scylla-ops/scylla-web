@@ -183,6 +183,21 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   and the version of the server, for a report of a problem. The build of the web app writes its
   version in the format of the server: `SCYLLA_BUILD` adds the commit, `+dev` shows a build with no
   commit, and `SCYLLA_RELEASE=true` keeps the bare version.
+- The account page has a Privacy section: the download of the data of the account, and the links to
+  the privacy policy and to the cookie page. The dialog that deletes an account tells what is
+  deleted and what stays, and links to the download.
+- The legal pages `/legal/<kind>`, with a table of contents, the date, the version and a print
+  style. The legal links are under the sign-in pages and in the user menu ("Legal and privacy"). The
+  instance admins set the legal settings on the page "Legal and privacy". A registry lists each
+  cookie and each storage key, and the cookie page shows it.
+- The acceptance of the terms of service, when the legal settings ask for it. The sign-up form has a
+  box that the person must tick, the sign-in page tells that a provider sign-in accepts the terms,
+  and a full-page step asks each user to accept a new version before the app. The Privacy section of
+  the account shows the version that the user accepted, and its date.
+- A consent framework for the trackers that need consent: a banner, the cookie settings, and their
+  entries in the footer, the user menu and the Privacy section of the account. It stays hidden while
+  each tracker of the registry is exempt. Global Privacy Control is a refusal, and `whenGranted`
+  loads a tracker only after a yes.
 
 ### Changed
 
@@ -492,6 +507,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   (`+240da00`), and the release link uses the bare version.
 - After Connect GitHub, the page lists the GitHub accounts that have the Scylla App: connect one to
   the workspace, or install the App on another account.
+- The sign-out removes the local data of the account: the workspace, the command history, the
+  dashboards, the onboarding, the seen flags and the sync state. The theme and the language stay.
+  The app writes the language only when the person chooses one, and the sidebar writes no cookie.
 
 ## [0.6.0] - 2026-11-01
 

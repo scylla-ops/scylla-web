@@ -7,6 +7,7 @@
   import { loginQueries } from '@base/features/login/presentation/login.queries.ts';
   import { returnPathOf } from '@base/features/login/presentation/mappers/return-path.mapper.ts';
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
+  import { LegalFooter } from '@platform/legal';
   import LoginForm from '../LoginForm/LoginForm.svelte';
   import SignInProviders from '../SignInProviders/SignInProviders.svelte';
   import { loginMessages } from '@base/features/login/presentation/messages/login.messages.ts';
@@ -18,10 +19,19 @@
   const returnPath = returnPathOf(window.location.hash) ?? '/';
 </script>
 
+<!-- The legal links that the operator turned on, at the bottom of the frame. -->
+{#snippet legalFooter()}
+  <LegalFooter class="pt-6" />
+{/snippet}
+
 {#if state.isSuccess}
   <ScyllaLoadingScreen />
 {:else}
-  <AuthLayout title={t(loginMessages.title)} description={t(loginMessages.description)}>
+  <AuthLayout
+    footer={legalFooter}
+    title={t(loginMessages.title)}
+    description={t(loginMessages.description)}
+  >
     <LoginForm handleSubmit={state.submit} isPending={state.isPending} />
     <SignInProviders providers={methods.data?.providers ?? []} {returnPath} />
 

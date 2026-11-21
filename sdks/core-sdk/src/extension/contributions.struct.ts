@@ -57,6 +57,11 @@ export interface ShellContributions {
   /** Rendered once over the shell, e.g. a dialog. */
   overlays?: readonly Component[];
   /**
+   * Rendered once over each page, in the shell or not (a public page too), e.g. a consent banner.
+   * The core renders them after the router, in the order of the modules.
+   */
+  appOverlays?: readonly Component[];
+  /**
    * The height in px of the band at the bottom of the view that an overlay always covers, e.g. a
    * launcher. The frame keeps this band free below its pages. The largest value wins.
    */

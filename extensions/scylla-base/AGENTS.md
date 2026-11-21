@@ -23,7 +23,7 @@ src/
   index.ts                       ScyllaBaseExtension — the only export of @scylla/base's root
   scylla-base.extension.ts       @Extension({ id, name, version, modules, catalogs })
   features/<15>/                 the business modules, each with its AGENTS.md
-  platform/authz, context, grpc, user-state   cross-cutting capabilities, below the features
+  platform/authz, context, grpc, legal, trackers, user-state   cross-cutting capabilities
   shared/                        shared code with a business meaning
   shell/                         modules.ts, ShellModule, the Scylla shell parts
   generated/                     protobuf-ts clients (`pnpm gen-proto`, never edited)
@@ -54,6 +54,12 @@ export class ScyllaBaseExtension {}
 
 - `platform/authz` registers `Permission` as the route permission type (`Register`, in
   `presentation/authorization.ts`). No other extension may register another one.
+- **No cookie and no storage key without a registry entry.** A new cookie, `localStorage` key or
+  `sessionStorage` key gets its entry in `platform/trackers/presentation/ui/trackers.registry.ts`
+  in the same change (owner, purpose, lifetime, `exempt`). A tracker that is not exempt also
+  names its `consent` purpose and loads only through `whenGranted` (`platform/consent`).
+  `trackers.registry.test.ts` fails when a file of the workspace uses the storage and no entry
+  names it. See `platform/trackers/AGENTS.md`.
 - A feature barrel exported through `@scylla/base-sdk` is a public API for other extensions.
   A query it exports must check its own permission (rule 3 of
   `shell/__test__/feature-permissions.test.ts`).

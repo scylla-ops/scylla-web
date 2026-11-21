@@ -57,6 +57,7 @@ function isSupportedLocale(locale: string | null | undefined): locale is Support
   return locale === 'en' || locale === 'fr';
 }
 
+/** The language that the person chose on this browser, else the language of the browser. */
 export function getStoredLocale(): SupportedLocale {
   if (typeof window === 'undefined') {
     return 'en';
@@ -71,13 +72,25 @@ export function getStoredLocale(): SupportedLocale {
   return browserLocale === 'fr' ? 'fr' : 'en';
 }
 
+/**
+ * Shows the page in a language. It writes nothing in the browser: the load of a page is not a
+ * choice of the person.
+ */
 export async function setAppLocale(locale: SupportedLocale): Promise<void> {
   await loadCatalogs(locale);
   i18n.activate(locale);
 
   if (typeof window !== 'undefined') {
-    window.localStorage.setItem(STORAGE_KEY, locale);
     document.documentElement.lang = locale;
+  }
+}
+
+/** The choice of the person: shows the page in this language and keeps it in the browser. */
+export async function chooseAppLocale(locale: SupportedLocale): Promise<void> {
+  await setAppLocale(locale);
+
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(STORAGE_KEY, locale);
   }
 }
 

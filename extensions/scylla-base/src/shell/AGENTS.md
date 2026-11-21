@@ -34,6 +34,7 @@ presentation/
   router/
     AppLayout.svelte                    layout of the `app` mount: AuthGuard + WorkspaceGate
     AuthGuard/                          hasSession: the pages, or /login; no answer: a retry view, not /login
+                                        then loginQueries.terms: the terms step of login before the pages
     PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
@@ -56,12 +57,15 @@ presentation/
     ui/GlobalSearch/                    the button of the top bar and Ctrl K. It loads the bar at the first use and keeps the form that a command opens
     ui/CommandBar/                      the command bar: see "The command bar"
     ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
-    ui/NavUser/                         who is signed in (userQueries.me), Account, Help & tours, Language, Sign out
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Help & tours, Cookie settings
+                                        (while one tracker needs consent), Language, Sign out
                                         (sidebar footer); green on the rail while the URL is on the account or the help page
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
     ui/WhatsNewDialog/                  first-launch release announcement
     ui/LaunchOverlays/                  THE overlay: the announcement first, then the onboarding tour
+    ui/ConsentHost/                     over each page, public too (appOverlays): the banner and the cookie
+                                        settings of `platform/consent`, while one tracker needs consent
     ui/layout.messages.ts               every message of the shell
 locales/                                the shell's own catalog
 ```

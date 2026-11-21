@@ -6,11 +6,16 @@ import type {
 import type { PasswordResetDelivery } from '@base/features/login/domain/structs/password-reset-delivery.struct.ts';
 import type { PendingLink } from '@base/features/login/domain/structs/pending-link.struct.ts';
 import type { SignInMethods } from '@base/features/login/domain/structs/sign-in-methods.struct.ts';
+import type {
+  TermsAcceptance,
+  TermsStatus,
+} from '@base/features/login/domain/structs/terms-status.struct.ts';
 import type { IAccountServiceClient } from '@base/generated/scylla/accounts/v1/account_service.client.ts';
 import type { IProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
 import { signInMethodsToDomain } from './grpc-sign-in-methods.mapper.ts';
+import { termsAcceptanceToDomain, termsStatusToDomain } from './grpc-terms.mapper.ts';
 import { openSession, rememberUser } from './session.ts';
 
 /**
@@ -60,8 +65,26 @@ export class DefaultLoginRepository implements LoginRepository {
     return returnTo;
   }
 
-  public async signUp({ email, password, displayName, invitationToken = '' }: SignUpInput) {
-    await this.accounts.signUp({ email, password, displayName, invitationToken }).response;
+  public async signUp(input: SignUpInput) {
+    const { email, password, displayName, invitationToken = '', acceptedTermsVersion } = input;
+    await this.accounts.signUp({
+      email,
+      password,
+      displayName,
+      invitationToken,
+      acceptedTermsVersion,
+    }).response;
+  }
+
+  public async termsStatus(): Promise<TermsStatus> {
+    return termsStatusToDomain(await this.profiles.getMe({}).response);
+  }
+
+  public async acceptTerms(version: string): Promise<TermsAcceptance> {
+    const { acceptance } = await this.profiles.acceptTerms({ version }).response;
+    return acceptance
+      ? termsAcceptanceToDomain(acceptance)
+      : { version, acceptedAt: new Date().toISOString() };
   }
 
   public async verifyEmail(token: string): Promise<void> {

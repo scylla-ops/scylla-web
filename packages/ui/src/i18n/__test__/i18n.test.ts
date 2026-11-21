@@ -1,6 +1,20 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '@lingui/core';
-import { plainMessage, readCatalogs, registerCatalogs } from '../i18n.ts';
+import {
+  chooseAppLocale,
+  getStoredLocale,
+  plainMessage,
+  readCatalogs,
+  registerCatalogs,
+  setAppLocale,
+} from '../i18n.ts';
+
+const LOCALE_KEY = 'scylla-locale';
+
+afterEach(() => {
+  localStorage.clear();
+  vi.unstubAllGlobals();
+});
 
 describe('readCatalogs', () => {
   it('reads the messages of one locale, and does not activate them', async () => {
@@ -31,5 +45,34 @@ describe('plainMessage', () => {
   it('gives nothing for an unknown message or no id', () => {
     expect(plainMessage({}, 'greeting')).toBeUndefined();
     expect(plainMessage({ greeting: 'Hello' }, undefined)).toBeUndefined();
+  });
+});
+
+describe('the locale of the browser', () => {
+  it('reads the language of the browser when the person chose nothing', () => {
+    vi.stubGlobal('navigator', { language: 'fr-CA' });
+
+    expect(getStoredLocale()).toBe('fr');
+    expect(localStorage.getItem(LOCALE_KEY)).toBeNull();
+  });
+
+  it('shows a language at the load of a page, and writes nothing in the browser', async () => {
+    await setAppLocale('fr');
+
+    expect(i18n.locale).toBe('fr');
+    expect(document.documentElement.lang).toBe('fr');
+    expect(localStorage.getItem(LOCALE_KEY)).toBeNull();
+    await setAppLocale('en');
+  });
+
+  it('keeps the choice of the person, and reads it before the language of the browser', async () => {
+    vi.stubGlobal('navigator', { language: 'en-US' });
+
+    await chooseAppLocale('fr');
+
+    expect(i18n.locale).toBe('fr');
+    expect(localStorage.getItem(LOCALE_KEY)).toBe('fr');
+    expect(getStoredLocale()).toBe('fr');
+    await setAppLocale('en');
   });
 });

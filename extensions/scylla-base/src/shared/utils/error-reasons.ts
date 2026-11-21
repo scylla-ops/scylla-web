@@ -16,12 +16,15 @@ const MESSAGES: Record<string, (metadata: Readonly<Record<string, string>>) => s
   INVITATION_FOR_ANOTHER_EMAIL: () => t`This invitation is for another email address`,
   INVITATION_REQUIRED: () => t`An invitation is required to sign up`,
   SIGN_UP_CLOSED: () => t`Sign-up is closed on this server`,
+  TERMS_NOT_ACCEPTED: () => t`Accept the current version of the terms of service`,
   NO_ACCOUNT: () => t`No account is linked to this identity`,
   LAST_ADMIN: () => t`The server needs at least one other administrator`,
   LAST_SIGN_IN_METHOD: () => t`Add another sign-in method before you remove this one`,
   SELF_NOT_ALLOWED: () => t`You cannot do this on your own account`,
   RESEND_TOO_SOON: ({ retry_after_seconds: seconds }) =>
-    seconds ? t`Wait ${seconds} seconds before you send it again` : t`Wait before you send it again`,
+    seconds
+      ? t`Wait ${seconds} seconds before you send it again`
+      : t`Wait before you send it again`,
   // Workspaces and members.
   SLUG_IN_USE: () => t`Another workspace already uses this slug`,
   WORKSPACE_NOT_EMPTY: () => t`Delete the projects and the agents of the workspace first`,

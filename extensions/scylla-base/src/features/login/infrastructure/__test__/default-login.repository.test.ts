@@ -25,9 +25,18 @@ const accounts = (overrides: Partial<Record<keyof IAccountServiceClient, unknown
     ...overrides,
   }) as unknown as IAccountServiceClient;
 
+const acceptedAt = { seconds: 1_795_000_000n, nanos: 0 };
+
 const profiles = () =>
   ({
-    getMe: vi.fn(() => unaryCall({ user: { id: { value: 'user-1' } } })),
+    getMe: vi.fn(() =>
+      unaryCall({
+        user: { id: { value: 'user-1' }, displayName: 'Ada', email: 'ada@example.com' },
+        termsAcceptanceRequired: true,
+        acceptedTerms: { version: '1.0', acceptedAt },
+      }),
+    ),
+    acceptTerms: vi.fn(() => unaryCall({ acceptance: { version: '2.0', acceptedAt } })),
   }) as unknown as IProfileServiceClient;
 
 beforeEach(() => {
@@ -83,6 +92,41 @@ describe('DefaultLoginRepository', () => {
       displayName: 'Ada',
       invitationToken: '',
     });
+  });
+
+  it('sends the version of the terms that the person accepted', async () => {
+    const client = accounts();
+
+    await new DefaultLoginRepository(client, profiles()).signUp({
+      email: 'ada@example.com',
+      password: 'hunter22',
+      displayName: 'Ada',
+      acceptedTermsVersion: '2.0',
+    });
+
+    expect(client.signUp).toHaveBeenCalledWith(
+      expect.objectContaining({ acceptedTermsVersion: '2.0' }),
+    );
+  });
+
+  it('gives the terms of the user of the session in domain terms', async () => {
+    await expect(new DefaultLoginRepository(accounts(), profiles()).termsStatus()).resolves.toEqual(
+      {
+        acceptanceRequired: true,
+        accepted: { version: '1.0', acceptedAt: '2026-11-18T11:06:40.000Z' },
+        displayName: 'Ada',
+        email: 'ada@example.com',
+      },
+    );
+  });
+
+  it('accepts a version of the terms, and gives the acceptance', async () => {
+    const client = profiles();
+
+    const acceptance = await new DefaultLoginRepository(accounts(), client).acceptTerms('2.0');
+
+    expect(client.acceptTerms).toHaveBeenCalledWith({ version: '2.0' });
+    expect(acceptance).toEqual({ version: '2.0', acceptedAt: '2026-11-18T11:06:40.000Z' });
   });
 
   it('passes the token and the new password through', async () => {

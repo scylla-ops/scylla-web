@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import {
-  render,
-  withRegistry,
-  withQueryClient,
-  withWidgetInjections,
-} from '@test/render.ts';
+import { render, withRegistry, withQueryClient, withWidgetInjections } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
 import { loginPoints } from '@base/features/login/presentation/login.points.ts';
@@ -43,6 +38,8 @@ const setUp = () => {
     verifyEmail: vi.fn(),
     pendingLink: vi.fn(),
     linkPendingIdentity: vi.fn(),
+    termsStatus: vi.fn(),
+    acceptTerms: vi.fn(),
   };
   const restoreRegistry = withRegistry({ login: { loginRepository } });
   const testNavigator = installTestNavigator();
@@ -58,7 +55,10 @@ describe('Login.page with widget injections', () => {
           loginPoints.texts.override({
             identifier: { id: 'cloud.email', message: 'Email' },
             identifierPlaceholder: { id: 'cloud.email-placeholder', message: 'you@example.com' },
-            description: { id: 'cloud.description', message: 'Enter your email and your password.' },
+            description: {
+              id: 'cloud.description',
+              message: 'Enter your email and your password.',
+            },
           }),
           loginPoints.fields.patch(fields =>
             fields.map(field =>
