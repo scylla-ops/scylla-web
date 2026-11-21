@@ -1,8 +1,8 @@
 # `@scylla/base-sdk` — agent guide
 
 The public API of `scylla-base` for the other extensions: `Permission` and `can`, the context
-store and `scyllaNavigate`, the gRPC transport, `ScyllaError`, and the exports of the 15
-feature barrels (query factories, entity types, page loaders).
+store and `scyllaNavigate`, the gRPC transport, the tracker registry, `ScyllaError`, and the
+exports of the 15 feature barrels (query factories, entity types, page loaders).
 
 **Package** `sdks/scylla-base-sdk` · entry `@scylla/base-sdk`
 
@@ -40,5 +40,6 @@ module lists is in it.
 | `loginPoints` | `LoginModule` | `login.footer` (zone), `login.texts` (text scope), `login.fields` (value) | [`login`](../../extensions/scylla-base/src/features/login/AGENTS.md) |
 | `membershipPoints` | `MembershipModule` | `membership.workspaceActions` (zone), `membership.workspaceSection` (zone), `membership.workspaceAddMember` (value), `membership.projectActions` (zone), `membership.projectSection` (zone) | [`membership`](../../extensions/scylla-base/src/features/membership/AGENTS.md) |
 | `notificationsPoints` | `NotificationsModule` | `notifications.kinds` (value) | [`notifications`](../../extensions/scylla-base/src/features/notifications/AGENTS.md) |
+| `trackersPoints` | `LegalModule` | `legal.trackers` (value): the tracker registry, see the rule "no cookie or storage key without a registry entry" | [`platform/trackers`](../../extensions/scylla-base/src/platform/trackers/AGENTS.md) |
 
 Add a row here in the same change that adds `points` to a feature's module.

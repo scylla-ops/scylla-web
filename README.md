@@ -107,6 +107,7 @@ packages/ui                the design system — imports no other package
 | [extensions](extensions/scylla-base/src/features/extensions/README.md) | The page that lists the extensions the app runs |
 | [integrations](extensions/scylla-base/src/features/integrations/README.md) | The connections of a workspace to GitHub and GitLab, the repository of a project, and the data layer of the Git integration |
 | [jobs](extensions/scylla-base/src/features/jobs/README.md) | Pipeline runs: status, logs, and the live tail of both |
+| [legal](extensions/scylla-base/src/features/legal/README.md) | The public legal pages (`/legal/<kind>`) and the admin page of the legal settings |
 | [login](extensions/scylla-base/src/features/login/README.md) | Sign-in, sign-out, the password reset and the session token |
 | [marketplace](extensions/scylla-base/src/features/marketplace/README.md) | Ready-made pipeline templates |
 | [notifications](extensions/scylla-base/src/features/notifications/README.md) | The inbox of the signed-in user: the bell, its panel and the full page |
@@ -127,6 +128,8 @@ packages/ui                the design system — imports no other package
 | [authz](extensions/scylla-base/src/platform/authz/README.md) | `Permission`, `can`, `Can`, `RequirePermission` — the read side of authorization |
 | [context](extensions/scylla-base/src/platform/context/README.md) | The active workspace / project / pipeline, and navigation derived from it |
 | [grpc](extensions/scylla-base/src/platform/grpc/README.md) | The single gRPC-Web transport, with auth attached |
+| [legal](extensions/scylla-base/src/platform/legal/README.md) | The legal documents and the operator of the server, the links to them and the legal footer |
+| [trackers](extensions/scylla-base/src/platform/trackers/README.md) | The registry of each cookie and each storage key of the app, and the table of the cookie page |
 | [user-state](extensions/scylla-base/src/platform/user-state/README.md) | The interface state of a person on the server, with `localStorage` as its read copy |
 
 ### scylla-base — `shared/`

@@ -1,0 +1,263 @@
+msgid ""
+msgstr ""
+"Language: e\n"
+"MIME-Version: 1.\n"
+"Content-Type: text/plain; charset=utf-\n"
+"Content-Transfer-Encoding: 8bi\n"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:58
+msgid "{count, plural, one {# tracker needs the consent of the users.} other {# trackers need the consent of the users.}}"
+msgstr "{count, plural, one {# tracker needs the consent of the users.} other {# trackers need the consent of the users.}}"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:12
+msgid "Acme SAS"
+msgstr "Acme SAS"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:20
+msgid "Address"
+msgstr "Address"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:32
+msgid "Address of the page"
+msgstr "Address of the page"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:5
+msgid "Back to Scylla"
+msgstr "Back to Scylla"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:49
+msgid "Consent banner"
+msgstr "Consent banner"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:23
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:13
+msgid "Contact"
+msgstr "Contact"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:27
+msgid "Content of {document}"
+msgstr "Content of {document}"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:26
+msgid "Cookies and storage that Scylla uses"
+msgstr "Cookies and storage that Scylla uses"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:38
+msgid "Date of effect"
+msgstr "Date of effect"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:22
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:18
+msgid "Director of publication"
+msgstr "Director of publication"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:22
+msgid "Documents"
+msgstr "Documents"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:23
+msgid "Each document is off, a link to a page of your site, or a text in Markdown that Scylla shows on a public page. A document that is off has no page and no link."
+msgstr "Each document is off, a link to a page of your site, or a text in Markdown that Scylla shows on a public page. A document that is off has no page and no link."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:36
+msgid "Edit"
+msgstr "Edit"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:46
+msgid "Email or page"
+msgstr "Email or page"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:63
+msgid "Hide the list"
+msgstr "Hide the list"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:24
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:19
+msgid "Host"
+msgstr "Host"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:7
+msgid "Language"
+msgstr "Language"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:10
+msgid "Last updated on {date}"
+msgstr "Last updated on {date}"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:9
+msgid "Legal · {kind}"
+msgstr "Legal · {kind}"
+
+#: extensions/scylla-base/src/features/legal/legal.module.ts:24
+#: extensions/scylla-base/src/features/legal/legal.module.ts:26
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:5
+msgid "Legal and privacy"
+msgstr "Legal and privacy"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:11
+msgid "Legal name"
+msgstr "Legal name"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:14
+msgid "legal@acme.example"
+msgstr "legal@acme.example"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:25
+msgid "Link"
+msgstr "Link"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:29
+msgid "Link to {url}"
+msgstr "Link to {url}"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:26
+msgid "Markdown"
+msgstr "Markdown"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:19
+msgid "Name"
+msgstr "Name"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:28
+msgid "No page and no link"
+msgstr "No page and no link"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:53
+msgid "No tracker needs consent: the registry lists {count, plural, one {# strictly necessary item} other {# strictly necessary items}}."
+msgstr "No tracker needs consent: the registry lists {count, plural, one {# strictly necessary item} other {# strictly necessary items}}."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:24
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:50
+msgid "Off"
+msgstr "Off"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:51
+msgid "On"
+msgstr "On"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:8
+msgid "On this page"
+msgstr "On this page"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:17
+msgid "Open the document"
+msgstr "Open the document"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:9
+msgid "Operator identity"
+msgstr "Operator identity"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:18
+msgid "Operator of this service"
+msgstr "Operator of this service"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:12
+msgid "Other documents"
+msgstr "Other documents"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:13
+msgid "Other documents:"
+msgstr "Other documents:"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:35
+msgid "Preview"
+msgstr "Preview"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:6
+msgid "Print"
+msgstr "Print"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:25
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:44
+msgid "Privacy contact"
+msgstr "Privacy contact"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:47
+msgid "privacy@acme.example"
+msgstr "privacy@acme.example"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:42
+msgid "Publish version {version}"
+msgstr "Publish version {version}"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:15
+msgid "Registered address"
+msgstr "Registered address"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:21
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:16
+msgid "Registration"
+msgstr "Registration"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:7
+msgid "Save"
+msgstr "Save"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:62
+msgid "See the list"
+msgstr "See the list"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:30
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:34
+msgid "Text in Markdown"
+msgstr "Text in Markdown"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:33
+msgid "The address must start with http:// or https://"
+msgstr "The address must start with http:// or https://"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:45
+msgid "The address that users write to about their personal data. The legal notice shows it."
+msgstr "The address that users write to about their personal data. The legal notice shows it."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:6
+msgid "The legal documents of this server and the identity of its operator. The public pages, the footer of the sign-in pages and the mails show them. Only instance admins see this page."
+msgstr "The legal documents of this server and the identity of its operator. The public pages, the footer of the sign-in pages and the mails show them. Only instance admins see this page."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:20
+msgid "The name, the address and the phone number of the host of the servers."
+msgstr "The name, the address and the phone number of the host of the servers."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:15
+msgid "The operator of this server did not publish this document."
+msgstr "The operator of this server did not publish this document."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:10
+msgid "The organization or the person that runs this server. The legal notice shows these fields above its text."
+msgstr "The organization or the person that runs this server. The legal notice shows these fields above its text."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:41
+msgid "The page shows the operator identity above your text."
+msgstr "The page shows the operator identity above your text."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:40
+msgid "The page shows the table of the cookies and storage keys under your text. An empty text shows the table only."
+msgstr "The page shows the table of the cookies and storage keys under your text. An empty text shows the table only."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:17
+msgid "The registration number, the share capital and the VAT number."
+msgstr "The registration number, the share capital and the VAT number."
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:14
+msgid "This document does not exist"
+msgstr "This document does not exist"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:31
+msgid "Title"
+msgstr "Title"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:39
+msgid "Users must accept this version again"
+msgstr "Users must accept this version again"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:37
+msgid "Version"
+msgstr "Version"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:11
+msgid "Version {version}"
+msgstr "Version {version}"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:16
+msgid "Your browser opens it now. If it does not, use the link."
+msgstr "Your browser opens it now. If it does not, use the link."

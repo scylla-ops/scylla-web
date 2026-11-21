@@ -1,5 +1,6 @@
 <script module lang="ts">
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+  import FileTextIcon from '@lucide/svelte/icons/file-text';
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import TrashIcon from '@lucide/svelte/icons/trash-2';
   import {
@@ -11,6 +12,9 @@
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
   import { defineMeta } from '@storybook/addon-svelte-csf';
@@ -26,6 +30,9 @@
       DropdownMenuSeparator,
       DropdownMenuRadioGroup,
       DropdownMenuRadioItem,
+      DropdownMenuSub,
+      DropdownMenuSubTrigger,
+      DropdownMenuSubContent,
     },
   });
 </script>
@@ -62,6 +69,26 @@
           <DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="system">System</DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  </div>
+</Story>
+
+<Story name="Submenu" asChild>
+  <div class="h-56">
+    <DropdownMenu open>
+      <DropdownMenuTrigger>
+        {#snippet child({ props })}<Button variant="outline" {...props}>Account</Button>{/snippet}
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" class="w-48">
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuSub open>
+          <DropdownMenuSubTrigger><FileTextIcon />Documents</DropdownMenuSubTrigger>
+          <DropdownMenuSubContent class="w-40">
+            <DropdownMenuItem>Privacy policy</DropdownMenuItem>
+            <DropdownMenuItem>Terms of service</DropdownMenuItem>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
       </DropdownMenuContent>
     </DropdownMenu>
   </div>

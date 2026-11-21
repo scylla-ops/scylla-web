@@ -23,7 +23,7 @@ sdks/core-sdk/AGENTS.md                                  the extension contract:
 sdks/scylla-base-sdk/AGENTS.md                           the public API of scylla-base for other extensions
 extensions/scylla-base/AGENTS.md                         the Scylla extension
 extensions/scylla-base/src/features/<feature>/AGENTS.md  the 15 business modules
-extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc, user-state
+extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc, legal, trackers, user-state
 extensions/scylla-base/src/shell/AGENTS.md               module list, ShellModule, Scylla shell parts
 extensions/scylla-base/src/shared/AGENTS.md              shared code with a business meaning
 ```
@@ -163,7 +163,7 @@ features/                 the business modules.  May import platform + shared, n
                           and never another feature's internals.
   ↓
 platform/                 cross-cutting capabilities that own a domain: authz, context, grpc,
-                          user-state.
+                          legal, trackers, user-state.
                           MUST NEVER import a feature.
   ↓
 shared/                   shared code with a business meaning (ScyllaError, status presentation).
@@ -389,9 +389,11 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
 - scylla-base `shell/` — `modules.ts` (the feature list), `ShellModule` (mounts, sidebar
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
 - scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
-  (current org/project/pipeline + navigation), `grpc`, `user-state` (the interface state of a
-  person on the server, with `localStorage` as its read copy).
-- scylla-base `features/` — `apps`, `dashboard`, `extensions`, `integrations`, `jobs`, `login`, `marketplace`,
+  (current org/project/pipeline + navigation), `grpc`, `legal` (the legal documents and the
+  operator, public), `trackers` (the registry of the cookies and the storage keys),
+  `user-state` (the interface state of a person on the server, with `localStorage` as its read
+  copy).
+- scylla-base `features/` — `apps`, `dashboard`, `extensions`, `integrations`, `jobs`, `legal`, `login`, `marketplace`,
   `membership`, `workspace`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
 - scylla-base `shared/` — shared code with a business meaning. **No feature imports.**
 
@@ -519,6 +521,12 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
   `dialogHoldStore` (the guided tour holds the dialogs open) are app-wide, plus `permissionsStore` in
   `@platform/authz`. Everything else = TanStack Query (server) or local
   `$state`.
+- **Cookies and browser storage: no cookie and no storage key without a registry entry.** A
+  change that reads or writes a new cookie, a new `localStorage` key or a new `sessionStorage`
+  key adds its entry to the tracker registry (`@platform/trackers`) in the same change: owner,
+  purpose, lifetime, `exempt`. The cookie page and the consent banner read the registry, and
+  `platform/trackers/__test__/trackers.registry.test.ts` fails when the code and the registry
+  are not equal. See `platform/trackers/AGENTS.md`.
 - **Batch loads**: use `createQueries` to avoid N+1 (see jobs-per-pipeline).
 
 ### Query keys

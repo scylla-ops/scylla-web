@@ -4,6 +4,7 @@
   import { t } from '@scylla/ui/i18n';
   import { VerifyEmailState } from './verify-email.state.svelte.ts';
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
+  import { LegalFooter } from '@platform/legal';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
 
   // Built during initialisation: it reads the token of the link, and its mutation needs an owner.
@@ -11,7 +12,12 @@
   onMount(state.start);
 </script>
 
-<AuthLayout title={t(signUpMessages.verifyTitle)}>
+<!-- The legal links that the operator turned on, at the bottom of the frame. -->
+{#snippet legalFooter()}
+  <LegalFooter class="pt-6" />
+{/snippet}
+
+<AuthLayout footer={legalFooter} title={t(signUpMessages.verifyTitle)}>
   {#if state.step === 'done'}
     <p role="status" class="mb-6 text-center text-sm">{t(signUpMessages.verified)}</p>
     <Button href="/login" class="w-full">{t(signUpMessages.signIn)}</Button>

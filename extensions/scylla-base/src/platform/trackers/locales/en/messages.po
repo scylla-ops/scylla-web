@@ -1,0 +1,142 @@
+msgid ""
+msgstr ""
+"Language: e\n"
+"MIME-Version: 1.\n"
+"Content-Type: text/plain; charset=utf-\n"
+"Content-Transfer-Encoding: 8bi\n"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:17
+msgid "{type} · {provider}"
+msgstr "{type} · {provider}"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:8
+msgid "10 minutes at most"
+msgstr "10 minutes at most"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:23
+msgid "30 days by default, or until you sign out"
+msgstr "30 days by default, or until you sign out"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:50
+msgid "7 days"
+msgstr "7 days"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:6
+msgid "Cookie"
+msgstr "Cookie"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:12
+msgid "Cookies and browser storage"
+msgstr "Cookies and browser storage"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:76
+msgid "Holds the id of the user who is signed in."
+msgstr "Holds the id of the user who is signed in."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:40
+msgid "Holds the identity of a provider while you link it to your account."
+msgstr "Holds the identity of a provider while you link it to your account."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:94
+msgid "Keeps the copy of your interface settings the same as the copy of the server."
+msgstr "Keeps the copy of your interface settings the same as the copy of the server."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:166
+msgid "Keeps the page to go back to after the install of the GitHub App."
+msgstr "Keeps the page to go back to after the install of the GitHub App."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:112
+msgid "Keeps the release notes that you saw."
+msgstr "Keeps the release notes that you saw."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:49
+msgid "Keeps the sidebar open or closed."
+msgstr "Keeps the sidebar open or closed."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:121
+msgid "Keeps the style of the nodes in the pipeline editor."
+msgstr "Keeps the style of the nodes in the pipeline editor."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:157
+msgid "Keeps the time of your last visit to the dashboards."
+msgstr "Keeps the time of your last visit to the dashboards."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:130
+msgid "Keeps the width of the second sidebar."
+msgstr "Keeps the width of the second sidebar."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:85
+msgid "Keeps the workspace and the project that you have open."
+msgstr "Keeps the workspace and the project that you have open."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:22
+msgid "Keeps you signed in: it holds the token of the session of this browser."
+msgstr "Keeps you signed in: it holds the token of the session of this browser."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:148
+msgid "Keeps your default dashboard."
+msgstr "Keeps your default dashboard."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:67
+msgid "Keeps your language."
+msgstr "Keeps your language."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:139
+msgid "Keeps your last entries in the command bar."
+msgstr "Keeps your last entries in the command bar."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:103
+msgid "Keeps your progress in the guided tour."
+msgstr "Keeps your progress in the guided tour."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:58
+msgid "Keeps your theme: light, dark or the theme of the system."
+msgstr "Keeps your theme: light, dark or the theme of the system."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:18
+msgid "Lifetime: {lifetime}"
+msgstr "Lifetime: {lifetime}"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:31
+msgid "Links a sign-in with GitHub, GitLab or OIDC to this browser, against a forged sign-in."
+msgstr "Links a sign-in with GitHub, GitLab or OIDC to this browser, against a forged sign-in."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:7
+msgid "Local storage"
+msgstr "Local storage"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:13
+msgid "Name"
+msgstr "Name"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:20
+msgid "Needs consent"
+msgstr "Needs consent"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:14
+msgid "Purpose"
+msgstr "Purpose"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:8
+msgid "Session storage"
+msgstr "Session storage"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:15
+msgid "Status"
+msgstr "Status"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:19
+msgid "Strictly necessary"
+msgstr "Strictly necessary"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:7
+msgid "Until you clear the site data"
+msgstr "Until you clear the site data"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:167
+msgid "Until you close the tab"
+msgstr "Until you close the tab"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:77
+msgid "Until you sign out"
+msgstr "Until you sign out"

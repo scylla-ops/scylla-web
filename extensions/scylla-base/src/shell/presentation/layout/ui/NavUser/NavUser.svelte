@@ -2,8 +2,10 @@
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
   import LifeBuoyIcon from '@lucide/svelte/icons/life-buoy';
   import LogOutIcon from '@lucide/svelte/icons/log-out';
+  import ScaleIcon from '@lucide/svelte/icons/scale';
   import UserRoundIcon from '@lucide/svelte/icons/user-round';
   import { scyllaNavigate, workspaceUrl } from '@platform/context';
+  import { legalLinks, legalMessages, legalQueries } from '@platform/legal';
   import { createQuery, routePathname } from '@scylla/core-sdk';
   import {
     DropdownMenu,
@@ -13,6 +15,9 @@
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
     getSidebar,
     SIDEBAR_FADE,
@@ -37,6 +42,8 @@
 
   const sidebar = getSidebar();
   const meQuery = createQuery(() => userQueries.me());
+  const legalQuery = createQuery(() => legalQueries.info());
+  const legal = $derived(legalLinks(legalQuery.data));
 
   const slug = $derived(linkParams().workspaceSlug);
   // The rail only: the sheet of a phone has no green row.
@@ -112,6 +119,26 @@
         <LifeBuoyIcon />
         {t(layoutMessages.helpAndTours)}
       </DropdownMenuItem>
+      <!-- The documents that the operator turned on, in a new tab: the app stays open. -->
+      {#if legal.length > 0}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger class="text-foreground">
+            <ScaleIcon />
+            {t(legalMessages.legalAndPrivacy)}
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent class="min-w-48 rounded-lg border-border bg-popover shadow-lg">
+            {#each legal as link (link.kind)}
+              <DropdownMenuItem class="text-foreground hover:bg-accent">
+                {#snippet child({ props })}
+                  <a {...props} href={link.href} target="_blank" rel="noopener noreferrer">
+                    {link.label}
+                  </a>
+                {/snippet}
+              </DropdownMenuItem>
+            {/each}
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+      {/if}
       <DropdownMenuSeparator />
       <DropdownMenuLabel class="px-2 py-1 text-xs font-normal text-muted-foreground">
         {t(layoutMessages.language)}

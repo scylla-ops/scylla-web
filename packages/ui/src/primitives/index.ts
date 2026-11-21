@@ -146,6 +146,9 @@ export { default as DropdownMenuLabel } from './dropdown-menu/dropdown-menu-labe
 export { default as DropdownMenuSeparator } from './dropdown-menu/dropdown-menu-separator.svelte';
 export const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup;
 export { default as DropdownMenuRadioItem } from './dropdown-menu/dropdown-menu-radio-item.svelte';
+export const DropdownMenuSub = DropdownMenuPrimitive.Sub;
+export { default as DropdownMenuSubContent } from './dropdown-menu/dropdown-menu-sub-content.svelte';
+export { default as DropdownMenuSubTrigger } from './dropdown-menu/dropdown-menu-sub-trigger.svelte';
 
 export { default as Sidebar } from './sidebar/sidebar.svelte';
 export { default as SidebarContent } from './sidebar/sidebar-content.svelte';

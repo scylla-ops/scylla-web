@@ -186,6 +186,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The account page has a Privacy section: the download of the data of the account, and the links to
   the privacy policy and to the cookie page. The dialog that deletes an account tells what is
   deleted and what stays, and links to the download.
+- The legal pages `/legal/<kind>`, with a table of contents, the date, the version and a print
+  style. The legal links are under the sign-in pages and in the user menu ("Legal and privacy"). The
+  instance admins set the legal settings on the page "Legal and privacy". A registry lists each
+  cookie and each storage key, and the cookie page shows it.
 
 ### Changed
 

@@ -21,6 +21,7 @@ import { Permission, can, contextStore, grpcTransport, ScyllaError } from '@scyl
 | Backend | `grpcTransport` | The gRPC-Web transport, with authentication. Give it to your generated clients. |
 | Errors | `ScyllaError`, `ScyllaErrorCode`, `refusalOf` | The error of every failed call of `grpcTransport`. Your repository awaits its call, and your query returns it. |
 | Session | `openSession`, `closeSession`, `hasSession`, `signOut` | Open the session after a sign-up, know if one is open, end it. Never read or write `localStorage` yourself. |
+| Trackers | `trackersPoints`, `registeredTrackers`, `TrackerTable`, `type Tracker` | Each cookie or storage key that your extension writes: add its entry with `trackersPoints.trackers.patch`. The cookie page lists it, and an entry that is not exempt turns the consent banner on. |
 | Account forms | `checkEmail`, `checkNewPassword`, `checkPasswordConfirmation`, `checkUsername`, `checkDisplayName` | The checks of the backend rules, with the messages of Scylla, as `FormItem.validate`. |
 | Features | query factories, query keys, entity types, page loaders | Reuse the data of a Scylla feature, e.g. `jobQueries`, `JobEntity`, `loadJobsPage`. |
 

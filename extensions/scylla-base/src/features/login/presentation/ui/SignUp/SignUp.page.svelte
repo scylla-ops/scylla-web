@@ -10,6 +10,7 @@
   } from '@shared/utils/account-validation.ts';
   import { SignUpState } from './sign-up.state.svelte.ts';
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
+  import { LegalFooter } from '@platform/legal';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
 
   // Built during initialisation: it reads the invitation of the link, and its mutation needs an owner.
@@ -55,7 +56,13 @@
   ]);
 </script>
 
+<!-- The legal links that the operator turned on, at the bottom of the frame. -->
+{#snippet legalFooter()}
+  <LegalFooter class="pt-6" />
+{/snippet}
+
 <AuthLayout
+  footer={legalFooter}
   title={t(signUpMessages.title)}
   description={state.isSent ? undefined : t(signUpMessages.description)}
 >
