@@ -31,6 +31,19 @@
 <Story name="Size m" asChild>{@render states('m')}</Story>
 <Story name="Size l" asChild>{@render states('l')}</Story>
 
+<Story name="Retry time and missing permission" asChild>
+  <Specimen label="error with the time of the next read, locked with the permission" class="w-full max-w-5xl">
+    <WidgetGrid class="w-full">
+      <Widget size="m" title="Success rate">
+        <WidgetState state="error" size="m" retrySeconds={60} action={actionOf('error')} />
+      </Widget>
+      <Widget size="m" title="Capacity">
+        <WidgetState state="locked" size="m" permission="Agents · View" />
+      </Widget>
+    </WidgetGrid>
+  </Specimen>
+</Story>
+
 <Story name="Texts of the caller" asChild>
   <Specimen label="empty, with the texts of a widget" class="w-full max-w-xl">
     <WidgetGrid class="w-full">

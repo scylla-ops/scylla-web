@@ -13,6 +13,7 @@
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import ChangeBadge from '../parts/ChangeBadge.svelte';
   import DayBars from '../parts/DayBars.svelte';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -122,6 +123,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={60}
+    permission={viewPermissionName('jobs')}
     locked={!widgets.canReadJobs}
     loading={widgets.stats.isPending}
     error={widgets.stats.isError}
