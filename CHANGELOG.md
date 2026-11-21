@@ -499,6 +499,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   (`+240da00`), and the release link uses the bare version.
 - After Connect GitHub, the page lists the GitHub accounts that have the Scylla App: connect one to
   the workspace, or install the App on another account.
+- The sign-out removes the local data of the account: the workspace, the command history, the
+  dashboards, the onboarding, the seen flags and the sync state. The theme and the language stay.
+  The app writes the language only when the person chooses one, and the sidebar writes no cookie.
 
 ## [0.6.0] - 2026-11-01
 

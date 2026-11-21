@@ -33,6 +33,8 @@ const USERS: Record<string, string> = {
     'userId',
   'extensions/scylla-base/src/features/user/presentation/user.queries.ts': 'userId',
   'extensions/scylla-base/src/features/user/user.module.ts': 'userId',
+  // It removes the keys of the account at the sign-out: `userId` and the keys of other files.
+  'extensions/scylla-base/src/features/login/infrastructure/account-storage.ts': 'userId',
   'extensions/scylla-base/src/features/pipeline/presentation/ui/editor/blueprint/canvas/node-appearance-preference.state.svelte.ts':
     'scylla.blueprint.node-appearance',
 };

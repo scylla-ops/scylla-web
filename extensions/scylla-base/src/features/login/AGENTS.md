@@ -18,7 +18,7 @@ LoginState, type Credentials         // Credentials = { identifier, password }
 loginPoints, type LoginZoneContext   // extension points — see below
 openSession, closeSession            // the only writers of the session; a sign-up flow in another extension uses openSession too
 hasSession                           // is a token stored? the auth guard and other extensions read it, never localStorage
-signOut                              // closeSession + context reset + a full load of /login
+signOut                              // closeSession + context reset + the local keys of the account + a full load of /login
 loginPath(returnTo)                  // '/login#next=...': the sign-in page, then back to returnTo
 loginPathBackTo(location)            // loginPath of the current page; '/login' on /login itself
 type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user` uses it too
@@ -84,6 +84,7 @@ infrastructure/
   default-login.repository.ts           AuthServiceClient; calls openSession
   grpc-password-reset.mapper.ts         proto enum → PasswordResetDelivery
   session.ts                            openSession, closeSession (the writers of token + userId), hasSession
+  account-storage.ts                    forgetAccountStorage: the local keys of the account, removed at the sign-out
 presentation/
   login.commands.ts                  "Sign out...", for the search bar
   login.points.ts                    the extension points — see below
@@ -187,6 +188,11 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   mechanism means changing all three in the same commit. **A sign-up flow (in another extension)
   opens a session the same way — through `openSession`, never a direct `localStorage.setItem`.**
   Signing out goes through `closeSession` (both keys) or `signOut`.
+- **The sign-out removes the local keys of the account** (`infrastructure/account-storage.ts`): the
+  context, the bookkeeping of the user state, the onboarding, the dashboards, the command history,
+  the seen flags of the release and the style of the nodes. The theme, the language and the width
+  of the sidebar stay: they are choices for the device. A new local key that holds data of the
+  account adds its name or its prefix to this file, in the same commit.
 - **A view model of this module must be constructed during a component's initialisation.** The
   mutation inside it installs an `$effect.pre`; built from an event handler, Svelte throws
   `effect_orphan`. True of every view model holding a query or a mutation.

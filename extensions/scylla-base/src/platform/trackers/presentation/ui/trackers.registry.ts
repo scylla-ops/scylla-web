@@ -5,6 +5,7 @@ const BASE = 'scylla-web/extensions/scylla-base/src';
 
 const lifetimes = {
   untilCleared: msg`Until you clear the site data`,
+  untilSignOut: msg`Until you sign out`,
   tenMinutes: msg`10 minutes at most`,
 };
 
@@ -42,15 +43,6 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     exempt: true,
   },
   {
-    name: 'sidebar_state',
-    type: 'cookie',
-    provider: 'Scylla',
-    owner: 'scylla-web/packages/ui/src/primitives/sidebar/sidebar.state.svelte.ts',
-    purpose: msg`Keeps the sidebar open or closed.`,
-    lifetime: msg`7 days`,
-    exempt: true,
-  },
-  {
     name: 'scylla-theme',
     type: 'local-storage',
     provider: 'Scylla',
@@ -64,7 +56,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     type: 'local-storage',
     provider: 'Scylla',
     owner: 'scylla-web/packages/ui/src/i18n/i18n.ts',
-    purpose: msg`Keeps your language.`,
+    purpose: msg`Keeps the language that you chose. With no choice, the app uses the language of the browser.`,
     lifetime: lifetimes.untilCleared,
     exempt: true,
   },
@@ -74,7 +66,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/features/login/infrastructure/session.ts`,
     purpose: msg`Holds the id of the user who is signed in.`,
-    lifetime: msg`Until you sign out`,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
@@ -83,7 +75,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/platform/context/context.store.ts`,
     purpose: msg`Keeps the workspace and the project that you have open.`,
-    lifetime: lifetimes.untilCleared,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
@@ -92,7 +84,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/platform/user-state/user-state.ts`,
     purpose: msg`Keeps the copy of your interface settings the same as the copy of the server.`,
-    lifetime: lifetimes.untilCleared,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
@@ -101,7 +93,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/features/onboarding/infrastructure/default-onboarding.repository.ts`,
     purpose: msg`Keeps your progress in the guided tour.`,
-    lifetime: lifetimes.untilCleared,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
@@ -110,7 +102,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/shell/presentation/layout/whats-new.state.svelte.ts`,
     purpose: msg`Keeps the release notes that you saw.`,
-    lifetime: lifetimes.untilCleared,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
@@ -119,7 +111,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/features/pipeline/presentation/node-appearance.user-state.ts`,
     purpose: msg`Keeps the style of the nodes in the pipeline editor.`,
-    lifetime: lifetimes.untilCleared,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
@@ -137,7 +129,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/shell/presentation/layout/ui/CommandBar/command-recent.ts`,
     purpose: msg`Keeps your last entries in the command bar.`,
-    lifetime: lifetimes.untilCleared,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
@@ -146,7 +138,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/features/dashboard/infrastructure/local-dashboard-preferences.ts`,
     purpose: msg`Keeps your default dashboard.`,
-    lifetime: lifetimes.untilCleared,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
@@ -155,7 +147,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     provider: 'Scylla',
     owner: `${BASE}/features/dashboard/infrastructure/local-dashboard-preferences.ts`,
     purpose: msg`Keeps the time of your last visit to the dashboards.`,
-    lifetime: lifetimes.untilCleared,
+    lifetime: lifetimes.untilSignOut,
     exempt: true,
   },
   {
