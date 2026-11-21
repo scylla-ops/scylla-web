@@ -22,6 +22,10 @@ signOut                              // closeSession + context reset + the local
 loginPath(returnTo)                  // '/login#next=...': the sign-in page, then back to returnTo
 loginPathBackTo(location)            // loginPath of the current page; '/login' on /login itself
 type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user` uses it too
+loginQueries.terms()                 // the terms of the user of the session (GetMe): the auth guard and `user` read it
+TERMS_STATUS_QUERY_KEY               // ['me', 'terms']
+loadTermsStep                        // loader of the full-page terms step (prop `status`); the auth guard shows it
+type TermsStatus, TermsAcceptance
 ```
 
 Never add: `login.module.ts`, a page. A state calls `getModuleDomain('login')` directly.
@@ -64,6 +68,9 @@ The URL holds no data: the page reads the link with `GetPendingLink`.
 | `login(identifier, password)` | `void` |
 | `requestPasswordReset(email)` | `PasswordResetDelivery` |
 | `resetPassword(token, newPassword)` | `void` |
+| `signUp(input)` | `void`; `input.acceptedTermsVersion` is the version that the person accepted |
+| `termsStatus()` | `TermsStatus` (`GetMe`) |
+| `acceptTerms(version)` | `TermsAcceptance` |
 
 **`void` on `login` is not an oversight.** The session token never travels back through the
 domain: `DefaultLoginRepository` calls `openSession` as a side effect of a successful call. Do not
@@ -99,6 +106,13 @@ presentation/
     reset-password.state.svelte.ts   the token of the link, the new password
   messages/login.messages.ts               the sign-in strings (the `login.texts` point)
   messages/password-reset.messages.ts      the strings of the two reset pages
+  messages/terms.messages.ts               the box, the notice and the terms step
+  mappers/terms-refusal.mapper.ts          TERMS_NOT_ACCEPTED as data: the current version
+  presenters/linked-text.presenter.ts      link slots in a translated sentence, termsLinks
+  presenters/terms.presenter.ts            the texts of the step and of a refusal
+  ui/LinkedText/, ui/TermsCheckbox/        a sentence with links; the box of the terms
+  ui/TermsStep/TermsStep.svelte            the full-page step (loadTermsStep)
+    terms-step.state.svelte.ts             the legal settings, the box, AcceptTerms
 ```
 
 ## Extension points
@@ -210,6 +224,30 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   handler reacts to it by clearing the session and hard-loading `/login`. From the login page
   that is a silent reload that eats the error. Remove the translation and a wrong password
   reloads the page instead of showing a message.
+
+## The terms of service
+
+The terms to accept come from `termsToAccept` of `@platform/legal`: the document `terms` when it
+is on and needs an acceptance (fix 1, `GetLegalInfo`). There is no other source. With
+`undefined`, the pages show no box, no notice and no step.
+
+- **The sign-up form** shows an unticked box "I accept the Terms of service", and the submit
+  stays disabled until the box is ticked. It sends the version that the person saw
+  (`acceptedTermsVersion`). The note under the button links the privacy policy when it is on.
+- **A refusal is a state of the page.** `TERMS_NOT_ACCEPTED` (the terms changed) comes back as
+  data with `termsRefusalOf`: the box is unticked, the text under it names the version of the
+  ErrorInfo metadata, and the legal settings are read again. A tick removes the text.
+- **The provider buttons** of the sign-in page have a notice under them: a first sign-in with a
+  provider makes an account, and the terms step then asks the acceptance.
+- **The terms step** is a full page in `AuthGuard` (`shell/`), before the app: `loginQueries.terms`
+  gives `acceptanceRequired`. A first acceptance shows the account of the session. A new version
+  shows its version and its date of effect. The step reads the legal settings again
+  (`staleTime: 0`): the version that it sends must be the current one. The server refuses no
+  other route to a user who did not accept: an error of the read of `GetMe` shows the app.
+- **A legal link in a sentence opens in a new tab** (`LinkedText`): the form and the step keep
+  their state. Write the sentence with one value for each link (`linkSlot('terms')`), so that a
+  translation can put the link at another place.
+- No marketing opt-in here.
 
 ## Before done
 

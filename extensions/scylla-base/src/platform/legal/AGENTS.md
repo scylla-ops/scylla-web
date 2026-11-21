@@ -17,6 +17,7 @@ legal pages read them.
 LEGAL_DOCUMENT_KINDS, ACCEPTANCE_KINDS, isLegalDocumentKind, legalPagePath, legalDocumentHref
 type LegalDocument, LegalDocumentContent, LegalDocumentKind
 EMPTY_OPERATOR, legalDocumentOf
+termsToAccept(info)          the terms that each user must accept, or undefined
 type LegalInfo, LegalOperator, LegalDocumentChange, UpdateLegalSettingsInput, LegalRepository
 legalQueries.info()          public: no session, no permission (GetLegalInfo)
 legalMutations.update()      instance admins: the page checks MANAGE_INSTANCE_SETTINGS
@@ -39,7 +40,9 @@ withLegalRepository(repo)    for a test: replaces the repository, gives the rest
 - **`GetLegalInfo` needs no session.** It is in `PUBLIC_METHODS` (`platform/grpc/session.ts`):
   the sign-in pages read it.
 - `version` and `acceptanceRequired` of the terms are for the acceptance of the terms. Only the
-  kinds of `ACCEPTANCE_KINDS` show the switch.
+  kinds of `ACCEPTANCE_KINDS` show the switch. `termsToAccept` gives the terms to accept: the
+  sign-up form, the sign-in page and the terms step of `features/login` read it, and show nothing
+  when it is `undefined`.
 - Write no legal text of a company here: the operator writes its documents.
 
 ## Layout

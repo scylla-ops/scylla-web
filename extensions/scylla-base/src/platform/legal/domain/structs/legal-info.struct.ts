@@ -60,3 +60,12 @@ export const legalDocumentOf = (
   info: LegalInfo | undefined,
   kind: LegalDocumentKind,
 ): LegalDocument | undefined => info?.documents.find(document => document.kind === kind);
+
+/**
+ * The terms of service that each user must accept: the document `terms` when it is on and needs an
+ * acceptance, else `undefined`. Its `version` can be empty.
+ */
+export const termsToAccept = (info: LegalInfo | undefined): LegalDocument | undefined => {
+  const terms = legalDocumentOf(info, 'terms');
+  return terms?.acceptanceRequired ? terms : undefined;
+};

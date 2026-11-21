@@ -15,6 +15,7 @@ export {
 export {
   EMPTY_OPERATOR,
   legalDocumentOf,
+  termsToAccept,
   type LegalDocumentChange,
   type LegalInfo,
   type LegalOperator,

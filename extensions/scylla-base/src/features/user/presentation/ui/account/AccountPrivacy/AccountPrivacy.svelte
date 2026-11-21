@@ -5,6 +5,7 @@
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import type { LucideIcon } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import AcceptedTerms from './AcceptedTerms.svelte';
   import DataExportPanel from './DataExportPanel.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
   import { privacyMessages as m } from '@base/features/user/presentation/messages/privacy.messages.ts';
@@ -22,6 +23,8 @@
 <SettingsSection title={t(m.yourData)} description={t(m.yourDataDescription)}>
   <DataExportPanel />
 </SettingsSection>
+
+<AcceptedTerms />
 
 <!-- The public pages of the legal texts: `/legal/<kind>`. -->
 <SettingsSection title={t(m.privacyPolicy)} description={t(m.privacyPolicyDescription)}>

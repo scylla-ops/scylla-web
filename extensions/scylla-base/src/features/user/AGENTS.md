@@ -103,8 +103,9 @@ presentation/
                                      the sidebar, AccountNav, the crumb
   ui/account/PersonalAccount/         the account page with no workspace: + the sign-out at the end
   ui/account/AccountPrivacy/          the section `privacy`: one card per subject (your data, the
-                                     privacy policy, cookies and storage), then a link to the
-                                     danger zone
+                                     accepted terms, the privacy policy, cookies and storage),
+                                     then a link to the danger zone
+    AcceptedTerms.svelte             the last version of the terms that the user accepted
     DataExportPanel.svelte           the export of the account data, in 4 states
     data-export.state.svelte.ts      createDataExport: the mutation, its state, the saved file
   ui/account/DeleteAccountDialog/    what the deletion removes and what stays, a link to the
@@ -228,7 +229,9 @@ user who has no workspace.
   saves the same copy again, New export asks for a new one) and `failed`. The copy is the data of a
   mutation, never of a query: the cache does not keep it after the page. The links go to the public
   pages `/legal/privacy` and `/legal/cookies`, and to `danger-zone` (relative: the page is
-  `account/privacy`). To add a subject (the accepted terms, the cookie settings), add a card to
+  `account/privacy`). The card "Terms" shows the last version of the terms that the user
+  accepted, and its date: `loginQueries.terms` of `features/login` (`GetMe`), and nothing before a
+  first acceptance. To add a subject (the cookie settings), add a card to
   `AccountPrivacy.svelte`. `DeleteAccountDialog` lists what the deletion removes and what stays:
   keep these facts equal to `delete_user` of the core, and its link "Download my data first"
   (`privacy`, relative) closes the dialog.

@@ -190,6 +190,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   style. The legal links are under the sign-in pages and in the user menu ("Legal and privacy"). The
   instance admins set the legal settings on the page "Legal and privacy". A registry lists each
   cookie and each storage key, and the cookie page shows it.
+- The acceptance of the terms of service, when the legal settings ask for it. The sign-up form has a
+  box that the person must tick, the sign-in page tells that a provider sign-in accepts the terms,
+  and a full-page step asks each user to accept a new version before the app. The Privacy section of
+  the account shows the version that the user accepted, and its date.
 
 ### Changed
 

@@ -8,7 +8,7 @@ export const privacyMessages = {
   yourData: msg`Your data`,
   yourDataDescription: msg`Get a copy of the data of your account, in a format that other tools can read.`,
   noExport: msg`No export yet`,
-  exportContents: msg`One JSON file: your profile, emails, sign-in methods, sessions, tokens (never a secret), settings, workspaces and roles.`,
+  exportContents: msg`One JSON file: your profile, emails, sign-in methods, sessions, tokens (never a secret), settings, accepted terms, workspaces and roles.`,
   downloadMyData: msg`Download my data`,
   preparing: msg`Preparing your file`,
   preparingText: msg`This takes a few seconds. Stay on this page.`,
@@ -20,6 +20,13 @@ export const privacyMessages = {
   failed: msg`The export failed`,
   failedText: msg`The server could not make the copy. Try again.`,
   tryAgain: msg`Try again`,
+
+  terms: msg`Terms`,
+  termsDescription: msg`The version of the terms of service that you accepted.`,
+  termsOfService: msg`Terms of service`,
+  termsOfServiceVersion: (version: string) => msg`Terms of service · version ${version}`,
+  acceptedOn: (date: string) => msg`Accepted on ${date}`,
+  readTerms: msg`Read`,
 
   privacyPolicy: msg`Privacy policy`,
   privacyPolicyDescription: msg`How the operator of this server uses the data of your account.`,

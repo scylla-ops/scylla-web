@@ -12,6 +12,11 @@
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { LegalFooter } from '@platform/legal';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
+  import { termsMessages } from '@base/features/login/presentation/messages/terms.messages.ts';
+  import { linkSlot } from '@base/features/login/presentation/presenters/linked-text.presenter.ts';
+  import { termsChangedText } from '@base/features/login/presentation/presenters/terms.presenter.ts';
+  import LinkedText from '../LinkedText/LinkedText.svelte';
+  import TermsCheckbox from '../TermsCheckbox/TermsCheckbox.svelte';
 
   // Built during initialisation: it reads the invitation of the link, and its mutation needs an owner.
   const state = new SignUpState();
@@ -71,11 +76,32 @@
   {:else}
     <ScyllaForm {items} onSubmit={state.submit} isPending={state.isPending}>
       {#snippet footer({ isValid, isPending })}
-        <Button type="submit" class="mt-2 w-full" disabled={!isValid || isPending}>
+        <!-- No box when the operator asks no acceptance of the terms. -->
+        {#if state.terms}
+          <TermsCheckbox
+            terms={state.terms}
+            links={state.links}
+            bind:checked={state.acceptedTerms}
+            error={state.termsRefusal ? termsChangedText(state.termsRefusal, true) : undefined}
+          />
+        {/if}
+        <Button
+          type="submit"
+          class="mt-2 w-full"
+          disabled={!isValid || isPending || !state.canSubmit}
+        >
           {t(signUpMessages.submit)}
         </Button>
       {/snippet}
     </ScyllaForm>
+    {#if state.links.privacy}
+      <p class="mt-4 text-center text-xs text-muted-foreground">
+        <LinkedText
+          sentence={t(termsMessages.privacyNote(linkSlot('privacy')))}
+          links={state.links}
+        />
+      </p>
+    {/if}
   {/if}
 
   <a

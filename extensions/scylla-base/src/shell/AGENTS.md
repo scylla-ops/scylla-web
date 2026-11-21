@@ -34,6 +34,7 @@ presentation/
   router/
     AppLayout.svelte                    layout of the `app` mount: AuthGuard + WorkspaceGate
     AuthGuard/                          hasSession: the pages, or /login; no answer: a retry view, not /login
+                                        then loginQueries.terms: the terms step of login before the pages
     PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
