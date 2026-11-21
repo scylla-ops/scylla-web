@@ -159,6 +159,14 @@ beforeEach(() => {
       dashboardLayoutRepository: server,
       dashboardPreferences: new LocalDashboardPreferences(() => storage),
       attentionRepository: { list: listAttention },
+      schedulesRepository: { list: vi.fn().mockResolvedValue({ triggers: [], fires: [] }) },
+      activityRepository: { list: vi.fn().mockResolvedValue({ events: [], sinceCount: 0 }) },
+      deliveryStatsRepository: {
+        lastDay: vi.fn().mockResolvedValue({ delivered: 0, failed: 0, connections: [], triggers: [], hours: [] }),
+      },
+      slotUsageRepository: {
+        lastDay: vi.fn().mockResolvedValue({ capacity: 0, average: 0, peak: 0, buckets: [] }),
+      },
     },
     pipeline: {
       pipelineRepository: { getSummaries },
@@ -210,7 +218,7 @@ describe('DashboardPage', () => {
     expect(widget).toHaveAttribute('data-size', 's');
     expect(widget.closest('[data-slot="widget-grid"]')).not.toBeNull();
     expect(await within(widget).findByText('89%')).toBeInTheDocument();
-    expect(within(widget).getByText('14 d')).toBeInTheDocument();
+    expect(within(widget).getByText('14 days')).toBeInTheDocument();
   });
 
   it('counts what needs the user in the sentence', async () => {
@@ -307,12 +315,14 @@ describe('Needs you', () => {
     render(DashboardPage);
 
     const widget = await screen.findByRole('region', { name: 'Needs you' });
-    expect(await within(widget).findByText('5 open · 1 new')).toBeInTheDocument();
+    expect((await within(widget).findAllByText('1 new')).length).toBeGreaterThan(0);
+    expect(within(widget).getByText('5')).toBeInTheDocument();
     expect(within(widget).getByText('push-image: denied')).toBeInTheDocument();
     expect(within(widget).getByText('nightly-backup')).toBeInTheDocument();
+    expect(within(widget).getByText('time missed')).toBeInTheDocument();
     expect(within(widget).getByText('The trigger nightly made no job.')).toBeInTheDocument();
-    expect(within(widget).getByText('· 3 times')).toBeInTheDocument();
     expect(within(widget).getByText('runner-us-1')).toBeInTheDocument();
+    expect(within(widget).getByText('The agent is not connected.')).toBeInTheDocument();
     expect(screen.getByText('5 things')).toBeInTheDocument();
   });
 
@@ -407,9 +417,9 @@ describe('The edit mode', () => {
     render(DashboardWithPanel);
 
     await user.click(await panel().findByRole('button', { name: 'Edit dashboard' }));
-    await user.click(screen.getByRole('button', { name: 'Run duration', pressed: false }));
-    const durationSizes = screen.getByRole('radiogroup', { name: 'Size of Run duration' });
-    expect(within(durationSizes).getByRole('radio', { name: 'L' })).toBeDisabled();
+    await user.click(screen.getByRole('button', { name: 'Last 24 hours', pressed: false }));
+    const timelineSizes = screen.getByRole('radiogroup', { name: 'Size of Last 24 hours' });
+    expect(within(timelineSizes).getByRole('radio', { name: 'XS' })).toBeDisabled();
     await user.click(screen.getByRole('button', { name: 'Success rate', pressed: false }));
     const sizes = screen.getByRole('radiogroup', { name: 'Size of Success rate' });
     expect(within(sizes).getByRole('radio', { name: 'L' })).toBeEnabled();

@@ -4,20 +4,26 @@
   import type { DashboardWidgets } from '@base/features/dashboard/presentation/ui/widgets/dashboard-widgets.state.svelte.ts';
   import { shownSize } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
   import ActivityWidget from '../widgets/ActivityWidget/ActivityWidget.svelte';
+  import AgentWidget from '../widgets/AgentWidget/AgentWidget.svelte';
   import AgentsWidget from '../widgets/AgentsWidget/AgentsWidget.svelte';
+  import HeatmapWidget from '../widgets/HeatmapWidget/HeatmapWidget.svelte';
   import NeedsYouWidget from '../widgets/NeedsYouWidget/NeedsYouWidget.svelte';
+  import PipelineWidget from '../widgets/PipelineWidget/PipelineWidget.svelte';
   import PipelinesWidget from '../widgets/PipelinesWidget/PipelinesWidget.svelte';
   import QuickActionsWidget from '../widgets/QuickActionsWidget/QuickActionsWidget.svelte';
+  import RankingWidget from '../widgets/RankingWidget/RankingWidget.svelte';
   import RightNowWidget from '../widgets/RightNowWidget/RightNowWidget.svelte';
   import RunDurationWidget from '../widgets/RunDurationWidget/RunDurationWidget.svelte';
   import RunMinutesWidget from '../widgets/RunMinutesWidget/RunMinutesWidget.svelte';
   import RunsWidget from '../widgets/RunsWidget/RunsWidget.svelte';
+  import SchedulesWidget from '../widgets/SchedulesWidget/SchedulesWidget.svelte';
   import SentenceWidget from '../widgets/SentenceWidget/SentenceWidget.svelte';
+  import WebhooksWidget from '../widgets/WebhooksWidget/WebhooksWidget.svelte';
   import SuccessRateWidget from '../widgets/SuccessRateWidget/SuccessRateWidget.svelte';
   import TimelineWidget from '../widgets/TimelineWidget/TimelineWidget.svelte';
 
   interface Props {
-    item: Pick<LayoutWidget, 'data' | 'size'>;
+    item: Pick<LayoutWidget, 'data' | 'size' | 'target'>;
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
   }
@@ -34,11 +40,11 @@
 {:else if item.data === 'right-now'}
   <RightNowWidget {widgets} {size} />
 {:else if item.data === 'needs-you'}
-  <NeedsYouWidget {widgets} {size} />
+  <NeedsYouWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'success-rate'}
   <SuccessRateWidget {widgets} {period} {size} />
 {:else if item.data === 'agents'}
-  <AgentsWidget {widgets} {size} />
+  <AgentsWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'pipelines'}
   <PipelinesWidget {widgets} timeZone={period.timeZone ?? 'UTC'} {size} />
 {:else if item.data === 'runs'}
@@ -48,7 +54,21 @@
 {:else if item.data === 'run-duration'}
   <RunDurationWidget {widgets} {period} {size} />
 {:else if item.data === 'activity'}
-  <ActivityWidget {widgets} {period} {size} />
+  <ActivityWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
+{:else if item.data === 'schedules'}
+  <SchedulesWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
+{:else if item.data === 'webhooks'}
+  <WebhooksWidget {widgets} {size} timeZone={period.timeZone ?? 'UTC'} />
 {:else if item.data === 'quick-actions'}
   <QuickActionsWidget {widgets} {size} />
+{:else if item.data === 'slowest-pipelines'}
+  <RankingWidget {widgets} {period} {size} metric="slowest" />
+{:else if item.data === 'failing-pipelines'}
+  <RankingWidget {widgets} {period} {size} metric="failing" />
+{:else if item.data === 'runs-by-hour'}
+  <HeatmapWidget {widgets} {period} {size} />
+{:else if item.data === 'agent'}
+  <AgentWidget {widgets} {period} {size} target={item.target} />
+{:else if item.data === 'pipeline'}
+  <PipelineWidget {widgets} {period} {size} target={item.target} />
 {/if}

@@ -368,7 +368,9 @@ library "scylla :: ui" publishes its page Widget.
   write a span or a row height as a literal class.
 - **A widget places itself.** `Widget` sets its own span from its `size`. `grid-flow-row-dense`
   fills a hole with a later small widget.
-- **A widget has a border and no fill**: no `bg-card`, no shadow. It is a limit, not a card.
+- **A widget has a border and a faint fill**: `bg-muted/30`, no shadow. The fill parts the
+  widget from the page in the two themes. Do not use `bg-card`: in the light theme, `--card` is
+  the color of the page. Only the dashboard uses `Widget`, so the fill changes no other page.
 - **The header is one line of 20 px**: the icon, the title (an `h3`), `meta` and `aside` at the
   end. `aside` holds a count, a state or actions. In the size `xs` the header is small (12 px
   text), and the content is centered under it. `bare` keeps the header for the screen readers

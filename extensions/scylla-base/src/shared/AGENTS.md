@@ -34,7 +34,8 @@ presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      Identity, IdentityAvatar, identityKindOf, userName,
                                      userSecondaryLine, IdentityKind, UserIdentityProfile,
-                                     ProviderMark
+                                     ProviderMark, JobRunMark
+presentation/presenters/job-run.presenter.ts  JobRun, jobShortId: the job of a JobRunMark
 presentation/ui/layout/AuthLayout.svelte  the frame of the public pages; import it by path
 locales/                             the catalog of these files
 ```
@@ -175,6 +176,11 @@ Import it by path. Do not add it to `@shared/presentation/ui`: that barrel holds
   `features/jobs`.
 - Adding to `shared/` needs a second real usage. One usage stays inline.
 - `StatusBar` puts `data-item-id` on each segment: the onboarding tour points at the last one.
+- **`JobRunMark` is one run of a strip of runs**: the bars of the pipelines list and the strips
+  of the dashboard. It is a button that opens the job (`onSelect`), with the label "Job <id>:
+  <status>", a ring on keyboard focus, and a tooltip: the short id, the branch or the tag, the
+  status, the title, the time and the duration. The caller gives the size and the color in
+  `class`, or the color as a child (`ChartSegment`). Use it for each new mark that opens a job.
 
 ## Before done
 

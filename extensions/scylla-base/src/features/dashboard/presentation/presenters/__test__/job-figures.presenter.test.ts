@@ -3,6 +3,7 @@ import { formatUtcDay } from '@shared/utils/date-utils.ts';
 import type { JobBucket, JobFigures } from '@base/features/jobs';
 import {
   bucketAxis,
+  dayBars,
   durationBars,
   durationChange,
   durationText,
@@ -160,5 +161,21 @@ describe('periodMeta', () => {
 describe('shortJobId', () => {
   it('keeps the last 8 characters', () => {
     expect(shortJobId('0193a1b2-c3d4-7e8f-9a0b-1c2d3fa2ee7c')).toBe('3fa2ee7c');
+  });
+});
+
+describe('dayBars', () => {
+  it('scales each bar to the highest, and marks a bucket with no run as empty, not as 0 %', () => {
+    const bars = dayBars([
+      bucket('a', { outcomes: { completed: 3, failed: 1, cancelled: 0, orphaned: 0 } }),
+      bucket('b', { outcomes: { completed: 0, failed: 2, cancelled: 0, orphaned: 0 } }),
+      bucket('c'),
+    ]);
+
+    expect(bars).toEqual([
+      { start: 'a', empty: false, completed: 75, failed: 25, other: 0, top: 100 },
+      { start: 'b', empty: false, completed: 0, failed: 50, other: 0, top: 50 },
+      { start: 'c', empty: true, completed: 0, failed: 0, other: 0, top: 0 },
+    ]);
   });
 });

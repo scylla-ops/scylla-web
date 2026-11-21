@@ -66,4 +66,6 @@ export interface PipelineSummaryQuery {
   order: PipelineSummaryOrder;
   /** The first page only, at most 100 pipelines. */
   limit: number;
+  /** Only these pipelines, at most 100. Unset or empty: each pipeline. */
+  pipelineIds?: readonly string[];
 }

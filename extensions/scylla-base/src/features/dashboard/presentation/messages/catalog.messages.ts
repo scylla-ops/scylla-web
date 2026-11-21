@@ -61,4 +61,12 @@ export const catalogMessages = {
   jobEndsHint: msg`the newest ends of the period`,
   actions: msg`Actions`,
   actionsHint: msg`run, add an agent, invite`,
+  slowestPipelines: msg`Slowest pipelines`,
+  slowestPipelinesHint: msg`the median duration of each pipeline`,
+  failingPipelines: msg`Most failures`,
+  failingPipelinesHint: msg`the failed jobs of each pipeline`,
+  runsByHour: msg`Runs by hour`,
+  runsByHourHint: msg`the jobs of each weekday and hour`,
+  oneAgentHint: msg`its load, its jobs and its figures`,
+  onePipelineHint: msg`its runs, its stages and its rate`,
 };

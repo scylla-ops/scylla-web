@@ -1,5 +1,6 @@
 import type { ChartTone } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
+import type { JobRun } from '@shared/presentation/presenters/job-run.presenter.ts';
 import { formatUtcDay } from '@shared/utils/date-utils.ts';
 import { isFinishedStatus, type JobEntity, type JobStatus } from '@base/features/jobs';
 import {
@@ -34,6 +35,11 @@ export interface RunningRow extends JobPlace {
   progress: number | null;
   /** "2× the median", when the job runs longer than the median. */
   overrun: string | null;
+  agentId?: string;
+  /** The node that runs now. */
+  step?: string;
+  attempt?: number;
+  maxAttempts?: number;
 }
 
 export interface WaitingRow extends JobPlace {
@@ -56,11 +62,15 @@ export interface ActivityRow extends JobPlace {
   when: string;
 }
 
-/** One run of the strip of a pipeline. */
-export interface StripRun {
-  shortId: string;
-  status: JobStatus;
+export interface RunMark extends JobPlace {
   tone: ChartTone;
+  run: JobRun;
+  seconds: number | null;
+}
+
+/** One run of the strip of a pipeline. */
+export interface StripRun extends RunMark {
+  status: JobStatus;
   branch: string;
   duration: string;
   when: string;
@@ -70,6 +80,29 @@ const runSeconds = (run: { startedAt?: string; finishedAt?: string }): number | 
   run.startedAt && run.finishedAt
     ? Math.max(0, (Date.parse(run.finishedAt) - Date.parse(run.startedAt)) / 1000)
     : null;
+
+export const runMark = (
+  job: Omit<JobRun, 'ref' | 'title'>,
+  pipeline: { id: string; name: string; projectId: string; projectName: string },
+  ref = '',
+): RunMark => ({
+  jobId: job.id,
+  shortId: shortJobId(job.id),
+  pipelineId: pipeline.id,
+  pipelineName: pipeline.name,
+  projectId: pipeline.projectId,
+  projectName: pipeline.projectName,
+  tone: statusTone(job.status),
+  run: {
+    id: job.id,
+    status: job.status,
+    ref: ref || undefined,
+    createdAt: job.createdAt,
+    startedAt: job.startedAt,
+    finishedAt: job.finishedAt,
+  },
+  seconds: runSeconds(job),
+});
 
 export interface PipelineRow {
   id: string;
@@ -138,8 +171,13 @@ export const liveJobs = (
       const elapsed = secondsBetween(job.startedAt ?? job.createdAt, now);
       const median = pipelines.get(job.pipelineId)?.medianDuration ?? null;
       const factor = median ? elapsed / median : null;
+      const node = job.nodeExecutions.find(item => item.state === 'running') ?? job.nodeExecutions.at(-1);
       return {
         ...placeOf(job, pipelines),
+        agentId: job.agentId,
+        step: node?.id,
+        attempt: node?.attempts,
+        maxAttempts: node?.maxAttempts,
         elapsed: durationText(elapsed),
         expected: median === null ? null : durationText(median),
         progress: factor === null ? null : Math.min(1, factor),
@@ -252,9 +290,8 @@ export const pipelineRows = (
       .slice(0, runs)
       .reverse()
       .map(run => ({
-        shortId: shortJobId(run.id),
+        ...runMark(run, summary, run.branch),
         status: run.status,
-        tone: statusTone(run.status),
         branch: run.branch,
         duration: durationText(runSeconds(run)),
         when: run.createdAt ? whenText(run.createdAt, now, timeZone) : '—',
