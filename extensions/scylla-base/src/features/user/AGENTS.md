@@ -23,6 +23,8 @@ userMutations      create · update · remove · setActive · changePassword · 
                    revokeSessions · revokeSession · deleteAccount · exportAccountData
 canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_KEY,
 USER_SESSIONS_QUERY_KEY
+loadAccountDeletion   // loader of AccountDeletion (props `open`, `onOpenChange`): the auth guard
+                      // opens it from the terms step of `login`
 ```
 
 `roles`, `membership`, `workspace`, `project` and `shell` use this barrel. The shell runs
@@ -36,8 +38,7 @@ needs `READ_USER`.
 return it, because their RPCs carry no more. Show it with `Identity` from
 `@shared/presentation/ui`, never with a local avatar and name.
 
-Never add: `user.module.ts`, a page or a component (export a loader if another module ever needs
-one).
+Never add: `user.module.ts`, a page or a component (export a loader, as `loadAccountDeletion`).
 
 ## Data contract
 
@@ -110,6 +111,8 @@ presentation/
     data-export.state.svelte.ts      createDataExport: the mutation, its state, the saved file
   ui/account/DeleteAccountDialog/    what the deletion removes and what stays, a link to the
                                      export, the password
+  ui/account/AccountDeletion/        DeleteAccountDialog with its call, for the terms step (no link
+                                     to the export: the account page is out of reach there)
   ui/user-detail/UserDetail/         the page of another user, and its parts:
     user-detail.state.svelte.ts      createUserDetail: the page of another user
     UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
@@ -235,7 +238,8 @@ user who has no workspace.
   one tracker needs consent (source `account`). To add a subject, add a card to
   `AccountPrivacy.svelte`. `DeleteAccountDialog` lists what the deletion removes and what stays:
   keep these facts equal to `delete_user` of the core, and its link "Download my data first"
-  (`privacy`, relative) closes the dialog.
+  (`privacy`, relative) closes the dialog. `AccountDeletion` gives the same dialog to the terms
+  step, with `withExportLink={false}`: the auth guard shows no route there.
 - **The section `about` shows the versions** that a user gives in a report of a problem. The
   edition and the version of the server come from `GetCapabilities` (`appQueries.server` of
   `apps`). The version of the web app is `import.meta.env.SCYLLA_WEB_VERSION`, that

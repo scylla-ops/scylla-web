@@ -13,6 +13,7 @@
     loginQueries,
     sessionUserId,
   } from '@base/features/login';
+  import { loadAccountDeletion } from '@base/features/user';
   import { layoutMessages } from '../../layout/messages/layout.messages.ts';
 
   let { children }: { children: Snippet } = $props();
@@ -22,6 +23,8 @@
   /** The server gave no answer about the session: the session can still be valid. */
   let unreachable = $state(false);
   let attempt = $state(0);
+  /** The person refuses the terms: the dialog that deletes the account is open. */
+  let declining = $state(false);
 
   const RETRY_MS = 5_000;
 
@@ -63,7 +66,10 @@
   {#if terms.data?.acceptanceRequired}
     {@const status = terms.data}
     {#await loadTermsStep() then { default: TermsStep }}
-      <TermsStep {status} />
+      <TermsStep {status} onDecline={() => (declining = true)} />
+    {/await}
+    {#await loadAccountDeletion() then { default: AccountDeletion }}
+      <AccountDeletion open={declining} onOpenChange={open => (declining = open)} />
     {/await}
   {:else if termsChecked}
     {@render children()}

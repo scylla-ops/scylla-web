@@ -1,6 +1,7 @@
 <script lang="ts">
   import LogOutIcon from '@lucide/svelte/icons/log-out';
   import UserRoundIcon from '@lucide/svelte/icons/user-round';
+  import UserRoundXIcon from '@lucide/svelte/icons/user-round-x';
   import { Badge, Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { LegalFooter } from '@platform/legal';
@@ -20,9 +21,11 @@
   interface Props {
     /** The terms of the user of the session: the auth guard shows this step when it must accept. */
     status: TermsStatus;
+    /** Opens the deletion of the account (`features/user`): a person who refuses can leave. */
+    onDecline: () => void;
   }
 
-  let { status }: Props = $props();
+  let { status, onDecline }: Props = $props();
 
   // Built during initialisation: its query and its mutation need an owner.
   const state = new TermsStepState();
@@ -43,7 +46,7 @@
   <LegalFooter class="pt-6" />
 {/snippet}
 
-<!-- A full page before the app: the user accepts the terms, or signs out. -->
+<!-- A full page before the app: the user accepts the terms, signs out, or deletes the account. -->
 <AuthLayout footer={legalFooter} title={view.title} description={view.description}>
   <div class="flex flex-col gap-4">
     {#if view.update}
@@ -102,6 +105,10 @@
       <Button variant="ghost" class="w-full" onclick={() => void signOut()}>
         <LogOutIcon aria-hidden="true" />
         {t(m.signOut)}
+      </Button>
+      <Button variant="ghost-destructive" class="w-full" onclick={onDecline}>
+        <UserRoundXIcon aria-hidden="true" />
+        {t(m.declineAndDelete)}
       </Button>
     </div>
   </div>

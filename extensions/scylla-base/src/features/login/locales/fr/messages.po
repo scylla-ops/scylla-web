@@ -102,6 +102,10 @@ msgstr "Créer un compte"
 msgid "Create the account"
 msgstr "Créer le compte"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:37
+msgid "Decline and delete my account"
+msgstr "Refuser et supprimer mon compte"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:6
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:8
 msgid "Email"

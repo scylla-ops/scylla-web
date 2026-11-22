@@ -34,4 +34,5 @@ export const termsMessages = {
   readBeforeNoPrivacy: (terms: string) => msg`Read the ${terms} before you accept.`,
   acceptAndContinue: msg`Accept and continue`,
   signOut: msg`Sign out`,
+  declineAndDelete: msg`Decline and delete my account`,
 };

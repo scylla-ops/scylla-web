@@ -514,6 +514,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   The app writes the language only when the person chooses one, and the sidebar writes no cookie.
 - The cookie table shows the names of the server cookies with HTTPS: `__Host-scylla_session`,
   `__Host-scylla_flow` and `__Host-scylla_pending`.
+- A person who refuses new terms of service can leave without an email: the terms step has "Decline
+  and delete my account". It opens the deletion of the account, with its password and its rules, and
+  signs out after the deletion. "Sign out" stays.
 
 ## [0.6.0] - 2026-11-01
 

@@ -24,7 +24,7 @@ loginPathBackTo(location)            // loginPath of the current page; '/login' 
 type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user` uses it too
 loginQueries.terms()                 // the terms of the user of the session (GetMe): the auth guard and `user` read it
 TERMS_STATUS_QUERY_KEY               // ['me', 'terms']
-loadTermsStep                        // loader of the full-page terms step (prop `status`); the auth guard shows it
+loadTermsStep                        // loader of the full-page terms step (props `status`, `onDecline`); the auth guard shows it
 type TermsStatus, TermsAcceptance
 ```
 
@@ -246,6 +246,11 @@ is on and needs an acceptance (fix 1, `GetLegalInfo`). There is no other source.
   step reads the legal settings again
   (`staleTime: 0`): the version that it sends must be the current one. The server refuses no
   other route to a user who did not accept: an error of the read of `GetMe` shows the app.
+- **A person who refuses the terms can leave.** The step has "Sign out" and, last, "Decline and
+  delete my account" (`onDecline`). The auth guard opens the deletion of `features/user`
+  (`loadAccountDeletion`): its password, its refusals (for example the last owner of a
+  workspace) and the sign-out after the deletion. `DeleteAccount` needs no acceptance. This
+  module cannot import `user` (`user` imports `login`): the shell joins them.
 - **A legal link in a sentence opens in a new tab** (`LinkedText`): the form and the step keep
   their state. Write the sentence with one value for each link (`linkSlot('terms')`), so that a
   translation can put the link at another place.
