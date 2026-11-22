@@ -246,6 +246,10 @@ What a port has to get right, all of it invisible to the compiler:
   - bits-ui does not set `aria-controls` or `aria-haspopup`. Set them on the input.
   - A row of a floating list has no accessible name in jsdom, because the list has no position. A
     test reads the row with `findFloating`, and a field in the list with its placeholder.
+- **A submenu is in a portal, as its menu.** bits-ui puts `DropdownMenuSubContent` in the menu,
+  `absolute`. The menu is a `relative` scroller, thus it clips the submenu, which is beside it:
+  the submenu opens, but it is not visible. `dropdown-menu.test.ts` fails when the submenu is in
+  the menu.
 - **A menu gives the focus to its field marked `autofocus`.** Without this field, the menu takes the
   focus. If the field mounts after the menu opens, the field must also take the focus when it
   mounts (`{@attach}`), because Svelte's `autofocus` does nothing while another element has the focus.

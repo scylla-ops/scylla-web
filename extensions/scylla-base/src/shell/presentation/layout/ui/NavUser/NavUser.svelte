@@ -142,7 +142,14 @@
             <ScaleIcon />
             {t(legalMessages.legalAndPrivacy)}
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent class="min-w-48 rounded-lg border-border bg-popover shadow-lg">
+          <!-- A phone has no room beside the menu: the documents cover the rows below their row. -->
+          <DropdownMenuSubContent
+            class={cn(
+              'min-w-48 rounded-lg border-border bg-popover shadow-lg',
+              sidebar.isMobile && 'min-w-(--bits-menu-anchor-width)',
+            )}
+            side={sidebar.isMobile ? 'bottom' : 'right'}
+          >
             {#each legal as link (link.kind)}
               <DropdownMenuItem class="text-foreground hover:bg-accent">
                 {#snippet child({ props })}

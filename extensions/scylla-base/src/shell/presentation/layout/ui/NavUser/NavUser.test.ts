@@ -40,6 +40,27 @@ let getMe: ReturnType<typeof vi.fn>;
 
 const noLegalDocument: LegalInfo = { operator: EMPTY_OPERATOR, privacyContact: '', documents: [] };
 
+const legalDocument = {
+  title: '',
+  version: '',
+  effectiveDate: null,
+  changes: '',
+  updatedAt: null,
+  acceptanceRequired: false,
+};
+
+const twoLegalDocuments: LegalInfo = {
+  ...noLegalDocument,
+  documents: [
+    { ...legalDocument, kind: 'privacy', content: { type: 'markdown', markdown: 'text' } },
+    {
+      ...legalDocument,
+      kind: 'terms',
+      content: { type: 'url', url: 'https://acme.example/terms' },
+    },
+  ],
+};
+
 const setUp = (answer: () => Promise<unknown>, legal: LegalInfo = noLegalDocument) => {
   getMe = vi.fn(answer);
   const cache = withQueryClient();
@@ -167,24 +188,7 @@ describe('NavUser', () => {
   });
 
   it('opens each legal document that is on in a new tab, from a submenu', async () => {
-    const document = { title: '', version: '', effectiveDate: null, changes: '', updatedAt: null };
-    setUp(() => Promise.resolve(me), {
-      ...noLegalDocument,
-      documents: [
-        {
-          ...document,
-          kind: 'privacy',
-          content: { type: 'markdown', markdown: 'text' },
-          acceptanceRequired: false,
-        },
-        {
-          ...document,
-          kind: 'terms',
-          content: { type: 'url', url: 'https://acme.example/terms' },
-          acceptanceRequired: false,
-        },
-      ],
-    });
+    setUp(() => Promise.resolve(me), twoLegalDocuments);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
@@ -198,6 +202,44 @@ describe('NavUser', () => {
       'https://acme.example/terms',
     );
     expect(screen.queryByRole('menuitem', { name: 'Cookie policy', hidden: true })).toBeNull();
+  });
+
+  // The menu clips all that goes out of it, and the submenu is beside it.
+  it('opens the legal documents on hover, outside the menu', async () => {
+    setUp(() => Promise.resolve(me), twoLegalDocuments);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+    await user.hover(await findFloating('menuitem', 'Legal and privacy'));
+
+    const privacy = await findFloating('menuitem', 'Privacy policy');
+    expect(privacy.closest('[data-slot="dropdown-menu-content"]')).toBeNull();
+    expect(privacy.closest('[data-slot="dropdown-menu-sub-content"]')).toHaveAttribute(
+      'data-side',
+      'right',
+    );
+  });
+
+  it('opens the legal documents under their entry on a phone, with no room beside the menu', async () => {
+    const matchMedia = window.matchMedia;
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: true,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }));
+    setUp(() => Promise.resolve(me), twoLegalDocuments);
+    teardown.push(() => (window.matchMedia = matchMedia));
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+    await user.click(await findFloating('menuitem', 'Legal and privacy'));
+
+    const privacy = await findFloating('menuitem', 'Privacy policy');
+    expect(privacy.closest('[data-slot="dropdown-menu-sub-content"]')).toHaveAttribute(
+      'data-side',
+      'bottom',
+    );
   });
 
   it('has no legal entry while no document is on', async () => {

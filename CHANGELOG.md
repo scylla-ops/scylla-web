@@ -523,6 +523,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   signs out after the deletion. "Sign out" stays.
 - The dialog that deletes an account tells that the proof of the accepted terms (account id, a hash
   of the email, version, method and date) stays for 5 years after the deletion.
+- The submenu "Legal and privacy" of the user menu shows its documents on hover, on a click and with
+  the right arrow. Before, the menu hid the submenu, thus it seemed to do nothing. On a phone, the
+  submenu opens under its entry, inside the screen.
 
 ## [0.6.0] - 2026-11-01
 
