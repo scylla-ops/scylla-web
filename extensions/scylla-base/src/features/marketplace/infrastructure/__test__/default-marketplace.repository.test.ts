@@ -1,50 +1,68 @@
 // @vitest-environment node
-import { describe, expect, it } from 'vitest';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import { describe, expect, it, vi } from 'vitest';
+import { failedCall, unaryCall } from '@test/grpc.ts';
+import type { IMarketplaceServiceClient } from '@base/generated/scylla/marketplace/v1/marketplace_service.client.ts';
+import { PackageCategory, type Package } from '@base/generated/scylla/marketplace/v1/package.ts';
+import { FragmentVersion } from '@base/generated/scylla/library/v1/fragment.ts';
 import { DefaultMarketplaceRepository } from '../default-marketplace.repository.ts';
 
-const memoryStorage = () => {
-  const items = new Map<string, string>();
-  return {
-    getItem: (key: string) => items.get(key) ?? null,
-    setItem: (key: string, value: string) => void items.set(key, value),
-  };
-};
+const content = (number: number) =>
+  FragmentVersion.toBinary(
+    FragmentVersion.create({ number, changes: [`Release ${number}`], nodes: [], parameters: [] }),
+  );
 
-const repositoryOn = (storage = memoryStorage()) =>
-  new DefaultMarketplaceRepository(() => storage);
+const pkg = (id: string, contents: number[]): Package => ({
+  id: { value: id },
+  publisher: 'acme',
+  name: 'build',
+  description: 'Builds',
+  license: 'MIT',
+  category: PackageCategory.BUILD,
+  tags: ['rust'],
+  versions: [1, 2].map(number => ({
+    number,
+    deprecated: number === 1,
+    content: contents.includes(number) ? content(number) : new Uint8Array(),
+  })),
+  verified: false,
+  stars: 3,
+  starred: true,
+});
+
+const repositoryWith = (client: object) =>
+  new DefaultMarketplaceRepository(client as unknown as IMarketplaceServiceClient);
 
 describe('DefaultMarketplaceRepository', () => {
-  it('lists the packages, each by its publisher and name', async () => {
-    const packages = await repositoryOn().list();
+  it('reads every page, with the content of the versions that the list gives', async () => {
+    const listPackages = vi.fn(({ page }: { page: { token: string } }) =>
+      unaryCall(
+        page.token === ''
+          ? { packages: [pkg('a', [2])], page: { nextToken: 'n' } }
+          : { packages: [pkg('b', [2])], page: { nextToken: '' } },
+      ),
+    );
 
-    expect(packages.map(pkg => pkg.id)).toContain('kube-tools.helm-deploy');
-    expect(packages.every(pkg => pkg.versions.length > 0)).toBe(true);
+    const list = await repositoryWith({ listPackages }).list();
+
+    expect(listPackages).toHaveBeenCalledTimes(2);
+    expect(list.map(item => item.id)).toEqual(['a', 'b']);
+    expect(list[0].versions.map(version => version.number)).toEqual([2]);
   });
 
-  it('finds a package, or says that it does not exist', async () => {
-    const repository = repositoryOn();
+  it('gives each public version, the deprecated ones and the publisher as their author', async () => {
+    const getPackage = vi.fn(() => unaryCall({ package: pkg('a', [1, 2]) }));
 
-    expect((await repository.getById('pnpm.node-ci')).name).toBe('node-ci');
-    await expect(repository.getById('pnpm.missing')).rejects.toThrow(ScyllaError);
+    const read = await repositoryWith({ getPackage }).getById('a');
+
+    expect(read.versions.map(version => version.number)).toEqual([1, 2]);
+    expect(read.deprecated).toEqual([1]);
+    expect(read.versions[1].author.name).toBe('acme');
+    expect(read).toMatchObject({ category: 'build', stars: 3, starred: true });
   });
 
-  it('counts the star of the reader, kept by the storage', async () => {
-    const storage = memoryStorage();
-    const before = await repositoryOn(storage).getById('pnpm.node-ci');
+  it('passes a refusal of the server through', async () => {
+    const getPackage = vi.fn(() => failedCall('NOT_FOUND'));
 
-    await repositoryOn(storage).setStar('pnpm.node-ci', true);
-    const starred = await repositoryOn(storage).getById('pnpm.node-ci');
-    expect(starred).toEqual(expect.objectContaining({ starred: true, stars: before.stars + 1 }));
-
-    const unstarred = await repositoryOn(storage).setStar('pnpm.node-ci', false);
-    expect(unstarred).toEqual(expect.objectContaining({ starred: false, stars: before.stars }));
-  });
-
-  it('reads no star from an unreadable storage', async () => {
-    const storage = memoryStorage();
-    storage.setItem('scylla.marketplace-stars', '{not json');
-
-    expect((await repositoryOn(storage).list()).some(pkg => pkg.starred)).toBe(false);
+    await expect(repositoryWith({ getPackage }).getById('x')).rejects.toBeDefined();
   });
 });

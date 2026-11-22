@@ -1,7 +1,6 @@
 import type { AddCommunityFragmentInput, FragmentAuthor } from '@base/features/pipeline';
 import {
   addableVersions,
-  fragmentVersionOf,
   versionsAfter,
   type MarketPackage,
 } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
@@ -70,8 +69,8 @@ export const createAddToLibrary = (
           name: pkg.name,
           verified: pkg.publisher.verified,
         },
-        version: fragmentVersionOf(chosen),
-        newer: versionsAfter(pkg, chosen.number).map(fragmentVersionOf),
+        version: chosen,
+        newer: versionsAfter(pkg, chosen.number),
         author,
       };
     },

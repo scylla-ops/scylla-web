@@ -1,5 +1,4 @@
 <script lang="ts">
-  import DownloadIcon from '@lucide/svelte/icons/download';
   import StarIcon from '@lucide/svelte/icons/star';
   import { scyllaNavigate } from '@platform/context';
   import { Card } from '@scylla/ui/primitives';
@@ -78,10 +77,6 @@
   <p class="line-clamp-2 min-h-10 text-sm text-muted-foreground">{pkg.description}</p>
   <p class="truncate rounded-md bg-muted px-2 py-1 font-mono text-xs">{stepsLine(latest)}</p>
   <div class="mt-auto flex items-center gap-3 text-xs">
-    <span class="flex items-center gap-1" title={t(marketplaceMessages.installs(compactCount(pkg.installs)))}>
-      <DownloadIcon class="size-3.5 text-muted-foreground" />
-      {compactCount(pkg.installs)}
-    </span>
     <span class="flex items-center gap-1" title={t(marketplaceMessages.stars(compactCount(pkg.stars)))}>
       <StarIcon class="size-3.5 text-muted-foreground" />
       {compactCount(pkg.stars)}

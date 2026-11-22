@@ -19,7 +19,6 @@ const PACKAGES = [
     publisher: { handle: 'kube-tools', verified: false, official: false },
     category: 'deploy',
     stacks: ['docker'],
-    installs: 900,
   }),
 ];
 
@@ -54,11 +53,11 @@ beforeEach(() => contextStore.setState({ workspace: { id: 'ws-1', name: 'Acme', 
 afterEach(() => teardown.forEach(restore => restore()));
 
 describe('MarketplacePage', () => {
-  it('lists the packages, the most installed first, and tells those in the library', async () => {
+  it('lists the packages, the most recent first, and tells those in the library', async () => {
     renderPage(PACKAGES, [LINKED]);
 
     expect(await screen.findByRole('link', { name: 'helm-deploy' })).toBeInTheDocument();
-    expect(cardNames()).toEqual(['helm-deploy', 'node-ci']);
+    expect(cardNames()).toEqual(['node-ci', 'helm-deploy']);
     expect(screen.getByText('In library · v8')).toBeInTheDocument();
   });
 
@@ -71,7 +70,7 @@ describe('MarketplacePage', () => {
     expect(screen.getByRole('heading', { name: '1 fragment' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
-    expect(cardNames()).toEqual(['helm-deploy', 'node-ci']);
+    expect(cardNames()).toEqual(['node-ci', 'helm-deploy']);
   });
 
   it('keeps the packages of the library in their tab', async () => {

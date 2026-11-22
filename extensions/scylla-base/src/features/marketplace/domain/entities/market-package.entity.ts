@@ -22,10 +22,8 @@ export type PackageRequirement =
   | { kind: 'agent'; tool: string }
   | { kind: 'network'; reaches: string };
 
-/** A version of a package is a version of a fragment, and counts its installs. */
-export interface PackageVersion extends FragmentVersion {
-  installs: number;
-}
+/** A version of a package is a version of a fragment, as the library of its publisher holds it. */
+export type PackageVersion = FragmentVersion;
 
 /** A fragment that an organization shares in the marketplace. */
 export interface MarketPackage {
@@ -43,7 +41,6 @@ export interface MarketPackage {
   deprecated: number[];
   requirements: PackageRequirement[];
   readme: string;
-  installs: number;
   stars: number;
   /** The reader starred it. */
   starred: boolean;
@@ -66,7 +63,3 @@ const NEW_FOR_DAYS = 14;
 /** Shared for two weeks at most. */
 export const isNewPackage = (pkg: Pick<MarketPackage, 'createdAt'>, now = Date.now()): boolean =>
   now - new Date(pkg.createdAt).getTime() < NEW_FOR_DAYS * 24 * 60 * 60 * 1000;
-
-/** The version as the library keeps it: the installs stay in the marketplace. */
-export const fragmentVersionOf = ({ installs: _installs, ...version }: PackageVersion): FragmentVersion =>
-  version;

@@ -1,3 +1,4 @@
+import type { FragmentLink } from '../entities/fragment.entity.ts';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
 import type {
   PipelineEntity,
@@ -41,6 +42,8 @@ export interface PipelineRepository {
     nodes: PipelineNodeEntity[],
     name?: string,
     layout?: PipelineLayout,
+    /** The fragment links: they replace all the links. None: the links stay. */
+    links?: FragmentLink[],
   ): Promise<PipelineEntity>;
   /** Only the places that changed: the others stay. The version of the pipeline does not change. */
   saveLayout(id: string, layout: PipelineLayout): Promise<void>;

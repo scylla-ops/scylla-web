@@ -16,7 +16,6 @@ const HELM = marketPackage({
   publisher: { handle: 'kube-tools', verified: false, official: false },
   category: 'deploy',
   stacks: ['docker'],
-  installs: 900,
   stars: 5,
 });
 const BUILDX = marketPackage({
@@ -26,7 +25,6 @@ const BUILDX = marketPackage({
   publisher: { handle: 'scylla', verified: true, official: true },
   category: 'build',
   stacks: ['docker'],
-  installs: 50,
   stars: 80,
 });
 const ALL = [NODE, HELM, BUILDX];
@@ -35,8 +33,7 @@ const names = (filter: Partial<typeof NO_FILTER>) =>
   filterPackages(ALL, { ...NO_FILTER, ...filter }).map(pkg => pkg.name);
 
 describe('package filter', () => {
-  it('sorts the most installed first, or by another order', () => {
-    expect(names({})).toEqual(['helm-deploy', 'node-ci', 'docker-buildx']);
+  it('sorts by the stars or by the name', () => {
     expect(names({ order: 'most-starred' })).toEqual(['docker-buildx', 'node-ci', 'helm-deploy']);
     expect(names({ order: 'name' })).toEqual(['docker-buildx', 'helm-deploy', 'node-ci']);
   });

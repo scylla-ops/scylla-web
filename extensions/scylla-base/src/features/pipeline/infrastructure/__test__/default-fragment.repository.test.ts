@@ -1,215 +1,234 @@
 // @vitest-environment node
-import { describe, expect, it } from 'vitest';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type {
-  FragmentLink,
+import { describe, expect, it, vi } from 'vitest';
+import { failedCall, unaryCall } from '@test/grpc.ts';
+import type { IFragmentServiceClient } from '@base/generated/scylla/library/v1/fragment_service.client.ts';
+import {
   FragmentVersion,
-} from '@base/features/pipeline/domain/entities/fragment.entity.ts';
+  ParameterKind,
+  type Fragment,
+} from '@base/generated/scylla/library/v1/fragment.ts';
+import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
+import type { IMarketplaceServiceClient } from '@base/generated/scylla/marketplace/v1/marketplace_service.client.ts';
+import { PackageCategory } from '@base/generated/scylla/marketplace/v1/package.ts';
 import { DefaultFragmentRepository } from '../default-fragment.repository.ts';
 
-const memoryStorage = () => {
-  const items = new Map<string, string>();
-  return {
-    getItem: (key: string) => items.get(key) ?? null,
-    setItem: (key: string, value: string) => void items.set(key, value),
-  };
-};
-
-const repositoryOn = (storage = memoryStorage()) => new DefaultFragmentRepository(() => storage);
-
-const author = { id: 'u1', name: 'Rem' };
-
-const input = {
-  workspaceId: 'acme',
-  name: 'lint-all',
-  description: 'Lints the repository.',
+const fragment = (id: string, workspace = 'w1'): Fragment => ({
+  id: { value: id },
+  workspaceId: { value: workspace },
+  name: 'build',
+  description: 'Builds',
   tags: ['ci'],
-  nodes: [
-    { id: 'lint', deps: [], kind: 'exec' as const, command: 'make', args: ['lint'], env: [] },
+  author: { id: { value: 'u1' }, name: 'Ada' },
+  versions: [
+    {
+      number: 1,
+      nodes: [],
+      parameters: [
+        { key: 'MODE', kind: ParameterKind.LITERAL, defaultValue: 'release', description: '' },
+        { key: 'TOKEN', kind: ParameterKind.SECRET, defaultValue: '', description: 'The token' },
+      ],
+      changes: [],
+      author: { id: { value: 'u1' }, name: 'Ada' },
+    },
   ],
-  parameters: [],
-  author,
-  sourcePipeline: 'api-backend',
-};
-
-const pipeline = {
-  pipelineId: 'p1',
-  pipelineName: 'api',
-  projectId: 'pr1',
-  projectName: 'storefront',
-};
-
-const PACKAGE = { packageId: 'pnpm.node-ci', publisher: 'pnpm', name: 'node-ci', verified: true };
-
-const release = (number: number): FragmentVersion => ({
-  number,
-  nodes: input.nodes,
-  parameters: [],
-  changes: [`Release ${number}.`],
-  author: { id: 'pnpm', name: 'pnpm' },
-  publishedAt: '2026-10-01T10:00:00Z',
+  favorite: true,
+  usages: [],
 });
 
-const community = (mode: 'linked' | 'forked') => ({
-  workspaceId: 'acme',
-  mode,
-  name: 'pnpm-ci',
-  description: 'Install, lint and test.',
-  tags: ['node'],
-  package: PACKAGE,
-  version: release(8),
-  newer: [release(9)],
-  author,
-});
+const repositoryWith = (
+  client: object,
+  pipelines: object = {},
+  market: object = {},
+  local = false,
+) =>
+  new DefaultFragmentRepository(
+    client as unknown as IFragmentServiceClient,
+    pipelines as unknown as IPipelineServiceClient,
+    {
+      client: market as unknown as IMarketplaceServiceClient,
+      registry: 'https://market.test',
+      local,
+    },
+  );
 
 describe('DefaultFragmentRepository', () => {
-  it('gives each workspace the demo library once', async () => {
-    const repository = repositoryOn();
-
-    const first = await repository.list('acme');
-    const again = await repository.list('acme');
-
-    expect(first.length).toBeGreaterThan(0);
-    expect(again.map(fragment => fragment.id)).toEqual(first.map(fragment => fragment.id));
-    expect(await repository.list('globex')).not.toContainEqual(
-      expect.objectContaining({ id: first[0].id }),
+  it('reads every page of the library', async () => {
+    const listFragments = vi.fn(({ page }: { page: { token: string } }) =>
+      unaryCall(
+        page.token === ''
+          ? { fragments: [fragment('a')], page: { nextToken: 'n' } }
+          : { fragments: [fragment('b')], page: { nextToken: '' } },
+      ),
     );
+
+    const list = await repositoryWith({ listFragments }).list('w1');
+
+    expect(listFragments).toHaveBeenCalledTimes(2);
+    expect(list.map(item => item.id)).toEqual(['a', 'b']);
   });
 
-  it('saves a fragment as its version 1, kept by the storage', async () => {
-    const storage = memoryStorage();
-    const created = await repositoryOn(storage).create(input);
+  it('maps a literal with its default and a secret with none', async () => {
+    const getFragment = vi.fn(() => unaryCall({ fragment: fragment('a') }));
 
-    const stored = await repositoryOn(storage).getById('acme', created.id);
+    const read = await repositoryWith({ getFragment }).getById('w1', 'a');
 
-    expect(stored.versions.map(version => version.number)).toEqual([1]);
-    expect(stored.versions[0].changes).toEqual(['First version, saved from api-backend.']);
+    expect(read.author).toEqual({ id: 'u1', name: 'Ada' });
+    expect(read.favorite).toBe(true);
+    expect(read.versions[0].parameters).toEqual([
+      { key: 'MODE', kind: 'literal', default: 'release' },
+      { key: 'TOKEN', kind: 'secret', description: 'The token' },
+    ]);
   });
 
-  it('refuses a second fragment of the same name in the workspace', async () => {
-    const repository = repositoryOn();
-    await repository.create(input);
+  it('gives NOT_FOUND for a fragment of another workspace', async () => {
+    const getFragment = vi.fn(() => unaryCall({ fragment: fragment('a', 'w2') }));
 
-    await expect(repository.create(input)).rejects.toThrow(ScyllaError);
+    await expect(repositoryWith({ getFragment }).getById('w1', 'a')).rejects.toMatchObject({
+      code: 'NOT_FOUND',
+    });
   });
 
-  it('publishes the next version after the latest one', async () => {
-    const repository = repositoryOn();
-    const created = await repository.create(input);
+  it('sends the parameters and never the author', async () => {
+    const createFragment = vi.fn(() => unaryCall({ fragment: fragment('a') }));
 
-    const published = await repository.publishVersion({
-      id: created.id,
-      nodes: input.nodes,
-      parameters: [],
-      changes: ['Faster.'],
-      author,
+    await repositoryWith({ createFragment }).create({
+      workspaceId: 'w1',
+      name: 'build',
+      description: '',
+      tags: [],
+      nodes: [],
+      parameters: [{ key: 'TOKEN', kind: 'secret' }],
+      author: { id: 'u1', name: 'Ada' },
+      sourcePipeline: 'ci',
     });
 
-    expect(published.versions.map(version => version.number)).toEqual([1, 2]);
+    expect(createFragment).toHaveBeenCalledWith({
+      workspaceId: { value: 'w1' },
+      name: 'build',
+      description: '',
+      tags: [],
+      nodes: [],
+      parameters: [{ key: 'TOKEN', kind: ParameterKind.SECRET, defaultValue: '', description: '' }],
+    });
   });
 
-  it('counts a pipeline that links a fragment in its usages, until its links are removed', async () => {
-    const repository = repositoryOn();
-    const created = await repository.create(input);
-    const link: FragmentLink = {
-      blockId: 'lint-all',
-      fragmentId: created.id,
-      version: 1,
-      values: {},
-      nodeIds: [],
-    };
+  it('reads the links of a pipeline with the pipeline', async () => {
+    const getPipeline = vi.fn(() =>
+      unaryCall({
+        pipeline: {
+          fragmentLinks: [
+            {
+              blockId: 'ci',
+              fragmentId: { value: 'a' },
+              version: 2,
+              values: { MODE: 'debug' },
+              nodeIds: ['ci-build'],
+            },
+          ],
+        },
+      }),
+    );
 
-    await repository.saveLinks(pipeline, [link]);
-    expect((await repository.getById('acme', created.id)).usages).toEqual([
-      { ...pipeline, version: 1, values: link.values },
+    const links = await repositoryWith({}, { getPipeline }).linksOf('p1');
+
+    expect(links).toEqual([
+      {
+        blockId: 'ci',
+        fragmentId: 'a',
+        version: 2,
+        values: { MODE: 'debug' },
+        nodeIds: ['ci-build'],
+      },
     ]);
-    expect(await repository.linksOf('p1')).toEqual([link]);
-
-    await repository.saveLinks(pipeline, []);
-    expect((await repository.getById('acme', created.id)).usages).toEqual([]);
   });
 
-  it('keeps the favorites of the reader', async () => {
-    const repository = repositoryOn();
-    const created = await repository.create(input);
+  it('passes a refusal of the server through', async () => {
+    const deleteFragment = vi.fn(() => failedCall('PERMISSION_DENIED'));
 
-    await repository.setFavorite(created.id, true);
-    expect((await repository.getById('acme', created.id)).favorite).toBe(true);
-
-    await repository.setFavorite(created.id, false);
-    expect((await repository.getById('acme', created.id)).favorite).toBe(false);
+    await expect(repositoryWith({ deleteFragment }).delete('a')).rejects.toBeDefined();
   });
 
-  it('adds a linked fragment with the versions of its publisher, as they are', async () => {
-    const repository = repositoryOn();
-
-    const added = await repository.addFromMarketplace(community('linked'));
-
-    expect(added.versions.map(version => version.number)).toEqual([8]);
-    expect(added.source).toEqual(
-      expect.objectContaining({ kind: 'linked', upstream: [release(9)], skipped: [] }),
-    );
-  });
-
-  it('starts a fork at its own v1, with the release of the publisher to look at', async () => {
-    const repository = repositoryOn();
-
-    const forked = await repository.addFromMarketplace(community('forked'));
-
-    expect(forked.versions.map(version => version.number)).toEqual([1]);
-    expect(forked.versions[0].changes).toEqual(['Forked from @pnpm/node-ci v8.']);
-    expect(forked.source).toEqual(
-      expect.objectContaining({ kind: 'forked', baseVersion: 8, upstream: release(9) }),
-    );
-  });
-
-  it('takes an upstream version into the library, or keeps it out', async () => {
-    const repository = repositoryOn();
-    const added = await repository.addFromMarketplace(community('linked'));
-
-    const skipped = await repository.skipUpstream(added.id, 9);
-    expect(skipped.versions.map(version => version.number)).toEqual([8]);
-
-    const accepted = await repository.acceptUpstream(added.id, 9);
-    expect(accepted.versions.map(version => version.number)).toEqual([8, 9]);
-  });
-
-  it('turns a linked fragment into a fork that the workspace owns', async () => {
-    const repository = repositoryOn();
-    const added = await repository.addFromMarketplace(community('linked'));
-
-    const detached = await repository.detachAsFork(added.id);
-
-    expect(detached.source).toEqual(expect.objectContaining({ kind: 'forked', baseVersion: 8 }));
-  });
-
-  it('publishes a fragment under its own name, then deprecates a version', async () => {
-    const repository = repositoryOn();
-    const created = await repository.create(input);
-    const publish = {
-      id: created.id,
-      version: 1,
-      license: 'MIT',
-      category: 'ci' as const,
-      tags: ['ci'],
-      autoPublish: false,
-      author,
+  it('adds a package with its origin, at the number of the version of the package', async () => {
+    const createFragment = vi.fn(() => unaryCall({ fragment: fragment('a') }));
+    const version = {
+      number: 4,
+      nodes: [],
+      parameters: [],
+      changes: [],
+      author: { id: '', name: 'acme' },
+      publishedAt: '',
     };
 
-    await expect(repository.deprecateVersion(created.id, 1)).rejects.toThrow(ScyllaError);
-    const published = await repository.publishToMarketplace(publish);
-    expect(published.publication).toEqual(
-      expect.objectContaining({ name: 'lint-all', versions: [1], deprecated: [] }),
-    );
+    await repositoryWith({ createFragment }).addFromMarketplace({
+      workspaceId: 'w1',
+      mode: 'linked',
+      name: 'shared',
+      description: '',
+      tags: [],
+      package: { packageId: 'p1', publisher: 'acme', name: 'build', verified: false },
+      version,
+      newer: [],
+      author: { id: 'u1', name: 'Ada' },
+    });
 
-    const deprecated = await repository.deprecateVersion(created.id, 1);
-    expect(deprecated.publication?.deprecated).toEqual([1]);
+    expect(createFragment).toHaveBeenCalledWith(
+      expect.objectContaining({
+        origin: {
+          registry: 'https://market.test',
+          packageId: 'p1',
+          packageName: '@acme/build',
+          version: 4,
+          linked: true,
+        },
+      }),
+    );
   });
 
-  it('starts again from an empty library when the storage holds something unreadable', async () => {
-    const storage = memoryStorage();
-    storage.setItem('scylla.fragment-library', '{not json');
+  it('shows the versions of the package after the latest one of a linked fragment', async () => {
+    const linked = {
+      ...fragment('a'),
+      origin: {
+        registry: 'https://market.test',
+        packageId: 'p1',
+        packageName: '@acme/build',
+        linked: true,
+        baseVersion: 1,
+        skipped: [],
+      },
+    };
+    const getFragment = vi.fn(() => unaryCall({ fragment: linked }));
+    const getPackage = vi.fn(() =>
+      unaryCall({
+        package: {
+          publisher: 'acme',
+          category: PackageCategory.BUILD,
+          versions: [1, 2].map(number => ({
+            number,
+            deprecated: false,
+            content: FragmentVersion.toBinary(FragmentVersion.create({ number })),
+          })),
+        },
+      }),
+    );
 
-    await expect(repositoryOn(storage).linksOf('p1')).resolves.toEqual([]);
+    const read = await repositoryWith({ getFragment }, {}, { getPackage }).getById('w1', 'a');
+
+    expect(read.source).toMatchObject({
+      kind: 'linked',
+      package: { packageId: 'p1', publisher: 'acme', name: 'build' },
+    });
+    expect(read.source?.kind === 'linked' && read.source.upstream.map(v => v.number)).toEqual([2]);
+  });
+
+  it('keeps the library when the marketplace does not answer', async () => {
+    const listFragments = vi.fn(() =>
+      unaryCall({ fragments: [fragment('a')], page: { nextToken: '' } }),
+    );
+    const listPublications = vi.fn(() => failedCall('UNIMPLEMENTED'));
+
+    const list = await repositoryWith({ listFragments }, {}, { listPublications }, true).list('w1');
+
+    expect(list.map(item => item.id)).toEqual(['a']);
+    expect(list[0].publication).toBeUndefined();
   });
 });

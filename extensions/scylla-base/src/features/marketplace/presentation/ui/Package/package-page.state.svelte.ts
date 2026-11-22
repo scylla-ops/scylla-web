@@ -7,10 +7,7 @@ import {
   marketplaceMutations,
   marketplaceQueries,
 } from '@base/features/marketplace/presentation/marketplace.queries.ts';
-import {
-  libraryStatus,
-  ownPackages,
-} from '@base/features/marketplace/presentation/presenters/library-status.presenter.ts';
+import { libraryStatus } from '@base/features/marketplace/presentation/presenters/library-status.presenter.ts';
 
 const context = toRune(contextStore);
 
@@ -19,23 +16,21 @@ export type AddMode = 'linked' | 'forked';
 
 /**
  * The page of a package: the package, where it stands in the library, the star of the reader,
- * and the add dialog. A package of the workspace comes from its library.
+ * and the add dialog.
  */
 export const createPackagePage = (packageId: () => string) => {
   const workspace = $derived(context().workspace);
-  const scope = $derived(workspace.slug ?? '');
   const fragmentsQuery = createQuery(() => fragmentQueries.list(workspace.id));
   const fragments = $derived(fragmentsQuery.data ?? []);
-  const own = $derived(ownPackages(fragments, scope).find(pkg => pkg.id === packageId()));
 
   const packageQuery = createQuery(() => ({
     ...marketplaceQueries.byId(packageId()),
-    enabled: !!packageId() && fragmentsQuery.isSuccess && !own,
+    enabled: !!packageId(),
   }));
   const star = createMutation(() => marketplaceMutations.setStar());
 
-  const pkg = $derived(own ?? packageQuery.data);
-  const status = $derived(pkg ? libraryStatus(pkg, fragments, scope) : { kind: 'none' as const });
+  const pkg = $derived(packageQuery.data);
+  const status = $derived(pkg ? libraryStatus(pkg, fragments) : { kind: 'none' as const });
 
   let adding = $state<AddMode | null>(null);
 

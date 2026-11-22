@@ -35,6 +35,7 @@ const basePipeline = (overrides: Partial<Pipeline> = {}): Pipeline => ({
   projectId: { value: 'project-1' },
   name: 'ci',
   nodes: [],
+  fragmentLinks: [],
   version: 3n,
   createdAt: TS,
   updatedAt: TS,

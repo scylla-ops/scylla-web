@@ -11,7 +11,6 @@ export const packageVersion = (number: number, days = 10): PackageVersion => ({
   changes: [`Release ${number}.`],
   author: { id: 'pnpm', name: '@pnpm' },
   publishedAt: new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString(),
-  installs: 100,
 });
 
 export const marketPackage = (overrides: Partial<MarketPackage> = {}): MarketPackage => ({
@@ -26,7 +25,6 @@ export const marketPackage = (overrides: Partial<MarketPackage> = {}): MarketPac
   deprecated: [],
   requirements: [],
   readme: 'Installs and tests.',
-  installs: 200,
   stars: 10,
   starred: false,
   createdAt: '2025-01-01T10:00:00Z',

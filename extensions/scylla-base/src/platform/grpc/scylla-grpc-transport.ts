@@ -84,6 +84,9 @@ const scyllaErrorInterceptor: RpcInterceptor = {
   },
 };
 
+/** A call to another server: the token of the session stays here. */
+const anonymousFetch: typeof fetch = (input, init) => send(input, init, null);
+
 /** The gRPC code of an answer that has only a status: the server gives it before any message. */
 const UNAUTHENTICATED = '16';
 
@@ -114,11 +117,12 @@ const authorizedFetch: typeof fetch = async (input, init) => {
 export class ScyllaGrpcTransport {
   private readonly _transport: GrpcWebFetchTransport;
 
-  constructor() {
+  /** With no option: the API, with the token of the session. Another server gets no token. */
+  constructor({ baseUrl = apiUrl(), withToken = true }: { baseUrl?: string; withToken?: boolean } = {}) {
     this._transport = new GrpcWebFetchTransport({
-      baseUrl: apiUrl(),
+      baseUrl,
       format: 'binary',
-      fetch: authorizedFetch,
+      fetch: withToken ? authorizedFetch : anonymousFetch,
       interceptors: [scyllaErrorInterceptor],
     });
   }

@@ -7,23 +7,22 @@ import {
   type CreateFragmentInput,
   type FragmentEntity,
   type FragmentLink,
-  type LinkingPipeline,
   type PublishFragmentVersionInput,
   type PublishToMarketplaceInput,
 } from '../domain/entities/fragment.entity.ts';
-import type { PipelineModule } from '../pipeline.module.ts';
+import type { FragmentRepository } from '../domain/repository/fragment.repository.ts';
 import { communityMessages } from './messages/community.messages.ts';
 import { libraryMessages } from './messages/library.messages.ts';
 import {
   FRAGMENTS_QUERY_KEY,
-  FRAGMENTS_QUERY_ROOT,
   FRAGMENT_LINKS_QUERY_KEY,
   FRAGMENT_QUERY_KEY,
 } from './pipeline.query-keys.ts';
 
-// Resolved per call: tests swap the registry.
+// Resolved per call: tests swap the registry. Typed by its interface, not by the module: the
+// module imports the links of the second sidebar, which read these queries.
 const repository = () =>
-  getModuleDomain<typeof PipelineModule.domain>('pipeline').fragmentRepository;
+  getModuleDomain<{ fragmentRepository: FragmentRepository }>('pipeline').fragmentRepository;
 
 /** Read by the library pages and the editor, behind their own route guards. */
 export const fragmentQueries = {
@@ -90,6 +89,16 @@ export const fragmentMutations = {
       },
     }),
 
+  remove: (workspaceId: string) =>
+    mutationOptions({
+      mutationFn: (fragment: Pick<FragmentEntity, 'id' | 'name'>) =>
+        repository().delete(fragment.id),
+      onSuccess: (_: void, fragment: Pick<FragmentEntity, 'id' | 'name'>) => {
+        refreshLibrary(workspaceId);
+        toast.success(i18n._(libraryMessages.deletedTitle), { description: fragment.name });
+      },
+    }),
+
   setFavorite: (workspaceId: string) =>
     mutationOptions({
       mutationFn: ({ id, favorite }: { id: string; favorite: boolean }) =>
@@ -137,16 +146,4 @@ export const fragmentMutations = {
     libraryChange(({ id, version }: { id: string; version: number }) =>
       repository().deprecateVersion(id, version),
     ),
-};
-
-/** For `pipelineMutations.update`: the links go with the nodes, in the same save. */
-export const saveFragmentLinks = async (
-  pipeline: LinkingPipeline,
-  links: FragmentLink[],
-): Promise<void> => {
-  await repository().saveLinks(pipeline, links);
-  const queryClient = getQueryClient();
-  void queryClient.invalidateQueries({ queryKey: FRAGMENT_LINKS_QUERY_KEY(pipeline.pipelineId) });
-  // The library counts the pipelines that use each fragment.
-  void queryClient.invalidateQueries({ queryKey: FRAGMENTS_QUERY_ROOT });
 };

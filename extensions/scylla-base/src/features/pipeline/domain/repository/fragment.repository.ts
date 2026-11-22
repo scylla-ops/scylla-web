@@ -3,7 +3,6 @@ import type {
   CreateFragmentInput,
   FragmentEntity,
   FragmentLink,
-  LinkingPipeline,
   PublishFragmentVersionInput,
   PublishToMarketplaceInput,
 } from '../entities/fragment.entity.ts';
@@ -17,9 +16,13 @@ export interface FragmentRepository {
   create(input: CreateFragmentInput): Promise<FragmentEntity>;
   publishVersion(input: PublishFragmentVersionInput): Promise<FragmentEntity>;
   setFavorite(id: string, favorite: boolean): Promise<void>;
+  /**
+   * Removes the fragment from the library. The pipelines that link it keep its nodes and still
+   * run; their blocks name a fragment that is no longer in the library.
+   */
+  delete(id: string): Promise<void>;
+  /** The links are saved with the pipeline: `PipelineRepository.edit`. */
   linksOf(pipelineId: string): Promise<FragmentLink[]>;
-  /** Replaces all the links of the pipeline. */
-  saveLinks(pipeline: LinkingPipeline, links: FragmentLink[]): Promise<void>;
 
   /** Rejects with `ALREADY_EXISTS` when the workspace has a fragment of this name. */
   addFromMarketplace(input: AddCommunityFragmentInput): Promise<FragmentEntity>;

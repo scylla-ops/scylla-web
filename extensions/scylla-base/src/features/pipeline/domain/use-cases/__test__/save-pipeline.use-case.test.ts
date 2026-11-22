@@ -60,9 +60,24 @@ describe('SavePipelineUseCase', () => {
       }),
     );
 
-    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly', undefined);
+    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly', undefined, undefined);
     expect(create).not.toHaveBeenCalled();
     expect(issue).toBeNull();
+  });
+
+  it('sends the fragment links with the nodes of the edit', async () => {
+    const { edit, repository } = repositoryWith();
+    const links = [{ blockId: 'ci', fragmentId: 'f1', version: 1, values: {}, nodeIds: ['build'] }];
+
+    await new SavePipelineUseCase(repository).execute({
+      id: 'p1',
+      projectId: 'proj',
+      name: 'nightly',
+      nodes: [node('build')],
+      links,
+    });
+
+    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly', undefined, links);
   });
 
   it('sends nothing for a node id the server refuses, and names every refused id', async () => {

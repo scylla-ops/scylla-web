@@ -16,6 +16,8 @@ import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import { DEFAULT_PAGE_SIZE, type PaginatedList, type PaginationParams } from '@scylla/ui/structs';
 import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcPipeline from './grpc-pipeline.mapper.ts';
+import { linkFromDomain } from './grpc-fragment.mapper.ts';
+import type { FragmentLink } from '../domain/entities/fragment.entity.ts';
 import * as grpcPipelineFile from './grpc-pipeline-file.mapper.ts';
 import type {
   PipelineSummaryList,
@@ -122,6 +124,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
       name: pipeline.name,
       projectId: wrapId(pipeline.projectId),
       nodes: pipeline.nodes.map(grpcPipeline.nodeFromDomain),
+      fragmentLinks: [],
       ...(layout && { layout: grpcPipeline.layoutFromDomain(layout) }),
     }).response;
     this.keep(response.pipeline);
@@ -162,6 +165,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
     nodes: PipelineNodeEntity[],
     name?: string,
     layout?: PipelineLayout,
+    links?: FragmentLink[],
   ): Promise<PipelineEntity> {
     // A pipeline that this client never read: read it first, for its version.
     if (!this.versions.has(id)) await this.getById(id);
@@ -171,6 +175,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
       nodes: { nodes: nodes.map(grpcPipeline.nodeFromDomain) },
       ...(name !== undefined && { name }),
       ...(layout && { layout: grpcPipeline.layoutFromDomain(layout) }),
+      ...(links && { fragmentLinks: { links: links.map(linkFromDomain) } }),
     }).response;
     return this.keep(response.pipeline);
   }

@@ -31,7 +31,6 @@ export const communityMessages = {
   useInPipeline: msg`Use in a pipeline`,
   publishToMarketplace: msg`Publish to marketplace`,
   detachAsFork: msg`Detach as fork`,
-  compareWithUpstream: msg`Compare with upstream`,
 
   linkedNoticeTitle: (reference: string) => msg`Linked to ${reference}`,
   linkedNotice: (workspace: string) =>

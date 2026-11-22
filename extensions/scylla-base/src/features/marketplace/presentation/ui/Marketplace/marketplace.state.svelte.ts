@@ -15,7 +15,6 @@ import {
 } from '@base/features/marketplace/presentation/presenters/package-filter.presenter.ts';
 import {
   libraryStatus,
-  ownPackages,
   type LibraryStatus,
 } from '@base/features/marketplace/presentation/presenters/library-status.presenter.ts';
 
@@ -25,19 +24,18 @@ const context = toRune(contextStore);
 export type MarketplaceTab = 'explore' | 'added' | 'published';
 
 /**
- * The marketplace page: the packages of the other organizations with those that the workspace
- * publishes, where each one stands in the library, and the filters of the reader.
+ * The marketplace page: the packages of the marketplace, those of the workspace too, where each
+ * one stands in the library, and the filters of the reader.
  */
 export const createMarketplace = () => {
   const workspace = $derived(context().workspace);
   const packagesQuery = createQuery(() => marketplaceQueries.list());
   const fragmentsQuery = createQuery(() => fragmentQueries.list(workspace.id));
 
-  const scope = $derived(workspace.slug ?? '');
   const fragments = $derived(fragmentsQuery.data ?? []);
-  const packages = $derived([...(packagesQuery.data ?? []), ...ownPackages(fragments, scope)]);
+  const packages = $derived(packagesQuery.data ?? []);
   const statuses = $derived(
-    Object.fromEntries(packages.map(pkg => [pkg.id, libraryStatus(pkg, fragments, scope)])),
+    Object.fromEntries(packages.map(pkg => [pkg.id, libraryStatus(pkg, fragments)])),
   );
 
   const kindOf = (id: string) => statuses[id]?.kind ?? 'none';

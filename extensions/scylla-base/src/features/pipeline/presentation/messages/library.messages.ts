@@ -115,11 +115,23 @@ export const libraryMessages = {
   unknownFragment: msg`This fragment is no longer in the library.`,
 
   overview: msg`Content`,
+  selectNodeHint: msg`Click a node to see its code.`,
+  editNodeHint: msg`Click a node to change it. Your changes become a new version.`,
+  whatChanged: msg`What changed?`,
+  discardChanges: msg`Discard changes`,
+  deleteTitle: msg`Delete this fragment`,
+  deleteAction: msg`Delete fragment`,
+  deleteUnused: msg`No pipeline uses it. Its versions are lost.`,
+  deleteUsed: (count: number) =>
+    msg`${plural(count, { one: '# pipeline uses it', other: '# pipelines use it' })}: they keep its nodes and still run, but they no longer get its versions. Its versions are lost.`,
+  deletePublic: msg`It is public: other workspaces link it. Deprecate its versions instead.`,
+  deleteConfirmTitle: (name: string) => msg`Delete ${name}?`,
+  deletedTitle: msg`Fragment deleted`,
   versions: msg`Versions`,
   versionUsage: (count: number) =>
     msg`${plural(count, { 0: 'no pipeline', one: '# pipeline', other: '# pipelines' })}`,
   publishPolicy: (author: string) =>
-    msg`Only the author (${author}) and the admins can publish a new version. To publish one, select nodes in a pipeline and save them under the name of this fragment.`,
+    msg`Only the author (${author}) and the admins can publish a new version. Change the nodes in the graph above, or save nodes of a pipeline under the name of this fragment.`,
   noUsage: msg`No pipeline links this fragment yet.`,
   morePipelines: (count: number) => msg`${plural(count, { one: '+ # more', other: '+ # more' })}`,
   parameterName: msg`Name`,

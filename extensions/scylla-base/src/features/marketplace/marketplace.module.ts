@@ -5,9 +5,14 @@ import StoreIcon from '@lucide/svelte/icons/store';
 import { Permission } from '@platform/authz';
 import type { MarketplaceRepository } from '@base/features/marketplace/domain/repository/marketplace.repository.ts';
 import { DefaultMarketplaceRepository } from '@base/features/marketplace/infrastructure/default-marketplace.repository.ts';
+import { MarketplaceServiceClient } from '@base/generated/scylla/marketplace/v1/marketplace_service.client.ts';
+import { marketplaceTransport } from '@platform/grpc';
 
-// The packages of the marketplace: the library of fragments adds them, in the pipeline feature.
-const marketplaceRepository: MarketplaceRepository = new DefaultMarketplaceRepository();
+// The packages of the marketplace that Scylla hosts: the library of fragments adds them, in the
+// pipeline feature.
+const marketplaceRepository: MarketplaceRepository = new DefaultMarketplaceRepository(
+  new MarketplaceServiceClient(marketplaceTransport.getTransport()),
+);
 
 export const MarketplaceModule = {
   id: 'marketplace',

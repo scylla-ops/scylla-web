@@ -1,65 +1,37 @@
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { IMarketplaceServiceClient } from '@base/generated/scylla/marketplace/v1/marketplace_service.client.ts';
+import type { Package } from '@base/generated/scylla/marketplace/v1/package.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import type { MarketPackage } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
 import type { MarketplaceRepository } from '@base/features/marketplace/domain/repository/marketplace.repository.ts';
-import { seedPackages, type SeedPackage } from './marketplace-seeds.ts';
+import * as grpcMarketPackage from './grpc-market-package.mapper.ts';
 
-const STARS_KEY = 'scylla.marketplace-stars';
-
-type StarStorage = Pick<Storage, 'getItem' | 'setItem'>;
-
-/** As a server would: an error comes back as a rejected promise, never thrown at the call. */
-const answer = <T>(read: () => T): Promise<T> => new Promise(resolve => resolve(read()));
+const PAGE_SIZE = 100;
 
 /**
- * TODO: the server has no marketplace yet. This repository serves demo packages, and keeps the
- * stars of the reader in the browser; a gRPC repository replaces it in `marketplace.module.ts`,
- * and the domain contract and `marketplaceQueries` stay the same.
+ * The marketplace that Scylla hosts (`MarketplaceService`). Its reads need no token: a front of
+ * another server reads it too. The star needs a session of the server of the marketplace.
  */
 export class DefaultMarketplaceRepository implements MarketplaceRepository {
-  private readonly packages: SeedPackage[] = seedPackages();
+  constructor(private readonly client: IMarketplaceServiceClient) {}
 
-  constructor(private readonly storage: () => StarStorage = () => localStorage) {}
-
-  public list(): Promise<MarketPackage[]> {
-    return answer(() => {
-      const stars = this.readStars();
-      return this.packages.map(pkg => this.toEntity(pkg, stars));
-    });
+  public async list(): Promise<MarketPackage[]> {
+    const packages: Package[] = [];
+    let token = '';
+    do {
+      const response = await this.client.listPackages({ page: { size: PAGE_SIZE, token } }).response;
+      packages.push(...response.packages);
+      token = response.page?.nextToken ?? '';
+    } while (token);
+    return packages.map(grpcMarketPackage.toDomain);
   }
 
-  public getById(id: string): Promise<MarketPackage> {
-    return answer(() => this.toEntity(this.find(id), this.readStars()));
+  public async getById(id: string): Promise<MarketPackage> {
+    const { package: pkg } = await this.client.getPackage({ packageId: wrapId(id) }).response;
+    return grpcMarketPackage.toDomain(required(pkg, 'package'));
   }
 
-  public setStar(id: string, starred: boolean): Promise<MarketPackage> {
-    return answer(() => {
-      const pkg = this.find(id);
-      const others = this.readStars().filter(starredId => starredId !== id);
-      const stars = starred ? [...others, id] : others;
-      this.storage().setItem(STARS_KEY, JSON.stringify(stars));
-      return this.toEntity(pkg, stars);
-    });
-  }
-
-  private find(id: string): SeedPackage {
-    const pkg = this.packages.find(candidate => candidate.id === id);
-    if (!pkg) throw new ScyllaError(`No package ${id}`, { code: 'NOT_FOUND' });
-    return pkg;
-  }
-
-  /** The star of the reader counts with the others. */
-  private toEntity(pkg: SeedPackage, stars: string[]): MarketPackage {
-    const starred = stars.includes(pkg.id);
-    return { ...pkg, starred, stars: pkg.stars + (starred ? 1 : 0) };
-  }
-
-  /** Something unreadable in the storage is no star. */
-  private readStars(): string[] {
-    try {
-      const stored: unknown = JSON.parse(this.storage().getItem(STARS_KEY) ?? '[]');
-      return Array.isArray(stored) ? stored.filter(id => typeof id === 'string') : [];
-    } catch {
-      return [];
-    }
+  public async setStar(id: string, starred: boolean): Promise<MarketPackage> {
+    await this.client.setPackageStar({ packageId: wrapId(id), starred }).response;
+    return this.getById(id);
   }
 }

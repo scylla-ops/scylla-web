@@ -1,9 +1,12 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import {
+  canDeleteFragment,
   canPublishVersion,
   carryValues,
   detectParameters,
+  editedParameters,
+  fragmentDeleteIssue,
   fragmentNodesOf,
   instantiate,
   missingParameters,
@@ -161,5 +164,53 @@ describe('instantiate', () => {
 
     expect(fmt.env).toEqual([{ key: 'RUST_TOOLCHAIN', kind: 'literal', value: 'nightly' }]);
     expect(publish.env).toEqual([]);
+  });
+});
+
+describe('editedParameters', () => {
+  it('keeps the choices of the author, adds a new variable and drops a removed one', () => {
+    // RUST_TOOLCHAIN was left inline by the author: an edit does not expose it.
+    const previous = version(2, [TOKEN]);
+    const nodes = [
+      node(
+        'fmt',
+        [],
+        [
+          { key: 'RUST_TOOLCHAIN', kind: 'literal', value: 'stable' },
+          { key: 'CARGO_FLAGS', kind: 'literal', value: '--locked' },
+        ],
+      ),
+    ];
+
+    expect(editedParameters(previous, nodes)).toEqual([
+      { key: 'CARGO_FLAGS', kind: 'literal', default: '--locked' },
+    ]);
+    expect(editedParameters(previous, previous.nodes)).toEqual([TOKEN]);
+  });
+});
+
+describe('canDeleteFragment', () => {
+  const own = { author, source: undefined };
+  const linked = {
+    author,
+    source: { kind: 'linked' as const } as FragmentEntity['source'],
+  };
+
+  it('lets the author and the admins delete a fragment of the workspace', () => {
+    expect(canDeleteFragment(own, { id: 'rem', admin: false })).toBe(true);
+    expect(canDeleteFragment(own, { id: 'ines', admin: false })).toBe(false);
+    expect(canDeleteFragment(own, { id: 'ines', admin: true })).toBe(true);
+  });
+
+  it('keeps a linked fragment for the admins: it comes from the marketplace', () => {
+    expect(canDeleteFragment(linked, { id: 'rem', admin: false })).toBe(false);
+    expect(canDeleteFragment(linked, { id: 'rem', admin: true })).toBe(true);
+  });
+
+  it('never deletes a public fragment: other workspaces link it', () => {
+    expect(fragmentDeleteIssue({ publication: undefined })).toBeNull();
+    expect(
+      fragmentDeleteIssue({ publication: {} as NonNullable<FragmentEntity['publication']> }),
+    ).toBe('public');
   });
 });

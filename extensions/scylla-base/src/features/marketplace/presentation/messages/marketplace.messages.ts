@@ -8,7 +8,6 @@ export const marketplaceMessages = {
   search: msg`Search fragments, steps, publishers…`,
   sortBy: msg`Sort by`,
   orders: {
-    'most-installed': msg`Most installed`,
     'most-starred': msg`Most starred`,
     recent: msg`Recently updated`,
     name: msg`Name`,
@@ -36,7 +35,6 @@ export const marketplaceMessages = {
     msg`${workspace} has not published a fragment yet. Publish one from its page in the library.`,
   loadError: msg`The marketplace could not be loaded.`,
 
-  installs: (count: string) => msg`${count} installs`,
   stars: (count: string) => msg`${count} stars`,
   inLibrary: msg`In library`,
   inLibraryVersion: (version: number) => msg`In library · v${version}`,
@@ -68,7 +66,6 @@ export const marketplaceMessages = {
   ownDetail: msg`Its versions, stars and adoption are followed on its page in the library.`,
 
   versions: msg`Versions`,
-  versionInstalls: (count: string) => msg`${count} installs`,
   deprecated: msg`deprecated`,
   immutableVersions: msg`Versions are immutable. Your library decides when to move to a new one.`,
 

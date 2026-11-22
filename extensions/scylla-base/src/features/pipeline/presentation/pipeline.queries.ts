@@ -20,8 +20,6 @@ import {
   type SavePipelineInput,
 } from '../domain/use-cases/save-pipeline.use-case.ts';
 import type { NodeTemplateEntity } from '../domain/entities/node-template.entity.ts';
-import type { FragmentLink } from '../domain/entities/fragment.entity.ts';
-import { saveFragmentLinks } from './fragment.queries.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
 import { pipelineMessages } from './messages/pipeline.messages.ts';
 import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
@@ -37,6 +35,8 @@ import {
   RUN_PIPELINE_MUTATION_KEY,
   NODE_TEMPLATES_QUERY_KEY,
   WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY,
+  FRAGMENTS_QUERY_ROOT,
+  FRAGMENT_LINKS_QUERY_KEY,
 } from './pipeline.query-keys.ts';
 import type {
   PipelineSummaryList,
@@ -149,7 +149,6 @@ export const pipelineQueries = {
 
 export interface UpdatePipelineInput extends SavePipelineInput {
   id: string;
-  links?: FragmentLink[];
 }
 
 /** No ref: an editor pipeline runs with no commit, a file pipeline at the head of the default branch. */
@@ -214,25 +213,17 @@ export const pipelineMutations = {
       },
     }),
 
-  /** With `links`, the fragments that the pipeline links are saved after its nodes. */
+  /** With `links`, the fragments that the pipeline links are saved with its nodes. */
   update: () =>
     mutationOptions({
-      mutationFn: async ({ links, ...pipeline }: UpdatePipelineInput) => {
-        await save(pipeline);
-        if (links) {
-          await saveFragmentLinks(
-            {
-              pipelineId: pipeline.id,
-              pipelineName: pipeline.name,
-              projectId: pipeline.projectId,
-              projectName: currentProject().name ?? '',
-            },
-            links,
-          );
-        }
-      },
-      onSuccess: (_, { id, projectId }) => {
+      mutationFn: (pipeline: UpdatePipelineInput) => save(pipeline),
+      onSuccess: (_, { id, projectId, links }) => {
         const queryClient = getQueryClient();
+        if (links) {
+          void queryClient.invalidateQueries({ queryKey: FRAGMENT_LINKS_QUERY_KEY(id) });
+          // The library counts the pipelines that use each fragment.
+          void queryClient.invalidateQueries({ queryKey: FRAGMENTS_QUERY_ROOT });
+        }
         void queryClient.invalidateQueries({ queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId) });
         void queryClient.invalidateQueries({ queryKey: PIPELINE_QUERY_KEY(id) });
         toast.success(i18n._(ToastMessages.PIPELINE_UPDATE));

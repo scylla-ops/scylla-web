@@ -1,0 +1,128 @@
+syntax = "proto3";
+
+package scylla.marketplace.v1;
+
+import "scylla/common/v1/id.proto";
+import "scylla/common/v1/page.proto";
+import "scylla/marketplace/v1/package.proto";
+
+// The marketplace: the fragments that the workspaces of this server publish, for the libraries
+// of each Scylla server. ListPackages and GetPackage are public: they need no token. The other
+// RPCs need an authenticated actor of this server, else UNAUTHENTICATED. An unknown fragment
+// gives PERMISSION_DENIED, as a refusal does.
+service MarketplaceService {
+  // Makes a version of a fragment public. The first call makes the package, and a later call
+  // adds the version and sets the license, the category, the tags and auto_publish again. With
+  // auto_publish, each new version of the fragment is public at once. The route permission is
+  // publish_fragment on the workspace of the fragment: for example the roles owner and admin. A
+  // fragment linked to a package gives FAILED_PRECONDITION with the reason FRAGMENT_LINKED, and
+  // a version that the fragment does not have NOT_FOUND. A public fragment cannot be deleted:
+  // DeleteFragment gives FAILED_PRECONDITION with the reason FRAGMENT_PUBLIC.
+  rpc PublishFragment(PublishFragmentRequest) returns (PublishFragmentResponse);
+  // Deprecates a public version: no new workspace can add it, and the workspaces that have it
+  // keep it. The route permission is deprecate_package_version on the workspace of the
+  // fragment: for example the roles owner and admin. A version that is not public gives
+  // FAILED_PRECONDITION with the reason PACKAGE_VERSION_NOT_PUBLIC.
+  rpc DeprecatePackageVersion(DeprecatePackageVersionRequest) returns (DeprecatePackageVersionResponse);
+  // Lists the packages, in id order, with the content of their latest version only. Public: a
+  // call with no token lists them. With a token of this server, starred tells the star of the
+  // caller.
+  rpc ListPackages(ListPackagesRequest) returns (ListPackagesResponse);
+  // Reads one package with the content of each public version. Public, as ListPackages. An
+  // unknown package gives NOT_FOUND.
+  rpc GetPackage(GetPackageRequest) returns (GetPackageResponse);
+  // Stars a package for the caller, or removes the star. An unknown package gives NOT_FOUND.
+  rpc SetPackageStar(SetPackageStarRequest) returns (SetPackageStarResponse);
+  // Lists the public fragments of a workspace, in fragment id order. The route permission is
+  // list_publications: for example the roles owner, admin, member and viewer.
+  rpc ListPublications(ListPublicationsRequest) returns (ListPublicationsResponse);
+}
+
+// The input of PublishFragment.
+message PublishFragmentRequest {
+  // The fragment of the library. Required.
+  scylla.common.v1.Id fragment_id = 1;
+  // The version of the fragment to make public.
+  uint32 version = 2;
+  // The license: 1 to 64 characters on one line.
+  string license = 3;
+  // The shelf. Required.
+  PackageCategory category = 4;
+  // The tags, at most 16, each 1 to 32 characters after trim, with no two the same.
+  repeated string tags = 5;
+  // True to make each new version of the fragment public at once.
+  bool auto_publish = 6;
+}
+
+// The output of PublishFragment.
+message PublishFragmentResponse {
+  // The publication.
+  Publication publication = 1;
+}
+
+// The input of DeprecatePackageVersion.
+message DeprecatePackageVersionRequest {
+  // The public fragment of the library. Required.
+  scylla.common.v1.Id fragment_id = 1;
+  // The public version.
+  uint32 version = 2;
+}
+
+// The output of DeprecatePackageVersion.
+message DeprecatePackageVersionResponse {
+  // The publication.
+  Publication publication = 1;
+}
+
+// The input of ListPackages.
+message ListPackagesRequest {
+  // The page.
+  scylla.common.v1.PageRequest page = 1;
+}
+
+// The output of ListPackages.
+message ListPackagesResponse {
+  // The packages of the page, in id order.
+  repeated Package packages = 1;
+  // How to get the next page.
+  scylla.common.v1.PageResponse page = 2;
+}
+
+// The input of GetPackage.
+message GetPackageRequest {
+  // The package. Required.
+  scylla.common.v1.Id package_id = 1;
+}
+
+// The output of GetPackage.
+message GetPackageResponse {
+  // The package.
+  Package package = 1;
+}
+
+// The input of SetPackageStar.
+message SetPackageStarRequest {
+  // The package. Required.
+  scylla.common.v1.Id package_id = 1;
+  // True to star the package, false to remove the star.
+  bool starred = 2;
+}
+
+// The output of SetPackageStar.
+message SetPackageStarResponse {}
+
+// The input of ListPublications.
+message ListPublicationsRequest {
+  // The workspace. Required.
+  scylla.common.v1.Id workspace_id = 1;
+  // The page.
+  scylla.common.v1.PageRequest page = 2;
+}
+
+// The output of ListPublications.
+message ListPublicationsResponse {
+  // The publications of the page, in fragment id order.
+  repeated Publication publications = 1;
+  // How to get the next page.
+  scylla.common.v1.PageResponse page = 2;
+}

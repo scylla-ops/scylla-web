@@ -80,6 +80,7 @@ describe('fragment community presenter', () => {
       versions: [version(1), version(2), version(3)],
       source: { kind: 'forked', package: PACKAGE, addedAt: '', baseVersion: 4, upstream: null },
       publication: {
+        packageId: 'p-node-ci',
         name: 'node-ci',
         license: 'MIT',
         category: 'build',
@@ -88,7 +89,7 @@ describe('fragment community presenter', () => {
         deprecated: [1],
         publishedAt: '',
         publishedBy: { id: 'rem', name: 'Rem' },
-        stats: { installs: 0, organizations: 0, stars: 0, forks: 0, adoption: [] },
+        stats: { stars: 0 },
       },
     });
 

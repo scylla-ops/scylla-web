@@ -1,14 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { FragmentSource } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
-import {
-  acceptUpstream,
-  canDecideUpstream,
-  detachAsFork,
-  dismissUpstream,
-  pendingUpstream,
-  pinnedValues,
-  skipUpstream,
-} from '../fragment-upstream.struct.ts';
+import { canDecideUpstream, pendingUpstream, pinnedValues } from '../fragment-upstream.struct.ts';
 import { literal, PACKAGE, usage, version } from './fragment-test-data.ts';
 
 const linkedSource = (skipped: number[] = []): FragmentSource => ({
@@ -35,31 +27,6 @@ describe('fragment upstream', () => {
   it('leaves the decision to the admins', () => {
     expect(canDecideUpstream({ admin: true })).toBe(true);
     expect(canDecideUpstream({ admin: false })).toBe(false);
-  });
-
-  it('moves an accepted version into the library', () => {
-    const accepted = acceptUpstream(linked(), 10);
-
-    expect(accepted.versions.map(entry => entry.number)).toEqual([8, 10]);
-    expect(pendingUpstream(accepted)).toBeNull();
-    expect(() => acceptUpstream(linked(), 11)).toThrow();
-  });
-
-  it('keeps a skipped version in the history of the publisher', () => {
-    const skipped = skipUpstream(linked(), 10);
-
-    expect(skipped.versions.map(entry => entry.number)).toEqual([8]);
-    expect(skipped.source?.kind === 'linked' && skipped.source.upstream).toHaveLength(2);
-  });
-
-  it('turns a linked fragment into a fork on its latest version, the release still shown', () => {
-    const fork = detachAsFork(linked());
-
-    expect(fork.source).toEqual(
-      expect.objectContaining({ kind: 'forked', baseVersion: 8, upstream: version(10) }),
-    );
-    expect(pendingUpstream(dismissUpstream(fork))).toBeNull();
-    expect(() => dismissUpstream(linked())).toThrow();
   });
 
   it('finds the pipelines that keep their own value when a default changes', () => {

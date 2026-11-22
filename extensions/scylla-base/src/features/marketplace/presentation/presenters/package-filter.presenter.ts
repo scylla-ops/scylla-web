@@ -6,10 +6,9 @@ import {
   type PackageStack,
 } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
 
-export type PackageOrder = 'most-installed' | 'most-starred' | 'recent' | 'name';
+export type PackageOrder = 'most-starred' | 'recent' | 'name';
 
 export const PACKAGE_ORDERS: readonly PackageOrder[] = [
-  'most-installed',
   'most-starred',
   'recent',
   'name',
@@ -32,13 +31,12 @@ export const NO_FILTER: PackageFilter = {
   officialOnly: false,
   categories: [],
   stacks: [],
-  order: 'most-installed',
+  order: 'recent',
 };
 
 const updatedAt = (pkg: MarketPackage) => latestPackageVersion(pkg).publishedAt;
 
 const COMPARE: Record<PackageOrder, (a: MarketPackage, b: MarketPackage) => number> = {
-  'most-installed': (a, b) => b.installs - a.installs,
   'most-starred': (a, b) => b.stars - a.stars,
   recent: (a, b) => updatedAt(b).localeCompare(updatedAt(a)),
   name: (a, b) => a.name.localeCompare(b.name),

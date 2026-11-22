@@ -4,6 +4,7 @@ import { pipelineIssue } from '../entities/pipeline.entity.ts';
 import type { PipelineNodeEntity } from '../entities/pipeline-node.entity.ts';
 import type { PipelineIssue } from '../entities/pipeline.entity.ts';
 import type { PipelineLayout } from '../structs/pipeline-layout.struct.ts';
+import type { FragmentLink } from '../entities/fragment.entity.ts';
 
 export interface SavePipelineInput {
   /** None for a new pipeline. */
@@ -13,6 +14,8 @@ export interface SavePipelineInput {
   nodes: PipelineNodeEntity[];
   /** The places of the nodes that the server does not hold yet. */
   layout?: PipelineLayout;
+  /** The fragment links of a saved pipeline, sent with its nodes. None: the links stay. */
+  links?: FragmentLink[];
 }
 
 /** The pipeline breaks a rule of the domain: nothing was sent to the server. */
@@ -29,11 +32,18 @@ export class InvalidPipelineError extends ScyllaError {
 export class SavePipelineUseCase {
   constructor(private readonly _repository: PipelineRepository) {}
 
-  public async execute({ id, projectId, name, nodes, layout }: SavePipelineInput): Promise<void> {
+  public async execute({
+    id,
+    projectId,
+    name,
+    nodes,
+    layout,
+    links,
+  }: SavePipelineInput): Promise<void> {
     const issue = pipelineIssue({ name, nodes });
     if (issue) throw new InvalidPipelineError(issue);
 
-    if (id) await this._repository.edit(id, nodes, name, layout);
+    if (id) await this._repository.edit(id, nodes, name, layout, links);
     else await this._repository.create({ projectId, name, nodes }, layout);
   }
 }

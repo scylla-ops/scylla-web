@@ -10,7 +10,6 @@
     type MarketPackage,
   } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
   import { marketplaceMessages } from '@base/features/marketplace/presentation/messages/marketplace.messages.ts';
-  import { compactCount } from '@base/features/marketplace/presentation/presenters/package.presenter.ts';
 
   interface Props {
     pkg: MarketPackage;
@@ -35,9 +34,6 @@
           <p class="flex flex-wrap items-baseline gap-x-1.5">
             <span class="font-medium text-foreground">{version.author.name}</span>
             <span class="text-muted-foreground">· {getRelativeTime(version.publishedAt)}</span>
-            <span class="text-muted-foreground">
-              · {t(marketplaceMessages.versionInstalls(compactCount(version.installs)))}
-            </span>
             {#if deprecated}
               <span class="rounded-full border border-destructive/40 px-1.5 text-[10.5px] text-destructive">
                 {t(marketplaceMessages.deprecated)}

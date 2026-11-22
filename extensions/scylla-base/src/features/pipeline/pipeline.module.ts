@@ -3,25 +3,35 @@ import { msg } from '@lingui/core/macro';
 import LibraryBigIcon from '@lucide/svelte/icons/library-big';
 import WorkflowIcon from '@lucide/svelte/icons/workflow';
 import { Permission } from '@platform/authz';
-import { grpcTransport } from '@platform/grpc';
+import { grpcTransport, marketplaceIsLocal, marketplaceTransport, marketplaceUrl } from '@platform/grpc';
 import { PipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
+import { FragmentServiceClient } from '@base/generated/scylla/library/v1/fragment_service.client.ts';
+import { MarketplaceServiceClient } from '@base/generated/scylla/marketplace/v1/marketplace_service.client.ts';
 import { DefaultPipelineRepository } from './infrastructure/default-pipeline.repository.ts';
 import { DefaultNodeTemplateRepository } from './infrastructure/default-node-template.repository.ts';
 import { DefaultFragmentRepository } from './infrastructure/default-fragment.repository.ts';
 import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
 import { pipelineCommands } from './presentation/pipeline.commands.ts';
+import { fragmentLinks } from './presentation/ui/library/fragment-links.state.svelte.ts';
 import './presentation/node-appearance.user-state.ts';
 
-const pipelineRepository = new DefaultPipelineRepository(
-  new PipelineServiceClient(grpcTransport.getTransport()),
-);
+const pipelineClient = new PipelineServiceClient(grpcTransport.getTransport());
+const pipelineRepository = new DefaultPipelineRepository(pipelineClient);
 
 export const PipelineModule = {
   id: 'pipeline',
   domain: {
     pipelineRepository: pipelineRepository,
     nodeTemplateRepository: new DefaultNodeTemplateRepository(),
-    fragmentRepository: new DefaultFragmentRepository(),
+    fragmentRepository: new DefaultFragmentRepository(
+      new FragmentServiceClient(grpcTransport.getTransport()),
+      pipelineClient,
+      {
+        client: new MarketplaceServiceClient(marketplaceTransport.getTransport()),
+        registry: marketplaceUrl() || window.location.origin,
+        local: marketplaceIsLocal(),
+      },
+    ),
     savePipeline: new SavePipelineUseCase(pipelineRepository),
   },
   commands: pipelineCommands,
@@ -86,5 +96,8 @@ export const PipelineModule = {
         page: () => import('./presentation/ui/PipelineJobs/PipelineJobs.page.svelte'),
       },
     ],
+  },
+  shell: {
+    secondSidebarLinks: fragmentLinks,
   },
 } satisfies ScyllaModule;

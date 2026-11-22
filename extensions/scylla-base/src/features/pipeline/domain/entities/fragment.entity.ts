@@ -96,12 +96,7 @@ export type FragmentSource =
 
 /** What the marketplace tells the publisher about a public fragment. */
 export interface PublicationStats {
-  installs: number;
-  organizations: number;
   stars: number;
-  forks: number;
-  /** How many organizations use each public version. */
-  adoption: { version: number; organizations: number }[];
 }
 
 /** The shelves of the marketplace: a public fragment sits on one. */
@@ -111,6 +106,8 @@ export type MarketplaceCategory = (typeof MARKETPLACE_CATEGORIES)[number];
 
 /** A fragment of the workspace made public. Only the versions in `versions` are public. */
 export interface FragmentPublication {
+  /** The id of the package in the marketplace: the address of its page. */
+  packageId: string;
   /**
    * The name in the marketplace, without its scope: the slug of the workspace makes it
    * `@workspace/name` (see `publicName`). It stays the same across versions.
@@ -230,6 +227,21 @@ export const canPublishVersion = (
   fragment.source?.kind !== 'linked' && (person.admin || fragment.author.id === person.id);
 
 /**
+ * The author and the admins delete a fragment of the workspace; a linked one, only an admin, as
+ * it comes from the marketplace.
+ */
+export const canDeleteFragment = (
+  fragment: Pick<FragmentEntity, 'author' | 'source'>,
+  person: { id: string; admin: boolean },
+): boolean =>
+  person.admin || (fragment.source?.kind !== 'linked' && fragment.author.id === person.id);
+
+/** A public fragment stays: other workspaces link it. Deprecate its versions instead. */
+export const fragmentDeleteIssue = (
+  fragment: Pick<FragmentEntity, 'publication'>,
+): 'public' | null => (fragment.publication ? 'public' : null);
+
+/**
  * The nodes as a fragment holds them: a dependency on a node outside the selection is dropped,
  * as the pipeline that links the fragment gives it its own.
  */
@@ -251,6 +263,23 @@ export const detectParameters = (nodes: PipelineNodeEntity[]): FragmentParameter
     );
   }
   return [...byKey.values()];
+};
+
+/**
+ * The parameters of a version edited from the one before: a variable that the edit adds is a
+ * parameter, a variable that it removes is not, and the others keep the choice of the author.
+ */
+export const editedParameters = (
+  previous: Pick<FragmentVersion, 'nodes' | 'parameters'>,
+  nodes: PipelineNodeEntity[],
+): FragmentParameter[] => {
+  const before = new Set(previous.nodes.flatMap(node => node.env.map(entry => entry.key)));
+  const detected = detectParameters(nodes);
+  const keys = new Set(detected.map(parameter => parameter.key));
+  return [
+    ...previous.parameters.filter(parameter => keys.has(parameter.key)),
+    ...detected.filter(parameter => !before.has(parameter.key)),
+  ];
 };
 
 export const defaultValues = (parameters: FragmentParameter[]): ParameterValues =>

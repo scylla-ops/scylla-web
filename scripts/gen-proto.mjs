@@ -89,14 +89,20 @@ const targets = extensionDirs.flatMap((dir) => {
   return [{ dir, protos: scylla.protos, protoDirs: [...new Set([protoDir, publicDir])] }];
 });
 
+/**
+ * The files of all roots under a prefix. A file of a first root hides the file of the same path
+ * in a later root: a host overrides a public proto, and adds its own.
+ */
 const protosUnder = (roots, prefix) => {
+  const byPath = new Map();
   for (const { dir, files } of roots) {
-    const matches = files.filter((file) => {
+    for (const file of files) {
       const relPath = relative(dir, file).split(sep).join('/');
-      return relPath === `${prefix}.proto` || relPath.startsWith(`${prefix}/`);
-    });
-    if (matches.length > 0) return matches;
+      const matches = relPath === `${prefix}.proto` || relPath.startsWith(`${prefix}/`);
+      if (matches && !byPath.has(relPath)) byPath.set(relPath, file);
+    }
   }
+  if (byPath.size > 0) return [...byPath.values()];
   console.error(`No .proto file under ${roots.map((root) => root.dir).join(' or ')} matches "${prefix}".`);
   process.exit(1);
 };

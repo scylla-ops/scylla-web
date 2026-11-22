@@ -1,8 +1,4 @@
-import {
-  latestVersion,
-  marketplacePackageId,
-  type FragmentEntity,
-} from '@base/features/pipeline';
+import { latestVersion, type FragmentEntity } from '@base/features/pipeline';
 import {
   isNewPackage,
   latestPackageVersion,
@@ -21,16 +17,11 @@ export type LibraryStatus =
   | { kind: 'forked'; fragment: FragmentEntity }
   | { kind: 'own'; fragment: FragmentEntity };
 
-/** `scope`: the slug of the workspace, the publisher of its own packages. */
 export const libraryStatus = (
   pkg: Pick<MarketPackage, 'id'>,
   fragments: readonly FragmentEntity[],
-  scope: string,
 ): LibraryStatus => {
-  const own = fragments.find(
-    fragment =>
-      fragment.publication && marketplacePackageId(scope, fragment.publication.name) === pkg.id,
-  );
+  const own = fragments.find(fragment => fragment.publication?.packageId === pkg.id);
   if (own) return { kind: 'own', fragment: own };
 
   const added = fragments.find(fragment => fragment.source?.package.packageId === pkg.id);
@@ -39,38 +30,6 @@ export const libraryStatus = (
   if (added) return { kind: 'forked', fragment: added };
   return { kind: 'none' };
 };
-
-/**
- * The fragments that the workspace made public, as the marketplace shows them. The server will
- * list them with the others; in the browser, the library holds them.
- */
-export const ownPackages = (fragments: readonly FragmentEntity[], scope: string): MarketPackage[] =>
-  fragments.flatMap(fragment => {
-    const { publication } = fragment;
-    if (!publication) return [];
-    const versions = fragment.versions
-      .filter(version => publication.versions.includes(version.number))
-      .map(version => ({ ...version, installs: 0 }));
-    return [
-      {
-        id: marketplacePackageId(scope, publication.name),
-        name: publication.name,
-        description: fragment.description,
-        publisher: { handle: scope, verified: false, official: false },
-        category: publication.category,
-        stacks: [],
-        tags: fragment.tags,
-        versions,
-        deprecated: publication.deprecated,
-        requirements: [],
-        readme: fragment.description,
-        installs: publication.stats.installs,
-        stars: publication.stats.stars,
-        starred: false,
-        createdAt: publication.publishedAt,
-      },
-    ];
-  });
 
 /** What the corner of a card says, before its date. */
 export type CardBadge =

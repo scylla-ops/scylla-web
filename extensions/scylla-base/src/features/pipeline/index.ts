@@ -36,7 +36,11 @@ export type {
   PackageRef,
 } from './domain/entities/fragment.entity.ts';
 export { MARKETPLACE_CATEGORIES, latestVersion } from './domain/entities/fragment.entity.ts';
-export { marketplacePackageId, publicName } from './domain/structs/fragment-publication.struct.ts';
+export { publicName } from './domain/structs/fragment-publication.struct.ts';
+export {
+  categoryToDomain,
+  versionFromContent,
+} from './infrastructure/grpc-fragment.mapper.ts';
 export { pendingUpstream } from './domain/structs/fragment-upstream.struct.ts';
 export { fragmentMutations, fragmentQueries } from './presentation/fragment.queries.ts';
 export { categoryName } from './presentation/presenters/fragment-community.presenter.ts';

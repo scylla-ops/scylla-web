@@ -277,7 +277,7 @@ describe('pipelineMutations.update', () => {
 
   it('edits by id', async () => {
     await runMutationFn(pipelineMutations.update(), edited);
-    expect(repository.edit).toHaveBeenCalledWith('pipeline-1', [], 'ci', undefined);
+    expect(repository.edit).toHaveBeenCalledWith('pipeline-1', [], 'ci', undefined, undefined);
   });
 
   it('refuses a node id the server does not accept, in the words of the user, and sends nothing', async () => {

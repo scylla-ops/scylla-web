@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cardBadge, libraryStatus, ownPackages } from '../library-status.presenter.ts';
+import { cardBadge, libraryStatus } from '../library-status.presenter.ts';
 import { libraryFragment, marketPackage, packageVersion } from './package-test-data.ts';
 
 const PACKAGE_REF = {
@@ -20,6 +20,7 @@ const published = libraryFragment({
   name: 'rust-ci',
   versions: [packageVersion(1), packageVersion(2), packageVersion(3)],
   publication: {
+    packageId: 'p-rust-ci',
     name: 'rust-ci',
     license: 'MIT',
     category: 'ci',
@@ -28,44 +29,33 @@ const published = libraryFragment({
     deprecated: [2],
     publishedAt: '2026-11-18T10:00:00Z',
     publishedBy: { id: 'rem', name: 'Rem' },
-    stats: { installs: 46, organizations: 9, stars: 12, forks: 1, adoption: [] },
+    stats: { stars: 12 },
   },
 });
 
 describe('library status', () => {
   it('finds a package in the library, linked on a version, or forked', () => {
-    expect(libraryStatus(marketPackage(), [linked], 'acme')).toEqual({
+    expect(libraryStatus(marketPackage(), [linked])).toEqual({
       kind: 'linked',
       fragment: linked,
       version: 8,
     });
-    expect(libraryStatus(marketPackage(), [forked], 'acme').kind).toBe('forked');
-    expect(libraryStatus(marketPackage(), [], 'acme').kind).toBe('none');
+    expect(libraryStatus(marketPackage(), [forked]).kind).toBe('forked');
+    expect(libraryStatus(marketPackage(), []).kind).toBe('none');
   });
 
-  it('shows the public fragments of the workspace as its own packages', () => {
-    const [own] = ownPackages([linked, published], 'acme');
-
-    expect(own).toEqual(
-      expect.objectContaining({
-        id: 'acme.rust-ci',
-        publisher: { handle: 'acme', verified: false, official: false },
-        deprecated: [2],
-        installs: 46,
-      }),
-    );
-    expect(own.versions.map(version => version.number)).toEqual([2, 3]);
-    expect(libraryStatus(own, [published], 'acme').kind).toBe('own');
+  it('finds a public fragment of the workspace by the id of its package', () => {
+    expect(libraryStatus({ id: 'p-rust-ci' }, [linked, published]).kind).toBe('own');
   });
 
   it('badges the version of a linked fragment only when the publisher is ahead', () => {
     const pkg = marketPackage();
 
-    expect(cardBadge(pkg, libraryStatus(pkg, [linked], 'acme'))).toEqual({
+    expect(cardBadge(pkg, libraryStatus(pkg, [linked]))).toEqual({
       kind: 'in-library',
       version: 8,
     });
-    expect(cardBadge(pkg, libraryStatus(pkg, [forked], 'acme'))).toEqual({
+    expect(cardBadge(pkg, libraryStatus(pkg, [forked]))).toEqual({
       kind: 'in-library',
       version: null,
     });

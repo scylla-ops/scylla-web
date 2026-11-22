@@ -1,4 +1,10 @@
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import type { IFragmentServiceClient } from '@base/generated/scylla/library/v1/fragment_service.client.ts';
+import type { Fragment } from '@base/generated/scylla/library/v1/fragment.ts';
+import type { IMarketplaceServiceClient } from '@base/generated/scylla/marketplace/v1/marketplace_service.client.ts';
+import type { Package, Publication } from '@base/generated/scylla/marketplace/v1/package.ts';
+import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import type { FragmentRepository } from '@base/features/pipeline/domain/repository/fragment.repository.ts';
 import {
   latestVersion,
@@ -6,324 +12,260 @@ import {
   type CreateFragmentInput,
   type FragmentEntity,
   type FragmentLink,
-  type FragmentUsage,
-  type LinkingPipeline,
   type PublishFragmentVersionInput,
   type PublishToMarketplaceInput,
 } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
-import {
-  acceptUpstream,
-  detachAsFork,
-  dismissUpstream,
-  skipUpstream,
-} from '@base/features/pipeline/domain/structs/fragment-upstream.struct.ts';
-import {
-  publicName,
-  withDeprecated,
-  withNewVersion,
-  withPublication,
-} from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
-import { seedFragments, type StoredFragment } from './fragment-seeds.ts';
+import { publicName } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
+import * as grpcFragment from './grpc-fragment.mapper.ts';
+import { nodeFromDomain } from './grpc-pipeline.mapper.ts';
 
-const STORAGE_KEY = 'scylla.fragment-library';
+const PAGE_SIZE = 100;
 
-interface StoredLinks {
-  pipeline: LinkingPipeline;
-  links: FragmentLink[];
+/** Where the marketplace is, and whether it is the server of the session. */
+export interface MarketplaceAccess {
+  client: IMarketplaceServiceClient;
+  /** The URL that the origin of a fragment names. */
+  registry: string;
+  /** The marketplace takes the token of the session: its workspaces publish, and list it. */
+  local: boolean;
 }
 
-interface StoredLibrary {
-  /** The workspaces whose demo fragments are already in `fragments`. */
-  seeded: string[];
-  fragments: StoredFragment[];
-  favorites: string[];
-  linksByPipeline: Record<string, StoredLinks>;
-}
-
-const EMPTY_LIBRARY: StoredLibrary = {
-  seeded: [],
-  fragments: [],
-  favorites: [],
-  linksByPipeline: {},
+/** Reads every page of a list. */
+const allPages = async <T>(read: (token: string) => Promise<{ items: T[]; next: string }>) => {
+  const items: T[] = [];
+  let token = '';
+  do {
+    const page = await read(token);
+    items.push(...page.items);
+    token = page.next;
+  } while (token);
+  return items;
 };
 
-type LibraryStorage = Pick<Storage, 'getItem' | 'setItem'>;
-
 /**
- * TODO: the server has no library yet. This repository keeps it in the browser, with demo
- * fragments in each workspace; a gRPC repository replaces it in `pipeline.module.ts`, and the
- * domain contract and `fragmentQueries` stay the same.
+ * The library of the core (`FragmentService`). A fragment of a package keeps its origin in the
+ * core; the versions that it can take come from the marketplace that Scylla hosts. The links of a
+ * pipeline are read with the pipeline, and saved with it by `PipelineRepository.edit`.
  */
 export class DefaultFragmentRepository implements FragmentRepository {
-  constructor(private readonly storage: () => LibraryStorage = () => localStorage) {}
+  constructor(
+    private readonly client: IFragmentServiceClient,
+    private readonly pipelines: IPipelineServiceClient,
+    private readonly marketplace: MarketplaceAccess,
+  ) {}
 
-  public list(workspaceId: string): Promise<FragmentEntity[]> {
-    return this.run(library => {
-      const seeded = this.withSeeds(library, workspaceId);
-      return {
-        next: seeded,
-        result: seeded.fragments
-          .filter(fragment => fragment.workspaceId === workspaceId)
-          .map(fragment => this.toEntity(seeded, fragment)),
-      };
+  public async list(workspaceId: string): Promise<FragmentEntity[]> {
+    const fragments = await allPages(async token => {
+      const response = await this.client.listFragments({
+        workspaceId: wrapId(workspaceId),
+        page: { size: PAGE_SIZE, token },
+      }).response;
+      return { items: response.fragments, next: response.page?.nextToken ?? '' };
     });
+    return this.complete(workspaceId, fragments);
   }
 
-  public getById(workspaceId: string, id: string): Promise<FragmentEntity> {
-    return this.run(library => {
-      const seeded = this.withSeeds(library, workspaceId);
-      return { next: seeded, result: this.toEntity(seeded, this.find(seeded, id)) };
-    });
+  public async getById(workspaceId: string, id: string): Promise<FragmentEntity> {
+    const fragment = await this.fragment(id);
+    // The server refuses an unknown fragment as a refusal: the page shows one answer.
+    if (fragment.workspaceId?.value !== workspaceId) {
+      throw new ScyllaError(`No fragment ${id}`, { code: 'NOT_FOUND' });
+    }
+    const [entity] = await this.complete(workspaceId, [fragment]);
+    return entity;
   }
 
-  public create(input: CreateFragmentInput): Promise<FragmentEntity> {
-    return this.add(input.workspaceId, {
+  public async create(input: CreateFragmentInput): Promise<FragmentEntity> {
+    const { fragment } = await this.client.createFragment({
+      workspaceId: wrapId(input.workspaceId),
       name: input.name,
       description: input.description,
       tags: input.tags,
-      author: input.author,
-      versions: [
-        {
-          number: 1,
-          nodes: input.nodes,
-          parameters: input.parameters,
-          changes: [`First version, saved from ${input.sourcePipeline}.`],
-          author: input.author,
-          publishedAt: new Date().toISOString(),
-        },
-      ],
-    });
+      nodes: input.nodes.map(nodeFromDomain),
+      parameters: input.parameters.map(grpcFragment.parameterFromDomain),
+    }).response;
+    return this.read(required(fragment, 'fragment'));
   }
 
-  /**
-   * A linked fragment keeps the numbers of the publisher, and gets the newer versions as
-   * upstream. A fork starts at its own version 1.
-   */
-  public addFromMarketplace(input: AddCommunityFragmentInput): Promise<FragmentEntity> {
-    const reference = publicName(input.package.publisher, input.package.name);
-    const linked = input.mode === 'linked';
-    const now = new Date().toISOString();
-    return this.add(input.workspaceId, {
+  public async publishVersion(input: PublishFragmentVersionInput): Promise<FragmentEntity> {
+    const { fragment } = await this.client.publishFragmentVersion({
+      fragmentId: wrapId(input.id),
+      nodes: input.nodes.map(nodeFromDomain),
+      parameters: input.parameters.map(grpcFragment.parameterFromDomain),
+      changes: input.changes,
+    }).response;
+    return this.read(required(fragment, 'fragment'));
+  }
+
+  public async setFavorite(id: string, favorite: boolean): Promise<void> {
+    await this.client.setFragmentFavorite({ fragmentId: wrapId(id), favorite }).response;
+  }
+
+  public async delete(id: string): Promise<void> {
+    await this.client.deleteFragment({ fragmentId: wrapId(id) }).response;
+  }
+
+  public async linksOf(pipelineId: string): Promise<FragmentLink[]> {
+    const { pipeline } = await this.pipelines.getPipeline({ pipelineId: wrapId(pipelineId) })
+      .response;
+    return (pipeline?.fragmentLinks ?? []).map(grpcFragment.linkToDomain);
+  }
+
+  /** The version keeps the number that it has in the package. */
+  public async addFromMarketplace(input: AddCommunityFragmentInput): Promise<FragmentEntity> {
+    const { fragment } = await this.client.createFragment({
+      workspaceId: wrapId(input.workspaceId),
       name: input.name,
       description: input.description,
       tags: input.tags,
-      author: input.author,
-      versions: [
-        linked
-          ? input.version
-          : {
-              ...input.version,
-              number: 1,
-              changes: [`Forked from ${reference} v${input.version.number}.`],
-              author: input.author,
-              publishedAt: now,
-            },
-      ],
-      source: linked
-        ? {
-            kind: 'linked',
-            package: input.package,
-            addedAt: now,
-            upstream: input.newer,
-            skipped: [],
-          }
-        : {
-            kind: 'forked',
-            package: input.package,
-            addedAt: now,
-            baseVersion: input.version.number,
-            upstream: input.newer.at(-1) ?? null,
-          },
-    });
+      nodes: input.version.nodes.map(nodeFromDomain),
+      parameters: input.version.parameters.map(grpcFragment.parameterFromDomain),
+      origin: {
+        registry: this.marketplace.registry,
+        packageId: input.package.packageId,
+        packageName: publicName(input.package.publisher, input.package.name),
+        version: input.version.number,
+        linked: input.mode === 'linked',
+      },
+    }).response;
+    return this.read(required(fragment, 'fragment'));
   }
 
-  public publishVersion(input: PublishFragmentVersionInput): Promise<FragmentEntity> {
-    return this.run(library => {
-      const fragment = this.find(library, input.id);
-      const published: StoredFragment = {
-        ...fragment,
-        versions: [
-          ...fragment.versions,
-          {
-            number: latestVersion(fragment).number + 1,
-            nodes: input.nodes,
-            parameters: input.parameters,
-            changes: input.changes,
-            author: input.author,
-            publishedAt: new Date().toISOString(),
-          },
-        ],
-        publication: withNewVersion(fragment.publication, latestVersion(fragment).number + 1),
-      };
-      const next = {
-        ...library,
-        fragments: library.fragments.map(stored => (stored.id === input.id ? published : stored)),
-      };
-      return { next, result: this.toEntity(next, published) };
-    });
+  /** The content comes from the marketplace: the server of the library never calls it. */
+  public async acceptUpstream(id: string, version: number): Promise<FragmentEntity> {
+    const pkg = await this.packageOf(id);
+    const chosen = pkg.versions.find(entry => entry.number === version);
+    if (!chosen?.content.length) {
+      throw new ScyllaError(`The package has no version ${version}`, { code: 'NOT_FOUND' });
+    }
+    const content = grpcFragment.versionFromContent(chosen.content, pkg.publisher);
+    const { fragment } = await this.client.acceptOriginVersion({
+      fragmentId: wrapId(id),
+      version,
+      nodes: content.nodes.map(nodeFromDomain),
+      parameters: content.parameters.map(grpcFragment.parameterFromDomain),
+      changes: content.changes,
+    }).response;
+    return this.read(required(fragment, 'fragment'));
   }
 
-  public acceptUpstream(id: string, version: number): Promise<FragmentEntity> {
-    return this.update(id, fragment => acceptUpstream(fragment, version));
+  public async skipUpstream(id: string, version: number): Promise<FragmentEntity> {
+    const { fragment } = await this.client.skipOriginVersion({ fragmentId: wrapId(id), version })
+      .response;
+    return this.read(required(fragment, 'fragment'));
   }
 
-  public skipUpstream(id: string, version: number): Promise<FragmentEntity> {
-    return this.update(id, fragment => skipUpstream(fragment, version));
+  /** Hides the latest version of the package. */
+  public async dismissUpstream(id: string): Promise<FragmentEntity> {
+    const pkg = await this.packageOf(id);
+    const version = Math.max(0, ...pkg.versions.map(entry => entry.number));
+    const { fragment } = await this.client.dismissOriginVersion({ fragmentId: wrapId(id), version })
+      .response;
+    return this.read(required(fragment, 'fragment'));
   }
 
-  public dismissUpstream(id: string): Promise<FragmentEntity> {
-    return this.update(id, fragment => dismissUpstream(fragment));
+  public async detachAsFork(id: string): Promise<FragmentEntity> {
+    const { fragment } = await this.client.detachOrigin({ fragmentId: wrapId(id) }).response;
+    return this.read(required(fragment, 'fragment'));
   }
 
-  public detachAsFork(id: string): Promise<FragmentEntity> {
-    return this.update(id, fragment => detachAsFork(fragment));
-  }
-
-  public publishToMarketplace({
-    id,
-    ...input
-  }: PublishToMarketplaceInput): Promise<FragmentEntity> {
-    return this.update(id, fragment => ({
+  public async publishToMarketplace(input: PublishToMarketplaceInput): Promise<FragmentEntity> {
+    await this.marketplace.client.publishFragment({
+      fragmentId: wrapId(input.id),
+      version: input.version,
+      license: input.license,
+      category: grpcFragment.categoryToProto(input.category),
       tags: input.tags,
-      publication: withPublication(
-        fragment.publication,
-        fragment.name,
-        input,
-        new Date().toISOString(),
-      ),
-    }));
+      autoPublish: input.autoPublish,
+    }).response;
+    return this.read(await this.fragment(input.id));
   }
 
-  public deprecateVersion(id: string, version: number): Promise<FragmentEntity> {
-    return this.update(id, fragment => {
-      if (!fragment.publication) throw new ScyllaError(`${fragment.name} is not public`);
-      return { publication: withDeprecated(fragment.publication, version) };
-    });
+  public async deprecateVersion(id: string, version: number): Promise<FragmentEntity> {
+    await this.marketplace.client.deprecatePackageVersion({ fragmentId: wrapId(id), version })
+      .response;
+    return this.read(await this.fragment(id));
   }
 
-  public setFavorite(id: string, favorite: boolean): Promise<void> {
-    return this.run(library => {
-      const others = library.favorites.filter(favoriteId => favoriteId !== id);
-      return {
-        next: { ...library, favorites: favorite ? [...others, id] : others },
-        result: undefined,
-      };
-    });
+  private async fragment(id: string): Promise<Fragment> {
+    const { fragment } = await this.client.getFragment({ fragmentId: wrapId(id) }).response;
+    return required(fragment, 'fragment');
   }
 
-  public linksOf(pipelineId: string): Promise<FragmentLink[]> {
-    return this.read(library => library.linksByPipeline[pipelineId]?.links ?? []);
+  /** One fragment with its source and its publication. */
+  private async read(fragment: Fragment): Promise<FragmentEntity> {
+    const [entity] = await this.complete(fragment.workspaceId?.value ?? '', [fragment]);
+    return entity;
   }
 
-  public saveLinks(pipeline: LinkingPipeline, links: FragmentLink[]): Promise<void> {
-    return this.run(library => {
-      const { [pipeline.pipelineId]: _previous, ...others } = library.linksByPipeline;
-      const linksByPipeline = links.length
-        ? { ...others, [pipeline.pipelineId]: { pipeline, links } }
-        : others;
-      return { next: { ...library, linksByPipeline }, result: undefined };
-    });
+  /** The package of a fragment of the marketplace. */
+  private async packageOf(id: string): Promise<Package> {
+    const { origin } = await this.fragment(id);
+    if (!origin) {
+      throw new ScyllaError(`${id} comes from no package`, { code: 'FAILED_PRECONDITION' });
+    }
+    const { package: pkg } = await this.marketplace.client.getPackage({
+      packageId: wrapId(origin.packageId),
+    }).response;
+    return required(pkg, 'package');
   }
 
-  /** Adds a fragment to the library of the workspace, under a name that no other fragment has. */
-  private add(
-    workspaceId: string,
-    fragment: Omit<StoredFragment, 'id' | 'workspaceId' | 'seededUsages'>,
-  ): Promise<FragmentEntity> {
-    return this.run(stored => {
-      // Seeded first: a name of the demo library is taken too.
-      const library = this.withSeeds(stored, workspaceId);
-      const taken = library.fragments.some(
-        other => other.workspaceId === workspaceId && other.name === fragment.name,
-      );
-      if (taken) {
-        throw new ScyllaError(`A fragment is already named ${fragment.name}`, {
-          code: 'ALREADY_EXISTS',
-        });
-      }
-
-      const added: StoredFragment = {
-        ...fragment,
-        id: crypto.randomUUID(),
-        workspaceId,
-        seededUsages: [],
-      };
-      const next = { ...library, fragments: [...library.fragments, added] };
-      return { next, result: this.toEntity(next, added) };
-    });
-  }
-
-  /** Changes one fragment, and gives it back as the library now holds it. */
-  private update(
-    id: string,
-    change: (fragment: StoredFragment) => Partial<StoredFragment>,
-  ): Promise<FragmentEntity> {
-    return this.run(library => {
-      const fragment = this.find(library, id);
-      const changed: StoredFragment = { ...fragment, ...change(fragment) };
-      const next = {
-        ...library,
-        fragments: library.fragments.map(stored => (stored.id === id ? changed : stored)),
-      };
-      return { next, result: this.toEntity(next, changed) };
-    });
-  }
-
-  private withSeeds(library: StoredLibrary, workspaceId: string): StoredLibrary {
-    if (library.seeded.includes(workspaceId)) return library;
-    return {
-      ...library,
-      seeded: [...library.seeded, workspaceId],
-      fragments: [...library.fragments, ...seedFragments(workspaceId)],
-    };
-  }
-
-  private find(library: StoredLibrary, id: string): StoredFragment {
-    const fragment = library.fragments.find(stored => stored.id === id);
-    if (!fragment) throw new ScyllaError(`No fragment ${id}`, { code: 'NOT_FOUND' });
-    return fragment;
-  }
-
-  private toEntity(
-    library: StoredLibrary,
-    { seededUsages, ...fragment }: StoredFragment,
-  ): FragmentEntity {
-    const linked: FragmentUsage[] = Object.values(library.linksByPipeline).flatMap(
-      ({ pipeline, links }) =>
-        links
-          .filter(link => link.fragmentId === fragment.id)
-          .map(link => ({ ...pipeline, version: link.version, values: link.values })),
-    );
-    return {
-      ...fragment,
-      favorite: library.favorites.includes(fragment.id),
-      usages: [...linked, ...seededUsages],
-    };
-  }
-
-  private load(): StoredLibrary {
-    const raw = this.storage().getItem(STORAGE_KEY);
-    if (raw === null) return EMPTY_LIBRARY;
+  /** The package of an origin, or none when the marketplace does not answer. */
+  private async packageOrNone(packageId: string): Promise<Package | undefined> {
     try {
-      return { ...EMPTY_LIBRARY, ...(JSON.parse(raw) as Partial<StoredLibrary>) };
+      const response = await this.marketplace.client.getPackage({ packageId: wrapId(packageId) })
+        .response;
+      return response.package;
     } catch {
-      return EMPTY_LIBRARY;
+      return undefined;
     }
   }
 
-  private read<T>(query: (library: StoredLibrary) => T): Promise<T> {
-    return Promise.resolve().then(() => query(this.load()));
+  /**
+   * Adds what the marketplace tells: the publication of a public fragment, and the versions that
+   * a fragment of a package can take. A marketplace that does not answer leaves the library as
+   * the core gives it.
+   */
+  private async complete(workspaceId: string, fragments: Fragment[]): Promise<FragmentEntity[]> {
+    const origins = [...new Set(fragments.flatMap(fragment => fragment.origin?.packageId ?? []))];
+    const [publications, packages] = await Promise.all([
+      this.publications(workspaceId),
+      Promise.all(origins.map(id => this.packageOrNone(id))),
+    ]);
+    const byPackage = new Map(origins.map((id, index) => [id, packages[index]]));
+    return fragments.map(fragment => {
+      const entity = grpcFragment.toDomain(fragment);
+      const publication = publications.get(entity.id);
+      const { origin } = fragment;
+      return {
+        ...entity,
+        ...(publication && { publication: grpcFragment.publicationOf(publication, entity.name) }),
+        ...(origin && {
+          source: grpcFragment.sourceOf(
+            origin,
+            latestVersion(entity).number,
+            byPackage.get(origin.packageId),
+          ),
+        }),
+      };
+    });
   }
 
-  /** Reads, changes and writes the library in one step. */
-  private run<T>(
-    change: (library: StoredLibrary) => { next: StoredLibrary; result: T },
-  ): Promise<T> {
-    return Promise.resolve().then(() => {
-      const library = this.load();
-      const { next, result } = change(library);
-      if (next !== library) this.storage().setItem(STORAGE_KEY, JSON.stringify(next));
-      return result;
-    });
+  /** The public fragments of the workspace, by fragment id: only on the server of the marketplace. */
+  private async publications(workspaceId: string): Promise<Map<string, Publication>> {
+    if (!this.marketplace.local || !workspaceId) return new Map();
+    try {
+      const items = await allPages(async token => {
+        const response = await this.marketplace.client.listPublications({
+          workspaceId: wrapId(workspaceId),
+          page: { size: PAGE_SIZE, token },
+        }).response;
+        return { items: response.publications, next: response.page?.nextToken ?? '' };
+      });
+      return new Map(items.map(item => [item.fragmentId?.value ?? '', item]));
+    } catch {
+      // A server with no marketplace: the library has no publication.
+      return new Map();
+    }
   }
 }
