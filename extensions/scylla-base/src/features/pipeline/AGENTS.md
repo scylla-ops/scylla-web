@@ -81,7 +81,8 @@ domain/
                                              renamePort, dropPort, removeNode, moveNode,
                                              setDependencies, dependentsOf, dependencyCandidates,
                                              outputCandidates, nodeDepths, nodesBefore, waitsFor,
-                                             uniqueNodeId, hasRepeats (pure, tested)
+                                             uniqueNodeId, hasRepeats, hasConditionalNodes (what the
+                                             export refuses) (pure, tested)
   entities/pipeline-node.entity.ts           PipelineNodeEntity (exec, script, switch, merge),
                                              Dependency, NodeDefinition, Shell, EnvEntry, the switch
                                              (SwitchCase, SwitchRule, Operand, SwitchTest): runsStep,
@@ -473,7 +474,10 @@ the page.
   route `export_pipeline` is in the same catalog cell as `get_pipeline`. The dialog reads the file
   of the selected format only while it is open (`pipelineQueries.fileExport`). Its key is under
   `PIPELINE_QUERY_KEY`, so a save refreshes it. With unsaved changes, the dialog says that the file
-  has the saved version. The path comes from the server: do not build it in the client.
+  has the saved version. The path comes from the server: do not build it in the client. A file has
+  no form for a switch, a merge or a need on a port (`CONDITIONAL_NODES` on the server): when the
+  saved nodes have one (`hasConditionalNodes`), Export is inert and says why (`exportIssue`), and
+  nothing is sent. The draft does not count: the file has the saved version.
 
 - **A file pipeline is read only, on a page of its own** (`pipelines/:pipelineId`, `READ_PIPELINE`:
   the route `get_file_pipeline` is in the catalog cell of `get_pipeline`). The list opens it

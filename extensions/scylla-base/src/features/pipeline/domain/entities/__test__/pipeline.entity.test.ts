@@ -12,6 +12,7 @@ import {
   dependencyCandidates,
   dependentsOf,
   dropPort,
+  hasConditionalNodes,
   nodeIssues,
   renamePort,
   uniqueNodeId,
@@ -539,5 +540,19 @@ describe('pipelineIssue: switches and needs', () => {
     expect(
       pipelineIssue({ name: 'nightly', nodes: [{ ...execNode('a'), command: '' }] }),
     ).toBeNull();
+  });
+});
+
+describe('hasConditionalNodes', () => {
+  it('accepts nodes that run a step and wait with no port', () => {
+    expect(hasConditionalNodes([execNode('build'), execNode('test', ['build'])])).toBe(false);
+  });
+
+  it('finds a switch, a merge or a need on a port', () => {
+    expect(hasConditionalNodes([execNode('build'), ifNode('is-main', ['build'])])).toBe(true);
+    expect(hasConditionalNodes([execNode('build'), merge('m', ['build'])])).toBe(true);
+    expect(hasConditionalNodes([execNode('build'), execNode('notify', ['build:error'])])).toBe(
+      true,
+    );
   });
 });

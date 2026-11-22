@@ -35,6 +35,8 @@
     projectId?: string;
     /** A saved pipeline: the header can export it as a file. */
     pipelineId?: string;
+    /** Why the saved pipeline cannot be exported. */
+    exportIssue?: string;
     isSubmitPending?: boolean;
     /** The pipeline is not here yet: the editor shows its frame, and the canvas waits or fails. */
     missing?: MissingDocument;
@@ -51,6 +53,7 @@
     initialScript,
     projectId,
     pipelineId,
+    exportIssue,
     isSubmitPending = false,
     missing,
     onRetry,
@@ -102,6 +105,7 @@
       pipelineName={doc.pipelineName}
       onNameChange={name => doc.setName(name)}
       onExport={pipelineId ? () => (exporting = true) : undefined}
+      {exportIssue}
     />
   </div>
 

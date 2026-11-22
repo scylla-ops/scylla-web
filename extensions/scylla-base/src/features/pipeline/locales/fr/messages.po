@@ -1287,3 +1287,7 @@ msgstr "Deux voies : vrai ou faux"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:92
 msgid "Variable"
 msgstr "Variable"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:16
+msgid "The saved pipeline has a switch, a merge or a node linked to an error output. A file cannot hold them yet."
+msgstr "Le pipeline enregistré contient un switch, une fusion ou un nœud lié à une sortie d'erreur. Un fichier ne peut pas encore les contenir."
