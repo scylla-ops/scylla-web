@@ -531,6 +531,13 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
   the consent framework read the registry: one entry that is not exempt shows the banner, the
   cookie settings and their entries. `platform/trackers/__test__/trackers.registry.test.ts` fails
   when the code and the registry are not equal. See `platform/trackers/AGENTS.md`.
+- **Content security policy: no script, style, font, image or call from another origin.** The
+  server that serves the app (scylla-ce, `scylla-core/src/api/web/policy.rs`) sends a
+  `Content-Security-Policy`: the own origin, the inline scripts of `index.html` by their hash,
+  inline styles, the API, and the hosts of the avatars of GitHub, GitLab and Gravatar. The
+  browser blocks each other origin. A new origin (a font host, a script, a tracker) is a change
+  of that policy in the same change, and a tracker also gets its registry entry. The server also
+  sends `Referrer-Policy: strict-origin-when-cross-origin`.
 - **Batch loads**: use `createQueries` to avoid N+1 (see jobs-per-pipeline).
 
 ### Query keys

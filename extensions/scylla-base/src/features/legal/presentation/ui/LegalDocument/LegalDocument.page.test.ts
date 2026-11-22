@@ -82,7 +82,7 @@ describe('LegalDocumentPage', () => {
     open('cookies');
 
     const table = await screen.findByRole('table', { name: 'Cookies and browser storage' });
-    expect(within(table).getByText('scylla_session')).toBeInTheDocument();
+    expect(within(table).getByText('__Host-scylla_session')).toBeInTheDocument();
     expect(within(table).getAllByText('Strictly necessary').length).toBeGreaterThan(1);
   });
 

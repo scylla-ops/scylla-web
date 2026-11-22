@@ -13,10 +13,12 @@ const lifetimes = {
  * Each cookie and each key of the browser storage of Scylla, in scylla-web and in the server.
  * Another extension adds its own with a patch of `trackersPoints.trackers`.
  * `__test__/trackers.registry.test.ts` fails when the code uses a storage that is not here.
+ * With HTTPS, the cookies of the server have the prefix `__Host-`. A local server with HTTP sets
+ * them with no prefix: `scylla_session`.
  */
 export const SCYLLA_TRACKERS: readonly Tracker[] = [
   {
-    name: 'scylla_session',
+    name: '__Host-scylla_session',
     type: 'cookie',
     provider: 'Scylla',
     owner: 'scylla-ce/scylla-core/src/features/identity/sessions/cookie.rs',
@@ -25,7 +27,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     exempt: true,
   },
   {
-    name: 'scylla_flow',
+    name: '__Host-scylla_flow',
     type: 'cookie',
     provider: 'Scylla',
     owner: 'scylla-ce/scylla-core/src/features/identity/sessions/cookie.rs',
@@ -34,7 +36,7 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     exempt: true,
   },
   {
-    name: 'scylla_pending',
+    name: '__Host-scylla_pending',
     type: 'cookie',
     provider: 'Scylla',
     owner: 'scylla-ce/scylla-core/src/features/identity/sessions/cookie.rs',

@@ -40,6 +40,11 @@ TrackerTable                    Svelte: name, type, provider, purpose, lifetime,
 - **One entry with `exempt: false` turns the consent framework on** (`platform/consent`): the
   banner, the cookie settings and their entries. The admin page shows the state. Load the script
   of such a tracker only through `whenGranted(purpose, load)` of `@platform/consent`.
+- **A tracker of another origin also needs the content security policy of the server**
+  (scylla-ce, `scylla-core/src/api/web/policy.rs`): the browser blocks each script, image or call
+  to an origin that the policy does not name.
+- **The cookies of the server have the names of HTTPS**: `__Host-scylla_session`. A local server
+  with HTTP sets them with no prefix.
 - `__test__/trackers.registry.test.ts` fails when a file uses a cookie or the storage and no
   entry names it as its owner, and when an owner does not name its key. A file that only uses a
   key of another file goes in `USERS` of the test. A file that writes the key of its caller goes in

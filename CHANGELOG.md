@@ -512,6 +512,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The sign-out removes the local data of the account: the workspace, the command history, the
   dashboards, the onboarding, the seen flags and the sync state. The theme and the language stay.
   The app writes the language only when the person chooses one, and the sidebar writes no cookie.
+- The cookie table shows the names of the server cookies with HTTPS: `__Host-scylla_session`,
+  `__Host-scylla_flow` and `__Host-scylla_pending`.
 
 ## [0.6.0] - 2026-11-01
 
