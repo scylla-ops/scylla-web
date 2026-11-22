@@ -1,4 +1,4 @@
-import type { Component } from 'svelte';
+import type { Component, Snippet } from 'svelte';
 import type {
   AccessPolicy,
   BreadcrumbFn,
@@ -20,13 +20,16 @@ import {
   type RoutePath,
 } from './route-path.ts';
 
+/** The frame of the shell. `space`: the space of the page, from its mount. */
+export type ShellComponent = Component<{ children: Snippet; space?: string }>;
+
 export interface AppRouterConfig {
   mounts: Readonly<Record<RouteMount, MountDefinition>>;
   modules: readonly RouteSource[];
   /** Rendered without any layout. */
   fallback: Component;
   /** Around the pages of a root mount that asks for the shell. */
-  shell?: LayoutComponent;
+  shell?: ShellComponent;
   /** Around every page that declares a `permission`. */
   guard?: AccessPolicy['guard'];
 }
@@ -51,6 +54,8 @@ export interface CompiledRoute {
   layout?: LayoutComponent;
   /** The root mount renders its pages inside the shell. */
   shell: boolean;
+  /** The space of the nearest mount that names one: the shell shows the frame of that space. */
+  space?: string;
   /** From the outermost. */
   wrappers: readonly RouteWrapper[];
   /** From the root. */
@@ -60,7 +65,7 @@ export interface CompiledRoute {
 export interface RouteTable {
   routes: readonly CompiledRoute[];
   fallback: Component;
-  shell?: LayoutComponent;
+  shell?: ShellComponent;
   guard?: AccessPolicy['guard'];
 }
 
@@ -166,6 +171,7 @@ export const compileRoutes = ({
     .filter(route => route.page || route.redirect)
     .map(({ mount, path, page, redirect, permission, inPageParams }) => {
       const chain = mountChain(mount, mounts);
+      const space = [...chain].reverse().find(definition => definition.space)?.space;
       return {
         mount,
         path,
@@ -175,6 +181,7 @@ export const compileRoutes = ({
         ...(inPageParams && { inPageParams }),
         layout: chain[0].layout,
         shell: chain[0].shell ?? false,
+        ...(space && { space }),
         wrappers: chain.flatMap(definition => (definition.wrapper ? [definition.wrapper] : [])),
         trail: trailOf(path, crumbs, roots),
       };

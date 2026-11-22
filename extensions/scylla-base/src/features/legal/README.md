@@ -9,7 +9,7 @@ The legal pages of the server.
   sub-processors. One frame for all: a table of contents, the date and the version, a print
   style. The cookie policy lists each tracker of the app, from the registry of
   [`platform/trackers`](../../platform/trackers/README.md).
-- **`/instance/legal`**, for the instance admins: the identity of the operator, each document
+- **`/admin/legal`**, for the instance admins: the identity of the operator, each document
   (off, a link to a page of the operator, or a text in Markdown), the privacy contact and the
   state of the consent banner.
 

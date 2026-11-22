@@ -1,7 +1,7 @@
 # `features/legal` — agent guide
 
 The pages of the legal documents: the public page `/legal/<kind>` of each document, and the admin
-page "Legal and privacy" (`/instance/legal`). The data is in
+page "Legal and privacy" (`/admin/legal`). The data is in
 [`platform/legal`](../../platform/legal/AGENTS.md), the trackers in
 [`platform/trackers`](../../platform/trackers/AGENTS.md).
 
@@ -18,7 +18,7 @@ page "Legal and privacy" (`/instance/legal`). The data is in
 | Mount      | Path          | Permission                                                   | Page                                      |
 | ---------- | ------------- | ------------------------------------------------------------ | ----------------------------------------- |
 | `public`   | `legal/:kind` | none                                                         | `LegalDocument.page.svelte`               |
-| `instance` | `legal`       | `MANAGE_INSTANCE_SETTINGS` (server: `update_legal_settings`) | `LegalSettings.page.svelte`, nav order 55 |
+| `admin`    | `legal`       | `MANAGE_INSTANCE_SETTINGS` (server: `update_legal_settings`) | `LegalSettings.page.svelte`, nav order 55 |
 
 ## The public page
 

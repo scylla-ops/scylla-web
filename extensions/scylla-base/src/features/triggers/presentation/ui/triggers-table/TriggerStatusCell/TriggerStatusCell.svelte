@@ -1,5 +1,6 @@
 <script lang="ts">
   import { StatusShape, type StatusState } from '@scylla/ui';
+  import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { formatDate } from '@shared/utils/date-utils.ts';
   import { t } from '@scylla/ui/i18n';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
@@ -30,6 +31,18 @@
     {@render outcome('failed', t(triggersMessages.error), result.error)}
   {:else if result?.kind === 'succeeded'}
     {@render outcome('success', t(triggersMessages.ok))}
+  {:else if result?.kind === 'skipped'}
+    <!-- Not a failure: the delivery did not match the conditions, and the tooltip tells why. -->
+    <Tooltip>
+      <TooltipTrigger
+        type="button"
+        class="inline-flex cursor-default items-center justify-center gap-1.5 rounded-sm text-xs outline-none focus-visible:ring-[3px] focus-visible:ring-ring/50"
+      >
+        <StatusShape state="skipped" label={t(triggersMessages.skipped)} size={20} />
+        <span aria-hidden="true">{t(triggersMessages.skipped)}</span>
+      </TooltipTrigger>
+      <TooltipContent><p>{result.reason}</p></TooltipContent>
+    </Tooltip>
   {:else}
     <!-- An outcome arm newer than this build: do not claim success. -->
     {@render outcome('idle', t(triggersMessages.unknown))}

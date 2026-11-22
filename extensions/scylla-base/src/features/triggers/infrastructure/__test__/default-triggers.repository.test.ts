@@ -9,7 +9,7 @@ const trigger = (id: string): Trigger => ({
   id: { value: id },
   pipelineId: { value: 'pipeline-1' },
   name: id,
-  kind: { oneofKind: 'webhook', webhook: { path: `/webhooks/${id}` } },
+  kind: { oneofKind: 'webhook', webhook: { path: `/webhooks/${id}`, conditions: [] } },
   inputs: [],
   enabled: true,
   lastStatus: FireStatus.UNSPECIFIED,
@@ -37,6 +37,7 @@ describe('DefaultTriggersRepository', () => {
     expect(triggers[1].source).toEqual({
       kind: 'webhook',
       webhookUrl: 'https://api.example.com/webhooks/b',
+      conditions: [],
     });
   });
 

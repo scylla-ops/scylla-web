@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Permission, RequirePermission } from '@platform/authz';
+  import { activeWorkspaceSlug, workspaceUrl } from '@platform/context';
   import { Redirect } from '@scylla/core-sdk';
   import { Skeleton } from '@scylla/ui/primitives';
   import { ErrorState } from '@scylla/ui';
@@ -15,6 +16,9 @@
   let { userId }: Props = $props();
 
   const page = createUserDetail(() => userId);
+  // The account of the session, in the frame of the active workspace when there is one.
+  const slug = activeWorkspaceSlug();
+  const accountUrl = slug ? workspaceUrl(slug, 'account') : '/account';
 </script>
 
 <!--
@@ -22,8 +26,8 @@
   something reads, and a field read for the first time later stays at its old value.
 -->
 {#if page.isSelf}
-  <!-- From `/<workspace>/instance/users/<id>`: a link to the own settings. -->
-  <Redirect to="../../../account" />
+  <!-- From `/admin/users/<id>`: a link to the own settings. -->
+  <Redirect to={accountUrl} />
 {:else if page.isLoading || page.resolvingSelf}
   <Skeleton class="m-4 h-64 rounded-xl" />
 {:else}

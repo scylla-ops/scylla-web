@@ -200,6 +200,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   loads a tracker only after a yes.
 - The terms editor of the page "Legal and privacy" has a text "What changes", one change on each
   line. The terms step of a new version shows this text as the list "What changes".
+- The trigger editor has the conditions of a webhook: a header or a field of the body, with is,
+  matches or is one of. The list of triggers shows the number of conditions, and a delivery that
+  does not match them shows as Skipped with the reason.
 
 ### Changed
 
@@ -274,6 +277,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   two ways apart. A reload goes back to the install step of the agent (`/agents/<id>/connect`). A
   user who leaves before a machine joins chooses to stay, keep the agent or delete it. The list
   shows "Finish setup" for an agent that never connected.
+- The pages of the server are in a space of their own at `/admin`: one column of links in groups
+  (Users and roles, Integrations, Server), a top bar with the host and "Back to <workspace>", and no
+  rail. "Instance administration" in the user menu opens it. An old link to
+  `/<workspace>/instance/...` opens the same page in `/admin`.
 
 ### Removed
 
@@ -514,6 +521,14 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   The app writes the language only when the person chooses one, and the sidebar writes no cookie.
 - The cookie table shows the names of the server cookies with HTTPS: `__Host-scylla_session`,
   `__Host-scylla_flow` and `__Host-scylla_pending`.
+- A person who refuses new terms of service can leave without an email: the terms step has "Decline
+  and delete my account". It opens the deletion of the account, with its password and its rules, and
+  signs out after the deletion. "Sign out" stays.
+- The dialog that deletes an account tells that the proof of the accepted terms (account id, a hash
+  of the email, version, method and date) stays for 5 years after the deletion.
+- The submenu "Legal and privacy" of the user menu shows its documents on hover, on a click and with
+  the right arrow. Before, the menu hid the submenu, thus it seemed to do nothing. On a phone, the
+  submenu opens under its entry, inside the screen.
 
 ## [0.6.0] - 2026-11-01
 

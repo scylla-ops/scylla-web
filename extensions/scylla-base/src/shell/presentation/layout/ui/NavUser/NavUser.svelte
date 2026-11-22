@@ -1,12 +1,14 @@
 <script lang="ts">
+  import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
   import CookieIcon from '@lucide/svelte/icons/cookie';
   import LifeBuoyIcon from '@lucide/svelte/icons/life-buoy';
   import LogOutIcon from '@lucide/svelte/icons/log-out';
   import ScaleIcon from '@lucide/svelte/icons/scale';
+  import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
   import UserRoundIcon from '@lucide/svelte/icons/user-round';
   import { consentFrame, consentMessages, cookieSettings } from '@platform/consent';
-  import { scyllaNavigate, workspaceUrl } from '@platform/context';
+  import { navigateTo, scyllaNavigate, workspaceUrl } from '@platform/context';
   import { legalLinks, legalMessages, legalQueries } from '@platform/legal';
   import { createQuery, routePathname } from '@scylla/core-sdk';
   import {
@@ -33,6 +35,8 @@
   import { userName } from '@base/shared/presentation/presenters/user-identity.presenter.ts';
   // By path, not the barrel: this file is in the entry chunk, the other components are not.
   import IdentityAvatar from '@shared/presentation/ui/data-display/IdentityAvatar/IdentityAvatar.svelte';
+  import { adminHome, isAdminPath } from '@base/shell/presentation/admin-space.ts';
+  import { createAdminExit } from '@base/shell/presentation/layout/admin-exit.state.svelte.ts';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import { chooseLocale } from '@base/shell/presentation/layout/user-preferences.ts';
   import { linkParams } from '@base/shell/presentation/shell-params.ts';
@@ -48,6 +52,14 @@
   const legal = $derived(legalLinks(legalQuery.data));
   // The entry of the cookie settings: only while one tracker needs consent.
   const consent = consentFrame().on;
+
+  // In the administration, the same place of the menu goes back to the workspace.
+  const inAdmin = $derived(isAdminPath(routePathname()));
+  const adminHref = $derived(adminHome());
+  const exit = createAdminExit();
+  const openAdmin = () => {
+    if (adminHref) navigateTo(adminHref);
+  };
 
   const slug = $derived(linkParams().workspaceSlug);
   // The rail only: the sheet of a phone has no green row.
@@ -130,7 +142,14 @@
             <ScaleIcon />
             {t(legalMessages.legalAndPrivacy)}
           </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent class="min-w-48 rounded-lg border-border bg-popover shadow-lg">
+          <!-- A phone has no room beside the menu: the documents cover the rows below their row. -->
+          <DropdownMenuSubContent
+            class={cn(
+              'min-w-48 rounded-lg border-border bg-popover shadow-lg',
+              sidebar.isMobile && 'min-w-(--bits-menu-anchor-width)',
+            )}
+            side={sidebar.isMobile ? 'bottom' : 'right'}
+          >
             {#each legal as link (link.kind)}
               <DropdownMenuItem class="text-foreground hover:bg-accent">
                 {#snippet child({ props })}
@@ -150,6 +169,25 @@
         >
           <CookieIcon />
           {t(consentMessages.cookieSettings)}
+        </DropdownMenuItem>
+      {/if}
+      {#if inAdmin}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          class="text-foreground hover:bg-accent"
+          onSelect={() => navigateTo(exit.href)}
+        >
+          <ArrowLeftIcon />
+          {exit.label}
+        </DropdownMenuItem>
+      {:else if adminHref}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          class="text-foreground hover:bg-accent"
+          onSelect={openAdmin}
+        >
+          <ShieldCheckIcon />
+          {t(layoutMessages.instanceAdministration)}
         </DropdownMenuItem>
       {/if}
       <DropdownMenuSeparator />

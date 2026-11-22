@@ -34,6 +34,13 @@ export interface NavSectionDefinition {
    * sidebar shows its links while the URL is on one of them.
    */
   noRailItem?: boolean;
+  /**
+   * The section is a space apart from the rest of the app, e.g. the administration of the server.
+   * The pages of a mount that names it in `space` show in a frame of their own: no rail and no
+   * brand, one column with all the links of the section, and a top bar with `icon`, the title of
+   * the section and `bar`, in place of the crumbs and of `topBarEnd`.
+   */
+  space?: { icon: LucideIcon; bar?: Component };
 }
 
 /** A link that a module makes from data, e.g. one item of a list. */

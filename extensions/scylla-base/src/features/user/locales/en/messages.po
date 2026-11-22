@@ -62,8 +62,8 @@ msgid "Accepted on {date}"
 msgstr "Accepted on {date}"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:57
-#: extensions/scylla-base/src/features/user/user.module.ts:53
 #: extensions/scylla-base/src/features/user/user.module.ts:60
+#: extensions/scylla-base/src/features/user/user.module.ts:67
 msgid "Account"
 msgstr "Account"
 
@@ -278,7 +278,7 @@ msgstr "Delete user"
 msgid "Deleted at once"
 msgstr "Deleted at once"
 
-#: extensions/scylla-base/src/features/user/user.module.ts:43
+#: extensions/scylla-base/src/features/user/user.module.ts:50
 msgid "Detail"
 msgstr "Detail"
 
@@ -294,7 +294,7 @@ msgstr "Download"
 msgid "Download my data"
 msgstr "Download my data"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:50
+#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:51
 msgid "Download my data first"
 msgstr "Download my data first"
 
@@ -710,6 +710,10 @@ msgstr "The names that other people see."
 msgid "The password and the identity providers of your account. The last one cannot go."
 msgstr "The password and the identity providers of your account. The last one cannot go."
 
+#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:50
+msgid "The proof that you accepted the terms (account id, a hash of your email, version, method and date) stays for 5 years after the deletion"
+msgstr "The proof that you accepted the terms (account id, a hash of your email, version, method and date) stays for 5 years after the deletion"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:138
 msgid "The reset link is in the server log."
 msgstr "The reset link is in the server log."
@@ -808,7 +812,7 @@ msgid "Unlink"
 msgstr "Unlink"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
-#: extensions/scylla-base/src/features/user/user.module.ts:43
+#: extensions/scylla-base/src/features/user/user.module.ts:50
 msgid "User"
 msgstr "User"
 
@@ -821,8 +825,8 @@ msgid "Username"
 msgstr "Username"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:5
-#: extensions/scylla-base/src/features/user/user.module.ts:35
-#: extensions/scylla-base/src/features/user/user.module.ts:37
+#: extensions/scylla-base/src/features/user/user.module.ts:36
+#: extensions/scylla-base/src/features/user/user.module.ts:40
 msgid "Users"
 msgstr "Users"
 

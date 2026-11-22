@@ -1,6 +1,6 @@
 import type * as Login from '@base/features/login';
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/svelte';
+import { render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -100,6 +100,26 @@ describe('AuthGuard', () => {
 
       expect(await screen.findByRole('heading', { name: 'One last step' })).toBeInTheDocument();
       expect(screen.getByRole('button', { name: 'Accept and continue' })).toBeDisabled();
+      expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+    });
+
+    it('opens the deletion of the account for a person who refuses the terms', async () => {
+      hasSession.mockResolvedValue(true);
+      termsStatus.mockResolvedValue({ ...NOTHING_TO_ACCEPT, acceptanceRequired: true });
+      const info = vi.fn().mockResolvedValue({
+        operator: EMPTY_OPERATOR,
+        privacyContact: '',
+        documents: [],
+      });
+      teardown.push(withLegalRepository({ info, update: vi.fn() }));
+      render(AuthGuardFixture);
+
+      await userEvent.click(
+        await screen.findByRole('button', { name: 'Decline and delete my account' }),
+      );
+
+      const dialog = await screen.findByRole('dialog', { name: 'Delete my account' });
+      expect(within(dialog).getByLabelText('Password')).toBeInTheDocument();
       expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
     });
 

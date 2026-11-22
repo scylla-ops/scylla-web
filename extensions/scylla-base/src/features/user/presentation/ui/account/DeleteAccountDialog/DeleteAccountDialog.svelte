@@ -17,9 +17,12 @@
     /** The message of the server: a wrong password, or the workspaces to hand over first. */
     refusal?: string;
     onConfirm: (password: string) => void;
+    /** The link to the export. Off where the account page cannot open, as the terms step. */
+    withExportLink?: boolean;
   }
 
-  let { open, onOpenChange, isPending, refusal, onConfirm }: Props = $props();
+  let { open, onOpenChange, isPending, refusal, onConfirm, withExportLink = true }: Props =
+    $props();
 
   const items: readonly FormItem<'password'>[] = $derived([
     {
@@ -33,7 +36,7 @@
 
   /** What the server deletes with the account (`delete_user` of the core), and what it keeps. */
   const DELETED = [m.deletedProfile, m.deletedSignIn, m.deletedTokens, m.deletedWorkspaces];
-  const KEPT = [m.staysShared, m.staysWork];
+  const KEPT = [m.staysShared, m.staysWork, m.staysTermsProof];
 </script>
 
 <!-- A titled list of facts, each with its icon centered on its line. -->
@@ -62,15 +65,17 @@
     {@render facts(m.deletedAtOnce, Trash2Icon, DELETED)}
     {@render facts(m.whatStays, ArchiveIcon, KEPT)}
   </div>
-  <!-- The dialog opens on `account/<section>`: the relative link goes to `account/privacy`. -->
-  <a
-    href="privacy"
-    class="flex w-fit items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
-    onclick={() => onOpenChange(false)}
-  >
-    <DownloadIcon class="size-4 shrink-0" aria-hidden="true" />
-    {t(m.downloadFirst)}
-  </a>
+  {#if withExportLink}
+    <!-- The dialog opens on `account/<section>`: the relative link goes to `account/privacy`. -->
+    <a
+      href="privacy"
+      class="flex w-fit items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
+      onclick={() => onOpenChange(false)}
+    >
+      <DownloadIcon class="size-4 shrink-0" aria-hidden="true" />
+      {t(m.downloadFirst)}
+    </a>
+  {/if}
   <ScyllaForm {items} {isPending} onSubmit={values => onConfirm(values.password)}>
     {#snippet footer({ isValid, isPending: pending })}
       {#if refusal}

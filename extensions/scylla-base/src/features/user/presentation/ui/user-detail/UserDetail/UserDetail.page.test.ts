@@ -89,7 +89,7 @@ const setUp = (
 
 beforeEach(() => {
   vi.clearAllMocks();
-  navigator = installTestNavigator({ pathname: '/acme/users/user-2' });
+  navigator = installTestNavigator({ pathname: '/admin/users/user-2' });
   contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
@@ -113,15 +113,20 @@ describe('UserDetailPage', () => {
     expect(screen.getByText('@grace')).toBeInTheDocument();
   });
 
-  it('sends the own id to the account page of the workspace, not of the instance', async () => {
+  it('sends the own id to the account page of the active workspace', async () => {
     setUp({ userId: 'admin-1' });
 
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('../../../account', { replace: true }),
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme/account', { replace: true }),
     );
-    const [to] = navigator.navigate.mock.calls[0];
-    expect(new URL(to, 'http://scylla/acme/instance/users/admin-1/').pathname).toBe(
-      '/acme/account',
+  });
+
+  it('sends the own id to the account page with no workspace when none is active', async () => {
+    contextStore.setState({ workspace: { id: null, name: null, slug: null } });
+    setUp({ userId: 'admin-1' });
+
+    await waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('/account', { replace: true }),
     );
   });
 
@@ -129,7 +134,7 @@ describe('UserDetailPage', () => {
     setUp({ userId: 'admin-1', permissions: [] });
 
     await waitFor(() =>
-      expect(navigator.navigate).toHaveBeenCalledWith('../../../account', { replace: true }),
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme/account', { replace: true }),
     );
     expect(screen.queryByText("You don't have the permission")).not.toBeInTheDocument();
   });

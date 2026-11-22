@@ -21,6 +21,8 @@ const STATES: Readonly<Record<FireStatus, FireState>> = {
   [FireStatus.OK]: 'ok',
   [FireStatus.ERROR]: 'error',
   [FireStatus.MISSED]: 'missed',
+  // Only a webhook skips a delivery, and this widget reads the cron triggers.
+  [FireStatus.SKIPPED]: 'none',
 };
 
 const JOB_STATUSES: Readonly<Partial<Record<GrpcJobStatus, JobStatus>>> = {

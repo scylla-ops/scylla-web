@@ -12,6 +12,8 @@ import TermsStep from './TermsStep.svelte';
 const signOut = vi.hoisted(() => vi.fn(() => Promise.resolve()));
 vi.mock('@base/features/login/presentation/sign-out.ts', () => ({ signOut }));
 
+const onDecline = vi.fn();
+
 const FIRST: TermsStatus = {
   acceptanceRequired: true,
   accepted: null,
@@ -29,6 +31,7 @@ let teardown: Array<() => void> = [];
 afterEach(() => {
   teardown.forEach(restore => restore());
   signOut.mockClear();
+  onDecline.mockClear();
 });
 
 const open = (status: TermsStatus, ...legal: [LegalInfo, ...LegalInfo[]]) => {
@@ -44,7 +47,7 @@ const open = (status: TermsStatus, ...legal: [LegalInfo, ...LegalInfo[]]) => {
     served.restore,
     withRegistry({ login: { loginRepository: { acceptTerms, termsStatus } } }),
   ];
-  render(TermsStep, { status });
+  render(TermsStep, { status, onDecline });
   return { acceptTerms, queryClient: cache.queryClient, readLegalInfo: served.info };
 };
 
@@ -155,5 +158,15 @@ describe('TermsStep', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Sign out' }));
 
     expect(signOut).toHaveBeenCalledOnce();
+  });
+
+  it('lets a person who refuses the new terms delete the account, and keeps the sign-out', async () => {
+    open(UPDATE, termsToAcceptAt('2.0'));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Decline and delete my account' }));
+
+    expect(onDecline).toHaveBeenCalledOnce();
+    expect(screen.getByRole('button', { name: 'Sign out' })).toBeInTheDocument();
+    expect(signOut).not.toHaveBeenCalled();
   });
 });

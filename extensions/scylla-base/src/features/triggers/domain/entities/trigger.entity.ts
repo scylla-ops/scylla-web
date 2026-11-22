@@ -1,4 +1,5 @@
 import type { CronExpression } from '../structs/cron-expression.struct.ts';
+import type { WebhookCondition } from '../structs/webhook-condition.struct.ts';
 
 export interface CronSource {
   kind: 'cron';
@@ -13,6 +14,8 @@ export interface WebhookSource {
   kind: 'webhook';
   /** The address to post to. Derived by the server. Read-only. */
   webhookUrl: string;
+  /** No condition: each delivery starts a run. A delivery that misses one is skipped. */
+  conditions: WebhookCondition[];
 }
 
 /** An action on a pull request (a merge request on GitLab) that starts a run. */
@@ -74,15 +77,19 @@ export interface TriggerInput {
 /** Without the read-only `webhookUrl`. */
 export type TriggerSourceDraft =
   | { kind: 'cron'; expression: CronExpression }
-  | { kind: 'webhook' }
+  | { kind: 'webhook'; conditions: WebhookCondition[] }
   | GitSource;
 
 export type TriggerDraftKind = TriggerSourceDraft['kind'];
 
-/** `unknown`: an outcome arm newer than this build. */
+/**
+ * `skipped`: a delivery of a webhook that did not match its conditions, with the reason. It is
+ * not a failure. `unknown`: an outcome arm newer than this build.
+ */
 export type TriggerFireResult =
   | { kind: 'succeeded' }
   | { kind: 'failed'; error: string }
+  | { kind: 'skipped'; reason: string }
   | { kind: 'unknown' };
 
 /** Launches a run of its pipeline without a human. */

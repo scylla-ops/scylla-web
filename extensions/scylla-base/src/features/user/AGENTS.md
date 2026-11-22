@@ -23,6 +23,8 @@ userMutations      create · update · remove · setActive · changePassword · 
                    revokeSessions · revokeSession · deleteAccount · exportAccountData
 canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_KEY,
 USER_SESSIONS_QUERY_KEY
+loadAccountDeletion   // loader of AccountDeletion (props `open`, `onOpenChange`): the auth guard
+                      // opens it from the terms step of `login`
 ```
 
 `roles`, `membership`, `workspace`, `project` and `shell` use this barrel. The shell runs
@@ -36,8 +38,7 @@ needs `READ_USER`.
 return it, because their RPCs carry no more. Show it with `Identity` from
 `@shared/presentation/ui`, never with a local avatar and name.
 
-Never add: `user.module.ts`, a page or a component (export a loader if another module ever needs
-one).
+Never add: `user.module.ts`, a page or a component (export a loader, as `loadAccountDeletion`).
 
 ## Data contract
 
@@ -110,6 +111,8 @@ presentation/
     data-export.state.svelte.ts      createDataExport: the mutation, its state, the saved file
   ui/account/DeleteAccountDialog/    what the deletion removes and what stays, a link to the
                                      export, the password
+  ui/account/AccountDeletion/        DeleteAccountDialog with its call, for the terms step (no link
+                                     to the export: the account page is out of reach there)
   ui/user-detail/UserDetail/         the page of another user, and its parts:
     user-detail.state.svelte.ts      createUserDetail: the page of another user
     UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
@@ -129,9 +132,9 @@ presentation/
 
 | Mount          | Path                   | Permission                                                     | Component                                                               |
 | -------------- | ---------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| `workspace` | `users`                | `LIST_USERS`                                                   | `UserAdmin.page.svelte`                                                 |
+| `admin`     | `users`                | `LIST_USERS`                                                   | `UserAdmin.page.svelte`                                                 |
 | `workspace` | `users/me`             | (redirect)                                                     | to `account`                                                            |
-| `workspace` | `users/:userId`        | none on the route (`UNGATED_PAGES`); the page asks `READ_USER` | `UserDetail.page.svelte`                                                |
+| `admin`     | `users/:userId`        | none on the route (`UNGATED_PAGES`); the page asks `READ_USER` | `UserDetail.page.svelte`                                                |
 | `workspace` | `account`              | (redirect)                                                     | to `account/profile`                                                    |
 | `workspace` | `account/:section`     | none (`UNGATED_PAGES`)                                         | `Account.page.svelte`                                                   |
 | `personal`     | `account` (`/account`) | (redirect)                                                     | to `/account/profile`                                                   |
@@ -140,7 +143,8 @@ presentation/
 `:section` is `profile`, `appearance`, `security`, `tokens`, `privacy`, `about` or `danger-zone`
 (`ACCOUNT_SECTIONS` in `account-sections.registry.ts`). Another value goes to `profile`.
 
-Sidebar: `users` is one entry, section **`instance`**, order `10`, icon `UsersIcon`.
+Sidebar: `users` is one entry of the `admin` mount, section **`instance`**, order `10`, icon
+`UsersIcon`, under the heading Users and roles.
 `account/:section` of the `workspace` mount has one link per entry of `ACCOUNT_SECTIONS`, section
 **`account`** (`noRailItem`): the second sidebar shows them on the account page, and the sheet of
 a phone shows them there too. The page stays one route, thus a click keeps it mounted
@@ -163,8 +167,9 @@ user who has no workspace.
   workspace; "who is in this org" is [`membership`](../membership/AGENTS.md)'s question.
   The user permissions are SYSTEM level: `can(Permission.X)` needs no target.
 - **The own account has its own page.** `account` calls the RPCs on the own id, which need no
-  grant. `users/:userId` sends the own id to `account` (`<Redirect to="../../../account">`), and
-  the directory opens `account` for the own row. The old path `users/me` redirects there too.
+  grant. `users/:userId` sends the own id to the `account` of the active workspace, else to
+  `/account`, and the directory opens `account` for the own row. The old path `users/me`
+  redirects there too.
   "Who am I" is `userQueries.me` (`GetMe`), not `localStorage`.
 - **`users/:userId` declares no permission on purpose.** The route guard would deny an old link
   to `/users/<own id>` to a user without `READ_USER` before the page could redirect it. The page
@@ -235,7 +240,8 @@ user who has no workspace.
   one tracker needs consent (source `account`). To add a subject, add a card to
   `AccountPrivacy.svelte`. `DeleteAccountDialog` lists what the deletion removes and what stays:
   keep these facts equal to `delete_user` of the core, and its link "Download my data first"
-  (`privacy`, relative) closes the dialog.
+  (`privacy`, relative) closes the dialog. `AccountDeletion` gives the same dialog to the terms
+  step, with `withExportLink={false}`: the auth guard shows no route there.
 - **The section `about` shows the versions** that a user gives in a report of a problem. The
   edition and the version of the server come from `GetCapabilities` (`appQueries.server` of
   `apps`). The version of the web app is `import.meta.env.SCYLLA_WEB_VERSION`, that

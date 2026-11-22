@@ -4,6 +4,7 @@
   import { ErrorState } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import { fillTarget } from '../../compilation/route-path.ts';
   import { currentMatch, routeGuard } from '../../runtime/route.state.svelte.ts';
   import { routeEntryMessages } from './route-entry.messages.ts';
 
@@ -42,7 +43,7 @@
 
 {#snippet content()}
   {#if route?.redirect !== undefined}
-    <Redirect to={route.redirect} />
+    <Redirect to={fillTarget(route.redirect, params)} />
   {:else if loading}
     {#await loading then module}
       {@const Page = module.default as Component<RouteParams>}

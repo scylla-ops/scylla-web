@@ -70,8 +70,9 @@ const goToTriggers = (id: string, name: string) => {
   contextStore.getState().setPipeline(id, name);
 };
 
+/** A user of the server, in its administration: outside any workspace. */
 const goToUser = (userId: string) => {
-  navigateTo(`${getWorkspacePrefix()}/instance/users/${userId}`);
+  navigateTo(`/admin/users/${userId}`);
 };
 
 /** The account of the session. */

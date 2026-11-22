@@ -6,6 +6,11 @@ import type {
   TriggerEntity,
   TriggerDraftKind,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+import {
+  conditionFieldIssue,
+  conditionValuesIssue,
+  type WebhookCondition,
+} from '@base/features/triggers/domain/structs/webhook-condition.struct.ts';
 
 import { convertCronToUTC } from './cron-timezone.mapper.ts';
 
@@ -50,17 +55,42 @@ export const triggerToGitRules = (trigger?: TriggerEntity): GitRulesDraft => {
   };
 };
 
+/** The conditions of a webhook trigger, as copies the form can change. */
+export const triggerToConditions = (trigger?: TriggerEntity): WebhookCondition[] =>
+  trigger?.source.kind === 'webhook'
+    ? trigger.source.conditions.map(condition => ({ ...condition, values: [...condition.values] }))
+    : [];
+
+/** `true` when the server can take each condition: the form keeps Save off until then. */
+export const conditionsAreValid = (conditions: readonly WebhookCondition[]): boolean =>
+  conditions.every(
+    condition => !conditionFieldIssue(condition) && !conditionValuesIssue(condition),
+  );
+
+/** Trimmed copies. `is` and `matches` keep their first value only. */
+const conditionsOf = (conditions: readonly WebhookCondition[]): WebhookCondition[] =>
+  conditions.map(condition => {
+    const values = condition.values.map(value => value.trim());
+    return {
+      source: condition.source,
+      field: condition.field.trim(),
+      operator: condition.operator,
+      values: condition.operator === 'oneOf' ? values : values.slice(0, 1),
+    };
+  });
+
 /** Plain copies: the form holds its rules in `$state` proxies. */
 const sourceOf = (
   kind: TriggerDraftKind,
   cronExpression: string,
   rules: GitRulesDraft,
+  conditions: readonly WebhookCondition[],
 ): TriggerDraft['source'] => {
   switch (kind) {
     case 'cron':
       return { kind: 'cron', expression: convertCronToUTC(cronExpression.trim()) };
     case 'webhook':
-      return { kind: 'webhook' };
+      return { kind: 'webhook', conditions: conditionsOf(conditions) };
     case 'push':
       return {
         kind: 'push',
@@ -86,6 +116,7 @@ export const buildTriggerDraft = (params: {
   cronExpression: string;
   inputs: DraftInput[];
   rules?: GitRulesDraft;
+  conditions?: WebhookCondition[];
 }): TriggerDraft => {
   const allowPointer = params.kind === 'webhook';
 
@@ -99,7 +130,12 @@ export const buildTriggerDraft = (params: {
 
   return {
     name: params.name.trim(),
-    source: sourceOf(params.kind, params.cronExpression, params.rules ?? triggerToGitRules()),
+    source: sourceOf(
+      params.kind,
+      params.cronExpression,
+      params.rules ?? triggerToGitRules(),
+      params.conditions ?? [],
+    ),
     inputs,
   };
 };

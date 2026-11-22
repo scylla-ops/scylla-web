@@ -81,6 +81,8 @@ domain/
   structs/cron-expression.struct.ts  CronExpression, and the 5-field rule of the server:
                                      isCronExpressionValid
   structs/git-glob.struct.ts         GitGlob, MAX_GLOBS (32), gitGlobIssue
+  structs/webhook-condition.struct.ts  WebhookCondition, MAX_CONDITIONS (32), the issues of a
+                                     header name, a JSON pointer and a value
   repository/triggers.repository.ts
 infrastructure/
   default-triggers.repository.ts      TriggerServiceClient → TriggerEntity
@@ -95,7 +97,8 @@ presentation/
   ui/components/trigger-form/        TriggerForm, TriggerFormSection,
                                      CronScheduleBuilder/, TriggerInputsEditor/,
                                      TriggerKindSelect/ (the Git kinds off with no link),
-                                     GitRulesFields/, GlobChipsInput/, GitVariables/
+                                     GitRulesFields/, GlobChipsInput/, GitVariables/,
+                                     ConditionsEditor/ (the conditions of a webhook)
   ui/components/GitTriggerNotes/     the two fixed rules: forks, one run per commit
   ui/trigger-kind-icons.registry.ts  the icon of each kind
   ui/pipeline-origin.state.svelte.ts a file pipeline and the path of its file (READ_PIPELINE)
@@ -152,6 +155,14 @@ holding it that they are not split.
   a wide screen, General and Schedule (or Webhook) are in the left column, and Inputs is in the
   right column. Only the sections scroll; the Cancel and Create bar stays below them, out of the
   scroll area.
+- **A webhook can have conditions on each delivery**: a header or a field of the JSON body (a
+  JSON pointer), with `is`, `matches` (a glob) or `is one of`. All must match. They are in the
+  right column, above Inputs. A field shows its error once it loses the focus, and Save stays off
+  while a condition is not valid. A delivery that does not match makes no run: the server records
+  it as `skipped` with the reason, and the status cell shows "Skipped" with the reason in a
+  tooltip. It is not a failure. `FireTriggerNow` does not read the conditions. A condition with a
+  source or an operator newer than this build makes the webhook an `'unknown'` source, so the
+  form never sends back a list it could not show.
 - **The webhook secret is shown by the editor page.** After a create that returns a secret, the
   page shows `SecretRevealDialog` and goes back to the list only when it is closed. Leaving
   earlier would lose a secret that cannot be fetched again.

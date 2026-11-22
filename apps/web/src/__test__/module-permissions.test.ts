@@ -24,7 +24,10 @@ const UNGATED_PAGES: Readonly<Record<string, string>> = {
   '/':
     'The landing of the shell: it only sends the user on to the dashboard of a workspace, ' +
     'which declares its own permission.',
-  '/:workspaceSlug/instance/users/:userId':
+  '/admin':
+    'The landing of the administration of the server: it only sends the person on to the first ' +
+    'page of the administration that the person may open, which declares its own permission.',
+  '/admin/users/:userId':
     'The page checks READ_USER itself, after it sends the own id to the account page: a link ' +
     'to /users/<own id> must not end on a denial for a user without READ_USER.',
   '/:workspaceSlug/account/:section':

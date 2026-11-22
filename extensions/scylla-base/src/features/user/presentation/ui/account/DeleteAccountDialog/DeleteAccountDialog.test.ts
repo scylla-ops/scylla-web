@@ -45,6 +45,16 @@ describe('DeleteAccountDialog', () => {
     ).toBeInTheDocument();
   });
 
+  it('tells that the proof of the accepted terms stays for 5 years', async () => {
+    render(DeleteAccountDialog, base);
+
+    expect(
+      await screen.findByText(
+        'The proof that you accepted the terms (account id, a hash of your email, version, method and date) stays for 5 years after the deletion',
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('links to the export of the data, and closes on that link', async () => {
     const onOpenChange = vi.fn();
     render(DeleteAccountDialog, { ...base, onOpenChange });

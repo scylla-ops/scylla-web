@@ -332,7 +332,7 @@ describe('CommandBar', () => {
       go('reviewer', 'Go to the role Reviewer (Access).', '/acme/access/roles/r1'));
 
     it('goes to a role of the instance', () =>
-      go('auditor', 'Go to the role Auditor (Instance).', '/acme/instance/roles/r2'));
+      go('auditor', 'Go to the role Auditor (Instance).', '/admin/roles/r2'));
 
     it('goes to the page of a secret', () =>
       go(

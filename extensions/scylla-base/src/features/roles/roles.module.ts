@@ -23,7 +23,7 @@ export const RolesModule = {
   },
   commands: rolesCommands,
   routes: {
-    instance: [
+    admin: [
       {
         path: 'roles',
         permission: Permission.LIST_ROLES,

@@ -11,9 +11,8 @@ export const integrationsUrl = (workspaceSlug: string, connectedId?: string): st
 export const connectedIdIn = (search: string): string =>
   new URLSearchParams(search).get(CONNECTED_PARAM) ?? '';
 
-/** The page of the Git provider App of the server, under a workspace. */
-export const gitProvidersUrl = (workspaceSlug: string): string =>
-  `/${workspaceSlug}/instance/git-providers`;
+/** The page of the Git provider App of the server, in its administration. */
+export const GIT_PROVIDERS_URL = '/admin/git-providers';
 
 /** The query parameter of the connection to show first on the page of a new project. */
 const CONNECTION_PARAM = 'connection';

@@ -22,18 +22,7 @@ const open = (
   teardown = [
     cache.restore,
     navigator.restore,
-    withRegistry({
-      integrations: { vcsAppRepository: { completeGitHubManifest } },
-      workspace: {
-        workspaceRepository: {
-          getMine: vi
-            .fn()
-            .mockResolvedValue([
-              { id: 'ws-2', name: 'Labs', slug: 'labs', personalTokensEnabled: true },
-            ]),
-        },
-      },
-    }),
+    withRegistry({ integrations: { vcsAppRepository: { completeGitHubManifest } } }),
   ];
   render(GitHubManifestCallbackPage);
   return navigator;
@@ -51,17 +40,17 @@ describe('GitHubManifestCallbackPage', () => {
 
     expect(screen.getByRole('status')).toHaveTextContent('Creating the GitHub App…');
     await waitFor(() =>
-      expect(navigate).toHaveBeenCalledWith('/acme/instance/git-providers', { replace: true }),
+      expect(navigate).toHaveBeenCalledWith('/admin/git-providers', { replace: true }),
     );
     expect(completeGitHubManifest).toHaveBeenCalledTimes(1);
     expect(completeGitHubManifest).toHaveBeenCalledWith({ code: 'c0de', state: 's-1' });
   });
 
-  it('opens the page under the first workspace when none is active', async () => {
+  it('opens the page of the administration also with no active workspace', async () => {
     const { navigate } = open(vi.fn().mockResolvedValue({ id: 'app-1' }), { slug: '' });
 
     await waitFor(() =>
-      expect(navigate).toHaveBeenCalledWith('/labs/instance/git-providers', { replace: true }),
+      expect(navigate).toHaveBeenCalledWith('/admin/git-providers', { replace: true }),
     );
   });
 
@@ -74,7 +63,7 @@ describe('GitHubManifestCallbackPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(text);
     expect(screen.getByRole('link', { name: 'Back to Git providers' })).toHaveAttribute(
       'href',
-      '/acme/instance/git-providers',
+      '/admin/git-providers',
     );
   });
 
