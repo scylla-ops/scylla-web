@@ -91,7 +91,7 @@ export const holderCard = (
   max = 6,
 ): HolderCard => {
   const allHref =
-    pages && workspaceUrl(pages.slug, pages.workspaceId ? 'access/members' : 'instance/users');
+    pages && (pages.workspaceId ? workspaceUrl(pages.slug, 'access/members') : '/admin/users');
   const grants = new Map<string, RoleHolderEntry[]>();
   for (const holder of holders) {
     grants.set(holder.actorId, [...(grants.get(holder.actorId) ?? []), holder]);

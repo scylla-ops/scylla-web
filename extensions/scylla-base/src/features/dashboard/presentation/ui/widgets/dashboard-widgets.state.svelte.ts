@@ -7,8 +7,13 @@ import { jobQueries, type JobEntity, type PeriodScope } from '@base/features/job
 import { pipelineQueries } from '@base/features/pipeline';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { attentionQueries, visitSince } from '@base/features/dashboard/presentation/attention.queries.ts';
+import { slotUsageQueries } from '@base/features/dashboard/presentation/slot-usage.queries.ts';
+import { schedulesQueries } from '@base/features/dashboard/presentation/schedules.queries.ts';
+import { activityQueries } from '@base/features/dashboard/presentation/activity.queries.ts';
+import { deliveryStatsQueries } from '@base/features/dashboard/presentation/delivery-stats.queries.ts';
 import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
 import type { PeriodRange } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
+import { currentInstant, dayIn, startOfDayIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
 import { pipelinesById } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
 
 /** The last jobs of each pipeline that the Pipelines widget shows. */
@@ -20,6 +25,7 @@ const ACTIVITY_LIMIT = 20;
 const LIVE_LIMIT = 50;
 const DAY_LIMIT = 100;
 const DAY_MS = 24 * 60 * 60 * 1000;
+const GROUP_LIMIT = 5;
 
 const lastDayRange = () => ({ from: new Date(Date.now() - DAY_MS), to: null });
 
@@ -54,6 +60,39 @@ export const createDashboardWidgets = (
       canReadJobs,
     ),
   );
+  const scopedProjects = () => (projectId() ? { projectIds: [projectId()!] } : {});
+  const failingPipelines = createQuery(() =>
+    jobQueries.stats(
+      workspaceId,
+      scope,
+      { groupBy: 'pipeline', groupOrder: 'failed', groupLimit: GROUP_LIMIT, ...scopedProjects() },
+      canReadJobs,
+    ),
+  );
+  const slowPipelines = createQuery(() =>
+    jobQueries.stats(
+      workspaceId,
+      scope,
+      { compare: true, groupBy: 'pipeline', groupOrder: 'p50-duration', groupLimit: GROUP_LIMIT, ...scopedProjects() },
+      canReadJobs,
+    ),
+  );
+  const monthScope = $derived<PeriodScope<PeriodRange>>({
+    scope: ['month', period.timeZone ?? 'UTC'],
+    range: () => {
+      const zone = period.timeZone ?? 'UTC';
+      const first = `${dayIn(currentInstant(), zone).slice(0, 8)}01`;
+      return { from: startOfDayIn(first, zone), to: null, bucket: 'day' };
+    },
+  });
+  const monthMinutes = createQuery(() =>
+    jobQueries.stats(
+      workspaceId,
+      monthScope,
+      { groupBy: 'project', groupOrder: 'run-time', groupLimit: GROUP_LIMIT, ...scopedProjects() },
+      canReadJobs,
+    ),
+  );
   const summaries = createQuery(() =>
     pipelineQueries.summaries(
       workspaceId,
@@ -83,8 +122,21 @@ export const createDashboardWidgets = (
     ),
   );
   const agents = createQuery(() => appQueries.runners(workspaceId ?? ''));
+  const slotUsage = createQuery(() => slotUsageQueries.lastDay(workspaceId, can(Permission.LIST_AGENTS)));
   const since = $derived(workspaceId ? visitSince(workspaceId) : null);
   const attention = createQuery(() => attentionQueries.list(workspaceId, projectId(), since));
+  const schedules = createQuery(() => schedulesQueries.list(workspaceId, projectId(), since, canReadPipelines));
+  const deliveries = createQuery(() => deliveryStatsQueries.lastDay(workspaceId));
+  const deliveriesLocked = $derived(
+    deliveries.isError && ScyllaError.from(deliveries.error).code === 'PERMISSION_DENIED',
+  );
+  const activityFeed = createQuery(() => activityQueries.feed(workspaceId, since));
+  const activityLocked = $derived(
+    activityFeed.isError && ScyllaError.from(activityFeed.error).code === 'PERMISSION_DENIED',
+  );
+  const schedulesLocked = $derived(
+    schedules.isError && ScyllaError.from(schedules.error).code === 'PERMISSION_DENIED',
+  );
   const attentionLocked = $derived(
     attention.isError && ScyllaError.from(attention.error).code === 'PERMISSION_DENIED',
   );
@@ -105,6 +157,15 @@ export const createDashboardWidgets = (
   const dayJobs = $derived(scoped(day.data));
 
   return {
+    get workspaceId() {
+      return workspaceId;
+    },
+    get projectIds(): string[] {
+      return projectId() ? [projectId()!] : [];
+    },
+    get periodScope() {
+      return scope;
+    },
     get canReadJobs() {
       return canReadJobs;
     },
@@ -116,9 +177,19 @@ export const createDashboardWidgets = (
       return !agents.isPending || agents.fetchStatus !== 'idle';
     },
     stats,
+    /** The run time of the calendar month by day, and by project. */
+    monthMinutes,
+    /** The stats by pipeline, the most failures first. */
+    failingPipelines,
+    /** The stats by pipeline, the slowest median first, with the previous period. */
+    slowPipelines,
     summaries,
     /** The items of "Needs you" (ListAttentionItems), of the scope. */
     attention,
+    /** The last visit before this one, for "new". */
+    get since() {
+      return since;
+    },
     get attentionLocked() {
       return attentionLocked;
     },
@@ -126,6 +197,23 @@ export const createDashboardWidgets = (
     ended,
     day,
     agents,
+    /** The webhook deliveries of the last 24 hours (GetDeliveryStats). */
+    deliveries,
+    get deliveriesLocked() {
+      return deliveriesLocked;
+    },
+    /** The activity feed of the workspace (ActivityService.ListActivity). */
+    activityFeed,
+    get activityLocked() {
+      return activityLocked;
+    },
+    /** The cron triggers, their next fires and their last fires. */
+    schedules,
+    get schedulesLocked() {
+      return schedulesLocked;
+    },
+    /** The busy job slots of the last 24 hours, by hour. */
+    slotUsage,
     /** The summaries of the scope, failing first. */
     get pipelineItems() {
       return pipelineItems;

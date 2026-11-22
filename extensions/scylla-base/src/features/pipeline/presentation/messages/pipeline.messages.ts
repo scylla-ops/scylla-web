@@ -29,7 +29,6 @@ export const pipelineMessages = {
   jobsError: msg`Error loading jobs`,
   noRunYet: msg`No run yet`,
   lastRunAt: (when: string) => msg`Last run ${when}`,
-  jobBar: (id: string, status: string) => msg`Job ${id}: ${status}`,
   historyOfLast: (count: number) =>
     msg`History · last ${plural(count, { one: '# run', other: '# runs' })}`,
   runsInTotal: (count: number) =>
@@ -39,9 +38,6 @@ export const pipelineMessages = {
   failed: msg`failed`,
   lastFailure: msg`Last failure`,
   created: msg`Created`,
-  startedAt: (time: string) => msg`Started ${time}`,
-  finishedAt: (time: string) => msg`Finished ${time}`,
-  durationOf: (duration: string) => msg`Duration: ${duration}`,
 
   selectProjectFirst: msg`Select a project first`,
   create: msg`Create`,

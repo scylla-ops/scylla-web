@@ -1,5 +1,6 @@
 import type { UserRepository } from '@base/features/user/domain/repository/user.repository.ts';
 import type {
+  AccountDataExport,
   CreateUserInput,
   UpdateUserInput,
   UserEntity,
@@ -144,6 +145,11 @@ export class DefaultUserRepository implements UserRepository {
 
   public async deleteAccount(password: string): Promise<void> {
     await this.profiles.deleteAccount({ password }).response;
+  }
+
+  public async exportAccountData(): Promise<AccountDataExport> {
+    const { json, exportedAt } = await this.profiles.exportAccountData({}).response;
+    return { json: required(json, 'data'), exportedAt: timestampToIso(exportedAt) };
   }
 
   public async listSessions(userId: string): Promise<UserSessionEntity[]> {

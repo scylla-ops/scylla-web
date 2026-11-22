@@ -5,6 +5,8 @@ export const layoutMessages = {
   project: msg`Project`,
   access: msg`Access`,
   instance: msg`Instance`,
+  instanceAdministration: msg`Instance administration`,
+  backTo: (name: string) => msg`Back to ${name}`,
   selectWorkspace: msg`Select Workspace`,
   createWorkspace: msg`Create a workspace`,
   workspaces: msg`Workspaces`,

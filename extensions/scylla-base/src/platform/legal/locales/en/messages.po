@@ -1,0 +1,73 @@
+msgid ""
+msgstr ""
+"Language: e\n"
+"MIME-Version: 1.\n"
+"Content-Type: text/plain; charset=utf-\n"
+"Content-Transfer-Encoding: 8bi\n"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:30
+msgid "© {year} {name}"
+msgstr "© {year} {name}"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:9
+msgid "Cookie policy"
+msgstr "Cookie policy"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:20
+msgctxt "legal-link"
+msgid "Cookies"
+msgstr "Cookies"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:12
+msgid "Data processing agreement"
+msgstr "Data processing agreement"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:23
+msgctxt "legal-link"
+msgid "DPA"
+msgstr "DPA"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:28
+msgid "Legal and privacy"
+msgstr "Legal and privacy"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:29
+msgid "Legal documents"
+msgstr "Legal documents"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:7
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:18
+msgid "Legal notice"
+msgstr "Legal notice"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:19
+msgctxt "legal-link"
+msgid "Privacy"
+msgstr "Privacy"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:8
+msgid "Privacy policy"
+msgstr "Privacy policy"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:13
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:24
+msgid "Sub-processors"
+msgstr "Sub-processors"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:21
+msgctxt "legal-link"
+msgid "Terms"
+msgstr "Terms"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:11
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:22
+msgid "Terms of sale"
+msgstr "Terms of sale"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:10
+msgid "Terms of service"
+msgstr "Terms of service"
+
+#: extensions/scylla-base/src/platform/legal/presentation/messages/legal.messages.ts:31
+msgid "The legal settings are saved"
+msgstr "The legal settings are saved"

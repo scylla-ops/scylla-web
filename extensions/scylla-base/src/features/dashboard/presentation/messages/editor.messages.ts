@@ -88,4 +88,8 @@ export const editorMessages = {
   leaveText: (count: number) => msg`The layout has ${count} changes that are not saved. They go away when you leave.`,
   discardAndLeave: msg`Discard and leave`,
   stay: msg`Stay`,
+  pickAgent: msg`Choose an agent`,
+  pickPipeline: msg`Choose a pipeline`,
+  noAgentToPick: msg`No agent in this workspace`,
+  noPipelineToPick: msg`No pipeline in this workspace`,
 };

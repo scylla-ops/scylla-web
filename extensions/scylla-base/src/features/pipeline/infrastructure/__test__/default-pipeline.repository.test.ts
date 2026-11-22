@@ -295,4 +295,17 @@ describe('DefaultPipelineRepository', () => {
       fileErrorCount: 2,
     });
   });
+
+  it('reads the summaries of the pipelines that a query names only', async () => {
+    const listPipelineSummaries = vi.fn(() => unaryCall({ pipelines: [], total: 0, green: 0 }));
+    const repository = new DefaultPipelineRepository({
+      listPipelineSummaries,
+    } as unknown as IPipelineServiceClient);
+
+    await repository.getSummaries({ workspaceId: 'w', runs: 20, order: 'name', limit: 1, pipelineIds: ['p'] });
+    await repository.getSummaries({ workspaceId: 'w', runs: 20, order: 'name', limit: 1 });
+
+    expect(listPipelineSummaries).toHaveBeenNthCalledWith(1, expect.objectContaining({ pipelineIds: [{ value: 'p' }] }));
+    expect(listPipelineSummaries).toHaveBeenNthCalledWith(2, expect.objectContaining({ pipelineIds: [] }));
+  });
 });

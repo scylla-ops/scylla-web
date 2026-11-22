@@ -6,6 +6,7 @@
   import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
+  import { LegalFooter } from '@platform/legal';
   import {
     loginMutations,
     loginQueries,
@@ -40,18 +41,24 @@
   );
 </script>
 
+<!-- The legal links that the operator turned on, at the bottom of the frame. -->
+{#snippet legalFooter()}
+  <LegalFooter class="pt-6" />
+{/snippet}
+
 {#if link.isSuccess || pending.isPending}
   <ScyllaLoadingScreen />
 {:else if unreachable}
-  <AuthLayout title={t(m.unreachableTitle)} description={t(m.unreachable)}>
+  <AuthLayout footer={legalFooter} title={t(m.unreachableTitle)} description={t(m.unreachable)}>
     <Button class="w-full" onclick={() => pending.refetch()}>{t(m.tryAgain)}</Button>
   </AuthLayout>
 {:else if !pending.data || linkGone}
-  <AuthLayout title={t(m.expiredTitle)} description={t(m.expired)}>
+  <AuthLayout footer={legalFooter} title={t(m.expiredTitle)} description={t(m.expired)}>
     <Button href="/login" class="w-full">{t(m.startAgain)}</Button>
   </AuthLayout>
 {:else}
   <AuthLayout
+    footer={legalFooter}
     title={t(m.title)}
     description={t(m.description(pending.data.email, pending.data.providerName))}
   >

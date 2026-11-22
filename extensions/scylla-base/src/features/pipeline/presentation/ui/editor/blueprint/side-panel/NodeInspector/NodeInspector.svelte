@@ -38,7 +38,6 @@
     detached: boolean;
     /** What the pipeline refuses in the node; the field of the id says its own issue. */
     issue?: NodeIssue | null;
-    /** The node shows its error output. */
     errorOutput?: boolean;
     /** The nodes whose outputs a switch can read. */
     outputNodes?: string[];

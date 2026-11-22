@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 /** Keep the msgids (placeholder names included) or the French is lost. */
 export const triggersMessages = {
@@ -33,6 +33,7 @@ export const triggersMessages = {
   error: msg`Error`,
   ok: msg`OK`,
   unknown: msg`Unknown`,
+  skipped: msg`Skipped`,
   disabledWebhook: msg`disabled: URL returns 404`,
   disabled: msg`disabled`,
   next: msg`next`,
@@ -65,6 +66,35 @@ export const triggersMessages = {
   literal: msg`Literal`,
   jsonPointer: msg`JSON pointer`,
   removeInput: msg`Remove input`,
+
+  conditionsSection: msg`Conditions`,
+  conditionsSectionHint: msg`A delivery starts a run only when all the conditions match. The other deliveries show as skipped.`,
+  addCondition: msg`Add condition`,
+  noCondition: msg`No condition: each delivery starts a run.`,
+  removeCondition: msg`Remove condition`,
+  conditionAnd: msg`and`,
+  conditionSource: msg`Where the condition reads`,
+  conditionHeader: msg`Header`,
+  conditionBodyField: msg`Body field`,
+  conditionHeaderName: msg`Header name`,
+  conditionOperator: msg`Comparison`,
+  operatorIs: msg`is`,
+  operatorMatches: msg`matches`,
+  operatorOneOf: msg`is one of`,
+  conditionValue: msg`Value`,
+  addConditionValue: msg`Add a value`,
+  giveAHeaderName: msg`Give a header name.`,
+  notAHeaderName: msg`A header name has no space, for example X-GitHub-Event.`,
+  notAPointer: msg`A JSON pointer starts with /, for example /ref.`,
+  giveAValue: msg`Give a value.`,
+  valueTooLong: msg`A value has at most 1024 characters.`,
+  valueDuplicate: msg`This value is already in the list.`,
+  valueTooMany: msg`A condition has at most 32 values.`,
+  conditionCount: (count: number) =>
+    msg`${plural(count, { one: '# condition', other: '# conditions' })}`,
+  conditionIs: (field: string, value: string) => msg`${field} is ${value}`,
+  conditionMatches: (field: string, value: string) => msg`${field} matches ${value}`,
+  conditionOneOf: (field: string, values: string) => msg`${field} is one of ${values}`,
 
   hourly: msg`Hourly`,
   everyHour: msg`Every hour`,

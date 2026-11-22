@@ -9,6 +9,7 @@
   import AccountAbout from './AccountAbout.svelte';
   import AccountHeader from './AccountHeader.svelte';
   import AccountNav from './AccountNav.svelte';
+  import AccountPrivacy from '../AccountPrivacy/AccountPrivacy.svelte';
   import AccountSecurity from './AccountSecurity.svelte';
   import PersonalTokensSection from '../PersonalTokens/PersonalTokensSection.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
@@ -72,6 +73,8 @@
           <AccountSecurity {page} />
         {:else if current.id === 'tokens'}
           <PersonalTokensSection />
+        {:else if current.id === 'privacy'}
+          <AccountPrivacy />
         {:else if current.id === 'about'}
           <AccountAbout />
         {:else}

@@ -20,4 +20,9 @@ export interface MountDefinition {
   breadcrumb?: BreadcrumbFn;
   /** The trail of its pages starts here: the crumbs of the parent mounts do not show. */
   rootCrumb?: boolean;
+  /**
+   * The id of a nav section with `space`: the pages of this mount and of its child mounts show in
+   * the frame of that space, apart from the rest of the app. Only below a root mount with `shell`.
+   */
+  space?: string;
 }

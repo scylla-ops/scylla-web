@@ -10,6 +10,7 @@
     timelineTicks,
   } from '@base/features/dashboard/presentation/presenters/view-figures.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -49,6 +50,8 @@
 >
   <WidgetBody
     {size}
+    retrySeconds={10}
+    permission={viewPermissionName('jobs')}
     locked={!widgets.canReadJobs}
     loading={widgets.day.isPending}
     error={widgets.day.isError}

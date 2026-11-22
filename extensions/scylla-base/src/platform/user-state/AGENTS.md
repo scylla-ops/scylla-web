@@ -56,9 +56,11 @@ userState.forget()             removes what this browser holds for a deleted acc
 3. Give `readLocal` and `writeLocal`. A reader continues to read the local copy.
 4. Call `save` after each write to the local copy. It sends nothing when the value did not change.
 5. Give `merge` when two devices can add to the value. A key with no merge keeps the last choice.
-6. Set `upload: false` when a local value does not prove a choice of the person. Example: the load
-   of a page writes the language of the browser into the local key.
-7. Add a row to the table above, and a `removeLocal` when the local key has the user id.
+6. Set `upload: false` when a local value does not prove a choice of the person. Example: the
+   current language can be the language of the browser.
+7. Add a row to the table above, and a `removeLocal` when the local key has the user id. A local key
+   of the account also goes in `features/login/infrastructure/account-storage.ts`: the sign-out
+   removes it.
 
 ## The rules of a page load
 

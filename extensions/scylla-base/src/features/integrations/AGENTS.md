@@ -58,8 +58,8 @@ One repository for each gRPC service of `scylla/integrations/v1`, and one for `V
 | `getProviders(workspaceId)` | `VcsProviderInfo[]` — GitHub, then GitLab, and why one is not available |
 | `listByWorkspace(workspaceId)` | `VcsConnectionEntity[]` — every page, oldest first |
 | `getById(id)` | `VcsConnectionEntity` |
-| `startGitHubInstall(workspaceId)` | `GitHubInstall` — the install URL with a state of 10 minutes |
-| `completeGitHubInstall(CompleteGitHubInstallInput)` | `CompletedGitHubInstall` — the connection, or the authorize page of GitHub (`AUTHORIZATION_REQUIRED`) |
+| `startGitHubInstall(workspaceId)` | `GitHubInstall` — the authorize page of the App, with a state of 10 minutes |
+| `completeGitHubInstall(CompleteGitHubInstallInput)` | `CompletedGitHubInstall` — the connection, the authorize page of GitHub (`AUTHORIZATION_REQUIRED`), or the installations to choose (`choose`) |
 | `connectGitLab(ConnectGitLabInput)` | `CheckedGitLabConnection` — the connection and the warnings |
 | `replaceGitLabToken(ReplaceGitLabTokenInput)` | `CheckedGitLabConnection` |
 | `deleteById(id)` | `void` |
@@ -120,9 +120,10 @@ presentation/
   presenters/vcs-app.presenter.ts      the App: its line, its last webhook, the refusals of the
                                        manifest flow
   ui/Integrations/                     the page, its ViewModel, the provider cards, the table
-  ui/ConnectGitHubDialog/              the permissions of the App, then the install on GitHub
+  ui/ConnectGitHubDialog/              the permissions of the App, then the authorize page of GitHub
   ui/ConnectGitLabDialog/              the guide, the token field, the result of the check
-  ui/GitHubCallback/                   the page where GitHub sends the browser back
+  ui/GitHubCallback/                   the page where GitHub sends the browser back, and the
+                                       choice of an installation
   ui/Repository/                       the repository page of a project, its ViewModel, the
                                        repository card, the reports card, the pipeline source
                                        (card, file list, move dialog, its state), the merge
@@ -147,14 +148,15 @@ presentation/
 | `personal` | `integrations/github/callback` | none (`UNGATED_PAGES`) | `GitHubCallbackPage` |
 | `project` | `settings/repository` | `READ_REPOSITORY_LINK` | `RepositoryPage` |
 | `workspace` | `projects/new/github` | `CREATE_PROJECT` | `NewGitHubProjectPage` |
-| `instance` | `git-providers` | `MANAGE_GIT_PROVIDERS` | `GitProvidersPage` |
+| `admin` | `git-providers` | `MANAGE_GIT_PROVIDERS` | `GitProvidersPage` |
 | `personal` | `integrations/github/manifest` | none (`UNGATED_PAGES`) | `GitHubManifestCallbackPage` |
 
 Nav: section `workspace`, group `settings`, order 61 (after General). The callback has no
 permission: the server checks the state, which is bound to the workspace and to the user that
 started the install. The repository page is the link "Settings" of the project section, order 90
 (the last one). The trigger editor of `triggers` sends "Link a repository first" to it. The
-Git providers page is in the section `instance`, order 60 (after Settings). The manifest callback
+Git providers page is in the section `instance`, order 40, after Extensions, under the heading
+Integrations. The manifest callback
 has no permission for the same reason as the install callback: the server checks
 `complete_git_hub_manifest` and the state, which is bound to the admin that started the flow.
 The new GitHub project page is a step of `projects/new` of [project](../project/AGENTS.md),
@@ -174,13 +176,20 @@ which links to it by its path: that module cannot import this one.
   the query string, sends them one time (a used state is refused), then opens the page of the
   workspace of the new connection with `?connected=<id>`. The page shows the next step for this
   connection until the user dismisses it.
-- **The callback has three cases.** An install on an account where the App is installed comes
-  back with no code: the server gives the authorize page of GitHub, and the browser goes there;
-  GitHub comes back with a code and a state that carries the installation (`<state>.<id>`). A
-  change of the installation on GitHub comes back with no state: the page sends the code and the
-  installation, and the server refreshes the connection, then the page opens Integrations with
-  no `connected`. Any refusal of that refresh, or no code, shows "Your changes on GitHub are
-  saved", never an error: the change is saved on GitHub.
+- **The callback has four cases.** The start goes to the authorize page of the App, not to the
+  install page: for an account that has the App, the install page opens the settings of the
+  installation and never comes back. After this authorize page (a code and a state, no
+  installation), the server gives a `choose`: the installations that the user sees on GitHub
+  and that the workspace does not have, each with its authorize page (`connectUrl`), and the
+  install page (`installUrl`). The page shows them in `GitHubInstallChoice`; with none, the
+  browser goes to the install page. An install on an account where the App is installed comes
+  back with no code: the server gives the authorize page of GitHub, and the browser goes there.
+  GitHub comes back from an authorize page of an installation with a code and a state that
+  carries the installation (`<state>.<id>`). A change of the installation on GitHub comes back
+  with no state: the page sends the code and the installation, and the server refreshes the
+  connection, then the page opens Integrations with no `connected`. Any refusal of that refresh,
+  or no code, shows "Your changes on GitHub are saved", never an error: the change is saved on
+  GitHub.
 - **A GitHub App with no webhook polls.** The link has the reason `APP_HAS_NO_WEBHOOK`: the
   events line says it, and the test webhook says it in words, not with the text of the server.
 - **GitHub Enterprise Server and GitLab self-managed come later** (user decision 4): their cards

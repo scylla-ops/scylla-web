@@ -26,6 +26,15 @@ export interface OutcomeBar {
   orphaned: number;
 }
 
+export interface DayBar {
+  start: string;
+  empty: boolean;
+  completed: number;
+  failed: number;
+  other: number;
+  top: number;
+}
+
 /** The median and the p95 of one bucket, in percent of the highest p95. */
 export interface DurationBar {
   start: string;
@@ -88,6 +97,20 @@ export const outcomeBars = (buckets: readonly JobBucket[]): OutcomeBar[] => {
     completed: (outcomes.completed / highest) * 100,
     failed: (outcomes.failed / highest) * 100,
     orphaned: (outcomes.orphaned / highest) * 100,
+  }));
+};
+
+export const dayBars = (buckets: readonly JobBucket[]): DayBar[] => {
+  const total = ({ completed, failed, orphaned, cancelled }: JobBucket['figures']['outcomes']) =>
+    completed + failed + orphaned + cancelled;
+  const highest = Math.max(1, ...buckets.map(bucket => total(bucket.figures.outcomes)));
+  return buckets.map(({ start, figures: { outcomes } }) => ({
+    start,
+    empty: total(outcomes) === 0,
+    completed: (outcomes.completed / highest) * 100,
+    failed: (outcomes.failed / highest) * 100,
+    other: ((outcomes.orphaned + outcomes.cancelled) / highest) * 100,
+    top: (total(outcomes) / highest) * 100,
   }));
 };
 

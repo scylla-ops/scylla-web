@@ -329,7 +329,10 @@ const roleDrafts = (
     icon: ShieldCheckIcon,
     effect: {
       kind: 'go',
-      href: workspaceUrl(slug, `${scope}/roles/${encodeURIComponent(role.key)}`),
+      href:
+        scope === 'access'
+          ? workspaceUrl(slug, `access/roles/${encodeURIComponent(role.key)}`)
+          : `/admin/roles/${encodeURIComponent(role.key)}`,
     },
     say: messages.sayRole,
   }));

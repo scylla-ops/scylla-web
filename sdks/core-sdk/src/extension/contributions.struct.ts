@@ -34,6 +34,13 @@ export interface NavSectionDefinition {
    * sidebar shows its links while the URL is on one of them.
    */
   noRailItem?: boolean;
+  /**
+   * The section is a space apart from the rest of the app, e.g. the administration of the server.
+   * The pages of a mount that names it in `space` show in a frame of their own: no rail and no
+   * brand, one column with all the links of the section, and a top bar with `icon`, the title of
+   * the section and `bar`, in place of the crumbs and of `topBarEnd`.
+   */
+  space?: { icon: LucideIcon; bar?: Component };
 }
 
 /** A link that a module makes from data, e.g. one item of a list. */
@@ -56,6 +63,11 @@ export interface ShellContributions {
   topBarEnd?: readonly Component[];
   /** Rendered once over the shell, e.g. a dialog. */
   overlays?: readonly Component[];
+  /**
+   * Rendered once over each page, in the shell or not (a public page too), e.g. a consent banner.
+   * The core renders them after the router, in the order of the modules.
+   */
+  appOverlays?: readonly Component[];
   /**
    * The height in px of the band at the bottom of the view that an overlay always covers, e.g. a
    * launcher. The frame keeps this band free below its pages. The largest value wins.

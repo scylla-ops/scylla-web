@@ -29,13 +29,14 @@ type AppRouterConfig, CompiledRoute, RouteTable, LoadedApp, StartOptions
 
 ```
 src/
-  index.ts  start-core.ts  App.svelte          RouterView + Toaster
+  index.ts  start-core.ts  App.svelte          RouterView, the `appOverlays` of the modules, Toaster
   loader/load-extensions.ts                    checks and merges the extensions
   loader/merge-widget-injections.ts            widget injections: owners, dependencies, conflicts, order (pure)
   query/query-client.ts                        createAppQueryClient(handlers, retryPolicies)
   routing/
     compilation/                               declarations -> data, pure functions (node tests)
-      route-path.ts                            split, join, key, prefix, specificity, fillPath
+      route-path.ts                            split, join, key, prefix, specificity, fillPath,
+                                               fillTarget (the parameters of a redirect)
       flatten-routes.ts                        flattenModuleRoutes = unfoldRoutes + mergeSamePath
       compile-routes.ts                        compileRoutes, AppRouterConfig, mountPath
       nav-entries.ts                           navEntriesFor
@@ -43,7 +44,10 @@ src/
     view/RouterView/                           RouterView, RoutePage, RouteEntry (+ the error
                                                boundary of a page, route-entry.messages.ts)
   shell/
-    ShellFrame/                                the sidebars + top bar around the pages of a `shell` mount
+    ShellFrame/                                the sidebars + top bar around the pages of a `shell` mount,
+                                               or SpaceFrame for a page in a space
+    SpaceFrame/                                the frame of a space: its title and `bar` above one column of
+                                               its links, with the `sidebarFooter`, and the page
     AppSidebar/                                the sidebars, built from the nav entries
                                                DoubleSidebar: the brand band, Rail, SecondSidebar
                                                (nav-rail.ts: the rail of the sections,
@@ -80,6 +84,7 @@ It **throws**, at start-up and in `apps/web`'s conformance test, on:
 - a dependency that is not loaded, or extensions that depend on each other;
 - a second `access` policy or a second `fallback` page; no `fallback` page at all;
 - a sidebar link whose `nav.section` no module declares;
+- a mount whose `space` names no nav section with `space`;
 - a class without `@Extension`.
 
 Load order: an extension comes after its `dependencies`, else in list order. Registration
@@ -123,7 +128,9 @@ module gives an access policy.
 ## Mounts, shell and guard
 
 - A mount is data a module declares (`ScyllaModule.mounts`): `parent`, `path`, `wrapper`,
-  `breadcrumb`, and on a root mount `layout` and `shell`.
+  `breadcrumb`, `space`, and on a root mount `layout` and `shell`.
+- A `redirect` with a `:name` segment gets the value of that parameter of the route
+  (`fillTarget`): `{ path: ':page', redirect: '/admin/:page' }` keeps the page of an old link.
 - Render order of a page: **layout** (e.g. an auth gate) → **`ShellFrame`** when the root mount
   has `shell: true` → **wrappers**, outermost first → **the access policy's `guard`** when the
   route has a `permission` → the page. A root mount with neither `layout` nor `shell` renders
@@ -184,6 +191,17 @@ module gives an access policy.
 - A sidebar link carries `data-nav-url` (its path in the mount): code outside the core can point
   at a link without knowing its title. A rail item carries the URL of its first page, and
   `data-nav-group` when it comes from a group.
+- **A space is a frame apart, for the pages of one section.** A nav section with `space` names
+  a space, and a mount with `space: '<section id>'` puts its pages and the pages of its child
+  mounts in it (`CompiledRoute.space`). `ShellFrame` then renders `SpaceFrame`: no rail, no brand,
+  no crumbs and no `topBarEnd`. A top bar of `h-17` has the icon and the title of the section in
+  a cell as wide as the column (`w-64`), and the `bar` of the section in the rest. Below it, one
+  column of `w-64` shows all the links of the section, with their headings and no title, and the
+  `sidebarFooter` of the modules below a line. The column cannot be resized. On a phone, the cell
+  has the trigger of the sheet, and the sheet shows the links of the section only.
+- **A heading goes to the next link that the person sees.** When the first link of a run under a
+  heading is hidden (a permission, a parameter), the next link of the run shows the heading. A
+  run with no link to show has no heading.
 - **The rail shows the sections, the second sidebar shows the pages of one.** Each `NavGroup` and
   each link without a group is one rail item. A section with `railItem` is one item at the end. A
   section with `within` has no item: it replaces the pages of that item while the URL fills its

@@ -1,8 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { render, screen } from '@testing-library/svelte';
+import { render, screen, within } from '@testing-library/svelte';
 import { msg } from '@lingui/core/macro';
+import { ShieldCheckIcon } from '@lucide/svelte';
 import { installTestNavigator } from '@test/navigator.ts';
+import type { NavEntry } from '../../routing/compilation/nav-entries.ts';
 import { setShellConfig } from '../shell-config.ts';
+import Bar from '../__test__/Bar.fixture.svelte';
 import Stub from '../__test__/Stub.fixture.svelte';
 import ShellFrameFixture from './ShellFrame.fixture.svelte';
 
@@ -109,5 +112,77 @@ describe('ShellFrame', () => {
       'pb-[max(0.5rem,var(--shell-bottom-inset))]',
       'md:pb-[max(2rem,var(--shell-bottom-inset))]',
     );
+  });
+
+  describe('in a space', () => {
+    const entry = (section: string, title: string, url: string, mount: string): NavEntry => ({
+      section,
+      title: { id: title, message: title },
+      mount,
+      url,
+      pattern: mount === 'admin' ? ['admin', url] : [':workspaceSlug', url],
+    });
+
+    beforeEach(() => {
+      setShellConfig({
+        entries: [
+          entry('admin', 'Users', 'users', 'admin'),
+          entry('admin', 'Roles', 'roles', 'admin'),
+          entry('main', 'Secrets', 'secrets', 'workspace'),
+        ],
+        sections: [
+          { id: 'main', title: msg`Main` },
+          {
+            id: 'admin',
+            title: msg`Administration`,
+            space: { icon: ShieldCheckIcon, bar: Bar },
+          },
+        ],
+        contributions: [{ sidebarFooter: [Stub], topBarEnd: [Bar], brand: Bar }],
+      });
+    });
+
+    it('shows the title and the bar of the space above one column with its links', () => {
+      const { container } = render(ShellFrameFixture, { space: 'admin' });
+
+      const title = container.querySelector('[data-slot="space-title"]');
+      expect(title).toHaveClass('md:w-64', 'items-center', 'border-b', 'md:border-r');
+      expect(within(title as HTMLElement).getByRole('heading')).toHaveTextContent(
+        'Administration',
+      );
+      expect(container.querySelector('[data-slot="space-bar"]')).toHaveTextContent('bar');
+      const column = container.querySelector('[data-slot="space-nav"]') as HTMLElement;
+      expect(column).toHaveClass('w-64', 'border-r', 'bg-second-sidebar');
+      expect(within(column).getAllByRole('button').map(link => link.textContent?.trim())).toEqual([
+        'Users',
+        'Roles',
+      ]);
+      expect(within(column).getByText('stub')).toBeInTheDocument();
+    });
+
+    it('has no rail, no brand, no crumbs and no end of the top bar', () => {
+      const { container } = render(ShellFrameFixture, { space: 'admin' });
+
+      expect(container.querySelector('[data-slot="sidebar-rail-panel"]')).not.toBeInTheDocument();
+      expect(container.querySelector('[data-slot="sidebar-brand"]')).not.toBeInTheDocument();
+      expect(container.querySelector('[data-slot="breadcrumb"]')).not.toBeInTheDocument();
+      expect(screen.getAllByText('bar')).toHaveLength(1);
+    });
+
+    it('renders the page in the inset, beside the column', () => {
+      render(ShellFrameFixture, { space: 'admin' });
+
+      expect(screen.getByText('page content').closest('main')).toHaveAttribute(
+        'data-slot',
+        'sidebar-inset',
+      );
+    });
+
+    it('keeps the frame of the app for a space that no section declares', () => {
+      const { container } = render(ShellFrameFixture, { space: 'main' });
+
+      expect(container.querySelector('[data-slot="space-frame"]')).not.toBeInTheDocument();
+      expect(container.querySelector('[data-slot="sidebar-container"]')).toBeInTheDocument();
+    });
   });
 });

@@ -12,7 +12,6 @@ export interface BlueprintCanvasContext {
   isDetached: (nodeId: string) => boolean;
   /** What the pipeline refuses in the node. */
   issueOf: (nodeId: string) => NodeIssue | null;
-  /** The node shows its red `error` handle. */
   hasErrorPort: (nodeId: string) => boolean;
   /** The icon hint of the template whose code the node runs, if any. */
   iconHintOf: (definition: NodeDefinition) => string | undefined;

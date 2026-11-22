@@ -71,7 +71,7 @@
       disabled={install.isPending || install.isSuccess}
       onclick={() => install.mutate({ workspaceId, returnTo })}
     >
-      {t(messages.install)}
+      {t(messages.continueOnGitHub)}
       <ExternalLinkIcon class="size-4" aria-hidden="true" />
     </Button>
   </DialogFooter>

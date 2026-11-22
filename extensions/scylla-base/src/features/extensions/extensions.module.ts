@@ -3,6 +3,7 @@ import { msg } from '@lingui/core/macro';
 import PuzzleIcon from '@lucide/svelte/icons/puzzle';
 import { DefaultExtensionRepository } from '@base/features/extensions/infrastructure/default-extension.repository.ts';
 import { Permission } from '@platform/authz';
+import { ADMIN_NAV_HEADINGS } from '@shared/presentation/admin-nav.ts';
 
 const extensionRepository = new DefaultExtensionRepository(installedExtensions);
 
@@ -10,7 +11,7 @@ export const ExtensionsModule = {
   id: 'extensions',
   domain: { extensionRepository },
   routes: {
-    instance: [
+    admin: [
       {
         permission: Permission.MANAGE_ROLES,
         path: 'extensions',
@@ -21,7 +22,8 @@ export const ExtensionsModule = {
           title: msg`Extensions`,
           keywords: msg`plugin`,
           icon: PuzzleIcon,
-          order: 40,
+          order: 30,
+          heading: ADMIN_NAV_HEADINGS.integrations,
         },
       },
     ],

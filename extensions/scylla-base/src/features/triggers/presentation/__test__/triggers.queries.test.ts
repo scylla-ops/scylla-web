@@ -16,7 +16,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   id: 'trigger-1',
   pipelineId: PIPELINE_ID,
   name: 'github-push',
-  source: { kind: 'webhook', webhookUrl: 'https://x/webhooks/1' },
+  source: { kind: 'webhook', webhookUrl: 'https://x/webhooks/1', conditions: [] },
   inputs: [],
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
@@ -30,7 +30,7 @@ const cronTrigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity =>
 
 const draft: TriggerDraft = {
   name: 'github-push',
-  source: { kind: 'webhook' },
+  source: { kind: 'webhook', conditions: [] },
   inputs: [],
 };
 

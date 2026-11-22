@@ -7,7 +7,9 @@ import {
   setDependencyRegistry,
   setQueryClient,
 } from '@scylla/core-sdk';
+import { screen } from '@testing-library/svelte';
 import TestFallback from '../routing/view/RouterView/fixtures/TestFallback.fixture.svelte';
+import Stub from '../shell/__test__/Stub.fixture.svelte';
 import { setShellConfig } from '../shell/shell-config.ts';
 import { startCore } from '../start-core.ts';
 
@@ -15,7 +17,7 @@ import { startCore } from '../start-core.ts';
   id: 'test',
   name: 'Test',
   version: '1.0.0',
-  modules: [{ id: 'frame', domain: {}, fallback: TestFallback }],
+  modules: [{ id: 'frame', domain: {}, fallback: TestFallback, shell: { appOverlays: [Stub] } }],
 })
 class TestExtension {}
 
@@ -44,6 +46,10 @@ afterEach(() => {
 });
 
 describe('startCore', () => {
+  it('renders the overlays of each page, on a page with no frame too', () => {
+    expect(screen.getByText('stub')).toBeInTheDocument();
+  });
+
   it('refetches an active query when the tab shows again', async () => {
     window.dispatchEvent(new Event('visibilitychange'));
 

@@ -60,6 +60,26 @@ export const openableEntries = (
     });
 
 /**
+ * The heading of each entry that shows. A heading covers the links up to the next one, so the
+ * heading of a hidden link goes to the next link of its run that shows.
+ */
+const headingsOf = (
+  entries: readonly NavEntry[],
+  sectionId: string,
+  shown: ReadonlySet<NavEntry>,
+): Map<NavEntry, MessageDescriptor> => {
+  const headings = new Map<NavEntry, MessageDescriptor>();
+  let pending: MessageDescriptor | undefined;
+  for (const entry of entries.filter(({ section }) => section === sectionId)) {
+    pending = entry.heading ?? pending;
+    if (!shown.has(entry)) continue;
+    if (pending) headings.set(entry, pending);
+    pending = undefined;
+  }
+  return headings;
+};
+
+/**
  * Hides the entries the user cannot open or the current URL cannot fill, then
  * the empty sections. The links of one group fold under one item.
  */
@@ -72,8 +92,11 @@ export const navSectionsFor = ({
 }: NavSectionsInput): NavSection[] =>
   sections
     .map(({ id, title, railItem, within, noRailItem }) => {
-      const links = openableEntries({ entries, hrefOf, can }, id).map(
-        ({ entry, href }): Link => ({
+      const openable = openableEntries({ entries, hrefOf, can }, id);
+      const headings = headingsOf(entries, id, new Set(openable.map(({ entry }) => entry)));
+      const links = openable.map(({ entry, href }): Link => {
+        const heading = headings.get(entry);
+        return {
           entry,
           item: {
             title: translate(entry.title),
@@ -81,10 +104,10 @@ export const navSectionsFor = ({
             url: entry.url,
             icon: entry.icon,
             danger: entry.danger,
-            heading: entry.heading && translate(entry.heading),
+            heading: heading && translate(heading),
           },
-        }),
-      );
+        };
+      });
       return {
         id,
         title: translate(title),

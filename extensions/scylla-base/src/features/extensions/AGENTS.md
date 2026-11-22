@@ -61,9 +61,9 @@ presentation/
 
 | Mount | Path | Permission | Component |
 |---|---|---|---|
-| `workspace` | `extensions` | `MANAGE_ROLES` | `ExtensionsPage` |
+| `admin` | `extensions` | `MANAGE_ROLES` | `ExtensionsPage` |
 
-Sidebar: section `system`, order `30`, icon `PuzzleIcon`. The link takes the route's permission:
+Sidebar: section `instance`, order `30`, icon `PuzzleIcon`, under the heading Integrations. The link takes the route's permission:
 a user without `MANAGE_ROLES` does not see it.
 
 ## Rules that bite here

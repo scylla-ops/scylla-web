@@ -18,10 +18,14 @@ LoginState, type Credentials         // Credentials = { identifier, password }
 loginPoints, type LoginZoneContext   // extension points — see below
 openSession, closeSession            // the only writers of the session; a sign-up flow in another extension uses openSession too
 hasSession                           // is a token stored? the auth guard and other extensions read it, never localStorage
-signOut                              // closeSession + context reset + a full load of /login
+signOut                              // closeSession + context reset + the local keys of the account + a full load of /login
 loginPath(returnTo)                  // '/login#next=...': the sign-in page, then back to returnTo
 loginPathBackTo(location)            // loginPath of the current page; '/login' on /login itself
 type PasswordResetDelivery           // 'mail' | 'server-log' | 'unknown'; `user` uses it too
+loginQueries.terms()                 // the terms of the user of the session (GetMe): the auth guard and `user` read it
+TERMS_STATUS_QUERY_KEY               // ['me', 'terms']
+loadTermsStep                        // loader of the full-page terms step (props `status`, `onDecline`); the auth guard shows it
+type TermsStatus, TermsAcceptance
 ```
 
 Never add: `login.module.ts`, a page. A state calls `getModuleDomain('login')` directly.
@@ -64,6 +68,9 @@ The URL holds no data: the page reads the link with `GetPendingLink`.
 | `login(identifier, password)` | `void` |
 | `requestPasswordReset(email)` | `PasswordResetDelivery` |
 | `resetPassword(token, newPassword)` | `void` |
+| `signUp(input)` | `void`; `input.acceptedTermsVersion` is the version that the person accepted |
+| `termsStatus()` | `TermsStatus` (`GetMe`) |
+| `acceptTerms(version)` | `TermsAcceptance` |
 
 **`void` on `login` is not an oversight.** The session token never travels back through the
 domain: `DefaultLoginRepository` calls `openSession` as a side effect of a successful call. Do not
@@ -84,6 +91,7 @@ infrastructure/
   default-login.repository.ts           AuthServiceClient; calls openSession
   grpc-password-reset.mapper.ts         proto enum → PasswordResetDelivery
   session.ts                            openSession, closeSession (the writers of token + userId), hasSession
+  account-storage.ts                    forgetAccountStorage: the local keys of the account, removed at the sign-out
 presentation/
   login.commands.ts                  "Sign out...", for the search bar
   login.points.ts                    the extension points — see below
@@ -98,6 +106,13 @@ presentation/
     reset-password.state.svelte.ts   the token of the link, the new password
   messages/login.messages.ts               the sign-in strings (the `login.texts` point)
   messages/password-reset.messages.ts      the strings of the two reset pages
+  messages/terms.messages.ts               the box, the notice and the terms step
+  mappers/terms-refusal.mapper.ts          TERMS_NOT_ACCEPTED as data: the current version
+  presenters/linked-text.presenter.ts      link slots in a translated sentence, termsLinks
+  presenters/terms.presenter.ts            the texts of the step and of a refusal, changeItems
+  ui/LinkedText/, ui/TermsCheckbox/        a sentence with links; the box of the terms
+  ui/TermsStep/TermsStep.svelte            the full-page step (loadTermsStep)
+    terms-step.state.svelte.ts             the legal settings, the box, AcceptTerms
 ```
 
 ## Extension points
@@ -187,6 +202,11 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   mechanism means changing all three in the same commit. **A sign-up flow (in another extension)
   opens a session the same way — through `openSession`, never a direct `localStorage.setItem`.**
   Signing out goes through `closeSession` (both keys) or `signOut`.
+- **The sign-out removes the local keys of the account** (`infrastructure/account-storage.ts`): the
+  context, the bookkeeping of the user state, the onboarding, the dashboards, the command history,
+  the seen flags of the release and the style of the nodes. The theme, the language and the width
+  of the sidebar stay: they are choices for the device. A new local key that holds data of the
+  account adds its name or its prefix to this file, in the same commit.
 - **A view model of this module must be constructed during a component's initialisation.** The
   mutation inside it installs an `$effect.pre`; built from an event handler, Svelte throws
   `effect_orphan`. True of every view model holding a query or a mutation.
@@ -204,6 +224,37 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   handler reacts to it by clearing the session and hard-loading `/login`. From the login page
   that is a silent reload that eats the error. Remove the translation and a wrong password
   reloads the page instead of showing a message.
+
+## The terms of service
+
+The terms to accept come from `termsToAccept` of `@platform/legal`: the document `terms` when it
+is on and needs an acceptance (fix 1, `GetLegalInfo`). There is no other source. With
+`undefined`, the pages show no box, no notice and no step.
+
+- **The sign-up form** shows an unticked box "I accept the Terms of service", and the submit
+  stays disabled until the box is ticked. It sends the version that the person saw
+  (`acceptedTermsVersion`). The note under the button links the privacy policy when it is on.
+- **A refusal is a state of the page.** `TERMS_NOT_ACCEPTED` (the terms changed) comes back as
+  data with `termsRefusalOf`: the box is unticked, the text under it names the version of the
+  ErrorInfo metadata, and the legal settings are read again. A tick removes the text.
+- **The provider buttons** of the sign-in page have a notice under them: a first sign-in with a
+  provider makes an account, and the terms step then asks the acceptance.
+- **The terms step** is a full page in `AuthGuard` (`shell/`), before the app: `loginQueries.terms`
+  gives `acceptanceRequired`. A first acceptance shows the account of the session. A new version
+  shows its version, its date of effect and the list "What changes": one item for each line of
+  `changes` of the terms, with no list mark (`changeItems`). An empty `changes` shows no list. The
+  step reads the legal settings again
+  (`staleTime: 0`): the version that it sends must be the current one. The server refuses no
+  other route to a user who did not accept: an error of the read of `GetMe` shows the app.
+- **A person who refuses the terms can leave.** The step has "Sign out" and, last, "Decline and
+  delete my account" (`onDecline`). The auth guard opens the deletion of `features/user`
+  (`loadAccountDeletion`): its password, its refusals (for example the last owner of a
+  workspace) and the sign-out after the deletion. `DeleteAccount` needs no acceptance. This
+  module cannot import `user` (`user` imports `login`): the shell joins them.
+- **A legal link in a sentence opens in a new tab** (`LinkedText`): the form and the step keep
+  their state. Write the sentence with one value for each link (`linkSlot('terms')`), so that a
+  translation can put the link at another place.
+- No marketing opt-in here.
 
 ## Before done
 

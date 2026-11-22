@@ -36,7 +36,9 @@ export const toStored = (dashboard: Dashboard, widgets?: DashboardWidgets): Stor
 
 export const toWidgets = (widgets: readonly LayoutWidget[]): DashboardWidgets => ({
   schemaVersion: WIDGETS_SCHEMA_VERSION,
-  widgetsJson: JSON.stringify(widgets.map(({ id, data, size }) => ({ id, data, size }))),
+  widgetsJson: JSON.stringify(
+    widgets.map(({ id, data, size, target }) => ({ id, data, size, ...(target && { target }) })),
+  ),
 });
 
 /** Not set: the server keeps the visibility of a change, and makes a new dashboard private. */

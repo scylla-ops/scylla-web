@@ -12,8 +12,11 @@
   import { triggerMutations } from '@base/features/triggers/presentation/triggers.queries.ts';
   import { convertCronToLocal } from '@base/features/triggers/presentation/mappers/cron-timezone.mapper.ts';
   import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';
+  import type { WebhookCondition } from '@base/features/triggers/domain/structs/webhook-condition.struct.ts';
   import {
     buildTriggerDraft,
+    conditionsAreValid,
+    triggerToConditions,
     triggerToDraftInputs,
     triggerToGitRules,
     type DraftInput,
@@ -23,6 +26,7 @@
     gitKindHint,
     triggerKindLabel,
   } from '@base/features/triggers/presentation/presenters/trigger-source.presenter.ts';
+  import ConditionsEditor from './ConditionsEditor/ConditionsEditor.svelte';
   import CronScheduleBuilder from './CronScheduleBuilder/CronScheduleBuilder.svelte';
   import GitRulesFields from './GitRulesFields/GitRulesFields.svelte';
   import GitVariables from './GitVariables/GitVariables.svelte';
@@ -77,6 +81,8 @@
   let inputs = $state<DraftInput[]>(triggerToDraftInputs(trigger));
   // svelte-ignore state_referenced_locally
   let rules = $state<GitRulesDraft>(triggerToGitRules(trigger));
+  // svelte-ignore state_referenced_locally
+  let conditions = $state<WebhookCondition[]>(triggerToConditions(trigger));
 
   /** An unknown source arm cannot be rendered, so it cannot be sent again. */
   // svelte-ignore state_referenced_locally
@@ -90,7 +96,8 @@
     !isUnknownSource &&
       name.trim().length > 0 &&
       (kind === 'cron' ? isCronExpressionValid(cronExpression) : true) &&
-      (kind === 'pullRequest' ? rules.pullRequest.events.length > 0 : true),
+      (kind === 'pullRequest' ? rules.pullRequest.events.length > 0 : true) &&
+      (kind === 'webhook' ? conditionsAreValid(conditions) : true),
   );
 
   const initialCron = $derived(
@@ -114,7 +121,7 @@
   };
 
   const handleSubmit = async () => {
-    const draft = buildTriggerDraft({ name, kind, cronExpression, inputs, rules });
+    const draft = buildTriggerDraft({ name, kind, cronExpression, inputs, rules, conditions });
 
     try {
       if (isEdit && trigger) {
@@ -220,6 +227,18 @@
             hint={t(triggersMessages.variablesHint)}
           >
             <GitVariables kind={gitSource.kind} {link} />
+          </TriggerFormSection>
+        {:else if kind === 'webhook'}
+          <TriggerFormSection
+            id="trigger-conditions-title"
+            title={t(triggersMessages.conditionsSection)}
+            hint={t(triggersMessages.conditionsSectionHint)}
+          >
+            <ConditionsEditor
+              {conditions}
+              disabled={isPending}
+              onChange={next => (conditions = next)}
+            />
           </TriggerFormSection>
         {/if}
         <TriggerFormSection

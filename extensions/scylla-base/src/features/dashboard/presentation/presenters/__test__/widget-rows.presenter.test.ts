@@ -251,6 +251,42 @@ describe('pipelineRows', () => {
     expect(row.runs[0]).toMatchObject({ shortId: '1234abcd', duration: '—' });
   });
 
+  it('opens each run of the strip as a job of its pipeline and its project', () => {
+    const [row] = pipelineRows(
+      [
+        summary({
+          id: 'pipeline-1',
+          name: 'deploy-web',
+          projectId: 'project-1',
+          projectName: 'frontend',
+          recent: [
+            {
+              id: 'job-0000abcdef12',
+              status: 'failed',
+              branch: 'main',
+              createdAt: '2026-11-17T09:00:00Z',
+              startedAt: '2026-11-17T09:00:00Z',
+              finishedAt: '2026-11-17T09:01:30Z',
+            },
+            { id: 'job-00001234abcd', status: 'running', branch: '', createdAt: '2026-11-16T09:00:00Z' },
+          ],
+        }),
+      ],
+      20,
+    );
+
+    expect(row.runs[1]).toMatchObject({
+      jobId: 'job-0000abcdef12',
+      pipelineId: 'pipeline-1',
+      pipelineName: 'deploy-web',
+      projectId: 'project-1',
+      projectName: 'frontend',
+      seconds: 90,
+      run: { id: 'job-0000abcdef12', status: 'failed', ref: 'main', finishedAt: '2026-11-17T09:01:30Z' },
+    });
+    expect(row.runs[0]).toMatchObject({ jobId: 'job-00001234abcd', seconds: null, run: { ref: undefined } });
+  });
+
   it('shows a pipeline that runs now in the color of a running job, and a pipeline with no trigger as manual', () => {
     const [row] = pipelineRows([summary({ active: true, health: 'green' })], 20);
 

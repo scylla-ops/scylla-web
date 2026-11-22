@@ -22,7 +22,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
 | `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
-| `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
+| `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
 | `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
@@ -151,7 +151,11 @@ DOM measurement is an **attachment**, never an effect: `createMeasuredHeight()` 
 
 The theme store keeps the choice of the user (`light`, `dark`, `system`) under the
 `localStorage` key `scylla-theme`, which the inline script of `index.html` reads before the
-first paint: keep the two in step (no value means dark). `system` follows
+first paint: keep the two in step (no value means dark). **No cookie and no storage key without
+a registry entry:** a store, a state or a primitive of `@scylla/ui` that writes a new key adds
+its entry to the tracker registry of scylla-base (`platform/trackers`), in the same change. A
+key that is not exempt also names its consent purpose, and the consent framework of scylla-base
+(`platform/consent`) then asks the user. Its test reads the files of this package too. `system` follows
 `prefers-color-scheme`, also when it changes. `setThemePreference(choice, origin)` with an
 origin spreads the new theme from that point as one circle (View Transitions API, 450 ms); with
 no origin, no API or a reduced motion setting, the swap is instant. The account page of
@@ -243,6 +247,10 @@ What a port has to get right, all of it invisible to the compiler:
   - bits-ui does not set `aria-controls` or `aria-haspopup`. Set them on the input.
   - A row of a floating list has no accessible name in jsdom, because the list has no position. A
     test reads the row with `findFloating`, and a field in the list with its placeholder.
+- **A submenu is in a portal, as its menu.** bits-ui puts `DropdownMenuSubContent` in the menu,
+  `absolute`. The menu is a `relative` scroller, thus it clips the submenu, which is beside it:
+  the submenu opens, but it is not visible. `dropdown-menu.test.ts` fails when the submenu is in
+  the menu.
 - **A menu gives the focus to its field marked `autofocus`.** Without this field, the menu takes the
   focus. If the field mounts after the menu opens, the field must also take the focus when it
   mounts (`{@attach}`), because Svelte's `autofocus` does nothing while another element has the focus.
@@ -369,7 +377,9 @@ library "scylla :: ui" publishes its page Widget.
   write a span or a row height as a literal class.
 - **A widget places itself.** `Widget` sets its own span from its `size`. `grid-flow-row-dense`
   fills a hole with a later small widget.
-- **A widget has a border and no fill**: no `bg-card`, no shadow. It is a limit, not a card.
+- **A widget has a border and a faint fill**: `bg-muted/30`, no shadow. The fill parts the
+  widget from the page in the two themes. Do not use `bg-card`: in the light theme, `--card` is
+  the color of the page. Only the dashboard uses `Widget`, so the fill changes no other page.
 - **The header is one line of 20 px**: the icon, the title (an `h3`), `meta` and `aside` at the
   end. `aside` holds a count, a state or actions. In the size `xs` the header is small (12 px
   text), and the content is centered under it. `bare` keeps the header for the screen readers

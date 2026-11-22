@@ -112,6 +112,15 @@ export const loadExtensions = (classes: readonly ExtensionClass[]): LoadedApp =>
   const sections = modules.flatMap(module => module.navSections ?? []);
   uniqueBy(sections, section => section.id, 'nav section');
 
+  const spaceless = Object.entries(mounts).find(
+    ([, { space }]) =>
+      space !== undefined && !sections.some(section => section.id === space && section.space),
+  );
+  if (spaceless) {
+    const [id, { space }] = spaceless;
+    throw new Error(`The mount "${id}" names the space "${space}", which no nav section declares.`);
+  }
+
   const access = onlyOne<AccessPolicy>(modules, module => module.access, 'an access policy');
   const fallback = onlyOne<Component>(modules, module => module.fallback, 'the fallback page');
   if (!fallback) throw new Error('No module gives the fallback page.');

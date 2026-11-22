@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render } from '@test/render.ts';
+import userEvent from '@testing-library/user-event';
+import { findTooltip, render } from '@test/render.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggerStatusCell from './TriggerStatusCell.svelte';
 
@@ -17,7 +18,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   ...overrides,
 });
 
-const webhook = { kind: 'webhook', webhookUrl: 'https://x/y' } as const;
+const webhook = { kind: 'webhook' as const, webhookUrl: 'https://x/y', conditions: [] };
 
 describe('TriggerStatusCell', () => {
   it('shows "Never fired" when there is no lastResult and no lastFiredAt', () => {
@@ -43,6 +44,20 @@ describe('TriggerStatusCell', () => {
       }),
     });
     expect(screen.getByTitle('timeout')).toBeInTheDocument();
+  });
+
+  it('shows "Skipped", not an error, for a delivery that did not match, with the reason in a tooltip', async () => {
+    render(TriggerStatusCell, {
+      trigger: trigger({
+        source: webhook,
+        lastFiredAt: '2026-01-01T00:00:00.000Z',
+        lastResult: { kind: 'skipped', reason: 'No match: /ref is refs/heads/dev' },
+      }),
+    });
+
+    expect(screen.queryByText('Error')).not.toBeInTheDocument();
+    await userEvent.hover(screen.getByText('Skipped'));
+    expect(await findTooltip()).toHaveTextContent('No match: /ref is refs/heads/dev');
   });
 
   it('shows "OK" for a succeeded last fire', () => {

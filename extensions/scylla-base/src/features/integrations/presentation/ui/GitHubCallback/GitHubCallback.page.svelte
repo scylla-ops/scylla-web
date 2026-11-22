@@ -7,6 +7,7 @@
   import { ProviderMark } from '@shared/presentation/ui';
   import { connectGitHubMessages as messages } from '@base/features/integrations/presentation/messages/connect-github.messages.ts';
   import { createGitHubCallback } from './github-callback.state.svelte.ts';
+  import GitHubInstallChoice from './GitHubInstallChoice.svelte';
 
   const callback = createGitHubCallback();
   onMount(callback.start);
@@ -25,6 +26,8 @@
     <h1>{t(messages.failedTitle)}</h1>
     <p role="alert" class="text-sm text-muted-foreground">{callback.error}</p>
     <Button href={callback.backHref}>{t(messages.backToIntegrations)}</Button>
+  {:else if callback.choice}
+    <GitHubInstallChoice choice={callback.choice} backHref={callback.backHref} />
   {:else if callback.saved}
     <span
       class="flex size-12 items-center justify-center rounded-full bg-muted text-success"

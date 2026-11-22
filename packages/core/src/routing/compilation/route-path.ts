@@ -49,3 +49,16 @@ export const fillPath = (pattern: RoutePath, params: RouteParams): string | null
   }
   return joinPath(segments);
 };
+
+/**
+ * The target of a redirect, with the value of each `:name` segment from the params of the route:
+ * `/admin/:page` with `{ page: 'users' }` → `/admin/users`. A segment with no value stays.
+ */
+export const fillTarget = (target: string, params: RouteParams): string =>
+  target
+    .split('/')
+    .map(segment => {
+      const value = isParam(segment) ? params[segment.slice(1)] : undefined;
+      return value ? encodeURIComponent(value) : segment;
+    })
+    .join('/');

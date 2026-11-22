@@ -1,4 +1,4 @@
-import { getCurrentLocale, setAppLocale, type SupportedLocale } from '@scylla/ui/i18n';
+import { chooseAppLocale, getCurrentLocale, type SupportedLocale } from '@scylla/ui/i18n';
 import {
   getThemePreference,
   setThemePreference,
@@ -31,13 +31,14 @@ const locale = userState.define<SupportedLocale>({
   key: 'locale',
   decode: value => (value === 'en' || value === 'fr' ? value : null),
   readLocal: () => getCurrentLocale(),
-  writeLocal: (_, value) => void setAppLocale(value),
-  // The load of each page writes the language of the browser into the local key.
+  // The value of the server is a choice of the person on another device.
+  writeLocal: (_, value) => void chooseAppLocale(value),
+  // The current language can be the language of the browser: it does not prove a choice.
   upload: false,
 });
 
-/** The choice of the person: the load of a page calls `setAppLocale` and writes nothing here. */
+/** The choice of the person: only it writes the local key. The load of a page writes nothing. */
 export const chooseLocale = async (next: SupportedLocale): Promise<void> => {
-  await setAppLocale(next);
+  await chooseAppLocale(next);
   locale.save(next);
 };

@@ -129,7 +129,6 @@ function combinatorToDomain(combinator: Combinator, node: string): 'all' | 'any'
   throw new UnknownArmError(`The switch "${node}"`);
 }
 
-/** The cases, `otherwise` and `allMatches` of a switch node. */
 function switchToDomain(step: Switch, node: string): Omit<SwitchDefinition, 'env' | 'kind'> {
   return {
     cases: step.cases.map(({ port, combinator, rules }) => ({
@@ -163,7 +162,6 @@ function switchFromDomain(node: SwitchDefinition): Switch {
   };
 }
 
-/** A node of a pipeline, or of the snapshot of a job. */
 export function nodeToDomain(node: Node): PipelineNodeEntity {
   const id = node.id;
   const deps = node.needs.map(needToDomain);

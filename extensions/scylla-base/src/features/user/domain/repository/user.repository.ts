@@ -2,6 +2,7 @@ import type { CreateTokenInput, CreatedToken } from '@shared/domain/structs/api-
 import type { PersonalTokens } from '../entities/personal-tokens.entity.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type {
+  AccountDataExport,
   CreateUserInput,
   UpdateUserInput,
   UserEntity,
@@ -32,6 +33,8 @@ export interface UserRepository {
   revokeSessions(userId: string): Promise<number>;
   /** Of the session's account, with its password. */
   deleteAccount(password: string): Promise<void>;
+  /** Of the session's account. Refused to a personal token with the read-only preset. */
+  exportAccountData(): Promise<AccountDataExport>;
   /** The sessions that have not expired, the most recently active first. */
   listSessions(userId: string): Promise<UserSessionEntity[]>;
   /**

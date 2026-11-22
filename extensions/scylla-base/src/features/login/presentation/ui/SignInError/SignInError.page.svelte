@@ -7,6 +7,7 @@
   import LockIcon from '@lucide/svelte/icons/lock';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
+  import { LegalFooter } from '@platform/legal';
   import { loginQueries } from '@base/features/login/presentation/login.queries.ts';
   import { providerStartUrl } from '@base/features/login/presentation/mappers/provider-start.mapper.ts';
   import { signInErrorMessages } from '@base/features/login/presentation/messages/sign-in-error.messages.ts';
@@ -52,12 +53,17 @@
   const Icon = $derived(icons[card.tone]);
 </script>
 
+<!-- The legal links that the operator turned on, at the bottom of the frame. -->
+{#snippet legalFooter()}
+  <LegalFooter class="pt-6" />
+{/snippet}
+
 {#if methods.isPending}
-  <AuthLayout title={t(signInErrorMessages.failedTitle)}>
+  <AuthLayout footer={legalFooter} title={t(signInErrorMessages.failedTitle)}>
     <Skeleton class="h-16 w-full" />
   </AuthLayout>
 {:else}
-  <AuthLayout title={t(card.title)}>
+  <AuthLayout footer={legalFooter} title={t(card.title)}>
     {#snippet icon()}
       <Icon
         class="size-6 shrink-0 {card.tone === 'warning' ? 'text-warning' : 'text-muted-foreground'}"

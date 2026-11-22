@@ -35,6 +35,7 @@
   } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '@base/features/dashboard/presentation/ui/widgets/dashboard-widgets.state.svelte.ts';
+  import TargetPicker from './TargetPicker.svelte';
   import WidgetPreview from './WidgetPreview.svelte';
 
   interface Props {
@@ -42,7 +43,7 @@
     item: LayoutWidget;
     widgets: DashboardWidgets;
     period: DashboardPeriodState;
-    onApply: (change: { data: WidgetData; size: LayoutSize }) => void;
+    onApply: (change: { data: WidgetData; size: LayoutSize; target: string | undefined }) => void;
     onRemove: () => void;
     onClose: () => void;
   }
@@ -51,8 +52,10 @@
 
   let data = $state<WidgetData>(untrack(() => item.data));
   let size = $state<LayoutSize>(untrack(() => shownSize(item.data, item.size)));
+  let target = $state<string | undefined>(untrack(() => item.target));
 
   const entry = $derived(kindOf(DATA[data].kind));
+  const targetKind = $derived(DATA[data].target);
   const sizes = $derived(DATA[data].sizes);
   const options = $derived(
     SIZE_ORDER.filter(option => sizes.includes(option)).map(option => ({
@@ -78,7 +81,7 @@
     </header>
 
     <div class="relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5">
-      <WidgetPreview item={{ data, size }} {widgets} {period} width={344} />
+      <WidgetPreview item={{ data, size, target }} {widgets} {period} width={344} />
 
       <Tabs value="data" class="gap-4">
         <TabsList>
@@ -100,6 +103,9 @@
             </Select>
             <p class="text-xs text-muted-foreground">{t(DATA[data].hint)}</p>
           </div>
+          {#if targetKind}
+            <TargetPicker kind={targetKind} value={target} {widgets} onChange={value => (target = value)} />
+          {/if}
           <p class="text-xs text-muted-foreground">{t(messages.followsDashboard)}</p>
         </TabsContent>
         <TabsContent value="display" class="flex flex-col gap-1.5">
@@ -120,7 +126,7 @@
         {t(messages.removeWidget)}
       </Button>
       <Button variant="ghost" size="sm" onclick={onClose}>{t(messages.cancel)}</Button>
-      <Button size="sm" onclick={() => onApply({ data, size })}>{t(messages.apply)}</Button>
+      <Button size="sm" onclick={() => onApply({ data, size, target: targetKind ? target : undefined })}>{t(messages.apply)}</Button>
     </footer>
   </SheetContent>
 </Dialog>

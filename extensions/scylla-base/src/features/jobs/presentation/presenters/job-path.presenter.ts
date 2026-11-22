@@ -19,7 +19,6 @@ export type SkipReason = 'not-taken' | 'stopped';
 export interface JobPath {
   /** The state of each need of each node, by `needKey`. */
   needs: Map<string, NeedState>;
-  /** The reason of each skipped node. */
   skipped: Map<string, SkipReason>;
   /** Each failed node whose failure an `error` need took, and the nodes that need it so. */
   errorBranches: Map<string, string[]>;

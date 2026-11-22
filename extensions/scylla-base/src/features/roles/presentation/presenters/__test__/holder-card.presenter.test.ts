@@ -88,8 +88,8 @@ describe('holderCard', () => {
 
     const card = holderCard({ holders, total: 2 }, { slug: 'acme' });
 
-    expect(card.allHref).toBe('/acme/instance/users');
-    expect(card.rows.map(row => row.href)).toEqual(['/acme/instance/users/admin', undefined]);
+    expect(card.allHref).toBe('/admin/users');
+    expect(card.rows.map(row => row.href)).toEqual(['/admin/users/admin', undefined]);
     expect(card.rows[0].scope).toBe('Instance');
   });
 

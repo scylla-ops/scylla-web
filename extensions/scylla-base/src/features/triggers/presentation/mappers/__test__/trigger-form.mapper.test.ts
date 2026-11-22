@@ -2,11 +2,14 @@
 import { describe, it, expect } from 'vitest';
 import {
   buildTriggerDraft,
+  conditionsAreValid,
+  triggerToConditions,
   triggerToDraftInputs,
   triggerToGitRules,
 } from '../trigger-form.mapper.ts';
 import { isCronExpressionValid } from '@base/features/triggers/domain/structs/cron-expression.struct.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+import type { WebhookCondition } from '@base/features/triggers/domain/structs/webhook-condition.struct.ts';
 
 describe('triggerToDraftInputs', () => {
   it('flattens each input to its key/kind/value', () => {
@@ -42,7 +45,7 @@ describe('buildTriggerDraft', () => {
 
     expect(draft.name).toBe('github-push');
     expect(draft.inputs).toEqual([{ key: 'branch', value: { kind: 'literal', value: 'main' } }]);
-    expect(draft.source).toEqual({ kind: 'webhook',});
+    expect(draft.source).toEqual({ kind: 'webhook', conditions: [] });
   });
 
   it('a jsonPointer input kind is only honored for a Webhook trigger', () => {
@@ -121,5 +124,63 @@ describe('buildTriggerDraft of a Git kind', () => {
       inputs: [{ key: 'sha', value: { kind: 'literal', value: '/after' } }],
     });
     expect(draft.source.kind === 'push' && draft.source.branches).not.toBe(rules.push.branches);
+  });
+});
+
+describe('the conditions of a webhook', () => {
+  it('sends trimmed copies, with one value for is and matches', () => {
+    const draft = buildTriggerDraft({
+      name: 'push-main',
+      kind: 'webhook',
+      cronExpression: '',
+      inputs: [],
+      conditions: [
+        { source: 'header', field: ' X-GitHub-Event ', operator: 'is', values: [' push ', 'tag'] },
+        { source: 'jsonPointer', field: '/ref', operator: 'oneOf', values: ['main', ' dev '] },
+      ],
+    });
+
+    expect(draft.source).toEqual({
+      kind: 'webhook',
+      conditions: [
+        { source: 'header', field: 'X-GitHub-Event', operator: 'is', values: ['push'] },
+        { source: 'jsonPointer', field: '/ref', operator: 'oneOf', values: ['main', 'dev'] },
+      ],
+    });
+  });
+
+  it('gives the form copies of the conditions of a webhook trigger, and none for another kind', () => {
+    const condition = {
+      source: 'jsonPointer',
+      field: '/ref',
+      operator: 'is',
+      values: ['refs/heads/main'],
+    } as const;
+    const webhook = {
+      source: { kind: 'webhook', webhookUrl: 'https://x/webhooks/1', conditions: [condition] },
+    } as unknown as TriggerEntity;
+    const cron = { source: { kind: 'cron', expression: '0 3 * * *' } } as unknown as TriggerEntity;
+
+    const copies = triggerToConditions(webhook);
+
+    expect(copies).toEqual([condition]);
+    expect(copies[0]?.values).not.toBe(condition.values);
+    expect(triggerToConditions(cron)).toEqual([]);
+  });
+
+  it('refuses a pointer with no slash first, a blank header name and a blank value', () => {
+    const valid: WebhookCondition = {
+      source: 'jsonPointer',
+      field: '/ref',
+      operator: 'is',
+      values: ['main'],
+    };
+
+    expect(conditionsAreValid([valid])).toBe(true);
+    expect(conditionsAreValid([{ ...valid, field: 'ref' }])).toBe(false);
+    expect(conditionsAreValid([{ ...valid, source: 'header', field: ' ' }])).toBe(false);
+    expect(conditionsAreValid([{ ...valid, source: 'header', field: 'X Event' }])).toBe(false);
+    expect(conditionsAreValid([{ ...valid, values: [] }])).toBe(false);
+    expect(conditionsAreValid([{ ...valid, values: ['  '] }])).toBe(false);
   });
 });

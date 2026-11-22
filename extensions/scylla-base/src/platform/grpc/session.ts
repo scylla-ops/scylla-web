@@ -36,6 +36,7 @@ const PUBLIC_METHODS = new Set([
   'scylla.accounts.v1.AccountService/ListSignInMethods',
   'scylla.accounts.v1.AccountService/RequestPasswordReset',
   'scylla.accounts.v1.AccountService/ResetPassword',
+  'scylla.platform.v1.LegalService/GetLegalInfo',
 ]);
 
 /** Whether the URL of a call is a call that needs no token. */

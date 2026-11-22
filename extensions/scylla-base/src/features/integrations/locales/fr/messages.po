@@ -245,6 +245,10 @@ msgstr "Annuler"
 msgid "Change"
 msgstr "Modifier"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:23
+msgid "Choose a GitHub account"
+msgstr "Choisissez un compte GitHub"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:16
 msgid "Coming in a later release"
 msgstr "Dans une prochaine version"
@@ -253,9 +257,14 @@ msgstr "Dans une prochaine version"
 msgid "Configure on GitHub"
 msgstr "Configurer sur GitHub"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:25
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-gitlab.messages.ts:22
 msgid "Connect"
 msgstr "Connecter"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:26
+msgid "Connect {account}"
+msgstr "Connecter {account}"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:4
 #: extensions/scylla-base/src/features/integrations/presentation/messages/integrations.messages.ts:18
@@ -302,6 +311,10 @@ msgstr "Contents : lecture · Checks : écriture · Pull requests : lecture · A
 #: extensions/scylla-base/src/features/integrations/presentation/messages/new-project.messages.ts:23
 msgid "Continue"
 msgstr "Continuer"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:13
+msgid "Continue on GitHub"
+msgstr "Continuer sur GitHub"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:32
 msgid "Copy {context}"
@@ -526,9 +539,9 @@ msgstr "Hôte"
 msgid "Install again"
 msgstr "Installer à nouveau"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:13
-msgid "Install on GitHub"
-msgstr "Installer sur GitHub"
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:27
+msgid "Install on another account"
+msgstr "Installer sur un autre compte"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/new-project.messages.ts:11
 msgid "Install the Scylla App on your GitHub account or organization. After the installation, you come back to this step."
@@ -712,7 +725,7 @@ msgstr "Seuls les éditeurs du projet peuvent modifier le dépôt."
 msgid "Open {name} on the provider"
 msgstr "Ouvrir {name} chez le fournisseur"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:25
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:31
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:39
 msgid "Open Integrations"
 msgstr "Ouvrir Intégrations"
@@ -931,7 +944,7 @@ msgstr "Scylla lit les fichiers de pipeline sur {branch}. Les pipelines de l'éd
 msgid "Scylla turns on \"Pipelines must succeed\" in {repository}. One rule for all the Scylla pipelines of the project."
 msgstr "Scylla active \"Pipelines must succeed\" dans {repository}. Une règle pour tous les pipelines Scylla du projet."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:24
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:30
 msgid "Scylla uses the new settings of the installation."
 msgstr "Scylla utilise les nouveaux réglages de l'installation."
 
@@ -1094,6 +1107,10 @@ msgstr "Les règles qui bloquent le merge : {contexts}."
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:6
 msgid "The Scylla App asks for"
 msgstr "L'App Scylla demande"
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:24
+msgid "The Scylla App is installed on these accounts. Connect one of them to this workspace, or install the App on another account."
+msgstr "L'App Scylla est installée sur ces comptes. Connectez l'un d'eux à cet espace de travail, ou installez l'App sur un autre compte."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:40
 msgid "The server has no key for the secrets. Set SCYLLA_SECRET_KEY, then try again."
@@ -1272,7 +1289,7 @@ msgstr "Vous ne pouvez pas lier un dépôt dans cet espace."
 msgid "You cannot see this installation on GitHub."
 msgstr "Vous ne voyez pas cette installation sur GitHub."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:23
+#: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:29
 msgid "Your changes on GitHub are saved"
 msgstr "Vos changements sur GitHub sont enregistrés"
 

@@ -182,7 +182,8 @@ describe('feature permission conformance', () => {
         'reads only whether the server refuses the tokens.',
       'login.loginQueries':
         '`signInMethods` is public: the sign-in page reads it with no session. The account page ' +
-        'reads it to offer the providers to link. `pendingLink` reads a cookie of this browser.',
+        'reads it to offer the providers to link. `pendingLink` reads a cookie of this browser. ' +
+        '`terms` is the account of the session (GetMe): the privacy page of the account reads it.',
       'jobs.jobQueries':
         '`byWorkspace`, the read that crosses the barrel, needs LIST_JOBS_BY_WORKSPACE: the ' +
         'failed runs sit behind it. The fan-out that ' +

@@ -17,11 +17,14 @@ const railItemOfNode = (node: NavNode): RailItem =>
     ? { id: node.id, title: node.title, icon: node.icon, group: node.id, pages: node.items }
     : { id: node.url, title: node.title, icon: node.icon, pages: [node] };
 
+/** Every page of a section, the pages of its groups in their place. */
+export const sectionPages = (section: NavSection): NavItem[] => section.items.flatMap(pagesOfNode);
+
 const railItemOfSection = (section: NavSection): RailItem => ({
   id: section.id,
   title: section.title,
   icon: section.railItem?.icon,
-  pages: section.items.flatMap(pagesOfNode),
+  pages: sectionPages(section),
 });
 
 /**

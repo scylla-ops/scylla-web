@@ -21,3 +21,9 @@ export {
   personalTokenQueries,
   PERSONAL_TOKENS_QUERY_KEY,
 } from './presentation/personal-tokens.queries.ts';
+/**
+ * The dialog that deletes the account of the session, with its call and the sign-out. The auth
+ * guard opens it from the terms step: a person who refuses the terms can leave.
+ */
+export const loadAccountDeletion = () =>
+  import('./presentation/ui/account/AccountDeletion/AccountDeletion.svelte');

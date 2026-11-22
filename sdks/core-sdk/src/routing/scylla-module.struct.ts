@@ -58,7 +58,10 @@ export interface ModuleRoute {
   path?: string;
   /** Keep it lazy. */
   page?: PageLoader;
-  /** A relative target starts from this route's URL. */
+  /**
+   * A relative target starts from this route's URL. A `:name` segment takes the value of that
+   * parameter of the route: `/admin/:page` from `instance/:page`.
+   */
   redirect?: string;
   /** Read by the route guard and the sidebar. Guards this page only: children declare their own. */
   permission?: RoutePermission;

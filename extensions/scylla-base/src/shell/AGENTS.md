@@ -29,21 +29,29 @@ __test__/choice-cards.test.ts           conformance: a radio, a checkbox or a sw
                                         on the label, here and in `@scylla/ui` (`@scylla/ui`, "Rules that bite here")
 presentation/
   shell-params.ts                       breadcrumbParams, linkParams (from the context store)
+  admin-space.ts                        ADMIN_SECTION, ADMIN_PATH, isAdminPath, adminHome (the first admin link)
   report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login);
                                         on a conflict of a mutation, a warning toast and `invalidateQueries()`
   router/
     AppLayout.svelte                    layout of the `app` mount: AuthGuard + WorkspaceGate
     AuthGuard/                          hasSession: the pages, or /login; no answer: a retry view, not /login
+                                        then loginQueries.terms: the terms step of login before the pages;
+                                        its "Decline and delete my account" opens AccountDeletion of user
     PersonalLayout/                     layout of the `personal` mount: AuthGuard + a centered column, no gate
     WorkspaceSync.wrapper.svelte     URL slug → context store (workspace-sync.effect.svelte.ts)
     WorkspaceRedirect.wrapper.svelte `/` → the user's workspace (workspace-redirect.effect.svelte.ts)
     last-workspace.ts                   the key `last-workspace` of `platform/user-state`
+    AdminRedirect.wrapper.svelte        `/admin` → its first page that the person may open
+                                        (admin-redirect.effect.svelte.ts)
+    AdminColumn.wrapper.svelte          wrapper of the `admin` mount: the column of `max-w-3xl` of its pages
     ContextCleaner.wrapper.svelte       URL project → context store, drops stale project/pipeline context,
                                         names the pipeline of the URL (context-cleaner.effect.svelte.ts)
     NotFound/                           the fallback for a URL that no route matches: a text and a link to /.
                                         It has no session check: / goes through AuthGuard
   layout/
     shell.state.svelte.ts               workspaces query, permission sync, first workspace
+    admin-exit.state.svelte.ts          the way out of the administration: label and href
+                                        (rememberWorkspacePage, from WorkspaceSync)
     project-links.state.svelte.ts       projectLinks: the projects of the workspace after "All projects"
                                         (secondSidebarLinks); it reads them only while they show
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
@@ -56,12 +64,19 @@ presentation/
     ui/GlobalSearch/                    the button of the top bar and Ctrl K. It loads the bar at the first use and keeps the form that a command opens
     ui/CommandBar/                      the command bar: see "The command bar"
     ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
-    ui/NavUser/                         who is signed in (userQueries.me), Account, Help & tours, Language, Sign out
+    ui/AdminBar/                        the bar of the administration (space.bar): the host, "Back to <workspace>"
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Help & tours, Legal and privacy
+                                        (a submenu of the documents that are on, no entry while none is on; on a
+                                        phone it opens under its entry), Cookie settings
+                                        (while one tracker needs consent), Instance administration, or
+                                        "Back to <workspace>" in the administration, Language, Sign out
                                         (sidebar footer); green on the rail while the URL is on the account or the help page
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
     ui/WhatsNewDialog/                  first-launch release announcement
     ui/LaunchOverlays/                  THE overlay: the announcement first, then the onboarding tour
+    ui/ConsentHost/                     over each page, public too (appOverlays): the banner and the cookie
+                                        settings of `platform/consent`, while one tracker needs consent
     ui/layout.messages.ts               every message of the shell
 locales/                                the shell's own catalog
 ```
@@ -81,9 +96,13 @@ mounts
   app            /                                        layout AppLayout, shell: true
   personal       /                                        layout PersonalLayout (no shell, no workspace)
   workspace   /:workspaceSlug                       wrapper WorkspaceSyncWrapper
+  access         /:workspaceSlug/access                crumb "Access"
+  admin          /admin                                space instance, wrapper AdminColumnWrapper
+  instance       /:workspaceSlug/instance              the old links only, no wrapper
   project        /:workspaceSlug/projects/:projectId   wrapper ContextCleanerWrapper, crumb "Project"
-routes           app: / -> WorkspaceRedirectWrapper · workspace: (its root) -> 'dashboard'
-navSections      workspace, project (within projects, title: projectName), instance (railItem),
+routes           app: / -> WorkspaceRedirectWrapper · workspace: (its root) -> 'dashboard' ·
+                 admin: (its root) -> AdminRedirectWrapper · instance: each old path -> the same path in /admin
+navSections      workspace, project (within projects, title: projectName), instance (railItem, space with AdminBar),
                  account and help (noRailItem: the user menu opens them), notifications (noRailItem: the bell
                  opens it)
 access           can / authorizationReady / RequirePermission, from @platform/authz
@@ -241,8 +260,18 @@ page-level rule (every page in the shell declares a `permission`) is in
   sidebar) holds the pages that need no workspace: `/account`. The page itself puts the
   sign-out after its last section: the router places a page out of the flow of its layout
   (`PageTransition`), so nothing can follow `children` in a layout.
-- **No screen has a top bar.** The core's dark-mode toggle is fixed in the top-right corner of
-  every screen: keep that corner empty.
+- **The pages of the server are a space apart, at `/admin`**, outside any workspace (the slug
+  `admin` is reserved on the server). The feature modules put them on the `admin` mount, and
+  their links in the section `instance`, under the headings of `ADMIN_NAV_HEADINGS`
+  (`shared/presentation/admin-nav.ts`). The core draws the frame of the space: no rail, no
+  brand, no crumbs, no search, no bell and no switcher. `AdminColumnWrapper` gives the pages a
+  centered column of `max-w-3xl`, so a page of the administration sets no width of its own.
+- **The administration has two ways in and one way out.** The rail item and "Instance
+  administration" in the user menu (only with one of its pages) open `/admin`, which goes to its
+  first page that the person may open. "Back to <workspace>", in the bar and in the same place
+  of the user menu, opens the last page of the workspace that this tab showed
+  (`rememberWorkspacePage`), else the dashboard of the active or the last workspace, else `/`.
+  The `instance` mount has no wrapper: a redirect of an old link is not a page to come back to.
 - `LaunchOverlays` shows one window at a time: the release announcement while it is unseen,
   then the onboarding tour (`loadOnboardingTour`). Do not mount a first-launch window beside it.
   It waits for `userState.whenLoaded()`, so a new device does not show a window that the person

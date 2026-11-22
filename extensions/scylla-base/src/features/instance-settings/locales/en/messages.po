@@ -33,8 +33,8 @@ msgstr "Personal tokens turned on"
 msgid "Save"
 msgstr "Save"
 
-#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:21
-#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:23
+#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:22
+#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:26
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:4
 msgid "Settings"
 msgstr "Settings"

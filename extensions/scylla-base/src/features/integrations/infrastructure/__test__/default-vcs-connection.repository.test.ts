@@ -162,7 +162,9 @@ describe('DefaultVcsConnectionRepository', () => {
         expiresAt: TS,
       }),
     );
-    const completeGitHubInstall = vi.fn(() => unaryCall({ connection: wire() }));
+    const completeGitHubInstall = vi.fn(() =>
+      unaryCall({ outcome: { oneofKind: 'connection', connection: wire() } }),
+    );
     const repository = repositoryWith({ startGitHubInstall, completeGitHubInstall });
 
     expect(await repository.startGitHubInstall('ws-1')).toEqual({
@@ -197,6 +199,48 @@ describe('DefaultVcsConnectionRepository', () => {
     });
     await expect(repository.completeGitHubInstall(input)).rejects.toMatchObject({
       code: 'PERMISSION_DENIED',
+    });
+  });
+
+  it('gives the installations to choose after the authorize page of the start, and refuses an answer with no outcome', async () => {
+    const choice = {
+      installations: [
+        {
+          installationId: '7',
+          account: 'scylla-ops',
+          accountKind: AccountKind.ORGANIZATION,
+          avatarUrl: 'https://avatars.example/scylla-ops',
+          connectUrl: 'https://github.com/login/oauth/authorize?client_id=Iv1&state=s.7',
+        },
+        {
+          installationId: '9',
+          account: 'octocat',
+          accountKind: AccountKind.USER,
+          avatarUrl: '',
+          connectUrl: 'https://github.com/login/oauth/authorize?client_id=Iv1&state=s.9',
+        },
+      ],
+      installUrl: 'https://github.com/apps/scylla/installations/new?state=s',
+    };
+    const completeGitHubInstall = vi
+      .fn()
+      .mockReturnValueOnce(unaryCall({ outcome: { oneofKind: 'choice', choice } }))
+      .mockReturnValueOnce(unaryCall({ outcome: { oneofKind: undefined } }));
+    const repository = repositoryWith({ completeGitHubInstall });
+    const input = { state: 's', installationId: '', code: 'code', setupAction: '' };
+
+    expect(await repository.completeGitHubInstall(input)).toEqual({
+      kind: 'choose',
+      choice: {
+        installations: [
+          { ...choice.installations[0], accountKind: 'organization' },
+          { ...choice.installations[1], accountKind: 'user' },
+        ],
+        installUrl: choice.installUrl,
+      },
+    });
+    await expect(repository.completeGitHubInstall(input)).rejects.toMatchObject({
+      code: 'MALFORMED_RESPONSE',
     });
   });
 

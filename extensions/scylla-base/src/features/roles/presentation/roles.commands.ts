@@ -25,6 +25,7 @@ export const rolesCommands: readonly CreateCommand[] = [
     keywords: msg`create add permissions`,
     icon: ShieldPlusIcon,
     permission: Permission.MANAGE_ROLES,
-    form: { path: () => inWorkspace('instance/roles/new') },
+    // The administration is outside the workspaces: the command opens it from anywhere.
+    form: { path: () => '/admin/roles/new' },
   },
 ];

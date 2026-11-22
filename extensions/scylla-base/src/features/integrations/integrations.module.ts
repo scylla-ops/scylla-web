@@ -83,7 +83,7 @@ export const IntegrationsModule = {
       },
     ],
     // The GitHub App of a self-hosted server: the instance admins make it with the manifest flow.
-    instance: [
+    admin: [
       {
         path: 'git-providers',
         permission: Permission.MANAGE_GIT_PROVIDERS,
@@ -94,7 +94,7 @@ export const IntegrationsModule = {
           title: gitProvidersMessages.title,
           keywords: msg`github app manifest webhook git`,
           icon: GitBranchIcon,
-          order: 60,
+          order: 40,
         },
       },
     ],

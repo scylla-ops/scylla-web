@@ -11,7 +11,7 @@ The settings of the server, for the instance admins (`scylla.platform.v1.Setting
 
 ## What it does
 
-- The page `/instance/settings` has the limit of the workspaces that one user creates, and
+- The page `/admin/settings` has the limit of the workspaces that one user creates, and
   Security, with the switch of the personal
   tokens. Turning it off asks for a confirmation that gives the number of active tokens
   (`activePersonalTokens`). Turning it on needs no confirmation.

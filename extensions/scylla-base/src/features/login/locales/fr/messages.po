@@ -25,6 +25,14 @@ msgstr "••••••••"
 msgid "A provider can send an email that the person does not own. So Scylla does not link by email alone. Scylla sends a mail to the person after the link."
 msgstr "Un fournisseur peut envoyer un email qui n'appartient pas à la personne. Scylla n'associe donc pas sur le seul email. Scylla envoie un mail à la personne après l'association."
 
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:35
+msgid "Accept and continue"
+msgstr "Accepter et continuer"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:25
+msgid "Accept the terms of service to use your account."
+msgstr "Acceptez les conditions générales d'utilisation pour utiliser votre compte."
+
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:7
 msgid "Ada Lovelace"
 msgstr "Ada Lovelace"
@@ -58,6 +66,14 @@ msgstr "Retour à la connexion"
 msgid "Back to your account"
 msgstr "Retour à votre compte"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:22
+msgid "By continuing, you agree to the {terms} and acknowledge the {privacy}."
+msgstr "En continuant, vous acceptez les {terms} et prenez connaissance de la {privacy}."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:23
+msgid "By continuing, you agree to the {terms}."
+msgstr "En continuant, vous acceptez les {terms}."
+
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:18
 msgid "Change the password"
 msgstr "Changer le mot de passe"
@@ -85,6 +101,10 @@ msgstr "Créer un compte"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:12
 msgid "Create the account"
 msgstr "Créer le compte"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:37
+msgid "Decline and delete my account"
+msgstr "Refuser et supprimer mon compte"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:6
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:8
@@ -123,6 +143,14 @@ msgstr "Mot de passe oublié ?"
 msgid "Get a new link"
 msgstr "Obtenir un nouveau lien"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:11
+msgid "I accept the {terms}"
+msgstr "J'accepte les {terms}"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:12
+msgid "I accept the {terms}, version {version}"
+msgstr "J'accepte les {terms}, version {version}"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:11
 msgid "If an account uses this email, the server made a link to reset the password. The link expires in one hour."
 msgstr "Si un compte utilise cette adresse e-mail, le serveur a créé un lien pour réinitialiser le mot de passe. Le lien expire dans une heure."
@@ -135,7 +163,7 @@ msgstr "Si un compte utilise cette adresse e-mail, le serveur a écrit un lien d
 msgid "If an account uses this email, we sent it a link to reset the password. The link expires in one hour."
 msgstr "Si un compte utilise cette adresse e-mail, nous lui avons envoyé un lien pour réinitialiser le mot de passe. Le lien expire dans une heure."
 
-#: extensions/scylla-base/src/features/login/infrastructure/default-login.repository.ts:22
+#: extensions/scylla-base/src/features/login/infrastructure/default-login.repository.ts:27
 msgid "Incorrect credentials"
 msgstr "Identifiants incorrects"
 
@@ -172,6 +200,10 @@ msgstr "Les nouveaux comptes ne sont pas autorisés ici"
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:27
+msgid "New terms of service"
+msgstr "Nouvelles conditions générales d'utilisation"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:15
 msgid "No account yet? Create one"
 msgstr "Pas encore de compte ? Créez-en un"
@@ -183,6 +215,10 @@ msgstr "Aucun email vérifié de {provider}"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:40
 msgid "Nothing changed. Try again in a few minutes."
 msgstr "Rien n’a changé. Réessayez dans quelques minutes."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:24
+msgid "One last step"
+msgstr "Une dernière étape"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:16
 msgid "or"
@@ -196,6 +232,18 @@ msgstr "Mot de passe"
 #: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:8
 msgid "Password of {email}"
 msgstr "Mot de passe de {email}"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:10
+msgid "Privacy policy"
+msgstr "Politique de confidentialité"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:33
+msgid "Read the {terms} and the {privacy} before you accept."
+msgstr "Lisez les {terms} et la {privacy} avant d'accepter."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:34
+msgid "Read the {terms} before you accept."
+msgstr "Lisez les {terms} avant d'accepter."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:7
 msgid "Scylla account"
@@ -234,6 +282,7 @@ msgstr "Connectez-vous d’abord"
 
 #: extensions/scylla-base/src/features/login/presentation/login.commands.ts:10
 #: extensions/scylla-base/src/features/login/presentation/login.commands.ts:14
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:36
 msgid "Sign out"
 msgstr "Se déconnecter"
 
@@ -245,6 +294,10 @@ msgstr "Se déconnecter de Scylla ?"
 msgid "Sign-in with {provider} is only for people who have an account. Ask an admin to add you first."
 msgstr "La connexion avec {provider} est réservée aux personnes qui ont un compte. Demandez d’abord à un administrateur de vous ajouter."
 
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:26
+msgid "Signed in as"
+msgstr "Connecté en tant que"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:44
 msgid "Something went wrong on the server. Try again in a few minutes."
 msgstr "Une erreur est survenue sur le serveur. Réessayez dans quelques minutes."
@@ -254,9 +307,17 @@ msgstr "Une erreur est survenue sur le serveur. Réessayez dans quelques minutes
 msgid "Start again"
 msgstr "Recommencer"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:30
+msgid "Takes effect on {date}"
+msgstr "En vigueur le {date}"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:31
 msgid "Tell your admin. The redirect URL of Scylla is not accepted at {provider}."
 msgstr "Prévenez votre administrateur. L’URL de redirection de Scylla n’est pas acceptée chez {provider}."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:9
+msgid "Terms of service"
+msgstr "Conditions générales d'utilisation"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:41
 msgid "The answer from {provider} is not valid"
@@ -291,6 +352,26 @@ msgstr "La demande de connexion a expiré"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:35
 msgid "The sign-in was refused at {provider}"
 msgstr "La connexion a été refusée chez {provider}"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:19
+msgid "The terms changed (version {version}). Read them and tick the box again."
+msgstr "Les conditions ont changé (version {version}). Lisez-les et cochez de nouveau la case."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:16
+msgid "The terms changed while you filled in the form (version {version}). Read them and tick the box again."
+msgstr "Les conditions ont changé pendant que vous remplissiez le formulaire (version {version}). Lisez-les et cochez de nouveau la case."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:17
+msgid "The terms changed while you filled in the form. Read them and tick the box again."
+msgstr "Les conditions ont changé pendant que vous remplissiez le formulaire. Lisez-les et cochez de nouveau la case."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:20
+msgid "The terms changed. Read them and tick the box again."
+msgstr "Les conditions ont changé. Lisez-les et cochez de nouveau la case."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:28
+msgid "The terms of service changed. Accept the new version to keep using your account."
+msgstr "Les conditions générales d'utilisation ont changé. Acceptez la nouvelle version pour continuer à utiliser votre compte."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:22
 msgid "This account at {provider} is used by another person"
@@ -337,9 +418,21 @@ msgstr "Vérifiez votre e-mail"
 msgid "Verifying your email address…"
 msgstr "Vérification de votre adresse e-mail…"
 
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:29
+msgid "Version {version}"
+msgstr "Version {version}"
+
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:13
 msgid "We sent a link to this address. Open it to activate your account."
 msgstr "Nous avons envoyé un lien à cette adresse. Ouvrez-le pour activer votre compte."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:14
+msgid "We use your data to create and run your account. See the {privacy}."
+msgstr "Nous utilisons vos données pour créer et faire fonctionner votre compte. Consultez la {privacy}."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:31
+msgid "What changes"
+msgstr "Ce qui change"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:4
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:19

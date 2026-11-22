@@ -3,6 +3,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
+  import { LegalFooter } from '@platform/legal';
   import { AcceptInvitationState } from './accept-invitation.state.svelte.ts';
   import { invitationMessages } from '@base/features/invitation/presentation/messages/invitation.messages.ts';
 
@@ -11,7 +12,12 @@
   onMount(() => void state.start());
 </script>
 
-<AuthLayout title={t(invitationMessages.acceptTitle)}>
+<!-- The legal links that the operator turned on, at the bottom of the frame. -->
+{#snippet legalFooter()}
+  <LegalFooter class="pt-6" />
+{/snippet}
+
+<AuthLayout footer={legalFooter} title={t(invitationMessages.acceptTitle)}>
   {#if state.step === 'invalid-link'}
     <p role="alert" class="text-center text-sm text-destructive">
       {t(invitationMessages.invalidLink)}

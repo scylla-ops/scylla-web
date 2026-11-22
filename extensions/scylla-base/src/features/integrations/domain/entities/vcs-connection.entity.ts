@@ -44,7 +44,7 @@ export interface VcsConnectionEntity {
   createdAt: string;
 }
 
-/** Where the browser goes to install the GitHub App. */
+/** Where the browser goes to connect GitHub: the authorize page of the App, with the state. */
 export interface GitHubInstall {
   installUrl: string;
   expiresAt: string;
@@ -66,13 +66,36 @@ export interface CompleteGitHubInstallInput {
   setupAction: string;
 }
 
+/** An installation of the GitHub App that the user sees on GitHub and can connect. */
+export interface GitHubInstallationOption {
+  installationId: string;
+  account: string;
+  accountKind: AccountKind;
+  /** Empty when GitHub gives none. */
+  avatarUrl: string;
+  /** The authorize page of GitHub, with the state that carries this installation. */
+  connectUrl: string;
+}
+
 /**
- * What the server did with the values of the redirect: the new or refreshed connection, or the
- * authorize page of GitHub, where the user goes first when GitHub sent no code.
+ * The installations of the GitHub App that the user can connect to the workspace of the state,
+ * and the install page of the App for another account.
+ */
+export interface GitHubInstallChoice {
+  /** Empty when the user must install the App first. */
+  installations: GitHubInstallationOption[];
+  installUrl: string;
+}
+
+/**
+ * What the server did with the values of the redirect: the new or refreshed connection, the
+ * authorize page of GitHub, where the user goes first when GitHub sent no code, or the
+ * installations to choose after the authorize page of the start.
  */
 export type CompletedGitHubInstall =
   | { kind: 'connected'; connection: VcsConnectionEntity }
-  | { kind: 'authorize'; authorizeUrl: string };
+  | { kind: 'authorize'; authorizeUrl: string }
+  | { kind: 'choose'; choice: GitHubInstallChoice };
 
 export interface ConnectGitLabInput {
   workspaceId: string;

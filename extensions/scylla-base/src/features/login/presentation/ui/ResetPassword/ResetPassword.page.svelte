@@ -10,6 +10,7 @@
     ResetPasswordState,
   } from './reset-password.state.svelte.ts';
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
+  import { LegalFooter } from '@platform/legal';
   import { passwordResetMessages } from '@base/features/login/presentation/messages/password-reset.messages.ts';
 
   // Built during initialisation: it reads the token of the link, and its mutation needs an owner.
@@ -37,9 +38,15 @@
   ]);
 </script>
 
+<!-- The legal links that the operator turned on, at the bottom of the frame. -->
+{#snippet legalFooter()}
+  <LegalFooter class="pt-6" />
+{/snippet}
+
 <svelte:window onhashchange={state.readNewLink} />
 
 <AuthLayout
+  footer={legalFooter}
   title={t(passwordResetMessages.resetTitle)}
   description={state.step === 'form' ? t(passwordResetMessages.resetDescription) : undefined}
 >

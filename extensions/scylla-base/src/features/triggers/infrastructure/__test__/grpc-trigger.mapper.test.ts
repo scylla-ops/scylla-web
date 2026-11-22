@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import * as grpcTrigger from '../grpc-trigger.mapper.ts';
 import {
+  ConditionOperator,
   FireStatus,
   PullRequestEvent,
   type Trigger,
@@ -16,7 +17,7 @@ const baseTrigger = (overrides: Partial<Trigger> = {}): Trigger => ({
   id: { value: 'trigger-1' },
   pipelineId: { value: 'pipeline-1' },
   name: 'github-push',
-  kind: { oneofKind: 'webhook', webhook: { path: '/webhooks/trigger-1' } },
+  kind: { oneofKind: 'webhook', webhook: { path: '/webhooks/trigger-1', conditions: [] } },
   inputs: [],
   enabled: false,
   lastStatus: FireStatus.UNSPECIFIED,
@@ -51,7 +52,68 @@ describe('grpcTrigger.toDomain', () => {
       expect(grpcTrigger.toDomain(baseTrigger(), API).source).toEqual({
         kind: 'webhook',
         webhookUrl: 'https://api.example.com/webhooks/trigger-1',
+        conditions: [],
       });
+    });
+
+    it('maps the conditions of a webhook on a header and on a field of the body', () => {
+      const domain = grpcTrigger.toDomain(
+        baseTrigger({
+          kind: {
+            oneofKind: 'webhook',
+            webhook: {
+              path: '/webhooks/trigger-1',
+              conditions: [
+                {
+                  source: { oneofKind: 'header', header: 'X-GitHub-Event' },
+                  operator: ConditionOperator.IS,
+                  values: ['push'],
+                },
+                {
+                  source: { oneofKind: 'jsonPointer', jsonPointer: '/ref' },
+                  operator: ConditionOperator.ONE_OF,
+                  values: ['refs/heads/main', 'refs/heads/dev'],
+                },
+              ],
+            },
+          },
+        }),
+      );
+
+      expect(domain.source).toMatchObject({
+        kind: 'webhook',
+        conditions: [
+          { source: 'header', field: 'X-GitHub-Event', operator: 'is', values: ['push'] },
+          {
+            source: 'jsonPointer',
+            field: '/ref',
+            operator: 'oneOf',
+            values: ['refs/heads/main', 'refs/heads/dev'],
+          },
+        ],
+      });
+    });
+
+    it('makes a webhook with a condition newer than this build an unknown source', () => {
+      const domain = grpcTrigger.toDomain(
+        baseTrigger({
+          kind: {
+            oneofKind: 'webhook',
+            webhook: {
+              path: '/webhooks/trigger-1',
+              conditions: [
+                {
+                  source: { oneofKind: 'header', header: 'X-GitHub-Event' },
+                  operator: 99 as ConditionOperator,
+                  values: ['push'],
+                },
+              ],
+            },
+          },
+        }),
+      );
+
+      expect(domain.source).toEqual({ kind: 'unknown' });
     });
 
     it('maps the rules of a push, a pull request and a tag', () => {
@@ -158,6 +220,20 @@ describe('grpcTrigger.toDomain', () => {
       expect(domain.lastResult).toEqual({ kind: 'failed', error: 'no agent' });
     });
 
+    it('carries the reason of a skipped delivery', () => {
+      const domain = grpcTrigger.toDomain(
+        baseTrigger({
+          lastFiredAt: TS,
+          lastStatus: FireStatus.SKIPPED,
+          lastError: 'No match: /ref is refs/heads/dev',
+        }),
+      );
+      expect(domain.lastResult).toEqual({
+        kind: 'skipped',
+        reason: 'No match: /ref is refs/heads/dev',
+      });
+    });
+
     it('maps a status newer than this build to unknown (neither success nor failure)', () => {
       const domain = grpcTrigger.toDomain(
         baseTrigger({ lastFiredAt: TS, lastStatus: FireStatus.UNSPECIFIED }),
@@ -243,13 +319,30 @@ describe('grpcTrigger draft -> proto', () => {
     expect(
       grpcTrigger.draftToCreateRequest('pipeline-1', {
         name: 'push',
-        source: { kind: 'webhook' },
+        source: {
+          kind: 'webhook',
+          conditions: [
+            { source: 'jsonPointer', field: '/ref', operator: 'matches', values: ['refs/heads/*'] },
+          ],
+        },
         inputs,
       }),
     ).toEqual({
       pipelineId: { value: 'pipeline-1' },
       name: 'push',
-      kind: { oneofKind: 'webhook', webhook: { path: '' } },
+      kind: {
+        oneofKind: 'webhook',
+        webhook: {
+          path: '',
+          conditions: [
+            {
+              source: { oneofKind: 'jsonPointer', jsonPointer: '/ref' },
+              operator: ConditionOperator.MATCHES,
+              values: ['refs/heads/*'],
+            },
+          ],
+        },
+      },
       inputs: protoInputs,
     });
   });
@@ -312,13 +405,31 @@ describe('grpcTrigger draft -> proto', () => {
     expect(request).not.toHaveProperty('schedule');
   });
 
-  it('sends no schedule in the update of a webhook', () => {
-    expect(
-      grpcTrigger.draftToUpdateRequest('trigger-1', {
-        name: 'push',
-        source: { kind: 'webhook' },
-        inputs: [],
-      }),
-    ).not.toHaveProperty('schedule');
+  it('sends the conditions of a webhook in an update, and no schedule', () => {
+    const request = grpcTrigger.draftToUpdateRequest('trigger-1', {
+      name: 'push',
+      source: {
+        kind: 'webhook',
+        conditions: [
+          { source: 'header', field: 'X-GitHub-Event', operator: 'is', values: ['push'] },
+        ],
+      },
+      inputs: [],
+    });
+
+    expect(request).not.toHaveProperty('schedule');
+    expect(request.rules).toEqual({
+      oneofKind: 'webhook',
+      webhook: {
+        path: '',
+        conditions: [
+          {
+            source: { oneofKind: 'header', header: 'X-GitHub-Event' },
+            operator: ConditionOperator.IS,
+            values: ['push'],
+          },
+        ],
+      },
+    });
   });
 });

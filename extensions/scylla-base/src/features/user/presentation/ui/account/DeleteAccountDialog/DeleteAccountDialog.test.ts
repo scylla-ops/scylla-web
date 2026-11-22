@@ -34,6 +34,39 @@ describe('DeleteAccountDialog', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('Wrong password');
   });
 
+  it('tells what the deletion removes and what stays', async () => {
+    render(DeleteAccountDialog, base);
+
+    expect(await screen.findByText('Deleted at once')).toBeInTheDocument();
+    expect(screen.getByText('Your personal tokens and your roles')).toBeInTheDocument();
+    expect(screen.getByText('What stays')).toBeInTheDocument();
+    expect(
+      screen.getByText('The workspaces that you share stay with their other owners'),
+    ).toBeInTheDocument();
+  });
+
+  it('tells that the proof of the accepted terms stays for 5 years', async () => {
+    render(DeleteAccountDialog, base);
+
+    expect(
+      await screen.findByText(
+        'The proof that you accepted the terms (account id, a hash of your email, version, method and date) stays for 5 years after the deletion',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('links to the export of the data, and closes on that link', async () => {
+    const onOpenChange = vi.fn();
+    render(DeleteAccountDialog, { ...base, onOpenChange });
+    const link = await screen.findByRole('link', { name: 'Download my data first' });
+    link.addEventListener('click', event => event.preventDefault());
+
+    await userEvent.click(link);
+
+    expect(link).toHaveAttribute('href', 'privacy');
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
   it('can be cancelled', async () => {
     const onOpenChange = vi.fn();
     render(DeleteAccountDialog, { ...base, onOpenChange });

@@ -124,7 +124,6 @@ export const userMessages = {
   dangerZone: msg`Danger zone`,
   deleteMyAccount: msg`Delete my account`,
   deleteMyAccountDescription: msg`This deletes your account, its sessions and its roles. You cannot undo it.`,
-  deleteMyAccountConfirm: msg`Enter your password to confirm.`,
   cancel: msg`Cancel`,
 
   userLoadError: msg`Error loading the user`,

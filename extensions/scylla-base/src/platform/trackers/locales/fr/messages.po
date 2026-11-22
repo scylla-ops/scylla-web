@@ -1,0 +1,166 @@
+msgid ""
+msgstr ""
+"Language: f\n"
+"MIME-Version: 1.\n"
+"Content-Type: text/plain; charset=utf-\n"
+"Content-Transfer-Encoding: 8bi\n"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:18
+msgid "{type} · {provider}"
+msgstr "{type} · {provider}"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:9
+msgid "10 minutes at most"
+msgstr "10 minutes au plus"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:24
+msgid "30 days by default, or until you sign out"
+msgstr "30 jours par défaut, ou jusqu'à la déconnexion"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:51
+msgid "6 months"
+msgstr "6 mois"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:26
+msgid "Analytics"
+msgstr "Mesure d'audience"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:7
+msgid "Cookie"
+msgstr "Cookie"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:13
+msgid "Cookies and browser storage"
+msgstr "Cookies et stockage du navigateur"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:77
+msgid "Holds the id of the user who is signed in."
+msgstr "Contient l'identifiant de l'utilisateur connecté."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:41
+msgid "Holds the identity of a provider while you link it to your account."
+msgstr "Contient l'identité d'un fournisseur pendant que vous la liez à votre compte."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:95
+msgid "Keeps the copy of your interface settings the same as the copy of the server."
+msgstr "Garde la copie de vos réglages d'interface identique à la copie du serveur."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:68
+msgid "Keeps the language that you chose. With no choice, the app uses the language of the browser."
+msgstr "Garde la langue que vous avez choisie. Sans choix, l'application prend la langue du navigateur."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:167
+msgid "Keeps the page to go back to after the install of the GitHub App."
+msgstr "Garde la page où revenir après l'installation de l'application GitHub."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:113
+msgid "Keeps the release notes that you saw."
+msgstr "Garde les notes de version que vous avez vues."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:122
+msgid "Keeps the style of the nodes in the pipeline editor."
+msgstr "Garde le style des nœuds dans l'éditeur de pipeline."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:158
+msgid "Keeps the time of your last visit to the dashboards."
+msgstr "Garde l'heure de votre dernière visite des tableaux de bord."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:131
+msgid "Keeps the width of the second sidebar."
+msgstr "Garde la largeur de la seconde barre latérale."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:86
+msgid "Keeps the workspace and the project that you have open."
+msgstr "Garde l'espace de travail et le projet que vous avez ouverts."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:23
+msgid "Keeps you signed in: it holds the token of the session of this browser."
+msgstr "Vous garde connecté : il contient le jeton de la session de ce navigateur."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:50
+msgid "Keeps your choice for the trackers that need your consent, so the app does not ask again. The app sets it only when it has such a tracker."
+msgstr "Garde votre choix pour les traceurs qui demandent votre consentement, pour que l'application ne vous le redemande pas. L'application ne le crée que si elle a un tel traceur."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:149
+msgid "Keeps your default dashboard."
+msgstr "Garde votre tableau de bord par défaut."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:140
+msgid "Keeps your last entries in the command bar."
+msgstr "Garde vos dernières entrées dans la barre de commandes."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:104
+msgid "Keeps your progress in the guided tour."
+msgstr "Garde votre progression dans la visite guidée."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:59
+msgid "Keeps your theme: light, dark or the theme of the system."
+msgstr "Garde votre thème : clair, sombre ou celui du système."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:35
+msgid "Let you talk to the support team from the app."
+msgstr "Vous permettent de parler à l'équipe de support depuis l'application."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:19
+msgid "Lifetime: {lifetime}"
+msgstr "Durée de vie : {lifetime}"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:32
+msgid "Links a sign-in with GitHub, GitLab or OIDC to this browser, against a forged sign-in."
+msgstr "Lie une connexion avec GitHub, GitLab ou OIDC à ce navigateur, contre une connexion falsifiée."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:8
+msgid "Local storage"
+msgstr "Stockage local"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:27
+msgid "Marketing"
+msgstr "Marketing"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:33
+msgid "Measure how people use the app, to make it better."
+msgstr "Mesurent l'usage de l'application, pour l'améliorer."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:34
+msgid "Measure the effect of the campaigns and show you offers that fit you."
+msgstr "Mesurent l'effet des campagnes et vous montrent des offres adaptées."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:14
+msgid "Name"
+msgstr "Nom"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:21
+msgid "Needs consent"
+msgstr "Demande un consentement"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:15
+msgid "Purpose"
+msgstr "Finalité"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:9
+msgid "Session storage"
+msgstr "Stockage de session"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:16
+msgid "Status"
+msgstr "Statut"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:20
+msgid "Strictly necessary"
+msgstr "Strictement nécessaire"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:28
+msgid "Support"
+msgstr "Support"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:7
+msgid "Until you clear the site data"
+msgstr "Jusqu'à l'effacement des données du site"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:168
+msgid "Until you close the tab"
+msgstr "Jusqu'à la fermeture de l'onglet"
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:8
+msgid "Until you sign out"
+msgstr "Jusqu'à la déconnexion"

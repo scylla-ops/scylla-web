@@ -97,7 +97,6 @@ export const createNodeDraft = ({ node, onChange, onRename }: NodeDraftParams) =
     get value() {
       return value;
     },
-    /** The cases of a switch node. */
     switch: switchDraft,
     get issue() {
       return issue;

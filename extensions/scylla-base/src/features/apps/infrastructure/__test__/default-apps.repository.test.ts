@@ -174,6 +174,7 @@ describe('grpcApp.toDomain', () => {
       connected: false,
       lastSeenAt: '',
       host: null,
+      lastSample: null,
       createdBy: 'u-1',
       createdAt: ISO,
       runningJobs: 0,

@@ -183,6 +183,15 @@ export const userMutations = {
       },
     }),
 
+  /**
+   * A copy of the data of the own account. A mutation, not a query: the user asks for it, and
+   * the cache does not keep the copy after the page.
+   */
+  exportAccountData: () =>
+    mutationOptions({
+      mutationFn: () => repository().exportAccountData(),
+    }),
+
   /** The refusal (wrong password, too soon) is data: the dialog shows it. */
   requestEmailChange: () =>
     mutationOptions({

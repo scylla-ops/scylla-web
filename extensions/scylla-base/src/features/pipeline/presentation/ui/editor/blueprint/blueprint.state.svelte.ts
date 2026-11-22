@@ -244,7 +244,6 @@ export const createBlueprint = (params: BlueprintParams) => {
     /** The needs of the node: the inspector lists them. */
     dependenciesOf: (id: string) => depsOf(edges, id),
 
-    /** The node shows its red `error` handle. */
     hasErrorPort,
 
     /** The nodes whose outputs the switch can read. */
