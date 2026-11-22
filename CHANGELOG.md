@@ -517,6 +517,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A person who refuses new terms of service can leave without an email: the terms step has "Decline
   and delete my account". It opens the deletion of the account, with its password and its rules, and
   signs out after the deletion. "Sign out" stays.
+- The dialog that deletes an account tells that the proof of the accepted terms (account id, a hash
+  of the email, version, method and date) stays for 5 years after the deletion.
 
 ## [0.6.0] - 2026-11-01
 

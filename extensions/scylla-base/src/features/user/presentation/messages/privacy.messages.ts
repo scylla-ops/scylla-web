@@ -47,5 +47,6 @@ export const privacyMessages = {
   whatStays: msg`What stays`,
   staysShared: msg`The workspaces that you share stay with their other owners`,
   staysWork: msg`The work that you did in a workspace stays in that workspace`,
+  staysTermsProof: msg`The proof that you accepted the terms (account id, a hash of your email, version, method and date) stays for 5 years after the deletion`,
   downloadFirst: msg`Download my data first`,
 };

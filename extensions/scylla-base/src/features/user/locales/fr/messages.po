@@ -294,7 +294,7 @@ msgstr "Télécharger"
 msgid "Download my data"
 msgstr "Télécharger mes données"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:50
+#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:51
 msgid "Download my data first"
 msgstr "Télécharger d'abord mes données"
 
@@ -709,6 +709,10 @@ msgstr "Les noms que les autres personnes voient."
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:77
 msgid "The password and the identity providers of your account. The last one cannot go."
 msgstr "Le mot de passe et les fournisseurs d'identité de votre compte. Le dernier ne peut pas être retiré."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:50
+msgid "The proof that you accepted the terms (account id, a hash of your email, version, method and date) stays for 5 years after the deletion"
+msgstr "La preuve que vous avez accepté les conditions (identifiant du compte, empreinte de votre adresse e-mail, version, méthode et date) est conservée 5 ans après la suppression"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:138
 msgid "The reset link is in the server log."

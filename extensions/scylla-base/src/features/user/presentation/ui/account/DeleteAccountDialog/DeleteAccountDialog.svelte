@@ -36,7 +36,7 @@
 
   /** What the server deletes with the account (`delete_user` of the core), and what it keeps. */
   const DELETED = [m.deletedProfile, m.deletedSignIn, m.deletedTokens, m.deletedWorkspaces];
-  const KEPT = [m.staysShared, m.staysWork];
+  const KEPT = [m.staysShared, m.staysWork, m.staysTermsProof];
 </script>
 
 <!-- A titled list of facts, each with its icon centered on its line. -->

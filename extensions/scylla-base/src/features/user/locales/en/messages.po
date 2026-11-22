@@ -294,7 +294,7 @@ msgstr "Download"
 msgid "Download my data"
 msgstr "Download my data"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:50
+#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:51
 msgid "Download my data first"
 msgstr "Download my data first"
 
@@ -709,6 +709,10 @@ msgstr "The names that other people see."
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:77
 msgid "The password and the identity providers of your account. The last one cannot go."
 msgstr "The password and the identity providers of your account. The last one cannot go."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:50
+msgid "The proof that you accepted the terms (account id, a hash of your email, version, method and date) stays for 5 years after the deletion"
+msgstr "The proof that you accepted the terms (account id, a hash of your email, version, method and date) stays for 5 years after the deletion"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:138
 msgid "The reset link is in the server log."
