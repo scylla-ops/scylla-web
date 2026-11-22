@@ -30,6 +30,8 @@
     onNameChange: (name: string) => void;
     /** A saved pipeline: the header shows Export, which writes it as a file of the repository. */
     onExport?: () => void;
+    /** Why the saved pipeline cannot be exported: Export shows it and opens nothing. */
+    exportIssue?: string;
   }
 
   let {
@@ -45,6 +47,7 @@
     pipelineName,
     onNameChange,
     onExport,
+    exportIssue,
   }: Props = $props();
 
   type SaveStatus = 'draft' | 'saving' | 'dirty' | 'saved';
@@ -125,8 +128,8 @@
     {#if onExport}
       <GatedButton
         variant="outline"
-        allowed={canExport}
-        deniedReason={t(exportMessages.exportDenied)}
+        allowed={canExport && !exportIssue}
+        deniedReason={canExport ? exportIssue : t(exportMessages.exportDenied)}
         onclick={onExport}
         disabled={!!missing}
       >

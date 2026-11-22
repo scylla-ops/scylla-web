@@ -153,4 +153,17 @@ describe('PipelineEditorHeader', () => {
 
     expect(screen.getByRole('button', { name: 'Export' })).toHaveAttribute('aria-disabled', 'true');
   });
+
+  it('keeps Export inert and says why when the saved pipeline cannot be a file', async () => {
+    const onExport = vi.fn();
+    grantOnly(Permission.UPDATE_PIPELINE, Permission.READ_PIPELINE);
+    renderHeader({ onExport, exportIssue: 'A file cannot hold them yet.' });
+
+    const exportButton = screen.getByRole('button', { name: 'Export' });
+    await userEvent.click(exportButton);
+
+    expect(exportButton).toHaveAttribute('aria-disabled', 'true');
+    expect(exportButton).toHaveAccessibleDescription('A file cannot hold them yet.');
+    expect(onExport).not.toHaveBeenCalled();
+  });
 });

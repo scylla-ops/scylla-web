@@ -94,6 +94,27 @@ describe('PipelineUpdatePage', () => {
     expect(document.querySelector('[data-slot="canvas-curtain"]')).toBeInTheDocument();
   });
 
+  it('keeps Export inert for a saved pipeline with a merge, and says why', async () => {
+    const [build] = loaded.pipeline.nodes;
+    renderPage(() =>
+      Promise.resolve({
+        ...loaded,
+        pipeline: {
+          ...loaded.pipeline,
+          nodes: [build, { id: 'm', deps: [{ node: 'build' }], kind: 'merge' }],
+        },
+      }),
+    );
+
+    await screen.findByDisplayValue('nightly');
+    const exportButton = screen.getByRole('button', { name: 'Export' });
+
+    expect(exportButton).toHaveAttribute('aria-disabled', 'true');
+    expect(exportButton).toHaveAccessibleDescription(
+      'The saved pipeline has a switch, a merge or a node linked to an error output. A file cannot hold them yet.',
+    );
+  });
+
   it('sends a file pipeline to its read-only page: its file changes in the repository', async () => {
     const navigator = installTestNavigator({ pathname: '/acme/projects/project-1/edit/pipeline-1' });
     teardown.push(navigator.restore);

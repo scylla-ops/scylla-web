@@ -195,6 +195,10 @@ export const pipelineIssue = ({
   return broken.length ? { kind: 'nodes', ids: broken } : null;
 };
 
+/** A switch, a merge or a need on a port: the export as a file refuses them (`CONDITIONAL_NODES`). */
+export const hasConditionalNodes = (nodes: PipelineNodes): boolean =>
+  nodes.some(node => !runsStep(node) || node.deps.some(need => need.port !== undefined));
+
 /** `excludeId` is the node's own id when it is renamed. */
 export function uniqueNodeId(
   desired: string,

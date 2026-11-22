@@ -9,6 +9,8 @@
   import PipelineEditor from '../PipelineEditor.svelte';
   import type { MissingDocument } from '../pipeline-document.state.svelte.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { exportMessages } from '@base/features/pipeline/presentation/messages/export.messages.ts';
+  import { hasConditionalNodes } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
   interface Props {
     pipelineId?: string;
@@ -43,6 +45,9 @@
     submitLabel={t(pipelineMessages.save)}
     projectId={pipeline?.projectId}
     {pipelineId}
+    exportIssue={pipeline && hasConditionalNodes(pipeline.nodes)
+      ? t(exportMessages.conditionalNodes)
+      : undefined}
     {initialScript}
     {missing}
     onRetry={() => void pipelineQuery.refetch()}

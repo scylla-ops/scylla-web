@@ -13,4 +13,5 @@ export const exportMessages = {
   copy: msg`Copy`,
   download: msg`Download`,
   copied: msg`File copied`,
+  conditionalNodes: msg`The saved pipeline has a switch, a merge or a node linked to an error output. A file cannot hold them yet.`,
 };
