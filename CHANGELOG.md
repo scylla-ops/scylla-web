@@ -206,6 +206,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Changed
 
+- The "What's new" dialog announces 0.7.0: the conditional nodes, the command bar, the inbox,
+  Machines, GitHub and GitLab, and the new look. The packages have the version 0.7.0.
+
 **The public pages**
 
 - The sign-in, the sign-up, the password reset, the sign-in errors, the link of a provider and the
