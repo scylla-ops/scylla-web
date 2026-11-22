@@ -40,7 +40,8 @@ would refuse is noise.
 
 **The account page** (`/:org/account/<section>`) is the signed-in user's own page: a short
 identity header, a settings nav, and one page for each section: profile, appearance, security
-(password and sessions), workspaces and roles, and the deletion of the account. The backend lets a user act
+(password and sessions), personal tokens, privacy (the export of the data), the versions, and the
+deletion of the account. The backend lets a user act
 on the own account with no grant, so this page carries no permission. It exists at two
 addresses: `/:org/account` inside the frame of an workspace, and `/account` with a plain
 layout, for a user who has no workspace yet (an account that an administrator made, a new
@@ -57,6 +58,18 @@ shows no token, and a session id cannot authenticate a call. The app reads the u
 (`parseUserAgent`): there is no location lookup. A user can sign out each other session, or all
 of them at once. The current session cannot be signed out from the list: "Sign out" in the menu
 does that.
+
+## Privacy
+
+The section Privacy of the account page gives the user the data of the account: one JSON file
+with the profile, the emails, the ways to sign in, the sessions, the tokens (with no secret), the
+settings, the workspaces and the roles, and the data that the edition adds. The server makes it in
+one call, because the data of one account is small: there is no job, no mail and no link that
+expires. The file goes to the browser at once, and the page keeps the copy for a second download,
+but the query cache never holds it. The section also links to the public pages of the privacy
+policy and of the cookies, which the operator of the server writes. The deletion dialog tells what
+goes and what stays before the user types the password, and links back to the export, so that a
+user can keep a copy first.
 
 ## Answers that are not errors
 

@@ -76,6 +76,7 @@ describe('the language', () => {
     await flush();
 
     expect(getCurrentLocale()).toBe('fr');
+    expect(localStorage.getItem('scylla-locale')).toBe('fr');
     expect(writesOf('locale')).toEqual([[{ key: 'locale', valueJson: '"fr"' }]]);
     await chooseLocale('en');
   });

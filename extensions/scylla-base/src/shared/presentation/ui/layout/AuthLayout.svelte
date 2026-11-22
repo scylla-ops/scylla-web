@@ -12,9 +12,11 @@
     below?: Snippet;
     /** Above the title. */
     icon?: Snippet;
+    /** At the bottom of the column: the legal links (`LegalFooter` of `@platform/legal`). */
+    footer?: Snippet;
   }
 
-  let { title, description, children, below, icon }: Props = $props();
+  let { title, description, children, below, icon, footer }: Props = $props();
 </script>
 
 <!-- The frame of the public pages: the pages of `login` and the page of an invitation. -->
@@ -25,8 +27,8 @@
     <img src={LogoMark} alt="" class="size-70 opacity-14" />
   </div>
 
-  <div class="flex min-w-0 flex-1 flex-col items-center justify-center p-6">
-    <div class="flex w-full max-w-90 flex-col items-center">
+  <div class="flex min-w-0 flex-1 flex-col items-center p-6">
+    <div class="flex w-full max-w-90 flex-1 flex-col items-center justify-center">
       <!-- A dark variant swapped by CSS: `.dark` is set before the first paint, so no flash. -->
       <!-- The badge is on the right of the logo: the shift puts the mark and the wordmark on the axis. -->
       <img src={LogoScylla} alt="Scylla" class="mb-6 w-40 translate-x-[8.6%] dark:hidden" />
@@ -48,5 +50,7 @@
 
       {@render below?.()}
     </div>
+
+    {@render footer?.()}
   </div>
 </div>

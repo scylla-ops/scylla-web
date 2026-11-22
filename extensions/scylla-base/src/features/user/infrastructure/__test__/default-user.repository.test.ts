@@ -28,6 +28,9 @@ const profiles = () =>
     updateProfile: vi.fn(() => unaryCall({ user: wireUser })),
     changePassword: vi.fn(() => unaryCall({})),
     deleteAccount: vi.fn(() => unaryCall({})),
+    exportAccountData: vi.fn(() =>
+      unaryCall({ json: '{"format":"v1"}', exportedAt: { seconds: 1_700_000_000n, nanos: 0 } }),
+    ),
     listSessions: vi.fn(() => unaryCall({ sessions })),
     revokeSession: vi.fn(() => unaryCall({})),
     revokeOtherSessions: vi.fn(() => unaryCall({})),
@@ -212,6 +215,24 @@ describe('DefaultUserRepository', () => {
       newEmail: 'new@example.com',
       password: 'hunter22',
     });
+  });
+
+  it('gives the copy of the data of the own account, with its time', async () => {
+    const { repo, p } = repository();
+
+    await expect(repo.exportAccountData()).resolves.toEqual({
+      json: '{"format":"v1"}',
+      exportedAt: '2023-11-14T22:13:20.000Z',
+    });
+    expect(p.exportAccountData).toHaveBeenCalledWith({});
+  });
+
+  it('refuses a copy with no data', async () => {
+    const p = profiles();
+    vi.mocked(p.exportAccountData).mockReturnValue(unaryCall({ json: '' }));
+    const { repo } = repository(p);
+
+    await expect(repo.exportAccountData()).rejects.toMatchObject({ code: 'MALFORMED_RESPONSE' });
   });
 
   it('grants and revokes the instance admin right', async () => {

@@ -2,12 +2,14 @@ import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import InfoIcon from '@lucide/svelte/icons/info';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+import ShieldIcon from '@lucide/svelte/icons/shield';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import SunIcon from '@lucide/svelte/icons/sun';
 import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
 import UserIcon from '@lucide/svelte/icons/user';
 import type { LucideIcon } from '@scylla/ui';
 import { personalTokensMessages } from '@base/features/user/presentation/messages/personal-tokens.messages.ts';
+import { privacyMessages } from '@base/features/user/presentation/messages/privacy.messages.ts';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
 export type AccountSectionId =
@@ -15,6 +17,7 @@ export type AccountSectionId =
   | 'appearance'
   | 'security'
   | 'tokens'
+  | 'privacy'
   | 'about'
   | 'danger-zone';
 
@@ -34,6 +37,7 @@ export const ACCOUNT_SECTIONS: readonly AccountSection[] = [
   { id: 'appearance', title: userMessages.appearance, icon: SunIcon, keywords: msg`theme look colors` },
   { id: 'security', title: userMessages.security, icon: ShieldCheckIcon, keywords: msg`password 2fa` },
   { id: 'tokens', title: personalTokensMessages.navTitle, icon: KeyRoundIcon, keywords: msg`api key personal token` },
+  { id: 'privacy', title: privacyMessages.navTitle, icon: ShieldIcon, keywords: privacyMessages.keywords },
   { id: 'about', title: userMessages.about, icon: InfoIcon, keywords: msg`version edition server` },
   {
     id: 'danger-zone',

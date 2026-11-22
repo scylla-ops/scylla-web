@@ -33,6 +33,14 @@ export type UserSummary = Pick<UserEntity, 'id' | 'username' | 'email' | 'displa
 
 export type UserList = PaginatedList<UserEntity>;
 
+/** A copy of the data of the own account, that the server makes at the request of its user. */
+export interface AccountDataExport {
+  /** One JSON document. It holds no secret: no password, no token. */
+  json: string;
+  /** The time of the copy, as an ISO text. */
+  exportedAt: string;
+}
+
 export interface CreateUserInput {
   email: string;
   username: string;

@@ -4,6 +4,8 @@ import { render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { installTestNavigator } from '@test/navigator.ts';
+import { withQueryClient, withRegistry } from '@test/render.ts';
+import { EMPTY_OPERATOR, withLegalRepository } from '@platform/legal';
 import AuthGuardFixture from './AuthGuard.fixture.svelte';
 import type * as UserStateModule from '@platform/user-state';
 
@@ -20,15 +22,30 @@ vi.mock('@platform/user-state', async original => {
 });
 
 let navigator: ReturnType<typeof installTestNavigator>;
+let termsStatus: ReturnType<typeof vi.fn>;
+let teardown: Array<() => void> = [];
+
+const NOTHING_TO_ACCEPT: Login.TermsStatus = {
+  acceptanceRequired: false,
+  accepted: null,
+  displayName: 'Ada Lovelace',
+  email: 'ada@example.com',
+};
 
 beforeEach(() => {
   hasSession.mockReset();
   load.mockReset();
   localStorage.clear();
   navigator = installTestNavigator();
+  termsStatus = vi.fn().mockResolvedValue(NOTHING_TO_ACCEPT);
+  const cache = withQueryClient();
+  teardown = [cache.restore, withRegistry({ login: { loginRepository: { termsStatus } } })];
 });
 
-afterEach(() => navigator.restore());
+afterEach(() => {
+  navigator.restore();
+  teardown.forEach(restore => restore());
+});
 
 describe('AuthGuard', () => {
   it('redirects to the sign-in page when the cookie gives no session', async () => {
@@ -67,6 +84,40 @@ describe('AuthGuard', () => {
 
     expect(await screen.findByTestId('outlet')).toBeInTheDocument();
     expect(navigator.navigate).not.toHaveBeenCalled();
+  });
+
+  describe('the terms of service', () => {
+    it('shows the terms step instead of the routes while the user must accept them', async () => {
+      hasSession.mockResolvedValue(true);
+      termsStatus.mockResolvedValue({ ...NOTHING_TO_ACCEPT, acceptanceRequired: true });
+      const info = vi.fn().mockResolvedValue({
+        operator: EMPTY_OPERATOR,
+        privacyContact: '',
+        documents: [],
+      });
+      teardown.push(withLegalRepository({ info, update: vi.fn() }));
+      render(AuthGuardFixture);
+
+      expect(await screen.findByRole('heading', { name: 'One last step' })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Accept and continue' })).toBeDisabled();
+      expect(screen.queryByTestId('outlet')).not.toBeInTheDocument();
+    });
+
+    it('reads the terms of the session only', async () => {
+      hasSession.mockResolvedValue(false);
+      render(AuthGuardFixture);
+
+      await waitFor(() => expect(navigator.navigate).toHaveBeenCalled());
+      expect(termsStatus).not.toHaveBeenCalled();
+    });
+
+    it('shows the routes when the server does not tell the terms', async () => {
+      hasSession.mockResolvedValue(true);
+      termsStatus.mockRejectedValue(new ScyllaError('down', { code: 'INTERNAL' }));
+      render(AuthGuardFixture);
+
+      expect(await screen.findByTestId('outlet')).toBeInTheDocument();
+    });
   });
 
   describe('when the server does not answer', () => {
