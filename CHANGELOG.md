@@ -12,6 +12,15 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Added
 
+- The library and the marketplace use the server: `FragmentService` of the core and
+  `MarketplaceService` of the marketplace that Scylla hosts, at `VITE_MARKETPLACE_API_URL`
+  (default: `VITE_API_URL`). The demo fragments and packages are gone. The links of a pipeline are
+  saved with its nodes. A package can be added at an older version. Save to library also works on
+  one node, from its inspector. The marketplace shows the stars only: the installs and the
+  adoption are no longer counted.
+- `gen-proto` takes the files of each proto root: a host root hides a file of the same path and
+  adds its own. `scylla-base` holds a copy of the marketplace protos in `protos/`.
+
 **The port to the new backend**
 
 - The sign-in uses `AccountService`, with a session cookie and its refresh. The errors of the server

@@ -42,23 +42,14 @@ Never add: `marketplace.module.ts`, pages.
 | `getById(id)` | `MarketPackage`. An unknown id is `NOT_FOUND` |
 | `setStar(id, starred)` | `MarketPackage` |
 
-## ⚠ The repository is local
+## The repository
 
-The server has no marketplace yet. `DefaultMarketplaceRepository` serves the demo packages of
-`marketplace-seeds.ts` and keeps the stars of the reader in `localStorage`
-(`scylla.marketplace-stars`). It carries a `TODO`. The demo library of the pipeline feature
-links and forks some of these packages, by the same ids.
-
-The packages that the workspace publishes are not in the repository: `ownPackages` builds them
-from the public fragments of the library. A server lists them with the others, and that helper
-goes.
-
-When wiring the real backend:
-
-1. Add `infrastructure/grpc-market-package.mapper.ts`.
-2. Give `DefaultMarketplaceRepository` the generated `I…ServiceClient` in its constructor, and
-   build it in `marketplace.module.ts` with `grpcTransport.getTransport()`.
-3. Delete the `TODO`, the seeds and `ownPackages`.
+`DefaultMarketplaceRepository` calls `MarketplaceService` of the marketplace that Scylla hosts,
+through `marketplaceTransport` (`VITE_MARKETPLACE_API_URL`, else `VITE_API_URL`). Its reads need
+no token: the token of the session goes only to the server that issued it. The star needs a
+session of that server. A list gives the content of the latest version of each package only; a
+read gives each public version. The protos are a copy in `extensions/scylla-base/protos`
+(`protos/README.md`). There are no demo packages: the page shows what the server holds.
 
 ## Layout
 
@@ -69,14 +60,14 @@ domain/
   entities/market-package.entity.ts         MarketPackage, PackageVersion, Publisher, the stacks
   repository/marketplace.repository.ts
 infrastructure/
-  default-marketplace.repository.ts         the demo packages, the stars in localStorage
-  marketplace-seeds.ts
+  default-marketplace.repository.ts         MarketplaceService, on marketplaceTransport
+  grpc-market-package.mapper.ts             a package, its versions decoded (versionFromContent)
 presentation/
   marketplace.queries.ts                    marketplaceQueries, marketplaceMutations.setStar
   messages/marketplace.messages.ts
   presenters/
     package-filter.presenter.ts             search, publisher switches, facets and their counts, order
-    library-status.presenter.ts             where a package stands in the library, ownPackages, cardBadge
+    library-status.presenter.ts             where a package stands in the library, cardBadge
     package.presenter.ts                    stack names, counts, steps line, secrets
   ui/
     PublisherLine.svelte

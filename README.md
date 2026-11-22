@@ -21,6 +21,7 @@ cp .env.example .env
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `VITE_API_URL` | URL of the Scylla gRPC-Web backend. Only needed here: a deployed instance serves this bundle from the control plane itself, leaves the variable unset, and the client uses relative URLs. | `http://localhost:8080` |
+| `VITE_MARKETPLACE_API_URL` | URL of the marketplace that Scylla hosts. Each front reads its packages there with no token; only a front of the same server publishes. Unset: `VITE_API_URL`. | unset |
 
 ### Install & Run
 

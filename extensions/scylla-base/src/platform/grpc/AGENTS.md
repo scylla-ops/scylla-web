@@ -13,7 +13,9 @@ The single gRPC-Web transport every feature's gRPC client is built on.
 
 ```typescript
 ScyllaGrpcTransport          the class
-grpcTransport                the shared singleton instance
+grpcTransport                the shared singleton instance: the API, with the token
+marketplaceTransport         the marketplace that Scylla hosts: no token unless it is the API
+marketplaceUrl, marketplaceIsLocal   where the marketplace is, and whether it is the API
 ```
 
 ## The session in an outage
@@ -72,8 +74,9 @@ Changing the key or the storage mechanism means changing all three in one commit
 
 ## Rules that bite here
 
-- **One instance, module-scoped.** `grpcTransport` is created at import time in `index.ts`.
-  Do not construct a second `ScyllaGrpcTransport` in a feature — the auth interceptor and the
+- **One instance for each server, module-scoped.** `grpcTransport` and `marketplaceTransport`
+  are created at import time in `index.ts`. Never send the token of the session to another server.
+  Do not construct another `ScyllaGrpcTransport` in a feature — the auth interceptor and the
   base URL would then exist in two places.
 - **Every failed call rejects with a `ScyllaError`** (`scyllaErrorInterceptor`), for the unary
   calls and the server streams: the gRPC `code`, the decoded server message, and the name of the

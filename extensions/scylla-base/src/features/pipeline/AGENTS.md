@@ -70,8 +70,8 @@ node and in the inspector (`templateFor`, `presenters/catalog.presenter.ts`).
 | `create(input)` | `FragmentEntity` at version 1. A name taken in the workspace is `ALREADY_EXISTS` |
 | `publishVersion(input)` | `FragmentEntity` with one more version |
 | `setFavorite(id, favorite)` | `void` |
-| `linksOf(pipelineId)` | `FragmentLink[]`: the blocks of the pipeline |
-| `saveLinks(pipeline, links)` | `void`: sent by `pipelineMutations.update`, with the nodes |
+| `delete(id)` | `void`. The pipelines that link it keep its nodes: their blocks name a fragment that is no longer in the library |
+| `linksOf(pipelineId)` | `FragmentLink[]`: the blocks of the pipeline, read with the pipeline. They are saved with its nodes: `PipelineRepository.edit(…, links)` |
 | `addFromMarketplace(input)` | `FragmentEntity`: a package of the marketplace, linked or forked |
 | `acceptUpstream(id, version)` / `skipUpstream(id, version)` | `FragmentEntity`: a linked fragment takes or leaves a version of its publisher |
 | `dismissUpstream(id)` | `FragmentEntity`: a fork stops showing the release of its publisher |
@@ -79,10 +79,13 @@ node and in the inspector (`templateFor`, `presenters/catalog.presenter.ts`).
 | `publishToMarketplace(input)` | `FragmentEntity` public, under `@workspace/name` |
 | `deprecateVersion(id, version)` | `FragmentEntity`. A fragment that is not public is a `ScyllaError` |
 
-`DefaultFragmentRepository` keeps the library in `localStorage`, with demo fragments in each
-workspace: the server has no library yet. The demo links and forks packages of the demo
-marketplace by their ids (`kube-tools.helm-deploy`, `pnpm.node-ci`, …). A gRPC implementation replaces it in
-`pipeline.module.ts`; `fragmentQueries` and the domain do not change.
+`DefaultFragmentRepository` calls `FragmentService` of the core. A fragment of a package keeps
+its origin in the core (`FragmentOrigin`): the repository reads the package on the marketplace
+(`marketplaceTransport`, no token) to give `source.upstream`, and sends the content of a version
+that the workspace takes (`AcceptOriginVersion`): the core never calls the marketplace.
+`publication` comes from `ListPublications`, only when the marketplace is the server of the
+session (`marketplaceIsLocal`). A marketplace that does not answer leaves the library as the core
+gives it.
 
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
 nodes), the editor fetches the entity. Do not make a list page call `getById`.
@@ -135,8 +138,9 @@ domain/
 infrastructure/
   default-pipeline.repository.ts             PipelineServiceClient → PipelineEntity
   default-node-template.repository.ts        BUILT_IN_NODE_TEMPLATES
-  default-fragment.repository.ts             the library in localStorage, until the server has one
-  fragment-seeds.ts                          the demo fragments of a workspace
+  default-fragment.repository.ts             FragmentService, and the marketplace for the origins
+  grpc-fragment.mapper.ts                    fragments, versions, links, origins (sourceOf), publications,
+                                             versionFromContent (the content of a package version)
   grpc-pipeline.mapper.ts                    also originOf: the source, the file and its state
   grpc-pipeline-file.mapper.ts               PipelineFile ↔ the proto, refToProto
   grpc-pipeline-summary.mapper.ts            ListPipelineSummaries → PipelineSummaryList, healthOf
@@ -144,7 +148,7 @@ presentation/
   pipeline.commands.ts                       create, jobs and edit, for the search bar
   pipeline.queries.ts                        TanStack Query options factories
   fragment.queries.ts                        the library: fragmentQueries, fragmentMutations,
-                                             saveFragmentLinks (called by pipelineMutations.update)
+                                             (the links go with pipelineMutations.update)
   pipeline.query-keys.ts                     Query key factories (exported publicly)
   messages/                                  pipeline, blueprint, scripting, node, export, file, run
                                              (.messages.ts)
@@ -235,6 +239,7 @@ presentation/
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
           SelectionBar.svelte, UpdateNotice.svelte   the box selection; a newer version of a block
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
+          flow-theme.css                     the colours of the app on every Svelte Flow canvas
           CanvasCurtain/                     what covers the blueprint until it is ready: the animated
                                              logo, the slow line, the load error (canvas-curtain.state.svelte.ts)
           node-appearance-preference.state.svelte.ts   the viewer's node style: the local copy of `platform/user-state`
@@ -254,13 +259,18 @@ presentation/
                                              (block-inspector.state.svelte.ts)
           SelectionPanel/                    the selected nodes and their parameters
           NodeInspector/                     the inspector: the fields of node/ for the kind of the
-                                             node (NodeKindFields): two tabs, the switch form, or none
+                                             node (NodeKindFields): two tabs, the switch form, or none;
+                                             read only for a fragment that the reader cannot edit
     library/                                 the library pages, and what they share with the editor
       FragmentLibrary/                       the grid: search, tabs (Organization, Favorites, Community),
                                              tags or sources, the upstream strip (fragment-library.state)
-      FragmentDetail/                        one fragment: nodes, parameters, versions, usages; the
+      FragmentDetail/                        one fragment: the graph of its nodes with the inspector of
+                                             the editor (FragmentGraph, FragmentNodes; changed and
+                                             published as a version: fragment-edit.state), parameters,
+                                             versions, usages, delete (DeleteFragmentZone); the
                                              upstream cards, publish, compare and pipeline picker
                                              dialogs (fragment-detail.state, publish-form.state)
+      fragment-links.state.svelte.ts         the fragments as links of the second sidebar
       VersionBadge, VersionHistory, ParameterKey, FavoriteButton, SourceLine
 ```
 
@@ -277,7 +287,8 @@ presentation/
 | `workspace` | `library/:fragmentId` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentDetailPage` |
 
 **One nav entry**, Library, in the workspace section. Pipelines are the project index, reached
-by entering a project.
+by entering a project. While it shows, the second sidebar lists the fragments of the library
+(`shell.secondSidebarLinks: fragmentLinks`).
 
 The jobs **list** route is owned here, not by [`jobs`](../jobs/AGENTS.md): the page needs a
 **Run** action, which is a pipeline operation. `PipelineJobsPage` renders `JobsPage` (imported
@@ -297,6 +308,16 @@ the page.
 - **A new version is proposed, never applied.** `proposedVersion` is the latest one, unless the
   pipeline skipped it. Only the author and the workspace admins publish a version
   (`canPublishVersion`).
+- **`fragment.queries.ts` types its repository by the interface**, not by `typeof
+  PipelineModule.domain`: the module imports `fragmentLinks`, which reads these queries, and the
+  type import would close a cycle.
+- **A fragment changes on its page, as a new version.** `fragment-edit.state` keeps the changed
+  nodes until `publish`; `editedParameters` keeps the choices of the author and exposes only the
+  variables that the change adds. The page of a linked fragment, and the marketplace, show the
+  same graph and inspector read only.
+- **A deletion keeps the pipelines running.** `canDeleteFragment`: the author or an admin, and
+  only an admin for a linked fragment. A public fragment is not deleted (`fragmentDeleteIssue`):
+  other workspaces link it. The confirmation names how many pipelines lose the updates.
 - **The marketplace reaches the library, never the reverse.** A fragment knows its `source`:
   `linked` keeps the numbers of the publisher, and its `upstream` versions wait for an admin
   (`pendingUpstream`, `acceptUpstream`, `skipUpstream`) before pipelines are proposed them; a
