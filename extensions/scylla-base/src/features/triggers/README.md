@@ -15,7 +15,9 @@ The domain models trigger sources as a discriminated union on `kind`:
 - **Cron** — a schedule. `CronScheduleBuilder` composes the expression so users are not typing
   `*/15 * * * *` from memory, and `mappers/cron.mapper.ts` handles parsing and human-readable formatting.
 - **Webhook** — an inbound URL. Calling it starts a run. It carries a signing secret and a
-  header for the HMAC signature, so Scylla can verify the caller.
+  header for the HMAC signature, so Scylla can verify the caller. Its conditions, on a header or
+  on a field of the JSON body, filter the deliveries: one that does not match them starts no run
+  and shows as skipped, with the reason.
 - **Push, pull request, tag** — an event of the repository linked to the project. Each one has
   rules: globs of branches or of tags, the events of a pull request, `[skip ci]`, the drafts. They
   need a linked repository, so the type picker turns them off when the project has none and

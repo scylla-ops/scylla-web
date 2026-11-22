@@ -4,10 +4,13 @@ import type {
   UpdateTriggerRequest,
 } from '@base/generated/scylla/pipelines/v1/trigger_service.ts';
 import {
+  ConditionOperator,
   FireStatus,
   PullRequestEvent as ProtoPullRequestEvent,
   type Trigger as ProtoTrigger,
   type TriggerInput as ProtoTriggerInput,
+  type Webhook as ProtoWebhook,
+  type WebhookCondition as ProtoWebhookCondition,
 } from '@base/generated/scylla/pipelines/v1/trigger.ts';
 import type {
   CreatedTrigger,
@@ -19,6 +22,10 @@ import type {
   TriggerInput,
   TriggerSource,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+import type {
+  WebhookCondition,
+  WebhookConditionOperator,
+} from '@base/features/triggers/domain/structs/webhook-condition.struct.ts';
 import {
   idValue,
   timestampToIso,
@@ -41,12 +48,63 @@ const eventsToDomain = (events: ProtoPullRequestEvent[]): PullRequestEvent[] =>
 const eventToProto = (event: PullRequestEvent): ProtoPullRequestEvent =>
   EVENTS.find(([, domain]) => domain === event)?.[0] ?? ProtoPullRequestEvent.UNSPECIFIED;
 
+const OPERATORS: ReadonlyArray<[ConditionOperator, WebhookConditionOperator]> = [
+  [ConditionOperator.IS, 'is'],
+  [ConditionOperator.MATCHES, 'matches'],
+  [ConditionOperator.ONE_OF, 'oneOf'],
+];
+
+/** `null` for a source or an operator newer than this build. */
+function conditionToDomain(condition: ProtoWebhookCondition): WebhookCondition | null {
+  const operator = OPERATORS.find(([proto]) => proto === condition.operator)?.[1];
+  if (!operator) return null;
+  const { values } = condition;
+  switch (condition.source.oneofKind) {
+    case 'header':
+      return { source: 'header', field: condition.source.header, operator, values };
+    case 'jsonPointer':
+      return { source: 'jsonPointer', field: condition.source.jsonPointer, operator, values };
+    default:
+      return null;
+  }
+}
+
+/**
+ * A condition that this build cannot show cannot be sent back either: the webhook is then an
+ * unknown source, read only.
+ */
+function webhookToDomain(webhook: ProtoWebhook, apiUrl: string): TriggerSource {
+  const conditions = webhook.conditions.map(conditionToDomain);
+  const known = conditions.filter((condition): condition is WebhookCondition => condition !== null);
+  if (known.length !== conditions.length) return { kind: 'unknown' };
+  return { kind: 'webhook', webhookUrl: `${apiUrl}${webhook.path}`, conditions: known };
+}
+
+function conditionToProto(condition: WebhookCondition): ProtoWebhookCondition {
+  return {
+    source:
+      condition.source === 'header'
+        ? { oneofKind: 'header', header: condition.field }
+        : { oneofKind: 'jsonPointer', jsonPointer: condition.field },
+    operator:
+      OPERATORS.find(([, domain]) => domain === condition.operator)?.[0] ??
+      ConditionOperator.UNSPECIFIED,
+    values: condition.values,
+  };
+}
+
+/** The path is the server's: a create and an update send it empty. */
+const webhookToProto = (conditions: WebhookCondition[]): ProtoWebhook => ({
+  path: '',
+  conditions: conditions.map(conditionToProto),
+});
+
 function sourceToDomain(kind: ProtoTrigger['kind'], apiUrl: string): TriggerSource {
   switch (kind.oneofKind) {
     case 'cron':
       return { kind: 'cron', expression: kind.cron.schedule };
     case 'webhook':
-      return { kind: 'webhook', webhookUrl: `${apiUrl}${kind.webhook.path}` };
+      return webhookToDomain(kind.webhook, apiUrl);
     case 'push':
       return {
         kind: 'push',
@@ -76,6 +134,8 @@ function lastResultOf(trigger: ProtoTrigger): TriggerFireResult | undefined {
       return { kind: 'succeeded' };
     case FireStatus.ERROR:
       return { kind: 'failed', error: trigger.lastError };
+    case FireStatus.SKIPPED:
+      return { kind: 'skipped', reason: trigger.lastError };
     default:
       // An outcome newer than this build: neither success nor failure.
       return { kind: 'unknown' };
@@ -155,12 +215,23 @@ function rulesToProto(source: GitSource): Exclude<UpdateTriggerRequest['rules'],
   }
 }
 
+function rulesOfUpdate(source: TriggerDraft['source']): UpdateTriggerRequest['rules'] {
+  switch (source.kind) {
+    case 'cron':
+      return { oneofKind: undefined };
+    case 'webhook':
+      return { oneofKind: 'webhook', webhook: webhookToProto(source.conditions) };
+    default:
+      return rulesToProto(source);
+  }
+}
+
 function kindToProto(source: TriggerDraft['source']): CreateTriggerRequest['kind'] {
   switch (source.kind) {
     case 'cron':
       return { oneofKind: 'cron', cron: { schedule: source.expression } };
     case 'webhook':
-      return { oneofKind: 'webhook', webhook: { path: '' } };
+      return { oneofKind: 'webhook', webhook: webhookToProto(source.conditions) };
     default:
       return rulesToProto(source);
   }
@@ -180,7 +251,7 @@ export function draftToCreateRequest(
 
 /**
  * The kind of a trigger does not change: a cron gets its new schedule, a Git trigger its new
- * rules, a webhook keeps its path.
+ * rules, a webhook its new conditions and keeps its path.
  */
 export function draftToUpdateRequest(triggerId: string, draft: TriggerDraft): UpdateTriggerRequest {
   const { source } = draft;
@@ -189,9 +260,6 @@ export function draftToUpdateRequest(triggerId: string, draft: TriggerDraft): Up
     name: draft.name,
     ...(source.kind === 'cron' && { schedule: source.expression }),
     inputs: { inputs: draft.inputs.map(inputToProto) },
-    rules:
-      source.kind === 'cron' || source.kind === 'webhook'
-        ? { oneofKind: undefined }
-        : rulesToProto(source),
+    rules: rulesOfUpdate(source),
   };
 }

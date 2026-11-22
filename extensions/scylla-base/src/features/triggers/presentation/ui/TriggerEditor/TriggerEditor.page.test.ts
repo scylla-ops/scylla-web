@@ -190,6 +190,30 @@ describe('TriggerEditorPage — create mode', () => {
     expect(screen.queryByRole('radio', { name: /daily/i })).not.toBeInTheDocument();
   });
 
+  it('creates a webhook trigger with its conditions, and keeps Create off while one is not valid', async () => {
+    render(TriggerEditorPage, props());
+    await focusSettled();
+
+    await userEvent.type(screen.getByLabelText('Name'), 'push-main');
+    await chooseKind('Webhook');
+    const conditions = screen.getByRole('region', { name: 'Conditions' });
+    expect(conditions).toHaveTextContent('No condition: each delivery starts a run.');
+    await userEvent.click(screen.getByRole('button', { name: 'Add condition' }));
+    expect(submitButton('Create')).toBeDisabled();
+
+    await userEvent.type(screen.getByLabelText('Header name'), 'X-GitHub-Event');
+    await userEvent.type(screen.getByLabelText('Value'), 'push');
+    await vi.waitFor(() => expect(submitButton('Create')).toBeEnabled());
+    await userEvent.click(submitButton('Create'));
+
+    await vi.waitFor(() => expect(create).toHaveBeenCalled());
+    const [, draft] = create.mock.calls[0];
+    expect(draft.source).toEqual({
+      kind: 'webhook',
+      conditions: [{ source: 'header', field: 'X-GitHub-Event', operator: 'is', values: ['push'] }],
+    });
+  });
+
   it('goes back to the list on cancel, and writes nothing', async () => {
     render(TriggerEditorPage, props());
 
@@ -251,6 +275,7 @@ describe('TriggerEditorPage — edit mode', () => {
         source: {
           kind: 'webhook',
           webhookUrl: 'https://x/y',
+          conditions: [],
         },
       }),
     ]);
@@ -259,6 +284,32 @@ describe('TriggerEditorPage — edit mode', () => {
     expect(await screen.findByRole('region', { name: 'Webhook' })).toHaveTextContent(
       'X-Hub-Signature-256',
     );
+  });
+
+  it('seeds the conditions of a webhook trigger, and sends them in the update', async () => {
+    listByPipelineId.mockResolvedValue([
+      trigger({
+        source: {
+          kind: 'webhook',
+          webhookUrl: 'https://x/y',
+          conditions: [
+            { source: 'jsonPointer', field: '/ref', operator: 'is', values: ['refs/heads/main'] },
+          ],
+        },
+      }),
+    ]);
+    render(TriggerEditorPage, props({ triggerId: 'trigger-1' }));
+
+    expect(await screen.findByLabelText('JSON pointer')).toHaveValue('/ref');
+    await userEvent.clear(screen.getByLabelText('Value'));
+    await userEvent.type(screen.getByLabelText('Value'), 'refs/heads/dev');
+    await userEvent.click(submitButton('Save'));
+
+    await vi.waitFor(() => expect(update).toHaveBeenCalled());
+    const [, draft] = update.mock.calls[0];
+    expect(draft.source.conditions).toEqual([
+      { source: 'jsonPointer', field: '/ref', operator: 'is', values: ['refs/heads/dev'] },
+    ]);
   });
 });
 

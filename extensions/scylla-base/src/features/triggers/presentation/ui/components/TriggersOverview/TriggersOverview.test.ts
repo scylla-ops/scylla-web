@@ -18,9 +18,10 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
 });
 
 const webhookSource = {
-  kind: 'webhook',
+  kind: 'webhook' as const,
   webhookUrl: 'x',
-} as const;
+  conditions: [],
+};
 
 describe('TriggersOverview', () => {
   it('shows how many of the triggers are enabled', () => {
