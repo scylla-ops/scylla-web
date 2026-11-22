@@ -9,6 +9,7 @@
   import NodeInspector from './NodeInspector/NodeInspector.svelte';
   import FragmentInspector from './FragmentInspector/FragmentInspector.svelte';
   import SelectionPanel from './SelectionPanel/SelectionPanel.svelte';
+  import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
   type Mode = 'palette' | 'inspector' | 'block' | 'selection';
 
@@ -30,9 +31,21 @@
     drag: PaletteDrag;
     onAdd: (entry: CatalogEntry) => void;
     onSaveSelection?: () => void;
+    /** Makes a fragment of one node. */
+    onSaveNode?: (node: PipelineNodeEntity) => void;
   }
 
-  let { blueprint, entries, library, linkable, projectId, drag, onAdd, onSaveSelection }: Props =
+  let {
+    blueprint,
+    entries,
+    library,
+    linkable,
+    projectId,
+    drag,
+    onAdd,
+    onSaveSelection,
+    onSaveNode,
+  }: Props =
     $props();
 
   const node = $derived(blueprint.inspected ? nodeOf(blueprint.inspected) : undefined);
@@ -75,6 +88,7 @@
             onErrorOutputChange={on => blueprint.setErrorOutput(node.id, on)}
             onDelete={() => blueprint.removeNode(node.id)}
             onClose={close}
+            onSaveToLibrary={onSaveNode && (() => onSaveNode(node))}
           />
         {/key}
       {:else if block}

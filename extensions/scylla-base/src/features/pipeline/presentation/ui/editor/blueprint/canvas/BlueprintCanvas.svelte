@@ -13,6 +13,7 @@
     type XYPosition,
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
+  import './flow-theme.css';
   import { keepFitted } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { Blueprint, NodePlacement } from '../blueprint.state.svelte.ts';
@@ -226,23 +227,7 @@
     cursor: grabbing;
   }
 
-  :global(.svelte-flow__controls-button) {
-    --xy-controls-button-background-color: var(--card);
-    --xy-controls-button-background-color-hover: var(--muted);
-    --xy-controls-button-color: var(--foreground);
-    --xy-controls-button-color-hover: var(--foreground);
-    --xy-controls-button-border-color: var(--border);
-  }
-
   .canvas.dimmed :global(.svelte-flow__viewport) {
     opacity: 0.4;
-  }
-
-  :global(.svelte-flow__attribution) {
-    background: transparent;
-  }
-
-  :global(.svelte-flow__edge:not(.selected):hover .svelte-flow__edge-path) {
-    stroke: var(--muted-foreground) !important;
   }
 </style>

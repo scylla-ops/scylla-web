@@ -97,9 +97,10 @@
 
   /** The nodes that the dialog saves: read when it opens, so a change of selection does not alter it. */
   let saving = $state<PipelineNodeEntity[] | null>(null);
-  const saveSelection = $derived(
-    linkable && !locked ? () => (saving = blueprint.selectedNodes) : undefined,
+  const saveNodes = $derived(
+    linkable && !locked ? (nodes: PipelineNodeEntity[]) => (saving = nodes) : undefined,
   );
+  const saveSelection = $derived(saveNodes && (() => saveNodes(blueprint.selectedNodes)));
 
   const placeSaved = (fragment: FragmentEntity, replace: boolean) => {
     if (!replace || !saving) return;
@@ -183,6 +184,7 @@
         {projectId}
         {drag}
         onSaveSelection={saveSelection}
+        onSaveNode={saveNodes && (node => saveNodes([node]))}
         onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
       />
     {/if}

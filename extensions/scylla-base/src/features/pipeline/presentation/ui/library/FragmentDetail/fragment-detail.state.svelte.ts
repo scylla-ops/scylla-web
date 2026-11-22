@@ -4,7 +4,9 @@ import { Permission, can } from '@platform/authz';
 import { contextStore, scyllaNavigate } from '@platform/context';
 import { userQueries } from '@base/features/user';
 import {
+  canDeleteFragment,
   canPublishVersion,
+  fragmentDeleteIssue,
   latestVersion,
   type FragmentAuthor,
   type FragmentEntity,
@@ -45,6 +47,7 @@ export const createFragmentDetail = (fragmentId: () => string) => {
   const detach = createMutation(() => fragmentMutations.detachAsFork());
   const fork = createMutation(() => fragmentMutations.addFromMarketplace());
   const deprecate = createMutation(() => fragmentMutations.deprecateVersion());
+  const remove = createMutation(() => fragmentMutations.remove(workspace.id ?? ''));
 
   const fragment = $derived(fragmentQuery.data);
   const me = $derived<FragmentAuthor | undefined>(
@@ -85,6 +88,15 @@ export const createFragmentDetail = (fragmentId: () => string) => {
     },
     get canPublishToMarketplace() {
       return !!fragment && !!me && canPublishToMarketplace(fragment, person);
+    },
+    get canDelete() {
+      return !!fragment && !!me && canDeleteFragment(fragment, person);
+    },
+    get deleteIssue() {
+      return fragment ? fragmentDeleteIssue(fragment) : null;
+    },
+    get deleting() {
+      return remove.isPending;
     },
     get canDecideUpstream() {
       return canDecideUpstream(person);
@@ -133,6 +145,16 @@ export const createFragmentDetail = (fragmentId: () => string) => {
     },
     deprecate(version: number) {
       if (fragment) deprecate.mutate({ id: fragment.id, version });
+    },
+    /** The library opens: the page of the fragment no longer exists. */
+    remove(onDone: () => void) {
+      if (!fragment || fragmentDeleteIssue(fragment)) return;
+      remove.mutate(fragment, {
+        onSuccess: () => {
+          onDone();
+          scyllaNavigate.goToWorkspaceRoute('library');
+        },
+      });
     },
 
     /** A new fork from the release of the publisher, beside this one: its page opens. */

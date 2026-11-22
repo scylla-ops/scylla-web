@@ -7,7 +7,6 @@
   import { t } from '@scylla/ui/i18n';
   import { latestVersion } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import {
-    marketplacePackageId,
     publicName,
   } from '@base/features/pipeline/domain/structs/fragment-publication.struct.ts';
   import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
@@ -28,9 +27,7 @@
   const source = $derived(fragment.source);
   // A public fragment has its own page; a fork that is not public points to its publisher.
   const packageId = $derived(
-    fragment.publication
-      ? marketplacePackageId(detail.scope, fragment.publication.name)
-      : (source?.package.packageId ?? null),
+    fragment.publication?.packageId ?? source?.package.packageId ?? null,
   );
 
   const badge = $derived.by(() => {
@@ -46,17 +43,29 @@
   );
 </script>
 
-<header class="flex flex-wrap items-start gap-4">
-  <FragmentIcon forked={source?.kind === 'forked'} class="size-12 [&>svg]:size-6" />
-  <div class="flex min-w-0 flex-1 flex-col gap-1">
-    <div class="flex items-center gap-2">
-      <h1 class="truncate">{fragment.name}</h1>
-      <VersionBadge number={latestVersion(fragment).number} filled />
-      <span class="rounded-full border px-2 py-0.5 text-xs font-medium">{t(badge)}</span>
+<!-- The name gets the whole width; the actions go on a row of their own, under it. -->
+<header class="flex flex-col gap-4">
+  <div class="flex items-start gap-4">
+    <FragmentIcon forked={source?.kind === 'forked'} class="size-12 [&>svg]:size-6" />
+    <div class="flex min-w-0 flex-1 flex-col gap-1.5">
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <h1 class="min-w-0 [overflow-wrap:anywhere]">{fragment.name}</h1>
+        <VersionBadge number={latestVersion(fragment).number} filled />
+        <span
+          class="max-w-full truncate rounded-full border px-2 py-0.5 text-xs font-medium whitespace-nowrap"
+          title={t(badge)}
+        >
+          {t(badge)}
+        </span>
+      </div>
+      <p class="text-sm text-muted-foreground">{fragment.description} · {t(byline)}</p>
     </div>
-    <p class="text-sm text-muted-foreground">{fragment.description} · {t(byline)}</p>
   </div>
-  <div class="flex shrink-0 flex-wrap items-center gap-2">
+  <div class="flex flex-wrap items-center gap-2 sm:pl-16">
+    <Button onclick={() => (detail.picker = 'use')}>
+      <PlusIcon class="size-4" />
+      {t(communityMessages.useInPipeline)}
+    </Button>
     {#if source?.kind !== 'linked'}
       <FavoriteButton {fragment} labelled />
     {/if}
@@ -77,22 +86,5 @@
         {t(communityMessages.detachAsFork)}
       </Button>
     {/if}
-    {#if source?.kind === 'forked' && detail.pending}
-      <Button
-        variant="outline"
-        onclick={() =>
-          detail.compareUpstream(
-            t(libraryMessages.version(latestVersion(fragment).number)),
-            `${sourceReference(fragment)} v${detail.pending!.number}`,
-          )}
-      >
-        <GitForkIcon class="size-4" />
-        {t(communityMessages.compareWithUpstream)}
-      </Button>
-    {/if}
-    <Button onclick={() => (detail.picker = 'use')}>
-      <PlusIcon class="size-4" />
-      {t(communityMessages.useInPipeline)}
-    </Button>
   </div>
 </header>

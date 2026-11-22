@@ -1,0 +1,80 @@
+<script lang="ts">
+  import { Background, BackgroundVariant, Controls, SvelteFlow, type NodeTypes } from '@xyflow/svelte';
+  import '@xyflow/svelte/dist/style.css';
+  import '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/flow-theme.css';
+  import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+  import {
+    DEFAULT_EDGE_STYLE,
+    nodesToFlow,
+    START_NODE_ID,
+  } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import { setBlueprintCanvas } from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/blueprint-canvas.context.ts';
+  import PipelineNode from '@base/features/pipeline/presentation/ui/editor/blueprint/canvas/nodes/PipelineNode.svelte';
+
+  interface Props {
+    nodes: PipelineNodeEntity[];
+    selectedId: string | null;
+    onSelect: (id: string | null) => void;
+  }
+
+  let { nodes, selectedId, onSelect }: Props = $props();
+
+  const nodeTypes: NodeTypes = { pipelineNode: PipelineNode };
+  const FIT_VIEW_OPTIONS = { padding: 0.2, maxZoom: 1 };
+
+  // The nodes of the editor: nothing is detached, and an edge takes no new node.
+  setBlueprintCanvas({
+    appearance: () => 'detailed',
+    isDetached: () => false,
+    iconHintOf: () => undefined,
+    insertOnEdge: () => {},
+    fragmentOf: () => undefined,
+  });
+
+  // A fragment has no start node: its first nodes have no edge in.
+  const flow = $derived.by(() => {
+    const { flowNodes, edges } = nodesToFlow(nodes, '');
+    return {
+      nodes: flowNodes
+        .filter(node => node.id !== START_NODE_ID)
+        .map(node => ({ ...node, selected: node.id === selectedId })),
+      edges: edges
+        .filter(edge => edge.source !== START_NODE_ID)
+        .map(edge => ({ ...edge, type: 'default' })),
+    };
+  });
+</script>
+
+<div class="graph h-full min-w-0 flex-1">
+  <SvelteFlow
+    nodes={flow.nodes}
+    edges={flow.edges}
+    {nodeTypes}
+    fitView
+    fitViewOptions={FIT_VIEW_OPTIONS}
+    nodesDraggable={false}
+    nodesConnectable={false}
+    edgesFocusable={false}
+    deleteKey={null}
+    defaultEdgeOptions={DEFAULT_EDGE_STYLE}
+    onnodeclick={({ node }) => onSelect(node.id)}
+    onpaneclick={() => onSelect(null)}
+  >
+    <Background variant={BackgroundVariant.Dots} gap={16} size={1} class="bg-background!" />
+    <Controls
+      showLock={false}
+      fitViewOptions={FIT_VIEW_OPTIONS}
+      class="overflow-hidden rounded-[10px]! border! border-border! shadow-xs!"
+    />
+  </SvelteFlow>
+</div>
+
+<style>
+  .graph :global(.svelte-flow__pane) {
+    cursor: default;
+  }
+
+  .graph :global(.svelte-flow__node) {
+    cursor: pointer;
+  }
+</style>
