@@ -26,6 +26,8 @@
   setBlueprintCanvas({
     appearance: () => 'detailed',
     isDetached: () => false,
+    issueOf: () => null,
+    hasErrorPort: nodeId => nodes.some(node => node.deps.some(dep => dep.node === nodeId && dep.port === 'error')),
     iconHintOf: () => undefined,
     insertOnEdge: () => {},
     fragmentOf: () => undefined,

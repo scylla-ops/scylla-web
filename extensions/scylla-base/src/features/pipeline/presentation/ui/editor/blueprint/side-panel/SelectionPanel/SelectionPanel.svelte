@@ -37,7 +37,9 @@
           <li class="flex items-center gap-2 text-[13px]">
             <Icon class="size-3.5 text-muted-foreground" />
             <span class="min-w-0 flex-1 truncate font-medium">{node.id}</span>
-            <span class="text-xs text-muted-foreground">{node.kind === 'script' ? node.shell : node.command}</span>
+            <span class="text-xs text-muted-foreground">
+              {node.kind === 'script' ? node.shell : node.kind === 'exec' ? node.command : node.kind}
+            </span>
           </li>
         {/each}
       </ul>

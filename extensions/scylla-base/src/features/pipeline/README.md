@@ -163,9 +163,10 @@ way, a fragment of the workspace goes public from its page, as `@workspace/name`
 its defaults and nodes; its page then follows its installs and the versions other organizations
 use.
 
-The server has no library yet, so `DefaultFragmentRepository` keeps it in the browser, with demo
-fragments. The document of a pipeline stays plain nodes: what makes a block is a `FragmentLink`,
-stored beside it.
+The library is on the server (`FragmentService` of the core), and the marketplace is a service
+that Scylla hosts. The document of a pipeline stays plain nodes: what makes a block is a
+`FragmentLink`, saved with the nodes. A block has no port: what leaves it leaves from its last
+nodes.
 
 ## Conditional nodes
 

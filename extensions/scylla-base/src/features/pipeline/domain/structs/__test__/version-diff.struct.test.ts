@@ -29,7 +29,7 @@ describe('versionDiff', () => {
 
   it('does not see a node as changed when only its dependencies move', () => {
     const to = version(2, {
-      nodes: [execNode('install'), { ...execNode('test'), deps: ['install'] }],
+      nodes: [execNode('install'), { ...execNode('test'), deps: [{ node: 'install' }] }],
     });
 
     expect(versionDiff(version(1), to)).toEqual([]);

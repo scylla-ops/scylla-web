@@ -22,7 +22,7 @@ import type { ExecPipelineNodeEntity, EnvEntry } from '../pipeline-node.entity.t
 
 const node = (id: string, deps: string[] = [], env: EnvEntry[] = []): ExecPipelineNodeEntity => ({
   id,
-  deps,
+  deps: deps.map(need => ({ node: need })),
   kind: 'exec',
   command: 'cargo',
   args: [id],
@@ -97,7 +97,7 @@ describe('fragment versions', () => {
 describe('fragment parameters', () => {
   it('drops a dependency on a node outside the selection', () => {
     expect(fragmentNodesOf([node('test', ['build', 'fmt']), node('fmt')]).map(n => n.deps)).toEqual(
-      [['fmt'], []],
+      [[{ node: 'fmt' }], []],
     );
   });
 
@@ -153,7 +153,7 @@ describe('instantiate', () => {
 
     expect(nodes.map(n => [n.id, n.deps])).toEqual([
       ['rust-ci-fmt', []],
-      ['rust-ci-publish', ['rust-ci-fmt']],
+      ['rust-ci-publish', [{ node: 'rust-ci-fmt' }]],
     ]);
   });
 
@@ -162,8 +162,8 @@ describe('instantiate', () => {
       RUST_TOOLCHAIN: 'nightly',
     });
 
-    expect(fmt.env).toEqual([{ key: 'RUST_TOOLCHAIN', kind: 'literal', value: 'nightly' }]);
-    expect(publish.env).toEqual([]);
+    expect(fmt).toMatchObject({ env: [{ key: 'RUST_TOOLCHAIN', kind: 'literal', value: 'nightly' }] });
+    expect(publish).toMatchObject({ env: [] });
   });
 });
 

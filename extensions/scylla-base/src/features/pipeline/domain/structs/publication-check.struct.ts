@@ -17,8 +17,11 @@ const SECRET_NAME = /TOKEN|SECRET|PASSWORD|PASSWD|PRIVATE_KEY|API_KEY|CREDENTIAL
 const PRIVATE_ADDRESS =
   /\blocalhost\b|\.internal\b|\.local\b|\.corp\b|\b10\.\d+\.\d+\.\d+|\b192\.168\./i;
 
-const codeOf = (node: FragmentVersion['nodes'][number]): string =>
-  node.kind === 'script' ? node.script : [node.command, ...node.args].join(' ');
+const codeOf = (node: FragmentVersion['nodes'][number]): string => {
+  if (node.kind === 'script') return node.script;
+  if (node.kind === 'exec') return [node.command, ...node.args].join(' ');
+  return '';
+};
 
 /** `scope`: the slug of the workspace. A default or a node that names it is private to it. */
 export const publicationChecks = (version: FragmentVersion, scope: string): PublicationCheck[] => {

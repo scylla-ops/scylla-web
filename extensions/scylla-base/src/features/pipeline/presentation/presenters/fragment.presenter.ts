@@ -18,10 +18,11 @@ export const nodesLine = (nodes: PipelineNodeEntity[], prefix = ''): string =>
     .join(' · ');
 
 /** What a node runs, on one line: its command, or the first line of its script. */
-export const nodeCommandLine = (node: PipelineNodeEntity): string =>
-  node.kind === 'exec'
-    ? [node.command, ...node.args].join(' ')
-    : (node.script.split('\n').find(line => line.trim()) ?? '').trim();
+export const nodeCommandLine = (node: PipelineNodeEntity): string => {
+  if (node.kind === 'exec') return [node.command, ...node.args].join(' ');
+  if (node.kind === 'script') return (node.script.split('\n').find(line => line.trim()) ?? '').trim();
+  return node.kind;
+};
 
 /** What a block of the graph shows. Without its fragment (not loaded, or deleted), only its nodes. */
 export interface BlockSummary {

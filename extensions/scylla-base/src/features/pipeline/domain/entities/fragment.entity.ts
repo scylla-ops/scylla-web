@@ -1,5 +1,9 @@
 import type { NodeId } from '../structs/node-id.struct.ts';
-import type { EnvEntry, PipelineNodeEntity } from './pipeline-node.entity.ts';
+import {
+  withRenamedReference,
+  type EnvEntry,
+  type PipelineNodeEntity,
+} from './pipeline-node.entity.ts';
 
 /**
  * A fragment: some nodes of a pipeline, saved in the library of the workspace so that other
@@ -247,13 +251,16 @@ export const fragmentDeleteIssue = (
  */
 export const fragmentNodesOf = (nodes: PipelineNodeEntity[]): PipelineNodeEntity[] => {
   const ids = new Set(nodes.map(node => node.id));
-  return nodes.map(node => ({ ...node, deps: node.deps.filter(dep => ids.has(dep)) }));
+  return nodes.map(node => ({ ...node, deps: node.deps.filter(dep => ids.has(dep.node)) }));
 };
+
+/** The environment of a node: a merge has none. */
+const envOf = (node: PipelineNodeEntity): EnvEntry[] => ('env' in node ? node.env : []);
 
 /** The variables of the nodes, once each: a literal keeps its value as default. */
 export const detectParameters = (nodes: PipelineNodeEntity[]): FragmentParameter[] => {
   const byKey = new Map<string, FragmentParameter>();
-  for (const entry of nodes.flatMap(node => node.env)) {
+  for (const entry of nodes.flatMap(envOf)) {
     if (byKey.has(entry.key)) continue;
     byKey.set(
       entry.key,
@@ -273,7 +280,7 @@ export const editedParameters = (
   previous: Pick<FragmentVersion, 'nodes' | 'parameters'>,
   nodes: PipelineNodeEntity[],
 ): FragmentParameter[] => {
-  const before = new Set(previous.nodes.flatMap(node => node.env.map(entry => entry.key)));
+  const before = new Set(previous.nodes.flatMap(node => envOf(node).map(entry => entry.key)));
   const detected = detectParameters(nodes);
   const keys = new Set(detected.map(parameter => parameter.key));
   return [
@@ -313,7 +320,7 @@ export const valuesOf = (
   nodes: PipelineNodeEntity[],
   parameters: FragmentParameter[],
 ): ParameterValues => {
-  const entries = new Map(nodes.flatMap(node => node.env).map(entry => [entry.key, entry]));
+  const entries = new Map(nodes.flatMap(envOf).map(entry => [entry.key, entry]));
   return Object.fromEntries(
     parameters.map(parameter => {
       const entry = entries.get(parameter.key);
@@ -338,7 +345,9 @@ export const withValues = (
   values: ParameterValues,
 ): PipelineNodeEntity[] => {
   const byKey = new Map(parameters.map(parameter => [parameter.key, parameter]));
-  return nodes.map(node => ({
+  return nodes.map(node => {
+    if (!('env' in node)) return node;
+    return {
     ...node,
     env: node.env.flatMap(entry => {
       const parameter = byKey.get(entry.key);
@@ -346,7 +355,8 @@ export const withValues = (
       const value = values[parameter.key] ?? '';
       return parameter.kind === 'secret' && !value.trim() ? [] : [entryFor(parameter, value)];
     }),
-  }));
+    };
+  });
 };
 
 /**
@@ -358,11 +368,10 @@ export const instantiate = (
   blockId: NodeId,
   values: ParameterValues,
 ): PipelineNodeEntity[] => {
-  const idOf = (id: NodeId) => `${blockId}-${id}`;
-  const nodes = version.nodes.map(node => ({
-    ...node,
-    id: idOf(node.id),
-    deps: node.deps.map(idOf),
-  }));
+  // The needs and the outputs that a switch reads follow each renamed id.
+  const nodes = version.nodes.reduce(
+    (renamed, { id }) => renamed.map(node => withRenamedReference(node, id, `${blockId}-${id}`)),
+    version.nodes,
+  );
   return withValues(nodes, version.parameters, values);
 };

@@ -116,7 +116,7 @@ describe('SavePipelineUseCase', () => {
     );
 
     expect(issue).toBeNull();
-    expect(edit).toHaveBeenCalledWith('p1', nodes, 'nightly', layout);
+    expect(edit).toHaveBeenCalledWith('p1', nodes, 'nightly', layout, undefined);
   });
 
   it('sends nothing for a need on a port that its node does not have', async () => {

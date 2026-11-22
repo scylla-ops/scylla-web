@@ -13,7 +13,7 @@ import { createBlueprint, type BlockContent } from '../blueprint.state.svelte.ts
 
 const execNode = (id: string, deps: string[] = []): ExecPipelineNodeEntity => ({
   id,
-  deps,
+  deps: deps.map(need => ({ node: need })),
   kind: 'exec',
   command: 'cargo',
   args: [id],
@@ -69,8 +69,8 @@ describe('createBlueprint: the blocks of the library', () => {
         (lastCall(changes.nodes) as PipelineNodeEntity[]).map(node => [node.id, node.deps]),
       ).toEqual([
         ['build', []],
-        ['rust-ci-fmt', ['build']],
-        ['rust-ci-test', ['rust-ci-fmt']],
+        ['rust-ci-fmt', [{ node: 'build' }]],
+        ['rust-ci-test', [{ node: 'rust-ci-fmt' }]],
       ]);
       expect(lastCall(changes.links)).toEqual([
         expect.objectContaining({
