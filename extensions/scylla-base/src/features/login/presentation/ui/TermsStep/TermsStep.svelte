@@ -34,6 +34,8 @@
       : t(m.readBeforeNoPrivacy(linkSlot('terms'))),
   );
   const who = $derived([status.displayName, status.email].filter(Boolean).join(' · '));
+
+  const id = $props.id();
 </script>
 
 <!-- The legal links that the operator turned on, at the bottom of the frame. -->
@@ -45,13 +47,27 @@
 <AuthLayout footer={legalFooter} title={view.title} description={view.description}>
   <div class="flex flex-col gap-4">
     {#if view.update}
-      {#if view.version || view.effectiveOn}
-        <div class="flex flex-wrap items-center justify-center gap-2 rounded-lg border p-3">
-          {#if view.version}
-            <Badge variant="outline">{view.version}</Badge>
+      {#if view.version || view.effectiveOn || view.changes.length > 0}
+        <div class="flex flex-col items-center gap-3 rounded-lg border p-3">
+          {#if view.version || view.effectiveOn}
+            <div class="flex flex-wrap items-center justify-center gap-2">
+              {#if view.version}
+                <Badge variant="outline">{view.version}</Badge>
+              {/if}
+              {#if view.effectiveOn}
+                <span class="text-xs text-muted-foreground">{view.effectiveOn}</span>
+              {/if}
+            </div>
           {/if}
-          {#if view.effectiveOn}
-            <span class="text-xs text-muted-foreground">{view.effectiveOn}</span>
+          {#if view.changes.length > 0}
+            <section class="flex flex-col items-center gap-1.5" aria-labelledby={`${id}-changes`}>
+              <h2 id={`${id}-changes`} class="text-sm">{t(m.whatChanges)}</h2>
+              <ul class="list-disc pl-5 text-sm text-muted-foreground">
+                {#each view.changes as change, index (index)}
+                  <li>{change}</li>
+                {/each}
+              </ul>
+            </section>
           {/if}
         </div>
       {/if}

@@ -46,6 +46,7 @@ const document = (kind: LegalInfo['documents'][number]['kind'], url?: string) =>
   version: '',
   effectiveDate: null,
   acceptanceRequired: false,
+  changes: '',
   updatedAt: null,
 });
 

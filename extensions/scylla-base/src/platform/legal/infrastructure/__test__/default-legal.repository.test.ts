@@ -23,6 +23,7 @@ const info = {
       version: '2.0',
       effectiveDate: '2027-01-01',
       acceptanceRequired: true,
+      changes: '- Export of your data.',
       updatedAt: { seconds: 1_800_000_000n, nanos: 0 },
     },
     {
@@ -32,6 +33,7 @@ const info = {
       version: '',
       effectiveDate: '',
       acceptanceRequired: false,
+      changes: '',
     },
     // A kind of a newer server: this build leaves it out.
     {
@@ -41,6 +43,7 @@ const info = {
       version: '',
       effectiveDate: '',
       acceptanceRequired: false,
+      changes: '',
     },
   ],
 };
@@ -72,6 +75,7 @@ describe('DefaultLegalRepository', () => {
         version: '2.0',
         effectiveDate: '2027-01-01',
         acceptanceRequired: true,
+        changes: '- Export of your data.',
         updatedAt: '2027-01-15T08:00:00.000Z',
       },
       {
@@ -81,6 +85,7 @@ describe('DefaultLegalRepository', () => {
         version: '',
         effectiveDate: null,
         acceptanceRequired: false,
+        changes: '',
         updatedAt: null,
       },
     ]);
@@ -98,6 +103,7 @@ describe('DefaultLegalRepository', () => {
           version: '',
           effectiveDate: '',
           acceptanceRequired: false,
+          changes: '',
         },
       ],
     });
@@ -113,6 +119,7 @@ describe('DefaultLegalRepository', () => {
           version: '',
           effectiveDate: '',
           acceptanceRequired: false,
+          changes: '',
         },
       ],
     });

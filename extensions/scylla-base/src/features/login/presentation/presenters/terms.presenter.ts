@@ -23,7 +23,19 @@ export interface TermsStepView {
   version: string;
   /** "Takes effect on 1 Jan 2027", or empty. */
   effectiveOn: string;
+  /** What changes in the new version, one item for each line. Empty: no list. */
+  changes: string[];
 }
+
+/** A list mark at the start of a line: `-`, `*`, `+` or `•`, then a space. */
+const LIST_MARK = /^[-*+•]\s+/;
+
+/** The items of a text of what changes: one for each line that is not empty, with no list mark. */
+export const changeItems = (text: string): string[] =>
+  text
+    .split('\n')
+    .map(line => line.trim().replace(LIST_MARK, ''))
+    .filter(line => line !== '');
 
 /** The first acceptance, or the acceptance of a new version of `terms`. */
 export const termsStepView = (
@@ -41,5 +53,6 @@ export const termsStepView = (
     version: update && version ? t(m.version(version)) : '',
     effectiveOn:
       update && effectiveDate ? t(m.effectiveOn(formatDay(`${effectiveDate}T12:00:00Z`))) : '',
+    changes: update && terms ? changeItems(terms.changes) : [],
   };
 };

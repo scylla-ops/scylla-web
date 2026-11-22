@@ -28,6 +28,7 @@ export const termsMessages = {
   updateDescription: msg`The terms of service changed. Accept the new version to keep using your account.`,
   version: (version: string) => msg`Version ${version}`,
   effectiveOn: (date: string) => msg`Takes effect on ${date}`,
+  whatChanges: msg`What changes`,
   readBefore: (terms: string, privacy: string) =>
     msg`Read the ${terms} and the ${privacy} before you accept.`,
   readBeforeNoPrivacy: (terms: string) => msg`Read the ${terms} before you accept.`,

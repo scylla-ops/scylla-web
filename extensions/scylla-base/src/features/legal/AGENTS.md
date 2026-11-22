@@ -38,7 +38,9 @@ page "Legal and privacy" (`/instance/legal`). The data is in
 - The operator, each document (off, link or Markdown, with a title, a version, a date of effect
   and a preview), the privacy contact, and the state of the consent banner from the registry.
 - Each card saves its own part: `UpdateLegalSettings` changes only the fields that it gets.
-- The switch "Users must accept this version again" is for the kinds of `ACCEPTANCE_KINDS`.
+- The switch "Users must accept this version again" and the text "What changes" (one change on
+  each line, 2000 characters at most) are for the kinds of `ACCEPTANCE_KINDS`. The terms step of
+  `features/login` shows this text as a list.
 
 ## Layout
 

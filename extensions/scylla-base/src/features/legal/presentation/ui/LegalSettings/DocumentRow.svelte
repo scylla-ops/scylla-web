@@ -185,6 +185,21 @@
       </div>
 
       {#if ACCEPTANCE_KINDS.includes(kind)}
+        <div class="flex flex-col gap-2 sm:col-span-2">
+          <Label for={`${id}-changes`}>{t(messages.changes)}</Label>
+          <TextArea
+            id={`${id}-changes`}
+            rows={3}
+            value={draft.changes}
+            maxlength={2000}
+            aria-describedby={`${id}-changes-hint`}
+            {disabled}
+            oninput={event => set('changes', event.currentTarget.value)}
+          />
+          <p id={`${id}-changes-hint`} class="text-xs text-muted-foreground">
+            {t(messages.changesHint)}
+          </p>
+        </div>
         <Label
           class="flex items-center justify-between gap-4 rounded-lg border border-border p-3 sm:col-span-2"
         >

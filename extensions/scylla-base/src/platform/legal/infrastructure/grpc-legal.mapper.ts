@@ -59,6 +59,7 @@ const documentToDomain = (document: GrpcDocument): LegalDocument[] => {
       version: document.version,
       effectiveDate: document.effectiveDate || null,
       acceptanceRequired: document.acceptanceRequired,
+      changes: document.changes,
       updatedAt: timestampToIsoOpt(document.updatedAt) ?? null,
     },
   ];
@@ -89,6 +90,7 @@ const changeToGrpc = (change: LegalDocumentChange): GrpcDocument => ({
   version: change.version,
   effectiveDate: change.effectiveDate,
   acceptanceRequired: change.acceptanceRequired,
+  changes: change.changes,
 });
 
 export function updateToGrpc(input: UpdateLegalSettingsInput): UpdateLegalSettingsRequest {

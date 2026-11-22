@@ -31,6 +31,8 @@ export interface LegalDocument {
   effectiveDate: string | null;
   /** Each user must accept this version. */
   acceptanceRequired: boolean;
+  /** What changes in this version, one change on each line. Empty: nothing to show. */
+  changes: string;
   /** The time of the last change, ISO 8601, or `null`. */
   updatedAt: string | null;
 }

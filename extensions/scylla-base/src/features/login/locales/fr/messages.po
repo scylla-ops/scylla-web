@@ -25,7 +25,7 @@ msgstr "••••••••"
 msgid "A provider can send an email that the person does not own. So Scylla does not link by email alone. Scylla sends a mail to the person after the link."
 msgstr "Un fournisseur peut envoyer un email qui n'appartient pas à la personne. Scylla n'associe donc pas sur le seul email. Scylla envoie un mail à la personne après l'association."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:34
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:35
 msgid "Accept and continue"
 msgstr "Accepter et continuer"
 
@@ -233,11 +233,11 @@ msgstr "Mot de passe de {email}"
 msgid "Privacy policy"
 msgstr "Politique de confidentialité"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:32
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:33
 msgid "Read the {terms} and the {privacy} before you accept."
 msgstr "Lisez les {terms} et la {privacy} avant d'accepter."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:33
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:34
 msgid "Read the {terms} before you accept."
 msgstr "Lisez les {terms} avant d'accepter."
 
@@ -278,7 +278,7 @@ msgstr "Connectez-vous d’abord"
 
 #: extensions/scylla-base/src/features/login/presentation/login.commands.ts:10
 #: extensions/scylla-base/src/features/login/presentation/login.commands.ts:14
-#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:35
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:36
 msgid "Sign out"
 msgstr "Se déconnecter"
 
@@ -425,6 +425,10 @@ msgstr "Nous avons envoyé un lien à cette adresse. Ouvrez-le pour activer votr
 #: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:14
 msgid "We use your data to create and run your account. See the {privacy}."
 msgstr "Nous utilisons vos données pour créer et faire fonctionner votre compte. Consultez la {privacy}."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:31
+msgid "What changes"
+msgstr "Ce qui change"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:4
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:19

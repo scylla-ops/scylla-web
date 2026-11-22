@@ -25,7 +25,7 @@ msgstr "••••••••"
 msgid "A provider can send an email that the person does not own. So Scylla does not link by email alone. Scylla sends a mail to the person after the link."
 msgstr "A provider can send an email that the person does not own. So Scylla does not link by email alone. Scylla sends a mail to the person after the link."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:34
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:35
 msgid "Accept and continue"
 msgstr "Accept and continue"
 
@@ -233,11 +233,11 @@ msgstr "Password of {email}"
 msgid "Privacy policy"
 msgstr "Privacy policy"
 
-#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:32
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:33
 msgid "Read the {terms} and the {privacy} before you accept."
 msgstr "Read the {terms} and the {privacy} before you accept."
 
-#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:33
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:34
 msgid "Read the {terms} before you accept."
 msgstr "Read the {terms} before you accept."
 
@@ -278,7 +278,7 @@ msgstr "Sign in first"
 
 #: extensions/scylla-base/src/features/login/presentation/login.commands.ts:10
 #: extensions/scylla-base/src/features/login/presentation/login.commands.ts:14
-#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:35
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:36
 msgid "Sign out"
 msgstr "Sign out"
 
@@ -425,6 +425,10 @@ msgstr "We sent a link to this address. Open it to activate your account."
 #: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:14
 msgid "We use your data to create and run your account. See the {privacy}."
 msgstr "We use your data to create and run your account. See the {privacy}."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:31
+msgid "What changes"
+msgstr "What changes"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:4
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:19

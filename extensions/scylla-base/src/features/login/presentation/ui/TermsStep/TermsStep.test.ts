@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
@@ -100,6 +100,26 @@ describe('TermsStep', () => {
       screen.getByRole('checkbox', { name: 'I accept the Terms of service, version 2.0' }),
     ).toBeInTheDocument();
     expect(screen.queryByText('Signed in as')).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'What changes' })).not.toBeInTheDocument();
+  });
+
+  it('lists what changes in a new version, one item for each line', async () => {
+    open(UPDATE, termsToAcceptAt('2.0', null, '- Export of your data.\n \n• Clearer rules.'));
+
+    const changes = await screen.findByRole('region', { name: 'What changes' });
+    expect(
+      within(changes)
+        .getAllByRole('listitem')
+        .map(item => item.textContent),
+    ).toEqual(['Export of your data.', 'Clearer rules.']);
+  });
+
+  it('shows no list of changes at a first acceptance', async () => {
+    open(FIRST, termsToAcceptAt('2.0', null, 'Export of your data.'));
+
+    await screen.findByRole('checkbox', { name: 'I accept the Terms of service' });
+    expect(screen.queryByText('What changes')).not.toBeInTheDocument();
+    expect(screen.queryByText('Export of your data.')).not.toBeInTheDocument();
   });
 
   it('unticks the box and reads the terms again when they changed', async () => {

@@ -9,6 +9,7 @@ const document = (kind: LegalDocument['kind'], acceptanceRequired = false): Lega
   version: '2.0',
   effectiveDate: null,
   acceptanceRequired,
+  changes: '',
   updatedAt: null,
 });
 

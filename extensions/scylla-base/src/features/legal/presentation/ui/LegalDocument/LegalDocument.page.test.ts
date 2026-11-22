@@ -13,6 +13,7 @@ const markdown = (kind: LegalInfo['documents'][number]['kind'], text: string) =>
   version: '1.0',
   effectiveDate: '2027-01-01',
   acceptanceRequired: false,
+  changes: '',
   updatedAt: null,
 });
 

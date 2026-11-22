@@ -5,7 +5,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-\n"
 "Content-Transfer-Encoding: 8bi\n"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:58
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:60
 msgid "{count, plural, one {# tracker needs the consent of the users.} other {# trackers need the consent of the users.}}"
 msgstr "{count, plural, one {# traceur demande le consentement des utilisateurs.} other {# traceurs demandent le consentement des utilisateurs.}}"
 
@@ -25,7 +25,7 @@ msgstr "Adresse de la page"
 msgid "Back to Scylla"
 msgstr "Retour à Scylla"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:49
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:51
 msgid "Consent banner"
 msgstr "Bandeau de consentement"
 
@@ -63,11 +63,11 @@ msgstr "Chaque document est désactivé, un lien vers une page de votre site, ou
 msgid "Edit"
 msgstr "Modifier"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:46
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:48
 msgid "Email or page"
 msgstr "E-mail ou page"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:63
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:65
 msgid "Hide the list"
 msgstr "Masquer la liste"
 
@@ -122,22 +122,26 @@ msgstr "Nom"
 msgid "No page and no link"
 msgstr "Ni page ni lien"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:53
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:55
 msgid "No tracker needs consent: the registry lists {count, plural, one {# strictly necessary item} other {# strictly necessary items}}."
 msgstr "Aucun traceur ne demande de consentement : le registre liste {count, plural, one {# élément strictement nécessaire} other {# éléments strictement nécessaires}}."
 
 #: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:24
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:50
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:52
 msgid "Off"
 msgstr "Désactivé"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:51
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:53
 msgid "On"
 msgstr "Activé"
 
 #: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:8
 msgid "On this page"
 msgstr "Sur cette page"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:41
+msgid "One change on each line. A user who accepted an earlier version sees this list before accepting the new version."
+msgstr "Un changement par ligne. Un utilisateur qui a accepté une version précédente voit cette liste avant d'accepter la nouvelle version."
 
 #: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:17
 msgid "Open the document"
@@ -168,15 +172,15 @@ msgid "Print"
 msgstr "Imprimer"
 
 #: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:25
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:44
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:46
 msgid "Privacy contact"
 msgstr "Contact confidentialité"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:47
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:49
 msgid "privacy@acme.example"
 msgstr "privacy@acme.example"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:42
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:44
 msgid "Publish version {version}"
 msgstr "Publier la version {version}"
 
@@ -193,7 +197,7 @@ msgstr "Immatriculation"
 msgid "Save"
 msgstr "Enregistrer"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:62
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:64
 msgid "See the list"
 msgstr "Voir la liste"
 
@@ -206,7 +210,7 @@ msgstr "Texte en Markdown"
 msgid "The address must start with http:// or https://"
 msgstr "L'adresse doit commencer par http:// ou https://"
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:45
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:47
 msgid "The address that users write to about their personal data. The legal notice shows it."
 msgstr "L'adresse à laquelle les utilisateurs écrivent au sujet de leurs données personnelles. Les mentions légales l'affichent."
 
@@ -226,11 +230,11 @@ msgstr "L'exploitant de ce serveur n'a pas publié ce document."
 msgid "The organization or the person that runs this server. The legal notice shows these fields above its text."
 msgstr "L'organisation ou la personne qui exploite ce serveur. Les mentions légales affichent ces champs au-dessus de leur texte."
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:41
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:43
 msgid "The page shows the operator identity above your text."
 msgstr "La page affiche l'identité de l'exploitant au-dessus de votre texte."
 
-#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:40
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:42
 msgid "The page shows the table of the cookies and storage keys under your text. An empty text shows the table only."
 msgstr "La page affiche le tableau des cookies et des clés de stockage sous votre texte. Un texte vide n'affiche que le tableau."
 
@@ -257,6 +261,10 @@ msgstr "Version"
 #: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:11
 msgid "Version {version}"
 msgstr "Version {version}"
+
+#: extensions/scylla-base/src/features/legal/presentation/messages/legal-settings.messages.ts:40
+msgid "What changes"
+msgstr "Ce qui change"
 
 #: extensions/scylla-base/src/features/legal/presentation/messages/legal-document.messages.ts:16
 msgid "Your browser opens it now. If it does not, use the link."

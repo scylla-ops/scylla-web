@@ -40,8 +40,9 @@ withLegalRepository(repo)    for a test: replaces the repository, gives the rest
   `terms`, `terms-of-sale`, `dpa`, `subprocessors`.
 - **`GetLegalInfo` needs no session.** It is in `PUBLIC_METHODS` (`platform/grpc/session.ts`):
   the sign-in pages read it.
-- `version` and `acceptanceRequired` of the terms are for the acceptance of the terms. Only the
-  kinds of `ACCEPTANCE_KINDS` show the switch. `termsToAccept` gives the terms to accept: the
+- `version`, `acceptanceRequired` and `changes` of the terms are for the acceptance of the terms.
+  `changes` is a plain text, one change on each line: never Markdown, never HTML. Only the kinds
+  of `ACCEPTANCE_KINDS` show the switch and the text of what changes. `termsToAccept` gives the terms to accept: the
   sign-up form, the sign-in page and the terms step of `features/login` read it, and show nothing
   when it is `undefined`.
 - Write no legal text of a company here: the operator writes its documents.

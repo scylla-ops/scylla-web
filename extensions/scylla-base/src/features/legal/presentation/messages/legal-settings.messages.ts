@@ -37,6 +37,8 @@ export const legalSettingsMessages = {
   version: msg`Version`,
   effectiveDate: msg`Date of effect`,
   acceptAgain: msg`Users must accept this version again`,
+  changes: msg`What changes`,
+  changesHint: msg`One change on each line. A user who accepted an earlier version sees this list before accepting the new version.`,
   cookiesHint: msg`The page shows the table of the cookies and storage keys under your text. An empty text shows the table only.`,
   noticeHint: msg`The page shows the operator identity above your text.`,
   publish: (version: string) => msg`Publish version ${version}`,

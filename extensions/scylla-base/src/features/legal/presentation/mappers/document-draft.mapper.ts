@@ -13,6 +13,8 @@ export interface DocumentDraft {
   /** `YYYY-MM-DD`, or empty. */
   effectiveDate: string;
   acceptanceRequired: boolean;
+  /** What changes in this version, one change on each line. */
+  changes: string;
 }
 
 const HTTP_URL = /^https?:\/\/\S+$/i;
@@ -26,6 +28,7 @@ export const toDraft = (document: LegalDocument | undefined): DocumentDraft => (
   version: document?.version ?? '',
   effectiveDate: document?.effectiveDate ?? '',
   acceptanceRequired: document?.acceptanceRequired ?? false,
+  changes: document?.changes ?? '',
 });
 
 /** The change that the form sends. Off sends no content: the server turns the kind off. */
@@ -41,6 +44,7 @@ export const toChange = (kind: LegalDocumentKind, draft: DocumentDraft): LegalDo
   version: draft.version.trim(),
   effectiveDate: draft.effectiveDate,
   acceptanceRequired: draft.mode !== 'off' && draft.acceptanceRequired,
+  changes: draft.changes.trim(),
 });
 
 /** The form changes nothing that the server holds. Off forgets the other fields. */
@@ -57,7 +61,8 @@ export const sameAsServer = (
     draft.title.trim() === server.title &&
     draft.version.trim() === server.version &&
     draft.effectiveDate === server.effectiveDate &&
-    draft.acceptanceRequired === server.acceptanceRequired
+    draft.acceptanceRequired === server.acceptanceRequired &&
+    draft.changes.trim() === server.changes
   );
 };
 

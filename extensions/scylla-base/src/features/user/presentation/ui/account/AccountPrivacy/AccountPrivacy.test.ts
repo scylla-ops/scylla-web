@@ -24,6 +24,7 @@ const TERMS: LegalDocument = {
   version: '1.0',
   effectiveDate: null,
   acceptanceRequired: true,
+  changes: '',
   updatedAt: null,
 };
 

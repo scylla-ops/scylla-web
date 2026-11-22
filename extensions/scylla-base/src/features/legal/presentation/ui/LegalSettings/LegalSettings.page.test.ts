@@ -27,6 +27,7 @@ const info: LegalInfo = {
       version: '1.0',
       effectiveDate: null,
       acceptanceRequired: false,
+      changes: '',
       updatedAt: null,
     },
   ],
@@ -68,6 +69,8 @@ describe('LegalSettingsPage', () => {
       within(row).getByLabelText('Address of the page'),
       'https://acme.example/privacy',
     );
+    // Only the terms ask an acceptance: no list of what changes.
+    expect(within(row).queryByLabelText('What changes')).not.toBeInTheDocument();
     await user.click(within(row).getByRole('button', { name: 'Save' }));
 
     await waitFor(() =>
@@ -80,6 +83,7 @@ describe('LegalSettingsPage', () => {
             version: '',
             effectiveDate: '',
             acceptanceRequired: false,
+            changes: '',
           },
         ],
       }),
@@ -94,6 +98,7 @@ describe('LegalSettingsPage', () => {
     const version = within(row).getByLabelText('Version');
     await user.clear(version);
     await user.type(version, '2.0');
+    await user.type(within(row).getByLabelText('What changes'), 'Export of your data. ');
     await user.click(
       within(row).getByRole('switch', { name: 'Users must accept this version again' }),
     );
@@ -102,7 +107,12 @@ describe('LegalSettingsPage', () => {
     await waitFor(() =>
       expect(update).toHaveBeenCalledWith({
         documents: [
-          expect.objectContaining({ kind: 'terms', version: '2.0', acceptanceRequired: true }),
+          expect.objectContaining({
+            kind: 'terms',
+            version: '2.0',
+            acceptanceRequired: true,
+            changes: 'Export of your data.',
+          }),
         ],
       }),
     );

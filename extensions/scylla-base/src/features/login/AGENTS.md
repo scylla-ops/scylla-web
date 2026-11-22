@@ -109,7 +109,7 @@ presentation/
   messages/terms.messages.ts               the box, the notice and the terms step
   mappers/terms-refusal.mapper.ts          TERMS_NOT_ACCEPTED as data: the current version
   presenters/linked-text.presenter.ts      link slots in a translated sentence, termsLinks
-  presenters/terms.presenter.ts            the texts of the step and of a refusal
+  presenters/terms.presenter.ts            the texts of the step and of a refusal, changeItems
   ui/LinkedText/, ui/TermsCheckbox/        a sentence with links; the box of the terms
   ui/TermsStep/TermsStep.svelte            the full-page step (loadTermsStep)
     terms-step.state.svelte.ts             the legal settings, the box, AcceptTerms
@@ -241,7 +241,9 @@ is on and needs an acceptance (fix 1, `GetLegalInfo`). There is no other source.
   provider makes an account, and the terms step then asks the acceptance.
 - **The terms step** is a full page in `AuthGuard` (`shell/`), before the app: `loginQueries.terms`
   gives `acceptanceRequired`. A first acceptance shows the account of the session. A new version
-  shows its version and its date of effect. The step reads the legal settings again
+  shows its version, its date of effect and the list "What changes": one item for each line of
+  `changes` of the terms, with no list mark (`changeItems`). An empty `changes` shows no list. The
+  step reads the legal settings again
   (`staleTime: 0`): the version that it sends must be the current one. The server refuses no
   other route to a user who did not accept: an error of the read of `GetMe` shows the app.
 - **A legal link in a sentence opens in a new tab** (`LinkedText`): the form and the step keep

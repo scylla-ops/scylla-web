@@ -198,6 +198,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   entries in the footer, the user menu and the Privacy section of the account. It stays hidden while
   each tracker of the registry is exempt. Global Privacy Control is a refusal, and `whenGranted`
   loads a tracker only after a yes.
+- The terms editor of the page "Legal and privacy" has a text "What changes", one change on each
+  line. The terms step of a new version shows this text as the list "What changes".
 
 ### Changed
 

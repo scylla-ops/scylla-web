@@ -17,6 +17,7 @@ export const legalDocument = (
   version: '',
   effectiveDate: null,
   acceptanceRequired: false,
+  changes: '',
   updatedAt: null,
   ...overrides,
 });
@@ -28,10 +29,14 @@ export const legalInfo = (...documents: LegalDocument[]): LegalInfo => ({
 });
 
 /** The terms that each user must accept, at `version`, and a privacy policy. */
-export const termsToAcceptAt = (version: string, effectiveDate: string | null = null): LegalInfo =>
+export const termsToAcceptAt = (
+  version: string,
+  effectiveDate: string | null = null,
+  changes = '',
+): LegalInfo =>
   legalInfo(
     legalDocument('privacy'),
-    legalDocument('terms', { version, effectiveDate, acceptanceRequired: true }),
+    legalDocument('terms', { version, effectiveDate, changes, acceptanceRequired: true }),
   );
 
 /**

@@ -158,7 +158,7 @@ describe('NavUser', () => {
   });
 
   it('opens each legal document that is on in a new tab, from a submenu', async () => {
-    const document = { title: '', version: '', effectiveDate: null, updatedAt: null };
+    const document = { title: '', version: '', effectiveDate: null, changes: '', updatedAt: null };
     setUp(() => Promise.resolve(me), {
       ...noLegalDocument,
       documents: [

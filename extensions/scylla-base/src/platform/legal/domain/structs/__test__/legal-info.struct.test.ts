@@ -9,6 +9,7 @@ const terms = (acceptanceRequired: boolean): LegalDocument => ({
   version: '2.0',
   effectiveDate: null,
   acceptanceRequired,
+  changes: '',
   updatedAt: null,
 });
 

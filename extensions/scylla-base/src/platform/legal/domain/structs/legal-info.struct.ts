@@ -37,6 +37,8 @@ export interface LegalDocumentChange {
   /** `YYYY-MM-DD`, or empty. */
   effectiveDate: string;
   acceptanceRequired: boolean;
+  /** What changes in this version, one change on each line, or empty. */
+  changes: string;
 }
 
 /** A change of the legal settings. A field that is absent does not change. */
