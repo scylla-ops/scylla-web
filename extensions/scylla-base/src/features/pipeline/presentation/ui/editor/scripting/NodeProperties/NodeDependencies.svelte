@@ -2,29 +2,42 @@
   import XIcon from '@lucide/svelte/icons/x';
   import { SearchSelect } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
+  import {
+    sameDependency,
+    type Dependency,
+  } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+  import { ERROR_PORT } from '@base/features/pipeline/domain/structs/port-name.struct.ts';
+  import {
+    dependencyText,
+    parseDependency,
+  } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
   import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
   import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
 
   interface Props {
-    deps: string[];
-    /** The nodes it can wait for without a loop. */
-    candidates: string[];
+    deps: Dependency[];
+    /** The needs it can have without a loop: on each node, and on each of its ports. */
+    candidates: Dependency[];
     /** The nodes that wait for this one. */
     dependents: string[];
-    onChange: (deps: string[]) => void;
+    onChange: (deps: Dependency[]) => void;
     onOpen: (id: string) => void;
   }
 
   let { deps, candidates, dependents, onChange, onOpen }: Props = $props();
 
+  // A need is picked as its text: `build`, `is-main:true`, `test:error`.
   const addable = $derived(
-    candidates.filter(id => !deps.includes(id)).map(id => ({ value: id, label: id })),
+    candidates
+      .filter(candidate => !deps.some(dep => sameDependency(dep, candidate)))
+      .map(candidate => ({ value: dependencyText(candidate), label: dependencyText(candidate) })),
   );
 
   let picked = $state('');
 
-  const add = (id: string) => {
-    if (id) onChange([...deps, id]);
+  const add = (text: string) => {
+    if (text) onChange([...deps, parseDependency(text)]);
     picked = '';
   };
 </script>
@@ -39,16 +52,20 @@
     {#if deps.length === 0}
       <span class="font-sans text-muted-foreground">{t(nodeMessages.runsFirst)}</span>
     {/if}
-    {#each deps as dep (dep)}
+    {#each deps as dep (dependencyText(dep))}
+      {@const text = dependencyText(dep)}
       <span
-        class="flex max-w-full min-w-0 items-center gap-1 rounded-full bg-primary-subtle py-0.5 pr-0.5 pl-2.5"
+        class={cn(
+          'flex max-w-full min-w-0 items-center gap-1 rounded-full bg-primary-subtle py-0.5 pr-0.5 pl-2.5',
+          dep.port === ERROR_PORT && 'bg-destructive-subtle text-destructive',
+        )}
       >
-        <span class="min-w-0 truncate" title={dep}>{dep}</span>
+        <span class="min-w-0 truncate" title={text}>{text}</span>
         <button
           type="button"
           class="flex size-5 items-center justify-center rounded-full text-muted-foreground hover:text-foreground"
-          aria-label={t(scriptingMessages.removeDependency(dep))}
-          onclick={() => onChange(deps.filter(id => id !== dep))}
+          aria-label={t(scriptingMessages.removeDependency(text))}
+          onclick={() => onChange(deps.filter(other => !sameDependency(other, dep)))}
         >
           <XIcon class="size-3" />
         </button>

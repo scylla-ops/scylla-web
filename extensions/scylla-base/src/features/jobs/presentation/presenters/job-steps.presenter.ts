@@ -19,6 +19,7 @@ export const stepsOf = (job: JobEntity): JobNodeExecution[] =>
           finishedAt: job.checkout.finishedAt,
           attempts: 0,
           maxAttempts: 1,
+          ports: [],
         },
         ...job.nodeExecutions,
       ]

@@ -13,6 +13,14 @@ export const blueprintMessages = {
   shScriptDetail: msg`A POSIX shell script`,
   commandDetail: msg`One program and its arguments`,
 
+  flow: msg`Flow`,
+  ifNode: msg`If`,
+  ifDetail: msg`Two ways: true or false`,
+  switchNode: msg`Switch`,
+  switchDetail: msg`One way for each case`,
+  mergeNode: msg`Merge`,
+  mergeDetail: msg`Joins branches again`,
+
   addNode: msg`Add a node`,
   addAfter: (id: string) => msg`Add a node after ${id}`,
   insertNode: msg`Insert a node here`,

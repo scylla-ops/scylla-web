@@ -4,11 +4,19 @@ import { nodesToFlow, flowToNodes, nodeOf, placesOf, START_NODE_ID } from '../bl
 import type {
   PipelineNodeEntity,
   ExecPipelineNodeEntity,
+  SwitchPipelineNodeEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+
+/** `is-main:true` is a need on the port `true` of `is-main`. */
+const needs = (texts: string[]) =>
+  texts.map(text => {
+    const [node, port] = text.split(':');
+    return port ? { node, port } : { node };
+  });
 
 const execNode = (id: string, deps: string[] = []): ExecPipelineNodeEntity => ({
   id,
-  deps,
+  deps: needs(deps),
   kind: 'exec',
   command: 'echo',
   args: [id],
@@ -114,7 +122,7 @@ describe('flowToNodes', () => {
     const { flowNodes, edges } = nodesToFlow([execNode('a'), execNode('b', ['a'])], 'p');
     const rebuilt = flowToNodes(flowNodes, edges);
     expect(rebuilt).toHaveLength(2);
-    expect(rebuilt.find(s => s.id === 'b')?.deps).toEqual(['a']);
+    expect(rebuilt.find(s => s.id === 'b')?.deps).toEqual([{ node: 'a' }]);
   });
 
   it('never derives a dependency on the start node itself', () => {
@@ -126,7 +134,15 @@ describe('flowToNodes', () => {
   it('round-trips exec nodes through nodesToFlow -> flowToNodes unchanged', () => {
     const nodes: PipelineNodeEntity[] = [
       { id: 'a', deps: [], kind: 'exec', command: 'echo', args: ['hi'], env: [] },
-      { id: 'b', deps: ['a'], kind: 'exec', command: 'ls', args: [], workingDir: '/tmp', env: [] },
+      {
+        id: 'b',
+        deps: [{ node: 'a' }],
+        kind: 'exec',
+        command: 'ls',
+        args: [],
+        workingDir: '/tmp',
+        env: [],
+      },
     ];
     const { flowNodes, edges } = nodesToFlow(nodes, 'p');
     expect(flowToNodes(flowNodes, edges)).toEqual(nodes);
@@ -150,6 +166,91 @@ describe('a loop of dependencies', () => {
     expect(flowNodes.map(flowNode => flowNode.id).sort()).toEqual(
       [START_NODE_ID, 'a', 'b', 'root'].sort(),
     );
+  });
+});
+
+describe('the ports', () => {
+  const ifNode = (id: string, deps: string[] = []): SwitchPipelineNodeEntity => ({
+    id,
+    deps: needs(deps),
+    env: [],
+    kind: 'switch',
+    cases: [
+      {
+        port: 'true',
+        combinator: 'all',
+        rules: [{ left: { kind: 'var', name: 'A' }, test: 'not_empty' }],
+      },
+    ],
+    otherwise: 'false',
+    allMatches: false,
+  });
+  const nodes: PipelineNodeEntity[] = [
+    execNode('build'),
+    ifNode('is-main', ['build']),
+    execNode('cleanup', ['is-main:false']),
+    execNode('deploy', ['build', 'is-main:true']),
+    execNode('notify', ['build:error']),
+  ];
+
+  it('draws an edge from a port from its handle, with the port in its id', () => {
+    const { edges } = nodesToFlow(nodes, 'p');
+    expect(edges).toContainEqual(
+      expect.objectContaining({
+        id: 'is-main:true->deploy',
+        source: 'is-main',
+        sourceHandle: 'true',
+        target: 'deploy',
+      }),
+    );
+    expect(edges).toContainEqual(
+      expect.objectContaining({ id: 'build->deploy', source: 'build', target: 'deploy' }),
+    );
+    expect(edges.find(edge => edge.id === 'build->deploy')).not.toHaveProperty('sourceHandle');
+  });
+
+  it('reads the handle of each edge back into the port of the need', () => {
+    const { flowNodes, edges } = nodesToFlow(nodes, 'p');
+    expect(flowToNodes(flowNodes, edges)).toEqual(nodes);
+  });
+
+  it('keeps a need on a port that its node does not have', () => {
+    const odd = [execNode('build'), execNode('deploy', ['build:true'])];
+    const { flowNodes, edges } = nodesToFlow(odd, 'p');
+    expect(flowToNodes(flowNodes, edges)).toEqual(odd);
+  });
+
+  it('puts the targets of a switch in the order of its ports', () => {
+    const { flowNodes } = nodesToFlow(nodes, 'p');
+    const byId = Object.fromEntries(flowNodes.map(n => [n.id, n]));
+    expect(byId.deploy.position.x).toBe(byId.cleanup.position.x);
+    expect(byId.deploy.position.y).toBeLessThan(byId.cleanup.position.y);
+  });
+
+  it('keeps the handle of each edge with a saved layout, and gives a switch and a merge their places', () => {
+    const join: PipelineNodeEntity = { id: 'join', deps: needs(['cleanup', 'deploy:error']), kind: 'merge' };
+    const saved = { nodes: { 'is-main': { x: 10, y: 20 }, join: { x: 30, y: 40 } } };
+    const { flowNodes, edges } = nodesToFlow([...nodes, join], 'p', saved);
+    const at = Object.fromEntries(flowNodes.map(n => [n.id, n.position]));
+
+    expect(at['is-main']).toEqual({ x: 10, y: 20 });
+    expect(at.join).toEqual({ x: 30, y: 40 });
+    expect(edges).toContainEqual(
+      expect.objectContaining({ id: 'deploy:error->join', sourceHandle: 'error' }),
+    );
+    expect(flowToNodes(flowNodes, edges)).toEqual([...nodes, join]);
+    expect(placesOf(flowNodes).nodes).toContainEqual(['join', { x: 30, y: 40 }]);
+  });
+
+  it('gives a switch with many ports the room of its rows', () => {
+    const wide: PipelineNodeEntity = {
+      ...ifNode('pick'),
+      cases: ['a', 'b', 'c', 'd', 'e'].map(port => ({ port, combinator: 'all', rules: [] })),
+    };
+    const { flowNodes } = nodesToFlow([wide, execNode('next')], 'p');
+    const byId = Object.fromEntries(flowNodes.map(n => [n.id, n]));
+    // 112 for the cell, 20 for each port past two (6 ports), 40 between two nodes.
+    expect(byId.next.position.y - byId.pick.position.y).toBe(112 + 4 * 20 + 40);
   });
 });
 

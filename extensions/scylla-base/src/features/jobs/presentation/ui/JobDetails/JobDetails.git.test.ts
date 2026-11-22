@@ -46,9 +46,10 @@ const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
   id: 'job-1',
   pipelineId: 'pipeline-1',
   status: 'completed',
+  nodes: [],
   nodeExecutions: [
-    { id: 'build', state: 'completed', attempts: 1, maxAttempts: 1 },
-    { id: 'test', state: 'completed', attempts: 1, maxAttempts: 1 },
+    { id: 'build', state: 'completed', attempts: 1, maxAttempts: 1, ports: [] },
+    { id: 'test', state: 'completed', attempts: 1, maxAttempts: 1, ports: [] },
   ],
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:01:00.000Z',
@@ -212,7 +213,7 @@ describe('JobDetailsPage, the Git context', () => {
         status: 'awaiting_approval',
         startedAt: undefined,
         finishedAt: undefined,
-        nodeExecutions: [{ id: 'build', state: 'pending', attempts: 0, maxAttempts: 1 }],
+        nodeExecutions: [{ id: 'build', state: 'pending', attempts: 0, maxAttempts: 1, ports: [] }],
         source: source({ fromFork: true, forkRepository: 'octocat/api' }),
         approval: {
           state: 'waiting',

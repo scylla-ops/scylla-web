@@ -4,6 +4,8 @@ export interface JobEntity {
   id: string;
   pipelineId: string;
   status: JobStatus;
+  /** The nodes of the pipeline at the start of the job: the graph that the job ran. */
+  nodes: JobNode[];
   nodeExecutions: JobNodeExecution[];
   createdAt: string;
   updatedAt: string;
@@ -138,6 +140,24 @@ export interface NewestJobsQuery {
   limit: number;
 }
 
+/** A need of a node: another node, and one of its ports or none. */
+export interface JobNeed {
+  node: string;
+  port?: string;
+}
+
+/**
+ * A node of the job, as the graph and the path of the job read it. `run`: a command or a script,
+ * which can fail and send its failure to its `error` port.
+ */
+export interface JobNode {
+  id: string;
+  kind: 'run' | 'switch' | 'merge';
+  deps: JobNeed[];
+  /** The ports of a switch: its cases in order, then `otherwise`. */
+  ports: string[];
+}
+
 /** `unknown`: an outcome newer than this build. */
 export type NodeExecutionState =
   | 'pending'
@@ -155,6 +175,8 @@ export interface JobNodeExecution {
   finishedAt?: string;
   attempts: number;
   maxAttempts: number;
+  /** The ports that a completed switch opened. Empty for another node. */
+  ports: string[];
 }
 
 export interface JobLog {

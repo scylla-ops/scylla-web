@@ -34,6 +34,7 @@ const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
   id: 'job-00000001',
   pipelineId: 'pipeline-1',
   status: 'running',
+  nodes: [],
   nodeExecutions: [],
   createdAt: '2026-11-17T09:58:00Z',
   updatedAt: '2026-11-17T09:58:00Z',

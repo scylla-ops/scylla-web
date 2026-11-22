@@ -7,9 +7,10 @@ import {
   createNodeDraft,
   type NodeDraft,
 } from '@base/features/pipeline/presentation/ui/editor/node/node-draft.state.svelte.ts';
+import type { PortChange } from '@base/features/pipeline/presentation/ui/editor/node/switch-draft.state.svelte.ts';
 
 export interface NodeDraftsParams {
-  onChange: (id: string, value: NodeDefinition) => void;
+  onChange: (id: string, value: NodeDefinition, port?: PortChange) => void;
   /** Returns the id the node really got. */
   onRename: (id: string, desired: string) => string;
 }
@@ -43,9 +44,9 @@ export const createNodeDrafts = ({ onChange, onRename }: NodeDraftsParams) => {
     entry.dispose = $effect.root(() => {
       entry.draft = createNodeDraft({
         node,
-        onChange: value => {
-          entry.signature = signatureOf(value);
-          onChange(entry.id, value);
+        onChange: (...change) => {
+          entry.signature = signatureOf(change[0]);
+          onChange(entry.id, ...change);
         },
         onRename: desired => {
           const id = onRename(entry.id, desired);

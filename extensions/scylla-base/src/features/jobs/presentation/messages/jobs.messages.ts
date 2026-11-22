@@ -66,6 +66,13 @@ export const jobsMessages = {
   logsError: msg`Error loading logs...`,
   noLogs: msg`No log was written.`,
   nodeSkipped: msg`It did not run, because another node of the job failed first.`,
+  nodeNotTaken: msg`Not taken: the path did not reach it.`,
+  notTaken: msg`Not taken`,
+  portsChosen: (ports: string) => msg`Ports chosen: ${ports}`,
+  noPortChosen: msg`No case matched: the switch opened no port.`,
+  errorBranch: (nodes: string) => msg`The failure went to the error output: ${nodes}.`,
+  jobGraph: msg`Graph of the job`,
+  openLogsOf: (id: string) => msg`Open the logs of ${id}`,
   agent: msg`Agent`,
   liveTailStopped: msg`The live tail stopped. The lines above were read before it broke.`,
 };

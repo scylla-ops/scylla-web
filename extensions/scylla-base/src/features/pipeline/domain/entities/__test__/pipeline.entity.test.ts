@@ -1,14 +1,19 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import type {
+  Dependency,
   ExecPipelineNodeEntity,
   PipelineNodeEntity,
   NodeDefinition,
+  SwitchPipelineNodeEntity,
 } from '../pipeline-node.entity.ts';
 import {
   addNode,
   dependencyCandidates,
   dependentsOf,
+  dropPort,
+  nodeIssues,
+  renamePort,
   uniqueNodeId,
   hasRepeats,
   moveNode,
@@ -23,9 +28,17 @@ import {
   waitsFor,
 } from '../pipeline.entity.ts';
 
+/** A need as the JSON tab writes it: `build`, or `is-main:true`. */
+const need = (text: string): Dependency => {
+  const [node, port] = text.split(':');
+  return port ? { node, port } : { node };
+};
+const needs = (texts: string[]) => texts.map(need);
+const textOf = ({ node, port }: Dependency) => (port ? `${node}:${port}` : node);
+
 const execNode = (id: string, deps: string[] = []): ExecPipelineNodeEntity => ({
   id,
-  deps,
+  deps: needs(deps),
   kind: 'exec',
   command: 'echo',
   args: [id],
@@ -84,7 +97,7 @@ describe('addNode', () => {
 
   it('waits for the node it is added after', () => {
     const { nodes } = addNode([execNode('build')], 'test', definition, 'build');
-    expect(nodes[1]).toEqual({ id: 'test', deps: ['build'], ...definition });
+    expect(nodes[1]).toEqual({ id: 'test', deps: needs(['build']), ...definition });
   });
 
   it('waits for nothing when the node it follows does not exist', () => {
@@ -102,7 +115,7 @@ describe('updateNode', () => {
     });
     expect(nodes[1]).toEqual({
       id: 'b',
-      deps: ['a'],
+      deps: needs(['a']),
       kind: 'script',
       shell: 'sh',
       script: 'make',
@@ -118,7 +131,7 @@ describe('renameNode', () => {
     const { nodes, id } = renameNode(pipeline, 'build', 'compile');
     expect(id).toBe('compile');
     expect(ids(nodes)).toEqual(['compile', 'test', 'lint']);
-    expect(nodes[1]?.deps).toEqual(['compile']);
+    expect(nodes[1]?.deps).toEqual(needs(['compile']));
   });
 
   it('gives a taken id a suffix', () => {
@@ -144,8 +157,8 @@ describe('removeNode', () => {
 
 describe('setDependencies', () => {
   it('changes the dependencies of one node only', () => {
-    const nodes = setDependencies([execNode('a'), execNode('b'), execNode('c')], 'c', ['a', 'b']);
-    expect(nodes.map(node => node.deps)).toEqual([[], [], ['a', 'b']]);
+    const nodes = setDependencies([execNode('a'), execNode('b'), execNode('c')], 'c', needs(['a', 'b']));
+    expect(nodes.map(node => node.deps.map(textOf))).toEqual([[], [], ['a', 'b']]);
   });
 });
 
@@ -159,7 +172,7 @@ describe('dependentsOf', () => {
 describe('dependencyCandidates', () => {
   it('leaves out the node and every node that waits for it, so the graph cannot loop', () => {
     const nodes = [execNode('a'), execNode('b', ['a']), execNode('c', ['b']), execNode('d')];
-    expect(dependencyCandidates(nodes, 'b')).toEqual(['a', 'd']);
+    expect(dependencyCandidates(nodes, 'b').map(textOf)).toEqual(['a', 'a:error', 'd', 'd:error']);
   });
 });
 
@@ -184,7 +197,7 @@ describe('uniqueNodeId', () => {
 describe('hasRepeats', () => {
   const node = (id: string, deps: string[] = []): PipelineNodeEntity => ({
     id,
-    deps,
+    deps: needs(deps),
     kind: 'script',
     shell: 'sh',
     script: '',
@@ -230,7 +243,7 @@ describe('newPipeline', () => {
   it('starts from two nodes, the second waiting for the first', () => {
     expect(newPipeline('p').nodes.map(({ id, deps }) => ({ id, deps }))).toEqual([
       { id: 'welcome', deps: [] },
-      { id: 'example', deps: ['welcome'] },
+      { id: 'example', deps: needs(['welcome']) },
     ]);
   });
 
@@ -241,14 +254,14 @@ describe('newPipeline', () => {
 
 const script = (id: string, deps: string[] = []): PipelineNodeEntity => ({
   id,
-  deps,
+  deps: needs(deps),
   kind: 'script',
   shell: 'sh',
   script: 'make',
   env: [],
 });
 const depsOf = (nodes: PipelineNodeEntity[]): Record<string, string[]> =>
-  Object.fromEntries(nodes.map(s => [s.id, s.deps]));
+  Object.fromEntries(nodes.map(s => [s.id, s.deps.map(textOf)]));
 
 describe('moveNode: the dependencies of the moved node', () => {
   it('makes the node wait for the target, and for no other', () => {
@@ -347,5 +360,184 @@ describe('pipelineIssue: repeated ids', () => {
       kind: 'repeated-ids',
       ids: ['Build'],
     });
+  });
+});
+
+/** A switch on `SCYLLA_BRANCH`: the case `true`, and `otherwise: false`. */
+const ifNode = (id: string, deps: string[] = []): SwitchPipelineNodeEntity => ({
+  id,
+  deps: needs(deps),
+  env: [],
+  kind: 'switch',
+  cases: [
+    {
+      port: 'true',
+      combinator: 'all',
+      rules: [
+        {
+          left: { kind: 'var', name: 'SCYLLA_BRANCH' },
+          test: 'equals',
+          right: { kind: 'literal', value: 'main' },
+        },
+      ],
+    },
+  ],
+  otherwise: 'false',
+  allMatches: false,
+});
+const merge = (id: string, deps: string[]): PipelineNodeEntity => ({
+  id,
+  deps: needs(deps),
+  kind: 'merge',
+});
+
+describe('the needs on a port', () => {
+  const pipeline = [
+    execNode('build'),
+    ifNode('is-main', ['build']),
+    execNode('deploy', ['build', 'is-main:true']),
+    execNode('notify', ['build:error']),
+  ];
+
+  it('keeps the port of each need when its node is renamed', () => {
+    const { nodes } = renameNode(pipeline, 'is-main', 'on-main');
+    expect(depsOf(nodes).deploy).toEqual(['build', 'on-main:true']);
+  });
+
+  it('follows the rename of a port in the needs that name it', () => {
+    expect(depsOf(renamePort(pipeline, 'is-main', 'true', 'yes')).deploy).toEqual([
+      'build',
+      'is-main:yes',
+    ]);
+  });
+
+  it('removes the needs on a port that goes, and keeps the others', () => {
+    const nodes = dropPort(pipeline, 'build', 'error');
+    expect(depsOf(nodes).notify).toEqual([]);
+    expect(depsOf(nodes).deploy).toEqual(['build', 'is-main:true']);
+  });
+
+  it('allows two needs on one node with two ports', () => {
+    expect(hasRepeats([execNode('test'), merge('always', ['test', 'test:error'])])).toBe(false);
+  });
+
+  it('is a repeat when the node and the port come two times', () => {
+    expect(hasRepeats([execNode('test'), merge('m', ['test:error', 'test:error'])])).toBe(true);
+  });
+
+  it('offers each port of a candidate: the cases of a switch, error on a node that runs a step', () => {
+    expect(dependencyCandidates(pipeline, 'notify').map(textOf)).toEqual([
+      'build',
+      'build:error',
+      'is-main',
+      'is-main:true',
+      'is-main:false',
+      'deploy',
+      'deploy:error',
+    ]);
+  });
+
+  it('makes a dropped node wait for its target with no port', () => {
+    expect(depsOf(moveNode(pipeline, 'notify', 'is-main', false)).notify).toEqual(['is-main']);
+  });
+
+  it('follows the rename of a node into the outputs that a switch reads', () => {
+    const reads: PipelineNodeEntity = {
+      ...ifNode('check', ['build']),
+      cases: [
+        {
+          port: 'ok',
+          combinator: 'any',
+          rules: [
+            {
+              left: { kind: 'output', node: 'build', key: 'VERSION' },
+              test: 'not_empty',
+            },
+          ],
+        },
+      ],
+    };
+    const { nodes } = renameNode([execNode('build'), reads], 'build', 'compile');
+    expect(nodes[1]).toMatchObject({
+      cases: [{ rules: [{ left: { kind: 'output', node: 'compile', key: 'VERSION' } }] }],
+    });
+  });
+});
+
+describe('nodeIssues', () => {
+  it('refuses a need on a port that its node does not have', () => {
+    const issues = nodeIssues([
+      ifNode('is-main'),
+      execNode('build'),
+      execNode('a', ['is-main:maybe']),
+      execNode('b', ['build:true']),
+      merge('m', ['a']),
+      execNode('c', ['m:error']),
+    ]);
+    expect(issues.get('a')).toEqual({
+      kind: 'need',
+      issue: { kind: 'unknown-port', need: need('is-main:maybe') },
+    });
+    expect(issues.get('b')?.issue).toMatchObject({ kind: 'unknown-port' });
+    expect(issues.get('c')?.issue).toMatchObject({ kind: 'unknown-port' });
+    expect(issues.has('m')).toBe(false);
+  });
+
+  it('accepts the ports of a switch and the error port of a node that runs a step', () => {
+    expect(
+      nodeIssues([
+        execNode('test'),
+        ifNode('is-main', ['test']),
+        execNode('deploy', ['is-main:true']),
+        execNode('cleanup', ['is-main:false']),
+        execNode('notify', ['test:error']),
+        merge('always', ['test', 'test:error']),
+      ]).size,
+    ).toBe(0);
+  });
+
+  it('refuses an output of a node that does not run a step before the switch', () => {
+    const readsOutput = (node: string): PipelineNodeEntity => ({
+      ...ifNode('check', ['build']),
+      cases: [
+        {
+          port: 'ok',
+          combinator: 'all',
+          rules: [{ left: { kind: 'output', node, key: 'KEY' }, test: 'not_empty' }],
+        },
+      ],
+    });
+    const base = [execNode('build'), execNode('later', ['check']), merge('m', ['build'])];
+
+    expect(nodeIssues([...base, readsOutput('build')]).has('check')).toBe(false);
+    for (const node of ['later', 'm', 'ghost'])
+      expect(nodeIssues([...base, readsOutput(node)]).get('check')).toEqual({
+        kind: 'switch',
+        issue: { kind: 'output-node', port: 'ok', node },
+      });
+  });
+
+  it('refuses a merge with no need', () => {
+    expect(nodeIssues([merge('m', [])]).get('m')).toEqual({
+      kind: 'need',
+      issue: { kind: 'merge-without-needs' },
+    });
+  });
+});
+
+describe('pipelineIssue: switches and needs', () => {
+  it('names each node whose switch or needs the server refuses', () => {
+    expect(
+      pipelineIssue({
+        name: 'nightly',
+        nodes: [ifNode('is-main'), execNode('a', ['is-main:maybe']), merge('m', [])],
+      }),
+    ).toEqual({ kind: 'nodes', ids: ['a', 'm'] });
+  });
+
+  it('lets a node that cannot run yet go to the server, as before', () => {
+    expect(
+      pipelineIssue({ name: 'nightly', nodes: [{ ...execNode('a'), command: '' }] }),
+    ).toBeNull();
   });
 });

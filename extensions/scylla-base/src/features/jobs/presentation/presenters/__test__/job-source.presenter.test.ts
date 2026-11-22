@@ -90,7 +90,8 @@ describe('stepsOf', () => {
     id: 'job-1',
     pipelineId: 'pipeline-1',
     status: 'running',
-    nodeExecutions: [{ id: 'build', state: 'running', attempts: 1, maxAttempts: 1 }],
+    nodes: [],
+    nodeExecutions: [{ id: 'build', state: 'running', attempts: 1, maxAttempts: 1, ports: [] }],
     createdAt: '2026-01-01T00:00:00.000Z',
     updatedAt: '2026-01-01T00:00:00.000Z',
   };

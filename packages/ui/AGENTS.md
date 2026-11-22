@@ -41,7 +41,8 @@ src/
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
   layout/                  FeatureHeader, ContextItem, DangerZone, PageTransition,
-                           ScyllaLoadingScreen
+                           ScyllaLoadingScreen, keepFitted (an attachment: fits a view again at
+                           each resize)
   widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
   motion/                  page transitions, reduced motion, a spring easing
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no

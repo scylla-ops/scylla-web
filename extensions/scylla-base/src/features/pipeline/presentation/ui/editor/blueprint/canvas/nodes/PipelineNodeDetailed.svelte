@@ -7,8 +7,14 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
-  import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
-  import { handleClass } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
+  import {
+    DETAILED_NODE,
+    PORT_ROW_HEIGHT,
+  } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
+  import {
+    errorHandleClass,
+    handleClass,
+  } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
 import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
   let { node, selected, summary, detached }: PipelineNodeViewProps = $props();
@@ -16,7 +22,10 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
   const handle = $derived(handleClass(summary, selected));
 </script>
 
-<!-- A card: the icon of the kind on the left, the id on the right, what it runs below. -->
+<!--
+  A card: the icon of the kind on the left, the id on the right, what it runs below. A switch has a
+  row for each port, its handle on the right side; a node that runs a step can add its error output.
+-->
 <div
   class={cn(
     'rounded-[10px] border bg-card p-3 shadow-xs transition-[border-color,box-shadow] duration-150',
@@ -55,7 +64,7 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
         <span class="sr-only">{summary.problem.detail}</span>
       {/if}
     </p>
-  {:else}
+  {:else if node.kind !== 'switch' && node.kind !== 'merge'}
     <p class="mt-2 truncate rounded-md bg-muted px-2 py-1 font-mono text-[11.5px]">
       {summary.preview}
     </p>
@@ -90,5 +99,30 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
     </div>
   {/if}
 
-  <Handle type="source" position={Position.Right} class={handle} />
+  {#snippet port(name: string, error: boolean)}
+    <div
+      class={cn(
+        'relative -mr-3 flex items-center justify-end pr-3 font-mono text-[11px]',
+        error ? 'text-destructive' : 'text-muted-foreground',
+      )}
+      style="height: {PORT_ROW_HEIGHT}px;"
+    >
+      <span class="truncate">{name}</span>
+      <Handle type="source" id={name} position={Position.Right} class={error ? errorHandleClass : handle} />
+    </div>
+  {/snippet}
+
+  {#if node.kind === 'switch'}
+    <div class="mt-2 flex flex-col">
+      {#each summary.outputs as output (output.port)}
+        {@render port(output.port ?? '', false)}
+      {/each}
+    </div>
+  {:else}
+    <!-- First in the document: an edge with no port leaves from the first handle. -->
+    <Handle type="source" position={Position.Right} class={handle} />
+    {#each summary.outputs.filter(output => output.error) as output (output.port)}
+      {@render port(output.port ?? '', true)}
+    {/each}
+  {/if}
 </div>

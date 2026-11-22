@@ -33,7 +33,7 @@ msgstr "{state} sent at {time}"
 msgid "Actions"
 msgstr "Actions"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:69
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:76
 msgid "Agent"
 msgstr "Agent"
 
@@ -203,6 +203,10 @@ msgstr "GitHub status {context}"
 msgid "GitLab status {context}"
 msgstr "GitLab status {context}"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:74
+msgid "Graph of the job"
+msgstr "Graph of the job"
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:88
 msgid "In progress"
 msgstr "In progress"
@@ -268,6 +272,10 @@ msgstr "MR"
 msgid "no agent with Git and checkout support is online"
 msgstr "no agent with Git and checkout support is online"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:72
+msgid "No case matched: the switch opened no port."
+msgstr "No case matched: the switch opened no port."
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:6
 msgid "No jobs found"
 msgstr "No jobs found"
@@ -300,9 +308,21 @@ msgstr "Not reported"
 msgid "Not sent"
 msgstr "Not sent"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:70
+msgid "Not taken"
+msgstr "Not taken"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:69
+msgid "Not taken: the path did not reach it."
+msgstr "Not taken: the path did not reach it."
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:41
 msgid "Only an editor of the project can approve this run."
 msgstr "Only an editor of the project can approve this run."
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:75
+msgid "Open the logs of {id}"
+msgstr "Open the logs of {id}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:87
 msgid "Pending"
@@ -319,6 +339,10 @@ msgstr "Pipeline ID is missing"
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:14
 msgid "Pipeline ID:"
 msgstr "Pipeline ID:"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:71
+msgid "Ports chosen: {ports}"
+msgstr "Ports chosen: {ports}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:10
 msgid "PR"
@@ -461,11 +485,15 @@ msgstr "Success"
 msgid "Tag"
 msgstr "Tag"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:73
+msgid "The failure went to the error output: {nodes}."
+msgstr "The failure went to the error output: {nodes}."
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:42
 msgid "The job failed"
 msgstr "The job failed"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:70
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:77
 msgid "The live tail stopped. The lines above were read before it broke."
 msgstr "The live tail stopped. The lines above were read before it broke."
 

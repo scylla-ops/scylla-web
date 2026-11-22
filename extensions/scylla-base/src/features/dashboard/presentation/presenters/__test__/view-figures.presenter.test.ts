@@ -22,7 +22,7 @@ const agent = (overrides: Partial<AppEntity>): AppEntity =>
   }) as AppEntity;
 
 const job = (overrides: Partial<JobEntity>): JobEntity =>
-  ({ id: 'job', pipelineId: 'p', status: 'completed', createdAt: '', updatedAt: '', nodeExecutions: [], ...overrides });
+  ({ id: 'job', pipelineId: 'p', status: 'completed', createdAt: '', updatedAt: '', nodes: [], nodeExecutions: [], ...overrides });
 
 describe('view figures', () => {
   it('counts the slots of the connected agents, and marks the slots of the others offline', () => {

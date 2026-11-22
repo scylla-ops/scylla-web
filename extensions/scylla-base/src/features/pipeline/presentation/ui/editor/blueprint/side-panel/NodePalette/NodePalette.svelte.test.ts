@@ -28,6 +28,14 @@ describe('NodePalette', () => {
     expect(screen.getByRole('button', { name: /npm ci/ })).toBeInTheDocument();
   });
 
+  it('offers If, Switch and Merge in the group Flow', () => {
+    render(NodePalette, { entries, onAdd: vi.fn() });
+
+    expect(screen.getByRole('heading', { name: 'Flow' })).toBeInTheDocument();
+    for (const name of [/^If/, /^Switch/, /^Merge/])
+      expect(screen.getByRole('button', { name })).toBeInTheDocument();
+  });
+
   it('adds the clicked entry', async () => {
     const onAdd = vi.fn();
     render(NodePalette, { entries, onAdd });

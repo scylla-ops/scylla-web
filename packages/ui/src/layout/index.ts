@@ -3,3 +3,4 @@ export { default as DangerZone } from './DangerZone/DangerZone.svelte';
 export { default as FeatureHeader } from './FeatureHeader/FeatureHeader.svelte';
 export { default as PageTransition } from './PageTransition/PageTransition.svelte';
 export { default as ScyllaLoadingScreen } from './ScyllaLoadingScreen.svelte';
+export { keepFitted } from './keep-fitted.attachments.ts';

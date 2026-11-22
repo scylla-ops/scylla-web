@@ -4,20 +4,31 @@
   import { cn } from '@scylla/ui/utils';
   import UnplugIcon from '@lucide/svelte/icons/unplug';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
-  import { MINIMAL_NODE, minimalHandleStyle } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
-  import { handleClass } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
+  import {
+    MINIMAL_NODE,
+    minimalHandleStyle,
+    minimalPortLabelStyle,
+    minimalPortStyle,
+    minimalTileHeight,
+  } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
+  import {
+    errorHandleClass,
+    handleClass,
+  } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
 import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
   let { node, selected, summary, detached }: PipelineNodeViewProps = $props();
 
   const handle = $derived(handleClass(summary, selected));
+  const count = $derived(summary.outputs.length);
 </script>
 
 <!--
   A flat square: one colour, the icon's. The label sits under it but inside the node, so
-  that xyflow measures it (selection box, fit view). The handles sit on the square's sides.
+  that xyflow measures it (selection box, fit view). The handles sit on the square's sides; the
+  ports spread down its right side, each with its name.
 -->
-<div class="flex flex-col items-center gap-2" style="width: {MINIMAL_NODE.width}px;">
+<div class="relative flex flex-col items-center gap-2" style="width: {MINIMAL_NODE.width}px;">
   <div
     class={cn(
       'relative flex items-center justify-center rounded-[18px] border bg-card shadow-[0_1px_2px_rgb(0_0_0/0.05),0_2px_8px_rgb(0_0_0/0.04)] transition-[border-color,box-shadow] duration-150',
@@ -25,7 +36,7 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
       !summary.problem && selected && cn(summary.tone.border, 'ring-[3px]', summary.tone.ring),
       !summary.problem && !selected && 'border-foreground/12',
     )}
-    style="width: {MINIMAL_NODE.tile}px; height: {MINIMAL_NODE.tile}px;"
+    style="width: {MINIMAL_NODE.tile}px; height: {minimalTileHeight(count)}px;"
   >
     <summary.icon class={cn('size-6.5', summary.tone.text)} />
     {#if summary.problem}
@@ -52,5 +63,24 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
   </div>
 
   <Handle type="target" position={Position.Left} class={handle} style={minimalHandleStyle('left')} />
-  <Handle type="source" position={Position.Right} class={handle} style={minimalHandleStyle('right')} />
+  {#each summary.outputs as output, index (output.port ?? '')}
+    <Handle
+      type="source"
+      id={output.port}
+      position={Position.Right}
+      class={output.error ? errorHandleClass : handle}
+      style={minimalPortStyle(index, count)}
+    />
+    {#if output.port}
+      <span
+        class={cn(
+          'pointer-events-none absolute -translate-y-1/2 font-mono text-[10px] leading-none',
+          output.error ? 'text-destructive' : 'text-muted-foreground',
+        )}
+        style={minimalPortLabelStyle(index, count)}
+      >
+        {output.port}
+      </span>
+    {/if}
+  {/each}
 </div>

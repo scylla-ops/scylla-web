@@ -33,7 +33,13 @@ const node = (id: string, retries = 0): Node => ({
   workingDir: '',
 });
 
-const run = (nodeId: string, status: NodeStatus, attempt: number, finished = false): NodeRun => ({
+const run = (
+  nodeId: string,
+  status: NodeStatus,
+  attempt: number,
+  finished = false,
+  ports: string[] = [],
+): NodeRun => ({
   nodeId,
   status,
   attempt,
@@ -41,6 +47,7 @@ const run = (nodeId: string, status: NodeStatus, attempt: number, finished = fal
   ...(finished && { finishedAt: LATER }),
   error: '',
   maxAttempts: 1,
+  ports,
 });
 
 const baseJob = (overrides: Partial<Job> = {}): Job => ({
@@ -298,7 +305,15 @@ describe('grpcJob.toDomain', () => {
         finishedAt: undefined,
         attempts: 0,
         maxAttempts: 3,
+        ports: [],
       });
+    });
+
+    it('keeps the ports that a switch opened', () => {
+      const [n] = grpcJob.toDomain(
+        baseJob({ nodes: [node('is-main')], runs: [run('is-main', NodeStatus.COMPLETED, 1, true, ['true'])] }),
+      ).nodeExecutions;
+      expect(n.ports).toEqual(['true']);
     });
 
     it('takes the last attempt of a node', () => {
@@ -331,6 +346,54 @@ describe('grpcJob.toDomain', () => {
       ).nodeExecutions;
       expect(executions.map(e => e.id)).toEqual(['a', 'b', 'c']);
     });
+  });
+});
+
+describe('the snapshot of the nodes', () => {
+  it('gives each node its needs with their ports, and a switch its ports in order', () => {
+    const { nodes } = grpcJob.toDomain(
+      baseJob({
+        nodes: [
+          { ...node('test'), needs: [] },
+          {
+            ...node('is-main'),
+            needs: [{ node: 'test', port: '' }],
+            step: {
+              oneofKind: 'switch',
+              switch: {
+                cases: [{ port: 'true', combinator: 0, rules: [] }],
+                otherwise: 'false',
+                allMatches: false,
+              },
+            },
+          },
+          {
+            ...node('join'),
+            needs: [
+              { node: 'is-main', port: 'true' },
+              { node: 'test', port: 'error' },
+            ],
+            step: { oneofKind: 'merge', merge: {} },
+          },
+          { ...node('newer'), step: { oneofKind: undefined } },
+        ],
+      }),
+    );
+
+    expect(nodes).toEqual([
+      { id: 'test', kind: 'run', deps: [], ports: [] },
+      { id: 'is-main', kind: 'switch', deps: [{ node: 'test' }], ports: ['true', 'false'] },
+      {
+        id: 'join',
+        kind: 'merge',
+        deps: [
+          { node: 'is-main', port: 'true' },
+          { node: 'test', port: 'error' },
+        ],
+        ports: [],
+      },
+      { id: 'newer', kind: 'run', deps: [], ports: [] },
+    ]);
   });
 });
 

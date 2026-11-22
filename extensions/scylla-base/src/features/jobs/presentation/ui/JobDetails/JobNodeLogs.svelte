@@ -18,7 +18,10 @@
   import { isActiveStatus } from '@shared/domain/structs/job-status.struct.ts';
   import { attemptOf } from '@base/features/jobs/presentation/presenters/node-attempt.presenter.ts';
   import { nodeIdOf } from '@base/features/jobs/presentation/presenters/job-timeline.presenter.ts';
+  import { jobPath } from '@base/features/jobs/presentation/presenters/job-path.presenter.ts';
   import JobLogDisplay from '../jobs-log/JobLogDisplay/JobLogDisplay.svelte';
+  import NodePathNote from './NodePathNote.svelte';
+  import { revealOn } from './reveal.attachments.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
   import { jobGitMessages } from '@base/features/jobs/presentation/messages/job-git.messages.ts';
   import {
@@ -41,9 +44,18 @@
     onToggleNode: (nodeId: string) => void;
     /** Closes every node panel, which shows the whole job again. */
     onShowWholeJob: () => void;
+    /** The panel to scroll to: a new request scrolls again. */
+    revealed?: { id: string } | null;
   }
 
-  let { job, openNodeIds, isWholeJobOpen, onToggleNode, onShowWholeJob }: Props = $props();
+  let {
+    job,
+    openNodeIds,
+    isWholeJobOpen,
+    onToggleNode,
+    onShowWholeJob,
+    revealed = null,
+  }: Props = $props();
 
   const canViewLogs = $derived(can(Permission.READ_JOB_LOGS));
 
@@ -66,6 +78,8 @@
     }),
   );
   const openNodes = $derived(nodes.filter(({ id }) => openNodeIds.includes(id)));
+  const path = $derived(jobPath(job.nodes, job.nodeExecutions));
+  const nodeOf = (id: string) => job.nodes.find(node => node.id === id);
 
   /** The whole job always shows alone: it gets the whole column. */
   const wholeJobLogHeight = $derived(
@@ -131,6 +145,11 @@
           >
             <StatusShape state={toStatusState(node.state)} label={t(config.label)} size={18} />
             <span class="min-w-0 flex-1 truncate text-sm font-medium">{name}</span>
+            {#if node.ports.length}
+              <span class="shrink-0 font-mono text-xs text-muted-foreground">
+                {node.ports.join(', ')}
+              </span>
+            {/if}
             {#if builtIn}
               <span class="shrink-0 text-xs text-muted-foreground">
                 {t(jobGitMessages.builtIn)}
@@ -174,6 +193,7 @@
             <section
               aria-label={name}
               class="flex min-w-0 shrink-0 flex-col overflow-hidden rounded-xl border border-border shadow-sm"
+              {@attach revealed?.id === id ? revealOn(revealed) : undefined}
             >
               <header
                 class="flex shrink-0 items-center border-b border-border bg-muted/40 pr-2"
@@ -217,9 +237,14 @@
               <div class={cn(collapsed && 'hidden')}>
                 {#if node.state === 'skipped'}
                   <p class="px-3 py-2.5 text-center text-sm text-muted-foreground">
-                    {t(jobsMessages.nodeSkipped)}
+                    {t(
+                      path.skipped.get(id) === 'not-taken'
+                        ? jobsMessages.nodeNotTaken
+                        : jobsMessages.nodeSkipped,
+                    )}
                   </p>
                 {:else}
+                  <NodePathNote node={nodeOf(id)} execution={node} {path} />
                   <JobLogDisplay jobId={job.id} nodeId={id} maxHeight={NODE_LOG_HEIGHT} />
                 {/if}
               </div>

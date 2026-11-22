@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import type { NodeDefinition } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import {
+  nodeIssue,
+  type NodeDefinition,
+} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import {
   BLANK_NODES,
@@ -53,6 +56,51 @@ describe('catalogEntries', () => {
       icon: 'package',
       nodeId: 'install-deps',
     });
+  });
+});
+
+describe('the flow entries', () => {
+  const flow = BLANK_NODES.filter(entry => entry.group === 'flow');
+
+  it('offers If, Switch and Merge in the group Flow, after the nodes', () => {
+    expect(flow.map(entry => catalogText(entry.name))).toEqual(['If', 'Switch', 'Merge']);
+    expect(groupCatalog(BLANK_NODES).map(({ group }) => group)).toEqual(['nodes', 'flow']);
+  });
+
+  it('makes an If with the case true, one empty rule, and otherwise false', () => {
+    expect(flow[0].definition).toEqual({
+      env: [],
+      kind: 'switch',
+      cases: [
+        {
+          port: 'true',
+          combinator: 'all',
+          rules: [
+            {
+              left: { kind: 'literal', value: '' },
+              test: 'equals',
+              right: { kind: 'literal', value: '' },
+            },
+          ],
+        },
+      ],
+      otherwise: 'false',
+      allMatches: false,
+    });
+  });
+
+  it('makes a Switch with two cases and no otherwise', () => {
+    expect(flow[1].definition).toMatchObject({
+      kind: 'switch',
+      cases: [{ port: 'case-1' }, { port: 'case-2' }],
+    });
+    expect(flow[1].definition).not.toHaveProperty('otherwise');
+  });
+
+  it('makes a valid If and a valid Switch, and a merge that waits for its links', () => {
+    for (const entry of flow.slice(0, 2))
+      expect(nodeIssue({ id: entry.nodeId, deps: [], ...entry.definition })).toBeNull();
+    expect(nodeIssue({ id: 'merge', deps: [{ node: 'a' }], ...flow[2].definition })).toBeNull();
   });
 });
 

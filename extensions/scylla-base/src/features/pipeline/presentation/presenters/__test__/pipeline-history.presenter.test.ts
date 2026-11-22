@@ -19,6 +19,7 @@ const job = (id: string, status: JobEntity['status'], seconds?: number): JobEnti
   id,
   pipelineId: 'pipeline-1',
   status,
+  nodes: [],
   nodeExecutions: [],
   createdAt: at(0),
   updatedAt: at(seconds ?? 0),

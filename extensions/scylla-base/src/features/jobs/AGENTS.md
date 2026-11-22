@@ -84,7 +84,9 @@ index.ts                             public API
 domain/
   structs/job-stats.struct.ts        JobStats and its parts, JobStatsQuery, successRate,
                                      successRateChange (pure, tested)
-  entities/job.entity.ts             JobEntity, JobFilter, NewestJobsQuery, JobEvent, JobNodeExecution,
+  entities/job.entity.ts             JobEntity, JobFilter, NewestJobsQuery, JobEvent, JobNode,
+                                     JobNeed (the snapshot of the nodes: the graph of the job),
+                                     JobNodeExecution (with the ports that a switch opened),
                                      NodeExecutionState, JobLog, JobLogStream, and the Git
                                      context: JobSource, JobApproval, PipelineFileRef,
                                      PipelineFileError, JobCheckout
@@ -98,7 +100,8 @@ presentation/
   jobs.queries.ts                    every read and write, as query/mutation options
   jobs-by-pipelines.queries.ts       the fan-out across pipelines, avoids N+1
   ui/Jobs.page.svelte, JobsHeader.svelte
-  ui/JobDetails/                     one job: info + per-node logs (JobSummary, JobNodeLogs)
+  ui/JobDetails/                     one job: info, its graph, per-node logs (JobSummary,
+                                     JobGraph/, JobNodeLogs, NodePathNote)
     JobSourceFacts.svelte                  the commit band: repo, ref, SHA, PRs, author, fork,
                                            event, pipeline file, approval decision
     JobReportsBand.svelte                  one row for each report to the provider, its retry
@@ -106,6 +109,8 @@ presentation/
     InvalidFileAlert.svelte                the errors of an invalid pipeline file
     UnfitAgentsAlert.svelte                the online agents that cannot get the code of a waiting job
     open-log-panels.state.svelte.ts        which node panels are open, mirrored in the URL
+    reveal.attachments.ts                  revealOn: scrolls a node panel into view
+    JobGraph/                              the read-only xyflow graph, its node view, its context
   ui/jobs-table/JobSource/           the Source cell, two lines: author and title, then SHA with
                                      the report icon, ref, PRs
   messages/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
@@ -119,6 +124,10 @@ presentation/
   presenters/jobs-summary.presenter.ts   JobsSummary, summarizeJobs
   presenters/job-timeline.presenter.ts   segment geometry, pure and tested in node
   presenters/node-attempt.presenter.ts   attemptOf: the `Attempt N/M` of a node
+  presenters/job-path.presenter.ts       jobPath: the state of each need, why a node was skipped,
+                                         the error branches (the run rule of the agent)
+  presenters/job-graph.presenter.ts      jobGraph: the nodes and edges of the graph, in the
+                                         column layout of the editor
   ui/jobs-table/                     JobsTable + jobs-table.columns.ts + cells
   ui/jobs-log/JobLogDisplay/         the streamed viewer, shared by both pages
     streamed-log-view.state.svelte.ts      owns the editor document + tail-follow
@@ -203,6 +212,25 @@ paths.
   one with CSS instead.
 - **New strings go in `messages/jobs.messages.ts`, never inside a `.svelte`.** Extraction does not read
   components, so a message declared there vanishes from the catalogs without failing a gate.
+- **This module never imports `pipeline`.** `pipeline` imports `jobs` (the keys, `loadJobsPage`,
+  `jobsByPipelinesQueries`), and `pnpm depcruise:cycles` refuses the module cycle, also for a
+  type. So the graph of a job has its own snapshot type (`JobNode`: id, kind, needs, the ports of
+  a switch), its own proto mapping (`grpc-job.mapper.ts`) and its own column layout
+  (`job-graph.presenter.ts`), with the rule of the editor: one column per stage, the targets of a
+  switch in the order of its ports.
+- **The path of a job follows the run rule of the agent** (`jobPath`). A need with no port opens
+  when its node completed, a port of a switch when the switch chose it (`ports` of the run), `error`
+  when a node that runs a step failed after its last attempt; a cancelled node opens nothing, and a
+  node that has not ended leaves its needs `waiting`. A skipped node is `not-taken` when a closed
+  port, or a need on a node not taken, closed its path, else `stopped` (another node failed): the
+  list says "Not taken: the path did not reach it." or the text of a failure. There is no
+  `NodeStatus` for it: the server says `SKIPPED` for both.
+- **The graph is read-only and follows the same query as the list** (`jobQueries.byId`, the
+  3-second poll). No drag, no link, no delete, no selection. Its nodes carry their size
+  (`initialWidth`, `initialHeight`), so the view fits at the load, before xyflow measures them, and
+  `keepFitted` (`@scylla/ui`) fits again at a resize until the user moves the view. A node is a
+  button: a click opens its panel alone (`selectNode`, as the timeline does) and scrolls to it
+  (`revealOn`). A job with no snapshot node shows no graph.
 - **`data-tour` attributes are anchors of the onboarding tour** (`job-details` on the job page). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 
