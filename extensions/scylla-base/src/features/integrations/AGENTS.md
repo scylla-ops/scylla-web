@@ -148,14 +148,15 @@ presentation/
 | `personal` | `integrations/github/callback` | none (`UNGATED_PAGES`) | `GitHubCallbackPage` |
 | `project` | `settings/repository` | `READ_REPOSITORY_LINK` | `RepositoryPage` |
 | `workspace` | `projects/new/github` | `CREATE_PROJECT` | `NewGitHubProjectPage` |
-| `instance` | `git-providers` | `MANAGE_GIT_PROVIDERS` | `GitProvidersPage` |
+| `admin` | `git-providers` | `MANAGE_GIT_PROVIDERS` | `GitProvidersPage` |
 | `personal` | `integrations/github/manifest` | none (`UNGATED_PAGES`) | `GitHubManifestCallbackPage` |
 
 Nav: section `workspace`, group `settings`, order 61 (after General). The callback has no
 permission: the server checks the state, which is bound to the workspace and to the user that
 started the install. The repository page is the link "Settings" of the project section, order 90
 (the last one). The trigger editor of `triggers` sends "Link a repository first" to it. The
-Git providers page is in the section `instance`, order 60 (after Settings). The manifest callback
+Git providers page is in the section `instance`, order 40, after Extensions, under the heading
+Integrations. The manifest callback
 has no permission for the same reason as the install callback: the server checks
 `complete_git_hub_manifest` and the state, which is bound to the admin that started the flow.
 The new GitHub project page is a step of `projects/new` of [project](../project/AGENTS.md),

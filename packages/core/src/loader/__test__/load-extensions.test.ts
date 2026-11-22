@@ -182,6 +182,14 @@ describe('loadExtensions', () => {
     expect(() => loadExtensions([bare])).toThrow(/No module gives the fallback page/);
   });
 
+  it('refuses a mount whose space no nav section declares', () => {
+    const admin = billing({ mounts: { admin: { parent: 'app', path: 'admin', space: 'main' } } });
+
+    expect(() => loadExtensions([Base, addOn([admin])])).toThrow(
+      /The mount "admin" names the space "main", which no nav section declares/,
+    );
+  });
+
   it('refuses a sidebar link to a section that no module declares', () => {
     const lost = billing({
       routes: {

@@ -8,12 +8,13 @@
   const matched = $derived(currentMatch() !== null);
   const Layout = $derived(currentMatch()?.route.layout);
   const Shell = $derived(currentMatch()?.route.shell ? routeShell() : undefined);
+  const space = $derived(currentMatch()?.route.space);
   const Fallback = $derived(routeFallback());
 </script>
 
 {#snippet framed()}
   {#if Shell}
-    <Shell>
+    <Shell {space}>
       <RoutePage animate />
     </Shell>
   {:else}

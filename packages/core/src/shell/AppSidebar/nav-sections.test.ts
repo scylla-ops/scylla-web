@@ -139,4 +139,36 @@ describe('navSectionsFor', () => {
 
     expect(section?.items[0]).toMatchObject({ heading: 'Quick filters' });
   });
+
+  it('gives the heading of a hidden link to the next link of its run', () => {
+    const [section] = sectionsFor(
+      [
+        entry({ heading: msg`People`, title: msg`Users`, url: 'users', permission: LIST_USERS }),
+        entry({ title: msg`Roles`, url: 'roles' }),
+        entry({ heading: msg`Server`, title: msg`Pipelines`, url: 'pipelines' }),
+      ],
+      [LIST_SECRETS],
+    );
+
+    expect(section?.items.map(item => 'heading' in item && item.heading)).toEqual([
+      'People',
+      'Server',
+    ]);
+  });
+
+  it('drops the heading of a run with no link to show', () => {
+    const [section] = sectionsFor(
+      [
+        entry({ heading: msg`People`, title: msg`Users`, url: 'users', permission: LIST_USERS }),
+        entry({ heading: msg`Server`, title: msg`Pipelines`, url: 'pipelines' }),
+        entry({ title: msg`Settings`, url: 'settings' }),
+      ],
+      [LIST_SECRETS],
+    );
+
+    expect(section?.items.map(item => 'heading' in item && item.heading)).toEqual([
+      'Server',
+      undefined,
+    ]);
+  });
 });

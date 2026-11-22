@@ -10,11 +10,11 @@ const routeAt = (path: string) => routes.find(route => `/${route.path.join('/')}
 
 describe('the routes of the accounts', () => {
   it('leaves READ_USER to the page of a user, so the own id reaches its redirect', () => {
-    expect(routeAt('/:workspaceSlug/instance/users/:userId')?.permission).toBeUndefined();
+    expect(routeAt('/admin/users/:userId')?.permission).toBeUndefined();
   });
 
   it('guards the directory with LIST_USERS', () => {
-    expect(routeAt('/:workspaceSlug/instance/users')?.permission).toBe(Permission.LIST_USERS);
+    expect(routeAt('/admin/users')?.permission).toBe(Permission.LIST_USERS);
   });
 
   it('opens the account page inside the shell of a workspace', () => {

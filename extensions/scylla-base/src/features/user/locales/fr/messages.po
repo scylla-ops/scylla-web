@@ -62,8 +62,8 @@ msgid "Accepted on {date}"
 msgstr "Acceptées le {date}"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:57
-#: extensions/scylla-base/src/features/user/user.module.ts:53
 #: extensions/scylla-base/src/features/user/user.module.ts:60
+#: extensions/scylla-base/src/features/user/user.module.ts:67
 msgid "Account"
 msgstr "Compte"
 
@@ -278,7 +278,7 @@ msgstr "Supprimer l'utilisateur"
 msgid "Deleted at once"
 msgstr "Supprimé tout de suite"
 
-#: extensions/scylla-base/src/features/user/user.module.ts:43
+#: extensions/scylla-base/src/features/user/user.module.ts:50
 msgid "Detail"
 msgstr "Détail"
 
@@ -812,7 +812,7 @@ msgid "Unlink"
 msgstr "Dissocier"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
-#: extensions/scylla-base/src/features/user/user.module.ts:43
+#: extensions/scylla-base/src/features/user/user.module.ts:50
 msgid "User"
 msgstr "Utilisateur"
 
@@ -825,8 +825,8 @@ msgid "Username"
 msgstr "Nom d'utilisateur"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:5
-#: extensions/scylla-base/src/features/user/user.module.ts:35
-#: extensions/scylla-base/src/features/user/user.module.ts:37
+#: extensions/scylla-base/src/features/user/user.module.ts:36
+#: extensions/scylla-base/src/features/user/user.module.ts:40
 msgid "Users"
 msgstr "Utilisateurs"
 

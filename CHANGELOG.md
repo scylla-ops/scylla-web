@@ -274,6 +274,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   two ways apart. A reload goes back to the install step of the agent (`/agents/<id>/connect`). A
   user who leaves before a machine joins chooses to stay, keep the agent or delete it. The list
   shows "Finish setup" for an agent that never connected.
+- The pages of the server are in a space of their own at `/admin`: one column of links in groups
+  (Users and roles, Integrations, Server), a top bar with the host and "Back to <workspace>", and no
+  rail. "Instance administration" in the user menu opens it. An old link to
+  `/<workspace>/instance/...` opens the same page in `/admin`.
 
 ### Removed
 

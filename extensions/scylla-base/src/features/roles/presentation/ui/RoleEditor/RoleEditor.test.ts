@@ -82,7 +82,7 @@ afterEach(() => {
 });
 
 const open = async (entity: RoleEntity) => {
-  render(RoleEditor, { role: entity, listUrl: '/instance/roles' });
+  render(RoleEditor, { role: entity, listUrl: '/admin/roles' });
   await waitFor(() => expect(screen.getAllByRole('checkbox').length).toBeGreaterThan(0));
 };
 

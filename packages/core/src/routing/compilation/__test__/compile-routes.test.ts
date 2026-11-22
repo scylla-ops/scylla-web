@@ -187,6 +187,26 @@ describe('compileRoutes', () => {
     expect(route?.shell).toBe(true);
   });
 
+  it('puts in a space the pages of the mount that names it and of its child mounts', () => {
+    const config = configWith(
+      { admin: [{ path: 'users', page }], settings: [{ path: 'general', page }] },
+      { workspace: [{ path: 'dashboard', page }] },
+    );
+    const { routes } = compileRoutes({
+      ...config,
+      mounts: {
+        ...config.mounts,
+        admin: { parent: 'app', path: 'admin', space: 'instance' },
+        settings: { parent: 'admin', path: 'settings' },
+      },
+    });
+    const spaceAt = (path: string) => routes.find(route => joinPath(route.path) === path)?.space;
+
+    expect(spaceAt('/admin/users')).toBe('instance');
+    expect(spaceAt('/admin/settings/general')).toBe('instance');
+    expect(spaceAt('/:workspaceSlug/dashboard')).toBeUndefined();
+  });
+
   it('refuses a route on a mount that no extension declares', () => {
     expect(() => compile({ nowhere: [{ path: 'a', page }] })).toThrow(
       /No extension declares the mount "nowhere"/,

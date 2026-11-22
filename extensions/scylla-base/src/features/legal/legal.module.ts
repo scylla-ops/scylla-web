@@ -17,7 +17,7 @@ export const LegalModule = {
         page: () => import('./presentation/ui/LegalDocument/LegalDocument.page.svelte'),
       },
     ],
-    instance: [
+    admin: [
       {
         permission: Permission.MANAGE_INSTANCE_SETTINGS,
         path: 'legal',

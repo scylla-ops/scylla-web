@@ -6,6 +6,8 @@ import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverla
 import ConsentHost from './presentation/layout/ui/ConsentHost/ConsentHost.svelte';
 import { languageCommands } from './presentation/layout/language.commands.ts';
 import { layoutMessages } from './presentation/layout/messages/layout.messages.ts';
+import AdminBar from './presentation/layout/ui/AdminBar/AdminBar.svelte';
+import { ADMIN_SECTION } from './presentation/admin-space.ts';
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
 import GlobalSearch from './presentation/layout/ui/GlobalSearch/GlobalSearch.svelte';
@@ -15,6 +17,7 @@ import { projectLinks } from './presentation/layout/project-links.state.svelte.t
 import { markNavSeen } from './presentation/layout/whats-new.state.svelte.ts';
 import { reportQueryError } from './presentation/report-query-error.ts';
 import { retryQueryError } from './presentation/retry-query-error.ts';
+import AdminColumnWrapper from './presentation/router/AdminColumn.wrapper.svelte';
 import AppLayout from './presentation/router/AppLayout.svelte';
 import ContextCleanerWrapper from './presentation/router/ContextCleaner.wrapper.svelte';
 import NotFoundPage from './presentation/router/NotFound/NotFound.page.svelte';
@@ -46,13 +49,16 @@ export const ShellModule = {
       path: 'access',
       breadcrumb: () => ({ label: layoutMessages.access }),
     },
-    // The pages of the whole server: they do not belong to the active workspace.
-    instance: {
-      parent: 'workspace',
-      path: 'instance',
-      rootCrumb: true,
-      breadcrumb: () => ({ label: layoutMessages.instance }),
+    // The pages of the whole server: a space apart, outside any workspace.
+    admin: {
+      parent: 'app',
+      path: 'admin',
+      space: ADMIN_SECTION,
+      wrapper: AdminColumnWrapper,
     },
+    // The old links of the pages of the server, from before they left the workspace. No wrapper:
+    // the workspace keeps no memory of a page that only sends the person on.
+    instance: { parent: 'app', path: ':workspaceSlug/instance' },
     project: {
       parent: 'workspace',
       path: 'projects/:projectId',
@@ -65,7 +71,15 @@ export const ShellModule = {
     app: [{ page: () => import('./presentation/router/WorkspaceRedirect.wrapper.svelte') }],
     workspace: [{ redirect: 'dashboard' }],
     access: [{ redirect: 'members' }],
-    instance: [{ redirect: 'users' }],
+    admin: [{ page: () => import('./presentation/router/AdminRedirect.wrapper.svelte') }],
+    instance: [
+      { redirect: '/admin' },
+      {
+        path: ':page',
+        redirect: '/admin/:page',
+        children: [{ path: ':id', redirect: '/admin/:page/:id' }],
+      },
+    ],
   },
   navSections: [
     { id: 'workspace', title: layoutMessages.workspace },
@@ -74,7 +88,13 @@ export const ShellModule = {
       title: layoutMessages.project,
       within: { railItem: 'projects', titleParam: 'projectName' },
     },
-    { id: 'instance', title: layoutMessages.instance, railItem: { icon: ShieldCheckIcon } },
+    // The rail of a workspace opens it. Its pages show in a frame of their own.
+    {
+      id: ADMIN_SECTION,
+      title: layoutMessages.instanceAdministration,
+      railItem: { icon: ShieldCheckIcon },
+      space: { icon: ShieldCheckIcon, bar: AdminBar },
+    },
     // The user menu opens it: the avatar of the rail is its item.
     { id: 'account', title: layoutMessages.account, noRailItem: true },
     // The user menu opens it too: the guided tours and the docs.

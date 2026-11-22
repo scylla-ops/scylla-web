@@ -3,6 +3,7 @@ import { msg } from '@lingui/core/macro';
 import UsersIcon from '@lucide/svelte/icons/users';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
+import { ADMIN_NAV_HEADINGS } from '@shared/presentation/admin-nav.ts';
 import { ProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
 import { PersonalTokenServiceClient } from '@base/generated/scylla/accounts/v1/personal_token_service.client.ts';
 import { UserAdminServiceClient } from '@base/generated/scylla/accounts/v1/user_admin_service.client.ts';
@@ -28,13 +29,19 @@ export const UserModule = {
   },
   commands: userCommands,
   routes: {
-    instance: [
+    admin: [
       {
         path: 'users',
         permission: Permission.LIST_USERS,
         breadcrumb: () => ({ label: msg`Users` }),
         page: () => import('./presentation/ui/admin/UserAdmin.page.svelte'),
-        nav: { section: 'instance', title: msg`Users`, icon: UsersIcon, order: 10 },
+        nav: {
+          section: 'instance',
+          title: msg`Users`,
+          icon: UsersIcon,
+          order: 10,
+          heading: ADMIN_NAV_HEADINGS.usersAndRoles,
+        },
         children: [
           {
             // No `permission`: the page sends the own id to `account` before it checks READ_USER,

@@ -7,6 +7,7 @@ import { cookieSettings } from '@platform/consent';
 import { contextStore } from '@platform/context';
 import { EMPTY_OPERATOR, withLegalRepository, type LegalInfo } from '@platform/legal';
 import { trackersPoints } from '@platform/trackers';
+import { setNavLinks } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
 import {
   findFloating,
@@ -59,7 +60,15 @@ beforeEach(() => {
 afterEach(() => {
   teardown.forEach(restore => restore());
   navigator.restore();
+  setNavLinks(() => []);
 });
+
+const ADMIN_USERS = {
+  href: '/admin/users',
+  url: 'users',
+  title: msg`Users`,
+  section: { id: 'instance', title: msg`Instance administration` },
+};
 
 describe('NavUser', () => {
   describe('on the rail', () => {
@@ -236,5 +245,42 @@ describe('NavUser', () => {
     await user.click(await findFloating('menuitem', 'Sign out'));
 
     expect(signOut).toHaveBeenCalled();
+  });
+
+  describe('the administration of the instance', () => {
+    it('opens its first page from the menu, for a person who may see one', async () => {
+      setNavLinks(() => [ADMIN_USERS]);
+      setUp(() => Promise.resolve(me));
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+      await user.click(await findFloating('menuitem', 'Instance administration'));
+
+      expect(navigator.navigate).toHaveBeenCalledWith('/admin/users', undefined);
+    });
+
+    it('is not in the menu of a person who may see none of its pages', async () => {
+      setUp(() => Promise.resolve(me));
+
+      await userEvent.setup().click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+
+      await findFloating('menuitem', 'Sign out');
+      expect(screen.queryByRole('menuitem', { name: 'Instance administration' })).toBeNull();
+    });
+
+    it('goes back to the workspace from the same place of the menu, in the administration', async () => {
+      navigator.restore();
+      navigator = installTestNavigator({ pathname: '/admin/users' });
+      contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: 'acme' } });
+      setNavLinks(() => [ADMIN_USERS]);
+      setUp(() => Promise.resolve(me));
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+      await user.click(await findFloating('menuitem', 'Back to Acme'));
+
+      expect(screen.queryByRole('menuitem', { name: 'Instance administration' })).toBeNull();
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme/dashboard', undefined);
+    });
   });
 });
