@@ -371,6 +371,8 @@ the page.
   the selection bar show: two nodes or more, or one node that a box selected (a click inspects it,
   as `inspect` keeps only the clicked node selected). The **Select** button of `CanvasToolbar`
   sets `selectionOnDrag` (a local `$state` of `BlueprintCanvas`), as Shift does.
+  The selection bar is the one place that saves or deletes a selection: the selection panel only
+  shows its nodes and the parameters they give.
 - **The scripting tab edits the document, never a copy.** `createPipelineScripting` reads
   `doc.nodes` and writes `doc.setNodes(...)` with the operations of `domain/entities/pipeline.entity.ts`,
   as the blueprint does. The nodes are views of the document, not files. A document that does

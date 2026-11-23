@@ -183,7 +183,6 @@
         {linkable}
         {projectId}
         {drag}
-        onSaveSelection={saveSelection}
         onSaveNode={saveNodes && (node => saveNodes([node]))}
         onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
       />

@@ -1,6 +1,4 @@
 <script lang="ts">
-  import BookmarkPlusIcon from '@lucide/svelte/icons/bookmark-plus';
-  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { detectParameters } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
@@ -10,11 +8,10 @@
 
   interface Props {
     nodes: PipelineNodeEntity[];
-    /** No callback: the selection cannot become a fragment, such as in a new pipeline. */
-    onSave?: () => void;
   }
 
-  let { nodes, onSave }: Props = $props();
+  // What the selection bar of the canvas saves: its nodes and the parameters they give.
+  let { nodes }: Props = $props();
 
   const parameters = $derived(detectParameters(nodes));
 </script>
@@ -67,12 +64,4 @@
     </section>
   </div>
 
-  {#if onSave}
-    <div class="p-4">
-      <Button class="w-full" onclick={onSave}>
-        <BookmarkPlusIcon class="size-4" />
-        {t(libraryMessages.saveToLibrary)}
-      </Button>
-    </div>
-  {/if}
 </div>
