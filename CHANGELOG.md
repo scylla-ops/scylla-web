@@ -581,6 +581,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The selects of the publish form now fill their column, so the open list matches its button.
 - The pipeline editor asks before you leave with unsaved changes. A small save icon shows the save
   state in place of the text.
+- The jobs page of a pipeline keeps its rows while another page size loads. This stops the
+  "ResizeObserver loop" error and one extra call to list the jobs.
 
 ## [0.6.0] - 2026-11-01
 
