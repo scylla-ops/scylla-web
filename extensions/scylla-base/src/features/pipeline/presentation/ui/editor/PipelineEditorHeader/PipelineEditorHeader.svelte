@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { MessageDescriptor } from '@lingui/core';
+  import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import CloudCheckIcon from '@lucide/svelte/icons/cloud-check';
   import FileDownIcon from '@lucide/svelte/icons/file-down';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
@@ -28,6 +29,8 @@
     blueprintDisabled?: boolean;
     isDirty: boolean;
     isSaving?: boolean;
+    /** The message of the last save that failed: the changes are still unsaved. */
+    saveError?: string;
     pipelineName: string;
     onNameChange: (name: string) => void;
     /** A saved pipeline: the header shows Export, which writes it as a file of the repository. */
@@ -46,23 +49,37 @@
     blueprintDisabled = false,
     isDirty,
     isSaving = false,
+    saveError,
     pipelineName,
     onNameChange,
     onExport,
     exportIssue,
   }: Props = $props();
 
-  type SaveStatus = 'draft' | 'saving' | 'dirty' | 'saved';
+  type SaveStatus = 'draft' | 'saving' | 'error' | 'dirty' | 'saved';
 
   const STATUS_LABEL: Record<SaveStatus, MessageDescriptor> = {
     draft: pipelineMessages.statusDraft,
     saving: pipelineMessages.statusSaving,
+    error: pipelineMessages.statusError,
     dirty: pipelineMessages.statusDirty,
     saved: pipelineMessages.statusSaved,
   };
 
   const status = $derived<SaveStatus>(
-    isSaving ? 'saving' : mode === 'create' ? 'draft' : isDirty ? 'dirty' : 'saved',
+    isSaving
+      ? 'saving'
+      : saveError !== undefined
+        ? 'error'
+        : mode === 'create'
+          ? 'draft'
+          : isDirty
+            ? 'dirty'
+            : 'saved',
+  );
+
+  const statusText = $derived(
+    status === 'error' && saveError ? saveError : t(STATUS_LABEL[status]),
   );
 
   const canExport = $derived(can(Permission.READ_PIPELINE));
@@ -104,16 +121,20 @@
       <!-- A discreet icon: the label is its tooltip and what a screen reader says. -->
       <span
         role="status"
-        title={t(STATUS_LABEL[status])}
+        title={statusText}
         class={cn(
           'inline-flex size-8 shrink-0 items-center justify-center transition-colors duration-300',
-          status === 'dirty' ? 'text-amber-500' : 'text-muted-foreground',
+          status === 'dirty' && 'text-amber-500',
+          status === 'error' && 'text-destructive',
+          status !== 'dirty' && status !== 'error' && 'text-muted-foreground',
         )}
       >
         {#key status}
           <span class="inline-flex animate-in items-center justify-center fade-in-0 duration-150">
             {#if status === 'saving'}
               <Loader2Icon class="size-4 animate-spin" />
+            {:else if status === 'error'}
+              <CircleAlertIcon class="size-4" />
             {:else if status === 'saved'}
               <CloudCheckIcon class="size-4" />
             {:else}
@@ -121,7 +142,7 @@
             {/if}
           </span>
         {/key}
-        <span class="sr-only">{t(STATUS_LABEL[status])}</span>
+        <span class="sr-only">{statusText}</span>
       </span>
     {/if}
 

@@ -47,6 +47,7 @@ export const pipelineMessages = {
   blueprint: msg`Blueprint`,
   statusDraft: msg`Draft: not created yet`,
   statusSaving: msg`Saving…`,
+  statusError: msg`Save failed`,
   statusDirty: msg`Unsaved changes`,
   statusSaved: msg`All changes saved`,
   leaveTitle: msg`Leave without saving?`,

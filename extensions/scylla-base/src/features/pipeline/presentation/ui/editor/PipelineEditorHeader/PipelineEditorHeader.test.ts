@@ -58,6 +58,17 @@ describe('PipelineEditorHeader', () => {
     expect(screen.getByText('All changes saved')).toBeInTheDocument();
   });
 
+  it('shows a failed save with its message, and goes back to the normal states', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    const { rerender } = renderHeader({ isDirty: true, saveError: 'Name already used.' });
+
+    expect(screen.getByRole('status')).toHaveAttribute('title', 'Name already used.');
+    expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+
+    await rerender({ isDirty: true, saveError: undefined });
+    expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+  });
+
   it('submits when the user may edit the pipeline', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     renderHeader({ isDirty: true });

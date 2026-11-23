@@ -66,5 +66,6 @@
         updatePipeline.mutate({ id: pipelineId, projectId: pipeline.projectId, ...values });
     }}
     isSubmitPending={updatePipeline.isPending}
+    submitError={updatePipeline.error}
   />
 </div>

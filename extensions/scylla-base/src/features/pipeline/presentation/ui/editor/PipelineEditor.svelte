@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import UnsavedChangesDialog from './UnsavedChangesDialog.svelte';
   import type { FragmentLink } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
@@ -44,6 +45,8 @@
     /** Why the saved pipeline cannot be exported. */
     exportIssue?: string;
     isSubmitPending?: boolean;
+    /** The last save failed: the header shows it until the next edit or save. */
+    submitError?: Error | null;
     /** The pipeline is not here yet: the editor shows its frame, and the canvas waits or fails. */
     missing?: MissingDocument;
     onRetry?: () => void;
@@ -62,6 +65,7 @@
     pipelineId,
     exportIssue,
     isSubmitPending = false,
+    submitError,
     missing,
     onRetry,
   }: Props = $props();
@@ -72,6 +76,12 @@
   });
   const links = createFragmentLinks({ initial: () => initialLinks });
   const isDirty = $derived(doc.isDirty || links.isDirty);
+  // A failed save leaves the changes unsaved; the next edit hides the failure.
+  const editSignature = $derived(doc.script + JSON.stringify(links.current));
+  const failedAt = $derived(submitError ? untrack(() => editSignature) : undefined);
+  const saveError = $derived(
+    submitError && failedAt === editSignature ? submitError.message : undefined,
+  );
   let pendingLeave = $state<(() => void) | null>(null);
   warnBeforeUnload(
     () => isDirty,
@@ -120,6 +130,7 @@
       blueprintDisabled={!missing && !doc.isValid}
       {isDirty}
       isSaving={isSubmitPending}
+      {saveError}
       pipelineName={doc.pipelineName}
       onNameChange={name => doc.setName(name)}
       onExport={pipelineId ? () => (exporting = true) : undefined}

@@ -583,6 +583,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   state in place of the text.
 - The jobs page of a pipeline keeps its rows while another page size loads. This stops the
   "ResizeObserver loop" error and one extra call to list the jobs.
+- The pipeline editor header icon shows a red error state with the message in its tooltip when a
+  save fails.
 
 ## [0.6.0] - 2026-11-01
 

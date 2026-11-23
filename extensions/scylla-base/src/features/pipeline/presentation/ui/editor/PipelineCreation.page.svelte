@@ -29,6 +29,7 @@
       {initialScript}
       onSubmit={values => createPipeline.mutate({ projectId, ...values })}
       isSubmitPending={createPipeline.isPending}
+    submitError={createPipeline.error}
     />
   </div>
 {/if}
