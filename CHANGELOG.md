@@ -602,6 +602,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   after a new fragment block and a click on Stay. The status goes from "Saving…" to "All changes
   saved", and a typed name shows "Unsaved changes" at once. A failed save shows the translated
   message, and the unsaved icon has a stronger color in the light theme.
+- After a sign-in, the mark of the sign-in page does not move when the app opens under the panel,
+  and it stops exactly on the logo of the sidebar. Before, on a system with scrollbars that take
+  space (for example Windows), the mark moved 5 px to the right when the app opened, and it stopped
+  5 px to the right of the logo and 5 px below it.
 
 ## [0.6.0] - 2026-11-01
 

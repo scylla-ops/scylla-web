@@ -18,7 +18,7 @@ const overlayAfterPage = () => {
   );
   main.append(...widgets);
   page.append(main);
-  const overlay = document.createElement('div');
+  const overlay = boxed('div', new DOMRect(0, 0, 1440, 900));
   overlay.innerHTML = `
     <div data-part="arrival-panel"><span data-part="arrival-separator"></span></div>
     <div data-part="arrival-flight"></div>`;
@@ -66,7 +66,18 @@ describe('closeCurtain', () => {
 
     const panel = overlay.querySelector('[data-part="arrival-panel"]');
     expect(keyframesOf(panel)[0]?.[0]).toEqual([{ width: '40%' }, { width: '100%' }]);
-    expect(keyframesOf(mark)[0]?.[0]).toEqual([{ left: '20%' }, { left: '50%' }]);
+    expect(keyframesOf(mark)[0]?.[0]).toEqual([{ left: '288px' }, { left: '720px' }]);
+  });
+
+  it('keeps the mark in place when the shell, which has no scrollbar gutter, opens under the panel', () => {
+    const { overlay, mark } = overlayAfterPage();
+    // The sign-in page keeps a gutter of 10 px for its scrollbar.
+    overlay.getBoundingClientRect = () => new DOMRect(0, 0, 1430, 900);
+
+    closeCurtain(overlay);
+    overlay.getBoundingClientRect = () => new DOMRect(0, 0, 1440, 900);
+
+    expect(keyframesOf(mark)[0]?.[0]).toEqual([{ left: '286px' }, { left: '715px' }]);
   });
 });
 
@@ -119,6 +130,38 @@ describe('arrive', () => {
     stop();
   });
 
+  it('measures the mark before the page settles, which can change the size of the view', () => {
+    const { overlay, page, mark } = overlayAfterPage();
+    const animate = vi.mocked(Element.prototype.animate);
+    const stub = animate.getMockImplementation();
+    if (!stub) throw new Error('no stub of animate');
+    // A scrollbar of 10 px makes the overlay smaller, and moves its center by 5 px.
+    animate.mockImplementation(function (this: Element, ...args) {
+      if (this === page) mark.getBoundingClientRect = () => new DOMRect(575, 305, 280, 280);
+      return stub.apply(this, args);
+    });
+
+    const { stop } = land(overlay, new DOMRect(73, 16, 109.5, 36));
+
+    const [keyframes] = keyframesOf(mark).at(-1) ?? [];
+    expect(keyframes).toEqual([
+      { transform: 'none' },
+      { transform: expect.stringMatching(/^translateX\(-638\.0\d*px\) scale\(0\.0638\d*\)$/) },
+    ]);
+    stop();
+  });
+
+  it('hides the scrollbars of the view while the page is larger than the view', () => {
+    const { overlay } = overlayAfterPage();
+
+    const { stop } = land(overlay, new DOMRect(73, 16, 109.5, 36));
+
+    expect(keyframesOf(document.documentElement)).toEqual([
+      [[{ overflow: 'hidden' }, { overflow: 'hidden' }], { duration: 650 }],
+    ]);
+    stop();
+  });
+
   it('fades the panel out, settles the page and brings the widgets up row by row', () => {
     const { overlay, page, widgets } = overlayAfterPage();
 
@@ -142,7 +185,7 @@ describe('arrive', () => {
     const flight = overlay.querySelector('[data-part="arrival-flight"]');
     expect(keyframesOf(flight)[0]?.[0]).toEqual([{ opacity: 1 }, { opacity: 0 }]);
     expect(keyframesOf(mark).map(([keyframes]) => keyframes)).toEqual([
-      [{ left: '20%' }, { left: '50%' }],
+      [{ left: '288px' }, { left: '720px' }],
     ]);
     stop();
   });
