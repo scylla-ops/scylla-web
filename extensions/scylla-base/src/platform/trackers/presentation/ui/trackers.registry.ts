@@ -170,4 +170,13 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     lifetime: msg`Until you close the tab`,
     exempt: true,
   },
+  {
+    name: 'scylla.sign-in-arrival',
+    type: 'session-storage',
+    provider: 'Scylla',
+    owner: `${BASE}/features/login/presentation/ui/ArrivalOverlay/arrival.state.svelte.ts`,
+    purpose: msg`Starts the arrival animation when a sign-in with GitHub, GitLab or OIDC sends you back to the app.`,
+    lifetime: msg`Until the app opens again in this tab`,
+    exempt: true,
+  },
 ];

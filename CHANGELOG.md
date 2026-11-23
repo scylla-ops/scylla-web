@@ -206,6 +206,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - After a sign-in, the dots of the mark turn while the server answers and light up, the panel closes
   over the form, and the mark flies onto the logo of the dashboard. Below lg, or with reduced
   motion, a short fade replaces this motion.
+- A sign-in with GitHub, GitLab or OIDC plays the same arrival: the dots of the mark turn until the
+  browser goes to the provider, and the panel, the curtain and the flight of the mark play when the
+  provider sends the browser back to the app. A failed or stopped sign-in plays no motion.
 
 ### Changed
 

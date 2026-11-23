@@ -119,6 +119,30 @@ describe('LoginPage', () => {
       await waitFor(() => expect(mark()).toHaveAttribute('data-state', 'lit'));
     });
 
+    it('turn grey when the tab leaves for a provider, and keep its return path', async () => {
+      setUp(
+        makeFakeRepository({
+          listSignInMethods: vi.fn().mockResolvedValue({
+            providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
+            signUpMode: 'closed',
+          }),
+        }).repository,
+      );
+      history.replaceState(null, '', loginPath('/acme/projects'));
+      render(LoginPage);
+      const stayHere = (event: Event) => event.preventDefault();
+      window.addEventListener('click', stayHere);
+      teardown.push(() => {
+        window.removeEventListener('click', stayHere);
+        sessionStorage.clear();
+      });
+
+      await userEvent.click(await screen.findByRole('link', { name: 'Continue with GitHub' }));
+
+      await waitFor(() => expect(mark()).toHaveAttribute('data-state', 'waiting'));
+      expect(sessionStorage.getItem('scylla.sign-in-arrival')).toContain('"to":"/acme/projects"');
+    });
+
     it('go back to idle when the credentials are refused', async () => {
       const error = new ScyllaError('bad credentials', { code: 'INVALID_CREDENTIALS' });
       setUp(makeFakeRepository({ login: vi.fn().mockRejectedValue(error) }).repository);
