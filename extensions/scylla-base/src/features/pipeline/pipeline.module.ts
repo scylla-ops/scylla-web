@@ -22,7 +22,10 @@ const fragmentRepository = new DefaultFragmentRepository(
   pipelineClient,
   {
     client: new MarketplaceServiceClient(marketplaceTransport.getTransport()),
-    registry: marketplaceUrl() || window.location.origin,
+    // At call time: the module loads in node too, with no window.
+    get registry() {
+      return marketplaceUrl() || window.location.origin;
+    },
     local: marketplaceIsLocal(),
   },
 );
