@@ -71,7 +71,7 @@
         value={String(form.version)}
         onValueChange={value => (form.version = Number(value))}
       >
-        <SelectTrigger aria-label={t(communityMessages.version)}><SelectValue /></SelectTrigger>
+        <SelectTrigger aria-label={t(communityMessages.version)} class="w-full"><SelectValue /></SelectTrigger>
         <SelectContent>
           {#each form.choices as number (number)}
             <SelectItem value={String(number)} label={t(libraryMessages.version(number))}>
@@ -87,7 +87,7 @@
     <div class="flex flex-col gap-1.5">
       <Label>{t(communityMessages.license)}</Label>
       <Select type="single" value={form.license} onValueChange={value => (form.license = value)}>
-        <SelectTrigger aria-label={t(communityMessages.license)}><SelectValue /></SelectTrigger>
+        <SelectTrigger aria-label={t(communityMessages.license)} class="w-full"><SelectValue /></SelectTrigger>
         <SelectContent>
           {#each PUBLICATION_LICENSES as license (license)}
             <SelectItem value={license} label={license}>{license}</SelectItem>
@@ -98,7 +98,7 @@
     <div class="flex flex-col gap-1.5">
       <Label>{t(communityMessages.category)}</Label>
       <Select type="single" value={form.category} onValueChange={value => (form.category = value as MarketplaceCategory)}>
-        <SelectTrigger aria-label={t(communityMessages.category)}><SelectValue /></SelectTrigger>
+        <SelectTrigger aria-label={t(communityMessages.category)} class="w-full"><SelectValue /></SelectTrigger>
         <SelectContent>
           {#each MARKETPLACE_CATEGORIES as category (category)}
             <SelectItem value={category} label={t(categoryName(category))}>
