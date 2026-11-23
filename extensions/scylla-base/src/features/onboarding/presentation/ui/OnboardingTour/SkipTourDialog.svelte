@@ -9,11 +9,13 @@
 
   interface Props {
     open: boolean;
+    /** True when another dialog is open below: its overlay already dims the page. */
+    overBackdrop?: boolean;
     onSkip: () => void;
     onContinue: () => void;
   }
 
-  let { open, onSkip, onContinue }: Props = $props();
+  let { open, overBackdrop = false, onSkip, onContinue }: Props = $props();
 </script>
 
 <ScyllaDialog
@@ -21,7 +23,7 @@
   onOpenChange={next => {
     if (!next) onContinue();
   }}
-  overlayClass="z-[205]"
+  overlayClass={overBackdrop ? 'z-[205] bg-transparent!' : 'z-[205]'}
   class="z-[210] sm:max-w-[440px]"
   title={t(onboardingMessages.skipTitle)}
   description={t(onboardingMessages.skipBody)}

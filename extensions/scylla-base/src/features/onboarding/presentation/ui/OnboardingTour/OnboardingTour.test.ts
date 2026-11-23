@@ -123,6 +123,17 @@ describe('OnboardingTour', () => {
     await waitFor(() => expect(saveStatus).toHaveBeenCalledWith('anonymous', { kind: 'skipped' }));
   });
 
+  it('keeps one 80% backdrop when Skip is confirmed over the welcome dialog', async () => {
+    setUp();
+    await userEvent.click(await screen.findByRole('button', { name: 'Skip' }));
+    await screen.findByText('Skip the tour?');
+
+    const overlays = [...document.querySelectorAll('[data-slot="dialog-overlay"]')];
+    const dimming = overlays.filter(o => !o.className.includes('bg-transparent!'));
+    expect(dimming).toHaveLength(1);
+    expect(dimming[0]?.className).toContain('bg-overlay/80');
+  });
+
   it('goes back to the welcome dialog from the confirmation of Skip', async () => {
     const { saveStatus } = setUp();
     await userEvent.click(await screen.findByRole('button', { name: 'Skip' }));
