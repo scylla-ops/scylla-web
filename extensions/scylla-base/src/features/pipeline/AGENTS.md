@@ -237,7 +237,7 @@ presentation/
         SaveFragmentDialog/                  Save to library: the draft of a fragment (save-fragment.state)
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
-          SelectionBar.svelte, UpdateNotice.svelte   the box selection; a newer version of a block
+          UpdateNotice.svelte                a newer version of a block
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
           flow-theme.css                     the colours of the app on every Svelte Flow canvas
           CanvasCurtain/                     what covers the blueprint until it is ready: the animated
@@ -367,13 +367,13 @@ the page.
   `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
   a click on the empty canvas closes it. Nothing inspected: the palette. A node: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
-  xyflow's and is not the panel's state. `blueprint.selecting` tells when the selection panel and
-  the selection bar show: a selection that is more than the inspected node (a click inspects a
+  xyflow's and is not the panel's state. `blueprint.selecting` tells when the selection panel
+  shows: a selection that is more than the inspected node (a click inspects a
   node, and `inspect` keeps only that node selected). It goes before the inspector: a box drawn
   while an inspector is open takes the panel. The template follows `mode` only. The **Select** button of `CanvasToolbar`
   sets `selectionOnDrag` (a local `$state` of `BlueprintCanvas`), as Shift does.
-  The selection bar is the one place that saves or deletes a selection: the selection panel only
-  shows its nodes and the parameters they give.
+  The selection panel shows the nodes and the parameters they give, and is the one place that
+  saves or deletes the selection, in its footer like the inspector. Nothing floats on the canvas.
 - **The scripting tab edits the document, never a copy.** `createPipelineScripting` reads
   `doc.nodes` and writes `doc.setNodes(...)` with the operations of `domain/entities/pipeline.entity.ts`,
   as the blueprint does. The nodes are views of the document, not files. A document that does

@@ -37,7 +37,6 @@
   import StartNode from './nodes/StartNode.svelte';
   import PipelineNode from './nodes/PipelineNode.svelte';
   import FragmentNode from './nodes/FragmentNode.svelte';
-  import SelectionBar from './SelectionBar.svelte';
   import QuickAddMenu from '../catalog/QuickAddMenu/QuickAddMenu.svelte';
 
   interface Props {
@@ -52,8 +51,6 @@
     onReady?: () => void;
     fragmentOf: (fragmentId: string) => FragmentEntity | undefined;
     onAddFragment: (fragment: FragmentEntity, placement: NodePlacement) => void;
-    /** No callback: the selection cannot become a fragment, such as in a new pipeline. */
-    onSaveSelection?: () => void;
   }
 
   let {
@@ -66,7 +63,6 @@
     onReady,
     fragmentOf,
     onAddFragment,
-    onSaveSelection,
   }: Props = $props();
 
   const nodeTypes: NodeTypes = {
@@ -205,13 +201,6 @@
   </SvelteFlow>
 
   <QuickAddMenu {quickAdd} />
-  {#if blueprint.selecting}
-    <SelectionBar
-      count={blueprint.selectedNodes.length}
-      onSave={onSaveSelection}
-      onDelete={() => blueprint.removeNodes(blueprint.selectedNodes.map(node => node.id))}
-    />
-  {/if}
 </div>
 
 <style>

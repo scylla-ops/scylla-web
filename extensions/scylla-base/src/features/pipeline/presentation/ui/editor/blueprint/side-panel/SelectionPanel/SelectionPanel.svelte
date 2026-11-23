@@ -1,4 +1,7 @@
 <script lang="ts">
+  import BookmarkPlusIcon from '@lucide/svelte/icons/bookmark-plus';
+  import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { detectParameters } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
@@ -8,10 +11,12 @@
 
   interface Props {
     nodes: PipelineNodeEntity[];
+    /** No callback: the selection cannot become a fragment, such as in a new pipeline. */
+    onSave?: () => void;
+    onDelete: () => void;
   }
 
-  // What the selection bar of the canvas saves: its nodes and the parameters they give.
-  let { nodes }: Props = $props();
+  let { nodes, onSave, onDelete }: Props = $props();
 
   const parameters = $derived(detectParameters(nodes));
 </script>
@@ -64,4 +69,17 @@
     </section>
   </div>
 
+  <!-- Stacked: the panel can be narrower than the two buttons side by side. -->
+  <div class="flex flex-col gap-1.5 border-t p-4">
+    {#if onSave}
+      <Button size="sm" class="w-full" onclick={onSave}>
+        <BookmarkPlusIcon class="size-4" />
+        {t(libraryMessages.saveToLibrary)}
+      </Button>
+    {/if}
+    <Button variant="ghost-destructive" size="sm" class="w-full" onclick={onDelete}>
+      <Trash2Icon class="size-4" />
+      {t(libraryMessages.deleteSelection)}
+    </Button>
+  </div>
 </div>

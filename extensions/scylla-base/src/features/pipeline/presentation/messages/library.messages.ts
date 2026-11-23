@@ -44,8 +44,6 @@ export const libraryMessages = {
   missingValues: (count: number) => msg`${plural(count, { one: '# missing', other: '# missing' })}`,
 
   selection: msg`Selection`,
-  selectedNodes: (count: number) =>
-    msg`${plural(count, { one: '# node selected', other: '# nodes selected' })}`,
   selectionNodes: msg`Nodes`,
   detectedParameters: msg`Detected parameters`,
   noParameter: msg`The nodes read no variable.`,

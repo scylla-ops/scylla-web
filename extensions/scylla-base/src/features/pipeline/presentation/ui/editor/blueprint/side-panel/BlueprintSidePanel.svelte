@@ -30,6 +30,7 @@
     projectId?: string;
     drag: PaletteDrag;
     onAdd: (entry: CatalogEntry) => void;
+    onSaveSelection?: () => void;
     /** Makes a fragment of one node. */
     onSaveNode?: (node: PipelineNodeEntity) => void;
   }
@@ -42,6 +43,7 @@
     projectId,
     drag,
     onAdd,
+    onSaveSelection,
     onSaveNode,
   }: Props =
     $props();
@@ -104,7 +106,11 @@
           />
         {/key}
       {:else if mode === 'selection'}
-        <SelectionPanel nodes={blueprint.selectedNodes} />
+        <SelectionPanel
+          nodes={blueprint.selectedNodes}
+          onSave={onSaveSelection}
+          onDelete={() => blueprint.removeNodes(blueprint.selectedNodes.map(node => node.id))}
+        />
       {:else}
         <PalettePanel
           {entries}

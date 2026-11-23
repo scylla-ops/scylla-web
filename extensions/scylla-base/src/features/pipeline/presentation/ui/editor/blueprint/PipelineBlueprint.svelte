@@ -151,7 +151,6 @@
           {dimmed}
           fragmentOf={library.fragmentOf}
           onAddFragment={(fragment, placement) => library.add(fragment, placement)}
-          onSaveSelection={saveSelection}
           onReady={() => {
             ready = true;
             onReady?.();
@@ -183,6 +182,7 @@
         {linkable}
         {projectId}
         {drag}
+        onSaveSelection={saveSelection}
         onSaveNode={saveNodes && (node => saveNodes([node]))}
         onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
       />
