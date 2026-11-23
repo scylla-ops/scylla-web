@@ -79,6 +79,7 @@
       fitViewOptions={FIT_VIEW_OPTIONS}
       nodesDraggable={false}
       nodesConnectable={!!onPull}
+      clickConnect={false}
       onbeforeconnect={() => false}
       onconnectend={onConnectEnd}
       edgesFocusable={false}

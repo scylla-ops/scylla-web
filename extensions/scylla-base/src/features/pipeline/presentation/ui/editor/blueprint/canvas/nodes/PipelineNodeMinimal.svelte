@@ -14,6 +14,7 @@
   import {
     errorHandleClass,
     handleClass,
+    STACKED_HANDLE_ZONE,
   } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
 import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
@@ -68,7 +69,7 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
       type="source"
       id={output.port}
       position={Position.Right}
-      class={output.error ? errorHandleClass : handle}
+      class={cn(output.error ? errorHandleClass : handle, count > 1 && STACKED_HANDLE_ZONE)}
       style={minimalPortStyle(index, count)}
     />
     {#if output.port}

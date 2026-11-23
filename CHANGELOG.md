@@ -587,6 +587,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   save fails.
 - A refetch of the pipeline, for example after a write conflict, no longer erases the unsaved
   changes of the pipeline editor. A failed read no longer says that someone else changed the item.
+- Show the connection point of a pipeline node when the pointer is near it, and make a link only by
+  a pull.
 
 ## [0.6.0] - 2026-11-01
 

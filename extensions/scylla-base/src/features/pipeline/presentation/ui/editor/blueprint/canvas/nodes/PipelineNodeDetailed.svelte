@@ -14,6 +14,7 @@
   import {
     errorHandleClass,
     handleClass,
+    STACKED_HANDLE_ZONE,
   } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
 import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
 
@@ -108,7 +109,7 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
       style="height: {PORT_ROW_HEIGHT}px;"
     >
       <span class="truncate">{name}</span>
-      <Handle type="source" id={name} position={Position.Right} class={error ? errorHandleClass : handle} />
+      <Handle type="source" id={name} position={Position.Right} class={cn(error ? errorHandleClass : handle, STACKED_HANDLE_ZONE)} />
     </div>
   {/snippet}
 

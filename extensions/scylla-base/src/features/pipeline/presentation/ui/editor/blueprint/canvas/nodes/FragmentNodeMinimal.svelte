@@ -3,6 +3,7 @@
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import { HANDLE } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import {
     MINIMAL_NODE,
@@ -13,7 +14,7 @@
 
   let { name, summary, selected }: FragmentNodeViewProps = $props();
 
-  const handle = $derived(cn('size-2.5! border-[1.5px]! bg-card!', selected ? 'border-info!' : 'border-input!'));
+  const handle = $derived(cn(HANDLE, selected ? 'border-info!' : 'border-input!'));
 </script>
 
 <!-- The tile of a block, as the tile of a node: the label sits under it, inside the node. -->
