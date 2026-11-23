@@ -579,6 +579,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The table of the roles fits in its card. It no longer scrolls horizontally, the header is aligned
   with the rows, and the Role column shows the name on one line and the description on a few lines.
 - The selects of the publish form now fill their column, so the open list matches its button.
+- The pipeline editor asks before you leave with unsaved changes. A small save icon shows the save
+  state in place of the text.
 
 ## [0.6.0] - 2026-11-01
 

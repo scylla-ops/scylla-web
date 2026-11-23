@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
+  import UnsavedChangesDialog from './UnsavedChangesDialog.svelte';
   import type { FragmentLink } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
@@ -71,7 +72,11 @@
   });
   const links = createFragmentLinks({ initial: () => initialLinks });
   const isDirty = $derived(doc.isDirty || links.isDirty);
-  warnBeforeUnload(() => isDirty);
+  let pendingLeave = $state<(() => void) | null>(null);
+  warnBeforeUnload(
+    () => isDirty,
+    leave => (pendingLeave = leave),
+  );
 
   const places = createNodePlaces({
     savedIds: () => savedNodeIds,
@@ -161,3 +166,13 @@
     dirty={isDirty}
   />
 {/if}
+
+<UnsavedChangesDialog
+  open={pendingLeave !== null}
+  onStay={() => (pendingLeave = null)}
+  onLeave={() => {
+    const leave = pendingLeave;
+    pendingLeave = null;
+    leave?.();
+  }}
+/>

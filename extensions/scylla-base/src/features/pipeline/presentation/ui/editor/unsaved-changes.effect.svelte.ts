@@ -1,5 +1,13 @@
-/** The browser's "leave site?" prompt, for a reload or a closed tab, while there are unsaved changes. */
-export const warnBeforeUnload = (isDirty: () => boolean): void => {
+import { guardLeave } from '@scylla/core-sdk';
+
+/**
+ * While there are unsaved changes: a reload or a closed tab shows the prompt of the browser, and a
+ * navigation in the app goes to `hold`, which gets the function that goes on with it.
+ */
+export const warnBeforeUnload = (
+  isDirty: () => boolean,
+  hold?: (leave: () => void) => void,
+): void => {
   $effect(() => {
     if (!isDirty()) return;
 
@@ -10,6 +18,15 @@ export const warnBeforeUnload = (isDirty: () => boolean): void => {
     };
 
     window.addEventListener('beforeunload', warn);
-    return () => window.removeEventListener('beforeunload', warn);
+    const stop = hold
+      ? guardLeave(leave => {
+          hold(leave);
+          return true;
+        })
+      : undefined;
+    return () => {
+      stop?.();
+      window.removeEventListener('beforeunload', warn);
+    };
   });
 };
