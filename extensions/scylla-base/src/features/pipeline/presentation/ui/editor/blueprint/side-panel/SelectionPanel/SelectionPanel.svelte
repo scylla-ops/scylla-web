@@ -29,7 +29,7 @@
   <div class="border-b px-4 py-3.5">
     <h2 class="text-sm">{t(libraryMessages.selection)}</h2>
     <p class="text-xs text-muted-foreground">
-      {t(libraryMessages.nodeCount(nodes.length))}{#if blocks.length}
+      {t(libraryMessages.nodeCount(nodes.length))}{#if blocks.length}&nbsp;
         · {t(libraryMessages.blockCount(blocks.length))}{/if}
     </p>
   </div>

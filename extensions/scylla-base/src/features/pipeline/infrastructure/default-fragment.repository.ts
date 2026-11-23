@@ -1,3 +1,4 @@
+import { t } from '@lingui/core/macro';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import type { IFragmentServiceClient } from '@base/generated/scylla/library/v1/fragment_service.client.ts';
@@ -69,7 +70,9 @@ export class DefaultFragmentRepository implements FragmentRepository {
     const fragment = await this.fragment(id);
     // The server refuses an unknown fragment as a refusal: the page shows one answer.
     if (fragment.workspaceId?.value !== workspaceId) {
-      throw new ScyllaError(`No fragment ${id}`, { code: 'NOT_FOUND' });
+      throw new ScyllaError(t`This fragment is not in the library of this workspace.`, {
+        code: 'NOT_FOUND',
+      });
     }
     const [entity] = await this.complete(workspaceId, [fragment]);
     return entity;
@@ -202,7 +205,9 @@ export class DefaultFragmentRepository implements FragmentRepository {
   private async packageOf(id: string): Promise<Package> {
     const { origin } = await this.fragment(id);
     if (!origin) {
-      throw new ScyllaError(`${id} comes from no package`, { code: 'FAILED_PRECONDITION' });
+      throw new ScyllaError(t`This fragment does not come from a package of the marketplace.`, {
+        code: 'FAILED_PRECONDITION',
+      });
     }
     const { package: pkg } = await this.marketplace.client.getPackage({
       packageId: wrapId(origin.packageId),

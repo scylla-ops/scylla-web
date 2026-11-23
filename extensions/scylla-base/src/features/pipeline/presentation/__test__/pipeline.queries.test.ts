@@ -246,7 +246,7 @@ describe('pipelineMutations.create', () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
-    runOnSuccess(pipelineMutations.create(), undefined, {
+    runOnSuccess(pipelineMutations.create(), [], {
       projectId: 'project-1',
       name: 'ci',
       nodes: [],
@@ -260,7 +260,7 @@ describe('pipelineMutations.create', () => {
   it('invalidates the list of its project, but does not navigate without a project in context', () => {
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
-    runOnSuccess(pipelineMutations.create(), undefined, {
+    runOnSuccess(pipelineMutations.create(), [], {
       projectId: 'project-1',
       name: 'ci',
       nodes: [],
@@ -295,7 +295,7 @@ describe('pipelineMutations.update', () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
-    runOnSuccess(pipelineMutations.update(), undefined, edited);
+    runOnSuccess(pipelineMutations.update(), [], edited);
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines', 'project-1'] });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipeline', 'pipeline-1'] });
@@ -304,7 +304,7 @@ describe('pipelineMutations.update', () => {
   });
 
   it('does not navigate when there is no active project in context', () => {
-    runOnSuccess(pipelineMutations.update(), undefined, edited);
+    runOnSuccess(pipelineMutations.update(), [], edited);
 
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline edited');
     expect(navigator.navigate).not.toHaveBeenCalled();

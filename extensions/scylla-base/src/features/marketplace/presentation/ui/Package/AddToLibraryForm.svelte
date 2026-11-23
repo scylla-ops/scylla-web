@@ -15,6 +15,7 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import { nodeIdIssueText } from '@base/features/pipeline';
   import type { MarketPackage } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
   import { marketplaceMessages } from '@base/features/marketplace/presentation/messages/marketplace.messages.ts';
   import { createAddToLibrary, type AddToLibraryForm } from './add-to-library.state.svelte.ts';
@@ -117,12 +118,21 @@
         id="library-name"
         value={form.name}
         oninput={event => (form.name = event.currentTarget.value)}
-        aria-invalid={form.nameTaken}
+        aria-invalid={form.nameTaken || !!form.nameIssue}
       />
-      <p class={cn('text-xs', form.nameTaken ? 'text-destructive' : 'text-muted-foreground')}>
-        {form.nameTaken
-          ? t(marketplaceMessages.nameTaken(form.name.trim()))
-          : t(marketplaceMessages.shownAs(form.name.trim(), pkg.publisher.handle))}
+      <p
+        class={cn(
+          'text-xs',
+          form.nameTaken || form.nameIssue ? 'text-destructive' : 'text-muted-foreground',
+        )}
+      >
+        {#if form.nameIssue}
+          {nodeIdIssueText(form.nameIssue)}
+        {:else if form.nameTaken}
+          {t(marketplaceMessages.nameTaken(form.name.trim()))}
+        {:else}
+          {t(marketplaceMessages.shownAs(form.name.trim(), pkg.publisher.handle))}
+        {/if}
       </p>
     </div>
   </div>

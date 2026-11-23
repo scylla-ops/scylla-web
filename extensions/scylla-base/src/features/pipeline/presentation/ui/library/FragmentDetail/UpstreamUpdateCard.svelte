@@ -27,7 +27,12 @@
   const current = $derived(latestVersion(fragment));
   const changes = $derived(versionDiff(current, pending));
   const pins = $derived(pinnedValues(fragment.usages, current, pending));
-  const pinnedKeys = $derived([...new Set(pins.map(pin => `${pin.key}=${pin.value}`))]);
+  // One entry for each key and value: a value can hold an "=", so the pair stays two fields.
+  const pinnedKeys = $derived(
+    [...new Map(pins.map(pin => [JSON.stringify([pin.key, pin.value]), pin])).values()].map(
+      ({ key, value }) => ({ key, value }),
+    ),
+  );
   const pinning = $derived(new Set(pins.map(pin => pin.usage.pipelineId)).size);
   const total = $derived(fragment.usages.length);
 </script>
@@ -65,8 +70,7 @@
         {t(communityMessages.impactHeading(detail.workspaceName))}
       </h3>
       <p>{t(communityMessages.canSwitch(total - pinning, total))}</p>
-      {#each pinnedKeys as pinned (pinned)}
-        {@const [key, value] = pinned.split('=')}
+      {#each pinnedKeys as { key, value } (`${key}\u0000${value}`)}
         {@const names = pins.filter(pin => pin.key === key && pin.value === value).map(pin => pin.usage.pipelineName)}
         <p class="text-destructive">{t(communityMessages.pinned(names.length, key, value, names.join(', ')))}</p>
       {/each}

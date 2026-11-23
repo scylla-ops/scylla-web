@@ -94,6 +94,11 @@ export const fragmentMutations = {
       mutationFn: (fragment: Pick<FragmentEntity, 'id' | 'name'>) =>
         repository().delete(fragment.id),
       onSuccess: (_: void, fragment: Pick<FragmentEntity, 'id' | 'name'>) => {
+        // Its page is still open: a refetch would fail with NOT_FOUND and show an error toast.
+        getQueryClient().removeQueries({
+          queryKey: FRAGMENT_QUERY_KEY(workspaceId, fragment.id),
+          exact: true,
+        });
         refreshLibrary(workspaceId);
         toast.success(i18n._(libraryMessages.deletedTitle), { description: fragment.name });
       },

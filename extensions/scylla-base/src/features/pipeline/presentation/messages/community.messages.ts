@@ -76,6 +76,8 @@ export const communityMessages = {
   versionPrivate: (workspace: string) => msg`${workspace} only`,
   versionDeprecated: msg`deprecated`,
   publishFromPipeline: msg`From a pipeline…`,
+  deprecateTitle: (number: number) => msg`Deprecate v${number}?`,
+  deprecateBody: msg`No workspace can add this version any more, and it cannot be offered again. The workspaces that have it keep it.`,
   makePublic: (number: number) => msg`Make v${number} public`,
   linkedPolicy: (workspace: string) =>
     msg`Only ${workspace} admins accept or skip an upstream version.`,

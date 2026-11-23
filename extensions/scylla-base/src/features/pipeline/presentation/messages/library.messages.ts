@@ -103,6 +103,8 @@ export const libraryMessages = {
   actions: msg`Actions`,
   detach: msg`Detach as editable copy`,
   detachHint: msg`Detaching breaks the link: future versions will no longer be proposed.`,
+  blocksDetached: (blocks: string) =>
+    msg`Detached from the library: ${blocks}. Their nodes were edited, so the pipeline keeps them as its own.`,
   removeBlock: msg`Remove from this pipeline`,
   removeBlockHint: msg`The fragment stays in the library, and the other pipelines keep it.`,
   chooseSecret: msg`Choose a secret…`,

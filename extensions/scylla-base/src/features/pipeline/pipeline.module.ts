@@ -17,22 +17,23 @@ import './presentation/node-appearance.user-state.ts';
 
 const pipelineClient = new PipelineServiceClient(grpcTransport.getTransport());
 const pipelineRepository = new DefaultPipelineRepository(pipelineClient);
+const fragmentRepository = new DefaultFragmentRepository(
+  new FragmentServiceClient(grpcTransport.getTransport()),
+  pipelineClient,
+  {
+    client: new MarketplaceServiceClient(marketplaceTransport.getTransport()),
+    registry: marketplaceUrl() || window.location.origin,
+    local: marketplaceIsLocal(),
+  },
+);
 
 export const PipelineModule = {
   id: 'pipeline',
   domain: {
     pipelineRepository: pipelineRepository,
     nodeTemplateRepository: new DefaultNodeTemplateRepository(),
-    fragmentRepository: new DefaultFragmentRepository(
-      new FragmentServiceClient(grpcTransport.getTransport()),
-      pipelineClient,
-      {
-        client: new MarketplaceServiceClient(marketplaceTransport.getTransport()),
-        registry: marketplaceUrl() || window.location.origin,
-        local: marketplaceIsLocal(),
-      },
-    ),
-    savePipeline: new SavePipelineUseCase(pipelineRepository),
+    fragmentRepository,
+    savePipeline: new SavePipelineUseCase(pipelineRepository, fragmentRepository),
   },
   commands: pipelineCommands,
   routes: {

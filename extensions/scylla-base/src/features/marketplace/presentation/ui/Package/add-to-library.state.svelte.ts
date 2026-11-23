@@ -1,4 +1,8 @@
-import type { AddCommunityFragmentInput, FragmentAuthor } from '@base/features/pipeline';
+import {
+  nodeIdIssue,
+  type AddCommunityFragmentInput,
+  type FragmentAuthor,
+} from '@base/features/pipeline';
 import {
   addableVersions,
   versionsAfter,
@@ -48,11 +52,15 @@ export const createAddToLibrary = (
     get nameTaken() {
       return takenNames.includes(trimmed);
     },
+    /** The name becomes the id of the block in a pipeline: it follows the rule of a node id. */
+    get nameIssue() {
+      return trimmed ? nodeIdIssue(trimmed) : null;
+    },
     get secrets() {
       return chosen ? secretKeys(chosen) : [];
     },
     get ready() {
-      return !!chosen && !!trimmed && !takenNames.includes(trimmed);
+      return !!chosen && !!trimmed && !takenNames.includes(trimmed) && !nodeIdIssue(trimmed);
     },
 
     input(workspaceId: string, author: FragmentAuthor): AddCommunityFragmentInput | null {

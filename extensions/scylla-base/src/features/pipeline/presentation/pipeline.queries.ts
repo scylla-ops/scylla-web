@@ -3,6 +3,7 @@ import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '
 import { scyllaNavigate, contextStore } from '@platform/context';
 import { JOBS_QUERY_KEY } from '@base/features/jobs';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
+import { activeLocale, t } from '@scylla/ui/i18n';
 import { toast } from '@scylla/ui/utils';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
@@ -21,6 +22,7 @@ import {
 } from '../domain/use-cases/save-pipeline.use-case.ts';
 import type { NodeTemplateEntity } from '../domain/entities/node-template.entity.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
+import { libraryMessages } from './messages/library.messages.ts';
 import { pipelineMessages } from './messages/pipeline.messages.ts';
 import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
 import {
@@ -81,7 +83,11 @@ export const pipelineQueries = {
    */
   summaries: (
     workspaceId: string | null,
-    shape: Omit<PipelineSummaryQuery, 'workspaceId'> = { runs: 20, order: 'failing-first', limit: 100 },
+    shape: Omit<PipelineSummaryQuery, 'workspaceId'> = {
+      runs: 20,
+      order: 'failing-first',
+      limit: 100,
+    },
     enabled = true,
   ) =>
     queryOptions<PipelineSummaryList>({
@@ -97,8 +103,7 @@ export const pipelineQueries = {
     queryOptions<PaginatedList<PipelineMetadata>>({
       queryKey: WORKSPACE_PIPELINES_QUERY_KEY(workspaceId, PIPELINES_LOOKUP_PAGE),
       enabled: !!workspaceId,
-      queryFn: () =>
-        repository().getMetadataByWorkspaceId(workspaceId!, PIPELINES_LOOKUP_PAGE),
+      queryFn: () => repository().getMetadataByWorkspaceId(workspaceId!, PIPELINES_LOOKUP_PAGE),
       staleTime: 30_000,
     }),
 
@@ -168,9 +173,9 @@ export const nodeTemplateQueries = {
 };
 
 /** A pipeline the domain refuses gets the error toast of the app, in the language of the user. */
-const save = async (input: SavePipelineInput) => {
+const save = async (input: SavePipelineInput): Promise<string[]> => {
   try {
-    await savePipeline().execute(input);
+    return await savePipeline().execute(input);
   } catch (error) {
     if (!(error instanceof InvalidPipelineError)) throw error;
     throw new ScyllaError(pipelineIssueText(error.issue), { code: error.code, cause: error });
@@ -216,8 +221,9 @@ export const pipelineMutations = {
   /** With `links`, the fragments that the pipeline links are saved with its nodes. */
   update: () =>
     mutationOptions({
-      mutationFn: (pipeline: UpdatePipelineInput) => save(pipeline),
-      onSuccess: (_, { id, projectId, links }) => {
+      mutationFn: (pipeline: UpdatePipelineInput) =>
+        save({ ...pipeline, workspaceId: contextStore.getState().workspace.id ?? undefined }),
+      onSuccess: (detached, { id, projectId, links }) => {
         const queryClient = getQueryClient();
         if (links) {
           void queryClient.invalidateQueries({ queryKey: FRAGMENT_LINKS_QUERY_KEY(id) });
@@ -227,6 +233,10 @@ export const pipelineMutations = {
         void queryClient.invalidateQueries({ queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId) });
         void queryClient.invalidateQueries({ queryKey: PIPELINE_QUERY_KEY(id) });
         toast.success(i18n._(ToastMessages.PIPELINE_UPDATE));
+        if (detached.length) {
+          const blocks = new Intl.ListFormat(activeLocale(), { type: 'unit' }).format(detached);
+          toast.warning(t(libraryMessages.blocksDetached(blocks)));
+        }
         returnToProject();
       },
     }),

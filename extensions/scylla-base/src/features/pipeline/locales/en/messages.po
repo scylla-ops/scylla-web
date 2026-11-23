@@ -15,7 +15,7 @@ msgstr ""
 msgid "[skip ci] skipped"
 msgstr "[skip ci] skipped"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:134
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:136
 msgid "{count, plural, =0 {no pipeline} one {# pipeline} other {# pipelines}}"
 msgstr "{count, plural, =0 {no pipeline} one {# pipeline} other {# pipelines}}"
 
@@ -47,7 +47,7 @@ msgstr "{count, plural, one {# node} other {# nodes}}"
 msgid "{count, plural, one {# pins {key}={value} and keeps it: {names}.} other {# pin {key}={value} and keep it: {names}.}}"
 msgstr "{count, plural, one {# pins {key}={value} and keeps it: {names}.} other {# pin {key}={value} and keep it: {names}.}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:128
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:130
 msgid "{count, plural, one {# pipeline uses it} other {# pipelines use it}}: they keep its nodes and still run, but they no longer get its versions. Its versions are lost."
 msgstr "{count, plural, one {# pipeline uses it} other {# pipelines use it}}: they keep its nodes and still run, but they no longer get its versions. Its versions are lost."
 
@@ -63,7 +63,7 @@ msgstr "{count, plural, one {# secret} other {# secrets}}"
 msgid "{count, plural, one {# variable} other {# variables}}"
 msgstr "{count, plural, one {# variable} other {# variables}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:138
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:140
 msgid "{count, plural, one {+ # more} other {+ # more}}"
 msgstr "{count, plural, one {+ # more} other {+ # more}}"
 
@@ -79,7 +79,7 @@ msgstr "{count, plural, one {The node becomes one {name} block, linked to the li
 msgid "{count, plural, one {Turn the selected node into a reusable fragment, shared with everyone in {workspace}.} other {Turn the # selected nodes into a reusable fragment, shared with everyone in {workspace}.}}"
 msgstr "{count, plural, one {Turn the selected node into a reusable fragment, shared with everyone in {workspace}.} other {Turn the # selected nodes into a reusable fragment, shared with everyone in {workspace}.}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:96
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:98
 msgid "{count, plural, one {v{number} · # organization} other {v{number} · # organizations}}"
 msgstr "{count, plural, one {v{number} · # organization} other {v{number} · # organizations}}"
 
@@ -107,11 +107,11 @@ msgstr "{id} now runs after {target}. The nodes that waited for it wait for what
 msgid "{key} default {from} → {to}"
 msgstr "{key} default {from} → {to}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:121
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:123
 msgid "{keys} look like secrets: remove their default value."
 msgstr "{keys} look like secrets: remove their default value."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:123
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:125
 msgid "{keys} stay required secrets, filled by whoever uses it."
 msgstr "{keys} stay required secrets, filled by whoever uses it."
 
@@ -123,7 +123,7 @@ msgstr "{label} · {count}"
 msgid "{name} · {date}"
 msgstr "{name} · {date}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:141
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:143
 msgid "{name} is in the library: drop it in a pipeline from the palette."
 msgstr "{name} is in the library: drop it in a pipeline from the palette."
 
@@ -131,7 +131,7 @@ msgstr "{name} is in the library: drop it in a pipeline from the palette."
 msgid "{name} is in the library: saving publishes its version {number}."
 msgstr "{name} is in the library: saving publishes its version {number}."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:110
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:112
 msgid "{name} v{number} is available"
 msgstr "{name} v{number} is available"
 
@@ -151,11 +151,11 @@ msgstr "{name}: {from} → {to}"
 msgid "{node} has no port {port}."
 msgstr "{node} has no port {port}."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:132
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:134
 msgid "{nodes} name the workspace. Remove the reference before publishing."
 msgstr "{nodes} name the workspace. Remove the reference before publishing."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:118
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:120
 msgid "{passed} of {total} passed"
 msgstr "{passed} of {total} passed"
 
@@ -167,7 +167,7 @@ msgstr "{workspace} library"
 msgid "{workspace} only"
 msgstr "{workspace} only"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:83
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:85
 msgid "{workspace} owns this fork: {author} and {workspace} admins publish its versions."
 msgstr "{workspace} owns this fork: {author} and {workspace} admins publish its versions."
 
@@ -203,7 +203,7 @@ msgstr "A merge runs when one of its links in or more is open."
 msgid "A multi-line shell script"
 msgstr "A multi-line shell script"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:85
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:87
 msgid "A new version goes to the {workspace} library first. The author or an admin then chooses to make it public."
 msgstr "A new version goes to the {workspace} library first. The author or an admin then chooses to make it public."
 
@@ -292,7 +292,7 @@ msgstr "Add…"
 msgid "Added by {name} · {date}"
 msgstr "Added by {name} · {date}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:139
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:141
 msgid "Added to the library"
 msgstr "Added to the library"
 
@@ -319,7 +319,7 @@ msgctxt "rules"
 msgid "Any"
 msgstr "Any"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:103
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:105
 msgid "Any Scylla organization will be able to add it. {workspace} stays the owner and the only one who can publish versions."
 msgstr "Any Scylla organization will be able to add it. {workspace} stays the owner and the only one who can publish versions."
 
@@ -351,7 +351,7 @@ msgstr "Author login"
 msgid "Bash script"
 msgstr "Bash script"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:117
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:119
 msgid "Before publishing"
 msgstr "Before publishing"
 
@@ -388,7 +388,7 @@ msgstr "Browse marketplace"
 msgid "Browse the whole library"
 msgstr "Browse the whole library"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:112
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:114
 msgid "Build"
 msgstr "Build"
 
@@ -408,7 +408,7 @@ msgstr "By node"
 msgid "cancel"
 msgstr "cancel"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:136
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:138
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:94
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/run.messages.ts:23
 msgid "Cancel"
@@ -418,7 +418,7 @@ msgstr "Cancel"
 msgid "Cases"
 msgstr "Cases"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:108
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:110
 msgid "Category"
 msgstr "Category"
 
@@ -438,7 +438,7 @@ msgstr "Check your connection, then try again."
 msgid "Checkout"
 msgstr "Checkout"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:108
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:110
 msgid "Choose a secret…"
 msgstr "Choose a secret…"
 
@@ -446,7 +446,7 @@ msgstr "Choose a secret…"
 msgid "Choose the code to run. Scylla checks it out on the agent and reports on its commit."
 msgstr "Choose the code to run. Scylla checks it out on the agent and reports on its commit."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:111
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:113
 msgid "CI"
 msgstr "CI"
 
@@ -454,11 +454,11 @@ msgstr "CI"
 msgid "Clear filters"
 msgstr "Clear filters"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:121
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:123
 msgid "Click a node to change it, or pull a link from it to add a node. Your changes become a new version."
 msgstr "Click a node to change it, or pull a link from it to add a node. Your changes become a new version."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:120
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:122
 msgid "Click a node to see its code."
 msgstr "Click a node to see its code."
 
@@ -525,7 +525,7 @@ msgstr "Compare v{from} and v{to}"
 msgid "contains"
 msgstr "contains"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:119
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:121
 msgid "Content"
 msgstr "Content"
 
@@ -545,7 +545,7 @@ msgstr "Copy the node"
 msgid "Couldn't load the pipeline"
 msgstr "Couldn't load the pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:67
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:68
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:43
 msgid "Create"
 msgstr "Create"
@@ -566,7 +566,7 @@ msgstr "Created"
 msgid "default"
 msgstr "default"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:140
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:142
 msgid "Default"
 msgstr "Default"
 
@@ -578,7 +578,7 @@ msgstr "Default value"
 msgid "Delete"
 msgstr "Delete"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:130
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:132
 msgid "Delete {name}?"
 msgstr "Delete {name}?"
 
@@ -586,7 +586,7 @@ msgstr "Delete {name}?"
 msgid "Delete edge"
 msgstr "Delete edge"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:125
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:127
 msgid "Delete fragment"
 msgstr "Delete fragment"
 
@@ -602,7 +602,7 @@ msgstr "Delete the node"
 msgid "Delete the rule"
 msgstr "Delete the rule"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:124
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:126
 msgid "Delete this fragment"
 msgstr "Delete this fragment"
 
@@ -610,24 +610,28 @@ msgstr "Delete this fragment"
 msgid "Dependencies"
 msgstr "Dependencies"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:113
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:115
 msgid "Deploy"
 msgstr "Deploy"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:99
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:101
 msgid "Deprecate v{number}"
 msgstr "Deprecate v{number}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:79
+msgid "Deprecate v{number}?"
+msgstr "Deprecate v{number}?"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:77
 msgid "deprecated"
 msgstr "deprecated"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:126
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:128
 msgid "Describe {keys}: other organizations only see the description."
 msgstr "Describe {keys}: other organizations only see the description."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:70
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:141
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:143
 msgid "Description"
 msgstr "Description"
 
@@ -639,11 +643,15 @@ msgstr "Detach as editable copy"
 msgid "Detach as fork"
 msgstr "Detach as fork"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:107
+msgid "Detached from the library: {blocks}. Their nodes were edited, so the pipeline keeps them as its own."
+msgstr "Detached from the library: {blocks}. Their nodes were edited, so the pipeline keeps them as its own."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:105
 msgid "Detaching breaks the link: future versions will no longer be proposed."
 msgstr "Detaching breaks the link: future versions will no longer be proposed."
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:51
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:52
 msgid "Detail"
 msgstr "Detail"
 
@@ -655,7 +663,7 @@ msgstr "Detailed"
 msgid "Detected parameters"
 msgstr "Detected parameters"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:123
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:125
 msgid "Discard changes"
 msgstr "Discard changes"
 
@@ -727,7 +735,7 @@ msgstr "each branch"
 msgid "each tag"
 msgstr "each tag"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:76
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:77
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:21
 msgid "Edit"
 msgstr "Edit"
@@ -776,7 +784,7 @@ msgstr "Event"
 msgid "Event: All"
 msgstr "Event: All"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:124
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:126
 msgid "Every parameter is documented"
 msgstr "Every parameter is documented"
 
@@ -868,15 +876,15 @@ msgstr "Forked by {name} · {date}"
 msgid "Forked from {reference}"
 msgstr "Forked from {reference}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:93
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:95
 msgid "Forks"
 msgstr "Forks"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:51
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:52
 msgid "Fragment"
 msgstr "Fragment"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:131
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:133
 msgid "Fragment deleted"
 msgstr "Fragment deleted"
 
@@ -941,7 +949,7 @@ msgstr "In the case {port}, a text is longer than 64 KiB or holds a NUL characte
 msgid "Insert a node here"
 msgstr "Insert a node here"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:90
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:92
 msgid "Installs"
 msgstr "Installs"
 
@@ -997,11 +1005,11 @@ msgstr "is not empty"
 msgid "is not equal to"
 msgstr "is not equal to"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:129
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:131
 msgid "It is public: other workspaces link it. Deprecate its versions instead."
 msgstr "It is public: other workspaces link it. Deprecate its versions instead."
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:95
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:96
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -1045,13 +1053,13 @@ msgstr "Left value"
 msgid "LFS"
 msgstr "LFS"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:44
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:46
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:45
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:47
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:5
 msgid "Library"
 msgstr "Library"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:107
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:109
 msgid "License"
 msgstr "License"
 
@@ -1095,11 +1103,11 @@ msgstr "Literal"
 msgid "Loading the pipeline…"
 msgstr "Loading the pipeline…"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:151
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:153
 msgid "Loading the pipelines…"
 msgstr "Loading the pipelines…"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:79
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:81
 msgid "Make v{number} public"
 msgstr "Make v{number} public"
 
@@ -1141,7 +1149,7 @@ msgstr "Move the case {port} up"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:28
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:62
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:139
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:141
 msgid "Name"
 msgstr "Name"
 
@@ -1149,7 +1157,7 @@ msgstr "Name"
 msgid "navigate"
 msgstr "navigate"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:98
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:100
 msgid "Need to stop a version? Organizations already using it keep it, new ones cannot add it."
 msgstr "Need to stop a version? Organizations already using it keep it, new ones cannot add it."
 
@@ -1190,7 +1198,7 @@ msgstr "New version published"
 msgid "No branch or tag"
 msgstr "No branch or tag"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:127
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:129
 msgid "No default points to a private address"
 msgstr "No default points to a private address"
 
@@ -1210,7 +1218,7 @@ msgstr "No input link"
 msgid "No node matches this search."
 msgstr "No node matches this search."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:97
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:99
 msgid "No organization uses it yet."
 msgstr "No organization uses it yet."
 
@@ -1218,19 +1226,19 @@ msgstr "No organization uses it yet."
 msgid "No pipeline found"
 msgstr "No pipeline found"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:137
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:139
 msgid "No pipeline links this fragment yet."
 msgstr "No pipeline links this fragment yet."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:150
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:152
 msgid "No pipeline matches."
 msgstr "No pipeline matches."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:126
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:128
 msgid "No pipeline uses it. Its versions are lost."
 msgstr "No pipeline uses it. Its versions are lost."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:130
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:132
 msgid "No reference to {workspace} in the nodes"
 msgstr "No reference to {workspace} in the nodes"
 
@@ -1238,13 +1246,17 @@ msgstr "No reference to {workspace} in the nodes"
 msgid "No run yet"
 msgstr "No run yet"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:119
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:121
 msgid "No secret values in defaults"
 msgstr "No secret values in defaults"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:34
 msgid "No timeout"
 msgstr "No timeout"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:80
+msgid "No workspace can add this version any more, and it cannot be offered again. The workspaces that have it keep it."
+msgstr "No workspace can add this version any more, and it cannot be offered again. The workspaces that have it keep it."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:11
 msgid "Node ID"
@@ -1284,11 +1296,11 @@ msgstr "Number"
 msgid "Off"
 msgstr "Off"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:134
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:136
 msgid "Off: each new library version asks whether to make it public."
 msgstr "Off: each new library version asks whether to make it public."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:88
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:90
 msgid "On the marketplace"
 msgstr "On the marketplace"
 
@@ -1300,7 +1312,7 @@ msgstr "One program and its arguments"
 msgid "One way for each case"
 msgstr "One way for each case"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:81
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:83
 msgid "Only {workspace} admins accept or skip an upstream version."
 msgstr "Only {workspace} admins accept or skip an upstream version."
 
@@ -1308,7 +1320,7 @@ msgstr "Only {workspace} admins accept or skip an upstream version."
 msgid "Only the admins of the workspace accept or skip an upstream version."
 msgstr "Only the admins of the workspace accept or skip an upstream version."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:136
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:138
 msgid "Only the author ({author}) and the admins can publish a new version. Change the nodes in the graph above, or save nodes of a pipeline under the name of this fragment."
 msgstr "Only the author ({author}) and the admins can publish a new version. Change the nodes in the graph above, or save nodes of a pipeline under the name of this fragment."
 
@@ -1316,7 +1328,7 @@ msgstr "Only the author ({author}) and the admins can publish a new version. Cha
 msgid "Open a node from the list."
 msgstr "Open a node from the list."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:145
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:147
 msgid "Open a pipeline, then drop {name} from the Library tab of the palette."
 msgstr "Open a pipeline, then drop {name} from the Library tab of the palette."
 
@@ -1332,7 +1344,7 @@ msgstr "Open in library"
 msgid "Open nodes"
 msgstr "Open nodes"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:148
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:150
 msgid "Open the pipeline that holds the new nodes, select them, then save them to the library under the name {name}."
 msgstr "Open the pipeline that holds the new nodes, select them, then save them to the library under the name {name}."
 
@@ -1350,7 +1362,7 @@ msgstr "Open to the side"
 msgid "Organization"
 msgstr "Organization"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:91
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:93
 msgid "Organizations"
 msgstr "Organizations"
 
@@ -1374,12 +1386,12 @@ msgstr "Parameters"
 msgid "passed"
 msgstr "passed"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:86
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:88
 msgid "pins {key}={value}"
 msgstr "pins {key}={value}"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:74
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:85
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:75
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:86
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:8
 msgid "Pipeline"
 msgstr "Pipeline"
@@ -1396,7 +1408,7 @@ msgstr "Pipeline file"
 msgid "Pipeline name"
 msgstr "Pipeline name"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:62
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:63
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:9
 msgid "Pipelines"
 msgstr "Pipelines"
@@ -1425,19 +1437,19 @@ msgstr "Public · {name}"
 msgid "Public marketplace"
 msgstr "Public marketplace"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:104
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:106
 msgid "Public name"
 msgstr "Public name"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:101
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:103
 msgid "Publish {name} to the marketplace"
 msgstr "Publish {name} to the marketplace"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:146
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:148
 msgid "Publish {name} v{number}"
 msgstr "Publish {name} v{number}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:133
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:135
 msgid "Publish next versions automatically"
 msgstr "Publish next versions automatically"
 
@@ -1445,20 +1457,20 @@ msgstr "Publish next versions automatically"
 msgid "Publish to marketplace"
 msgstr "Publish to marketplace"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:135
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:137
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:93
 msgid "Publish v{number}"
 msgstr "Publish v{number}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:89
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:91
 msgid "Published {date} by {name}"
 msgstr "Published {date} by {name}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:111
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:113
 msgid "Published by {name} · {date}"
 msgstr "Published by {name} · {date}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:137
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:139
 msgid "Published to the marketplace"
 msgstr "Published to the marketplace"
 
@@ -1496,7 +1508,7 @@ msgstr "Recently published"
 msgid "Reference a secret"
 msgstr "Reference a secret"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:115
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:117
 msgid "Release"
 msgstr "Release"
 
@@ -1512,7 +1524,7 @@ msgstr "Remove argument"
 msgid "Remove from favorites"
 msgstr "Remove from favorites"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:106
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:108
 msgid "Remove from this pipeline"
 msgstr "Remove from this pipeline"
 
@@ -1552,7 +1564,7 @@ msgstr "Replace the selection with the linked block"
 msgid "Required by"
 msgstr "Required by"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:109
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:111
 msgid "Required. Pick a secret of the project: its value is never copied into the fragment."
 msgstr "Required. Pick a secret of the project: its value is never copied into the fragment."
 
@@ -1560,7 +1572,7 @@ msgstr "Required. Pick a secret of the project: its value is never copied into t
 msgid "Retries"
 msgstr "Retries"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:112
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:114
 msgid "Review"
 msgstr "Review"
 
@@ -1658,7 +1670,7 @@ msgstr "Search a node"
 msgid "Search fragments, nodes, tags…"
 msgstr "Search fragments, nodes, tags…"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:149
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:151
 msgid "Search pipelines…"
 msgstr "Search pipelines…"
 
@@ -1686,7 +1698,7 @@ msgstr "secret name"
 msgid "Secrets"
 msgstr "Secrets"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:114
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:116
 msgid "Security"
 msgstr "Security"
 
@@ -1754,7 +1766,7 @@ msgstr "Split the editor"
 msgid "Stage {number}"
 msgstr "Stage {number}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:92
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:94
 msgid "Stars"
 msgstr "Stars"
 
@@ -1766,11 +1778,11 @@ msgstr "starts with"
 msgid "Status"
 msgstr "Status"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:115
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:117
 msgid "Stay on v{number}"
 msgstr "Stay on v{number}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:105
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:107
 msgid "Stays the same across versions."
 msgstr "Stays the same across versions."
 
@@ -1790,7 +1802,7 @@ msgstr "switch"
 msgid "Switch"
 msgstr "Switch"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:114
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:116
 msgid "Switch to v{number}"
 msgstr "Switch to v{number}"
 
@@ -1799,7 +1811,7 @@ msgstr "Switch to v{number}"
 msgid "Tag"
 msgstr "Tag"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:109
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:111
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:67
 msgid "Tags"
 msgstr "Tags"
@@ -1828,7 +1840,7 @@ msgstr "The case {port} needs 1 to 32 rules."
 msgid "the default branch"
 msgstr "the default branch"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:129
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:131
 msgid "The default of {keys} names a private address. Other organizations cannot reach it: clear the default, or say it in the description."
 msgstr "The default of {keys} names a private address. Other organizations cannot reach it: clear the default, or say it in the description."
 
@@ -1840,11 +1852,11 @@ msgstr "The file has no on section."
 msgid "The file has the saved version. Save the pipeline to export your changes."
 msgstr "The file has the saved version. Save the pipeline to export your changes."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:107
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:109
 msgid "The fragment stays in the library, and the other pipelines keep it."
 msgstr "The fragment stays in the library, and the other pipelines keep it."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:143
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:145
 msgid "The library could not be loaded."
 msgstr "The library could not be loaded."
 
@@ -1928,11 +1940,19 @@ msgstr "These nodes no longer wait for {need}: {nodes}."
 msgid "These values become parameters of the fragment."
 msgstr "These values become parameters of the fragment."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:117
+#: extensions/scylla-base/src/features/pipeline/infrastructure/default-fragment.repository.ts:208
+msgid "This fragment does not come from a package of the marketplace."
+msgstr "This fragment does not come from a package of the marketplace."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:119
 msgid "This fragment is no longer in the library."
 msgstr "This fragment is no longer in the library."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:142
+#: extensions/scylla-base/src/features/pipeline/infrastructure/default-fragment.repository.ts:73
+msgid "This fragment is not in the library of this workspace."
+msgstr "This fragment is not in the library of this workspace."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:144
 msgid "This fragment is not in the library."
 msgstr "This fragment is not in the library."
 
@@ -2050,7 +2070,7 @@ msgstr "Use"
 msgid "Use {id}"
 msgstr "Use {id}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:143
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:145
 msgid "Use {name} in a pipeline"
 msgstr "Use {name} in a pipeline"
 
@@ -2078,7 +2098,7 @@ msgstr "v{number} · latest"
 msgid "v{number} · pinned"
 msgstr "v{number} · pinned"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:113
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:115
 msgid "v{number} available"
 msgstr "v{number} available"
 
@@ -2106,16 +2126,16 @@ msgstr "Variable"
 msgid "Verified publisher"
 msgstr "Verified publisher"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:106
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:108
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:101
 msgid "Version"
 msgstr "Version"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:132
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:134
 msgid "Versions"
 msgstr "Versions"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:94
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:96
 msgid "Versions in use by other organizations"
 msgstr "Versions in use by other organizations"
 
@@ -2155,7 +2175,7 @@ msgstr "Waits for"
 msgid "What changed, one line each"
 msgstr "What changed, one line each"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:122
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:124
 msgid "What changed?"
 msgstr "What changed?"
 
@@ -2187,6 +2207,6 @@ msgstr "You don't have permission to read this pipeline."
 msgid "You don't have permission to view this pipeline's jobs"
 msgstr "You don't have permission to view this pipeline's jobs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:116
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:118
 msgid "Your parameter values are kept."
 msgstr "Your parameter values are kept."

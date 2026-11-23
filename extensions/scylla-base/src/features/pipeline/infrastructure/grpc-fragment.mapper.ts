@@ -1,3 +1,4 @@
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type {
   Fragment,
   FragmentOrigin as GrpcOrigin,
@@ -105,8 +106,16 @@ export const linkFromDomain = (link: FragmentLink): GrpcLink => ({
  * author. The author shown is the publisher.
  */
 export const versionFromContent = (content: Uint8Array, publisher: string): FragmentVersion => {
-  const version = versionToDomain(GrpcVersionMessage.fromBinary(content));
-  return { ...version, author: { id: '', name: publisher } };
+  let message: GrpcVersionMessage;
+  try {
+    message = GrpcVersionMessage.fromBinary(content);
+  } catch (cause) {
+    throw new ScyllaError('The content of a package version cannot be read', {
+      code: 'MALFORMED_RESPONSE',
+      cause,
+    });
+  }
+  return { ...versionToDomain(message), author: { id: '', name: publisher } };
 };
 
 const CATEGORIES: Record<PackageCategory, MarketplaceCategory> = {
@@ -140,7 +149,15 @@ const packageRef = (origin: GrpcOrigin): PackageRef => {
 const openVersions = (pkg: Package): FragmentVersion[] =>
   pkg.versions
     .filter(version => !version.deprecated && version.content.length > 0)
-    .map(version => versionFromContent(version.content, pkg.publisher));
+    .flatMap(version => {
+      // A version that this build cannot read is left out: the library shows the others.
+      try {
+        return [versionFromContent(version.content, pkg.publisher)];
+      } catch (error) {
+        console.error(error);
+        return [];
+      }
+    });
 
 /**
  * Where a fragment comes from, with the versions of its package that it can take. A linked

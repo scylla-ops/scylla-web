@@ -49,3 +49,6 @@ export const loadFragmentNodes = () =>
   import('./presentation/ui/library/FragmentDetail/FragmentNodes.svelte');
 export const loadFragmentParameters = () =>
   import('./presentation/ui/library/FragmentDetail/FragmentParameters.svelte');
+// The name of a fragment is the id of its block in a pipeline: the rule of a node id.
+export { nodeIdIssue, type NodeIdIssue } from './domain/structs/node-id.struct.ts';
+export { nodeIdIssueText } from './presentation/presenters/node-issue.presenter.ts';

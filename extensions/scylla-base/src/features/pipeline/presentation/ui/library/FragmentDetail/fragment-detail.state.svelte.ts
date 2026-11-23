@@ -143,8 +143,11 @@ export const createFragmentDetail = (fragmentId: () => string) => {
     detach() {
       if (fragment) detach.mutate(fragment.id);
     },
-    deprecate(version: number) {
-      if (fragment) deprecate.mutate({ id: fragment.id, version });
+    get deprecating() {
+      return deprecate.isPending;
+    },
+    deprecate(version: number, onDone?: () => void) {
+      if (fragment) deprecate.mutate({ id: fragment.id, version }, { onSuccess: () => onDone?.() });
     },
     /** The library opens: the page of the fragment no longer exists. */
     remove(onDone: () => void) {

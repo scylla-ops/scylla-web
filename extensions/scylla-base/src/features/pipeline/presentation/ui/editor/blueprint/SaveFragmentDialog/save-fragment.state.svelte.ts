@@ -79,6 +79,8 @@ export const createSaveFragment = ({
     },
     set name(next: string) {
       name = next;
+      // A name typed again asks again: the person accepts each new version once, at the end.
+      confirmedId = null;
     },
     get description() {
       return description;

@@ -1,5 +1,6 @@
 import type { NodeId } from '../structs/node-id.struct.ts';
 import {
+  definitionOf,
   withRenamedReference,
   type EnvEntry,
   type PipelineNodeEntity,
@@ -348,13 +349,13 @@ export const withValues = (
   return nodes.map(node => {
     if (!('env' in node)) return node;
     return {
-    ...node,
-    env: node.env.flatMap(entry => {
-      const parameter = byKey.get(entry.key);
-      if (!parameter) return [entry];
-      const value = values[parameter.key] ?? '';
-      return parameter.kind === 'secret' && !value.trim() ? [] : [entryFor(parameter, value)];
-    }),
+      ...node,
+      env: node.env.flatMap(entry => {
+        const parameter = byKey.get(entry.key);
+        if (!parameter) return [entry];
+        const value = values[parameter.key] ?? '';
+        return parameter.kind === 'secret' && !value.trim() ? [] : [entryFor(parameter, value)];
+      }),
     };
   });
 };
@@ -373,7 +374,8 @@ export const instantiate = (
   // meets a node that already has that id.
   const rename = (nodes: PipelineNodeEntity[], to: (id: NodeId, index: number) => NodeId) =>
     nodes.reduce(
-      (renamed, { id }, index) => renamed.map(node => withRenamedReference(node, id, to(id, index))),
+      (renamed, { id }, index) =>
+        renamed.map(node => withRenamedReference(node, id, to(id, index))),
       nodes,
     );
   const nodes = rename(
@@ -381,4 +383,32 @@ export const instantiate = (
     (_, index) => `${blockId}-${version.nodes[index].id}`,
   );
   return withValues(nodes, version.parameters, values);
+};
+
+/** A node as it runs: its definition and its needs, with no field left undefined. */
+const shapeOf = (node: PipelineNodeEntity, members: ReadonlySet<NodeId>) =>
+  JSON.stringify({
+    ...definitionOf(node),
+    deps: node.deps.filter(dep => members.has(dep.node)),
+  });
+
+/**
+ * The nodes of a link still run what its version gives. An edit of these nodes outside the block,
+ * in the scripting tab, breaks this: the pipeline then holds its own nodes, not the version.
+ */
+export const linkHoldsVersion = (
+  link: Pick<FragmentLink, 'blockId' | 'values' | 'nodeIds'>,
+  version: FragmentVersion,
+  nodes: PipelineNodeEntity[],
+): boolean => {
+  const expected = instantiate(version, link.blockId, link.values);
+  const members = new Set(link.nodeIds);
+  const byId = new Map(nodes.map(node => [node.id, node]));
+  return (
+    expected.length === members.size &&
+    expected.every(node => {
+      const actual = byId.get(node.id);
+      return !!actual && shapeOf(actual, members) === shapeOf(node, members);
+    })
+  );
 };
