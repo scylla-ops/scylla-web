@@ -203,6 +203,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The trigger editor has the conditions of a webhook: a header or a field of the body, with is,
   matches or is one of. The list of triggers shows the number of conditions, and a delivery that
   does not match them shows as Skipped with the reason.
+- After a sign-in, the dots of the mark turn while the server answers and light up, the panel closes
+  over the form, and the mark flies onto the logo of the dashboard. Below lg, or with reduced
+  motion, a short fade replaces this motion.
 
 ### Changed
 
@@ -529,6 +532,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The submenu "Legal and privacy" of the user menu shows its documents on hover, on a click and with
   the right arrow. Before, the menu hid the submenu, thus it seemed to do nothing. On a phone, the
   submenu opens under its entry, inside the screen.
+- The table of the roles fits in its card. It no longer scrolls horizontally, the header is aligned
+  with the rows, and the Role column shows the name on one line and the description on a few lines.
 
 ## [0.6.0] - 2026-11-01
 

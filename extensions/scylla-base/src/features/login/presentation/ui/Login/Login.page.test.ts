@@ -12,6 +12,7 @@ import {
   termsToAcceptAt,
   withLegalInfo,
 } from '../../__test__/legal-info.fixture.ts';
+import { arrival } from '../ArrivalOverlay/arrival.state.svelte.ts';
 import LoginPage from './Login.page.svelte';
 
 const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
@@ -47,6 +48,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  arrival.reset();
   teardown.forEach(restore => restore());
   history.replaceState(null, '', '/');
 });
@@ -87,16 +89,47 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText('Email or username')).toBeInTheDocument();
   });
 
-  it('replaces the form with the loading screen once sign-in succeeds', async () => {
+  it('keeps the form disabled under the arrival once sign-in succeeds', async () => {
     const { repository } = makeFakeRepository();
     setUp(repository);
     render(LoginPage);
 
     await signIn();
 
-    await waitFor(() =>
-      expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(arrival.phase).not.toBe('idle'));
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+  });
+
+  describe('the dots of the mark in the panel', () => {
+    const mark = () => document.querySelector('[data-slot="logo-mark"]');
+
+    it('turn grey while the request runs, and light when it succeeds', async () => {
+      let accept: () => void = () => undefined;
+      const login = vi.fn(
+        () => new Promise<void>(resolve => (accept = () => resolve(undefined))),
+      );
+      setUp(makeFakeRepository({ login }).repository);
+      render(LoginPage);
+      expect(mark()).toHaveAttribute('data-state', 'idle');
+
+      await signIn();
+
+      await waitFor(() => expect(mark()).toHaveAttribute('data-state', 'waiting'));
+      accept();
+      await waitFor(() => expect(mark()).toHaveAttribute('data-state', 'lit'));
+    });
+
+    it('go back to idle when the credentials are refused', async () => {
+      const error = new ScyllaError('bad credentials', { code: 'INVALID_CREDENTIALS' });
+      setUp(makeFakeRepository({ login: vi.fn().mockRejectedValue(error) }).repository);
+      render(LoginPage);
+
+      await signIn('ravenne', 'wrong');
+
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled());
+      expect(mark()).toHaveAttribute('data-state', 'idle');
+      expect(arrival.phase).toBe('idle');
+    });
   });
 
   it('goes back to the return path after the sign-in, with its fragment', async () => {

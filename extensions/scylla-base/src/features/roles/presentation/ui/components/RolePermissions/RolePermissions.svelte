@@ -61,13 +61,13 @@
   </p>
 {/snippet}
 
-<div class="w-[340px]">
+<div>
   {#if summary.kind === 'full'}
     <span
-      class="inline-flex items-center gap-[5px] rounded-md bg-primary/12 px-2 py-[3px] text-xs whitespace-nowrap"
+      class="inline-flex max-w-full items-center gap-[5px] rounded-md bg-primary/12 px-2 py-[3px] text-xs whitespace-nowrap"
     >
-      <span class="font-medium text-primary">{t(rolesMessages.fullControl)}</span>
-      <span class="text-muted-foreground">{summary.hint}</span>
+      <span class="shrink-0 font-medium text-primary">{t(rolesMessages.fullControl)}</span>
+      <span class="truncate text-muted-foreground" title={summary.hint}>{summary.hint}</span>
     </span>
   {:else if summary.kind === 'viewOnly'}
     <span

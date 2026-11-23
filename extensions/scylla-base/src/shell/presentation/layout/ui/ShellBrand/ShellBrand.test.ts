@@ -1,13 +1,18 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { tick } from 'svelte';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { flushSync, tick } from 'svelte';
 import { screen } from '@testing-library/svelte';
 import { contextStore } from '@platform/context';
+import { arrival } from '@base/features/login';
 import { render } from '@test/render.ts';
 import ShellBrand from './ShellBrand.svelte';
 
 const logoLink = () => screen.getByRole('link', { name: 'Scylla: open the dashboard' });
 
-afterEach(() => contextStore.getState().reset());
+afterEach(() => {
+  arrival.reset();
+  contextStore.getState().reset();
+  vi.useRealTimers();
+});
 
 describe('ShellBrand', () => {
   it('links to the dashboard of the current workspace', () => {
@@ -40,5 +45,23 @@ describe('ShellBrand', () => {
     render(ShellBrand);
 
     expect(logoLink()).toHaveAttribute('href', '/');
+  });
+
+  it('hides the logo until the mark of the sign-in lands on it', () => {
+    vi.useFakeTimers();
+    vi.mocked(window.matchMedia).mockImplementation(
+      query => ({ matches: query === '(min-width: 64rem)' }) as MediaQueryList,
+    );
+    render(ShellBrand);
+
+    arrival.begin(() => undefined);
+    vi.advanceTimersByTime(1000);
+    flushSync();
+    expect(logoLink()).toHaveClass('opacity-0');
+
+    vi.advanceTimersByTime(3000 + 600);
+    flushSync();
+    expect(arrival.phase).toBe('arrived');
+    expect(logoLink()).not.toHaveClass('opacity-0');
   });
 });

@@ -46,7 +46,7 @@
 
 {#snippet rows(list: readonly RoleEntity[])}
   <div class="relative overflow-x-auto p-1.5">
-    <Table class="min-w-[720px]">
+    <Table class="min-w-[640px] table-fixed">
       <RolesTableHeader {sort} onSortChange={next => (sort = next)} />
       <TableBody>
         {#each list as role (role.key)}

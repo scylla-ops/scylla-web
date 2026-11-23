@@ -1,6 +1,5 @@
 <script lang="ts">
   import { createQuery, WidgetZone } from '@scylla/core-sdk';
-  import { ScyllaLoadingScreen } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { LoginState } from '@base/features/login';
   import { loginPoints } from '@base/features/login/presentation/login.points.ts';
@@ -24,28 +23,27 @@
   <LegalFooter class="pt-6" />
 {/snippet}
 
-{#if state.isSuccess}
-  <ScyllaLoadingScreen />
-{:else}
-  <AuthLayout
-    footer={legalFooter}
-    title={t(loginMessages.title)}
-    description={t(loginMessages.description)}
-  >
-    <LoginForm handleSubmit={state.submit} isPending={state.isPending} />
-    <SignInProviders providers={methods.data?.providers ?? []} {returnPath} />
+<!-- After the sign-in, the page stays under the arrival of `ArrivalOverlay` until the app opens. -->
+<AuthLayout
+  footer={legalFooter}
+  title={t(loginMessages.title)}
+  description={t(loginMessages.description)}
+  mark={state.mark}
+  leaving={state.isLeaving}
+>
+  <LoginForm handleSubmit={state.submit} isPending={state.isPending} />
+  <SignInProviders providers={methods.data?.providers ?? []} {returnPath} />
 
-    {#snippet below()}
-      {#if methods.data?.signUpMode === 'open'}
-        <a
-          href="/sign-up"
-          class="mt-6 text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-        >
-          {t(signUpMessages.noAccount)}
-        </a>
-      {/if}
-      <!-- No default content: a zone that only ever receives `after` components. -->
-      <WidgetZone point={loginPoints.footer} context={{ isPending: state.isPending }} />
-    {/snippet}
-  </AuthLayout>
-{/if}
+  {#snippet below()}
+    {#if methods.data?.signUpMode === 'open'}
+      <a
+        href="/sign-up"
+        class="mt-6 text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+      >
+        {t(signUpMessages.noAccount)}
+      </a>
+    {/if}
+    <!-- No default content: a zone that only ever receives `after` components. -->
+    <WidgetZone point={loginPoints.footer} context={{ isPending: state.isPending }} />
+  {/snippet}
+</AuthLayout>

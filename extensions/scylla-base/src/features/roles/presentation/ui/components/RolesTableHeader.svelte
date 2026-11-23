@@ -17,7 +17,7 @@
 
 <TableHeader>
   <TableRow>
-    <TableHead class="h-10 text-sm" aria-sort={ARIA_SORT[sort]}>
+    <TableHead class="h-10 w-[38%] text-sm" aria-sort={ARIA_SORT[sort]}>
       <button
         type="button"
         class="inline-flex items-center gap-1 text-foreground"
@@ -27,7 +27,7 @@
         <Icon class={cn('size-3.5', sort === 'none' && 'text-muted-foreground/60')} />
       </button>
     </TableHead>
-    <TableHead class="h-10 w-[356px] pl-0 text-sm">{t(rolesMessages.permissions)}</TableHead>
+    <TableHead class="h-10 pl-0 text-sm">{t(rolesMessages.permissions)}</TableHead>
     <TableHead class="h-10 w-[184px] pl-0 text-sm">{t(rolesMessages.holders)}</TableHead>
     <TableHead class="h-10 w-8 pl-0"></TableHead>
   </TableRow>

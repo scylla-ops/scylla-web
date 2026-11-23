@@ -134,6 +134,15 @@ describe('RolePermissions', () => {
     expect(screen.getByText('also delete the project')).toBeInTheDocument();
   });
 
+  it('cuts the hint of full control in a narrow column, and gives it whole on hover', () => {
+    render(RolePermissions, { role: role({ fullControl: true }), areas });
+
+    const hint = screen.getByText('also delete the project');
+    expect(hint).toHaveClass('truncate');
+    expect(hint).toHaveAttribute('title', 'also delete the project');
+    expect(hint.parentElement).toHaveClass('max-w-full');
+  });
+
   it('says view only for a role that only views', () => {
     render(RolePermissions, {
       role: role({ permissions: ['pipelines.view', 'job_logs.view'] }),
