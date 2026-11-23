@@ -4,7 +4,8 @@ import type { MarketplaceCategory } from '@base/features/pipeline/domain/entitie
 
 /** The library and the marketplace: linked and forked fragments, and the public ones. */
 export const communityMessages = {
-  communityFragments: msg`Community fragments`,
+  communityFragments: (count: number) =>
+    msg`${plural(count, { one: 'Community fragment', other: 'Community fragments' })}`,
   browseMarketplace: msg`Browse marketplace`,
   viewOnMarketplace: msg`View on marketplace`,
   sourceFilter: msg`Source`,

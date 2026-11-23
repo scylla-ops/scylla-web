@@ -1275,7 +1275,7 @@ msgstr "Où vivent les pipelines de ce projet. Une source par projet."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/pipeline-source.messages.ts:25
 msgid "With no file, the project has no pipeline until you add one to the repository."
-msgstr "Sans fichier, le projet n'a pas de pipeline tant que vous n'en ajoutez pas un au dépôt."
+msgstr "Sans fichier, le projet n'a pas de pipeline tant que vous n'en ajoutez pas une au dépôt."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:8
 msgid "Write checks on your commits"

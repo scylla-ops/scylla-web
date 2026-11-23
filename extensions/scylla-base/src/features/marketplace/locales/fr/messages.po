@@ -23,7 +23,7 @@ msgstr "{count, plural, one {Demande # secret : {keys}} other {Demande # secrets
 
 #: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:38
 msgid "{count} stars"
-msgstr "{count} étoiles"
+msgstr "{count, plural, one {{count} étoile} other {{count} étoiles}}"
 
 #: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:33
 msgid "{workspace} has not added a fragment yet. Add one linked to receive its new versions, or fork it."

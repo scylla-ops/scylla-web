@@ -21,7 +21,7 @@
   <SheetContent side="right" overlayClass="bg-overlay/25" class="w-full gap-0 p-0 sm:max-w-[560px]">
     <header class="flex flex-col gap-1 border-b border-border px-5 py-4 pr-12">
       <DialogTitle>{t(widgetMessages.needsYou)}</DialogTitle>
-      <DialogDescription class="text-xs">{openCount} {t(messages.openNow)}</DialogDescription>
+      <DialogDescription class="text-xs">{openCount} {t(messages.openNow(openCount))}</DialogDescription>
     </header>
     <ul class="relative flex min-h-0 flex-1 flex-col gap-4 overflow-y-auto px-5 py-4">
       {#each items as item, index (`${item.kind}-${item.job?.id ?? item.fire?.id ?? item.agent?.id ?? index}`)}

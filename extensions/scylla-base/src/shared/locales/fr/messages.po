@@ -551,7 +551,7 @@ msgstr "Vérifiez d'abord votre adresse e-mail"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:26
 msgid "Wait {seconds} seconds before you send it again"
-msgstr "Attendez {seconds} secondes avant de le renvoyer"
+msgstr "{seconds, plural, one {Attendez {seconds} seconde avant de le renvoyer} other {Attendez {seconds} secondes avant de le renvoyer}}"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:27
 msgid "Wait before you send it again"

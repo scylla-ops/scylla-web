@@ -15,7 +15,7 @@ msgstr ""
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:32
 msgid "{completed} of {total} completed"
-msgstr "{completed} sur {total} terminés"
+msgstr "{completed, plural, one {{completed} sur {total} terminé} other {{completed} sur {total} terminés}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:29
 msgid "{count, plural, =0 {expires today} one {expires in # day} other {expires in # days}}"
@@ -47,27 +47,27 @@ msgstr "{count, plural, one {# job en cours} other {# jobs en cours}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:27
 msgid "{count} days"
-msgstr "{count} jours"
+msgstr "{count, plural, one {{count} jour} other {{count} jours}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:47
 msgid "{count} jobs"
-msgstr "{count} jobs"
+msgstr "{count, plural, one {{count} job} other {{count} jobs}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:57
 msgid "{count} jobs in 30 days"
-msgstr "{count} jobs en 30 jours"
+msgstr "{count, plural, one {{count} job en 30 jours} other {{count} jobs en 30 jours}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:16
 msgid "{count} jobs since the agent joined, by day"
-msgstr "{count} jobs depuis l'arrivée de l'agent, par jour"
+msgstr "{count, plural, one {{count} job depuis l'arrivée de l'agent, par jour} other {{count} jobs depuis l'arrivée de l'agent, par jour}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:49
 msgid "{count} jobs, {range}"
-msgstr "{count} jobs, {range}"
+msgstr "{count, plural, one {{count} job, {range}} other {{count} jobs, {range}}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/credentials.messages.ts:16
 msgid "{count} project roles"
-msgstr "{count} rôles de projet"
+msgstr "{count, plural, one {{count} rôle de projet} other {{count} rôles de projet}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:14
 msgid "{name} is deleted."
@@ -95,7 +95,7 @@ msgstr "{name} est prête"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:27
 msgid "{offline} offline · {never} never connected"
-msgstr "{offline} hors ligne · {never} jamais connecté"
+msgstr "{offline} hors ligne · {never, plural, one {{never} jamais connecté} other {{never} jamais connectés}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:19
 msgid "{online} of {total}"
@@ -111,11 +111,11 @@ msgstr "{percent} % réussis"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:25
 msgid "{range} · {count} days"
-msgstr "{range} · {count} jours"
+msgstr "{range} · {count, plural, one {{count} jour} other {{count} jours}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:40
 msgid "{range} · {count} jobs · {rate}% completed"
-msgstr "{range} · {count} jobs · {rate} % terminés"
+msgstr "{range} · {count, plural, one {{count} job · {rate} % terminé} other {{count} jobs · {rate} % terminés}}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:41
 msgid "{range} · disabled since {day}"
@@ -1353,7 +1353,7 @@ msgstr "Depuis le {when}"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:15
 msgid "Since the agent joined on {day} · {count} jobs · drag the window or its edges"
-msgstr "Depuis l'arrivée de l'agent le {day} · {count} jobs · glissez la fenêtre ou ses bords"
+msgstr "Depuis l'arrivée de l'agent le {day} · {count, plural, one {{count} job} other {{count} jobs}} · glissez la fenêtre ou ses bords"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:17
 msgid "Some projects"

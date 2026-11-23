@@ -67,7 +67,7 @@ msgstr "{count} sur {total}"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:70
 msgid "{count} of {total} selected"
-msgstr "{count} sur {total} sélectionnées"
+msgstr "{count, plural, one {{count} sur {total} sélectionnée} other {{count} sur {total} sélectionnées}}"
 
 #: extensions/scylla-base/src/features/roles/presentation/messages/roles.messages.ts:131
 msgid "A role is a named set of permissions. You give it to people or apps on the instance, on a workspace or on a project."

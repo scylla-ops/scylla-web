@@ -15,7 +15,7 @@ msgstr ""
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:177
 msgid "{done} of {total} done"
-msgstr "{done} sur {total} terminées"
+msgstr "{done, plural, one {{done} sur {total} terminée} other {{done} sur {total} terminées}}"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:10
 msgid "{step}/{total}"
@@ -23,15 +23,15 @@ msgstr "{step}/{total}"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:39
 msgid "{steps} steps"
-msgstr "{steps} étapes"
+msgstr "{steps, plural, one {{steps} étape} other {{steps} étapes}}"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:38
 msgid "{steps} steps · {minutes} min"
-msgstr "{steps} étapes · {minutes} min"
+msgstr "{steps, plural, one {{steps} étape} other {{steps} étapes}} · {minutes} min"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:37
 msgid "{steps} steps · about {minutes} min"
-msgstr "{steps} étapes · environ {minutes} min"
+msgstr "{steps, plural, one {{steps} étape} other {{steps} étapes}} · environ {minutes} min"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:112
 msgid "A cron runs on a schedule. A webhook gives you a URL to call from GitHub or a script."
@@ -43,7 +43,7 @@ msgstr "Une pipeline liste les étapes à lancer. Cliquez sur « Nouvelle pipeli
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:45
 msgid "A project and its first pipeline."
-msgstr "Un projet et son première pipeline."
+msgstr "Un projet et sa première pipeline."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:74
 msgid "A project groups your pipelines and its members. Click “Projects” in the menu."
@@ -169,7 +169,7 @@ msgstr "Fait"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:85
 msgid "Draw it in Blueprint or write it in Scripting. The template works as is: click “Create”."
-msgstr "Dessinez-le en Blueprint ou écrivez-le en Scripting. Le modèle marche tel quel : cliquez sur « Créer »."
+msgstr "Dessinez-la en Blueprint ou écrivez-la en Scripting. Le modèle marche tel quel : cliquez sur « Créer »."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:20
 msgid "Draw the steps in Blueprint, or write them in Scripting. Templates give you a pipeline that works from the start."
@@ -259,7 +259,7 @@ msgstr "Il est connecté. Ouvrez sa page pour le voir travailler."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:159
 msgid "It runs on an agent. Run it and follow its job next."
-msgstr "Il tourne sur un agent. Lancez-le, puis suivez son job."
+msgstr "Elle tourne sur un agent. Lancez-la, puis suivez son job."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:116
 msgid "It runs the pipeline by itself. Turn it off here at any time."
@@ -462,15 +462,15 @@ msgstr "Lancer et suivre un job"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:87
 msgid "Run it"
-msgstr "Lancez-le"
+msgstr "Lancez-la"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:49
 msgid "Run it on a schedule or from a webhook."
-msgstr "Lancez-le selon un horaire ou depuis un webhook."
+msgstr "Lancez-la selon un horaire ou depuis un webhook."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:22
 msgid "Run it when it matters"
-msgstr "Lancez-le au bon moment"
+msgstr "Lancez-la au bon moment"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:63
 msgid "Run the command"

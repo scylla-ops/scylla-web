@@ -23,12 +23,16 @@
     recent: libraryMessages.sortRecent,
     name: libraryMessages.sortName,
   };
+
+  const title = $derived(
+    library.tab === 'community' ? communityMessages.communityFragments : libraryMessages.fragments,
+  );
 </script>
 
 <header class="flex flex-wrap items-center gap-3">
   <h1 class="mr-auto">
     <span class="text-primary">{library.shown.length}</span>
-    {t(library.tab === 'community' ? communityMessages.communityFragments : libraryMessages.fragments)}
+    {t(title(library.shown.length))}
   </h1>
   <Input
     type="search"

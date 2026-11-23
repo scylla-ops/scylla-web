@@ -3,7 +3,7 @@ import { msg, plural } from '@lingui/core/macro';
 /** The library of fragments: its pages, and the blocks, panels and dialog of the editor. */
 export const libraryMessages = {
   library: msg`Library`,
-  fragments: msg`Fragments`,
+  fragments: (count: number) => msg`${plural(count, { one: 'Fragment', other: 'Fragments' })}`,
   browseLibrary: msg`Browse the whole library`,
   openInLibrary: msg`Open in library`,
   searchLibrary: (workspace: string) => msg`Search the ${workspace} library`,

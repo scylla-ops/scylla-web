@@ -610,6 +610,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   take the pointer until the close animation ended. For example, after "Stay" in the "Leave without
   saving?" dialog of the pipeline editor, the first click on Save did nothing.
 - The French texts now use "la pipeline" (feminine) and "Bibliothèque" for the fragment library.
+- The texts agree with a count: "1 fragment" on the library page, "1 event since your visit" on the
+  dashboard, and in French "1 pipeline l'utilise : elle garde…" and the other counts of the
+  dashboard, the agents, the onboarding, the roles and the secrets. The last masculine French words
+  for a pipeline are gone, and the agent widget uses "Il" again for an agent.
 
 ## [0.6.0] - 2026-11-01
 

@@ -68,7 +68,7 @@
     {#if size === 'xs'}
       <p data-part="activity" class="flex h-7 items-center gap-1.5">
         <span class="font-display text-xl font-medium tabular-nums">{newCount}</span>
-        <span class="truncate text-xs text-muted-foreground">{t(messages.eventsSinceVisit)}</span>
+        <span class="truncate text-xs text-muted-foreground">{t(messages.eventsSinceVisit(newCount))}</span>
       </p>
     {:else if size === 's' || size === 'm'}
       <ul data-part="activity" class="flex flex-col gap-1">

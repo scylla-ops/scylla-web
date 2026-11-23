@@ -73,7 +73,7 @@
   {editing}
   title={t(widgetMessages.needsYou)}
   icon={InboxIcon as LucideIcon}
-  meta={size === 'xs' ? undefined : t(clear ? messages.nothingOpen : messages.openNow)}
+  meta={size === 'xs' ? undefined : t(clear ? messages.nothingOpen : messages.openNow(openCount))}
   {aside}
 >
   <WidgetBody
@@ -105,7 +105,7 @@
     {:else if size === 'xs'}
       <div data-part="needs-you" class="flex h-7 min-w-0 items-center gap-1.5">
         <span class="font-display text-xl font-medium tabular-nums">{openCount}</span>
-        <span class="text-[15px]">{t(messages.open)}</span>
+        <span class="text-[15px]">{t(messages.open(openCount))}</span>
         <span class="ml-auto flex shrink-0 items-center gap-1" aria-hidden="true">
           {#each items.slice(0, DOTS) as item, index (key(item, index))}
             <ChartDot tone={ATTENTION_TONES[item.kind]} />
@@ -131,7 +131,7 @@
         <div class="flex w-[95px] shrink-0 flex-col gap-1">
           <p class="flex items-baseline gap-1.5">
             <span class="font-display text-[34px] leading-10 font-medium tabular-nums">{openCount}</span>
-            <span class="text-[15px]">{t(messages.open)}</span>
+            <span class="text-[15px]">{t(messages.open(openCount))}</span>
           </p>
           <div class="flex flex-col gap-0.5">
             {#each counts as count (count.kind)}
@@ -151,7 +151,7 @@
         <div class="flex items-center gap-2.5">
           <span class="font-display text-[34px] leading-10 font-medium tabular-nums">{openCount}</span>
           <div class="flex min-w-0 flex-col">
-            <span class="text-[15px] leading-5">{t(messages.openNow)}</span>
+            <span class="text-[15px] leading-5">{t(messages.openNow(openCount))}</span>
             {#if newCount > 0}
               <span class="truncate text-xs text-muted-foreground">
                 {since ? t(messages.newSince(newCount, since)) : t(messages.newSinceFirst(newCount))}

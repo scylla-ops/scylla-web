@@ -15,11 +15,11 @@ msgstr ""
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:44
 msgid "{count} {status} nodes"
-msgstr "{count} nœuds {status}"
+msgstr "{count, plural, one {{count} nœud {status}} other {{count} nœuds {status}}}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:46
 msgid "{count} / {total} nodes ({percent}%)"
-msgstr "{count} / {total} nœuds ({percent} %)"
+msgstr "{total, plural, one {{count} / {total} nœud ({percent} %)} other {{count} / {total} nœuds ({percent} %)}}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:20
 msgid "{path} @ {sha}"
