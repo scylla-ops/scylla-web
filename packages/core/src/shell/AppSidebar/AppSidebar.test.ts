@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
+import { SvelteMap } from 'svelte/reactivity';
 import type { AccessPolicy, RoutePermission, ShellContributions } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, findTooltip, queryTooltip } from '@test/render.ts';
@@ -499,6 +500,41 @@ describe('the second sidebar', () => {
       await userEvent.click(within(secondSidebar()).getByRole('button', { name: 'runner-2' }));
 
       expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/agents/2', undefined);
+    });
+
+    it('filters them with the search field of the module', async () => {
+      const typed = new SvelteMap<'query', string>([['query', '']]);
+      const query = () => typed.get('query') ?? '';
+      const contributions: ShellContributions[] = [
+        {
+          linkParams: () => ({ workspaceSlug: 'acme-corp' }),
+          secondSidebarLinks: shown => () =>
+            shown() === 'machines'
+              ? [
+                  { title: 'runner-1', href: '/acme-corp/agents/1' },
+                  { title: 'builder', href: '/acme-corp/agents/2' },
+                ].filter(link => link.title.includes(query()))
+              : [],
+          secondSidebarSearch: shown => () =>
+            shown() === 'machines'
+              ? {
+                  label: 'Search machines',
+                  placeholder: 'Search machines',
+                  value: query(),
+                  onchange: value => typed.set('query', value),
+                }
+              : undefined,
+        },
+      ];
+      render(AppSidebarFixture, { config: configWith({ entries: groupEntries, contributions }) });
+
+      await userEvent.type(
+        within(secondSidebar()).getByRole('searchbox', { name: 'Search machines' }),
+        'run',
+      );
+
+      expect(within(secondSidebar()).queryByRole('button', { name: 'builder' })).toBeNull();
+      expect(within(secondSidebar()).getByRole('button', { name: 'runner-1' })).toBeInTheDocument();
     });
 
     it('shows none for another item', () => {

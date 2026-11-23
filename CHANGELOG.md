@@ -249,6 +249,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A sign-in with GitHub, GitLab or OIDC plays the same arrival: the dots of the mark turn until the
   browser goes to the provider, and the panel, the curtain and the flight of the mark play when the
   provider sends the browser back to the app. A failed or stopped sign-in plays no motion.
+- Search the fragments in the sidebar of the Library to filter the list.
 
 ### Changed
 
@@ -577,6 +578,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   submenu opens under its entry, inside the screen.
 - The table of the roles fits in its card. It no longer scrolls horizontally, the header is aligned
   with the rows, and the Role column shows the name on one line and the description on a few lines.
+- The selects of the publish form now fill their column, so the open list matches its button.
+- The pipeline editor asks before you leave with unsaved changes. A small save icon shows the save
+  state in place of the text.
 
 ## [0.6.0] - 2026-11-01
 

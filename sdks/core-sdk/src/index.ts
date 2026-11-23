@@ -15,6 +15,7 @@ export type {
   QueryErrorHandler,
   QueryRetryPolicy,
   SecondSidebarLink,
+  SecondSidebarSearch,
   ShellContributions,
 } from './extension/contributions.struct.ts';
 

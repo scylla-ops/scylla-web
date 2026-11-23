@@ -292,7 +292,8 @@ presentation/
 
 **One nav entry**, Library, in the workspace section. Pipelines are the project index, reached
 by entering a project. While it shows, the second sidebar lists the fragments of the library
-(`shell.secondSidebarLinks: fragmentLinks`).
+(`shell.secondSidebarLinks: fragmentLinks`), under a search field that filters them by name
+(`shell.secondSidebarSearch: fragmentSearch`).
 
 The jobs **list** route is owned here, not by [`jobs`](../jobs/AGENTS.md): the page needs a
 **Run** action, which is a pipeline operation. `PipelineJobsPage` renders `JobsPage` (imported

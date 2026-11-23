@@ -1,7 +1,9 @@
 <script lang="ts">
   import type { MessageDescriptor } from '@lingui/core';
+  import CloudCheckIcon from '@lucide/svelte/icons/cloud-check';
   import FileDownIcon from '@lucide/svelte/icons/file-down';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
+  import SaveIcon from '@lucide/svelte/icons/save';
   import { Permission, can } from '@platform/authz';
   import { TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { GatedButton } from '@scylla/ui';
@@ -99,30 +101,28 @@
     {:else if issue}
       <p role="alert" class="max-w-md text-sm text-destructive">{issue}</p>
     {:else}
-      <div class="flex items-center gap-2 text-sm text-foreground/80">
-        <span class="relative flex size-2">
-          {#if status === 'dirty'}
-            <span class="absolute inline-flex size-full animate-ping rounded-full bg-amber-500/70"
-            ></span>
-          {/if}
-          <span
-            class={cn(
-              'relative inline-flex size-2 rounded-full transition-colors duration-300',
-              (status === 'draft' || status === 'saving') && 'bg-muted-foreground/60',
-              status === 'dirty' && 'bg-amber-500',
-              status === 'saved' && 'bg-emerald-500',
-            )}
-          ></span>
-        </span>
-        <!-- `{#key}` replays the enter animation on each status change. -->
+      <!-- A discreet icon: the label is its tooltip and what a screen reader says. -->
+      <span
+        role="status"
+        title={t(STATUS_LABEL[status])}
+        class={cn(
+          'inline-flex size-8 shrink-0 items-center justify-center transition-colors duration-300',
+          status === 'dirty' ? 'text-amber-500' : 'text-muted-foreground',
+        )}
+      >
         {#key status}
-          <span
-            class="hidden animate-in fade-in-0 slide-in-from-bottom-1 duration-150 ease-out whitespace-nowrap md:inline-flex"
-          >
-            {t(STATUS_LABEL[status])}
+          <span class="inline-flex animate-in items-center justify-center fade-in-0 duration-150">
+            {#if status === 'saving'}
+              <Loader2Icon class="size-4 animate-spin" />
+            {:else if status === 'saved'}
+              <CloudCheckIcon class="size-4" />
+            {:else}
+              <SaveIcon class="size-4" />
+            {/if}
           </span>
         {/key}
-      </div>
+        <span class="sr-only">{t(STATUS_LABEL[status])}</span>
+      </span>
     {/if}
 
     {#if onExport}

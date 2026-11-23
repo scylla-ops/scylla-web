@@ -49,6 +49,10 @@ export const pipelineMessages = {
   statusSaving: msg`Saving…`,
   statusDirty: msg`Unsaved changes`,
   statusSaved: msg`All changes saved`,
+  leaveTitle: msg`Leave without saving?`,
+  leaveBody: msg`Your changes to this pipeline are not saved. If you leave now, you lose them.`,
+  leaveStay: msg`Stay`,
+  leaveAnyway: msg`Leave without saving`,
   editDenied: msg`You don't have permission to edit this pipeline.`,
 
   deleteEdge: msg`Delete edge`,

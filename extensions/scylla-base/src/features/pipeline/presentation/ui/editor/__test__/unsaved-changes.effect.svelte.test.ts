@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
+import * as sdk from '@scylla/core-sdk';
 import { warnBeforeUnload } from '../unsaved-changes.effect.svelte.ts';
 
 afterEach(() => vi.restoreAllMocks());
@@ -37,6 +38,28 @@ describe('warnBeforeUnload', () => {
 
     expect(event.preventDefault).toHaveBeenCalled();
     expect(event.returnValue).toBe('');
+    cleanup();
+  });
+
+  it('hands a navigation in the app to `hold` while dirty, and stops holding when clean', () => {
+    const stop = vi.fn();
+    let ask: ((leave: () => void) => boolean) | undefined;
+    vi.spyOn(sdk, 'guardLeave').mockImplementation(fn => {
+      ask = fn;
+      return stop;
+    });
+    const hold = vi.fn();
+    let dirty = $state(true);
+    const cleanup = $effect.root(() => warnBeforeUnload(() => dirty, hold));
+    flushSync();
+
+    const leave = vi.fn();
+    expect(ask?.(leave)).toBe(true);
+    expect(hold).toHaveBeenCalledWith(leave);
+
+    dirty = false;
+    flushSync();
+    expect(stop).toHaveBeenCalled();
     cleanup();
   });
 });

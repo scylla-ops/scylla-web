@@ -8,6 +8,7 @@ export const libraryMessages = {
   openInLibrary: msg`Open in library`,
   searchLibrary: (workspace: string) => msg`Search the ${workspace} library`,
   workspaceLibrary: (workspace: string) => msg`${workspace} library`,
+  filterFragments: msg`Search fragments`,
   searchFragments: msg`Search fragments, nodes, tags…`,
   noFragment: msg`No fragment matches this search.`,
   emptyLibrary: msg`The library is empty. Select nodes in a pipeline, then save them to the library.`,
