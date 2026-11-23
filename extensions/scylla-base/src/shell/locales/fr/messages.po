@@ -27,15 +27,15 @@ msgstr "{name} est le choix actuel."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:77
 msgid "{name}: off"
-msgstr "{name} : désactivé"
+msgstr "{name} : désactivé"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:76
 msgid "{name}: on"
-msgstr "{name} : activé"
+msgstr "{name} : activé"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:54
 msgid "{name}: you confirm in the next step."
-msgstr "{name} : vous confirmez à l'étape suivante."
+msgstr "{name} : vous confirmez à l'étape suivante."
 
 #: extensions/scylla-base/src/shell/whats-new.ts:58
 msgid "A new account page"
@@ -223,7 +223,7 @@ msgstr "Nouvel onglet"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:67
 msgid "No exact match. Close results:"
-msgstr "Pas de résultat exact. Résultats proches :"
+msgstr "Pas de résultat exact. Résultats proches :"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
 msgid "Nothing matches this search."
@@ -235,7 +235,7 @@ msgstr "Notifications"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:75
 msgid "Now using: {name}"
-msgstr "Maintenant : {name}"
+msgstr "Maintenant : {name}"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:65
 msgid "On a small screen, each row of a table shows as a card."
@@ -251,7 +251,7 @@ msgstr "Ouvrir Scylla"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:53
 msgid "Open the form: {name}. Nothing changes until you submit it."
-msgstr "Ouvrir le formulaire : {name}. Rien ne change avant son envoi."
+msgstr "Ouvrir le formulaire : {name}. Rien ne change avant son envoi."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:21
 msgid "Page"
@@ -283,7 +283,7 @@ msgstr "Préférences"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:59
 msgid "Profile, appearance, security and organizations: each setting has its own page. Choose your theme in Appearance."
-msgstr "Profil, apparence, sécurité et organisations : chaque réglage a sa propre page. Choisissez votre thème dans Apparence."
+msgstr "Profil, apparence, sécurité et organisations : chaque réglage a sa propre page. Choisissez votre thème dans Apparence."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:23
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:5
@@ -304,7 +304,7 @@ msgstr "Récents"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:70
 msgid "Results: {count}"
-msgstr "Résultats : {count}"
+msgstr "Résultats : {count}"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:28
 msgid "Role"
@@ -332,7 +332,7 @@ msgstr "lancer démarrer exécuter"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:55
 msgid "Run the pipeline {name}: you confirm in the next step."
-msgstr "Lancer la pipeline {name} : vous confirmez à l'étape suivante."
+msgstr "Lancer la pipeline {name} : vous confirmez à l'étape suivante."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:37
 msgid "Run…"
@@ -352,7 +352,7 @@ msgstr "Scylla sur votre téléphone"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:38
 msgid "Scylla: open the dashboard"
-msgstr "Scylla : ouvrir le tableau de bord"
+msgstr "Scylla : ouvrir le tableau de bord"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
 msgid "Search"
@@ -412,7 +412,7 @@ msgstr "Le serveur ne répond pas"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:69
 msgid "These lists could not be read: {lists}."
-msgstr "Ces listes n'ont pas pu être lues : {lists}."
+msgstr "Ces listes n'ont pas pu être lues : {lists}."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:32
 msgid "This address has no page. The link can be old or wrong."
@@ -432,7 +432,7 @@ msgstr "Désactiver"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:52
 msgid "Turn off: {name}. This device only."
-msgstr "Désactiver : {name}. Cet appareil seulement."
+msgstr "Désactiver : {name}. Cet appareil seulement."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:34
 msgid "Turn on"
@@ -440,7 +440,7 @@ msgstr "Activer"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:51
 msgid "Turn on: {name}. This device only."
-msgstr "Activer : {name}. Cet appareil seulement."
+msgstr "Activer : {name}. Cet appareil seulement."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:73
 msgid "Undo"
@@ -452,7 +452,7 @@ msgstr "Utiliser"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:50
 msgid "Use {name}. Now: {now}. This device only."
-msgstr "Utiliser {name}. Actuellement : {now}. Cet appareil seulement."
+msgstr "Utiliser {name}. Actuellement : {now}. Cet appareil seulement."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
 msgid "Welcome to Scylla!"

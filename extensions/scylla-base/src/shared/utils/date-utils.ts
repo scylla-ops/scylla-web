@@ -1,4 +1,4 @@
-import { intlLocale } from '@scylla/ui/i18n';
+import { formatNumber, intlLocale } from '@scylla/ui/i18n';
 
 /**
  * Cached per locale, never at import time: the locale changes at runtime. The locale is the rune
@@ -45,15 +45,23 @@ export const calculateExecutionDuration = (
   return Math.max(0, Math.floor((end - start) / 1000));
 };
 
-/** E.g. "1m 12s", "45s", "2h 15m". */
+/** English keeps its compact units: "1m 12s". The narrow French units have no space ("1min"). */
+const durationPart = (value: number, unit: 'hour' | 'minute' | 'second'): string =>
+  formatNumber(value, {
+    style: 'unit',
+    unit,
+    unitDisplay: intlLocale() === 'en' ? 'narrow' : 'short',
+  });
+
+/** E.g. "1m 12s", "45s", "2h 15m"; "1 min 12 s", "45 s", "2 h 15 min" in French. */
 export const formatDuration = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
 
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  if (minutes > 0) return `${minutes}m ${secs}s`;
-  return `${secs}s`;
+  if (hours > 0) return `${durationPart(hours, 'hour')} ${durationPart(minutes, 'minute')}`;
+  if (minutes > 0) return `${durationPart(minutes, 'minute')} ${durationPart(secs, 'second')}`;
+  return durationPart(secs, 'second');
 };
 
 export const getRelativeTime = (dateString: string): string => {

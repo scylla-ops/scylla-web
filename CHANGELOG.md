@@ -619,6 +619,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   calls the editor tab "Scripting" and the jobs "jobs", agrees the words of a legend with the jobs
   that they count, writes the noun after a count in lower case ("3 projets"), and heads the column
   of dates "Date d'ajout".
+- Percents, sizes and durations use the language of the UI: "100 %", "24 Go" and "19 s" in French.
+  The summary of a schedule follows a change of the language at once. The period presets of an agent
+  show "7 d", "30 d" and "90 d" ("7 j" in French), as on the dashboard. In French, a colon has a
+  no-break space before it ("ID : ..."), a slot of an agent is a "créneau", and the legends of the
+  dashboard use the same plural words. In English, the dashboard says "1 job", and the count of the
+  marketplace has a capital, as the list headers: "3 Fragments".
 
 ## [0.6.0] - 2026-11-01
 

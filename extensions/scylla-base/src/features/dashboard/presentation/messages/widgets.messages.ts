@@ -18,9 +18,10 @@ export const widgetMessages = {
   noJobsInPeriodText: msg`No job started in this period. Choose a longer period.`,
   noEndedJobsInPeriod: msg`No ended jobs in this period`,
 
-  completed: msg`Completed`,
-  failed: msg`Failed`,
-  orphaned: msg`Orphaned`,
+  /** The names of the jobs of a legend, as `cancelledLegend`. */
+  completed: msg({ context: 'legend', message: 'Completed' }),
+  failed: msg({ context: 'legend', message: 'Failed' }),
+  orphaned: msg({ context: 'legend', message: 'Orphaned' }),
   cancelledApart: (count: number) => msg`${count} cancelled, not counted`,
   pointsChange: (change: string) => msg`${change} pts`,
   vsPreviousPeriod: msg`vs the previous period`,

@@ -20,6 +20,7 @@
   import { appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
   import { agentsListMessages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
+  import { memoryText } from '@base/features/apps/presentation/presenters/agent-figures.presenter.ts';
   import FeatureBadges from './FeatureBadges.svelte';
   import UpdateCommands from './UpdateCommands.svelte';
 
@@ -103,7 +104,7 @@
         {@render fact(messages.cpus, host.cpuCount === null ? '–' : String(host.cpuCount))}
         {@render fact(
           messages.memory,
-          host.totalMemoryMb === null ? '–' : `${Math.round(host.totalMemoryMb / 1024)} GB`,
+          host.totalMemoryMb === null ? '–' : memoryText(host.totalMemoryMb),
         )}
         {@render fact(messages.jobsAtOnce, String(host.capacity))}
         <dt class="text-muted-foreground">{t(messages.runtime)}</dt>

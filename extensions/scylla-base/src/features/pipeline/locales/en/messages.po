@@ -958,8 +958,8 @@ msgid "into {branches}"
 msgstr "into {branches}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:45
-msgid "Invalid JSON"
-msgstr "Invalid JSON"
+msgid "Invalid JSON: {error}"
+msgstr "Invalid JSON: {error}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:50
 msgid "Invalid link"

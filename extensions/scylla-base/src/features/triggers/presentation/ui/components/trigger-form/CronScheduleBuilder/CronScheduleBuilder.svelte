@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { i18n } from '@lingui/core';
   import {
     Input,
     Label,
@@ -16,7 +15,7 @@
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { buildCron, pad2, parseCron, type CronFrequency, type CronModel } from '@base/features/triggers/presentation/mappers/cron.mapper.ts';
-import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/presenters/cron.presenter.ts';
+  import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/presenters/cron.presenter.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
@@ -179,7 +178,7 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
   {/if}
 
   <div class="flex flex-wrap items-center gap-2 rounded-md bg-muted/50 px-3 py-2">
-    <span class="text-xs text-muted-foreground">{describeCron(model, i18n)}</span>
+    <span class="text-xs text-muted-foreground">{describeCron(model)}</span>
     <code class="ml-auto font-mono text-xs text-foreground">{expression || '—'}</code>
   </div>
 </div>

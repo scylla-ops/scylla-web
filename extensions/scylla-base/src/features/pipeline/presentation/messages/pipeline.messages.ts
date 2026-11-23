@@ -42,7 +42,7 @@ export const pipelineMessages = {
   selectProjectFirst: msg`Select a project first`,
   create: msg`Create`,
   save: msg`Save`,
-  invalidJson: msg`Invalid JSON`,
+  invalidJson: (error: string) => msg`Invalid JSON: ${error}`,
   scripting: msg`Scripting`,
   blueprint: msg`Blueprint`,
   statusDraft: msg`Draft: not created yet`,

@@ -154,8 +154,7 @@
           <span>{tokenLimitsText(token.limits)}</span>
           {@render expiry(token)}
           <span class="text-muted-foreground">
-            {t(messages.columnLastUsed)}:
-            {token.lastUsedAt ? getRelativeTime(token.lastUsedAt) : t(messages.never)}
+            {t(messages.lastUsedLine(token.lastUsedAt ? getRelativeTime(token.lastUsedAt) : t(messages.never)))}
           </span>
         </article>
       {/each}

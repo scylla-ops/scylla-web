@@ -84,7 +84,7 @@ msgstr "Un agent est une machine qui lance vos jobs. Cliquez sur « Ajouter un a
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:17
 msgid "An agent is a machine that you connect to Scylla: a server, a laptop, a container. It picks the jobs of your pipelines and runs them."
-msgstr "Un agent est une machine que vous connectez à Scylla : un serveur, un portable, un conteneur. Il prend les jobs de vos pipelines et les lance."
+msgstr "Un agent est une machine que vous connectez à Scylla : un serveur, un portable, un conteneur. Il prend les jobs de vos pipelines et les lance."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:48
 msgid "Automate a pipeline"
@@ -169,7 +169,7 @@ msgstr "Fait"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:85
 msgid "Draw it in Blueprint or write it in Scripting. The template works as is: click “Create”."
-msgstr "Dessinez-la en Blueprint ou écrivez-la en Scripting. Le modèle marche tel quel : cliquez sur « Créer »."
+msgstr "Dessinez-la en Blueprint ou écrivez-la en Scripting. Le modèle marche tel quel : cliquez sur « Créer »."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:20
 msgid "Draw the steps in Blueprint, or write them in Scripting. Templates give you a pipeline that works from the start."
@@ -181,7 +181,7 @@ msgstr "Chaque membre et chaque app de l'espace de travail, avec ses rôles. Les
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:26
 msgid "Each run gives a job: its timeline, its live logs and its history, so you see at once what passed and what failed."
-msgstr "Chaque exécution donne un job : sa chronologie, ses logs en direct et son historique, pour voir d'un coup d'œil ce qui passe et ce qui casse."
+msgstr "Chaque exécution donne un job : sa chronologie, ses logs en direct et son historique, pour voir d'un coup d'œil ce qui passe et ce qui casse."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:30
 msgid "Each tour is short and uses your own workspace. You can come back to them at any time from Help & tours, in your profile menu."
@@ -283,7 +283,7 @@ msgstr "Garder un secret"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:35
 msgid "Later: Triggers, Secrets, Roles and Users from Help & tours"
-msgstr "Plus tard : déclencheurs, secrets, rôles et utilisateurs depuis Aide et visites"
+msgstr "Plus tard : déclencheurs, secrets, rôles et utilisateurs depuis Aide et visites"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:52
 msgid "Make a role"
@@ -303,7 +303,7 @@ msgstr "Nommez-le, choisissez un type"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:135
 msgid "Name it, then choose where it applies: the workspace or one project."
-msgstr "Nommez-le, puis choisissez où il s'applique : l'espace de travail ou un projet."
+msgstr "Nommez-le, puis choisissez où il s'applique : l'espace de travail ou un projet."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:61
 msgid "Name your agent"
@@ -344,7 +344,7 @@ msgstr "Plus tard"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:32
 msgid "Nothing runs without an agent: start here. You add a machine, run one command on it, and see it come online."
-msgstr "Rien ne tourne sans agent : commencez ici. Vous ajoutez une machine, lancez une commande dessus, et la voyez passer en ligne."
+msgstr "Rien ne tourne sans agent : commencez ici. Vous ajoutez une machine, lancez une commande dessus, et la voyez passer en ligne."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:101
 msgid "Open a project"
@@ -657,7 +657,7 @@ msgstr "Votre agent"
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:152
 msgid "Your agent is offline, so the job cannot run. Start it again with the command on its page: the tour goes on as soon as it is back."
-msgstr "Votre agent est hors ligne : le job ne peut pas s'exécuter. Relancez-le avec la commande de sa page : la visite reprend dès qu'il est de retour."
+msgstr "Votre agent est hors ligne : le job ne peut pas s'exécuter. Relancez-le avec la commande de sa page : la visite reprend dès qu'il est de retour."
 
 #: extensions/scylla-base/src/features/onboarding/presentation/messages/onboarding.messages.ts:66
 msgid "Your agent is online"

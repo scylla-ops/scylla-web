@@ -186,6 +186,20 @@ describe('the language of the UI', () => {
     expect(getRelativeTime('2026-11-20T10:00:00.000Z')).toBe('3 days ago');
   });
 
+  it('writes a duration with its short units in English', () => {
+    expect(formatDuration(19)).toBe('19s');
+    expect(formatDuration(72)).toBe('1m 12s');
+    expect(formatDuration(8100)).toBe('2h 15m');
+  });
+
+  it('writes a duration with spaced units in French', () => {
+    i18n.activate('fr');
+
+    expect(spaced(formatDuration(19))).toBe('19 s');
+    expect(spaced(formatDuration(72))).toBe('1 min 12 s');
+    expect(spaced(formatDuration(8100))).toBe('2 h 15 min');
+  });
+
   it('writes a date and a relative time in French, after a switch of the language', () => {
     expect(getRelativeTime('2026-11-23T10:00:00.000Z')).toBe('33 min. ago');
 

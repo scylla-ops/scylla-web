@@ -81,7 +81,7 @@
       <CopyableText
         class="text-xs text-muted-foreground/80"
         value={trigger.id}
-        display={`ID: ${trigger.id}`}
+        display={t(triggersMessages.idOf(trigger.id))}
       />
     </div>
   </div>

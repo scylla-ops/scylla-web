@@ -47,11 +47,11 @@ msgstr "Ajoutez une autre méthode de connexion avant de retirer celle-ci"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:17
 msgid "Advanced: choose the actions"
-msgstr "Avancé : choisir les actions"
+msgstr "Avancé : choisir les actions"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:18
 msgid "Advanced: custom actions (no preset)"
-msgstr "Avancé : actions personnalisées (sans préréglage)"
+msgstr "Avancé : actions personnalisées (sans préréglage)"
 
 #: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:6
 msgid "Agent"
@@ -144,7 +144,7 @@ msgstr "Copier"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:34
 msgid "Could not copy: select the id manually"
-msgstr "Impossible de copier : sélectionnez l'ID manuellement"
+msgstr "Impossible de copier : sélectionnez l'ID manuellement"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:7
 msgid "Custom"
@@ -169,7 +169,7 @@ msgstr "deploy-script"
 
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:7
 msgid "Duration: {duration}"
-msgstr "Durée : {duration}"
+msgstr "Durée : {duration}"
 
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:4
 msgid "Enter a valid email address."
@@ -214,15 +214,15 @@ msgstr "Intégrations"
 
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:4
 msgid "Job {id}: {status}"
-msgstr "Job {id} : {status}"
+msgstr "Job {id} : {status}"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
 msgid "Job queued: it needs a container, and no connected agent has a container runtime"
-msgstr "Job en attente : il demande un conteneur, et aucun agent connecté n'a de runtime de conteneurs"
+msgstr "Job en attente : il demande un conteneur, et aucun agent connecté n'a de runtime de conteneurs"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
 msgid "Job queued: no agent connected"
-msgstr "Travail mis en file d'attente : aucun agent connecté"
+msgstr "Travail mis en file d'attente : aucun agent connecté"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:21
 msgid "Jobs"
@@ -286,7 +286,7 @@ msgstr "Pipeline exécutée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
 msgid "Pipeline ran: check that your agents are connected"
-msgstr "Pipeline exécutée : vérifiez que vos agents sont bien connectés"
+msgstr "Pipeline exécutée : vérifiez que vos agents sont bien connectés"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:20
 msgid "Pipelines"
@@ -314,11 +314,11 @@ msgstr "Projets"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:33
 msgid "Projects: {names}"
-msgstr "Projets : {names}"
+msgstr "Projets : {names}"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:32
 msgid "Projects: all projects"
-msgstr "Projets : tous les projets"
+msgstr "Projets : tous les projets"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:25
 msgid "Read"
@@ -459,7 +459,7 @@ msgstr "Les deux mots de passe ne sont pas identiques."
 
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:9
 msgid "The username is too long: 255 bytes at most."
-msgstr "Le nom d'utilisateur est trop long : 255 octets au maximum."
+msgstr "Le nom d'utilisateur est trop long : 255 octets au maximum."
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:31
 msgid "The workspace needs at least one other owner"
@@ -507,7 +507,7 @@ msgstr "Déclencheur activé"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:50
 msgid "Trigger fired: run started"
-msgstr "Déclencheur déclenché : exécution démarrée"
+msgstr "Déclencheur déclenché : exécution démarrée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
 msgid "Trigger updated"

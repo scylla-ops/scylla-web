@@ -35,7 +35,7 @@
 </script>
 
 {#snippet aside()}
-  <span class="flex items-center gap-1.5"><ChartDot tone="passed" />{t(messages.passed)}</span>
+  <span class="flex items-center gap-1.5"><ChartDot tone="passed" />{t(widgetMessages.completedLower)}</span>
   <span class="flex items-center gap-1.5"><ChartDot tone="failed" />{t(widgetMessages.failedLower)}</span>
   <span class="flex items-center gap-1.5"><ChartDot tone="running" />{t(widgetMessages.orphanedLower)}</span>
 {/snippet}

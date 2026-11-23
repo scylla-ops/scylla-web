@@ -231,7 +231,7 @@ describe('AgentDetails', () => {
     setUp();
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('radio', { name: '7D' }));
+    await user.click(await screen.findByRole('radio', { name: '7 d' }));
 
     expect(navigate).toHaveBeenCalledWith('/acme/agents/a1?period=7d', { replace: true });
     expect(await screen.findByText('Jobs, Oct 29 – Today')).toBeInTheDocument();
@@ -292,10 +292,10 @@ describe('AgentDetails', () => {
 
     expect(navigate).not.toHaveBeenCalled();
 
-    await user.click(screen.getByRole('radio', { name: '7D' }));
+    await user.click(screen.getByRole('radio', { name: '7 d' }));
 
     expect(navigate).toHaveBeenCalledWith('/acme/agents/a1?period=7d', { replace: true });
-    expect(screen.getByRole('radio', { name: '7D' })).toBeChecked();
+    expect(screen.getByRole('radio', { name: '7 d' })).toBeChecked();
     expect(screen.getByText('Jobs, Today')).toBeInTheDocument();
   });
 

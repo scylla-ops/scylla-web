@@ -8,7 +8,8 @@ import { dirname, join } from 'node:path';
  * Reads the French catalogs of scylla-base as text. In French, "pipeline" is feminine, the library
  * of fragments is the "bibliothèque", and the "one" form of a count covers 0 and 1. A count that
  * the English message does not put in the plural gets a plural in the French text. "job" and
- * "Scripting" are names of the product: they stay in English.
+ * "Scripting" are names of the product: they stay in English. A slot of an agent is a "créneau".
+ * A colon has a no-break space before it, so that it never starts a line.
  */
 
 const SRC = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -132,8 +133,29 @@ describe('the French catalogs', () => {
       ['passed', 'failed', 'cancelled', 'completed', 'orphaned'].map(id => textsOf(id)),
     ).toEqual([['réussis'], ['échoués'], ['annulés'], ['terminés'], ['orphelins']]);
     expect(
+      ['Completed', 'Failed', 'Cancelled', 'Orphaned'].map(id => textOf(id, 'legend')),
+    ).toEqual(['Terminés', 'Échoués', 'Annulés', 'Orphelins']);
+    expect(
       ['completed', 'failed', 'cancelled', 'orphaned'].map(id => textOf(id, 'one job')),
     ).toEqual(['terminé', 'échoué', 'annulé', 'orphelin']);
+  });
+
+  it('calls a slot of an agent a créneau', () => {
+    const slots = entries
+      .filter(entry => words('slots?').test(entry.text.replaceAll(/\{\w+\}/g, '')))
+      .map(entry => `${entry.catalog}: ${entry.text}`);
+
+    expect(slots).toEqual([]);
+    expect(textOf('of {slots} slots busy', 'capacity')).toBe('créneaux occupés sur {slots}');
+  });
+
+  it('puts a no-break space before a colon', () => {
+    const breakable = entries
+      .filter(entry => / :(?=\s|$)/.test(entry.text))
+      .map(entry => `${entry.catalog}: ${entry.text}`);
+
+    expect(breakable).toEqual([]);
+    expect(textOf('ID: {id}')).toBe('ID\u00a0: {id}');
   });
 
   it('heads a column of dates with the date, not with a past participle', () => {

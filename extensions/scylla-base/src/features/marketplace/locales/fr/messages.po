@@ -13,39 +13,39 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:28
-msgid "{count, plural, one {# fragment} other {# fragments}}"
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:29
+msgid "{count, plural, one {# Fragment} other {# Fragments}}"
 msgstr "{count, plural, one {# fragment} other {# fragments}}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:99
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:100
 msgid "{count, plural, one {Needs # secret: {keys}} other {Needs # secrets: {keys}}}"
-msgstr "{count, plural, one {Demande # secret : {keys}} other {Demande # secrets : {keys}}}"
+msgstr "{count, plural, one {Demande # secret : {keys}} other {Demande # secrets : {keys}}}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:38
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:39
 msgid "{count} stars"
 msgstr "{count, plural, one {{count} étoile} other {{count} étoiles}}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:33
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:34
 msgid "{workspace} has not added a fragment yet. Add one linked to receive its new versions, or fork it."
 msgstr "{workspace} n'a encore ajouté aucun fragment. Ajoutez-en un lié pour recevoir ses nouvelles versions, ou forkez-le."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:35
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:36
 msgid "{workspace} has not published a fragment yet. Publish one from its page in the library."
 msgstr "{workspace} n'a encore publié aucun fragment. Publiez-en un depuis sa page dans la bibliothèque."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:81
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:82
 msgid "Add {name} to the {workspace} library"
 msgstr "Ajouter {name} à la bibliothèque de {workspace}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:59
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:60
 msgid "Add it linked to receive new versions, or fork it into an editable copy owned by {workspace}."
 msgstr "Ajoutez-le lié pour recevoir les nouvelles versions, ou forkez-le en une copie modifiable qui appartient à {workspace}."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:51
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:52
 msgid "Add to library"
 msgstr "Ajouter à la bibliothèque"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:102
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:103
 msgid "Add v{version} to library"
 msgstr "Ajouter la v{version} à la bibliothèque"
 
@@ -53,15 +53,15 @@ msgstr "Ajouter la v{version} à la bibliothèque"
 msgid "Added to {workspace} · {count}"
 msgstr "Ajoutés à {workspace} · {count}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:77
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:78
 msgid "agent"
 msgstr "agent"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:101
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:102
 msgid "Asked when the fragment is dropped in a pipeline, like any parameter. Secret values never leave {workspace}."
 msgstr "Demandé quand le fragment est déposé dans une pipeline, comme tout paramètre. Les valeurs secrètes ne quittent jamais {workspace}."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:72
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:73
 msgid "Before you add it"
 msgstr "Avant de l'ajouter"
 
@@ -69,15 +69,15 @@ msgstr "Avant de l'ajouter"
 msgid "Browse"
 msgstr "Parcourir"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:47
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:48
 msgid "by @{handle}"
 msgstr "par @{handle}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:83
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:84
 msgid "By @{handle}. Once added, everyone in {workspace} can drop it in a pipeline."
 msgstr "Par @{handle}. Une fois ajouté, tout le monde dans {workspace} peut le déposer dans une pipeline."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:103
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:104
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -85,11 +85,11 @@ msgstr "Annuler"
 msgid "Category"
 msgstr "Catégorie"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:30
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:31
 msgid "Clear filters"
 msgstr "Effacer les filtres"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:69
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:70
 msgid "deprecated"
 msgstr "dépréciée"
 
@@ -97,7 +97,7 @@ msgstr "dépréciée"
 msgid "Detail"
 msgstr "Détail"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:90
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:91
 msgid "Editable copy owned by {workspace}, published as {workspace} versions (v1, v2…). Upstream releases are shown for information, never applied."
 msgstr "Copie modifiable qui appartient à {workspace}, publiée en versions de {workspace} (v1, v2…). Les releases upstream sont affichées pour information, jamais appliquées."
 
@@ -105,11 +105,11 @@ msgstr "Copie modifiable qui appartient à {workspace}, publiée en versions de 
 msgid "Explore"
 msgstr "Explorer"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:50
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:51
 msgid "Fork"
 msgstr "Fork"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:63
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:64
 msgid "Forked in {workspace} as {name}"
 msgstr "Forké dans {workspace} sous le nom {name}"
 
@@ -117,31 +117,31 @@ msgstr "Forké dans {workspace} sous le nom {name}"
 msgid "Fragments run on your own agents. Check the steps and required secrets before adding one."
 msgstr "Les fragments s'exécutent sur vos propres agents. Vérifiez les étapes et les secrets requis avant d'en ajouter un."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:84
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:85
 msgid "How should {workspace} use it?"
 msgstr "Comment {workspace} doit-il l'utiliser ?"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:39
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:40
 msgid "In library"
 msgstr "Dans la bibliothèque"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:40
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:41
 msgid "In library · v{version}"
 msgstr "Dans la bibliothèque · v{version}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:61
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:62
 msgid "In the {workspace} library · linked v{version}"
 msgstr "Dans la bibliothèque de {workspace} · lié en v{version}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:74
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:75
 msgid "Installed on the agent"
 msgstr "Installé sur l'agent"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:66
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:67
 msgid "Its versions, stars and adoption are followed on its page in the library."
 msgstr "Ses versions, étoiles et son adoption se suivent sur sa page dans la bibliothèque."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:85
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:86
 msgid "Linked"
 msgstr "Lié"
 
@@ -159,39 +159,39 @@ msgstr "Les plus étoilés"
 msgid "Name"
 msgstr "Nom"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:95
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:96
 msgid "Name in the library"
 msgstr "Nom dans la bibliothèque"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:78
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:79
 msgid "net"
 msgstr "réseau"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:75
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:76
 msgid "Network"
 msgstr "Réseau"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:42
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:43
 msgid "New"
 msgstr "Nouveau"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:62
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:63
 msgid "New versions of the publisher wait for an admin in the library."
 msgstr "Les nouvelles versions de l'éditeur attendent un admin dans la bibliothèque."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:31
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:32
 msgid "No fragment matches these filters."
 msgstr "Aucun fragment ne correspond à ces filtres."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:79
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:80
 msgid "No secret, no tool beyond the shell of the agent."
 msgstr "Aucun secret, aucun outil au-delà du shell de l'agent."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:57
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:58
 msgid "Not in the {workspace} library yet"
 msgstr "Pas encore dans la bibliothèque de {workspace}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:41
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:42
 msgid "Official"
 msgstr "Officiel"
 
@@ -199,15 +199,15 @@ msgstr "Officiel"
 msgid "Official · Scylla"
 msgstr "Officiel · Scylla"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:94
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:95
 msgid "Older versions stay available."
 msgstr "Les versions plus anciennes restent disponibles."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:52
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:53
 msgid "Open in library"
 msgstr "Ouvrir dans la bibliothèque"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:53
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:54
 msgid "Overview"
 msgstr "Vue d'ensemble"
 
@@ -223,7 +223,7 @@ msgstr "Fragments de pipeline partagés par la communauté Scylla."
 msgid "Publish a fragment"
 msgstr "Publier un fragment"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:65
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:66
 msgid "Published by {workspace}"
 msgstr "Publié par {workspace}"
 
@@ -235,11 +235,11 @@ msgstr "Publiés par {workspace} · {count}"
 msgid "Publisher"
 msgstr "Éditeur"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:88
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:89
 msgid "Read-only in {workspace}. New versions from @{handle} appear in the library, an admin accepts them, then each pipeline chooses when to switch."
 msgstr "En lecture seule dans {workspace}. Les nouvelles versions de @{handle} apparaissent dans la bibliothèque, un admin les accepte, puis chaque pipeline choisit quand basculer."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:55
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:56
 msgid "Readme"
 msgstr "Readme"
 
@@ -247,7 +247,7 @@ msgstr "Readme"
 msgid "Recently updated"
 msgstr "Mis à jour récemment"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:86
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:87
 msgid "Recommended"
 msgstr "Conseillé"
 
@@ -255,15 +255,15 @@ msgstr "Conseillé"
 msgid "Search fragments, steps, publishers…"
 msgstr "Rechercher des fragments, étapes, éditeurs…"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:76
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:77
 msgid "secret"
 msgstr "secret"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:73
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:74
 msgid "Secret you provide in each pipeline"
 msgstr "Secret que vous fournissez dans chaque pipeline"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:96
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:97
 msgid "Shown as {name} · @{handle}."
 msgstr "Affiché comme {name} · @{handle}."
 
@@ -275,39 +275,39 @@ msgstr "Trier par"
 msgid "Stack"
 msgstr "Stack"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:48
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:49
 msgid "Star · {count}"
 msgstr "Étoile · {count}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:49
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:50
 msgid "Starred · {count}"
 msgstr "Étoilé · {count}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:64
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:65
 msgid "The fork is an editable copy: releases of the publisher are shown on its page, never applied."
-msgstr "Le fork est une copie modifiable : les releases de l'éditeur s'affichent sur sa page, sans jamais s'appliquer."
+msgstr "Le fork est une copie modifiable : les releases de l'éditeur s'affichent sur sa page, sans jamais s'appliquer."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:97
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:98
 msgid "The library already has a fragment named {name}."
 msgstr "La bibliothèque a déjà un fragment nommé {name}."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:36
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:37
 msgid "The marketplace could not be loaded."
 msgstr "Impossible de charger la marketplace."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:46
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:47
 msgid "This package does not exist, or is no longer in the marketplace."
 msgstr "Ce package n'existe pas, ou n'est plus dans la marketplace."
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:43
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:44
 msgid "Updated {date}"
 msgstr "Mis à jour {date}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:93
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:94
 msgid "v{version}"
 msgstr "v{version}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:92
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:93
 msgid "v{version} · latest"
 msgstr "v{version} · dernière"
 
@@ -315,26 +315,26 @@ msgstr "v{version} · dernière"
 msgid "Verified only"
 msgstr "Vérifiés uniquement"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:44
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:45
 msgid "Verified publisher"
 msgstr "Éditeur vérifié"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:29
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:30
 msgid "verified publishers"
 msgstr "éditeurs vérifiés"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:91
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:92
 msgid "Version"
 msgstr "Version"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:68
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:69
 msgid "Versions"
 msgstr "Versions"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:54
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:55
 msgid "Versions · {count}"
 msgstr "Versions · {count}"
 
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:70
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:71
 msgid "Versions are immutable. Your library decides when to move to a new one."
 msgstr "Les versions sont immuables. Votre bibliothèque décide quand passer à une nouvelle."

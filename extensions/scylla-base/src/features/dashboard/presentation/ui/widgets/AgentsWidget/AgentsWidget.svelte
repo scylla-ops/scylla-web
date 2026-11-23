@@ -9,6 +9,7 @@
   import { capacityMessages as messages } from '@base/features/dashboard/presentation/messages/capacity.messages.ts';
   import { durationText } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import { capacityOf } from '@base/features/dashboard/presentation/presenters/view-figures.presenter.ts';
+  import { loadText } from '@base/features/dashboard/presentation/presenters/agent-widget.presenter.ts';
   import { shortAgo } from '@base/features/dashboard/presentation/presenters/attention.presenter.ts';
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
@@ -88,7 +89,7 @@
     <span class="flex h-1 w-12 shrink-0 overflow-hidden rounded-full bg-muted" aria-hidden="true">
       <ChartSegment tone={warn ? 'warning' : 'passed'} class="h-full rounded-full" style="width: {Math.min(100, value)}%" />
     </span>
-    <span class="ml-auto tabular-nums">{value} %</span>
+    <span class="ml-auto tabular-nums">{loadText(value)}</span>
   {/if}
 {/snippet}
 

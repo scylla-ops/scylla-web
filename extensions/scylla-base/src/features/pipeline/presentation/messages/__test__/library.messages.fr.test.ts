@@ -19,10 +19,10 @@ describe('library messages in French', () => {
 
   it('agrees the pipelines that lose the versions of a deleted fragment', () => {
     expect(i18n._(libraryMessages.deleteUsed(1))).toBe(
-      "1 pipeline l'utilise : elle garde ses nœuds et s'exécute toujours, mais ne reçoit plus ses versions. Ses versions sont perdues.",
+      "1 pipeline l'utilise\u00a0: elle garde ses nœuds et s'exécute toujours, mais ne reçoit plus ses versions. Ses versions sont perdues.",
     );
     expect(i18n._(libraryMessages.deleteUsed(2))).toBe(
-      "2 pipelines l'utilisent : elles gardent ses nœuds et s'exécutent toujours, mais ne reçoivent plus ses versions. Ses versions sont perdues.",
+      "2 pipelines l'utilisent\u00a0: elles gardent ses nœuds et s'exécutent toujours, mais ne reçoivent plus ses versions. Ses versions sont perdues.",
     );
   });
 
