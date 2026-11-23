@@ -381,7 +381,7 @@ msgstr "Activité"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:19
 msgctxt "schedules"
 msgid "Add a cron trigger to a pipeline to see its next fires here."
-msgstr "Ajoutez un déclencheur cron à un pipeline pour voir ici ses prochains déclenchements."
+msgstr "Ajoutez un déclencheur cron à une pipeline pour voir ici ses prochains déclenchements."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/quick-actions.messages.ts:6
 msgctxt "quick actions"
@@ -634,7 +634,7 @@ msgstr "a modifié le déclencheur {name}"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:92
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:84
 msgid "Choose a pipeline"
-msgstr "Choisir un pipeline"
+msgstr "Choisir une pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:91
 msgid "Choose an agent"
@@ -696,7 +696,7 @@ msgstr "CPU · 24 h"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:44
 msgid "Create a pipeline in a project to see its runs here."
-msgstr "Créez un pipeline dans un projet pour voir ses exécutions ici."
+msgstr "Créez une pipeline dans un projet pour voir ses exécutions ici."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:77
 msgid "Create dashboard"
@@ -831,7 +831,7 @@ msgstr "Modifier le tableau de bord"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipeline-widget.messages.ts:23
 msgctxt "pipeline widget"
 msgid "Edit the dashboard and choose a pipeline in Data."
-msgstr "Modifiez le tableau de bord et choisissez un pipeline dans Données."
+msgstr "Modifiez le tableau de bord et choisissez une pipeline dans Données."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/agent-widget.messages.ts:30
 msgctxt "agent widget"
@@ -850,7 +850,7 @@ msgstr "écoulé · médiane"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:11
 msgctxt "live"
 msgid "elapsed · median of the pipeline"
-msgstr "écoulé · médiane du pipeline"
+msgstr "écoulé · médiane de la pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:10
 msgid "Events on a time axis"
@@ -1014,12 +1014,12 @@ msgstr "Il se place au premier emplacement libre. Faites-le glisser où vous vou
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/agent-widget.messages.ts:32
 msgctxt "agent widget"
 msgid "It was deleted, or you cannot see it. Choose another agent in Data."
-msgstr "Il a été supprimé, ou vous ne pouvez pas le voir. Choisissez un autre agent dans Données."
+msgstr "Elle a été supprimée, ou vous ne pouvez pas la voir. Choisissez un autre agent dans Données."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipeline-widget.messages.ts:25
 msgctxt "pipeline widget"
 msgid "It was deleted, or you cannot see it. Choose another pipeline in Data."
-msgstr "Il a été supprimé, ou vous ne pouvez pas le voir. Choisissez un autre pipeline dans Données."
+msgstr "Elle a été supprimée, ou vous ne pouvez pas la voir. Choisissez une autre pipeline dans Données."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:8
 msgid "Items with actions"
@@ -1354,12 +1354,12 @@ msgstr "Aucun job ces dernières 24 heures"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/ranking.messages.ts:12
 msgctxt "ranking"
 msgid "No job of a pipeline ended in this period."
-msgstr "Aucun job d’un pipeline ne s’est terminé sur cette période."
+msgstr "Aucun job d’une pipeline ne s’est terminé sur cette période."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/ranking.messages.ts:14
 msgctxt "ranking"
 msgid "No job of a pipeline failed in this period."
-msgstr "Aucun job d’un pipeline n’a échoué sur cette période."
+msgstr "Aucun job d’une pipeline n’a échoué sur cette période."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/agent-widget.messages.ts:18
 msgctxt "agent widget"
@@ -1390,29 +1390,29 @@ msgstr "Aucun job sur cette période"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipeline-widget.messages.ts:22
 msgctxt "pipeline widget"
 msgid "No pipeline chosen"
-msgstr "Aucun pipeline choisi"
+msgstr "Aucune pipeline choisie"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipelines.messages.ts:16
 msgctxt "pipelines"
 msgid "No pipeline fails."
-msgstr "Aucun pipeline en échec."
+msgstr "Aucune pipeline en échec."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:94
 msgid "No pipeline in this workspace"
-msgstr "Aucun pipeline dans cet espace de travail"
+msgstr "Aucune pipeline dans cet espace de travail"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:64
 msgid "No pipeline is red and no job waits for an approval."
-msgstr "Aucun pipeline en échec et aucun job en attente d’approbation."
+msgstr "Aucune pipeline en échec et aucun job en attente d’approbation."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/ranking.messages.ts:11
 msgctxt "ranking"
 msgid "No pipeline to rank"
-msgstr "Aucun pipeline à classer"
+msgstr "Aucune pipeline à classer"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:43
 msgid "No pipelines yet"
-msgstr "Aucun pipeline pour l’instant"
+msgstr "Aucune pipeline pour l’instant"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:76
 msgctxt "legend"
@@ -1537,7 +1537,7 @@ msgstr "Un agent de la flotte"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:34
 msgid "One pipeline"
-msgstr "Un pipeline"
+msgstr "Une pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:20
 msgid "One result per entity"
@@ -1852,12 +1852,12 @@ msgstr "Minutes d’exécution"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
 msgid "Run pipeline"
-msgstr "Lancer un pipeline"
+msgstr "Lancer une pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipeline-widget.messages.ts:21
 msgctxt "pipeline widget"
 msgid "Run the pipeline now"
-msgstr "Lancer le pipeline maintenant"
+msgstr "Lancer la pipeline maintenant"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:63
 msgid "run, add an agent, invite"
@@ -2255,7 +2255,7 @@ msgstr "ce mois-ci"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipeline-widget.messages.ts:24
 msgctxt "pipeline widget"
 msgid "This pipeline is gone"
-msgstr "Ce pipeline n’existe plus"
+msgstr "Cette pipeline n’existe plus"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:51
 msgid "This widget has no layout in this size yet."

@@ -103,7 +103,7 @@ msgstr "Un autre secret du projet utilise déjà ce nom"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:40
 msgid "Another trigger of the pipeline already uses this name"
-msgstr "Un autre déclencheur du pipeline utilise déjà ce nom"
+msgstr "Un autre déclencheur de la pipeline utilise déjà ce nom"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:29
 msgid "Another workspace already uses this slug"
@@ -266,11 +266,11 @@ msgstr "En attente"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:23
 msgid "Pipeline created"
-msgstr "Pipeline créé"
+msgstr "Pipeline créée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:24
 msgid "Pipeline deleted"
-msgstr "Pipeline supprimé"
+msgstr "Pipeline supprimée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:30
 msgid "Pipeline duplicated successfully"
@@ -278,11 +278,11 @@ msgstr "Pipeline dupliquée avec succès"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:25
 msgid "Pipeline edited"
-msgstr "Pipeline modifié"
+msgstr "Pipeline modifiée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:26
 msgid "Pipeline ran"
-msgstr "Pipeline exécuté"
+msgstr "Pipeline exécutée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
 msgid "Pipeline ran: check that your agents are connected"

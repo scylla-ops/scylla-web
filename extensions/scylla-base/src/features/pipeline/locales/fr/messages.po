@@ -17,7 +17,7 @@ msgstr "[skip ci] ignoré"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:137
 msgid "{count, plural, =0 {no pipeline} one {# pipeline} other {# pipelines}}"
-msgstr "{count, plural, =0 {aucun pipeline} one {# pipeline} other {# pipelines}}"
+msgstr "{count, plural, =0 {aucune pipeline} one {# pipeline} other {# pipelines}}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:35
 msgid "{count, plural, =0 {Not used yet} one {Used in # pipeline} other {Used in # pipelines}}"
@@ -49,7 +49,7 @@ msgstr "{count, plural, one {# fixe {key}={value} et le garde : {names}.} other 
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:131
 msgid "{count, plural, one {# pipeline uses it} other {# pipelines use it}}: they keep its nodes and still run, but they no longer get its versions. Its versions are lost."
-msgstr "{count, plural, one {# pipeline l'utilise} other {# pipelines l'utilisent}} : ils gardent ses nœuds et s'exécutent toujours, mais ne reçoivent plus ses versions. Ses versions sont perdues."
+msgstr "{count, plural, one {# pipeline l'utilise} other {# pipelines l'utilisent}}  : elles gardent ses nœuds et s'exécutent toujours, mais ne reçoivent plus ses versions. Ses versions sont perdues."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:35
 msgid "{count, plural, one {# run in total} other {# runs in total}}"
@@ -69,11 +69,11 @@ msgstr "{count, plural, one {+ # autre} other {+ # autres}}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:33
 msgid "{count, plural, one {Library · # node} other {Library · # nodes}}"
-msgstr "{count, plural, one {Librairie · # nœud} other {Librairie · # nœuds}}"
+msgstr "{count, plural, one {Bibliothèque · # nœud} other {Bibliothèque · # nœuds}}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:89
 msgid "{count, plural, one {The node becomes one {name} block, linked to the library.} other {The # nodes become one {name} block, linked to the library.}}"
-msgstr "{count, plural, one {Le nœud devient un bloc {name}, lié à la librairie.} other {Les # nœuds deviennent un bloc {name}, lié à la librairie.}}"
+msgstr "{count, plural, one {Le nœud devient un bloc {name}, lié à la bibliothèque.} other {Les # nœuds deviennent un bloc {name}, lié à la bibliothèque.}}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:59
 msgid "{count, plural, one {Turn the selected node into a reusable fragment, shared with everyone in {workspace}.} other {Turn the # selected nodes into a reusable fragment, shared with everyone in {workspace}.}}"
@@ -85,7 +85,7 @@ msgstr "{count, plural, one {v{number} · # organisation} other {v{number} · # 
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:46
 msgid "{count} of {total} pipelines can switch as is."
-msgstr "{count} pipelines sur {total} peuvent passer tels quels."
+msgstr "{count} pipelines sur {total} peuvent passer telles quelles."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:50
 msgid "{file} has {count, plural, one {# error} other {# errors}} on {branch}"
@@ -125,11 +125,11 @@ msgstr "{name} · {date}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:143
 msgid "{name} is in the library: drop it in a pipeline from the palette."
-msgstr "{name} est dans la librairie : déposez-le dans un pipeline depuis la palette."
+msgstr "{name} est dans la bibliothèque : déposez-le dans une pipeline depuis la palette."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:67
 msgid "{name} is in the library: saving publishes its version {number}."
-msgstr "{name} est dans la librairie : enregistrer publie sa version {number}."
+msgstr "{name} est dans la bibliothèque : enregistrer publie sa version {number}."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:113
 msgid "{name} v{number} is available"
@@ -137,7 +137,7 @@ msgstr "{name} v{number} est disponible"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:99
 msgid "{name} v{number} is now available in the library."
-msgstr "{name} v{number} est maintenant disponible dans la librairie."
+msgstr "{name} v{number} est maintenant disponible dans la bibliothèque."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:74
 msgid "{name}-copy"
@@ -161,7 +161,7 @@ msgstr "{passed} sur {total} réussis"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:10
 msgid "{workspace} library"
-msgstr "Librairie {workspace}"
+msgstr "Bibliothèque {workspace}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:76
 msgid "{workspace} only"
@@ -189,7 +189,7 @@ msgstr "Un fork ne se met jamais à jour seul : reportez les changements dans l'
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:65
 msgid "A fragment of the library has this name, and only its author or an admin can publish a new version of it."
-msgstr "Un fragment de la librairie porte ce nom, et seuls son auteur ou un admin peuvent en publier une nouvelle version."
+msgstr "Un fragment de la bibliothèque porte ce nom, et seuls son auteur ou un admin peuvent en publier une nouvelle version."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:68
 msgid "A merge needs at least one link in."
@@ -205,7 +205,7 @@ msgstr "Un script shell multiligne"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:87
 msgid "A new version goes to the {workspace} library first. The author or an admin then chooses to make it public."
-msgstr "Une nouvelle version arrive d'abord dans la librairie de {workspace}. L'auteur ou un admin choisit ensuite de la rendre publique."
+msgstr "Une nouvelle version arrive d'abord dans la bibliothèque de {workspace}. L'auteur ou un admin choisit ensuite de la rendre publique."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:86
 msgid "A node after the selection waits for a port of it, such as an error output. A block has no port, so the nodes stay in place."
@@ -237,11 +237,11 @@ msgstr "Un switch a besoin de 1 à 16 cas."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:53
 msgid "Accept v{number} in the library"
-msgstr "Accepter la v{number} dans la librairie"
+msgstr "Accepter la v{number} dans la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:50
 msgid "Accepting adds the version to the library. Each pipeline then gets the usual proposal: nothing switches on its own."
-msgstr "Accepter ajoute la version à la librairie. Chaque pipeline reçoit ensuite la proposition habituelle : rien ne bascule seul."
+msgstr "Accepter ajoute la version à la bibliothèque. Chaque pipeline reçoit ensuite la proposition habituelle : rien ne bascule seul."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:104
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:18
@@ -294,7 +294,7 @@ msgstr "Ajouté par {name} · {date}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:141
 msgid "Added to the library"
-msgstr "Ajouté à la librairie"
+msgstr "Ajouté à la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:46
 msgid "After"
@@ -386,7 +386,7 @@ msgstr "Parcourir la marketplace"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:7
 msgid "Browse the whole library"
-msgstr "Parcourir toute la librairie"
+msgstr "Parcourir toute la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:114
 msgid "Build"
@@ -543,7 +543,7 @@ msgstr "Copier le nœud"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:34
 msgid "Couldn't load the pipeline"
-msgstr "Impossible de charger le pipeline"
+msgstr "Impossible de charger la pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:74
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:43
@@ -556,7 +556,7 @@ msgstr "créer ajouter workflow"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:6
 msgid "Create your first pipeline to get started"
-msgstr "Créez votre premier pipeline pour commencer"
+msgstr "Créez votre première pipeline pour commencer"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:40
 msgid "Created"
@@ -645,7 +645,7 @@ msgstr "Détacher en fork"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:108
 msgid "Detached from the library: {blocks}. Their nodes were edited, so the pipeline keeps them as its own."
-msgstr "Détachés de la librairie : {blocks}. Leurs nœuds ont été modifiés, le pipeline les garde donc comme les siens."
+msgstr "Détachés de la bibliothèque : {blocks}. Leurs nœuds ont été modifiés, la pipeline les garde donc comme les siens."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:106
 msgid "Detaching breaks the link: future versions will no longer be proposed."
@@ -693,7 +693,7 @@ msgstr "brouillons ignorés"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:40
 msgid "Drag a box around nodes to select them, then save them to the library. Shift does the same."
-msgstr "Tracez un cadre autour des nœuds pour les sélectionner, puis enregistrez-les dans la librairie. Maj fait la même chose."
+msgstr "Tracez un cadre autour des nœuds pour les sélectionner, puis enregistrez-les dans la bibliothèque. Maj fait la même chose."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:8
 msgid "Drag a node onto the canvas, or drop a link on empty space to add one."
@@ -701,7 +701,7 @@ msgstr "Glissez un nœud sur le canevas, ou déposez un lien dans le vide pour e
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:23
 msgid "Drop a fragment on a link to insert it, or on empty space to add it. Fragments stay linked to the library."
-msgstr "Déposez un fragment sur un lien pour l'insérer, ou dans le vide pour l'ajouter. Les fragments restent liés à la librairie."
+msgstr "Déposez un fragment sur un lien pour l'insérer, ou dans le vide pour l'ajouter. Les fragments restent liés à la bibliothèque."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:18
 msgid "Drop on a node to wait for it. Hold Alt to keep the other dependencies."
@@ -746,7 +746,7 @@ msgstr "Modifier la pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:48
 msgid "Edit this pipeline"
-msgstr "Modifier ce pipeline"
+msgstr "Modifier cette pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:49
 msgid "editor change nodes"
@@ -806,7 +806,7 @@ msgstr "Exporter {name}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:7
 msgid "Export the pipeline"
-msgstr "Exporter le pipeline"
+msgstr "Exporter la pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:77
 msgid "Expose {key}"
@@ -894,7 +894,7 @@ msgstr "Fragments"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:78
 msgid "From a pipeline…"
-msgstr "Depuis un pipeline…"
+msgstr "Depuis une pipeline…"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:5
 msgid "From file"
@@ -1015,7 +1015,7 @@ msgstr "Jobs"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:37
 msgid "Jobs of this pipeline"
-msgstr "Jobs de ce pipeline"
+msgstr "Jobs de cette pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:22
 msgid "Joins branches again"
@@ -1065,7 +1065,7 @@ msgstr "LFS"
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:53
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:5
 msgid "Library"
-msgstr "Librairie"
+msgstr "Bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:109
 msgid "License"
@@ -1109,7 +1109,7 @@ msgstr "Littéral"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:32
 msgid "Loading the pipeline…"
-msgstr "Chargement du pipeline…"
+msgstr "Chargement de la pipeline…"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:153
 msgid "Loading the pipelines…"
@@ -1192,7 +1192,7 @@ msgstr "Nouveau paramètre : {key}"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:10
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:25
 msgid "New pipeline"
-msgstr "Nouveau pipeline"
+msgstr "Nouvelle pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:45
 msgid "New runs fail with \"Invalid pipeline file\" until the file is valid."
@@ -1232,19 +1232,19 @@ msgstr "Aucune organisation ne l'utilise encore."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:5
 msgid "No pipeline found"
-msgstr "Aucun pipeline trouvé"
+msgstr "Aucune pipeline trouvé"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:140
 msgid "No pipeline links this fragment yet."
-msgstr "Aucun pipeline n'utilise encore ce fragment."
+msgstr "Aucune pipeline n'utilise encore ce fragment."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:152
 msgid "No pipeline matches."
-msgstr "Aucun pipeline ne correspond."
+msgstr "Aucune pipeline ne correspond."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:129
 msgid "No pipeline uses it. Its versions are lost."
-msgstr "Aucun pipeline ne l'utilise. Ses versions sont perdues."
+msgstr "Aucune pipeline ne l'utilise. Ses versions sont perdues."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:132
 msgid "No reference to {workspace} in the nodes"
@@ -1294,7 +1294,7 @@ msgstr "Nœuds"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:72
 msgid "not in library yet"
-msgstr "pas encore dans la librairie"
+msgstr "pas encore dans la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:98
 msgid "Number"
@@ -1306,7 +1306,7 @@ msgstr "Désactivé"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:136
 msgid "Off: each new library version asks whether to make it public."
-msgstr "Désactivé : chaque nouvelle version de la librairie demande s'il faut la rendre publique."
+msgstr "Désactivé : chaque nouvelle version de la bibliothèque demande s'il faut la rendre publique."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:90
 msgid "On the marketplace"
@@ -1330,7 +1330,7 @@ msgstr "Seuls les admins de l'espace de travail acceptent ou ignorent une versio
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:139
 msgid "Only the author ({author}) and the admins can publish a new version. Change the nodes in the graph above, or save nodes of a pipeline under the name of this fragment."
-msgstr "Seuls l'auteur ({author}) et les admins peuvent publier une nouvelle version. Modifiez les nœuds dans le graphe ci-dessus, ou enregistrez des nœuds d'un pipeline sous le nom de ce fragment."
+msgstr "Seuls l'auteur ({author}) et les admins peuvent publier une nouvelle version. Modifiez les nœuds dans le graphe ci-dessus, ou enregistrez des nœuds d'une pipeline sous le nom de ce fragment."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:30
 msgid "Open a node from the list."
@@ -1338,7 +1338,7 @@ msgstr "Ouvrez un nœud depuis la liste."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:147
 msgid "Open a pipeline, then drop {name} from the Library tab of the palette."
-msgstr "Ouvrez un pipeline, puis déposez {name} depuis l'onglet Librairie de la palette."
+msgstr "Ouvrez une pipeline, puis déposez {name} depuis l'onglet Bibliothèque de la palette."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:85
 msgid "Open a port when no case matches"
@@ -1346,7 +1346,7 @@ msgstr "Ouvrir un port quand aucun cas ne correspond"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:8
 msgid "Open in library"
-msgstr "Ouvrir dans la librairie"
+msgstr "Ouvrir dans la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:24
 msgid "Open nodes"
@@ -1354,7 +1354,7 @@ msgstr "Nœuds ouverts"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:150
 msgid "Open the pipeline that holds the new nodes, select them, then save them to the library under the name {name}."
-msgstr "Ouvrez le pipeline qui contient les nouveaux nœuds, sélectionnez-les, puis enregistrez-les dans la librairie sous le nom {name}."
+msgstr "Ouvrez la pipeline qui contient les nouveaux nœuds, sélectionnez-les, puis enregistrez-les dans la bibliothèque sous le nom {name}."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:84
 msgid "Open the port of each case that matches"
@@ -1534,7 +1534,7 @@ msgstr "Retirer des favoris"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:109
 msgid "Remove from this pipeline"
-msgstr "Retirer de ce pipeline"
+msgstr "Retirer de cette pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:38
 msgid "Remove the dependency on {id}"
@@ -1627,12 +1627,12 @@ msgstr "Échec de l'enregistrement"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:24
 msgid "Save the pipeline first: a new pipeline cannot link a fragment yet."
-msgstr "Enregistrez d'abord le pipeline : un nouveau pipeline ne peut pas encore lier de fragment."
+msgstr "Enregistrez d'abord la pipeline : une nouvelle pipeline ne peut pas encore lier de fragment."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:53
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:57
 msgid "Save to library"
-msgstr "Enregistrer dans la librairie"
+msgstr "Enregistrer dans la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:93
 msgid "Save v{number}"
@@ -1640,7 +1640,7 @@ msgstr "Enregistrer la v{number}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:96
 msgid "Saved to library"
-msgstr "Enregistré dans la librairie"
+msgstr "Enregistré dans la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:49
 msgid "Saving…"
@@ -1692,7 +1692,7 @@ msgstr "Rechercher des pipelines…"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:9
 msgid "Search the {workspace} library"
-msgstr "Rechercher dans la librairie {workspace}"
+msgstr "Rechercher dans la bibliothèque {workspace}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:55
 msgid "secret"
@@ -1870,19 +1870,19 @@ msgstr "Le fichier n'a pas de section on."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:10
 msgid "The file has the saved version. Save the pipeline to export your changes."
-msgstr "Le fichier contient la version enregistrée. Enregistrez le pipeline pour exporter vos modifications."
+msgstr "Le fichier contient la version enregistrée. Enregistrez la pipeline pour exporter vos modifications."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:110
 msgid "The fragment stays in the library, and the other pipelines keep it."
-msgstr "Le fragment reste dans la librairie, et les autres pipelines le gardent."
+msgstr "Le fragment reste dans la bibliothèque, et les autres pipelines le gardent."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:146
 msgid "The library could not be loaded."
-msgstr "La librairie n'a pas pu être chargée."
+msgstr "La bibliothèque n'a pas pu être chargée."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:14
 msgid "The library is empty. Select nodes in a pipeline, then save them to the library."
-msgstr "La librairie est vide. Sélectionnez des nœuds dans un pipeline, puis enregistrez-les dans la librairie."
+msgstr "La bibliothèque est vide. Sélectionnez des nœuds dans une pipeline, puis enregistrez-les dans la bibliothèque."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:32
 msgid "The line that runs"
@@ -1918,11 +1918,11 @@ msgstr "les nœuds démarrent dans un dossier vide"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:8
 msgid "The pipeline as a file for the repository: put it at this path, then use the repository files as the source of the project."
-msgstr "Le pipeline sous forme de fichier pour le dépôt : placez-le à cet emplacement, puis utilisez les fichiers du dépôt comme source du projet."
+msgstr "La pipeline sous forme de fichier pour le dépôt : placez-la à cet emplacement, puis utilisez les fichiers du dépôt comme source du projet."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:65
 msgid "The pipeline needs a name."
-msgstr "Le pipeline doit avoir un nom."
+msgstr "La pipeline doit avoir un nom."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:87
 msgid "The pipelines that link it are offered this content. Choose another name to make a new fragment."
@@ -1942,7 +1942,7 @@ msgstr "Les rapports de ce dépôt sont désactivés : le fournisseur ne reçoit
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:16
 msgid "The saved pipeline has a switch, a merge or a node linked to an error output. A file cannot hold them yet."
-msgstr "Le pipeline enregistré contient un switch, une fusion ou un nœud lié à une sortie d'erreur. Un fichier ne peut pas encore les contenir."
+msgstr "La pipeline enregistrée contient un switch, une fusion ou un nœud lié à une sortie d'erreur. Un fichier ne peut pas encore les contenir."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:13
 msgid "The script is empty."
@@ -1966,15 +1966,15 @@ msgstr "Ce fragment ne vient pas d'un package de la marketplace."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:120
 msgid "This fragment is no longer in the library."
-msgstr "Ce fragment n'est plus dans la librairie."
+msgstr "Ce fragment n'est plus dans la bibliothèque."
 
 #: extensions/scylla-base/src/features/pipeline/infrastructure/default-fragment.repository.ts:73
 msgid "This fragment is not in the library of this workspace."
-msgstr "Ce fragment n'est pas dans la librairie de ce workspace."
+msgstr "Ce fragment n'est pas dans la bibliothèque de ce workspace."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:145
 msgid "This fragment is not in the library."
-msgstr "Ce fragment n'est pas dans la librairie."
+msgstr "Ce fragment n'est pas dans la bibliothèque."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:11
 msgid "This node cannot run as it is."
@@ -1998,7 +1998,7 @@ msgstr "Cette pipeline n'a pas de fichier sur {branch}. Le graphe montre la dern
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:10
 msgid "This pipeline has no node yet."
-msgstr "Ce pipeline n'a encore aucun nœud."
+msgstr "Cette pipeline n'a encore aucun nœud."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:33
 msgid "Timeout (seconds)"
@@ -2092,7 +2092,7 @@ msgstr "Utiliser {id}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:145
 msgid "Use {name} in a pipeline"
-msgstr "Utiliser {name} dans un pipeline"
+msgstr "Utiliser {name} dans une pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/run.messages.ts:13
 msgid "Use a commit SHA"
@@ -2100,7 +2100,7 @@ msgstr "Utiliser le SHA d'un commit"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:31
 msgid "Use in a pipeline"
-msgstr "Utiliser dans un pipeline"
+msgstr "Utiliser dans une pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:64
 msgid "Used as {name} in pipelines."
@@ -2201,7 +2201,7 @@ msgstr "Qu'est-ce qui a changé ?"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:69
 msgid "What changes for a pipeline that switches."
-msgstr "Ce qui change pour un pipeline qui bascule."
+msgstr "Ce qui change pour une pipeline qui bascule."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:31
 msgid "Working directory"
@@ -2221,7 +2221,7 @@ msgstr "Vous n'avez pas la permission de modifier cette pipeline."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/export.messages.ts:5
 msgid "You don't have permission to read this pipeline."
-msgstr "Vous n'avez pas la permission de lire ce pipeline."
+msgstr "Vous n'avez pas la permission de lire cette pipeline."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:28
 msgid "You don't have permission to view this pipeline's jobs"
@@ -2229,7 +2229,7 @@ msgstr "Vous n'avez pas la permission de voir les jobs de cette pipeline"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:54
 msgid "Your changes to this pipeline are not saved. If you leave now, you lose them."
-msgstr "Vos modifications de ce pipeline ne sont pas enregistrées. Si vous quittez maintenant, vous les perdez."
+msgstr "Vos modifications de cette pipeline ne sont pas enregistrées. Si vous quittez maintenant, vous les perdez."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:119
 msgid "Your parameter values are kept."

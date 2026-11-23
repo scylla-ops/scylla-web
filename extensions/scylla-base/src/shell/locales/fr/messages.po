@@ -155,7 +155,7 @@ msgstr "Aller à la page {name}."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:43
 msgid "Go to the pipeline {name}."
-msgstr "Aller au pipeline {name}."
+msgstr "Aller à la pipeline {name}."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:42
 msgid "Go to the project {name}."
@@ -243,7 +243,7 @@ msgstr "Sur un petit écran, chaque ligne d'un tableau s'affiche comme une carte
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:7
 msgid "On this pipeline"
-msgstr "Sur ce pipeline"
+msgstr "Sur cette pipeline"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:33
 msgid "Open Scylla"
@@ -332,7 +332,7 @@ msgstr "lancer démarrer exécuter"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:55
 msgid "Run the pipeline {name}: you confirm in the next step."
-msgstr "Lancer le pipeline {name} : vous confirmez à l'étape suivante."
+msgstr "Lancer la pipeline {name} : vous confirmez à l'étape suivante."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:37
 msgid "Run…"
@@ -404,7 +404,7 @@ msgstr "L'éditeur de pipeline vous dit pourquoi il ne peut pas enregistrer, par
 
 #: extensions/scylla-base/src/shell/whats-new.ts:34
 msgid "The scripting tab lists the nodes of a pipeline by stage and shows the script of each node as shell code. Open two nodes side by side."
-msgstr "L'onglet Écriture de scripts liste les nœuds d'un pipeline par étape et affiche le script de chaque nœud comme du code shell. Ouvrez deux nœuds côte à côte."
+msgstr "L'onglet Écriture de scripts liste les nœuds d'une pipeline par étape et affiche le script de chaque nœud comme du code shell. Ouvrez deux nœuds côte à côte."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
 msgid "The server does not answer"

@@ -609,6 +609,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The first click after a dialog, an alert dialog or a sheet closes works. Before, the page did not
   take the pointer until the close animation ended. For example, after "Stay" in the "Leave without
   saving?" dialog of the pipeline editor, the first click on Save did nothing.
+- The French texts now use "la pipeline" (feminine) and "Bibliothèque" for the fragment library.
 
 ## [0.6.0] - 2026-11-01
 
