@@ -344,7 +344,7 @@ msgstr "Des enregistrements de pipeline plus sûrs"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:33
 msgid "Scripting, node by node"
-msgstr "L'écriture de scripts, nœud par nœud"
+msgstr "Scripting, nœud par nœud"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:64
 msgid "Scylla on your phone"
@@ -404,7 +404,7 @@ msgstr "L'éditeur de pipeline vous dit pourquoi il ne peut pas enregistrer, par
 
 #: extensions/scylla-base/src/shell/whats-new.ts:34
 msgid "The scripting tab lists the nodes of a pipeline by stage and shows the script of each node as shell code. Open two nodes side by side."
-msgstr "L'onglet Écriture de scripts liste les nœuds d'une pipeline par étape et affiche le script de chaque nœud comme du code shell. Ouvrez deux nœuds côte à côte."
+msgstr "L'onglet Scripting liste les nœuds d'une pipeline par étape et affiche le script de chaque nœud comme du code shell. Ouvrez deux nœuds côte à côte."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
 msgid "The server does not answer"

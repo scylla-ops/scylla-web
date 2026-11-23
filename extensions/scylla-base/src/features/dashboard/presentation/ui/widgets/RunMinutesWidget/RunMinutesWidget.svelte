@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import HourglassIcon from '@lucide/svelte/icons/hourglass';
   import { ChartDot, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
-  import { t } from '@scylla/ui/i18n';
+  import { formatNumber, t } from '@scylla/ui/i18n';
   import { formatUtcDay } from '@shared/utils/date-utils.ts';
   import { minutesMessages as messages } from '@base/features/dashboard/presentation/messages/minutes.messages.ts';
   import { dayIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
@@ -51,13 +51,12 @@
       .filter(row => row.minutes > 0),
   );
   const mostProject = $derived(Math.max(1, ...projects.map(row => row.minutes)));
-  const number = (value: number) => value.toLocaleString();
 </script>
 
 {#snippet usedBlock(big: boolean)}
   <div class="flex flex-col gap-0.5">
     <span class={big ? 'font-display text-[28px] leading-9 font-medium tabular-nums' : 'font-display text-xl font-medium tabular-nums'}>
-      {t(messages.minutes(number(used)))}
+      {t(messages.minutes(formatNumber(used)))}
     </span>
     <span class="text-xs text-muted-foreground">{t(messages.thisMonth)}</span>
     <span class="text-xs text-muted-foreground">{t(messages.daysLeft(daysLeft))}</span>
@@ -77,7 +76,7 @@
           <span class="flex h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
             <ChartSegment tone="passed" class="h-full rounded-full" style="width: {(row.minutes / mostProject) * 100}%" />
           </span>
-          <span class="w-10 shrink-0 text-right text-xs font-medium tabular-nums">{number(row.minutes)}</span>
+          <span class="w-10 shrink-0 text-right text-xs font-medium tabular-nums">{formatNumber(row.minutes)}</span>
         </li>
       {/each}
     </ul>
@@ -109,7 +108,7 @@
   >
     {#if size === 'xs'}
       <p data-part="run-minutes" class="flex h-7 items-center gap-1.5">
-        <span class="font-display text-xl font-medium tabular-nums">{t(messages.minutes(number(used)))}</span>
+        <span class="font-display text-xl font-medium tabular-nums">{t(messages.minutes(formatNumber(used)))}</span>
         <span class="truncate text-xs text-muted-foreground">{t(messages.thisMonth)}</span>
       </p>
     {:else if size === 's'}
@@ -117,7 +116,7 @@
         {@render usedBlock(true)}
         <p class="flex items-center gap-2 text-xs text-muted-foreground">
           <ChartDot tone="muted" />
-          <span class="truncate">{t(messages.paceShort(number(pace)))}</span>
+          <span class="truncate">{t(messages.paceShort(formatNumber(pace)))}</span>
         </p>
       </div>
     {:else if size === 'm'}
@@ -130,7 +129,7 @@
         {@render usedBlock(true)}
         <p class="flex items-center gap-2 text-xs text-muted-foreground">
           <ChartDot tone="muted" />
-          <span class="truncate">{t(messages.pace(number(pace), formatUtcDay(lastDay)))}</span>
+          <span class="truncate">{t(messages.pace(formatNumber(pace), formatUtcDay(lastDay)))}</span>
         </p>
         <div class="flex flex-col gap-1">
           <div class="flex h-[88px] items-end gap-1" role="img" aria-label={t(messages.thisMonth)}>

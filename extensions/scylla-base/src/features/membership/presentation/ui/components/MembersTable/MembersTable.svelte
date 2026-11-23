@@ -1,6 +1,6 @@
 <script lang="ts">
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-  import { t } from '@scylla/ui/i18n';
+  import { intlLocale, t } from '@scylla/ui/i18n';
   import {
     Button,
     DropdownMenu,
@@ -38,7 +38,9 @@
   let { rows, isLoading, userFor, selfId, canManage, onOpen, onChangeRoles, onRemove }: Props =
     $props();
 
-  const dateFormat = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' });
+  const dateFormat = $derived(
+    new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'short' }),
+  );
   const chipClass =
     'whitespace-nowrap rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium';
 </script>

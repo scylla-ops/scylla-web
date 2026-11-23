@@ -7,7 +7,8 @@ import { dirname, join } from 'node:path';
 /**
  * Reads the French catalogs of scylla-base as text. In French, "pipeline" is feminine, the library
  * of fragments is the "bibliothèque", and the "one" form of a count covers 0 and 1. A count that
- * the English message does not put in the plural gets a plural in the French text.
+ * the English message does not put in the plural gets a plural in the French text. "job" and
+ * "Scripting" are names of the product: they stay in English.
  */
 
 const SRC = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
@@ -35,6 +36,13 @@ const textOf = (id: string, context: string | null = null): string => {
   expect(found, id).toHaveLength(1);
   return found[0].text;
 };
+
+/** The texts of a message that several catalogs translate, once each. */
+const textsOf = (id: string, context: string | null = null): string[] => [
+  ...new Set(
+    entries.filter(entry => entry.id === id && entry.context === context).map(entry => entry.text),
+  ),
+];
 
 /** The text outside the `{name, plural, …}` and `{name, select, …}` parts. */
 const outsideChoices = (text: string): string => {
@@ -107,6 +115,29 @@ describe('the French catalogs', () => {
     ).toBe(
       'Il a été supprimé, ou vous ne pouvez pas le voir. Choisissez un autre agent dans Données.',
     );
+  });
+
+  it('calls a job a job, and the Scripting editor Scripting', () => {
+    const translated = entries
+      .filter(entry => words(String.raw`travaux|écriture\s+de\s+scripts`).test(entry.text))
+      .map(entry => `${entry.catalog}: ${entry.text}`);
+
+    expect(translated).toEqual([]);
+    expect(textOf('Scripting')).toBe('Scripting');
+    expect(textOf('View Jobs')).toBe('Voir les jobs');
+  });
+
+  it('agrees the words of a legend of jobs, and the outcome of one job', () => {
+    expect(
+      ['passed', 'failed', 'cancelled', 'completed', 'orphaned'].map(id => textsOf(id)),
+    ).toEqual([['réussis'], ['échoués'], ['annulés'], ['terminés'], ['orphelins']]);
+    expect(
+      ['completed', 'failed', 'cancelled', 'orphaned'].map(id => textOf(id, 'one job')),
+    ).toEqual(['terminé', 'échoué', 'annulé', 'orphelin']);
+  });
+
+  it('heads a column of dates with the date, not with a past participle', () => {
+    expect(textsOf('Added')).toEqual(["Date d'ajout"]);
   });
 
   it('puts a count before a plural word in a plural', () => {

@@ -614,6 +614,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   dashboard, and in French "1 pipeline l'utilise : elle garde…" and the other counts of the
   dashboard, the agents, the onboarding, the roles and the secrets. The last masculine French words
   for a pipeline are gone, and the agent widget uses "Il" again for an agent.
+- Dates, times, relative times and numbers use the language of the UI, also after a change of the
+  language: "il y a 33 min", "lundi 23 novembre", "0,7 par jour", "89 %" in French. The French UI
+  calls the editor tab "Scripting" and the jobs "jobs", agrees the words of a legend with the jobs
+  that they count, writes the noun after a count in lower case ("3 projets"), and heads the column
+  of dates "Date d'ajout".
 
 ## [0.6.0] - 2026-11-01
 

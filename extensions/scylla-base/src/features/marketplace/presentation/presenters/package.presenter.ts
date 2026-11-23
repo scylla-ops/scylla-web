@@ -1,4 +1,4 @@
-import { i18n } from '@lingui/core';
+import { formatNumber } from '@scylla/ui/i18n';
 import type { FragmentVersion } from '@base/features/pipeline';
 import type { PackageStack } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
 
@@ -13,10 +13,7 @@ export const STACK_NAMES: Record<PackageStack, string> = {
 
 /** `15.2k`: the counts of the marketplace, short. */
 export const compactCount = (count: number): string =>
-  new Intl.NumberFormat(i18n.locale || 'en', {
-    notation: 'compact',
-    maximumFractionDigits: 1,
-  }).format(count);
+  formatNumber(count, { notation: 'compact', maximumFractionDigits: 1 });
 
 /** The steps of a version on one line: `install · lint · test`. */
 export const stepsLine = (version: Pick<FragmentVersion, 'nodes'>): string =>

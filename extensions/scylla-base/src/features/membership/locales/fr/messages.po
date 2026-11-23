@@ -95,7 +95,7 @@ msgstr "Ajouter à {project}"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:33
 msgid "Added"
-msgstr "Ajoutée"
+msgstr "Date d'ajout"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:87
 msgid "All projects · {role}"

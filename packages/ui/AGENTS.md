@@ -22,7 +22,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
 | `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
-| `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
+| `@scylla/ui/i18n` | `t`, `activeLocale`, `intlLocale` (the locale for `Intl`, `en` before the first activation), `formatNumber` (a decimal, a percent or a large number in the language of the UI), `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
 | `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
@@ -75,6 +75,13 @@ a new variant or a new state: add or change its entry in `catalog/src/` in the s
 `@scylla/ui/i18n` holds the Lingui runtime of the app. The core registers its own catalog and
 the catalogs of each extension (`@Extension({ catalogs })`) before `initializeAppLocale`. The
 catalogs of this package register themselves.
+
+A date, a time or a number that the user reads follows the language of the UI, also when it
+changes after the first render (the language of the server comes after the load). Read the
+locale with `intlLocale()` and format a number with `formatNumber`: both read the rune of the
+locale, thus a template or a `$derived` that calls them renders again at a switch. Do not read
+`i18n.locale` of Lingui for this, and do not call `toLocaleString()` or `toFixed()` for a text:
+they use the language of the browser or no language.
 
 ## Reuse these — do not reinvent
 

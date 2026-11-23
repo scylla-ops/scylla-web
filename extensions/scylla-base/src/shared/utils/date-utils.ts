@@ -1,23 +1,24 @@
-import { i18n } from '@lingui/core';
+import { intlLocale } from '@scylla/ui/i18n';
 
-/** Cached per locale, never at import time: the locale changes at runtime. */
+/**
+ * Cached per locale, never at import time: the locale changes at runtime. The locale is the rune
+ * of the UI, so a date in a template follows a switch of the language.
+ */
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 const relativeFormatters = new Map<string, Intl.RelativeTimeFormat>();
 
-const currentLocale = (): string => i18n.locale || 'en';
-
 const getDateFormatter = (key: string, options: Intl.DateTimeFormatOptions) => {
-  const cacheKey = `${currentLocale()}:${key}`;
+  const cacheKey = `${intlLocale()}:${key}`;
   let formatter = dateFormatters.get(cacheKey);
   if (!formatter) {
-    formatter = new Intl.DateTimeFormat(currentLocale(), options);
+    formatter = new Intl.DateTimeFormat(intlLocale(), options);
     dateFormatters.set(cacheKey, formatter);
   }
   return formatter;
 };
 
 const getRelativeFormatter = () => {
-  const locale = currentLocale();
+  const locale = intlLocale();
   let formatter = relativeFormatters.get(locale);
   if (!formatter) {
     // 'short': 'narrow' renders French as "-3 j", which reads as a negative number.

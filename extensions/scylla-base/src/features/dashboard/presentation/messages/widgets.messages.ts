@@ -77,6 +77,11 @@ export const widgetMessages = {
   failedLower: msg`failed`,
   orphanedLower: msg`orphaned`,
   completedLower: msg`completed`,
+  /** The outcome of one job, in a row. The words above name all the jobs of a legend. */
+  oneCompleted: msg({ context: 'one job', message: 'completed' }),
+  oneFailed: msg({ context: 'one job', message: 'failed' }),
+  oneCancelled: msg({ context: 'one job', message: 'cancelled' }),
+  oneOrphaned: msg({ context: 'one job', message: 'orphaned' }),
 
   runPipeline: msg`Run pipeline`,
   addAgent: msg`Add an agent`,

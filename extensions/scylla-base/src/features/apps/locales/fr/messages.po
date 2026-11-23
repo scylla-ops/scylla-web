@@ -257,7 +257,7 @@ msgstr "Ajoutez votre première app"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:98
 msgid "Added"
-msgstr "Ajoutée"
+msgstr "Date d'ajout"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:25
 msgid "added {day}"

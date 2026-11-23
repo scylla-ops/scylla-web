@@ -1,5 +1,5 @@
 import type { ChartTone } from '@scylla/ui';
-import { t } from '@scylla/ui/i18n';
+import { formatNumber, t } from '@scylla/ui/i18n';
 import type { JobRun } from '@shared/presentation/presenters/job-run.presenter.ts';
 import { formatUtcDay } from '@shared/utils/date-utils.ts';
 import { isFinishedStatus, type JobEntity, type JobStatus } from '@base/features/jobs';
@@ -145,10 +145,8 @@ const placeOf = (
 const secondsBetween = (from: string, now: number): number =>
   Math.max(0, Math.round((now - Date.parse(from)) / 1000));
 
-const factorText = (factor: number): string => {
-  const rounded = Math.round(factor * 10) / 10;
-  return Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(1);
-};
+/** "2", "1.5", "1,5" in French. */
+const factorText = (factor: number): string => formatNumber(factor, { maximumFractionDigits: 1 });
 
 /** The summaries by the id of their pipeline. */
 export const pipelinesById = (

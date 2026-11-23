@@ -147,7 +147,7 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
       >
         {#each WEEKDAYS as day (day.value)}
           <ToggleGroupItem value={String(day.value)} class="px-2.5">
-            {i18n._(day.label)}
+            {t(day.label)}
           </ToggleGroupItem>
         {/each}
       </ToggleGroup>

@@ -73,9 +73,9 @@
     t(fire.state === 'error' ? messages.fireFailed : fire.state === 'missed' ? messages.timeMissed : messages.fired);
   const jobStatusText = (fire: ScheduleFire) =>
     fire.jobStatus === 'completed'
-      ? t(widgetMessages.completedLower)
+      ? t(widgetMessages.oneCompleted)
       : fire.jobStatus === 'failed'
-        ? t(widgetMessages.failedLower)
+        ? t(widgetMessages.oneFailed)
         : fire.jobStatus;
   const fireTone = (fire: ScheduleFire): ChartTone => (fire.state === 'ok' ? 'passed' : TONES[fire.state]);
 

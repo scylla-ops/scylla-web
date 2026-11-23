@@ -1656,7 +1656,7 @@ msgstr "Affichage du script"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:46
 msgid "Scripting"
-msgstr "Écriture de scripts"
+msgstr "Scripting"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:15
 msgid "Scylla could not read the file. The graph shows the last valid version."
@@ -2173,7 +2173,7 @@ msgstr "Voir le fichier sur {provider}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:24
 msgid "View Jobs"
-msgstr "Voir les travaux"
+msgstr "Voir les jobs"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:10
 msgid "View on marketplace"

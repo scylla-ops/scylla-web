@@ -1,6 +1,5 @@
-import { i18n } from '@lingui/core';
 import { deltaTrend, type ChartTone } from '@scylla/ui';
-import { t } from '@scylla/ui/i18n';
+import { formatNumber, intlLocale, t } from '@scylla/ui/i18n';
 import type { AppEntity } from '@base/features/apps';
 import { decidedJobs, type JobBucket, type JobEntity, type JobOutcomes } from '@base/features/jobs';
 import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
@@ -20,9 +19,9 @@ const MINUS = '−';
 const HOUR_MS = 60 * 60 * 1000;
 const DAY_MS = 24 * HOUR_MS;
 
-/** A whole number with a thin space for the thousands: "1 312". */
+/** A whole number in the language of the UI: "1,312", "1 312" in French. */
 export const countText = (value: number): string =>
-  new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 }).format(Math.round(value));
+  formatNumber(Math.round(value), { maximumFractionDigits: 0 });
 
 /** The parts of the bar of a ratio, in percent of the decided jobs. */
 export const outcomeShares = (
@@ -37,10 +36,10 @@ export const outcomeShares = (
   };
 };
 
-/** "11.7 per day": the mean of the buckets. */
+/** "11.7 per day", "11,7 par jour": the mean of the buckets. */
 export const perBucketText = (total: number, buckets: number, bucket: PeriodBucket): string => {
   const mean = buckets > 0 ? total / buckets : 0;
-  const value = mean.toFixed(1);
+  const value = formatNumber(mean, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   if (bucket === 'hour') return t(viewMessages.perHour(value));
   if (bucket === 'week') return t(viewMessages.perWeek(value));
   return t(viewMessages.perDay(value));
@@ -134,7 +133,7 @@ export const capacityOf = (agents: readonly AppEntity[]): Capacity => {
 
 /** "Thursday 6 November, 11:20" in the zone of the workspace, in the language of the app. */
 export const dateLine = (now: Date, timeZone: string): string =>
-  new Intl.DateTimeFormat(!i18n.locale || i18n.locale === 'en' ? 'en-GB' : i18n.locale, {
+  new Intl.DateTimeFormat(intlLocale() === 'en' ? 'en-GB' : intlLocale(), {
     weekday: 'long',
     day: 'numeric',
     month: 'long',

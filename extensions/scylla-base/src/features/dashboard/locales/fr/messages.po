@@ -411,7 +411,7 @@ msgstr "Ajouter un widget"
 msgid "Add a widget, or drop one here"
 msgstr "Ajoutez un widget, ou déposez-en un ici"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:87
 msgid "Add an agent"
 msgstr "Ajouter un agent"
 
@@ -622,6 +622,11 @@ msgstr "Annuler"
 msgid "cancelled"
 msgstr "annulés"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:83
+msgctxt "one job"
+msgid "cancelled"
+msgstr "annulé"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipeline-widget.messages.ts:9
 msgctxt "pipeline widget"
 msgid "cancelled"
@@ -647,7 +652,7 @@ msgid "changed the trigger {name}"
 msgstr "a modifié le déclencheur {name}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:92
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:84
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:89
 msgid "Choose a pipeline"
 msgstr "Choisir une pipeline"
 
@@ -670,6 +675,11 @@ msgstr "Fermer"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
 msgid "completed"
 msgstr "terminés"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
+msgctxt "one job"
+msgid "completed"
+msgstr "terminé"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipeline-widget.messages.ts:7
 msgctxt "pipeline widget"
@@ -888,6 +898,11 @@ msgctxt "attention"
 msgid "failed"
 msgstr "échec"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
+msgctxt "one job"
+msgid "failed"
+msgstr "échoué"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/pipeline-widget.messages.ts:8
 msgctxt "pipeline widget"
 msgid "failed"
@@ -1004,7 +1019,7 @@ msgstr "dans {time}"
 msgid "Integrations"
 msgstr "Intégrations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:83
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:88
 msgid "Invite a member"
 msgstr "Inviter un membre"
 
@@ -1573,10 +1588,15 @@ msgstr "Vue des opérations"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
 msgid "orphaned"
-msgstr "orphelin"
+msgstr "orphelins"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:26
 msgctxt "attention"
+msgid "orphaned"
+msgstr "orphelin"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:84
+msgctxt "one job"
 msgid "orphaned"
 msgstr "orphelin"
 
@@ -1807,7 +1827,7 @@ msgstr "Relancer"
 msgid "Resize {title}"
 msgstr "Redimensionner {title}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:87
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:92
 msgid "Retry"
 msgstr "Réessayer"
 
@@ -1850,7 +1870,7 @@ msgctxt "minutes"
 msgid "Run minutes"
 msgstr "Minutes d’exécution"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:86
 msgid "Run pipeline"
 msgstr "Lancer une pipeline"
 
@@ -2401,11 +2421,11 @@ msgstr "Ce qui vous attend"
 msgid "What should it show?"
 msgstr "Que doit-il afficher ?"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:86
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:91
 msgid "You do not have the permission to read this data."
 msgstr "Vous n’avez pas la permission de lire ces données."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:85
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:90
 msgid "You have no permission for these actions."
 msgstr "Vous n’avez la permission pour aucune de ces actions."
 

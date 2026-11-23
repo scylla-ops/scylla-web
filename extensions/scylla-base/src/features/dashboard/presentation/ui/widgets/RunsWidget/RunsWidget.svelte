@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import ChartColumnIcon from '@lucide/svelte/icons/chart-column';
   import { ChartDot, ChartLegendItem, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
-  import { t } from '@scylla/ui/i18n';
+  import { formatNumber, t } from '@scylla/ui/i18n';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import { viewMessages as messages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
   import {
@@ -50,7 +50,14 @@
   } as const;
 
   const outcomes = $derived(stats?.totals.outcomes);
-  const mean = $derived(stats?.buckets.length ? (total / stats.buckets.length).toFixed(1) : '0');
+  const mean = $derived(
+    stats?.buckets.length
+      ? formatNumber(total / stats.buckets.length, {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1,
+        })
+      : '0',
+  );
   const peak = $derived(
     (stats?.buckets ?? []).reduce<{ start: string; count: number } | null>(
       (best, item) =>

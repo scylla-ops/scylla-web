@@ -5,6 +5,8 @@ import type { JobEntity } from '@base/features/jobs';
 import {
   capacityOf,
   countChange,
+  countText,
+  dateLine,
   outcomeShares,
   timelineTicks,
 } from '../view-figures.presenter.ts';
@@ -64,5 +66,12 @@ describe('view figures', () => {
   it('gives the change of a count, or nothing with no previous period', () => {
     expect(countChange(164, 152)).toMatchObject({ label: '+12 vs previous', direction: 'up' });
     expect(countChange(3, null)).toBeNull();
+  });
+});
+
+describe('the language of the UI', () => {
+  it('writes a large number and the day in English', () => {
+    expect(countText(1312)).toBe('1,312');
+    expect(dateLine(new Date('2026-11-23T10:20:00.000Z'), 'UTC')).toBe('Monday 23 November, 10:20');
   });
 });
