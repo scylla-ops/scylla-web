@@ -1,5 +1,6 @@
 <script lang="ts">
   import LibraryBigIcon from '@lucide/svelte/icons/library-big';
+  import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import XIcon from '@lucide/svelte/icons/x';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
@@ -25,11 +26,22 @@
     projectId?: string;
     onChange: (content: BlockContent, skippedVersion?: number) => void;
     onDetach: () => void;
+    /** Takes the block out of this pipeline only: the fragment stays in the library. */
+    onRemove: () => void;
     onClose: () => void;
   }
 
-  let { blockId, block, fragment, workspaceName, projectId, onChange, onDetach, onClose }: Props =
-    $props();
+  let {
+    blockId,
+    block,
+    fragment,
+    workspaceName,
+    projectId,
+    onChange,
+    onDetach,
+    onRemove,
+    onClose,
+  }: Props = $props();
 
   const inspector = createBlockInspector({
     block: () => block,
@@ -99,6 +111,11 @@
           {t(libraryMessages.detach)}
         </Button>
         <p class="text-xs text-muted-foreground">{t(libraryMessages.detachHint)}</p>
+        <Button variant="ghost-destructive" size="sm" onclick={onRemove}>
+          <Trash2Icon class="size-4" />
+          {t(libraryMessages.removeBlock)}
+        </Button>
+        <p class="text-xs text-muted-foreground">{t(libraryMessages.removeBlockHint)}</p>
       </section>
 
       <section class="border-t px-4 pt-4">

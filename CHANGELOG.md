@@ -53,6 +53,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   Shift does. A drag with the middle or the right button still moves the view.
 - The Library tab of the palette inserts a fragment on a link or in empty space. A block links a
   version: a new version is proposed, never forced, and a block can be detached as an editable copy.
+- The inspector of a block removes it from the pipeline. The fragment stays in the library.
 - The Library page of the workspace, with a search, the tags and the favorites, and the page of a
   fragment with its nodes, parameters, versions and usages, and Use in a pipeline.
 - The server has no library yet: the library is kept in the browser, with demo fragments.

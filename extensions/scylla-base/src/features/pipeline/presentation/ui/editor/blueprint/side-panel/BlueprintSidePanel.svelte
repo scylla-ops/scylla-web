@@ -101,6 +101,7 @@
             {projectId}
             onChange={(content, skipped) => blueprint.updateBlock(block.id, content, skipped)}
             onDetach={() => blueprint.detachBlock(block.id)}
+            onRemove={() => blueprint.removeNodes([block.id])}
             onClose={close}
           />
         {/key}
