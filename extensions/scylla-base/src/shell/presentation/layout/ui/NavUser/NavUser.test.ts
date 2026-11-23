@@ -204,6 +204,30 @@ describe('NavUser', () => {
     expect(screen.queryByRole('menuitem', { name: 'Cookie policy', hidden: true })).toBeNull();
   });
 
+  // The operator writes each title in one language: the menu follows the language of the UI.
+  it('names each legal document with the title of its kind, not the title of the operator', async () => {
+    setUp(() => Promise.resolve(me), {
+      ...twoLegalDocuments,
+      documents: twoLegalDocuments.documents.map(document => ({
+        ...document,
+        title:
+          document.kind === 'privacy' ? 'Politique de confidentialité' : 'Conditions générales',
+      })),
+    });
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+    await user.click(await findFloating('menuitem', 'Legal and privacy'));
+
+    expect(await findFloating('menuitem', 'Privacy policy')).toHaveAttribute(
+      'href',
+      '/legal/privacy',
+    );
+    expect(await findFloating('menuitem', 'Terms of service')).toBeInTheDocument();
+    expect(screen.queryByText('Politique de confidentialité')).toBeNull();
+    expect(screen.queryByText('Conditions générales')).toBeNull();
+  });
+
   // The menu clips all that goes out of it, and the submenu is beside it.
   it('opens the legal documents on hover, outside the menu', async () => {
     setUp(() => Promise.resolve(me), twoLegalDocuments);

@@ -80,9 +80,10 @@ export const legalPage = (info: LegalInfo, kindParam: string | undefined): Legal
   const document = kind ? legalDocumentOf(info, kind) : undefined;
   if (!kind || !document) return { state: 'missing' };
 
-  const title = legalDocumentTitle(document);
+  // The frame of a page of another site is a text of the app: the title of the kind.
+  const kindTitle = t(legalKindTitles[kind]);
   if (document.content.type === 'url') {
-    return { state: 'elsewhere', title, url: document.content.url };
+    return { state: 'elsewhere', title: kindTitle, url: document.content.url };
   }
 
   const blocks = parseMarkdown(document.content.markdown);
@@ -101,8 +102,9 @@ export const legalPage = (info: LegalInfo, kindParam: string | undefined): Legal
   return {
     state: 'page',
     kind,
-    kindTitle: t(legalKindTitles[kind]),
-    title,
+    kindTitle,
+    // The title of the operator heads its text, in the language of this text.
+    title: legalDocumentTitle(document),
     meta: metaOf(document.effectiveDate, document.updatedAt, document.version),
     blocks,
     contents,

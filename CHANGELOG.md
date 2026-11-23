@@ -595,6 +595,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   behind a dialog, a sheet and the guided tour uses the new `overlay` token.
 - The search of the library sidebar shows a message when no fragment matches. The skip-tour dialog
   has one backdrop, as the other dialogs.
+- The "Legal and privacy" menu and the links to the other legal documents show the name of each
+  document in the language of the UI. Before, they showed the title that the operator wrote, in one
+  language. Only the page of the document shows this title, above its text.
 
 ## [0.6.0] - 2026-11-01
 

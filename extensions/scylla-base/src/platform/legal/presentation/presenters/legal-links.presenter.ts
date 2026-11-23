@@ -19,20 +19,24 @@ export const FOOTER_KINDS: readonly LegalDocumentKind[] = [
 /** A link to a document that is on. */
 export interface LegalLink {
   kind: LegalDocumentKind;
-  /** The short label, or the title of the document. */
+  /** The short label or the title of the kind, in the language of the UI. */
   label: string;
   href: string;
   /** A page of another site: it opens in a new tab. */
   external: boolean;
 }
 
-/** The title of a document: its own, else the title of its kind. */
+/**
+ * The title of a document: its own, else the title of its kind. The operator writes its title in
+ * one language: only the page of the document shows it, above its text.
+ */
 export const legalDocumentTitle = (document: LegalDocument): string =>
   document.title || t(legalKindTitles[document.kind]);
 
 /**
- * The links to the documents of these kinds that are on, in their order. `short` gives the short
- * label of the kind; else the title of the document.
+ * The links to the documents of these kinds that are on, in their order. The label is the short
+ * label of the kind with `short`, else the title of the kind: never the title of the operator,
+ * which has one language, so that the links follow the language of the UI.
  */
 export const legalLinks = (
   info: LegalInfo | undefined,
@@ -45,7 +49,7 @@ export const legalLinks = (
     return [
       {
         kind,
-        label: short ? t(legalKindLinks[kind]) : legalDocumentTitle(document),
+        label: t((short ? legalKindLinks : legalKindTitles)[kind]),
         href: legalDocumentHref(document),
         external: document.content.type === 'url',
       },

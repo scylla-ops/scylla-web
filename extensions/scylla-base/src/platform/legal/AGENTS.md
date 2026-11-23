@@ -36,6 +36,10 @@ withLegalRepository(repo)    for a test: replaces the repository, gives the rest
 - **A document is a URL or a text in Markdown.** A link to a URL document opens the URL in a new
   tab. A link to a Markdown document opens `/legal/<kind>` (`features/legal`). The mails of the
   server use the same rule.
+- **A link or a menu item shows the title of its kind, never the title of the operator.**
+  `legalLinks` gives `legalKindTitles` (`legalKindLinks` with `short`), in the language of the
+  UI. The operator writes its title in one language: only the page of the document shows it,
+  above its text (`legalDocumentTitle`).
 - **The paths `/legal/<kind>` are stable.** The kinds: `legal-notice`, `privacy`, `cookies`,
   `terms`, `terms-of-sale`, `dpa`, `subprocessors`.
 - **`GetLegalInfo` needs no session.** It is in `PUBLIC_METHODS` (`platform/grpc/session.ts`):

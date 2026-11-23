@@ -109,9 +109,13 @@
           value={draft.title}
           maxlength={100}
           placeholder={kindTitle}
+          aria-describedby={`${id}-title-hint`}
           {disabled}
           oninput={event => set('title', event.currentTarget.value)}
         />
+        <p id={`${id}-title-hint`} class="text-xs text-muted-foreground">
+          {t(messages.titleHint(kindTitle))}
+        </p>
       </div>
 
       {#if draft.mode === 'url'}
