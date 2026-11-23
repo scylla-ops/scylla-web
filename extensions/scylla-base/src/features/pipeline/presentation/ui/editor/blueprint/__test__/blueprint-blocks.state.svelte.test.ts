@@ -175,6 +175,14 @@ describe('createBlueprint: the selection that the library saves', () => {
     });
   });
 
+  it('takes a box of one other node drawn while a node is inspected', () => {
+    withBlueprint({ nodes: [execNode('build'), execNode('test', ['build'])] }, blueprint => {
+      blueprint.inspect('build');
+      select(blueprint, ['test']);
+      expect(blueprint.selecting).toBe(true);
+    });
+  });
+
   it('takes a box of two nodes drawn while a node is inspected', () => {
     withBlueprint({ nodes: [execNode('build'), execNode('test', ['build'])] }, blueprint => {
       blueprint.inspect('build');

@@ -49,7 +49,7 @@
   const node = $derived(blueprint.inspected ? nodeOf(blueprint.inspected) : undefined);
   const block = $derived(blueprint.inspectedBlock);
   const mode = $derived<Mode>(
-    node ? 'inspector' : block ? 'block' : blueprint.selecting ? 'selection' : 'palette',
+    blueprint.selecting ? 'selection' : node ? 'inspector' : block ? 'block' : 'palette',
   );
   const close = () => blueprint.inspect(null);
 </script>
@@ -69,7 +69,7 @@
     maxSize={SIDE_PANEL_SIZES[mode].max}
   >
     <aside class="flex h-full flex-col bg-card">
-      {#if node}
+      {#if mode === 'inspector' && node}
         <!-- A new draft for each node, and when an "Undo" puts the node back. -->
         {#key `${node.id}#${blueprint.revision}`}
           <NodeInspector
@@ -89,7 +89,7 @@
             onSaveToLibrary={onSaveNode && (() => onSaveNode(node))}
           />
         {/key}
-      {:else if block}
+      {:else if mode === 'block' && block}
         {#key block.id}
           <FragmentInspector
             blockId={block.id}

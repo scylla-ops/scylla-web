@@ -368,8 +368,9 @@ the page.
   a click on the empty canvas closes it. Nothing inspected: the palette. A node: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state. `blueprint.selecting` tells when the selection panel and
-  the selection bar show: two nodes or more, or one node that a box selected (a click inspects it,
-  as `inspect` keeps only the clicked node selected). The **Select** button of `CanvasToolbar`
+  the selection bar show: a selection that is more than the inspected node (a click inspects a
+  node, and `inspect` keeps only that node selected). It goes before the inspector: a box drawn
+  while an inspector is open takes the panel. The template follows `mode` only. The **Select** button of `CanvasToolbar`
   sets `selectionOnDrag` (a local `$state` of `BlueprintCanvas`), as Shift does.
   The selection bar is the one place that saves or deletes a selection: the selection panel only
   shows its nodes and the parameters they give.

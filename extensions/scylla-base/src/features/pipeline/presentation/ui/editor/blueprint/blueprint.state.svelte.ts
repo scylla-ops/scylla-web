@@ -297,9 +297,13 @@ export const createBlueprint = (params: BlueprintParams) => {
     get selectedNodes() {
       return selectedNodes;
     },
-    /** A box selection, of one node or more: a click on one node opens its inspector instead. */
+    /**
+     * A box selection, of one node or more, which the side panel shows over an open inspector. A
+     * click selects only the node it inspects (`inspect`), which is not a selection.
+     */
     get selecting() {
-      return !readOnly && (selectedNodes.length > 1 || (selectedNodes.length === 1 && !inspected));
+      const onlyInspected = selectedNodes.length === 1 && selectedNodes[0].id === inspectedId;
+      return !readOnly && selectedNodes.length > 0 && !onlyInspected;
     },
     /** The links that the blocks of the graph hold. */
     get links() {
