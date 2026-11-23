@@ -1,3 +1,4 @@
+import { t } from '@lingui/core/macro';
 import { getQueryClient, type QueryErrorHandler } from '@scylla/core-sdk';
 import { toast } from '@scylla/ui/utils';
 import { closeSession, loginPathBackTo } from '@base/features/login';
@@ -41,7 +42,9 @@ export const reportQueryError: QueryErrorHandler = (thrown, source, options) => 
   }
 
   if (source === 'mutation' && error.isConflict()) {
-    toast.warning(error.userMessage());
+    toast.warning(
+      t`Someone else changed this item in the meantime. Check the latest version and try again.`,
+    );
     void getQueryClient().invalidateQueries();
     return;
   }

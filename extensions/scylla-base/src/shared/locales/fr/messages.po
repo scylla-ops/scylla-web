@@ -89,7 +89,7 @@ msgstr "Une invitation est déjà en attente pour cet e-mail"
 msgid "An invitation is required to sign up"
 msgstr "Une invitation est nécessaire pour s'inscrire"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:179
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:172
 msgid "An unexpected error occurred"
 msgstr "Une erreur inattendue s'est produite"
 
@@ -385,7 +385,7 @@ msgstr "Secrets"
 msgid "Server"
 msgstr "Serveur"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:171
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:167
 msgid "Server unreachable"
 msgstr "Serveur injoignable"
 
@@ -404,10 +404,6 @@ msgstr "Ignoré"
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:36
 msgid "Some projects"
 msgstr "Certains projets"
-
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:176
-msgid "Someone else changed this item in the meantime. The page now shows the latest version."
-msgstr "Quelqu'un d'autre a modifié cet élément entre-temps. La page affiche maintenant la dernière version."
 
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:5
 msgid "Started {time}"
@@ -585,6 +581,6 @@ msgstr "Vous ne pouvez pas supprimer votre propre compte."
 msgid "You cannot do this on your own account"
 msgstr "Vous ne pouvez pas faire cela sur votre propre compte"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:172
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:168
 msgid "You don't have permission to perform this action"
 msgstr "Vous n'avez pas la permission d'effectuer cette action"

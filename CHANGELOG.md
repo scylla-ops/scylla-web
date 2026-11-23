@@ -585,6 +585,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   "ResizeObserver loop" error and one extra call to list the jobs.
 - The pipeline editor header icon shows a red error state with the message in its tooltip when a
   save fails.
+- A refetch of the pipeline, for example after a write conflict, no longer erases the unsaved
+  changes of the pipeline editor. A failed read no longer says that someone else changed the item.
 
 ## [0.6.0] - 2026-11-01
 
