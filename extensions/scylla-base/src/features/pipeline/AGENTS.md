@@ -22,6 +22,8 @@ type PipelineSummary, PipelineSummaryList, PipelineHealth, PipelineSummaryOrder,
      PipelineTriggerKind, RecentRun    // ListPipelineSummaries, for the dashboard
 recentSuccessRate              // completed / (completed + failed) of the recent jobs
 asPipelineFeed                 // a page of metadata → the list, and whether it is partial
+fragmentQueries, fragmentMutations, versionFromContent, pendingUpstream, ...  // the library
+loadFragmentNodes, loadFragmentParameters  // loaders: the graph brings the editor and Svelte Flow
 ```
 
 Never add: `pipeline.module.ts`, pages — the module registry imports `.module.ts` by path,
@@ -247,7 +249,7 @@ presentation/
                                              node-appearances.registry.ts (style → views), MergeNode
                                              (one small view for each style), follow-handles.effect
                                              (xyflow measures the handles again when the ports change)
-        catalog/                             CatalogIcon, CatalogItem, FragmentIcon, QuickAddMenu/ (quick-add.state.svelte.ts)
+        catalog/                             CatalogIcon, CatalogItem, QuickAddMenu/ (quick-add.state.svelte.ts)
         palette-drag/                        a palette entry dragged to the canvas with the pointer
           palette-drag.state.svelte.ts       entry, pointer, spot, the canvas as a drop target
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
@@ -255,7 +257,7 @@ presentation/
         side-panel/                          palette (nothing inspected) / inspector of the inspected node
                                              or block / the box selection
           PalettePanel.svelte                the tabs Nodes and Library (LibraryPalette/)
-          FragmentInspector/                 a block: version, parameters, update, detach
+          FragmentInspector/                 a block: version, parameters, update, detach, remove
                                              (block-inspector.state.svelte.ts)
           SelectionPanel/                    the selected nodes and their parameters
           NodeInspector/                     the inspector: the fields of node/ for the kind of the
@@ -273,7 +275,7 @@ presentation/
                                              upstream cards, publish, compare and pipeline picker
                                              dialogs (fragment-detail.state, publish-form.state)
       fragment-links.state.svelte.ts         the fragments as links of the second sidebar
-      VersionBadge, VersionHistory, ParameterKey, FavoriteButton, SourceLine
+      VersionHistory, ParameterKey, FavoriteButton, SourceLine (VersionBadge and FragmentIcon are in @shared)
 ```
 
 ## Routes & nav

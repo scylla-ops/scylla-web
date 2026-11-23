@@ -1,7 +1,7 @@
 <script lang="ts">
   import { Portal } from '@scylla/ui/primitives';
   import CatalogIcon from '../catalog/CatalogIcon.svelte';
-  import FragmentIcon from '../catalog/FragmentIcon.svelte';
+  import { FragmentIcon } from '@shared/presentation/ui';
   import { isFragment, type PaletteDrag } from './palette-drag.state.svelte.ts';
 
   interface Props {

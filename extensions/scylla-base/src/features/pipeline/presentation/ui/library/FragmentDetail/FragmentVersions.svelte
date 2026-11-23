@@ -10,14 +10,13 @@
     versionRows,
     type VersionRow,
   } from '@base/features/pipeline/presentation/presenters/fragment-community.presenter.ts';
-  import VersionBadge from '../VersionBadge.svelte';
+  import { VersionBadge } from '@shared/presentation/ui';
   import type { FragmentDetail } from './fragment-detail.state.svelte.ts';
 
   let { detail }: { detail: FragmentDetail } = $props();
 
   const fragment = $derived(detail.fragment!);
   const rows = $derived(versionRows(fragment));
-  const next = $derived((fragment.versions.at(-1)?.number ?? 0) + 1);
   const kind = $derived(fragment.source?.kind);
 
   /** What the row says after the author, besides its date. */
@@ -60,7 +59,7 @@
     <h2 class="flex-1">{t(libraryMessages.versions)}</h2>
     {#if detail.canPublishVersion}
       <Button size="xs" variant="outline" onclick={() => (detail.picker = 'publish')}>
-        {t(communityMessages.publishNext(next))}
+        {t(communityMessages.publishFromPipeline)}
       </Button>
     {/if}
   </div>

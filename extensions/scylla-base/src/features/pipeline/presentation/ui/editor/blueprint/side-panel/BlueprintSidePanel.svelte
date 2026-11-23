@@ -108,8 +108,13 @@
       {:else if mode === 'selection'}
         <SelectionPanel
           nodes={blueprint.selectedNodes}
-          onSave={onSaveSelection}
-          onDelete={() => blueprint.removeNodes(blueprint.selectedNodes.map(node => node.id))}
+          blocks={blueprint.selectedBlocks.map(block => block.data.link.blockId)}
+          onSave={blueprint.selectedBlocks.length ? undefined : onSaveSelection}
+          onDelete={() =>
+            blueprint.removeNodes([
+              ...blueprint.selectedNodes.map(node => node.id),
+              ...blueprint.selectedBlocks.map(block => block.id),
+            ])}
         />
       {:else}
         <PalettePanel

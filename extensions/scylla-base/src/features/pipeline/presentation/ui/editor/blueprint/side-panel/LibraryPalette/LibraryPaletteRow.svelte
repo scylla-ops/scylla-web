@@ -1,8 +1,8 @@
 <script lang="ts">
   import { latestVersion, type FragmentEntity } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import { nodesLine } from '@base/features/pipeline/presentation/presenters/fragment.presenter.ts';
-  import VersionBadge from '@base/features/pipeline/presentation/ui/library/VersionBadge.svelte';
-  import FragmentIcon from '../../catalog/FragmentIcon.svelte';
+  import { VersionBadge } from '@shared/presentation/ui';
+  import { FragmentIcon } from '@shared/presentation/ui';
 
   interface Props {
     fragment: FragmentEntity;

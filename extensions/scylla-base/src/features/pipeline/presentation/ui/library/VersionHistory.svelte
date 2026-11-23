@@ -4,7 +4,7 @@
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { FragmentUsage, FragmentVersion } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
-  import VersionBadge from './VersionBadge.svelte';
+  import { VersionBadge } from '@shared/presentation/ui';
 
   interface Props {
     /** The newest first. */

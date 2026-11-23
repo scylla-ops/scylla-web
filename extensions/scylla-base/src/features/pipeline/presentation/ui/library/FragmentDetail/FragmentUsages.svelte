@@ -9,7 +9,7 @@
   } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
-  import VersionBadge from '../VersionBadge.svelte';
+  import { VersionBadge } from '@shared/presentation/ui';
 
   interface Props {
     fragment: FragmentEntity;

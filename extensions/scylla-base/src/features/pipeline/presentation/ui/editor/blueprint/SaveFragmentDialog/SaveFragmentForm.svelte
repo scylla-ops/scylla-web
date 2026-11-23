@@ -14,16 +14,17 @@
 
   interface Props {
     nodes: PipelineNodeEntity[];
+    replaceable: boolean;
     library: EditorLibrary;
     pipelineName: string;
     onSaved: (fragment: FragmentEntity, replace: boolean) => void;
     onCancel: () => void;
   }
 
-  let { nodes, library, pipelineName, onSaved, onCancel }: Props = $props();
+  let { nodes, replaceable, library, pipelineName, onSaved, onCancel }: Props = $props();
 
   // svelte-ignore state_referenced_locally
-  const draft = createSaveFragment({ nodes, library, pipelineName, onSaved });
+  const draft = createSaveFragment({ nodes, replaceable, library, pipelineName, onSaved });
 </script>
 
 <form
@@ -52,15 +53,28 @@
               ? t(libraryMessages.nameTaken)
               : nodeIdIssueText(draft.nameIssue)}
           </span>
-        {:else if draft.existing}
-          {t(libraryMessages.newVersionOf(draft.existing.name, draft.versionNumber))}
-        {:else if draft.name}
+        {:else if draft.name && !draft.existing}
           {t(libraryMessages.nameHint(draft.name.trim()))}
         {/if}
       </p>
     </div>
     <TagsField {draft} />
   </div>
+
+  {#if draft.existing && !draft.nameIssue}
+    <!-- The name of another fragment: saving changes it for each pipeline that links it. -->
+    <label
+      class="flex items-start gap-2.5 rounded-md border border-warning/40 bg-warning/10 px-3 py-2.5"
+    >
+      <Checkbox bind:checked={draft.confirmed} class="mt-0.5" />
+      <span class="text-sm">
+        <span class="block font-medium">
+          {t(libraryMessages.newVersionOf(draft.existing.name, draft.versionNumber))}
+        </span>
+        <span class="text-muted-foreground">{t(libraryMessages.newVersionWarning)}</span>
+      </span>
+    </label>
+  {/if}
 
   {#if draft.existing}
     <TextArea id="fragment-changes" label={t(libraryMessages.changes)} bind:value={draft.changes} />
@@ -76,11 +90,13 @@
   <VisibilityChoice workspaceName={library.workspaceName} />
 
   <label class="flex items-center gap-2.5">
-    <Checkbox bind:checked={draft.replace} />
+    <Checkbox bind:checked={draft.replace} disabled={!replaceable} />
     <span class="text-sm">
       <span class="block font-medium">{t(libraryMessages.replaceSelection)}</span>
       <span class="text-muted-foreground">
-        {t(libraryMessages.replaceSelectionDetail(nodes.length, draft.name.trim() || '…'))}
+        {replaceable
+          ? t(libraryMessages.replaceSelectionDetail(nodes.length, draft.name.trim() || '…'))
+          : t(libraryMessages.replaceBlockedByPort)}
       </span>
     </span>
   </label>

@@ -368,10 +368,17 @@ export const instantiate = (
   blockId: NodeId,
   values: ParameterValues,
 ): PipelineNodeEntity[] => {
-  // The needs and the outputs that a switch reads follow each renamed id.
-  const nodes = version.nodes.reduce(
-    (renamed, { id }) => renamed.map(node => withRenamedReference(node, id, `${blockId}-${id}`)),
-    version.nodes,
+  // The needs and the outputs that a switch reads follow each renamed id. Two passes, through ids
+  // that no node can have (a space is not allowed), so that `lint` renamed to `build-lint` never
+  // meets a node that already has that id.
+  const rename = (nodes: PipelineNodeEntity[], to: (id: NodeId, index: number) => NodeId) =>
+    nodes.reduce(
+      (renamed, { id }, index) => renamed.map(node => withRenamedReference(node, id, to(id, index))),
+      nodes,
+    );
+  const nodes = rename(
+    rename(version.nodes, (_, index) => ` ${index}`),
+    (_, index) => `${blockId}-${version.nodes[index].id}`,
   );
   return withValues(nodes, version.parameters, values);
 };

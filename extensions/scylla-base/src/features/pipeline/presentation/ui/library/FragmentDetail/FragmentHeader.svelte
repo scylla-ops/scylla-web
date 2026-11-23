@@ -12,9 +12,9 @@
   import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { sourceReference } from '@base/features/pipeline/presentation/presenters/fragment-community.presenter.ts';
-  import FragmentIcon from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/FragmentIcon.svelte';
+  import { FragmentIcon } from '@shared/presentation/ui';
   import FavoriteButton from '../FavoriteButton.svelte';
-  import VersionBadge from '../VersionBadge.svelte';
+  import { VersionBadge } from '@shared/presentation/ui';
   import type { FragmentDetail } from './fragment-detail.state.svelte.ts';
 
   interface Props {

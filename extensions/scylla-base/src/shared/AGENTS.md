@@ -34,7 +34,8 @@ presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      Identity, IdentityAvatar, identityKindOf, userName,
                                      userSecondaryLine, IdentityKind, UserIdentityProfile,
-                                     ProviderMark, JobRunMark
+                                     ProviderMark, JobRunMark, FragmentIcon, VersionBadge (the
+                                     library: pipeline and marketplace)
 presentation/presenters/job-run.presenter.ts  JobRun, jobShortId: the job of a JobRunMark
 presentation/ui/layout/AuthLayout.svelte  the frame of the public pages; import it by path
 presentation/ui/layout/LogoMark/     LogoMark: the four dots of the mark, with a state (idle, waiting, lit)

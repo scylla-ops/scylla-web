@@ -6,7 +6,7 @@
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
-  import FragmentIcon from '../../catalog/FragmentIcon.svelte';
+  import { FragmentIcon } from '@shared/presentation/ui';
   import FragmentBadges from './FragmentBadges.svelte';
   import type { FragmentNodeViewProps } from './node-appearances.registry.ts';
 

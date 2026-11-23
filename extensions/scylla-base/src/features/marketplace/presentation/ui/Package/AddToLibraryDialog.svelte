@@ -6,7 +6,6 @@
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { fragmentMutations } from '@base/features/pipeline';
   import { userQueries } from '@base/features/user';
-  import { latestPackageVersion } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
   import { marketplaceMessages } from '@base/features/marketplace/presentation/messages/marketplace.messages.ts';
   import AddToLibraryForm from './AddToLibraryForm.svelte';
   import type { PackagePage } from './package-page.state.svelte.ts';
@@ -33,11 +32,7 @@
   title={pkg ? t(marketplaceMessages.addTitle(pkg.name, page.workspaceName)) : ''}
   description={pkg
     ? t(
-        marketplaceMessages.addDescription(
-          latestPackageVersion(pkg).number,
-          pkg.publisher.handle,
-          page.workspaceName,
-        ),
+        marketplaceMessages.addDescription(pkg.publisher.handle, page.workspaceName),
       )
     : ''}
   class="sm:max-w-xl"

@@ -75,7 +75,7 @@ export const communityMessages = {
   versionPublic: msg`public`,
   versionPrivate: (workspace: string) => msg`${workspace} only`,
   versionDeprecated: msg`deprecated`,
-  publishNext: (number: number) => msg`Publish v${number}`,
+  publishFromPipeline: msg`From a pipeline…`,
   makePublic: (number: number) => msg`Make v${number} public`,
   linkedPolicy: (workspace: string) =>
     msg`Only ${workspace} admins accept or skip an upstream version.`,

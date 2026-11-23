@@ -20,6 +20,8 @@ export type FragmentNameIssue = NodeIdIssue | { kind: 'taken' };
 export interface SaveFragmentParams {
   /** Read once: the dialog is built again at each opening. */
   nodes: PipelineNodeEntity[];
+  /** `false`: a port leaves the selection, so the nodes stay and no block replaces them. */
+  replaceable: boolean;
   library: EditorLibrary;
   pipelineName: string;
   /** `replace`: the nodes give their place to a block of the saved version. */
@@ -32,6 +34,7 @@ export interface SaveFragmentParams {
  */
 export const createSaveFragment = ({
   nodes,
+  replaceable,
   library,
   pipelineName,
   onSaved,
@@ -42,7 +45,9 @@ export const createSaveFragment = ({
   let description = $state('');
   let changes = $state('');
   let tags = $state<string[]>([]);
-  let replace = $state(true);
+  let replace = $state(replaceable);
+  // The fragment whose new version the person accepted to publish: a name typed again asks again.
+  let confirmedId = $state<string | null>(null);
   let hidden = $state<string[]>([]);
 
   const create = createMutation(() => fragmentMutations.create());
@@ -60,9 +65,12 @@ export const createSaveFragment = ({
   const versionNumber = $derived(existing ? latestVersion(existing).number + 1 : 1);
   const parameters = $derived(detected.filter(parameter => !hidden.includes(parameter.key)));
   const saving = $derived(create.isPending || publish.isPending);
-  const canSave = $derived(!nameIssue && !!library.author && !!library.workspaceId && !saving);
+  const confirmed = $derived(!!existing && confirmedId === existing.id);
+  const canSave = $derived(
+    !nameIssue && (!existing || confirmed) && !!library.author && !!library.workspaceId && !saving,
+  );
 
-  const done = (fragment: FragmentEntity) => onSaved(fragment, replace);
+  const done = (fragment: FragmentEntity) => onSaved(fragment, replace && replaceable);
 
   return {
     detected,
@@ -86,6 +94,13 @@ export const createSaveFragment = ({
     },
     get tags() {
       return tags;
+    },
+    /** A new version of a fragment that has this name: the person must accept it. */
+    get confirmed() {
+      return confirmed;
+    },
+    set confirmed(next: boolean) {
+      confirmedId = next && existing ? existing.id : null;
     },
     get replace() {
       return replace;

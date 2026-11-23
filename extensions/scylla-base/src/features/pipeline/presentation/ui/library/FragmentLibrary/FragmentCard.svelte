@@ -8,10 +8,10 @@
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { communityMessages } from '@base/features/pipeline/presentation/messages/community.messages.ts';
   import { isNewFragment, nodesLine } from '@base/features/pipeline/presentation/presenters/fragment.presenter.ts';
-  import FragmentIcon from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/FragmentIcon.svelte';
+  import { FragmentIcon } from '@shared/presentation/ui';
   import FavoriteButton from '../FavoriteButton.svelte';
   import SourceLine from '../SourceLine.svelte';
-  import VersionBadge from '../VersionBadge.svelte';
+  import { VersionBadge } from '@shared/presentation/ui';
   import UpstreamStrip from './UpstreamStrip.svelte';
 
   interface Props {

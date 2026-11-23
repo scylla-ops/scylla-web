@@ -89,7 +89,7 @@
               dependencies={selected.deps}
               detached={false}
               readOnly={!editable}
-              onChange={value => edit?.update(selected.id, value)}
+              onChange={(value, port) => edit?.update(selected.id, value, port)}
               onRename={id => edit?.rename(selected.id, id) ?? selected.id}
               onDelete={() => edit?.remove(selected.id)}
               onClose={() => select(null)}

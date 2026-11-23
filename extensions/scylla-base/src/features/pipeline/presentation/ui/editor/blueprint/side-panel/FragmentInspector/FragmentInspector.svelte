@@ -9,7 +9,7 @@
   import type { FragmentFlowNodeData } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
-  import FragmentIcon from '../../catalog/FragmentIcon.svelte';
+  import { FragmentIcon } from '@shared/presentation/ui';
   import type { BlockContent } from '../../blueprint.state.svelte.ts';
   import { createBlockInspector } from './block-inspector.state.svelte.ts';
   import BlockParameterField from './BlockParameterField.svelte';

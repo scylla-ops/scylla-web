@@ -1,7 +1,7 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
+  import { versionBadgeMessages } from '@shared/presentation/messages/version-badge.messages.ts';
 
   interface Props {
     number: number;
@@ -18,5 +18,5 @@
     filled ? 'bg-info text-info-foreground' : 'text-info',
   )}
 >
-  {t(libraryMessages.version(number))}
+  {t(versionBadgeMessages.version(number))}
 </span>

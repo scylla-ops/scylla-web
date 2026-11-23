@@ -19,7 +19,10 @@ import {
   type FragmentVersion,
   type ParameterValues,
 } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
-import { positionAfter } from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
+import {
+  layoutNodes,
+  positionAfter,
+} from '@base/features/pipeline/presentation/presenters/blueprint-layout.presenter.ts';
 import { dependencyText } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
 import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
 import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
@@ -110,7 +113,12 @@ export const createBlueprint = (params: BlueprintParams) => {
 
   /** Builds the graph again. A node that is still there keeps its place and its selection: only a new one is laid out. */
   const rebuild = (nodes: PipelineNodeEntity[], links: FragmentLink[], name: string) => {
-    const flow = nodesToFlow(nodes, name, untrack(() => params.savedLayout?.()), links);
+    const flow = nodesToFlow(
+      nodes,
+      name,
+      untrack(() => params.savedLayout?.()),
+      links,
+    );
     // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this run, never state
     const previous = new Map(untrack(() => flowNodes).map(flowNode => [flowNode.id, flowNode]));
     flowNodes = flow.flowNodes.map(flowNode => {
@@ -139,11 +147,16 @@ export const createBlueprint = (params: BlueprintParams) => {
   const readOnly = $derived(repeated || (params.locked?.() ?? false));
 
   const inspected = $derived(
-    flowNodes.find((flowNode): flowNode is PipelineFlowNode => flowNode.id === inspectedId && !!nodeOf(flowNode)),
+    flowNodes.find(
+      (flowNode): flowNode is PipelineFlowNode => flowNode.id === inspectedId && !!nodeOf(flowNode),
+    ),
   );
 
   const inspectedBlock = $derived(
-    flowNodes.find((flowNode): flowNode is FragmentFlowNode => flowNode.id === inspectedId && !!blockOf(flowNode)),
+    flowNodes.find(
+      (flowNode): flowNode is FragmentFlowNode =>
+        flowNode.id === inspectedId && !!blockOf(flowNode),
+    ),
   );
 
   /** The nodes that the canvas selection holds, a box or a click with Shift: a fragment can be made of them. */
@@ -152,6 +165,11 @@ export const createBlueprint = (params: BlueprintParams) => {
       const node = flowNode.selected ? nodeOf(flowNode) : undefined;
       return node ? [node] : [];
     }),
+  );
+
+  /** The blocks that the canvas selection holds: they can be deleted, not saved into a fragment. */
+  const selectedBlocks = $derived(
+    flowNodes.filter((flowNode): flowNode is FragmentFlowNode => !!flowNode.selected && !!blockOf(flowNode)),
   );
 
   const currentNodes = () => flowToNodes(flowNodes, edges);
@@ -263,7 +281,9 @@ export const createBlueprint = (params: BlueprintParams) => {
           if (!ids.has(id)) return;
           edges = [
             ...edges,
-            ...dropped.filter(edge => ids.has(edge.target) && !edges.some(other => other.id === edge.id)),
+            ...dropped.filter(
+              edge => ids.has(edge.target) && !edges.some(other => other.id === edge.id),
+            ),
           ];
           if (port === ERROR_PORT) errorOutputs.add(id);
           revision += 1;
@@ -301,9 +321,13 @@ export const createBlueprint = (params: BlueprintParams) => {
      * A box selection, of one node or more, which the side panel shows over an open inspector. A
      * click selects only the node it inspects (`inspect`), which is not a selection.
      */
+    get selectedBlocks() {
+      return selectedBlocks;
+    },
     get selecting() {
-      const onlyInspected = selectedNodes.length === 1 && selectedNodes[0].id === inspectedId;
-      return !readOnly && selectedNodes.length > 0 && !onlyInspected;
+      const ids = [...selectedNodes.map(node => node.id), ...selectedBlocks.map(block => block.id)];
+      const onlyInspected = ids.length === 1 && ids[0] === inspectedId;
+      return !readOnly && ids.length > 0 && !onlyInspected;
     },
     /** The links that the blocks of the graph hold. */
     get links() {
@@ -419,6 +443,14 @@ export const createBlueprint = (params: BlueprintParams) => {
       return blockId;
     },
 
+    /** A node after these nodes waits for a port of one of them: a block, which has no port, cannot take their place. */
+    portLeaving(ids: string[]): boolean {
+      const inside = new Set(ids); // eslint-disable-line svelte/prefer-svelte-reactivity -- local to a call
+      return edges.some(
+        edge => inside.has(edge.source) && !inside.has(edge.target) && !!edge.sourceHandle,
+      );
+    },
+
     /**
      * Puts one block in place of the nodes: it waits for what they waited for, and what waited for
      * them waits for it. Returns its id.
@@ -454,7 +486,10 @@ export const createBlueprint = (params: BlueprintParams) => {
       if (readOnly) return;
       flowNodes = flowNodes.map(flowNode =>
         flowNode.id === blockId
-          ? { ...blockNode(blockId, content, flowNode.position, skippedVersion), selected: flowNode.selected }
+          ? {
+              ...blockNode(blockId, content, flowNode.position, skippedVersion),
+              selected: flowNode.selected,
+            }
           : flowNode,
       );
       emit();
@@ -463,9 +498,23 @@ export const createBlueprint = (params: BlueprintParams) => {
     /** The block becomes its nodes, which the pipeline edits as its own: no new version is proposed. */
     detachBlock(blockId: string) {
       if (readOnly) return;
+      const block = flowNodes.find(flowNode => flowNode.id === blockId);
+      const content = block && blockOf(block);
       if (inspectedId === blockId) inspectedId = null;
       const links = linksOf(flowNodes).filter(link => link.blockId !== blockId);
       rebuild(currentNodes(), links, params.pipelineName());
+      if (block && content) {
+        // The nodes take the place of the block, laid out in the order of their needs.
+        const layout = layoutNodes(content.nodes).nodes;
+        const origin = layout.get(content.nodes[0]?.id ?? '') ?? { x: 0, y: 0 };
+        flowNodes = flowNodes.map(flowNode => {
+          const at = layout.get(flowNode.id);
+          if (!at) return flowNode;
+          const { x, y } = block.position;
+          return { ...flowNode, position: { x: x + at.x - origin.x, y: y + at.y - origin.y } };
+        });
+        params.places?.moved(flowNodes.filter(flowNode => layout.has(flowNode.id)));
+      }
       emit();
     },
 
@@ -504,7 +553,9 @@ export const createBlueprint = (params: BlueprintParams) => {
       const next = id === START_NODE_ID || readOnly ? null : id;
       inspectedId = next;
       flowNodes = flowNodes.map(flowNode =>
-        Boolean(flowNode.selected) === (flowNode.id === next) ? flowNode : { ...flowNode, selected: flowNode.id === next },
+        Boolean(flowNode.selected) === (flowNode.id === next)
+          ? flowNode
+          : { ...flowNode, selected: flowNode.id === next },
       );
     },
 
@@ -518,7 +569,10 @@ export const createBlueprint = (params: BlueprintParams) => {
       const flow = nodesToFlow(currentNodes(), params.pipelineName(), null, linksOf(flowNodes));
       // eslint-disable-next-line svelte/prefer-svelte-reactivity -- a lookup table local to this call, never state
       const positions = new Map(flow.flowNodes.map(flowNode => [flowNode.id, flowNode.position]));
-      flowNodes = flowNodes.map(flowNode => ({ ...flowNode, position: positions.get(flowNode.id) ?? flowNode.position }));
+      flowNodes = flowNodes.map(flowNode => ({
+        ...flowNode,
+        position: positions.get(flowNode.id) ?? flowNode.position,
+      }));
       if (!readOnly) params.places?.moved(flowNodes);
     },
   };

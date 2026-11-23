@@ -541,6 +541,10 @@ msgstr "Informations utilisateur mises à jour"
 msgid "Users and roles"
 msgstr "Utilisateurs et rôles"
 
+#: extensions/scylla-base/src/shared/presentation/messages/version-badge.messages.ts:4
+msgid "v{number}"
+msgstr "v{number}"
+
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:13
 msgid "Verify your email address first"
 msgstr "Vérifiez d'abord votre adresse e-mail"

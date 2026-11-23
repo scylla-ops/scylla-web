@@ -63,3 +63,24 @@ describe('createFragmentEdit: a link pulled from a node', () => {
     });
   });
 });
+
+describe('createFragmentEdit: the ports of a switch', () => {
+  it('moves the needs on a renamed case, and drops the needs on a case that goes', () => {
+    withEdit(edit => {
+      edit.add('sw', { kind: 'merge' }, { node: 'install' });
+      edit.add('deploy', SCRIPT, { node: 'sw', port: 'true' });
+      edit.add('notify', SCRIPT, { node: 'sw', port: 'false' });
+      flushSync();
+      const sw = edit.nodes.find(node => node.id === 'sw')!;
+      const definition = { kind: sw.kind } as NodeDefinition;
+
+      edit.update('sw', definition, { from: 'true', to: 'yes' });
+      edit.update('sw', definition, { from: 'false', to: null });
+      flushSync();
+
+      const deps = (id: string) => edit.nodes.find(node => node.id === id)?.deps;
+      expect(deps('deploy')).toEqual([{ node: 'sw', port: 'yes' }]);
+      expect(deps('notify')).toEqual([]);
+    });
+  });
+});

@@ -2,7 +2,7 @@
   import { ErrorState } from '@scylla/ui';
   import { Skeleton, Tabs, TabsContent, TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { FragmentNodes, FragmentParameters } from '@base/features/pipeline';
+  import { loadFragmentNodes, loadFragmentParameters } from '@base/features/pipeline';
   import { latestPackageVersion } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
   import { marketplaceMessages } from '@base/features/marketplace/presentation/messages/marketplace.messages.ts';
   import AddToLibraryDialog from './AddToLibraryDialog.svelte';
@@ -42,8 +42,14 @@
       <TabsContent value="overview">
         <div class="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_22rem]">
           <div class="flex min-w-0 flex-col gap-4">
-            <FragmentNodes nodes={latest.nodes} />
-            <FragmentParameters parameters={latest.parameters} />
+            {#await loadFragmentNodes()}
+              <Skeleton class="h-[30rem] w-full rounded-xl" />
+            {:then { default: FragmentNodes }}
+              <FragmentNodes nodes={latest.nodes} />
+            {/await}
+            {#await loadFragmentParameters() then { default: FragmentParameters }}
+              <FragmentParameters parameters={latest.parameters} />
+            {/await}
           </div>
           <div class="flex flex-col gap-4">
             <LibraryStatusCard {page} />

@@ -146,6 +146,19 @@ describe('fragment parameters', () => {
 });
 
 describe('instantiate', () => {
+  it('keeps the ids apart when a prefixed id is the id of another node', () => {
+    const nodes = instantiate(
+      { ...version(1, []), nodes: [node('lint'), node('build-lint', ['lint'])], parameters: [] },
+      'build',
+      {},
+    );
+
+    expect(nodes.map(n => [n.id, n.deps])).toEqual([
+      ['build-lint', []],
+      ['build-build-lint', [{ node: 'build-lint' }]],
+    ]);
+  });
+
   it('prefixes the ids with the block, so that two blocks of one fragment do not share an id', () => {
     const nodes = instantiate(version(1, [TOOLCHAIN, TOKEN]), 'rust-ci', {
       RUST_TOOLCHAIN: 'nightly',

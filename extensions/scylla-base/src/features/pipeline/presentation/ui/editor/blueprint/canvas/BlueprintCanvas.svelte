@@ -80,6 +80,8 @@
   let fitted = $state(true);
   // A drag on the pane draws a selection box instead of moving the view, as Shift does.
   let selectMode = $state(false);
+  // A read-only canvas hides the button, so the mode must not outlive it.
+  const selecting = $derived(selectMode && !blueprint.readOnly);
 
   const onControlsClick = (event: MouseEvent) => {
     const button = (event.target as Element).closest('button');
@@ -156,8 +158,8 @@
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
     selectNodesOnDrag={false}
-    selectionOnDrag={selectMode}
-    panOnDrag={selectMode ? [1, 2] : true}
+    selectionOnDrag={selecting}
+    panOnDrag={selecting ? [1, 2] : true}
     edgesFocusable={!blueprint.readOnly}
     elementsSelectable={!blueprint.readOnly}
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}

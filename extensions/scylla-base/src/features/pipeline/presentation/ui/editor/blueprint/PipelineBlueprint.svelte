@@ -196,6 +196,7 @@
         if (!open) saving = null;
       }}
       nodes={saving}
+      replaceable={!blueprint.portLeaving(saving.map(node => node.id))}
       {library}
       {pipelineName}
       onSaved={placeSaved}

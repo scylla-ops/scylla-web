@@ -6,7 +6,7 @@
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import { FragmentIcon, VersionBadge } from '@base/features/pipeline';
+  import { FragmentIcon, VersionBadge } from '@shared/presentation/ui';
   import { latestPackageVersion } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
   import { marketplaceMessages } from '@base/features/marketplace/presentation/messages/marketplace.messages.ts';
   import { compactCount } from '@base/features/marketplace/presentation/presenters/package.presenter.ts';

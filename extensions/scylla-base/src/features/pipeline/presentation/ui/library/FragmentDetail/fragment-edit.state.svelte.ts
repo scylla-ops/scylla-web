@@ -11,11 +11,14 @@ import type {
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
   addNode,
+  dropPort,
   removeNode,
+  renamePort,
   renameNode,
   updateNode,
 } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import { fragmentMutations } from '@base/features/pipeline/presentation/fragment.queries.ts';
+import type { PortChange } from '@base/features/pipeline/presentation/ui/editor/node/switch-draft.state.svelte.ts';
 
 interface Options {
   fragment: () => FragmentEntity;
@@ -70,8 +73,12 @@ export const createFragmentEdit = ({ fragment, author, editable }: Options) => {
       selectedId = id;
     },
 
-    update(id: string, definition: NodeDefinition) {
-      keep(updateNode(nodes, id, definition));
+    /** `port`: the needs on a renamed port follow it, the needs on a port that goes go too. */
+    update(id: string, definition: NodeDefinition, port?: PortChange) {
+      const updated = updateNode(nodes, id, definition);
+      if (!port) keep(updated);
+      else if (port.to === null) keep(dropPort(updated, id, port.from));
+      else keep(renamePort(updated, id, port.from, port.to));
     },
     /** Returns the id that the node really got. */
     rename(id: string, desired: string): string {

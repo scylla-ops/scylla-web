@@ -18,7 +18,6 @@ export const libraryMessages = {
   allTags: msg`All`,
   favorite: msg`Favorite`,
   unfavorite: msg`Remove from favorites`,
-  copyReference: msg`Copy reference`,
   newFragment: msg`New`,
   paletteHint: msg`Drop a fragment on a link to insert it, or on empty space to add it. Fragments stay linked to the library.`,
   paletteNeedsSave: msg`Save the pipeline first: a new pipeline cannot link a fragment yet.`,
@@ -44,6 +43,8 @@ export const libraryMessages = {
   missingValues: (count: number) => msg`${plural(count, { one: '# missing', other: '# missing' })}`,
 
   selection: msg`Selection`,
+  blockCount: (count: number) => msg`${plural(count, { one: '# block', other: '# blocks' })}`,
+  blockNotSaved: msg`A block cannot go into a fragment: detach it first, or leave it out of the selection.`,
   selectionNodes: msg`Nodes`,
   detectedParameters: msg`Detected parameters`,
   noParameter: msg`The nodes read no variable.`,
@@ -81,6 +82,8 @@ export const libraryMessages = {
   visibilityCommunity: msg`Community`,
   visibilityCommunityDetail: msg`Public marketplace`,
   replaceSelection: msg`Replace the selection with the linked block`,
+  replaceBlockedByPort: msg`A node after the selection waits for a port of it, such as an error output. A block has no port, so the nodes stay in place.`,
+  newVersionWarning: msg`The pipelines that link it are offered this content. Choose another name to make a new fragment.`,
   replaceSelectionDetail: (count: number, name: string) =>
     msg`${plural(count, {
       one: `The node becomes one ${name} block, linked to the library.`,
@@ -104,7 +107,6 @@ export const libraryMessages = {
   removeBlockHint: msg`The fragment stays in the library, and the other pipelines keep it.`,
   chooseSecret: msg`Choose a secret…`,
   secretMissing: msg`Required. Pick a secret of the project: its value is never copied into the fragment.`,
-  defaultFromLibrary: msg`Default from the library`,
   available: (name: string, number: number) => msg`${name} v${number} is available`,
   publishedBy: (name: string, date: string) => msg`Published by ${name} · ${date}`,
   review: msg`Review`,

@@ -79,8 +79,8 @@ export const marketplaceMessages = {
   nothingRequired: msg`No secret, no tool beyond the shell of the agent.`,
 
   addTitle: (name: string, workspace: string) => msg`Add ${name} to the ${workspace} library`,
-  addDescription: (version: number, handle: string, workspace: string) =>
-    msg`v${version} by @${handle}. Once added, everyone in ${workspace} can drop it in a pipeline.`,
+  addDescription: (handle: string, workspace: string) =>
+    msg`By @${handle}. Once added, everyone in ${workspace} can drop it in a pipeline.`,
   howToUse: (workspace: string) => msg`How should ${workspace} use it?`,
   linked: msg`Linked`,
   recommended: msg`Recommended`,

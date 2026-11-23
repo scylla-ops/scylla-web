@@ -8,15 +8,18 @@
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { nodeIcon } from '@base/features/pipeline/presentation/presenters/node-kind.presenter.ts';
   import ParameterKey from '@base/features/pipeline/presentation/ui/library/ParameterKey.svelte';
+  import { FragmentIcon } from '@shared/presentation/ui';
 
   interface Props {
     nodes: PipelineNodeEntity[];
+    /** The ids of the selected blocks: deleted with the nodes, never saved into a fragment. */
+    blocks: string[];
     /** No callback: the selection cannot become a fragment, such as in a new pipeline. */
     onSave?: () => void;
     onDelete: () => void;
   }
 
-  let { nodes, onSave, onDelete }: Props = $props();
+  let { nodes, blocks, onSave, onDelete }: Props = $props();
 
   const parameters = $derived(detectParameters(nodes));
 </script>
@@ -25,7 +28,10 @@
 <div class="flex h-full flex-col">
   <div class="border-b px-4 py-3.5">
     <h2 class="text-sm">{t(libraryMessages.selection)}</h2>
-    <p class="text-xs text-muted-foreground">{t(libraryMessages.nodeCount(nodes.length))}</p>
+    <p class="text-xs text-muted-foreground">
+      {t(libraryMessages.nodeCount(nodes.length))}{#if blocks.length}
+        · {t(libraryMessages.blockCount(blocks.length))}{/if}
+    </p>
   </div>
 
   <div class="relative min-h-0 flex-1 overflow-y-auto">
@@ -44,7 +50,16 @@
             </span>
           </li>
         {/each}
+        {#each blocks as block (block)}
+          <li class="flex items-center gap-2 text-[13px]">
+            <FragmentIcon compact />
+            <span class="min-w-0 flex-1 truncate font-medium">{block}</span>
+          </li>
+        {/each}
       </ul>
+      {#if blocks.length}
+        <p class="pt-2.5 text-xs text-muted-foreground">{t(libraryMessages.blockNotSaved)}</p>
+      {/if}
     </section>
 
     <section class="px-4 py-3">

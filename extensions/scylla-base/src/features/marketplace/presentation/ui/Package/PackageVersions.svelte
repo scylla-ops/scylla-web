@@ -4,7 +4,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
-  import { VersionBadge } from '@base/features/pipeline';
+  import { VersionBadge } from '@shared/presentation/ui';
   import {
     latestPackageVersion,
     type MarketPackage,

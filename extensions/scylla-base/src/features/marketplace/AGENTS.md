@@ -20,7 +20,8 @@ The **pipeline** feature owns the library: a fragment knows where it comes from
 (`FragmentEntity.source`, linked or forked) and whether the workspace publishes it
 (`FragmentEntity.publication`). This feature owns the packages of the other organizations. It
 imports the pipeline barrel (`fragmentQueries`, `fragmentMutations.addFromMarketplace`,
-`FragmentNodes`, `FragmentParameters`, `VersionBadge`, `FragmentIcon`); pipeline never imports
+the loaders `loadFragmentNodes` and `loadFragmentParameters`), and `VersionBadge` and
+`FragmentIcon` from `@shared/presentation/ui`; pipeline never imports
 it. A package is linked to a fragment by `PackageRef.packageId`, the id of the package.
 
 ## Public API — `index.ts`

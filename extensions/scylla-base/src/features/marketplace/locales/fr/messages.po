@@ -73,6 +73,10 @@ msgstr "Parcourir"
 msgid "by @{handle}"
 msgstr "par @{handle}"
 
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:83
+msgid "By @{handle}. Once added, everyone in {workspace} can drop it in a pipeline."
+msgstr "Par @{handle}. Une fois ajouté, tout le monde dans {workspace} peut le déposer dans un pipeline."
+
 #: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:103
 msgid "Cancel"
 msgstr "Annuler"
@@ -306,10 +310,6 @@ msgstr "v{version}"
 #: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:92
 msgid "v{version} · latest"
 msgstr "v{version} · dernière"
-
-#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:83
-msgid "v{version} by @{handle}. Once added, everyone in {workspace} can drop it in a pipeline."
-msgstr "v{version} par @{handle}. Une fois ajouté, tout le monde dans {workspace} peut le déposer dans un pipeline."
 
 #: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:22
 msgid "Verified only"

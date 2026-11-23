@@ -4,7 +4,7 @@
   import { Card } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
-  import { FragmentIcon, VersionBadge } from '@base/features/pipeline';
+  import { FragmentIcon, VersionBadge } from '@shared/presentation/ui';
   import {
     latestPackageVersion,
     type MarketPackage,

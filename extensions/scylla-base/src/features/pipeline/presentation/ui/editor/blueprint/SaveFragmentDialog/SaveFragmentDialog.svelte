@@ -11,12 +11,14 @@
     open: boolean;
     onOpenChange: (open: boolean) => void;
     nodes: PipelineNodeEntity[];
+    /** `false`: a port leaves the selection, so a block cannot take the place of the nodes. */
+    replaceable: boolean;
     library: EditorLibrary;
     pipelineName: string;
     onSaved: (fragment: FragmentEntity, replace: boolean) => void;
   }
 
-  let { open, onOpenChange, nodes, library, pipelineName, onSaved }: Props = $props();
+  let { open, onOpenChange, nodes, replaceable, library, pipelineName, onSaved }: Props = $props();
 </script>
 
 <ScyllaDialog
@@ -29,6 +31,7 @@
   <!-- Built again at each opening: the draft starts from the selection of that moment. -->
   <SaveFragmentForm
     {nodes}
+    {replaceable}
     {library}
     {pipelineName}
     onSaved={(fragment, replace) => {
