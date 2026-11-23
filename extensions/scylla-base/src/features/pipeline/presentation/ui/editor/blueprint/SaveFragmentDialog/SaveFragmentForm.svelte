@@ -64,9 +64,9 @@
   {#if draft.existing && !draft.nameIssue}
     <!-- The name of another fragment: saving changes it for each pipeline that links it. -->
     <label
-      class="flex items-start gap-2.5 rounded-md border border-warning/40 bg-warning/10 px-3 py-2.5"
+      class="flex items-center gap-2.5 rounded-md border border-warning/40 bg-warning/10 px-3 py-2.5"
     >
-      <Checkbox bind:checked={draft.confirmed} class="mt-0.5" />
+      <Checkbox bind:checked={draft.confirmed} />
       <span class="text-sm">
         <span class="block font-medium">
           {t(libraryMessages.newVersionOf(draft.existing.name, draft.versionNumber))}
