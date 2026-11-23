@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { fireEvent, screen } from '@testing-library/svelte';
+import { fireEvent, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render } from '@test/render.ts';
 import AlertDialogFixture from './alert-dialog.fixture.svelte';
@@ -52,6 +52,17 @@ describe('AlertDialog', () => {
 
     expect(await screen.findByRole('button', { name: 'Cancel' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Continue' })).toBeDisabled();
+  });
+
+  it('gives the page back to the pointer when it closes, before its exit animation ends', async () => {
+    const { rerender } = render(AlertDialogFixture, { open: true });
+    await screen.findByRole('alertdialog');
+    await waitFor(() => expect(document.body.style.pointerEvents).toBe('none'));
+
+    await rerender({ open: false });
+
+    // No frame has run yet: the closing dialog is still on the page, for its animation.
+    expect(document.body.style.pointerEvents).toBe('');
   });
 
   it('does not dismiss on a click outside, unlike a plain dialog', async () => {

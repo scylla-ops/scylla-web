@@ -606,6 +606,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   and it stops exactly on the logo of the sidebar. Before, on a system with scrollbars that take
   space (for example Windows), the mark moved 5 px to the right when the app opened, and it stopped
   5 px to the right of the logo and 5 px below it.
+- The first click after a dialog, an alert dialog or a sheet closes works. Before, the page did not
+  take the pointer until the close animation ended. For example, after "Stay" in the "Leave without
+  saving?" dialog of the pipeline editor, the first click on Save did nothing.
 
 ## [0.6.0] - 2026-11-01
 

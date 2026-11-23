@@ -231,6 +231,12 @@ What a port has to get right, all of it invisible to the compiler:
   the dialog on click. Every confirmation here keeps the dialog open and disabled while its
   mutation runs; the parent owns `open`. Do not "fix" this.
 - The alert dialog is a **real** `role="alertdialog"` that ignores an outside click.
+- **A modal content (`DialogContent`, `AlertDialogContent`, `SheetContent`) renders its element
+  through the `child` snippet of bits-ui.** With `children`, bits-ui keeps `pointer-events: none`
+  on `<body>` until the exit animation ends, and a click in that time is lost. With `child`, the
+  lock ends when the modal closes. The overlay and the content also get `CLOSING_LAYER_CLASS`
+  (`dialog/dialog-variants.ts`): while they fade out, the pointer goes through them. The test
+  "gives the page back to the pointer when it closes" of each of the three fails without this.
 - **bits-ui drops ARIA roles Radix set, and the wrapper puts them back.** The tooltip content had
   no `role="tooltip"`; the select trigger had every piece of the combobox pattern —
   `aria-haspopup`, `aria-expanded`, `aria-activedescendant` — but no `role="combobox"`. Nothing
