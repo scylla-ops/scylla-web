@@ -593,6 +593,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   secrets pages, the live log icon, the menu buttons of the rows, the save icon of the pipeline
   editor, the access denied page and the text of the destructive buttons and badges. The dim layer
   behind a dialog, a sheet and the guided tour uses the new `overlay` token.
+- The search of the library sidebar shows a message when no fragment matches. The skip-tour dialog
+  has one backdrop, as the other dialogs.
 
 ## [0.6.0] - 2026-11-01
 

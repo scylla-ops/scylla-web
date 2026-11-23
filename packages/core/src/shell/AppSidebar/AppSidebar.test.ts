@@ -537,6 +537,35 @@ describe('the second sidebar', () => {
       expect(within(secondSidebar()).getByRole('button', { name: 'runner-1' })).toBeInTheDocument();
     });
 
+    it('says so when the search of the module matches no link', async () => {
+      const typed = new SvelteMap<'query', string>([['query', '']]);
+      const query = () => typed.get('query') ?? '';
+      const contributions: ShellContributions[] = [
+        {
+          linkParams: () => ({ workspaceSlug: 'acme-corp' }),
+          secondSidebarSearch: shown => () =>
+            shown() === 'machines'
+              ? {
+                  label: 'Search machines',
+                  placeholder: 'Search machines',
+                  value: query(),
+                  onchange: value => typed.set('query', value),
+                  empty: query() ? 'No machine matches.' : undefined,
+                }
+              : undefined,
+        },
+      ];
+      render(AppSidebarFixture, { config: configWith({ entries: groupEntries, contributions }) });
+      expect(within(secondSidebar()).queryByText('No machine matches.')).toBeNull();
+
+      await userEvent.type(
+        within(secondSidebar()).getByRole('searchbox', { name: 'Search machines' }),
+        'zzz',
+      );
+
+      expect(within(secondSidebar()).getByText('No machine matches.')).toBeInTheDocument();
+    });
+
     it('shows none for another item', () => {
       navigator.restore();
       navigator = installTestNavigator({ pathname: '/acme-corp/secrets' });

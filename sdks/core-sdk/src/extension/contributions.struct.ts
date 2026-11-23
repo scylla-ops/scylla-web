@@ -60,6 +60,8 @@ export interface SecondSidebarSearch {
   placeholder: string;
   value: string;
   onchange: (value: string) => void;
+  /** Shown in place of the links when the search matches nothing. Unset while some link shows. */
+  empty?: string;
 }
 
 /** What a module adds to the core's shell. */

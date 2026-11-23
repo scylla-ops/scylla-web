@@ -19,6 +19,12 @@ const filter = $state({ query: '' });
 const matches = (name: string): boolean =>
   name.toLowerCase().includes(filter.query.trim().toLowerCase());
 
+const listFragments = (open: () => boolean, context: () => ReturnType<typeof contextStore.getState>) =>
+  createQuery(() => ({
+    ...fragmentQueries.list(context().workspace.id),
+    enabled: open() && !!context().workspace.id,
+  }));
+
 /** The fragments of the library, after the Library link. It reads only while they show. */
 export const fragmentLinks = (
   shown: () => string | undefined,
@@ -26,10 +32,7 @@ export const fragmentLinks = (
   const context = toRune(contextStore);
   const open = $derived(shown() === LIBRARY_ITEM);
 
-  const fragments = createQuery(() => ({
-    ...fragmentQueries.list(context().workspace.id),
-    enabled: open && !!context().workspace.id,
-  }));
+  const fragments = listFragments(() => open, context);
 
   const links = $derived.by(() => {
     context(); // `activeWorkspaceSlug` reads the store once: this follows a switch of workspace.
@@ -53,6 +56,8 @@ export const fragmentSearch = (
   shown: () => string | undefined,
 ): (() => SecondSidebarSearch | undefined) => {
   const open = $derived(shown() === LIBRARY_ITEM);
+  const context = toRune(contextStore);
+  const fragments = listFragments(() => open, context);
   const search = $derived<SecondSidebarSearch | undefined>(
     open
       ? {
@@ -60,6 +65,10 @@ export const fragmentSearch = (
           placeholder: t(libraryMessages.filterFragments),
           value: filter.query,
           onchange: value => (filter.query = value),
+          empty:
+            filter.query.trim() && fragments.data && !fragments.data.some(fragment => matches(fragment.name))
+              ? t(libraryMessages.noFragment)
+              : undefined,
         }
       : undefined,
   );

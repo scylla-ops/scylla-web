@@ -8,10 +8,20 @@
   import { dialogMessages } from './dialog.messages.ts';
   import { CENTERED_DIALOG_CLASS } from './dialog-variants.ts';
 
-  type Props = DialogPrimitive.ContentProps & { children?: Snippet };
+  type Props = DialogPrimitive.ContentProps & {
+    children?: Snippet;
+    /** Classes of the backdrop, e.g. a `z-` above a layer that covers the dialog's own. */
+    overlayClass?: string;
+  };
 
-  let { class: className, children, onOpenAutoFocus, ref = $bindable(null), ...rest }: Props =
-    $props();
+  let {
+    class: className,
+    overlayClass,
+    children,
+    onOpenAutoFocus,
+    ref = $bindable(null),
+    ...rest
+  }: Props = $props();
 
   /**
    * Puts the caret in the first field, the way Radix did.
@@ -35,7 +45,7 @@
 </script>
 
 <DialogPrimitive.Portal>
-  <DialogOverlay />
+  <DialogOverlay class={overlayClass} />
   <DialogPrimitive.Content
     bind:ref
     onOpenAutoFocus={focusFirstField}

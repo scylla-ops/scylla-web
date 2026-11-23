@@ -94,6 +94,9 @@
             untitled && !search && 'pt-2',
           )}
         >
+          {#if search?.empty}
+            <li class="px-2 py-3 text-center text-sm text-muted-foreground">{search.empty}</li>
+          {/if}
           {#each content.pages as page (page.href)}
             {@const current = page.href === active?.href}
             <li class={cn((page.danger || page.apart) && NAV_DANGER_APART_CLASS)}>
