@@ -26,6 +26,7 @@ loginQueries.terms()                 // the terms of the user of the session (Ge
 TERMS_STATUS_QUERY_KEY               // ['me', 'terms']
 loadTermsStep                        // loader of the full-page terms step (props `status`, `onDecline`); the auth guard shows it
 type TermsStatus, TermsAcceptance
+arrival                              // the motion after a sign-in: ShellBrand hides its logo with it and gives it the target
 ```
 
 Never add: `login.module.ts`, a page. A state calls `getModuleDomain('login')` directly.
@@ -98,7 +99,10 @@ presentation/
   sign-out.ts                        signOut
   mappers/return-path.mapper.ts      loginPath, loginPathBackTo, safeReturnPath, returnPathOf
   messages/                          login, password-reset
-  ui/login.state.svelte.ts           sign-in: the mutation + the redirect
+  ui/login.state.svelte.ts           sign-in: the mutation, the dots of the mark, the start of the arrival
+  ui/ArrivalOverlay/ArrivalOverlay.svelte   over each page (appOverlays): the curtain and the landing
+    arrival.state.svelte.ts                 arrival: the phases and their times, the wait for the app
+    arrival.attachments.svelte.ts           the Web Animations of the curtain, the flight and the page
   ui/Login/Login.page.svelte, ui/LoginForm/LoginForm.svelte
   ui/ForgotPassword/ForgotPassword.page.svelte
     forgot-password.state.svelte.ts  the request of a reset link
@@ -156,6 +160,33 @@ invitation uses it too.
 (`AuthService.RequestPasswordReset`). Do not rename it.
 
 No nav entry — the sidebar only renders inside the authenticated shell.
+
+## The arrival after a sign-in
+
+Motion A of the design "Sign-in to dashboard arrival animation". It plays only after a sign-in with
+the form. A reload, or a sign-in with a provider, opens the app with no motion.
+
+1. Submit: the four dots of the mark in the panel (`LogoMark` of `shared`) go grey and turn
+   (`waiting`). A refusal stops the turn on the next quarter turn and the dots go back to `idle`.
+2. The answer of the server: the dots light clockwise (`lit`), and `arrival.begin(go)` starts.
+3. At 450 ms the panel closes over the form like a curtain (`cover`, 550 ms). The form fades and
+   moves right (`leaving` of `AuthLayout`).
+4. At 1000 ms the page calls `go`: the router opens the app under the overlay (`stage`). The stage
+   holds until the router shows a `main` and no query runs for 100 ms: 150 ms at least, 3 s at most.
+5. `landing` (600 ms): the mark flies onto the mark of the logo of the shell, the panel fades out,
+   the page settles from a scale of 1.03, and the widgets come up row by row.
+6. `arrived` (300 ms): the logo of the shell shows again, then the overlay goes.
+
+- **Below `lg`, or with reduced motion, there is no curtain** (`mode` `fade`): a veil fades in for
+  200 ms, the app opens under it, and the veil fades out for 200 ms.
+- **The overlay is a shell contribution of this module** (`appOverlays`): the core renders it after
+  the router, so it stays on the screen when the route changes, and the page is before it in the
+  DOM.
+- **The mark lands on the `logo_lockup.svg` images of `ShellBrand`**: they register with
+  `arrival.target`. `LOCKUP` in `arrival.attachments.svelte.ts` holds the place of the mark in this
+  image. Change it when the image changes.
+- **The times are the times of the spec frame of the design** (`ARRIVAL_MS`). A test with fake timers
+  calls `arrival.reset()` after each test: `arrival` is one object for the app.
 
 ## The return path
 

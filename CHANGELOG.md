@@ -203,6 +203,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The trigger editor has the conditions of a webhook: a header or a field of the body, with is,
   matches or is one of. The list of triggers shows the number of conditions, and a delivery that
   does not match them shows as Skipped with the reason.
+- After a sign-in, the dots of the mark turn while the server answers and light up, the panel closes
+  over the form, and the mark flies onto the logo of the dashboard. Below lg, or with reduced
+  motion, a short fade replaces this motion.
 
 ### Changed
 

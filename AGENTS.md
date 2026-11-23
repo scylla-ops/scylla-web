@@ -520,9 +520,11 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
   the router.
 - **Global state**: only `contextStore` (current org/project), `selectionStore` and
   `dialogHoldStore` (the guided tour holds the dialogs open) are app-wide, plus `permissionsStore` in
-  `@platform/authz` and `cookieSettings` in `@platform/consent` (the one dialog of the cookie
-  settings, which the footer, the user menu and the account page open). Everything else =
-  TanStack Query (server) or local `$state`.
+  `@platform/authz`, `cookieSettings` in `@platform/consent` (the one dialog of the cookie
+  settings, which the footer, the user menu and the account page open) and `arrival` in
+  `features/login` (the motion after a sign-in: the sign-in page starts it, the overlay of the app
+  plays it, the logo of the shell waits for it). Everything else = TanStack Query (server) or
+  local `$state`.
 - **Cookies and browser storage: no cookie and no storage key without a registry entry.** A
   change that reads or writes a new cookie, a new `localStorage` key or a new `sessionStorage`
   key adds its entry to the tracker registry (`@platform/trackers`) in the same change: owner,

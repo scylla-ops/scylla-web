@@ -58,7 +58,8 @@ presentation/
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
     ui/context-selector/                WorkspaceSelector: the switcher at the right end of the top bar (topBarEnd)
-    ui/ShellBrand/                      the logo above the sidebars (brand): a link to the dashboard of the active workspace
+    ui/ShellBrand/                      the logo above the sidebars (brand): a link to the dashboard of the active workspace.
+                                        After a sign-in it hides until the mark of the arrival (features/login) lands on it
     language.commands.ts                the commands of the bar for the language
     user-preferences.ts                 the keys `theme` and `locale` of `platform/user-state`, chooseLocale
     ui/GlobalSearch/                    the button of the top bar and Ctrl K. It loads the bar at the first use and keeps the form that a command opens

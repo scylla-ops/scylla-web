@@ -37,6 +37,7 @@ presentation/ui/index.ts             `@shared/presentation/ui`
                                      ProviderMark, JobRunMark
 presentation/presenters/job-run.presenter.ts  JobRun, jobShortId: the job of a JobRunMark
 presentation/ui/layout/AuthLayout.svelte  the frame of the public pages; import it by path
+presentation/ui/layout/LogoMark/     LogoMark: the four dots of the mark, with a state (idle, waiting, lit)
 locales/                             the catalog of these files
 ```
 
@@ -160,6 +161,11 @@ box in `ACTION_GROUPS`.
 `AuthLayout` (`presentation/ui/layout/`) has a panel with the mark at `lg` and up, then a centered
 column with the logo, the title, the optional description, the content and a `below` snippet. The
 pages of `login` and the page of an invitation use it.
+
+The mark of the panel is `LogoMark`, an inline SVG: `mark` gives the state of its dots. `waiting`
+turns it (scylla-spin) and greys the dots, `lit` lights them clockwise. With reduced motion the
+grey dots pulse and do not turn. `leaving` fades the column and moves it right, under the curtain of
+the arrival (`features/login`).
 
 Import it by path. Do not add it to `@shared/presentation/ui`: that barrel holds `CopyBox`,
 `StatusBar` and `TokenForm`, and a public page would load them in its chunk.

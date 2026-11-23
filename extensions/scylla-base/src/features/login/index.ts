@@ -1,4 +1,5 @@
 export { LoginState, type Credentials } from './presentation/ui/login.state.svelte.ts';
+export { arrival } from './presentation/ui/ArrivalOverlay/arrival.state.svelte.ts';
 export { loginPoints, type LoginZoneContext } from './presentation/login.points.ts';
 export { closeSession, hasSession, openSession, sessionUserId } from './infrastructure/session.ts';
 export { signOut } from './presentation/sign-out.ts';

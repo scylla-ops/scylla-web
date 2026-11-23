@@ -6,6 +6,7 @@ import { DefaultLoginRepository } from './infrastructure/default-login.repositor
 import { resolveUserWith } from './infrastructure/session.ts';
 import { loginCommands } from './presentation/login.commands.ts';
 import { loginPoints } from './presentation/login.points.ts';
+import ArrivalOverlay from './presentation/ui/ArrivalOverlay/ArrivalOverlay.svelte';
 
 const transport = grpcTransport.getTransport();
 const loginRepository = new DefaultLoginRepository(
@@ -51,4 +52,6 @@ export const LoginModule = {
   },
   points: loginPoints,
   commands: loginCommands,
+  // Over the router: it plays the arrival from the sign-in page to the app.
+  shell: { appOverlays: [ArrivalOverlay] },
 } satisfies ScyllaModule;
