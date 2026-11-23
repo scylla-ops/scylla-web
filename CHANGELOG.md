@@ -12,6 +12,15 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Added
 
+- The library and the marketplace use the server: `FragmentService` of the core and
+  `MarketplaceService` of the marketplace that Scylla hosts, at `VITE_MARKETPLACE_API_URL`
+  (default: `VITE_API_URL`). The demo fragments and packages are gone. The links of a pipeline are
+  saved with its nodes. A package can be added at an older version. Save to library also works on
+  one node, from its inspector. The marketplace shows the stars only: the installs and the
+  adoption are no longer counted.
+- `gen-proto` takes the files of each proto root: a host root hides a file of the same path and
+  adds its own. `scylla-base` holds a copy of the marketplace protos in `protos/`.
+
 **The port to the new backend**
 
 - The sign-in uses `AccountService`, with a session cookie and its refresh. The errors of the server
@@ -34,6 +43,37 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The places of the nodes are part of the pipeline: all members see the same canvas, and a place
   stays after a reload. A saved node saves its place at the end of a drag, with no Save button. A
   new node sends its place with the next save of the pipeline.
+
+**The library of pipelines**
+
+- In the blueprint, a box selection of nodes is saved to the library of the workspace, with a name,
+  tags and parameters, and becomes one linked block. One node is enough: the box selection of one
+  node, or the Save to library button of its inspector.
+- The Select button of the blueprint toolbar makes a drag on the canvas draw a selection box, as
+  Shift does. A drag with the middle or the right button still moves the view.
+- The Library tab of the palette inserts a fragment on a link or in empty space. A block links a
+  version: a new version is proposed, never forced, and a block can be detached as an editable copy.
+- The inspector of a block removes it from the pipeline. The fragment stays in the library.
+- The Library page of the workspace, with a search, the tags and the favorites, and the page of a
+  fragment with its nodes, parameters, versions and usages, and Use in a pipeline.
+- On the page of a fragment, a link pulled from a node onto empty canvas opens the menu of the
+  editor and adds a node after it, with its port. The change is published as a new version.
+
+**The marketplace of pipelines**
+
+- The Marketplace page lists the fragments that organizations share, with a search, a sort, and
+  filters on the publisher, the category and the stack. The page of a package shows its steps,
+  parameters, versions and what it needs before it is added.
+- A package is added to the library linked, to receive the versions of its publisher, or as a
+  fork that the workspace owns. The Community tab of the library lists them by source.
+- A new version of the publisher waits on the linked fragment: its page shows what changes and
+  which pipelines keep their own values, and an admin accepts or skips it. A fork shows the next
+  release, compares it, or starts a new fork from it.
+- A fragment of the workspace goes public as `@workspace/name`, after checks on its secrets,
+  descriptions, private addresses and references to the workspace. Its page follows its installs
+  and the versions in use, and deprecates a version.
+- The server has no marketplace yet: the packages are demo data, and the stars are kept in the
+  browser.
 
 **Notifications**
 

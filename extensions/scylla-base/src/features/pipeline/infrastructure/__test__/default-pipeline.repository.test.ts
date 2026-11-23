@@ -17,6 +17,7 @@ const pipeline = (id: string, version: bigint): Pipeline => ({
   fileKey: '',
   filePath: '',
   fileErrorCount: 0,
+  fragmentLinks: [],
 });
 
 describe('DefaultPipelineRepository', () => {

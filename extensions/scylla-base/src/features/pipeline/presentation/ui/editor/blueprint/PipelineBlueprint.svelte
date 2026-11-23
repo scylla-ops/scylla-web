@@ -5,6 +5,12 @@
   import { t } from '@scylla/ui/i18n';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
+  import {
+    latestVersion,
+    valuesOf,
+    type FragmentEntity,
+    type FragmentLink,
+  } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
   import type { NodePlaces } from './node-places.state.svelte.ts';
@@ -19,12 +25,21 @@
   import { nodePositionAt } from './canvas/nodes/node-appearances.registry.ts';
   import BlueprintSidePanel from './side-panel/BlueprintSidePanel.svelte';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { firstProposal } from '@base/features/pipeline/presentation/presenters/fragment.presenter.ts';
+  import { createEditorLibrary } from './editor-library.state.svelte.ts';
+  import SaveFragmentDialog from './SaveFragmentDialog/SaveFragmentDialog.svelte';
+  import UpdateNotice from './canvas/UpdateNotice.svelte';
 
   interface Props {
     nodes: PipelineNodeEntity[];
     pipelineName: string;
     projectId?: string;
     onNodesChange: (nodes: PipelineNodeEntity[]) => void;
+    /** The fragments that the pipeline links. None: the nodes are drawn one by one. */
+    links?: FragmentLink[];
+    onLinksChange?: (links: FragmentLink[]) => void;
+    /** `false`: the pipeline is not saved yet, so it cannot link a fragment. */
+    linkable?: boolean;
     savedLayout?: PipelineLayout | null;
     places?: NodePlaces;
     /** Called once: the graph is fitted in the canvas at its final size. */
@@ -44,6 +59,9 @@
     pipelineName,
     projectId,
     onNodesChange,
+    links = [],
+    onLinksChange,
+    linkable = false,
     savedLayout,
     places,
     onReady,
@@ -63,6 +81,8 @@
     pipelineName: () => pipelineName,
     // Read at call time, so a swapped callback is the one called.
     onNodesChange: next => onNodesChange(next),
+    links: () => links,
+    onLinksChange: next => onLinksChange?.(next),
     savedLayout: () => savedLayout,
     get places() {
       return places;
@@ -71,6 +91,25 @@
   });
 
   const appearance = createNodeAppearancePreference();
+
+  const library = createEditorLibrary(blueprint);
+  const proposal = $derived(locked ? null : firstProposal(blueprint.links, library.fragmentOf));
+
+  /** The nodes that the dialog saves: read when it opens, so a change of selection does not alter it. */
+  let saving = $state<PipelineNodeEntity[] | null>(null);
+  const saveNodes = $derived(
+    linkable && !locked ? (nodes: PipelineNodeEntity[]) => (saving = nodes) : undefined,
+  );
+  const saveSelection = $derived(saveNodes && (() => saveNodes(blueprint.selectedNodes)));
+
+  const placeSaved = (fragment: FragmentEntity, replace: boolean) => {
+    if (!replace || !saving) return;
+    const version = latestVersion(fragment);
+    blueprint.replaceWithBlock(
+      saving.map(node => node.id),
+      { fragment, version, values: valuesOf(saving, version.parameters) },
+    );
+  };
 
   const templatesQuery = createQuery(() => nodeTemplateQueries.list());
   const entries = $derived(catalogEntries(templatesQuery.data ?? []));
@@ -110,6 +149,8 @@
           {drag}
           {entries}
           {dimmed}
+          fragmentOf={library.fragmentOf}
+          onAddFragment={(fragment, placement) => library.add(fragment, placement)}
           onReady={() => {
             ready = true;
             onReady?.();
@@ -125,6 +166,9 @@
         >
           {t(pipelineMessages.repeatedHint)}
         </p>
+      {:else if proposal}
+        {@const { blockId, fragment, version } = proposal}
+        <UpdateNotice {fragment} {version} onReview={() => blueprint.inspect(blockId)} />
       {/if}
     </ResizablePane>
     <ResizableHandle />
@@ -134,11 +178,28 @@
       <BlueprintSidePanel
         {blueprint}
         {entries}
+        {library}
+        {linkable}
         {projectId}
         {drag}
+        onSaveSelection={saveSelection}
+        onSaveNode={saveNodes && (node => saveNodes([node]))}
         onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
       />
     {/if}
   </ResizablePaneGroup>
   <PaletteDragGhost {drag} />
+  {#if saving}
+    <SaveFragmentDialog
+      open
+      onOpenChange={open => {
+        if (!open) saving = null;
+      }}
+      nodes={saving}
+      replaceable={!blueprint.portLeaving(saving.map(node => node.id))}
+      {library}
+      {pipelineName}
+      onSaved={placeSaved}
+    />
+  {/if}
 </SvelteFlowProvider>

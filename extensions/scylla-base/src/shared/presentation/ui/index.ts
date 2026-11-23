@@ -16,3 +16,5 @@ export {
 } from '../presenters/user-identity.presenter.ts';
 export { default as ApiAccessCard } from './forms/ApiAccessCard/ApiAccessCard.svelte';
 export { default as TokenForm } from './forms/TokenForm/TokenForm.svelte';
+export { default as FragmentIcon } from './data-display/FragmentIcon.svelte';
+export { default as VersionBadge } from './data-display/VersionBadge.svelte';

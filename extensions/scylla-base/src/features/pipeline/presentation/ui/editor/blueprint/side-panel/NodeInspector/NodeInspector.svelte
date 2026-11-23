@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BookmarkPlusIcon from '@lucide/svelte/icons/bookmark-plus';
   import CheckIcon from '@lucide/svelte/icons/check';
   import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
@@ -18,6 +19,7 @@
   import type { PortChange } from '@base/features/pipeline/presentation/ui/editor/node/switch-draft.state.svelte.ts';
   import { dependencyText } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
+  import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
   import {
     NODE_ISSUE_MESSAGES,
@@ -45,12 +47,16 @@
     iconHintOf?: (definition: NodeDefinition) => string | undefined;
     /** Scopes the secret picker. */
     projectId?: string;
+    /** Shows the node with no way to change it: a fragment that the reader cannot edit. */
+    readOnly?: boolean;
     onChange: (value: NodeDefinition, port?: PortChange) => void;
     /** Returns the id the node really got. */
     onRename: (id: string) => string;
     onErrorOutputChange?: (on: boolean) => void;
     onDelete: () => void;
     onClose: () => void;
+    /** Makes a fragment of this node. None: the pipeline cannot link a fragment yet. */
+    onSaveToLibrary?: () => void;
   }
 
   let {
@@ -62,11 +68,13 @@
     outputNodes = [],
     iconHintOf,
     projectId,
+    readOnly = false,
     onChange,
     onRename,
     onErrorOutputChange = () => {},
     onDelete,
     onClose,
+    onSaveToLibrary,
   }: Props = $props();
 
   // svelte-ignore state_referenced_locally
@@ -96,7 +104,9 @@
       >
         <Icon class="size-4" />
       </span>
-      <NodeIdField {draft} />
+      <fieldset disabled={readOnly} class="contents">
+        <NodeIdField {draft} />
+      </fieldset>
       <Button
         variant="ghost"
         size="icon-sm"
@@ -131,9 +141,18 @@
         {/each}
       {/if}
     </div>
+
+    {#if onSaveToLibrary && !readOnly}
+      <Button variant="outline" size="sm" class="self-start" onclick={onSaveToLibrary}>
+        <BookmarkPlusIcon class="size-4" />
+        {t(libraryMessages.saveToLibrary)}
+      </Button>
+    {/if}
   </div>
 
-  <NodeKindFields {draft} {projectId} {errorOutput} {onErrorOutputChange} {outputNodes} />
+  <fieldset disabled={readOnly} class="contents">
+    <NodeKindFields {draft} {projectId} {errorOutput} {onErrorOutputChange} {outputNodes} {readOnly} />
+  </fieldset>
 
   {#if alert}
     <p
@@ -146,15 +165,17 @@
   {/if}
 
   <div class="flex items-center gap-2 border-t px-4 py-3">
-    <Button variant="ghost-destructive" size="sm" class="-ml-2" onclick={onDelete}>
-      <Trash2Icon class="size-4" />
-      {t(nodeMessages.deleteNode)}
-    </Button>
-    <span class="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
-      <CheckIcon class="size-3.5 text-primary" />
-      {t(blueprintMessages.appliedToDraft)}
-    </span>
-    <Button variant="outline" size="sm" onclick={onClose}>
+    {#if !readOnly}
+      <Button variant="ghost-destructive" size="sm" class="-ml-2" onclick={onDelete}>
+        <Trash2Icon class="size-4" />
+        {t(nodeMessages.deleteNode)}
+      </Button>
+      <span class="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground">
+        <CheckIcon class="size-3.5 text-primary" />
+        {t(blueprintMessages.appliedToDraft)}
+      </span>
+    {/if}
+    <Button variant="outline" size="sm" class="ml-auto" onclick={onClose}>
       {t(blueprintMessages.close)}
     </Button>
   </div>

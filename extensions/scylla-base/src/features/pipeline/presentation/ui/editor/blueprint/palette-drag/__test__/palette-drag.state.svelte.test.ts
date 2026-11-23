@@ -56,7 +56,7 @@ describe('createPaletteDrag', () => {
       drag.finish();
       flushSync();
 
-      expect(drop).toHaveBeenCalledWith(bash, { x: 400, y: 120 });
+      expect(drop).toHaveBeenCalledWith(bash, { x: 400, y: 120 }, { x: 900, y: 120 });
       expect(drag.entry).toBeNull();
       expect(drag.pointer).toBeNull();
       expect(drag.spot).toBeNull();

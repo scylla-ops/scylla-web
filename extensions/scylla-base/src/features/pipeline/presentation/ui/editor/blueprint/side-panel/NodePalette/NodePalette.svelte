@@ -15,9 +15,11 @@
     onAdd: (entry: CatalogEntry) => void;
     /** Lets a row be dragged onto the canvas. */
     drag?: PaletteDrag;
+    /** `false`: the panel around the palette has the title. */
+    heading?: boolean;
   }
 
-  let { entries, onAdd, drag }: Props = $props();
+  let { entries, onAdd, drag, heading = true }: Props = $props();
 
   let query = $state('');
 
@@ -26,7 +28,9 @@
 
 <div class="flex h-full flex-col">
   <div class="flex flex-col gap-2.5 p-3 pb-2">
-    <h2 class="px-1 text-sm">{t(blueprintMessages.addNode)}</h2>
+    {#if heading}
+      <h2 class="px-1 text-sm">{t(blueprintMessages.addNode)}</h2>
+    {/if}
     <SearchField bind:value={query} label={t(blueprintMessages.searchNodes)} />
   </div>
 

@@ -16,9 +16,18 @@
     errorOutput: boolean;
     onErrorOutputChange: (on: boolean) => void;
     outputNodes: string[];
+    /** The script cannot change: a fragment that the reader cannot edit. */
+    readOnly?: boolean;
   }
 
-  let { draft, projectId, errorOutput, onErrorOutputChange, outputNodes }: Props = $props();
+  let {
+    draft,
+    projectId,
+    errorOutput,
+    onErrorOutputChange,
+    outputNodes,
+    readOnly = false,
+  }: Props = $props();
 
   const envCount = $derived(draft.envRows.filter(row => row.key.trim()).length);
 </script>
@@ -49,7 +58,7 @@
       </TabsTrigger>
     </TabsList>
     <TabsContent value="code" class="flex min-h-0 flex-1 flex-col">
-      <NodeCodeTab {draft} />
+      <NodeCodeTab {draft} {readOnly} />
       <div class="px-4 pb-4">
         <NodeErrorOutputField checked={errorOutput} onCheckedChange={onErrorOutputChange} />
       </div>

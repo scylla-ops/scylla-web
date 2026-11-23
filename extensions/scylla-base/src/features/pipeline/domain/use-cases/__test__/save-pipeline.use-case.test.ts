@@ -3,6 +3,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { InvalidPipelineError, SavePipelineUseCase } from '../save-pipeline.use-case.ts';
 import type { PipelineRepository } from '../../repository/pipeline.repository.ts';
+import type { FragmentRepository } from '../../repository/fragment.repository.ts';
 import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
 const node = (id: string): PipelineNodeEntity => ({
@@ -22,7 +23,7 @@ const repositoryWith = () => {
   return { create, edit, repository: { create, edit } as unknown as PipelineRepository };
 };
 
-const issueOf = (saving: Promise<void>) =>
+const issueOf = (saving: Promise<unknown>) =>
   saving.then(
     () => null,
     (error: unknown) => (error instanceof InvalidPipelineError ? error.issue : error),
@@ -60,9 +61,24 @@ describe('SavePipelineUseCase', () => {
       }),
     );
 
-    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly', undefined);
+    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly', undefined, undefined);
     expect(create).not.toHaveBeenCalled();
     expect(issue).toBeNull();
+  });
+
+  it('sends the fragment links with the nodes of the edit', async () => {
+    const { edit, repository } = repositoryWith();
+    const links = [{ blockId: 'ci', fragmentId: 'f1', version: 1, values: {}, nodeIds: ['build'] }];
+
+    await new SavePipelineUseCase(repository).execute({
+      id: 'p1',
+      projectId: 'proj',
+      name: 'nightly',
+      nodes: [node('build')],
+      links,
+    });
+
+    expect(edit).toHaveBeenCalledWith('p1', [node('build')], 'nightly', undefined, links);
   });
 
   it('sends nothing for a node id the server refuses, and names every refused id', async () => {
@@ -101,7 +117,7 @@ describe('SavePipelineUseCase', () => {
     );
 
     expect(issue).toBeNull();
-    expect(edit).toHaveBeenCalledWith('p1', nodes, 'nightly', layout);
+    expect(edit).toHaveBeenCalledWith('p1', nodes, 'nightly', layout, undefined);
   });
 
   it('sends nothing for a need on a port that its node does not have', async () => {
@@ -148,5 +164,69 @@ describe('SavePipelineUseCase', () => {
     );
 
     expect(issue).toBe(refused);
+  });
+});
+
+describe('SavePipelineUseCase: the links of the blocks', () => {
+  const version = {
+    number: 1,
+    nodes: [node('lint')],
+    parameters: [],
+    changes: [],
+    author: { id: 'rem', name: 'Rem' },
+    publishedAt: '',
+  };
+  const link = {
+    blockId: 'checks',
+    fragmentId: 'f1',
+    version: 1,
+    values: {},
+    nodeIds: ['checks-lint'],
+  };
+  const fragments = (getById: () => Promise<unknown>) =>
+    ({ getById: vi.fn(getById) }) as unknown as FragmentRepository;
+  const save = (nodes: PipelineNodeEntity[], repo: FragmentRepository) => {
+    const { edit, repository } = repositoryWith();
+    const detached = new SavePipelineUseCase(repository, repo).execute({
+      id: 'p1',
+      projectId: 'proj',
+      name: 'nightly',
+      nodes,
+      links: [link],
+      workspaceId: 'ws',
+    });
+    return { edit, detached };
+  };
+
+  it('keeps the link of a block whose nodes still run its version', async () => {
+    const { edit, detached } = save(
+      [{ ...node('checks-lint') }],
+      fragments(() => Promise.resolve({ versions: [version] })),
+    );
+
+    expect(await detached).toEqual([]);
+    expect(edit.mock.calls[0][4]).toEqual([link]);
+  });
+
+  it('drops the link of a block whose nodes were edited in the scripting tab, and says so', async () => {
+    const edited = { ...node('checks-lint'), script: 'make --edited' };
+    const { edit, detached } = save(
+      [edited],
+      fragments(() => Promise.resolve({ versions: [version] })),
+    );
+
+    expect(await detached).toEqual(['checks']);
+    expect(edit.mock.calls[0][4]).toEqual([]);
+  });
+
+  it('keeps a link whose fragment cannot be read', async () => {
+    const edited = { ...node('checks-lint'), script: 'make --edited' };
+    const { edit, detached } = save(
+      [edited],
+      fragments(() => Promise.reject(new Error('gone'))),
+    );
+
+    expect(await detached).toEqual([]);
+    expect(edit.mock.calls[0][4]).toEqual([link]);
   });
 });

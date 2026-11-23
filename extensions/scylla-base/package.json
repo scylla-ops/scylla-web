@@ -18,6 +18,7 @@
     "protos": [
       "scylla",
       "google/rpc"
-    ]
+    ],
+    "protoRoot": "protos"
   }
 }

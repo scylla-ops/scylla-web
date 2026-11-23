@@ -25,6 +25,12 @@ let refreshing: Promise<string | null> | null = null;
 /** The base URL of the API. */
 export const apiUrl = (): string => import.meta.env.VITE_API_URL ?? '';
 
+/** The marketplace that Scylla hosts. None: the API serves it. */
+export const marketplaceUrl = (): string => import.meta.env.VITE_MARKETPLACE_API_URL || apiUrl();
+
+/** The marketplace is the server of the session: it takes its token, and its workspaces publish. */
+export const marketplaceIsLocal = (): boolean => marketplaceUrl() === apiUrl();
+
 /** The calls that need no token. They never start a refresh. */
 const PUBLIC_METHODS = new Set([
   'scylla.auth.v1.TokenService/Refresh',

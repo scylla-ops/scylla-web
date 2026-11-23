@@ -36,6 +36,7 @@ const renderPage = (getWithLayout: () => Promise<unknown>) => {
       pipeline: {
         pipelineRepository: { getWithLayout },
         nodeTemplateRepository: { list: () => Promise.resolve([]) },
+        fragmentRepository: { list: () => Promise.resolve([]), linksOf: () => Promise.resolve([]) },
       },
     }),
   ];

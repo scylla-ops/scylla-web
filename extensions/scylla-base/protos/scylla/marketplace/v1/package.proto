@@ -1,0 +1,91 @@
+syntax = "proto3";
+
+package scylla.marketplace.v1;
+
+import "google/protobuf/timestamp.proto";
+import "scylla/common/v1/id.proto";
+
+// A fragment of a library that its workspace made public on the marketplace. Its name is
+// @<slug of the workspace>/<name of the fragment>.
+message Package {
+  // The id of the package.
+  scylla.common.v1.Id id = 1;
+  // The slug of the workspace that publishes the package.
+  string publisher = 2;
+  // The name of the fragment, without its scope.
+  string name = 3;
+  // The description of the fragment.
+  string description = 4;
+  // The license, for example MIT.
+  string license = 5;
+  // The shelf of the package.
+  PackageCategory category = 6;
+  // The tags of the package.
+  repeated string tags = 7;
+  // The public versions, the oldest first.
+  repeated PackageVersion versions = 8;
+  // True when the marketplace checked the publisher. Always false in this version.
+  bool verified = 9;
+  // The actors that starred the package.
+  uint32 stars = 10;
+  // True if the caller starred the package. Always false for a call with no token.
+  bool starred = 11;
+  // The time of the first publication.
+  google.protobuf.Timestamp published_at = 12;
+}
+
+// The shelf of a package.
+enum PackageCategory {
+  // Not set. A request with it gives INVALID_ARGUMENT.
+  PACKAGE_CATEGORY_UNSPECIFIED = 0;
+  // Continuous integration.
+  PACKAGE_CATEGORY_CI = 1;
+  // Build.
+  PACKAGE_CATEGORY_BUILD = 2;
+  // Deploy.
+  PACKAGE_CATEGORY_DEPLOY = 3;
+  // Security.
+  PACKAGE_CATEGORY_SECURITY = 4;
+  // Release.
+  PACKAGE_CATEGORY_RELEASE = 5;
+}
+
+// A public version of a package.
+message PackageVersion {
+  // The number of the version in the library of the publisher.
+  uint32 number = 1;
+  // True when the publisher asks that no new workspace adds the version.
+  bool deprecated = 2;
+  // The content: an encoded scylla.library.v1.FragmentVersion, with no author. Empty when the
+  // read does not give it.
+  bytes content = 3;
+}
+
+// A fragment of a library that its workspace made public.
+message Publication {
+  // The fragment of the library.
+  scylla.common.v1.Id fragment_id = 1;
+  // The package.
+  scylla.common.v1.Id package_id = 2;
+  // The license.
+  string license = 3;
+  // The shelf.
+  PackageCategory category = 4;
+  // The tags.
+  repeated string tags = 5;
+  // The public versions, the oldest first.
+  repeated uint32 versions = 6;
+  // The public versions that are deprecated.
+  repeated uint32 deprecated = 7;
+  // True when each new version of the fragment is public at once.
+  bool auto_publish = 8;
+  // The time of the first publication.
+  google.protobuf.Timestamp published_at = 9;
+  // The actor that published the fragment first.
+  scylla.common.v1.Id published_by = 10;
+  // The actors that starred the package.
+  uint32 stars = 11;
+  // The display name of the user that published the fragment first, or empty for an actor that is
+  // not a user.
+  string published_by_name = 12;
+}

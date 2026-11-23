@@ -11,6 +11,7 @@ const pipeline = (id: string, secret?: string): Pipeline => ({
   id: { value: id },
   name: `pipeline ${id}`,
   version: 1n,
+  fragmentLinks: [],
   nodes: [
     {
       id: 'build',

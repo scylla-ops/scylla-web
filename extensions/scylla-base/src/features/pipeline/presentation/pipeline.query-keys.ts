@@ -35,3 +35,15 @@ export const NODE_TEMPLATES_QUERY_KEY = () => ['node-templates'] as const;
 
 export const CREATE_PIPELINE_MUTATION_KEY = ['pipeline', 'create'] as const;
 export const RUN_PIPELINE_MUTATION_KEY = ['pipeline', 'run'] as const;
+
+/** The libraries: a root of their own. A save of the links of a pipeline refreshes their usages. */
+export const FRAGMENTS_QUERY_ROOT = ['fragments'] as const;
+
+export const FRAGMENTS_QUERY_KEY = (workspaceId: string) => [...FRAGMENTS_QUERY_ROOT, workspaceId] as const;
+
+/** Under the library: a new version or a favorite refreshes both. */
+export const FRAGMENT_QUERY_KEY = (workspaceId: string, fragmentId: string) =>
+  [...FRAGMENTS_QUERY_KEY(workspaceId), fragmentId] as const;
+
+export const FRAGMENT_LINKS_QUERY_KEY = (pipelineId: string) =>
+  ['fragment-links', pipelineId] as const;

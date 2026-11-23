@@ -1,0 +1,16 @@
+/* The colours of the app on every Svelte Flow canvas: the editor and the page of a fragment. */
+.svelte-flow__controls-button {
+  --xy-controls-button-background-color: var(--card);
+  --xy-controls-button-background-color-hover: var(--muted);
+  --xy-controls-button-color: var(--foreground);
+  --xy-controls-button-color-hover: var(--foreground);
+  --xy-controls-button-border-color: var(--border);
+}
+
+.svelte-flow__attribution {
+  background: transparent;
+}
+
+.svelte-flow__edge:not(.selected):hover .svelte-flow__edge-path {
+  stroke: var(--muted-foreground) !important;
+}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
+  import type { FragmentLink } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
   import { createNodePlaces } from './blueprint/node-places.state.svelte.ts';
@@ -8,6 +9,7 @@
     type MissingDocument,
   } from './pipeline-document.state.svelte.ts';
   import { pipelineIssueText } from '@base/features/pipeline/presentation/presenters/pipeline-issue.presenter.ts';
+  import { createFragmentLinks } from './fragment-links.state.svelte.ts';
   import { warnBeforeUnload } from './unsaved-changes.effect.svelte.ts';
   import { createCanvasCurtain } from './blueprint/canvas/CanvasCurtain/canvas-curtain.state.svelte.ts';
   import CanvasCurtain from './blueprint/canvas/CanvasCurtain/CanvasCurtain.svelte';
@@ -24,6 +26,7 @@
       name: string;
       nodes: PipelineNodeEntity[];
       layout?: PipelineLayout;
+      links: FragmentLink[];
     }) => void;
     /** The places that the server holds. */
     savedLayout?: PipelineLayout | null;
@@ -32,6 +35,8 @@
     onPlacesMoved?: (places: PipelineLayout) => void;
     /** A default draft, or a fetched pipeline. */
     initialScript?: string;
+    /** The fragments that the saved pipeline links. A new pipeline links none. */
+    initialLinks?: FragmentLink[];
     projectId?: string;
     /** A saved pipeline: the header can export it as a file. */
     pipelineId?: string;
@@ -51,6 +56,7 @@
     savedNodeIds = [],
     onPlacesMoved,
     initialScript,
+    initialLinks,
     projectId,
     pipelineId,
     exportIssue,
@@ -63,7 +69,9 @@
     projectId: () => projectId ?? '',
     initialScript: () => initialScript,
   });
-  warnBeforeUnload(() => doc.isDirty);
+  const links = createFragmentLinks({ initial: () => initialLinks });
+  const isDirty = $derived(doc.isDirty || links.isDirty);
+  warnBeforeUnload(() => isDirty);
 
   const places = createNodePlaces({
     savedIds: () => savedNodeIds,
@@ -80,7 +88,12 @@
   const handleSubmit = () => {
     if (doc.isValid) {
       const layout = places.waiting();
-      onSubmit({ name: doc.pipelineName, nodes: doc.nodes, ...(layout && { layout }) });
+      onSubmit({
+        name: doc.pipelineName,
+        nodes: doc.nodes,
+        links: links.current,
+        ...(layout && { layout }),
+      });
     }
   };
 </script>
@@ -100,7 +113,7 @@
       submitDisabled={!doc.isValid}
       issue={doc.issue ? pipelineIssueText(doc.issue) : undefined}
       blueprintDisabled={!missing && !doc.isValid}
-      isDirty={doc.isDirty}
+      {isDirty}
       isSaving={isSubmitPending}
       pipelineName={doc.pipelineName}
       onNameChange={name => doc.setName(name)}
@@ -125,6 +138,9 @@
             pipelineName={doc.pipelineName}
             {projectId}
             onNodesChange={nodes => doc.setNodes(nodes)}
+            links={links.current}
+            onLinksChange={next => links.set(next)}
+            linkable={!!pipelineId}
             {savedLayout}
             {places}
             onReady={() => (canvasReady = true)}
@@ -142,6 +158,6 @@
     onOpenChange={open => (exporting = open)}
     {pipelineId}
     pipelineName={doc.pipelineName}
-    dirty={doc.isDirty}
+    dirty={isDirty}
   />
 {/if}
