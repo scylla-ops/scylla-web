@@ -598,6 +598,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The "Legal and privacy" menu and the links to the other legal documents show the name of each
   document in the language of the UI. Before, they showed the title that the operator wrote, in one
   language. Only the page of the document shows this title, above its text.
+- The pipeline editor no longer asks "Leave without saving?" after a successful Create or Save, also
+  after a new fragment block and a click on Stay. The status goes from "Saving…" to "All changes
+  saved", and a typed name shows "Unsaved changes" at once. A failed save shows the translated
+  message, and the unsaved icon has a stronger color in the light theme.
 
 ## [0.6.0] - 2026-11-01
 

@@ -33,6 +33,8 @@
     saveError?: string;
     pipelineName: string;
     onNameChange: (name: string) => void;
+    /** The text of the name field at each key, before it is applied. */
+    onNameDraft?: (name: string) => void;
     /** A saved pipeline: the header shows Export, which writes it as a file of the repository. */
     onExport?: () => void;
     /** Why the saved pipeline cannot be exported: Export shows it and opens nothing. */
@@ -52,6 +54,7 @@
     saveError,
     pipelineName,
     onNameChange,
+    onNameDraft,
     onExport,
     exportIssue,
   }: Props = $props();
@@ -97,6 +100,7 @@
       <PipelineNameField
         name={pipelineName}
         {onNameChange}
+        onDraftChange={onNameDraft}
         loading={missing === 'loading'}
         disabled={blueprintDisabled || missing === 'failed'}
       />
@@ -124,7 +128,7 @@
         title={statusText}
         class={cn(
           'inline-flex size-8 shrink-0 items-center justify-center transition-colors duration-300',
-          status === 'dirty' && 'text-warning',
+          status === 'dirty' && 'text-warning-strong',
           status === 'error' && 'text-destructive',
           status !== 'dirty' && status !== 'error' && 'text-muted-foreground',
         )}

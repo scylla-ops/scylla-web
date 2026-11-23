@@ -87,7 +87,9 @@ try {                                                           // a caller that
   since it was read. It is not transient: sending the same call again does not resolve it. The
   protos do not carry the version, so a page cannot send one. On a mutation, `reportQueryError`
   tells the conflict and invalidates every query. `userMessage()` has no sentence for it: a query
-  that gets the code shows the generic text.
+  that gets the code shows the generic text. `mutationMessage()` is the text of a failed write:
+  the sentence of the conflict for `ABORTED`, else `userMessage()`. The toast and a page that
+  shows the failure of its save (the pipeline editor) use it, so they say the same.
 - When a generic code means something more precise for one call, catch it in the repository,
   and throw a new `ScyllaError` (see [`login`](../features/login/AGENTS.md):
   `UNAUTHENTICATED` → `INVALID_CREDENTIALS`), rather than special-casing it in every consumer.

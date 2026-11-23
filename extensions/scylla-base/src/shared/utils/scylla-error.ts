@@ -172,6 +172,14 @@ export class ScyllaError extends Error {
     return t`An unexpected error occurred`;
   }
 
+  /** What a failed write tells the user: a conflict asks for a look at the latest version. */
+  public mutationMessage(): string {
+    if (this.isConflict()) {
+      return t`Someone else changed this item in the meantime. Check the latest version and try again.`;
+    }
+    return this.userMessage();
+  }
+
   /**
    * A refusal of the server is written in development only. A server fault or a bug is written
    * in production too, with its cause: it is what a user can send to the support.

@@ -88,6 +88,40 @@ describe('createPipelineDocument', () => {
 
       expect(seen).toEqual({ script: named('after'), isDirty: false });
     });
+
+    it('follows the new version after a save of the edit succeeded', () => {
+      const seen = refetched(script => {
+        script.setScript(named('mine'));
+        script.markSaved(named('mine'));
+      });
+
+      expect(seen).toEqual({ script: named('after'), isDirty: false });
+    });
+  });
+
+  describe('markSaved', () => {
+    it('makes the saved script clean at once, before the server sends it back', () => {
+      withScript(document, script => {
+        script.setName('weekly');
+        flushSync();
+        expect(script.isDirty).toBe(true);
+
+        script.markSaved(script.script);
+
+        expect(script.isDirty).toBe(false);
+      });
+    });
+
+    it('keeps an edit made while the save was sent unsaved', () => {
+      withScript(document, script => {
+        script.setName('weekly');
+        const sent = script.script;
+        script.setName('monthly');
+        script.markSaved(sent);
+
+        expect(script.isDirty).toBe(true);
+      });
+    });
   });
 
   it('writes new nodes and a new name into the document', () => {

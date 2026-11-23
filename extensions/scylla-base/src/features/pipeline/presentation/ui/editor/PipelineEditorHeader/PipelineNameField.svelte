@@ -10,12 +10,14 @@
     /** Read once: the header rebuilds the field when the document's name changes. */
     name: string;
     onNameChange: (name: string) => void;
+    /** The draft at each change: the editor shows a typed name as unsaved before it is applied. */
+    onDraftChange?: (draft: string) => void;
     disabled?: boolean;
     /** The name is on its way: a placeholder takes its place, with no shift when it comes. */
     loading?: boolean;
   }
 
-  let { name, onNameChange, disabled = false, loading = false }: Props = $props();
+  let { name, onNameChange, onDraftChange, disabled = false, loading = false }: Props = $props();
 
   const uid = $props.id();
 
@@ -24,9 +26,14 @@
   let draft = $state(name);
   const issue = $derived(pipelineNameIssue(draft));
 
+  const setDraft = (next: string) => {
+    draft = next;
+    onDraftChange?.(next);
+  };
+
   const apply = () => {
     const next = draft.trim();
-    if (issue) draft = name;
+    if (issue) setDraft(name);
     else if (next !== name) onNameChange(next);
   };
 </script>
@@ -53,7 +60,7 @@
     {:else}
       <input
         class="field-sizing-content h-full max-w-120 min-w-32 shrink bg-transparent px-2.5 font-mono text-sm outline-none placeholder:text-muted-foreground"
-        bind:value={draft}
+        bind:value={() => draft, setDraft}
         {disabled}
         placeholder={t(pipelineMessages.namePlaceholder)}
         aria-invalid={issue === 'spaces'}
@@ -62,7 +69,7 @@
         onkeydown={event => {
           if (event.key === 'Enter') event.currentTarget.blur();
           if (event.key === 'Escape') {
-            draft = name;
+            setDraft(name);
             event.currentTarget.blur();
           }
         }}

@@ -146,6 +146,20 @@ describe('PipelineEditorHeader', () => {
     expect(name).toHaveValue('nightly');
   });
 
+  it('tells each key of a typed name before it is applied, and the saved name on Escape', async () => {
+    const onNameDraft = vi.fn();
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ onNameDraft });
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.type(name, '-v');
+    expect(onNameDraft).toHaveBeenLastCalledWith('nightly-v');
+    expect(onNameChange).not.toHaveBeenCalled();
+
+    await userEvent.keyboard('{Escape}');
+    expect(onNameDraft).toHaveBeenLastCalledWith('nightly');
+  });
+
   it('shows Export for a saved pipeline only, to a user who may read it', async () => {
     const onExport = vi.fn();
     grantOnly(Permission.UPDATE_PIPELINE, Permission.READ_PIPELINE);

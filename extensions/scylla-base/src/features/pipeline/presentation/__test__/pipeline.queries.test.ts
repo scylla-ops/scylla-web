@@ -10,7 +10,12 @@ import type {
 } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 import type { PipelineRepository } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
 import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
-import { pipelineMutations, pipelineQueries, nodeTemplateQueries } from '../pipeline.queries.ts';
+import {
+  pipelineMutations,
+  pipelineQueries,
+  nodeTemplateQueries,
+  returnToProject,
+} from '../pipeline.queries.ts';
 import { SavePipelineUseCase } from '../../domain/use-cases/save-pipeline.use-case.ts';
 
 const toastSuccess = vi.fn();
@@ -242,7 +247,7 @@ describe('pipelineQueries.file', () => {
 });
 
 describe('pipelineMutations.create', () => {
-  it("invalidates that project's list and navigates back to it", () => {
+  it("invalidates that project's list and leaves the return to the editor", () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
@@ -254,20 +259,23 @@ describe('pipelineMutations.create', () => {
 
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline created');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines', 'project-1'] });
+    // The editor goes back once it holds no unsaved change, or its guard would ask to leave.
+    expect(navigator.navigate).not.toHaveBeenCalled();
+  });
+});
+
+describe('returnToProject', () => {
+  it('goes back to the project in context', () => {
+    contextStore.setState({ project: { id: 'project-1', name: 'web' } });
+
+    returnToProject();
+
     expect(navigator.navigate).toHaveBeenCalled();
   });
 
-  it('invalidates the list of its project, but does not navigate without a project in context', () => {
-    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+  it('does not navigate without a project in context', () => {
+    returnToProject();
 
-    runOnSuccess(pipelineMutations.create(), [], {
-      projectId: 'project-1',
-      name: 'ci',
-      nodes: [],
-    });
-
-    expect(toastSuccess).toHaveBeenCalledWith('Pipeline created');
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines', 'project-1'] });
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 });
@@ -291,7 +299,7 @@ describe('pipelineMutations.update', () => {
     expect(repository.edit).not.toHaveBeenCalled();
   });
 
-  it('invalidates the project list and the single-pipeline entry, then returns to the project', () => {
+  it('invalidates the project list and the single-pipeline entry, and leaves the return to the editor', () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
     const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
 
@@ -299,13 +307,6 @@ describe('pipelineMutations.update', () => {
 
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines', 'project-1'] });
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipeline', 'pipeline-1'] });
-    expect(toastSuccess).toHaveBeenCalledWith('Pipeline edited');
-    expect(navigator.navigate).toHaveBeenCalled();
-  });
-
-  it('does not navigate when there is no active project in context', () => {
-    runOnSuccess(pipelineMutations.update(), [], edited);
-
     expect(toastSuccess).toHaveBeenCalledWith('Pipeline edited');
     expect(navigator.navigate).not.toHaveBeenCalled();
   });

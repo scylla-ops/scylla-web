@@ -204,6 +204,8 @@ presentation/
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
                                              check, the issue that stops the save; MissingDocument
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
+      unsaved-changes.state.svelte.ts        createUnsavedChanges: the document, the links and a typed
+                                             name; the version that a save sends
       fragment-links.state.svelte.ts         the links of the edited pipeline, and their dirty check
       PipelineEditorHeader/                  the header, with the name field and Export
       ExportPipelineDialog/                  the export as a file: one tab per format, copy, download
@@ -368,7 +370,15 @@ the page.
   and the baseline for the dirty check. It is UI state, not server state. Never put the fetched 
   `PipelineEntity` in it. A refetch moves the baseline and never erases an unsaved edit: the
   document follows the server only when it is clean. So a failed background refetch keeps the
-  editor too (`isLoadingError`, not `isError`, in `PipelineUpdate.page.svelte`).
+  editor too (`isLoadingError`, not `isError`, in `PipelineUpdate.page.svelte`). The fragment
+  links follow the same rule (`fragment-links.state.svelte.ts`).
+- **A save that succeeds makes the sent version the saved one at once** (`createUnsavedChanges`:
+  `send()`, then `markSaved` on the document and the links), before the server sends it back. The
+  page calls `done` in the `onSuccess` of `mutate`, and the editor then calls `onSaved`, which goes
+  back to the project (`returnToProject`). `pipelineMutations.create` and `update` do not navigate:
+  their `onSuccess` runs before `done`, and the leave guard would hold the navigation. The guard
+  reads the dirty state at each navigation, not at the last run of its effect. A failed save marks
+  nothing: the guard stays. A name that is typed and not applied yet is an unsaved change too.
 - **The blueprint has one side panel, on the right.** It shows `blueprint.inspected`, which only
   a click sets (`blueprint.inspect(id)`): a click on a node, a click on a palette entry, a pick in
   `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);

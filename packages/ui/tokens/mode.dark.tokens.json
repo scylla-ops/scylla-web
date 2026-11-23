@@ -35,6 +35,7 @@
   "error-foreground": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.9569,0.9686,0.9216],"alpha":1,"hex":"#f4f7eb"}},
   "warning": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.9255,0.6588,0.3176],"alpha":1,"hex":"#eca851"}},
   "warning-foreground": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.0902,0.0902,0.0824],"alpha":1,"hex":"#171715"}},
+  "warning-strong": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.9255,0.6588,0.3176],"alpha":1,"hex":"#eca851"}},
   "info": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.251,0.5922,0.651],"alpha":1,"hex":"#4097a6"}},
   "info-foreground": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.9569,0.9686,0.9216],"alpha":1,"hex":"#f4f7eb"}},
   "status-queued": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.5569,0.5608,0.5412],"alpha":1,"hex":"#8e8f8a"}},

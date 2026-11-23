@@ -1,3 +1,4 @@
+import { untrack } from 'svelte';
 import type { FragmentLink } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
 
 export interface FragmentLinksParams {
@@ -13,13 +14,15 @@ export const createFragmentLinks = (params: FragmentLinksParams) => {
   let links = $state<FragmentLink[]>([]);
   let baseline = $state('[]');
 
-  // Like the script: the saved links arrive after the first render, and again after each save.
+  // Like the script: the saved links arrive after the first render, and again after each save. A
+  // refetch moves the baseline and keeps the links that are not saved.
   $effect(() => {
     const initial = params.initial();
     if (initial === undefined) return;
 
-    links = initial;
+    const isClean = untrack(() => JSON.stringify(links) === baseline);
     baseline = JSON.stringify(initial);
+    if (isClean) links = initial;
   });
 
   const isDirty = $derived(JSON.stringify(links) !== baseline);
@@ -35,5 +38,12 @@ export const createFragmentLinks = (params: FragmentLinksParams) => {
     set(next: FragmentLink[]) {
       links = next;
     },
+
+    /** The server holds these links now: a save of them succeeded. */
+    markSaved(saved: FragmentLink[]) {
+      baseline = JSON.stringify(saved);
+    },
   };
 };
+
+export type FragmentLinks = ReturnType<typeof createFragmentLinks>;

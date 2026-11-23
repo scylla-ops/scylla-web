@@ -405,6 +405,10 @@ msgstr "Skipped"
 msgid "Some projects"
 msgstr "Some projects"
 
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:178
+msgid "Someone else changed this item in the meantime. Check the latest version and try again."
+msgstr "Someone else changed this item in the meantime. Check the latest version and try again."
+
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:5
 msgid "Started {time}"
 msgstr "Started {time}"

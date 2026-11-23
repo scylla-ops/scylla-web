@@ -182,8 +182,11 @@ const save = async (input: SavePipelineInput): Promise<string[]> => {
   }
 };
 
-/** Needs the name too: `goToProject` writes it into the context (the breadcrumb). */
-const returnToProject = () => {
+/**
+ * Needs the name too: `goToProject` writes it into the context (the breadcrumb). The editor calls
+ * it after a save, once it holds no unsaved change: else its guard would hold the navigation.
+ */
+export const returnToProject = () => {
   const { id, name } = currentProject();
   if (id && name) scyllaNavigate.goToProject(id, name);
 };
@@ -214,7 +217,6 @@ export const pipelineMutations = {
         void getQueryClient().invalidateQueries({
           queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId),
         });
-        returnToProject();
       },
     }),
 
@@ -237,7 +239,6 @@ export const pipelineMutations = {
           const blocks = new Intl.ListFormat(activeLocale(), { type: 'unit' }).format(detached);
           toast.warning(t(libraryMessages.blocksDetached(blocks)));
         }
-        returnToProject();
       },
     }),
 

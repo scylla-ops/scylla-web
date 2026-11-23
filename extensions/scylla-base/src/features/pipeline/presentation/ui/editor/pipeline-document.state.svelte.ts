@@ -71,6 +71,11 @@ export const createPipelineDocument = (params: PipelineDocumentParams) => {
       const renamed = pipelineDocument.withName(parsed.document, name);
       if (renamed !== null) script = renamed;
     },
+
+    /** The server holds this script now: a save of it succeeded. */
+    markSaved(saved: string) {
+      baseline = saved;
+    },
   };
 };
 

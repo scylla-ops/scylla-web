@@ -148,6 +148,31 @@ describe('ScyllaError', () => {
     });
   });
 
+  describe('mutationMessage', () => {
+    it('tells a write refused by a conflict in the words of the app, never the server text', () => {
+      expect(
+        new ScyllaError('the pipeline changed: read it again', {
+          code: 'ABORTED',
+          raw: true,
+        }).mutationMessage(),
+      ).toBe(
+        'Someone else changed this item in the meantime. Check the latest version and try again.',
+      );
+    });
+
+    it('gives the user message of any other failure', () => {
+      expect(
+        new ScyllaError('name must be unique', {
+          code: 'ALREADY_EXISTS',
+          raw: true,
+        }).mutationMessage(),
+      ).toBe('name must be unique');
+      expect(
+        new ScyllaError('panic at db.rs:42', { code: 'INTERNAL', raw: true }).mutationMessage(),
+      ).toBe('An unexpected error occurred');
+    });
+  });
+
   describe('log', () => {
     afterEach(() => {
       vi.unstubAllEnvs();
