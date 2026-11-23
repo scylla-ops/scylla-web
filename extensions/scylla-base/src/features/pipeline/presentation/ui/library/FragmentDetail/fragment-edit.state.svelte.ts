@@ -10,6 +10,7 @@ import type {
   PipelineNodeEntity,
 } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
+  addNode,
   removeNode,
   renameNode,
   updateNode,
@@ -76,6 +77,19 @@ export const createFragmentEdit = ({ fragment, author, editable }: Options) => {
     rename(id: string, desired: string): string {
       const change = renameNode(nodes, id, desired);
       keep(change.nodes);
+      selectedId = change.id;
+      return change.id;
+    },
+    /** A node after the port of another one, as a link pulled from it: returns its id, and opens it. */
+    add(desiredId: string, definition: NodeDefinition, after: { node: string; port?: string }) {
+      const change = addNode(nodes, desiredId, definition, after.node);
+      keep(
+        change.nodes.map(node =>
+          node.id === change.id && after.port
+            ? { ...node, deps: [{ node: after.node, port: after.port }] }
+            : node,
+        ),
+      );
       selectedId = change.id;
       return change.id;
     },

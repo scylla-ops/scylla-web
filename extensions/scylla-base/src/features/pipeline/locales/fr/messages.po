@@ -443,8 +443,8 @@ msgid "Clear filters"
 msgstr "Effacer les filtres"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:119
-msgid "Click a node to change it. Your changes become a new version."
-msgstr "Cliquez sur un nœud pour le modifier. Vos modifications deviennent une nouvelle version."
+msgid "Click a node to change it, or pull a link from it to add a node. Your changes become a new version."
+msgstr "Cliquez sur un nœud pour le modifier, ou tirez un lien depuis un nœud pour en ajouter un. Vos modifications deviennent une nouvelle version."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:118
 msgid "Click a node to see its code."

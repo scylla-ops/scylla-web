@@ -116,7 +116,7 @@ export const libraryMessages = {
 
   overview: msg`Content`,
   selectNodeHint: msg`Click a node to see its code.`,
-  editNodeHint: msg`Click a node to change it. Your changes become a new version.`,
+  editNodeHint: msg`Click a node to change it, or pull a link from it to add a node. Your changes become a new version.`,
   whatChanged: msg`What changed?`,
   discardChanges: msg`Discard changes`,
   deleteTitle: msg`Delete this fragment`,

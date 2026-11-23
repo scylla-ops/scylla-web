@@ -56,7 +56,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The inspector of a block removes it from the pipeline. The fragment stays in the library.
 - The Library page of the workspace, with a search, the tags and the favorites, and the page of a
   fragment with its nodes, parameters, versions and usages, and Use in a pipeline.
-- The server has no library yet: the library is kept in the browser, with demo fragments.
+- On the page of a fragment, a link pulled from a node onto empty canvas opens the menu of the
+  editor and adds a node after it, with its port. The change is published as a new version.
 
 **The marketplace of pipelines**
 

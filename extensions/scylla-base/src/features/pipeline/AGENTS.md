@@ -266,7 +266,9 @@ presentation/
                                              tags or sources, the upstream strip (fragment-library.state)
       FragmentDetail/                        one fragment: the graph of its nodes with the inspector of
                                              the editor (FragmentGraph, FragmentNodes; changed and
-                                             published as a version: fragment-edit.state), parameters,
+                                             published as a version: fragment-edit.state; a link
+                                             pulled onto empty canvas adds a node with QuickAddMenu),
+                                             parameters,
                                              versions, usages, delete (DeleteFragmentZone); the
                                              upstream cards, publish, compare and pipeline picker
                                              dialogs (fragment-detail.state, publish-form.state)

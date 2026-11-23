@@ -1,10 +1,15 @@
 <script lang="ts">
+  import { createQuery } from '@scylla/core-sdk';
   import { Button, Card, Input } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import NodeInspector from '@base/features/pipeline/presentation/ui/editor/blueprint/side-panel/NodeInspector/NodeInspector.svelte';
+  import { nodeTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
+  import { catalogEntries, catalogText } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+  import QuickAddMenu from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/QuickAddMenu.svelte';
+  import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import FragmentGraph from './FragmentGraph.svelte';
   import type { FragmentEdit } from './fragment-edit.state.svelte.ts';
 
@@ -22,6 +27,20 @@
   const selected = $derived(nodes.find(node => node.id === selectedId));
   const select = (id: string | null) => (edit ? edit.select(id) : (viewedId = id));
   const editable = $derived(edit?.editable ?? false);
+
+  // A link pulled onto empty canvas adds a node after it, with the menu of the editor.
+  const templatesQuery = createQuery(() => ({
+    ...nodeTemplateQueries.list(),
+    enabled: editable,
+  }));
+  const quickAdd = createQuickAdd({
+    entries: () => catalogEntries(templatesQuery.data ?? []),
+    resolve: catalogText,
+    onPick: (entry, request) => {
+      if ('after' in request.link && request.link.after)
+        edit?.add(entry.nodeId, entry.definition, { node: request.link.after, port: request.link.port });
+    },
+  });
 </script>
 
 <!-- The graph of the latest version, as the editor draws it. A click opens the node beside it. -->
@@ -54,7 +73,12 @@
     {/if}
   </div>
   <div class="flex h-[28rem]">
-    <FragmentGraph {nodes} selectedId={selected?.id ?? null} onSelect={select} />
+    <FragmentGraph
+      {nodes}
+      selectedId={selected?.id ?? null}
+      onSelect={select}
+      onPull={editable ? (after, client) => quickAdd.open({ client, flow: client, link: { after: after.node, port: after.port } }) : undefined}
+    />
     {#if selected}
       <!-- The inspector needs the height of the editor's panel: below it, it scrolls. -->
       <aside class="w-[26rem] max-w-[55%] relative shrink-0 overflow-y-auto border-l bg-card">
@@ -76,3 +100,4 @@
     {/if}
   </div>
 </Card>
+<QuickAddMenu {quickAdd} />
