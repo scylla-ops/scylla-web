@@ -72,7 +72,7 @@
 </script>
 
 <Dialog {open} onOpenChange={next => !next && onClose()}>
-  <SheetContent side="right" overlayClass="bg-black/25" class="w-full gap-0 p-0 sm:max-w-[384px]">
+  <SheetContent side="right" overlayClass="bg-overlay/25" class="w-full gap-0 p-0 sm:max-w-[384px]">
     <header class="flex flex-col gap-0.5 px-5 pt-5 pb-4 pr-12">
       <DialogTitle>{t(DATA[data].title)}</DialogTitle>
       <DialogDescription class="text-xs">

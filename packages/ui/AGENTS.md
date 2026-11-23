@@ -464,6 +464,13 @@ the app: red, and the red comes from a variant.
   Thus a title has no font class and no weight class, and an `h1` has no size, `leading-*` or
   `tracking-*` class. `layout/__test__/title-font.test.ts` fails when it has one. Text that is a
   title is a heading element: a `p` with a large or bold class keeps Funnel Sans.
+- **A color class names a token of the theme** (`text-success`, `bg-info/5`), never a color of
+  the default palette of Tailwind (`text-green-500`, `bg-black`, `text-white`). A palette color
+  does not change with the theme. A new color is a new token in `styles.css`. The dim layer
+  behind a modal, a sheet or the tour is `bg-overlay/<opacity>`, and a line on it is
+  `overlay-foreground`: the two tokens are the same in the two themes.
+  `__test__/theme-colors.test.ts` fails when a class string of `apps`, `packages`, `sdks`,
+  `extensions` or `catalog` names a palette color.
 - **A choice card centers its control.** A radio, a checkbox or a switch in a `Label` (a card
   with a title and a description, or a row) is centered vertically on the whole label, not on
   the line of the title: `items-center` on the label, and no `items-start`, `items-baseline`,

@@ -57,6 +57,8 @@
   "code-editor-line-bg": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.3647,0.6,0.4471],"alpha":0.14,"hex":"#5d9972"}},
   "code-editor-selection-bg": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.4784,0.7529,0.5686],"alpha":0.45,"hex":"#7ac091"}},
   "code-editor-match-bg": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.3647,0.6,0.4471],"alpha":0.35,"hex":"#5d9972"}},
+  "overlay": {"$type":"color","$value":{"colorSpace":"srgb","components":[0,0,0],"alpha":1,"hex":"#000000"}},
+  "overlay-foreground": {"$type":"color","$value":{"colorSpace":"srgb","components":[0.9569,0.9686,0.9216],"alpha":1,"hex":"#f4f7eb"}},
   "radius-xs": {"$type":"dimension","$value":{"value":2,"unit":"px"}},
   "radius-sm": {"$type":"dimension","$value":{"value":6,"unit":"px"}},
   "radius-md": {"$type":"dimension","$value":{"value":8,"unit":"px"}},

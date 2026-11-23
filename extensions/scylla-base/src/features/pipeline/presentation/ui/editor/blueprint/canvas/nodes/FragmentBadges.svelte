@@ -14,7 +14,7 @@
 <!-- Over the top edge of a block: the values it still needs, else the version it can take. -->
 {#if summary.missing}
   <span
-    class="absolute -top-2.5 right-3 rounded-full bg-destructive px-2 py-0.5 text-[10.5px] font-semibold text-white"
+    class="absolute -top-2.5 right-3 rounded-full bg-destructive px-2 py-0.5 text-[10.5px] font-semibold text-destructive-foreground"
   >
     {t(libraryMessages.missingValues(summary.missing))}
   </span>

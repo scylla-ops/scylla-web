@@ -124,7 +124,7 @@
         title={statusText}
         class={cn(
           'inline-flex size-8 shrink-0 items-center justify-center transition-colors duration-300',
-          status === 'dirty' && 'text-amber-500',
+          status === 'dirty' && 'text-warning',
           status === 'error' && 'text-destructive',
           status !== 'dirty' && status !== 'error' && 'text-muted-foreground',
         )}

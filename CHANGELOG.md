@@ -589,6 +589,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   changes of the pipeline editor. A failed read no longer says that someone else changed the item.
 - Show the connection point of a pipeline node when the pointer is near it, and make a link only by
   a pull.
+- The colors of the app follow the theme, also in the dark theme: the cards of the triggers and
+  secrets pages, the live log icon, the menu buttons of the rows, the save icon of the pipeline
+  editor, the access denied page and the text of the destructive buttons and badges. The dim layer
+  behind a dialog, a sheet and the guided tour uses the new `overlay` token.
 
 ## [0.6.0] - 2026-11-01
 

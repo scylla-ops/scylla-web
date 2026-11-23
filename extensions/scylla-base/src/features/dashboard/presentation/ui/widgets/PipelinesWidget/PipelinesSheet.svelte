@@ -17,7 +17,7 @@
 </script>
 
 <Dialog {open} onOpenChange={next => !next && onClose()}>
-  <SheetContent side="right" overlayClass="bg-black/25" class="w-full gap-0 p-0 sm:max-w-[620px]">
+  <SheetContent side="right" overlayClass="bg-overlay/25" class="w-full gap-0 p-0 sm:max-w-[620px]">
     <header class="flex flex-col gap-1 border-b border-border px-5 py-4 pr-12">
       <DialogTitle>{t(widgetMessages.pipelines)}</DialogTitle>
       <DialogDescription class="text-xs">{t(messages.greenOf(green, rows.length))}</DialogDescription>

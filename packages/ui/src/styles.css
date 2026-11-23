@@ -96,6 +96,10 @@
   /* Occurrence + bracket matches: a passive hint, deliberately weaker than the
      selection the user is actively dragging. */
   --code-editor-match-bg: rgba(93, 153, 114, 0.25);
+  /* The dim layer behind a modal, a sheet or the tour, and the lines drawn on it: the same in
+     the two themes. */
+  --overlay: #000000;
+  --overlay-foreground: #F4F7EB;
 }
 
 .dark {
@@ -178,6 +182,8 @@
   --code-editor-selection-bg: rgba(122, 192, 145, 0.45);
   /* Matches keep the restrained accent — see the light-theme note above. */
   --code-editor-match-bg: rgba(93, 153, 114, 0.35);
+  --overlay: #000000;
+  --overlay-foreground: #F4F7EB;
 }
 
 @theme inline {
@@ -249,6 +255,9 @@
   --color-status-failed: var(--status-failed);
   --color-status-canceled: var(--status-canceled);
   --color-status-skipped: var(--status-skipped);
+
+  --color-overlay: var(--overlay);
+  --color-overlay-foreground: var(--overlay-foreground);
 }
 
 @layer base {
