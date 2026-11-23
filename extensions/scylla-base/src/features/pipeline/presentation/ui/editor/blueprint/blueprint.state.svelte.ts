@@ -297,6 +297,10 @@ export const createBlueprint = (params: BlueprintParams) => {
     get selectedNodes() {
       return selectedNodes;
     },
+    /** A box selection, of one node or more: a click on one node opens its inspector instead. */
+    get selecting() {
+      return !readOnly && (selectedNodes.length > 1 || (selectedNodes.length === 1 && !inspected));
+    },
     /** The links that the blocks of the graph hold. */
     get links() {
       return linksOf(flowNodes);

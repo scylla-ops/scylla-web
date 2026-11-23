@@ -55,11 +55,11 @@ msgstr "{count, plural, one {# pipeline uses it} other {# pipelines use it}}: th
 msgid "{count, plural, one {# run in total} other {# runs in total}}"
 msgstr "{count, plural, one {# run in total} other {# runs in total}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:51
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:53
 msgid "{count, plural, one {# secret} other {# secrets}}"
 msgstr "{count, plural, one {# secret} other {# secrets}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:50
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:52
 msgid "{count, plural, one {# variable} other {# variables}}"
 msgstr "{count, plural, one {# variable} other {# variables}}"
 
@@ -288,7 +288,7 @@ msgstr "Added by {name} · {date}"
 msgid "Added to the library"
 msgstr "Added to the library"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:44
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:46
 msgid "After"
 msgstr "After"
 
@@ -315,7 +315,7 @@ msgstr "Any"
 msgid "Any Scylla organization will be able to add it. {workspace} stays the owner and the only one who can publish versions."
 msgstr "Any Scylla organization will be able to add it. {workspace} stays the owner and the only one who can publish versions."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:47
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:49
 msgid "Applied to the draft"
 msgstr "Applied to the draft"
 
@@ -454,7 +454,7 @@ msgstr "Click a node to change it. Your changes become a new version."
 msgid "Click a node to see its code."
 msgstr "Click a node to see its code."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:46
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:48
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:70
 msgid "Close"
 msgstr "Close"
@@ -471,7 +471,7 @@ msgstr "Close the menu"
 msgid "Close the pane"
 msgstr "Close the pane"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:45
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:47
 msgid "Close the panel"
 msgstr "Close the panel"
 
@@ -480,7 +480,7 @@ msgctxt "node-kind"
 msgid "cmd"
 msgstr "cmd"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:43
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:45
 msgid "Code"
 msgstr "Code"
 
@@ -647,7 +647,7 @@ msgstr "Detaching breaks the link: future versions will no longer be proposed."
 msgid "Detail"
 msgstr "Detail"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:40
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:42
 msgid "Detailed"
 msgstr "Detailed"
 
@@ -682,6 +682,10 @@ msgstr "drafts included"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:32
 msgid "drafts skipped"
 msgstr "drafts skipped"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:40
+msgid "Drag a box around nodes to select them, then save them to the library. Shift does the same."
+msgstr "Drag a box around nodes to select them, then save them to the library. Shift does the same."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:8
 msgid "Drag a node onto the canvas, or drop a link on empty space to add one."
@@ -1194,7 +1198,7 @@ msgstr "No fragment matches this search."
 msgid "No fragment of the marketplace yet. Browse the marketplace to add one, linked or as a fork."
 msgstr "No fragment of the marketplace yet. Browse the marketplace to add one, linked or as a fork."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:48
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:50
 msgid "No input link"
 msgstr "No input link"
 
@@ -1254,7 +1258,7 @@ msgstr "Node of the output"
 msgid "Node properties"
 msgstr "Node properties"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:39
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:41
 msgid "Node style"
 msgstr "Node style"
 
@@ -1679,6 +1683,10 @@ msgstr "Secrets"
 msgid "Security"
 msgstr "Security"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:39
+msgid "Select"
+msgstr "Select"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:42
 msgid "Select a project first"
 msgstr "Select a project first"
@@ -1707,7 +1715,7 @@ msgstr "Show or hide the node properties"
 msgid "Show or hide the nodes"
 msgstr "Show or hide the nodes"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:41
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:43
 msgid "Simplified"
 msgstr "Simplified"
 
@@ -1917,7 +1925,7 @@ msgstr "This fragment is not in the library."
 msgid "This node cannot run as it is."
 msgstr "This node cannot run as it is."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:49
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:51
 msgid "This node has no input link. On save, it is linked to the start of the pipeline."
 msgstr "This node has no input link. On save, it is linked to the start of the pipeline."
 

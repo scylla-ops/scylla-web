@@ -149,3 +149,37 @@ describe('createBlueprint: the blocks of the library', () => {
     });
   });
 });
+
+describe('createBlueprint: the selection that the library saves', () => {
+  const select = (blueprint: ReturnType<typeof createBlueprint>, ids: string[]) => {
+    blueprint.flowNodes = blueprint.flowNodes.map(flowNode => ({
+      ...flowNode,
+      selected: ids.includes(flowNode.id),
+    }));
+    flushSync();
+  };
+
+  it('takes one node that a box selected, so a single node can become a fragment', () => {
+    withBlueprint({ nodes: [execNode('build'), execNode('test', ['build'])] }, blueprint => {
+      select(blueprint, ['build']);
+      expect(blueprint.selecting).toBe(true);
+    });
+  });
+
+  it('leaves one clicked node to its inspector', () => {
+    withBlueprint({ nodes: [execNode('build'), execNode('test', ['build'])] }, blueprint => {
+      select(blueprint, ['build']);
+      blueprint.inspect('build');
+      flushSync();
+      expect(blueprint.selecting).toBe(false);
+    });
+  });
+
+  it('takes a box of two nodes drawn while a node is inspected', () => {
+    withBlueprint({ nodes: [execNode('build'), execNode('test', ['build'])] }, blueprint => {
+      blueprint.inspect('build');
+      select(blueprint, ['build', 'test']);
+      expect(blueprint.selecting).toBe(true);
+    });
+  });
+});

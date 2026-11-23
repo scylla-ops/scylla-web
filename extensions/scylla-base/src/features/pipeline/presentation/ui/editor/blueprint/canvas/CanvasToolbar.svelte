@@ -1,5 +1,6 @@
 <script lang="ts">
   import LayoutGridIcon from '@lucide/svelte/icons/layout-grid';
+  import SquareDashedMousePointerIcon from '@lucide/svelte/icons/square-dashed-mouse-pointer';
   import { Panel } from '@xyflow/svelte';
   import { SegmentedControl } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
@@ -15,9 +16,13 @@
     appearance: NodeAppearance;
     onAppearanceChange: (appearance: NodeAppearance) => void;
     onArrange: () => void;
+    /** Undefined: the canvas is read-only, and has no selection. */
+    selectMode?: boolean;
+    onSelectModeChange?: (selectMode: boolean) => void;
   }
 
-  let { appearance, onAppearanceChange, onArrange }: Props = $props();
+  let { appearance, onAppearanceChange, onArrange, selectMode, onSelectModeChange }: Props =
+    $props();
 
   const options = $derived(
     NODE_APPEARANCES.map(value => ({
@@ -40,6 +45,19 @@
     size="sm"
   />
   <div class="mx-0.5 h-5 w-px bg-border"></div>
+  {#if selectMode !== undefined}
+    <Button
+      variant={selectMode ? 'secondary' : 'ghost'}
+      size="sm"
+      class="h-7"
+      aria-pressed={selectMode}
+      title={t(blueprintMessages.selectModeHint)}
+      onclick={() => onSelectModeChange?.(!selectMode)}
+    >
+      <SquareDashedMousePointerIcon class="size-4" />
+      {t(blueprintMessages.selectMode)}
+    </Button>
+  {/if}
   <Button variant="ghost" size="sm" class="h-7" onclick={onArrange}>
     <LayoutGridIcon class="size-4" />
     {t(blueprintMessages.arrange)}

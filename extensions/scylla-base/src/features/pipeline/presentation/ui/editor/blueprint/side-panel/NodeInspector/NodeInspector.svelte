@@ -107,17 +107,6 @@
       <fieldset disabled={readOnly} class="contents">
         <NodeIdField {draft} />
       </fieldset>
-      {#if onSaveToLibrary && !readOnly}
-        <Button
-          variant="ghost"
-          size="icon-sm"
-          aria-label={t(libraryMessages.saveToLibrary)}
-          title={t(libraryMessages.saveToLibrary)}
-          onclick={onSaveToLibrary}
-        >
-          <BookmarkPlusIcon class="size-4" />
-        </Button>
-      {/if}
       <Button
         variant="ghost"
         size="icon-sm"
@@ -152,6 +141,13 @@
         {/each}
       {/if}
     </div>
+
+    {#if onSaveToLibrary && !readOnly}
+      <Button variant="outline" size="sm" class="self-start" onclick={onSaveToLibrary}>
+        <BookmarkPlusIcon class="size-4" />
+        {t(libraryMessages.saveToLibrary)}
+      </Button>
+    {/if}
   </div>
 
   <fieldset disabled={readOnly} class="contents">

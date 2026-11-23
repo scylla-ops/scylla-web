@@ -36,6 +36,8 @@ export const blueprintMessages = {
   retry: msg`Try again`,
 
   arrange: msg`Arrange`,
+  selectMode: msg`Select`,
+  selectModeHint: msg`Drag a box around nodes to select them, then save them to the library. Shift does the same.`,
   nodeStyle: msg`Node style`,
   styleDetailed: msg`Detailed`,
   styleMinimal: msg`Simplified`,

@@ -55,11 +55,11 @@ msgstr "{count, plural, one {# pipeline l'utilise} other {# pipelines l'utilisen
 msgid "{count, plural, one {# run in total} other {# runs in total}}"
 msgstr "{count, plural, one {# job au total} other {# jobs au total}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:51
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:53
 msgid "{count, plural, one {# secret} other {# secrets}}"
 msgstr "{count, plural, one {# secret} other {# secrets}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:50
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:52
 msgid "{count, plural, one {# variable} other {# variables}}"
 msgstr "{count, plural, one {# variable} other {# variables}}"
 
@@ -288,7 +288,7 @@ msgstr "Ajouté par {name} · {date}"
 msgid "Added to the library"
 msgstr "Ajouté à la librairie"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:44
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:46
 msgid "After"
 msgstr "Après"
 
@@ -315,7 +315,7 @@ msgstr "Au moins une"
 msgid "Any Scylla organization will be able to add it. {workspace} stays the owner and the only one who can publish versions."
 msgstr "Toute organisation Scylla pourra l'ajouter. {workspace} en reste propriétaire et seul à pouvoir publier des versions."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:47
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:49
 msgid "Applied to the draft"
 msgstr "Appliqué au brouillon"
 
@@ -454,7 +454,7 @@ msgstr "Cliquez sur un nœud pour le modifier. Vos modifications deviennent une 
 msgid "Click a node to see its code."
 msgstr "Cliquez sur un nœud pour voir son code."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:46
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:48
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:70
 msgid "Close"
 msgstr "Fermer"
@@ -471,7 +471,7 @@ msgstr "Fermer le menu"
 msgid "Close the pane"
 msgstr "Fermer le volet"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:45
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:47
 msgid "Close the panel"
 msgstr "Fermer le panneau"
 
@@ -480,7 +480,7 @@ msgctxt "node-kind"
 msgid "cmd"
 msgstr "cmd"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:43
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:45
 msgid "Code"
 msgstr "Code"
 
@@ -647,7 +647,7 @@ msgstr "Détacher rompt le lien : les prochaines versions ne seront plus propos�
 msgid "Detail"
 msgstr "Détail"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:40
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:42
 msgid "Detailed"
 msgstr "Détaillé"
 
@@ -682,6 +682,10 @@ msgstr "brouillons inclus"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:32
 msgid "drafts skipped"
 msgstr "brouillons ignorés"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:40
+msgid "Drag a box around nodes to select them, then save them to the library. Shift does the same."
+msgstr "Tracez un cadre autour des nœuds pour les sélectionner, puis enregistrez-les dans la librairie. Maj fait la même chose."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:8
 msgid "Drag a node onto the canvas, or drop a link on empty space to add one."
@@ -1194,7 +1198,7 @@ msgstr "Aucun fragment ne correspond à cette recherche."
 msgid "No fragment of the marketplace yet. Browse the marketplace to add one, linked or as a fork."
 msgstr "Aucun fragment de la marketplace pour l'instant. Parcourez la marketplace pour en ajouter un, lié ou en fork."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:48
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:50
 msgid "No input link"
 msgstr "Aucun lien en entrée"
 
@@ -1254,7 +1258,7 @@ msgstr "Nœud de la sortie"
 msgid "Node properties"
 msgstr "Propriétés du nœud"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:39
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:41
 msgid "Node style"
 msgstr "Style des nœuds"
 
@@ -1679,6 +1683,10 @@ msgstr "Secrets"
 msgid "Security"
 msgstr "Sécurité"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:39
+msgid "Select"
+msgstr "Sélectionner"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:42
 msgid "Select a project first"
 msgstr "Sélectionnez d'abord un projet"
@@ -1707,7 +1715,7 @@ msgstr "Afficher ou masquer les propriétés du nœud"
 msgid "Show or hide the nodes"
 msgstr "Afficher ou masquer les nœuds"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:41
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:43
 msgid "Simplified"
 msgstr "Simplifié"
 
@@ -1917,7 +1925,7 @@ msgstr "Ce fragment n'est pas dans la librairie."
 msgid "This node cannot run as it is."
 msgstr "Ce nœud ne peut pas s'exécuter en l'état."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:49
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:51
 msgid "This node has no input link. On save, it is linked to the start of the pipeline."
 msgstr "Ce nœud n'a aucun lien en entrée. À l'enregistrement, il sera relié au départ de la pipeline."
 

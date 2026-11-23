@@ -51,7 +51,7 @@
   const node = $derived(blueprint.inspected ? nodeOf(blueprint.inspected) : undefined);
   const block = $derived(blueprint.inspectedBlock);
   const mode = $derived<Mode>(
-    node ? 'inspector' : block ? 'block' : blueprint.selectedNodes.length > 1 ? 'selection' : 'palette',
+    node ? 'inspector' : block ? 'block' : blueprint.selecting ? 'selection' : 'palette',
   );
   const close = () => blueprint.inspect(null);
 </script>

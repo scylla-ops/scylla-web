@@ -143,8 +143,10 @@ editor's edge: the rest of the module derives during render with Runes.
 ## The library of fragments
 
 A fragment is some nodes of a pipeline, saved in the library of the workspace. In the blueprint,
-a box selection of nodes is saved with **Save to library**: the dialog detects the variables of
-the nodes, which become the parameters of the fragment, and puts one block in place of the nodes.
+a box selection of nodes (the **Select** button of the toolbar, or Shift and a drag) is saved
+with **Save to library**, and so is one node, also from its inspector. The dialog detects the
+variables of the nodes, which become the parameters of the fragment, and puts one block in place
+of the nodes.
 The **Library** tab of the palette inserts a fragment on a link or in empty space, and asks for a
 secret that has no value.
 

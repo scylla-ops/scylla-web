@@ -367,7 +367,10 @@ the page.
   `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
   a click on the empty canvas closes it. Nothing inspected: the palette. A node: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
-  xyflow's and is not the panel's state.
+  xyflow's and is not the panel's state. `blueprint.selecting` tells when the selection panel and
+  the selection bar show: two nodes or more, or one node that a box selected (a click inspects it,
+  as `inspect` keeps only the clicked node selected). The **Select** button of `CanvasToolbar`
+  sets `selectionOnDrag` (a local `$state` of `BlueprintCanvas`), as Shift does.
 - **The scripting tab edits the document, never a copy.** `createPipelineScripting` reads
   `doc.nodes` and writes `doc.setNodes(...)` with the operations of `domain/entities/pipeline.entity.ts`,
   as the blueprint does. The nodes are views of the document, not files. A document that does

@@ -47,7 +47,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 **The library of pipelines**
 
 - In the blueprint, a box selection of nodes is saved to the library of the workspace, with a name,
-  tags and parameters, and becomes one linked block.
+  tags and parameters, and becomes one linked block. One node is enough: the box selection of one
+  node, or the Save to library button of its inspector.
+- The Select button of the blueprint toolbar makes a drag on the canvas draw a selection box, as
+  Shift does. A drag with the middle or the right button still moves the view.
 - The Library tab of the palette inserts a fragment on a link or in empty space. A block links a
   version: a new version is proposed, never forced, and a block can be detached as an editable copy.
 - The Library page of the workspace, with a search, the tags and the favorites, and the page of a

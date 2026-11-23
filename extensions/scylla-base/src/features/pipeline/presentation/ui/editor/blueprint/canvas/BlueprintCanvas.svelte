@@ -82,6 +82,8 @@
 
   /** The view frames all the nodes until the user pans or zooms; the fit button frames them again. */
   let fitted = $state(true);
+  // A drag on the pane draws a selection box instead of moving the view, as Shift does.
+  let selectMode = $state(false);
 
   const onControlsClick = (event: MouseEvent) => {
     const button = (event.target as Element).closest('button');
@@ -158,6 +160,8 @@
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
     selectNodesOnDrag={false}
+    selectionOnDrag={selectMode}
+    panOnDrag={selectMode ? [1, 2] : true}
     edgesFocusable={!blueprint.readOnly}
     elementsSelectable={!blueprint.readOnly}
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}
@@ -189,6 +193,8 @@
       appearance={appearance.current}
       onAppearanceChange={next => appearance.set(next)}
       onArrange={() => blueprint.arrange()}
+      selectMode={blueprint.readOnly ? undefined : selectMode}
+      onSelectModeChange={next => (selectMode = next)}
     />
     {#if spot}
       <DropSpot
@@ -199,7 +205,7 @@
   </SvelteFlow>
 
   <QuickAddMenu {quickAdd} />
-  {#if blueprint.selectedNodes.length > 1 && !blueprint.readOnly}
+  {#if blueprint.selecting}
     <SelectionBar
       count={blueprint.selectedNodes.length}
       onSave={onSaveSelection}
