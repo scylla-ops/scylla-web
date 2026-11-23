@@ -529,6 +529,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The submenu "Legal and privacy" of the user menu shows its documents on hover, on a click and with
   the right arrow. Before, the menu hid the submenu, thus it seemed to do nothing. On a phone, the
   submenu opens under its entry, inside the screen.
+- The table of the roles fits in its card. It no longer scrolls horizontally, the header is aligned
+  with the rows, and the Role column shows the name on one line and the description on a few lines.
 
 ## [0.6.0] - 2026-11-01
 

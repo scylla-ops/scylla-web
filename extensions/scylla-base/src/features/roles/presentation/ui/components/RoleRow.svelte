@@ -55,13 +55,12 @@
             </span>
           {/if}
         </div>
-        <div class="flex items-start gap-1.5 text-xs">
-          <span class="shrink-0 font-medium text-foreground">{t(levelLabels[role.level])}</span>
+        <p class="text-xs text-muted-foreground">
+          <span class="font-medium text-foreground">{t(levelLabels[role.level])}</span>
           {#if description}
-            <span class="text-muted-foreground">·</span>
-            <span class="text-muted-foreground">{description}</span>
+            · {description}
           {/if}
-        </div>
+        </p>
       </div>
     </div>
   </TableCell>

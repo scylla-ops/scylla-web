@@ -82,7 +82,7 @@
     <p class="py-8 text-center text-sm text-muted-foreground">{t(rolesMessages.noMatch)}</p>
   {:else}
     <TableFrame>
-      <Table class="min-w-[720px]">
+      <Table class="min-w-[640px] table-fixed">
         <RolesTableHeader {sort} onSortChange={next => (sort = next)} />
         {#each groups as group (group.id)}
           <TableBody>
