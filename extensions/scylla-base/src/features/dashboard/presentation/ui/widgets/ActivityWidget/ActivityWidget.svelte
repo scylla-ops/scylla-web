@@ -68,7 +68,7 @@
     {#if size === 'xs'}
       <p data-part="activity" class="flex h-7 items-center gap-1.5">
         <span class="font-display text-xl font-medium tabular-nums">{newCount}</span>
-        <span class="truncate text-xs text-muted-foreground">{t(messages.eventsSinceVisit)}</span>
+        <span class="truncate text-xs text-muted-foreground">{t(messages.eventsSinceVisit(newCount))}</span>
       </p>
     {:else if size === 's' || size === 'm'}
       <ul data-part="activity" class="flex flex-col gap-1">
@@ -105,7 +105,7 @@
 </Widget>
 
 <Dialog open={sheetOpen} onOpenChange={next => !next && (sheetOpen = false)}>
-  <SheetContent side="right" overlayClass="bg-black/25" class="w-full gap-0 p-0 sm:max-w-[560px]">
+  <SheetContent side="right" overlayClass="bg-overlay/25" class="w-full gap-0 p-0 sm:max-w-[560px]">
     <header class="flex flex-col gap-1 border-b border-border px-5 py-4 pr-12">
       <DialogTitle>{t(widgetMessages.activity)}</DialogTitle>
       <DialogDescription class="text-xs">{t(messages.readable)}</DialogDescription>

@@ -43,7 +43,10 @@ export interface PeriodScope<TRange> {
 export type JobStatsShape = Omit<JobStatsQuery, 'workspaceId' | 'from' | 'to'>;
 
 /** What `jobQueries.newest` lists, except the workspace and the period. */
-export type NewestJobsShape = Omit<NewestJobsQuery, 'workspaceId' | 'createdAfter' | 'createdBefore'>;
+export type NewestJobsShape = Omit<
+  NewestJobsQuery,
+  'workspaceId' | 'createdAfter' | 'createdBefore'
+>;
 
 export const jobQueries = {
   /** Polled while it runs; the polling stops at a finished status. */
@@ -69,6 +72,11 @@ export const jobQueries = {
       queryKey: [...JOBS_QUERY_KEY(pipelineId), pagination, options.filter ?? null],
       enabled: (options.enabled ?? true) && !!pipelineId,
       queryFn: () => repository().getByPipelineId(pipelineId, pagination, options.filter),
+      placeholderData: (previous, previousQuery) =>
+        previous?.items[0]?.pipelineId === pipelineId &&
+        JSON.stringify(previousQuery?.queryKey.at(-1)) === JSON.stringify(options.filter ?? null)
+          ? previous
+          : undefined,
       staleTime: 0,
       refetchInterval: query => (hasActive(query.state.data?.items ?? []) ? 5000 : false),
     }),
@@ -93,7 +101,8 @@ export const jobQueries = {
     queryOptions<JobStats>({
       queryKey: JOB_STATS_QUERY_KEY(workspaceId, period.scope, shape),
       enabled: enabled && !!workspaceId,
-      queryFn: () => repository().getStats({ workspaceId: workspaceId!, ...shape, ...period.range() }),
+      queryFn: () =>
+        repository().getStats({ workspaceId: workspaceId!, ...shape, ...period.range() }),
       staleTime: STATS_REFRESH_MS / 2,
       refetchInterval: STATS_REFRESH_MS,
     }),

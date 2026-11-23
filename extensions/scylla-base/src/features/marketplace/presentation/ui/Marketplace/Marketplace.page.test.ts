@@ -67,7 +67,7 @@ describe('MarketplacePage', () => {
 
     await userEvent.click(screen.getByRole('checkbox', { name: /Deploy/ }));
     expect(cardNames()).toEqual(['helm-deploy']);
-    expect(screen.getByRole('heading', { name: '1 fragment' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: '1 Fragment' })).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Clear filters' }));
     expect(cardNames()).toEqual(['node-ci', 'helm-deploy']);

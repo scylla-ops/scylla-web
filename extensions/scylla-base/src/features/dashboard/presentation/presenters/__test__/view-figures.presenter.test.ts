@@ -2,9 +2,15 @@
 import { describe, expect, it } from 'vitest';
 import type { AppEntity } from '@base/features/apps';
 import type { JobEntity } from '@base/features/jobs';
+import { t } from '@scylla/ui/i18n';
+import { viewMessages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
+import { loadText } from '../agent-widget.presenter.ts';
+import { durationText } from '../job-figures.presenter.ts';
 import {
   capacityOf,
   countChange,
+  countText,
+  dateLine,
   outcomeShares,
   timelineTicks,
 } from '../view-figures.presenter.ts';
@@ -64,5 +70,23 @@ describe('view figures', () => {
   it('gives the change of a count, or nothing with no previous period', () => {
     expect(countChange(164, 152)).toMatchObject({ label: '+12 vs previous', direction: 'up' });
     expect(countChange(3, null)).toBeNull();
+  });
+});
+
+describe('the language of the UI', () => {
+  it('writes a load and a duration in English', () => {
+    expect(loadText(45)).toBe('45%');
+    expect(loadText(null)).toBe('—');
+    expect(durationText(19)).toBe('19s');
+  });
+
+  it('counts one job of the last 24 hours in the singular', () => {
+    expect(t(viewMessages.jobsAndFailed(1, 0))).toBe('1 job · 0 failed');
+    expect(t(viewMessages.jobsAndFailed(3, 1))).toBe('3 jobs · 1 failed');
+  });
+
+  it('writes a large number and the day in English', () => {
+    expect(countText(1312)).toBe('1,312');
+    expect(dateLine(new Date('2026-11-23T10:20:00.000Z'), 'UTC')).toBe('Monday 23 November, 10:20');
   });
 });

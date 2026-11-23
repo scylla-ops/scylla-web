@@ -51,7 +51,9 @@ const part = (root: Element, name: string): Element | null =>
 
 /**
  * The panel grows from the 40 % of the sign-in page to the full width. The mark stays at its
- * center, and the separator lights in primary while it moves.
+ * center, and the separator lights in primary while it moves. The mark moves in px of the view at
+ * the start: the view of the sign-in page has a scrollbar gutter, the shell has none, and the view
+ * grows when the shell opens under the panel.
  */
 export const closeCurtain = (root: Element): Animation[] => {
   const timing: KeyframeAnimationOptions = {
@@ -60,9 +62,13 @@ export const closeCurtain = (root: Element): Animation[] => {
     fill: 'forwards',
   };
   const edge = SEPARATOR_EDGE_MS / ARRIVAL_MS.curtain;
+  const view = root.getBoundingClientRect().width;
   const animations = [
     part(root, 'arrival-panel')?.animate([{ width: '40%' }, { width: '100%' }], timing),
-    part(root, 'arrival-mark')?.animate([{ left: '20%' }, { left: '50%' }], timing),
+    part(root, 'arrival-mark')?.animate(
+      [{ left: `${view * 0.2}px` }, { left: `${view * 0.5}px` }],
+      timing,
+    ),
     part(root, 'arrival-separator')?.animate(
       [
         { opacity: 0, easing: 'ease-out' },
@@ -76,8 +82,15 @@ export const closeCurtain = (root: Element): Animation[] => {
   return animations.filter(animation => animation !== undefined);
 };
 
-/** The page under the overlay settles, and its widgets come up row by row. */
+/**
+ * The page under the overlay settles, and its widgets come up row by row. At a scale of 1.03 the
+ * page is larger than the view: the view hides its scrollbars, which would make the overlay
+ * smaller and move the mark by half their width.
+ */
 const revealPage = (overlay: Element) => {
+  document.documentElement.animate([{ overflow: 'hidden' }, { overflow: 'hidden' }], {
+    duration: FRAME_SETTLE_MS,
+  });
   for (let page = overlay.previousElementSibling; page; page = page.previousElementSibling) {
     page.animate([{ scale: '1.03' }, { scale: '1' }], {
       duration: FRAME_SETTLE_MS,
@@ -110,16 +123,18 @@ const land = (overlay: Element, target: DOMRect | null) => {
       fill: 'forwards',
     });
 
+  const mark = part(overlay, 'arrival-mark');
+  const flight = part(overlay, 'arrival-flight');
+  // Before the motion starts, as the box of the logo: the two boxes are in the same view.
+  const from = mark?.getBoundingClientRect();
+
   fadeOut(part(overlay, 'arrival-panel'));
   revealPage(overlay);
 
-  const mark = part(overlay, 'arrival-mark');
-  const flight = part(overlay, 'arrival-flight');
-  if (!mark || !target) {
+  if (!mark || !from || !target) {
     fadeOut(flight);
     return;
   }
-  const from = mark.getBoundingClientRect();
   const to = lockupMark(target);
   const dx = to.centerX - (from.left + from.width / 2);
   const dy = to.centerY - (from.top + from.height / 2);

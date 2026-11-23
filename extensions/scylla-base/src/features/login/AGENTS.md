@@ -189,6 +189,14 @@ form, and after a sign-in with a provider (see below). A reload opens the app wi
 - **The mark lands on the `logo_lockup.svg` images of `ShellBrand`**: they register with
   `arrival.target`. `LOCKUP` in `arrival.attachments.svelte.ts` holds the place of the mark in this
   image. Change it when the image changes.
+- **The flight reads the box of the mark and the box of the logo before any motion starts, and the
+  view hides its scrollbars while the page settles.** At a scale of 1.03 the page is larger than
+  the view. A scrollbar makes the overlay smaller and moves its center: the mark then lands off the
+  logo by half the width of the scrollbar.
+- **The view of the sign-in page has a scrollbar gutter, and the shell has none.** The gutter goes
+  when the shell opens, while the panel covers the view: the curtain moves the mark in px of the
+  view at its start, so the mark does not move. After a sign-in with a provider, the frame of the
+  sign-in page (`arrival-back`) keeps the gutter while it shows (the style of `ArrivalOverlay`).
 - **The times are the times of the spec frame of the design** (`ARRIVAL_MS`). A test with fake timers
   calls `arrival.reset()` after each test: `arrival` is one object for the app.
 

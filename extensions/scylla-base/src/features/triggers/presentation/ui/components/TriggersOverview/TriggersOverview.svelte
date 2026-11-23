@@ -40,9 +40,9 @@
     </CardContent>
   </Card>
 
-  <Card class="rounded-2xl border-blue-200/40 bg-blue-500/5 py-3">
+  <Card class="rounded-2xl border-info/30 bg-info/5 py-3">
     <CardContent class="h-full w-full flex items-center gap-3">
-      <ClockIcon class="size-4 text-blue-500" />
+      <ClockIcon class="size-4 text-info" />
       <div>
         <p class="text-sm font-semibold tracking-tight">
           {nextFire ? formatDate(nextFire) : '—'}
@@ -52,9 +52,9 @@
     </CardContent>
   </Card>
 
-  <Card class="rounded-2xl border-emerald-200/40 bg-emerald-500/5 py-3">
+  <Card class="rounded-2xl border-success/30 bg-success/5 py-3">
     <CardContent class="flex items-center gap-3">
-      <WebhookIcon class="size-4 text-emerald-500" />
+      <WebhookIcon class="size-4 text-success" />
       <div>
         <p class="text-2xl font-semibold tracking-tight">{webhookCount}</p>
         <p class="text-xs text-muted-foreground">{t(triggersMessages.webhookEndpoints)}</p>

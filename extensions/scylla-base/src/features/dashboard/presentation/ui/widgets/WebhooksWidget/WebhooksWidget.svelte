@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import WebhookIcon from '@lucide/svelte/icons/webhook';
   import { ChartDot, ChartLegendItem, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
-  import { t } from '@scylla/ui/i18n';
+  import { formatNumber, t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { contextStore } from '@platform/context';
   import { toRune } from '@scylla/ui/stores';
@@ -111,7 +111,7 @@
             <ChartSegment tone="failed" class="h-full rounded-full" style="width: {Math.max(4, (row.failed / most) * 100)}%" />
           {/if}
         </span>
-        <span class="w-12 shrink-0 text-right text-xs font-medium tabular-nums">{row.delivered.toLocaleString()}</span>
+        <span class="w-12 shrink-0 text-right text-xs font-medium tabular-nums">{formatNumber(row.delivered)}</span>
         <span class={cn('w-16 shrink-0 text-right text-xs tabular-nums', row.failed > 0 ? 'text-status-failed' : 'text-muted-foreground')}>
           {t(messages.failedCount(row.failed))}
         </span>
@@ -149,13 +149,13 @@
     {#if stats}
       {#if size === 'xs'}
         <p data-part="webhooks" class="flex h-7 items-center gap-1.5">
-          <span class="font-display text-xl font-medium tabular-nums">{stats.delivered.toLocaleString()}</span>
+          <span class="font-display text-xl font-medium tabular-nums">{formatNumber(stats.delivered)}</span>
           <span class="truncate text-xs text-muted-foreground">{t(messages.deliveredIn24h)}</span>
         </p>
       {:else if size === 's'}
         <div data-part="webhooks" class="flex min-h-0 flex-1 flex-col gap-2">
           <p class="flex items-baseline gap-1.5">
-            <span class="font-display text-[34px] leading-10 font-medium tabular-nums">{stats.delivered.toLocaleString()}</span>
+            <span class="font-display text-[34px] leading-10 font-medium tabular-nums">{formatNumber(stats.delivered)}</span>
             <span class="text-xs text-muted-foreground">{t(messages.delivered)}</span>
           </p>
           <ul class="flex flex-col gap-2">
@@ -164,7 +164,7 @@
                 {@render mark(row)}
                 <span class="truncate text-sm font-medium">{row.name}</span>
                 <span class={cn('ml-auto shrink-0 text-xs font-medium tabular-nums', row.failed > 0 && 'text-status-failed')}>
-                  {row.delivered.toLocaleString()}
+                  {formatNumber(row.delivered)}
                 </span>
               </li>
             {/each}
@@ -180,7 +180,7 @@
         <div data-part="webhooks" class="flex min-h-0 flex-1 flex-col gap-4">
           <dl class="flex gap-10">
             <div class="flex flex-col">
-              <dd class="font-display text-[34px] leading-10 font-medium tabular-nums">{stats.delivered.toLocaleString()}</dd>
+              <dd class="font-display text-[34px] leading-10 font-medium tabular-nums">{formatNumber(stats.delivered)}</dd>
               <dt class="text-xs text-muted-foreground">{t(messages.deliveredIn24h)}</dt>
             </div>
             <div class="flex flex-col">

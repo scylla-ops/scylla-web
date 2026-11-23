@@ -4,13 +4,12 @@ import type { ActivityEvent } from '@base/features/dashboard/domain/structs/acti
 import { activityMessages as m } from '@base/features/dashboard/presentation/messages/activity.messages.ts';
 import { shortJobId } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
 import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
-import { attentionMessages } from '@base/features/dashboard/presentation/messages/attention.messages.ts';
 
 const statusText = (status: string): string => {
-  if (status === 'completed') return t(widgetMessages.completedLower);
-  if (status === 'failed') return t(widgetMessages.failedLower);
-  if (status === 'cancelled') return t(widgetMessages.cancelled);
-  if (status === 'orphaned') return t(attentionMessages.orphaned);
+  if (status === 'completed') return t(widgetMessages.oneCompleted);
+  if (status === 'failed') return t(widgetMessages.oneFailed);
+  if (status === 'cancelled') return t(widgetMessages.oneCancelled);
+  if (status === 'orphaned') return t(widgetMessages.oneOrphaned);
   return status;
 };
 

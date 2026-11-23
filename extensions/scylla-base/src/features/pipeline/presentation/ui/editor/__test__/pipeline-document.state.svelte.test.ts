@@ -53,6 +53,77 @@ describe('createPipelineDocument', () => {
     });
   });
 
+  describe('when the fetched pipeline changes', () => {
+    const named = (name: string) => JSON.stringify({ name, nodes: [] });
+
+    /** Runs `edit`, then gives the document a new fetched version. */
+    const refetched = (edit: (script: ReturnType<typeof createPipelineDocument>) => void) => {
+      let initial = $state(named('before'));
+      const seen = { script: '', isDirty: false };
+      const cleanup = $effect.root(() => {
+        const script = createPipelineDocument({
+          projectId: () => 'project-1',
+          initialScript: () => initial,
+        });
+        flushSync();
+        edit(script);
+        flushSync();
+        initial = named('after');
+        flushSync();
+        seen.script = script.script;
+        seen.isDirty = script.isDirty;
+      });
+      cleanup();
+      return seen;
+    };
+
+    it('keeps an unsaved edit, still dirty', () => {
+      const seen = refetched(script => script.setScript(named('mine')));
+
+      expect(seen).toEqual({ script: named('mine'), isDirty: true });
+    });
+
+    it('follows the new version when nothing was edited', () => {
+      const seen = refetched(() => {});
+
+      expect(seen).toEqual({ script: named('after'), isDirty: false });
+    });
+
+    it('follows the new version after a save of the edit succeeded', () => {
+      const seen = refetched(script => {
+        script.setScript(named('mine'));
+        script.markSaved(named('mine'));
+      });
+
+      expect(seen).toEqual({ script: named('after'), isDirty: false });
+    });
+  });
+
+  describe('markSaved', () => {
+    it('makes the saved script clean at once, before the server sends it back', () => {
+      withScript(document, script => {
+        script.setName('weekly');
+        flushSync();
+        expect(script.isDirty).toBe(true);
+
+        script.markSaved(script.script);
+
+        expect(script.isDirty).toBe(false);
+      });
+    });
+
+    it('keeps an edit made while the save was sent unsaved', () => {
+      withScript(document, script => {
+        script.setName('weekly');
+        const sent = script.script;
+        script.setName('monthly');
+        script.markSaved(sent);
+
+        expect(script.isDirty).toBe(true);
+      });
+    });
+  });
+
   it('writes new nodes and a new name into the document', () => {
     withScript(document, script => {
       script.setNodes([

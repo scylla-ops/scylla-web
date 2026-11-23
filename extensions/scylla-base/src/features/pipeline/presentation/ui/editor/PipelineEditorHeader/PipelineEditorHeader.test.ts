@@ -58,6 +58,17 @@ describe('PipelineEditorHeader', () => {
     expect(screen.getByText('All changes saved')).toBeInTheDocument();
   });
 
+  it('shows a failed save with its message, and goes back to the normal states', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    const { rerender } = renderHeader({ isDirty: true, saveError: 'Name already used.' });
+
+    expect(screen.getByRole('status')).toHaveAttribute('title', 'Name already used.');
+    expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+
+    await rerender({ isDirty: true, saveError: undefined });
+    expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+  });
+
   it('submits when the user may edit the pipeline', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     renderHeader({ isDirty: true });
@@ -133,6 +144,20 @@ describe('PipelineEditorHeader', () => {
 
     expect(onNameChange).not.toHaveBeenCalled();
     expect(name).toHaveValue('nightly');
+  });
+
+  it('tells each key of a typed name before it is applied, and the saved name on Escape', async () => {
+    const onNameDraft = vi.fn();
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ onNameDraft });
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.type(name, '-v');
+    expect(onNameDraft).toHaveBeenLastCalledWith('nightly-v');
+    expect(onNameChange).not.toHaveBeenCalled();
+
+    await userEvent.keyboard('{Escape}');
+    expect(onNameDraft).toHaveBeenLastCalledWith('nightly');
   });
 
   it('shows Export for a saved pipeline only, to a user who may read it', async () => {

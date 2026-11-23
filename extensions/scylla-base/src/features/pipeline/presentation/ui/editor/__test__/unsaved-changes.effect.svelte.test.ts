@@ -62,4 +62,22 @@ describe('warnBeforeUnload', () => {
     expect(stop).toHaveBeenCalled();
     cleanup();
   });
+
+  it('lets a navigation go when the changes are saved just before it, before the effect runs again', () => {
+    let ask: ((leave: () => void) => boolean) | undefined;
+    vi.spyOn(sdk, 'guardLeave').mockImplementation(fn => {
+      ask = fn;
+      return vi.fn();
+    });
+    const hold = vi.fn();
+    let dirty = $state(true);
+    const cleanup = $effect.root(() => warnBeforeUnload(() => dirty, hold));
+    flushSync();
+
+    dirty = false;
+
+    expect(ask?.(vi.fn())).toBe(false);
+    expect(hold).not.toHaveBeenCalled();
+    cleanup();
+  });
 });

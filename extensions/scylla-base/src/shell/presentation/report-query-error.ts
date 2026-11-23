@@ -41,7 +41,7 @@ export const reportQueryError: QueryErrorHandler = (thrown, source, options) => 
   }
 
   if (source === 'mutation' && error.isConflict()) {
-    toast.warning(error.userMessage());
+    toast.warning(error.mutationMessage());
     void getQueryClient().invalidateQueries();
     return;
   }

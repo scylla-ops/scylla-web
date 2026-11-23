@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import UnsavedChangesDialog from './UnsavedChangesDialog.svelte';
   import type { FragmentLink } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
@@ -10,8 +11,10 @@
     type MissingDocument,
   } from './pipeline-document.state.svelte.ts';
   import { pipelineIssueText } from '@base/features/pipeline/presentation/presenters/pipeline-issue.presenter.ts';
+  import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { createFragmentLinks } from './fragment-links.state.svelte.ts';
   import { warnBeforeUnload } from './unsaved-changes.effect.svelte.ts';
+  import { createUnsavedChanges } from './unsaved-changes.state.svelte.ts';
   import { createCanvasCurtain } from './blueprint/canvas/CanvasCurtain/canvas-curtain.state.svelte.ts';
   import CanvasCurtain from './blueprint/canvas/CanvasCurtain/CanvasCurtain.svelte';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
@@ -23,12 +26,21 @@
     /** `edit` tracks the unsaved changes; `create` does not. */
     mode: 'create' | 'edit';
     submitLabel: string;
-    onSubmit: (values: {
-      name: string;
-      nodes: PipelineNodeEntity[];
-      layout?: PipelineLayout;
-      links: FragmentLink[];
-    }) => void;
+    /**
+     * Sends the document. Call `done` when the save succeeds: the sent version becomes the saved
+     * one, then `onSaved` runs.
+     */
+    onSubmit: (
+      values: {
+        name: string;
+        nodes: PipelineNodeEntity[];
+        layout?: PipelineLayout;
+        links: FragmentLink[];
+      },
+      done: () => void,
+    ) => void;
+    /** A save succeeded and the editor has no unsaved change from it: the page can leave. */
+    onSaved?: () => void;
     /** The places that the server holds. */
     savedLayout?: PipelineLayout | null;
     /** The ids of the nodes that the server holds: their moves go at once, through `onPlacesMoved`. */
@@ -44,6 +56,8 @@
     /** Why the saved pipeline cannot be exported. */
     exportIssue?: string;
     isSubmitPending?: boolean;
+    /** The last save failed: the header shows it until the next edit or save. */
+    submitError?: Error | null;
     /** The pipeline is not here yet: the editor shows its frame, and the canvas waits or fails. */
     missing?: MissingDocument;
     onRetry?: () => void;
@@ -53,6 +67,7 @@
     mode,
     submitLabel,
     onSubmit,
+    onSaved,
     savedLayout,
     savedNodeIds = [],
     onPlacesMoved,
@@ -62,6 +77,7 @@
     pipelineId,
     exportIssue,
     isSubmitPending = false,
+    submitError,
     missing,
     onRetry,
   }: Props = $props();
@@ -71,7 +87,16 @@
     initialScript: () => initialScript,
   });
   const links = createFragmentLinks({ initial: () => initialLinks });
-  const isDirty = $derived(doc.isDirty || links.isDirty);
+  const changes = createUnsavedChanges(doc, links);
+  const isDirty = $derived(changes.isDirty);
+  // A failed save leaves the changes unsaved; the next edit hides the failure.
+  const editSignature = $derived(doc.script + JSON.stringify(links.current));
+  const failedAt = $derived(submitError ? untrack(() => editSignature) : undefined);
+  const saveError = $derived(
+    submitError && failedAt === editSignature
+      ? ScyllaError.from(submitError).mutationMessage()
+      : undefined,
+  );
   let pendingLeave = $state<(() => void) | null>(null);
   warnBeforeUnload(
     () => isDirty,
@@ -93,12 +118,19 @@
   const handleSubmit = () => {
     if (doc.isValid) {
       const layout = places.waiting();
-      onSubmit({
-        name: doc.pipelineName,
-        nodes: doc.nodes,
-        links: links.current,
-        ...(layout && { layout }),
-      });
+      const saved = changes.send();
+      onSubmit(
+        {
+          name: doc.pipelineName,
+          nodes: doc.nodes,
+          links: links.current,
+          ...(layout && { layout }),
+        },
+        () => {
+          saved();
+          onSaved?.();
+        },
+      );
     }
   };
 </script>
@@ -120,8 +152,10 @@
       blueprintDisabled={!missing && !doc.isValid}
       {isDirty}
       isSaving={isSubmitPending}
+      {saveError}
       pipelineName={doc.pipelineName}
       onNameChange={name => doc.setName(name)}
+      onNameDraft={name => changes.typeName(name)}
       onExport={pipelineId ? () => (exporting = true) : undefined}
       {exportIssue}
     />

@@ -11,6 +11,7 @@
   import GatedButton from '../../controls/GatedButton/GatedButton.svelte';
   import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog/ConfirmOperationAlertDialog.svelte';
   import { featureHeaderMessages } from './feature-header.messages.ts';
+  import { countedLabel } from './feature-header.ts';
 
   interface Props {
     count?: number;
@@ -65,14 +66,11 @@
     phone.current && selectedCount > 0 && (!!onClearSelection || !!onDeleteSelection),
   );
 
-  /**
-   * The plural rule of the locale: English says "0 roles", French "0 rôle". With no count yet
-   * (the list still loads), the title names the whole list, so it takes the plural.
-   */
+  /** With no count yet (the list still loads), the title names the whole list: the plural. */
   const displayLabel = $derived(
-    count === undefined || new Intl.PluralRules(activeLocale()).select(count) !== 'one'
+    count === undefined
       ? (pluralLabel ?? label)
-      : label,
+      : countedLabel(count, label, pluralLabel ?? label, activeLocale()),
   );
   const newButtonLabel = $derived(newLabel ?? t(featureHeaderMessages.newEntity(label)));
 

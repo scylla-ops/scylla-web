@@ -59,18 +59,13 @@ __test__/                            the errors of a refused, a failed and an ab
 ## What the transport does
 
 - `baseUrl` from `import.meta.env.VITE_API_URL` (empty string if unset).
-- **Attaches auth on every unary call**: reads `localStorage.getItem('token')` and, when present, sets
-  `options.meta['Authorization'] = 'Bearer <token>'`.
+- **Attaches auth on every call, unary and stream** (`authorizedFetch`): it sets `authorization` from
+  the access token of the session (`session.ts`). The token is in memory only: a call gets a
+  refreshed one when it ends soon, and one `UNAUTHENTICATED` answer gets one refresh and one more
+  try. A public call (`isPublicCall`) is sent with no token.
 
-That `token` key is a three-way contract:
-
-| Who | Does what |
-|---|---|
-| `features/login`'s repository (`openSession`) | **writes** `token` and `userId` |
-| **this module** | **reads** `token` for the header |
-| `shell/.../Auth.guard.svelte` | **reads** `token` to allow or redirect |
-
-Changing the key or the storage mechanism means changing all three in one commit.
+The refresh token is in an `HttpOnly` cookie that the server sets: this code never sees it.
+`features/login` opens and closes the session through `session.ts`; `localStorage` has `userId` only, not the token.
 
 ## Rules that bite here
 
@@ -85,8 +80,6 @@ Changing the key or the storage mechanism means changing all three in one commit
   `failedCall(code)` (`@test/grpc.ts`), and read the error with `ScyllaError.from`.
 - **A request that does not get to the server is `UNAVAILABLE`** (`fetchOrUnavailable`), not the
   `INTERNAL` of protobuf-ts. An abort stays `CANCELLED`.
-- The auth interceptor has no `interceptServerStreaming`: a server stream (`tailJobLogs`) is sent
-  without the `Authorization` header.
 - Generated proto clients live in `src/generated/` and are **never hand-edited** — run
   `pnpm gen-proto`.
 - Proto vocabulary stops at infrastructure. Mappers (`grpc-{entity}.mapper.ts`) convert proto types

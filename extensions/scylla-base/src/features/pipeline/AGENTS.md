@@ -204,6 +204,8 @@ presentation/
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
                                              check, the issue that stops the save; MissingDocument
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
+      unsaved-changes.state.svelte.ts        createUnsavedChanges: the document, the links and a typed
+                                             name; the version that a save sends
       fragment-links.state.svelte.ts         the links of the edited pipeline, and their dirty check
       PipelineEditorHeader/                  the header, with the name field and Export
       ExportPipelineDialog/                  the export as a file: one tab per format, copy, download
@@ -366,7 +368,17 @@ the page.
   binds directly to its reactive state.
 - **`pipeline-document.state.svelte.ts` holds `script` + `initialScript` only** — draft editor text 
   and the baseline for the dirty check. It is UI state, not server state. Never put the fetched 
-  `PipelineEntity` in it.
+  `PipelineEntity` in it. A refetch moves the baseline and never erases an unsaved edit: the
+  document follows the server only when it is clean. So a failed background refetch keeps the
+  editor too (`isLoadingError`, not `isError`, in `PipelineUpdate.page.svelte`). The fragment
+  links follow the same rule (`fragment-links.state.svelte.ts`).
+- **A save that succeeds makes the sent version the saved one at once** (`createUnsavedChanges`:
+  `send()`, then `markSaved` on the document and the links), before the server sends it back. The
+  page calls `done` in the `onSuccess` of `mutate`, and the editor then calls `onSaved`, which goes
+  back to the project (`returnToProject`). `pipelineMutations.create` and `update` do not navigate:
+  their `onSuccess` runs before `done`, and the leave guard would hold the navigation. The guard
+  reads the dirty state at each navigation, not at the last run of its effect. A failed save marks
+  nothing: the guard stays. A name that is typed and not applied yet is an unsaved change too.
 - **The blueprint has one side panel, on the right.** It shows `blueprint.inspected`, which only
   a click sets (`blueprint.inspect(id)`): a click on a node, a click on a palette entry, a pick in
   `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
@@ -503,6 +515,14 @@ the page.
   `DropSpot` draws the `footprint` of the current node style (`presenters/blueprint-geometry.presenter.ts`) in the
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
+- **A connection point reacts in a zone around it, with CSS only** (`HANDLE`, `handleClass`,
+  `START_HANDLE_CLASS`). The `before` box of the handle is that zone. It goes far out of the node and only
+  a little into it, so that the node can still be dragged. A hover changes the size of the point.
+  Do not use `scale`: it also scales the `transform` with which xyflow centres a handle.
+  Stacked ports (a switch, or a node with many outputs) add `STACKED_HANDLE_ZONE`: the handles are 16 to
+  20 px apart, and a taller zone would take the wrong port.
+  A link is made by a pull only (`clickConnect={false}`): with this zone, two clicks near two
+  nodes would make a link.
 - **A node id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`domain/structs/node-id.struct.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it

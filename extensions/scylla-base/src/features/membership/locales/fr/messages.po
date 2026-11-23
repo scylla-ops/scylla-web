@@ -51,7 +51,7 @@ msgstr "{role} n'ajoute rien dans {project}, car le rôle de l'espace de travail
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:89
 msgid "{role} in {workspace}: {count} permissions in every project."
-msgstr "{role} dans {workspace} : {count} permissions dans chaque projet."
+msgstr "{role} dans {workspace} : {count, plural, one {{count} permission} other {{count} permissions}} dans chaque projet."
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:24
 msgid "+ Add a project role"
@@ -95,7 +95,7 @@ msgstr "Ajouter à {project}"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:33
 msgid "Added"
-msgstr "Ajoutée"
+msgstr "Date d'ajout"
 
 #: extensions/scylla-base/src/features/membership/presentation/messages/membership.messages.ts:87
 msgid "All projects · {role}"

@@ -1,10 +1,12 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 /** The texts of "Needs you". */
 export const attentionMessages = {
-  openNow: msg({ context: 'attention', message: 'open now' }),
+  openNow: (count: number) =>
+    msg({ context: 'attention', message: plural(count, { one: 'open now', other: 'open now' }) }),
   nothingOpen: msg({ context: 'attention', message: 'nothing open' }),
-  open: msg({ context: 'attention', message: 'open' }),
+  open: (count: number) =>
+    msg({ context: 'attention', message: plural(count, { one: 'open', other: 'open' }) }),
   newCount: (count: number) => msg({ context: 'attention', message: `${count} new` }),
   newMark: msg({ context: 'attention', message: 'new' }),
   newSince: (count: number, time: string) =>

@@ -174,8 +174,7 @@
             <span class="text-muted-foreground">{labels.sub}</span>
             {@render expiry(row, labels.expiry)}
             <span class="text-muted-foreground">
-              {t(messages.lastUsedColumn)}:
-              {row.lastUsedAt ? getRelativeTime(row.lastUsedAt) : t(messages.never)}
+              {t(messages.lastUsedLine(row.lastUsedAt ? getRelativeTime(row.lastUsedAt) : t(messages.never)))}
             </span>
           </article>
         {:else}

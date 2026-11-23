@@ -83,7 +83,7 @@ msgstr "Accès"
 
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:70
 msgid "Added: {roles}."
-msgstr "Ajoutés : {roles}."
+msgstr "Ajoutés : {roles}."
 
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:14
 msgid "All notifications"
@@ -189,7 +189,7 @@ msgstr "Action requise"
 
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:91
 msgid "New API token: {name}."
-msgstr "Nouveau jeton d'API : {name}."
+msgstr "Nouveau jeton d'API : {name}."
 
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:39
 msgid "Next page"
@@ -240,7 +240,7 @@ msgstr "Filtres rapides"
 
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:71
 msgid "Removed: {roles}."
-msgstr "Retirés : {roles}."
+msgstr "Retirés : {roles}."
 
 #: extensions/scylla-base/src/features/notifications/presentation/messages/notifications.messages.ts:103
 msgid "Replace the token before this date."

@@ -3,6 +3,7 @@
   import { Handle, Position } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import { HANDLE } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
   import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
   import { libraryMessages } from '@base/features/pipeline/presentation/messages/library.messages.ts';
   import { DETAILED_NODE } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
@@ -12,7 +13,7 @@
 
   let { name, nodeCount, summary, selected, detached }: FragmentNodeViewProps = $props();
 
-  const handle = $derived(cn('size-2.5! border-[1.5px]! bg-card!', selected ? 'border-info!' : 'border-info/60!'));
+  const handle = $derived(cn(HANDLE, selected ? 'border-info!' : 'border-info/60!'));
 </script>
 
 <!-- A card in the colour of the library: the name, the version, and the nodes it holds. -->

@@ -75,3 +75,13 @@
     <img src={LogoMarkImage} alt="" class="size-24 lg:size-70" />
   </div>
 {/if}
+
+<style>
+  /*
+    The frame of the sign-in page keeps its scrollbar gutter while it hides the app: the shell can
+    open under it, and the shell has no gutter. The gutter goes when the panel covers the view.
+  */
+  :global(:root:has([data-slot='arrival-back'])) {
+    scrollbar-gutter: stable;
+  }
+</style>

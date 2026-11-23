@@ -1,7 +1,10 @@
 <script lang="ts">
   import { createMutation } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
-  import { pipelineMutations } from '@base/features/pipeline/presentation/pipeline.queries.ts';
+  import {
+    pipelineMutations,
+    returnToProject,
+  } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { newPipeline } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
   import { toDocument } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
   import PipelineEditor from './PipelineEditor.svelte';
@@ -27,8 +30,11 @@
       submitLabel={t(pipelineMessages.create)}
       {projectId}
       {initialScript}
-      onSubmit={values => createPipeline.mutate({ projectId, ...values })}
+      onSubmit={(values, done) =>
+        createPipeline.mutate({ projectId, ...values }, { onSuccess: done })}
+      onSaved={returnToProject}
       isSubmitPending={createPipeline.isPending}
+      submitError={createPipeline.error}
     />
   </div>
 {/if}

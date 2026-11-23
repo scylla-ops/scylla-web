@@ -157,6 +157,7 @@
     fitViewOptions={FIT_VIEW_OPTIONS}
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
+    clickConnect={false}
     selectNodesOnDrag={false}
     selectionOnDrag={selecting}
     panOnDrag={selecting ? [1, 2] : true}

@@ -29,6 +29,8 @@ export const legalSettingsMessages = {
   stateLink: (url: string) => msg`Link to ${url}`,
   stateMarkdown: msg`Text in Markdown`,
   documentTitle: msg`Title`,
+  titleHint: (kind: string) =>
+    msg`The page of the document shows this title. The menus and the links show "${kind}" in the language of the user.`,
   url: msg`Address of the page`,
   urlInvalid: msg`The address must start with http:// or https://`,
   text: msg`Text in Markdown`,

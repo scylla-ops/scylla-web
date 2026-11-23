@@ -51,7 +51,7 @@
   </div>
   {#if doc.parseError}
     <p class="text-sm text-destructive">
-      {t(pipelineMessages.invalidJson)}: {doc.parseError}
+      {t(pipelineMessages.invalidJson(doc.parseError))}
     </p>
   {/if}
 </div>

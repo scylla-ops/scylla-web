@@ -15,6 +15,7 @@ export const triggersMessages = {
   newTrigger: msg`New trigger`,
   manageDenied: msg`You don't have permission to manage triggers.`,
   pipelineIdLabel: msg`Pipeline ID:`,
+  idOf: (id: string) => msg`ID: ${id}`,
 
   enabled: msg`enabled`,
   nextScheduledRun: msg`next scheduled run (Local time)`,

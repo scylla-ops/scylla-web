@@ -6,9 +6,9 @@ import LegalDocumentPage from './LegalDocument.page.svelte';
 
 let teardown: Array<() => void> = [];
 
-const markdown = (kind: LegalInfo['documents'][number]['kind'], text: string) => ({
+const markdown = (kind: LegalInfo['documents'][number]['kind'], text: string, title = '') => ({
   kind,
-  title: '',
+  title,
   content: { type: 'markdown' as const, markdown: text },
   version: '1.0',
   effectiveDate: '2027-01-01',
@@ -21,7 +21,8 @@ const info: LegalInfo = {
   operator: { ...EMPTY_OPERATOR, name: 'Acme SAS', address: '1 rue de la Paix\n75002 Paris' },
   privacyContact: 'privacy@acme.example',
   documents: [
-    markdown('legal-notice', ''),
+    // The operator wrote this title in French.
+    markdown('legal-notice', '', 'Mentions légales'),
     markdown(
       'privacy',
       '# Privacy policy\n\n## Who we are\n\nWe are **Acme**.\n\n### Your rights\n\nWrite to us.',
@@ -61,11 +62,21 @@ describe('LegalDocumentPage', () => {
         .getAllByRole('link')
         .map(link => link.getAttribute('href')),
     ).toEqual(['#who-we-are']);
+    // The links are texts of the app: the title of the kind, in the language of the UI.
     const others = screen.getByRole('navigation', { name: 'Other documents' });
     expect(within(others).getByRole('link', { name: 'Legal notice' })).toHaveAttribute(
       'href',
       '/legal/legal-notice',
     );
+  });
+
+  it('heads the text with the title of the operator, in the language of the text', async () => {
+    open('legal-notice');
+
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Mentions légales' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('Legal · Legal notice')).toBeInTheDocument();
   });
 
   it('shows the operator above the text of the legal notice', async () => {

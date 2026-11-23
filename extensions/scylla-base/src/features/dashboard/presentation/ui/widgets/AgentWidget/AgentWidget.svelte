@@ -10,6 +10,7 @@
   import { agentWidgetMessages as messages } from '@base/features/dashboard/presentation/messages/agent-widget.messages.ts';
   import { shortAgo } from '@base/features/dashboard/presentation/presenters/attention.presenter.ts';
   import { periodMeta } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
+  import { loadText } from '@base/features/dashboard/presentation/presenters/agent-widget.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { openAgent, openJob } from '../widget-navigation.ts';
@@ -78,7 +79,7 @@
 {#snippet meter(label: string, value: number | null, warn: boolean)}
   <div class="flex flex-col gap-1.5">
     <p class="flex items-center text-xs text-muted-foreground">
-      <span>{label}</span><span class="ml-auto font-mono text-foreground tabular-nums">{value === null ? '—' : `${value} %`}</span>
+      <span>{label}</span><span class="ml-auto font-mono text-foreground tabular-nums">{loadText(value)}</span>
     </p>
     <span class="flex h-1.5 overflow-hidden rounded-full bg-muted" aria-hidden="true">
       {#if value !== null}<ChartSegment tone={warn ? 'warning' : 'passed'} class="h-full rounded-full" style="width: {value}%" />{/if}

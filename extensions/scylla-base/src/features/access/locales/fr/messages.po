@@ -51,7 +51,7 @@ msgstr "Runner"
 
 #: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:21
 msgid "Runs the jobs: for an agent."
-msgstr "Exécute les jobs : pour un agent."
+msgstr "Exécute les jobs : pour un agent."
 
 #: extensions/scylla-base/src/features/access/presentation/messages/access.messages.ts:10
 msgid "Viewer"

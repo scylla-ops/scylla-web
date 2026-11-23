@@ -48,6 +48,7 @@
 {#if tour.view === 'intro' || tour.view === 'spot'}
   <SkipTourDialog
     open={tour.confirmingSkip}
+    overBackdrop={tour.view === 'intro'}
     onSkip={() => tour.confirmSkip()}
     onContinue={() => tour.cancelSkip()}
   />

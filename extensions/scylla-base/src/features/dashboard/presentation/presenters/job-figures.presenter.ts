@@ -1,6 +1,6 @@
 import type { ChartDeltaDirection, ChartDeltaTone, ChartTone } from '@scylla/ui';
 import { deltaTrend } from '@scylla/ui';
-import { t } from '@scylla/ui/i18n';
+import { formatNumber, t } from '@scylla/ui/i18n';
 import { formatDuration, formatUtcDay } from '@shared/utils/date-utils.ts';
 import { decidedJobs, type JobBucket, type JobStatus } from '@base/features/jobs';
 import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
@@ -44,8 +44,14 @@ export interface DurationBar {
 
 const MINUS = '−';
 
-const signed = (value: number, digits: number): string =>
-  value === 0 ? (0).toFixed(digits) : `${value > 0 ? '+' : MINUS}${Math.abs(value).toFixed(digits)}`;
+/** "+3.4", "−12": a change, with its sign, in the language of the UI. */
+const signed = (value: number, options: Intl.NumberFormatOptions): string => {
+  const text = formatNumber(Math.abs(value), options);
+  return value === 0 ? text : `${value > 0 ? '+' : MINUS}${text}`;
+};
+
+const ONE_DIGIT = { minimumFractionDigits: 1, maximumFractionDigits: 1 } as const;
+const PERCENT = { style: 'percent', maximumFractionDigits: 0 } as const;
 
 const STATUS_TONES: Readonly<Record<JobStatus, ChartTone>> = {
   completed: 'passed',
@@ -64,16 +70,16 @@ export const statusTone = (status: JobStatus): ChartTone => STATUS_TONES[status]
 /** The last 8 characters of the id of a job: the design shows a job so, in mono. */
 export const shortJobId = (id: string): string => id.slice(-8);
 
-/** "89%". `null` (no job counts) gives an em dash, not 0 %. */
+/** "89%", "89 %" in French. `null` (no job counts) gives an em dash, not 0 %. */
 export const rateText = (rate: number | null): string =>
-  rate === null ? '—' : `${Math.round(rate * 100)}%`;
+  rate === null ? '—' : formatNumber(rate, PERCENT);
 
 /** "+3.4 pts". A higher rate is good. */
 export const rateChange = (points: number | null): ChangeView | null => {
   if (points === null) return null;
   const rounded = Math.round(points * 10) / 10;
   return {
-    label: t(widgetMessages.pointsChange(signed(rounded, 1))),
+    label: t(widgetMessages.pointsChange(signed(rounded, ONE_DIGIT))),
     ...deltaTrend(rounded, 'up'),
   };
 };
@@ -82,11 +88,11 @@ export const rateChange = (points: number | null): ChangeView | null => {
 export const durationText = (seconds: number | null): string =>
   seconds === null ? '—' : formatDuration(Math.round(seconds));
 
-/** "−12 %": the change of a duration in percent. A shorter time is good. */
+/** "−12%", "−12 %" in French: the change of a duration in percent. A shorter time is good. */
 export const durationChange = (now: number | null, before: number | null): ChangeView | null => {
   if (now === null || before === null || before <= 0) return null;
   const percent = Math.round(((now - before) / before) * 100);
-  return { label: `${signed(percent, 0)} %`, ...deltaTrend(percent, 'down') };
+  return { label: signed(percent / 100, PERCENT), ...deltaTrend(percent, 'down') };
 };
 
 /** One stacked bar for each bucket. The highest bar fills the height. */

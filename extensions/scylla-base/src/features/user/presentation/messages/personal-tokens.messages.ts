@@ -9,6 +9,7 @@ export const personalTokensMessages = {
   columnLimits: msg`Limits`,
   columnExpiry: msg`Expiry`,
   columnLastUsed: msg`Last used`,
+  lastUsedLine: (when: string) => msg`Last used: ${when}`,
   columnActions: msg`Actions`,
   never: msg`Never`,
   empty: msg`No personal token yet.`,

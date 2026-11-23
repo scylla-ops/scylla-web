@@ -4,6 +4,7 @@
   import {
     pipelineMutations,
     pipelineQueries,
+    returnToProject,
   } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { fragmentQueries } from '@base/features/pipeline/presentation/fragment.queries.ts';
   import { toDocument } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
@@ -61,10 +62,15 @@
     savedLayout={pipelineQuery.data?.layout}
     savedNodeIds={pipeline?.nodes.map(node => node.id)}
     onPlacesMoved={places => saveLayout.mutate(places)}
-    onSubmit={values => {
+    onSubmit={(values, done) => {
       if (pipelineId && pipeline)
-        updatePipeline.mutate({ id: pipelineId, projectId: pipeline.projectId, ...values });
+        updatePipeline.mutate(
+          { id: pipelineId, projectId: pipeline.projectId, ...values },
+          { onSuccess: done },
+        );
     }}
+    onSaved={returnToProject}
     isSubmitPending={updatePipeline.isPending}
+    submitError={updatePipeline.error}
   />
 </div>

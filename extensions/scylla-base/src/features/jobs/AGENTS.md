@@ -186,6 +186,11 @@ paths.
   column scrolls rather than shrink them. A fixed height on the editor itself is what this
   replaced — do not put one back.
 - Lists go through `DataTable` + pagination. Row keys are job ids, never indices.
+- **`jobQueries.byPipeline` keeps the rows while another page of the same pipeline loads**
+  (`placeholderData`; not across a change of `filter`). The page size comes from the height of the table area, and
+  `NoAgentsBanner`, above that area, reads the rows. Without the rows, the banner goes, the area
+  gets taller, and the page size changes again: the page sends more calls, and the browser
+  reports "ResizeObserver loop completed with undelivered notifications".
 - **Re-run is on an ended job only** (`isFinishedStatus`), in the jobs table and in the job
   details header, and only with `CREATE_JOB` (`rerun_job` on the server, not `run_pipeline`).
   The new job runs the nodes and the inputs of the old job, not the pipeline as it is now. `jobMutations.rerun` refreshes the list and opens the

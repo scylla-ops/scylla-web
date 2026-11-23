@@ -23,6 +23,8 @@
      */
     dismissible?: boolean | 'button';
     class?: string;
+    /** Classes of the backdrop. */
+    overlayClass?: string;
     /** Built again at each opening, so a form in it starts empty. */
     children: Snippet;
     [dataAttribute: `data-${string}`]: unknown;
@@ -36,6 +38,7 @@
     header,
     dismissible = true,
     class: className,
+    overlayClass,
     children,
     ...rest
   }: Props = $props();
@@ -54,6 +57,7 @@
 <Dialog {open} {onOpenChange}>
   <DialogContent
     {...rest}
+    {overlayClass}
     class={cn(
       (held || dismissible === false) && '[&>button]:hidden',
       held && '[&_[data-dialog-dismiss]]:hidden',

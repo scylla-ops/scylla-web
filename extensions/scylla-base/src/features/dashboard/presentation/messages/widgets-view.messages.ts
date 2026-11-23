@@ -1,10 +1,10 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 /** The texts of the widgets of the view mode. */
 export const viewMessages = {
   lastTwentyFourHours: msg`Last 24 hours`,
-  jobsAndFailed: (jobs: number, failed: number) => msg`${jobs} jobs · ${failed} failed`,
-  passed: msg`passed`,
+  jobsAndFailed: (jobs: number, failed: number) =>
+    msg`${plural(jobs, { one: '# job', other: '# jobs' })} · ${failed} failed`,
   noJobInDay: msg`No job in the last 24 hours`,
 
   summary: msg`Summary`,

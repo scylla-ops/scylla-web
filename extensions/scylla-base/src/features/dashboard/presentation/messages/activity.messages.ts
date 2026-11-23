@@ -1,11 +1,15 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 /** The texts of "Activity". */
 export const activityMessages = {
   sinceVisit: msg({ context: 'activity', message: 'since your visit' }),
   sinceTime: (time: string) => msg({ context: 'activity', message: `since ${time}` }),
   newCount: (count: number) => msg({ context: 'activity', message: `${count} new` }),
-  eventsSinceVisit: msg({ context: 'activity', message: 'events since your visit' }),
+  eventsSinceVisit: (count: number) =>
+    msg({
+      context: 'activity',
+      message: plural(count, { one: 'event since your visit', other: 'events since your visit' }),
+    }),
   sinceVisitAt: (time: string) => msg({ context: 'activity', message: `Since your visit at ${time}` }),
   events: (count: number) => msg({ context: 'activity', message: `${count} events` }),
   earlier: msg({ context: 'activity', message: 'Earlier' }),

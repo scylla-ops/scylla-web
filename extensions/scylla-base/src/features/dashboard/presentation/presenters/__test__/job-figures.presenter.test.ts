@@ -57,8 +57,8 @@ describe('rateChange', () => {
 
 describe('durationChange', () => {
   it('gives the change in percent, and a shorter time is good', () => {
-    expect(durationChange(176, 200)).toEqual({ label: '−12 %', direction: 'down', tone: 'good' });
-    expect(durationChange(220, 200)).toEqual({ label: '+10 %', direction: 'up', tone: 'bad' });
+    expect(durationChange(176, 200)).toEqual({ label: '−12%', direction: 'down', tone: 'good' });
+    expect(durationChange(220, 200)).toEqual({ label: '+10%', direction: 'up', tone: 'bad' });
   });
 
   it('gives null without a previous median', () => {

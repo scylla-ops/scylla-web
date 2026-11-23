@@ -12,6 +12,7 @@
     type StatsPeriod,
   } from '@base/features/apps/domain/structs/stats-period.struct.ts';
   import { periodRange } from '@base/features/apps/presentation/presenters/period-range.presenter.ts';
+  import { percentText } from '@base/features/apps/presentation/presenters/agent-figures.presenter.ts';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
 
   interface Props {
@@ -49,7 +50,7 @@
   <div class="flex flex-col gap-2 border-b border-l p-5 lg:border-b-0">
     <dt class="text-xs text-muted-foreground">{t(messages.successRate)}</dt>
     <dd class="flex flex-col gap-2">
-      <span class="text-xl font-medium">{rate === null ? '–' : `${Math.round(rate * 100)}%`}</span>
+      <span class="text-xl font-medium">{percentText(rate)}</span>
       {#if stats}
         <span class="text-xs text-muted-foreground">
           {total > 0 ? t(messages.completedOf(stats.outcomes.completed, total)) : t(messages.noEndedJob)}

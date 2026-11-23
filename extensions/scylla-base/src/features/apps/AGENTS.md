@@ -98,7 +98,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   `0.7.0-rc.1+dev`, and downloads the same release).
   `AgentCompatibilityBadge` shows "Update needed" or "Incompatible" in the list and in the header.
   The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
-  `linux`, so Linux also shows the Docker command.
+  `linux`, so Linux also shows the Docker command. The success rate and the memory follow the
+  language of the UI ("95 %", "24 Go" in French): `presenters/agent-figures.presenter.ts`.
 - The timeline and the period: `agent-stats.state.svelte.ts` asks for two periods with
   `appQueries.agentStatsOf`: the days since the creation of the agent (the strip of
   `AgentTimeline/`), and the chosen period (the stats row and `JobsPerDayCard/`). The URL keeps the

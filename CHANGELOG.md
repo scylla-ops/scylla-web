@@ -581,6 +581,50 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The selects of the publish form now fill their column, so the open list matches its button.
 - The pipeline editor asks before you leave with unsaved changes. A small save icon shows the save
   state in place of the text.
+- The jobs page of a pipeline keeps its rows while another page size loads. This stops the
+  "ResizeObserver loop" error and one extra call to list the jobs.
+- The pipeline editor header icon shows a red error state with the message in its tooltip when a
+  save fails.
+- A refetch of the pipeline, for example after a write conflict, no longer erases the unsaved
+  changes of the pipeline editor. A failed read no longer says that someone else changed the item.
+- Show the connection point of a pipeline node when the pointer is near it, and make a link only by
+  a pull.
+- The colors of the app follow the theme, also in the dark theme: the cards of the triggers and
+  secrets pages, the live log icon, the menu buttons of the rows, the save icon of the pipeline
+  editor, the access denied page and the text of the destructive buttons and badges. The dim layer
+  behind a dialog, a sheet and the guided tour uses the new `overlay` token.
+- The search of the library sidebar shows a message when no fragment matches. The skip-tour dialog
+  has one backdrop, as the other dialogs.
+- The "Legal and privacy" menu and the links to the other legal documents show the name of each
+  document in the language of the UI. Before, they showed the title that the operator wrote, in one
+  language. Only the page of the document shows this title, above its text.
+- The pipeline editor no longer asks "Leave without saving?" after a successful Create or Save, also
+  after a new fragment block and a click on Stay. The status goes from "Saving…" to "All changes
+  saved", and a typed name shows "Unsaved changes" at once. A failed save shows the translated
+  message, and the unsaved icon has a stronger color in the light theme.
+- After a sign-in, the mark of the sign-in page does not move when the app opens under the panel,
+  and it stops exactly on the logo of the sidebar. Before, on a system with scrollbars that take
+  space (for example Windows), the mark moved 5 px to the right when the app opened, and it stopped
+  5 px to the right of the logo and 5 px below it.
+- The first click after a dialog, an alert dialog or a sheet closes works. Before, the page did not
+  take the pointer until the close animation ended. For example, after "Stay" in the "Leave without
+  saving?" dialog of the pipeline editor, the first click on Save did nothing.
+- The French texts now use "la pipeline" (feminine) and "Bibliothèque" for the fragment library.
+- The texts agree with a count: "1 fragment" on the library page, "1 event since your visit" on the
+  dashboard, and in French "1 pipeline l'utilise : elle garde…" and the other counts of the
+  dashboard, the agents, the onboarding, the roles and the secrets. The last masculine French words
+  for a pipeline are gone, and the agent widget uses "Il" again for an agent.
+- Dates, times, relative times and numbers use the language of the UI, also after a change of the
+  language: "il y a 33 min", "lundi 23 novembre", "0,7 par jour", "89 %" in French. The French UI
+  calls the editor tab "Scripting" and the jobs "jobs", agrees the words of a legend with the jobs
+  that they count, writes the noun after a count in lower case ("3 projets"), and heads the column
+  of dates "Date d'ajout".
+- Percents, sizes and durations use the language of the UI: "100 %", "24 Go" and "19 s" in French.
+  The summary of a schedule follows a change of the language at once. The period presets of an agent
+  show "7 d", "30 d" and "90 d" ("7 j" in French), as on the dashboard. In French, a colon has a
+  no-break space before it ("ID : ..."), a slot of an agent is a "créneau", and the legends of the
+  dashboard use the same plural words. In English, the dashboard says "1 job", and the count of the
+  marketplace has a capital, as the list headers: "3 Fragments".
 
 ## [0.6.0] - 2026-11-01
 

@@ -47,11 +47,11 @@ msgstr "Ajoutez une autre méthode de connexion avant de retirer celle-ci"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:17
 msgid "Advanced: choose the actions"
-msgstr "Avancé : choisir les actions"
+msgstr "Avancé : choisir les actions"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:18
 msgid "Advanced: custom actions (no preset)"
-msgstr "Avancé : actions personnalisées (sans préréglage)"
+msgstr "Avancé : actions personnalisées (sans préréglage)"
 
 #: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:6
 msgid "Agent"
@@ -89,7 +89,7 @@ msgstr "Une invitation est déjà en attente pour cet e-mail"
 msgid "An invitation is required to sign up"
 msgstr "Une invitation est nécessaire pour s'inscrire"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:179
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:172
 msgid "An unexpected error occurred"
 msgstr "Une erreur inattendue s'est produite"
 
@@ -103,7 +103,7 @@ msgstr "Un autre secret du projet utilise déjà ce nom"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:40
 msgid "Another trigger of the pipeline already uses this name"
-msgstr "Un autre déclencheur du pipeline utilise déjà ce nom"
+msgstr "Un autre déclencheur de la pipeline utilise déjà ce nom"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:29
 msgid "Another workspace already uses this slug"
@@ -144,7 +144,7 @@ msgstr "Copier"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:34
 msgid "Could not copy: select the id manually"
-msgstr "Impossible de copier : sélectionnez l'ID manuellement"
+msgstr "Impossible de copier : sélectionnez l'ID manuellement"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:7
 msgid "Custom"
@@ -169,7 +169,7 @@ msgstr "deploy-script"
 
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:7
 msgid "Duration: {duration}"
-msgstr "Durée : {duration}"
+msgstr "Durée : {duration}"
 
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:4
 msgid "Enter a valid email address."
@@ -214,15 +214,15 @@ msgstr "Intégrations"
 
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:4
 msgid "Job {id}: {status}"
-msgstr "Job {id} : {status}"
+msgstr "Job {id} : {status}"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
 msgid "Job queued: it needs a container, and no connected agent has a container runtime"
-msgstr "Job en attente : il demande un conteneur, et aucun agent connecté n'a de runtime de conteneurs"
+msgstr "Job en attente : il demande un conteneur, et aucun agent connecté n'a de runtime de conteneurs"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
 msgid "Job queued: no agent connected"
-msgstr "Travail mis en file d'attente : aucun agent connecté"
+msgstr "Travail mis en file d'attente : aucun agent connecté"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:21
 msgid "Jobs"
@@ -266,11 +266,11 @@ msgstr "En attente"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:23
 msgid "Pipeline created"
-msgstr "Pipeline créé"
+msgstr "Pipeline créée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:24
 msgid "Pipeline deleted"
-msgstr "Pipeline supprimé"
+msgstr "Pipeline supprimée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:30
 msgid "Pipeline duplicated successfully"
@@ -278,15 +278,15 @@ msgstr "Pipeline dupliquée avec succès"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:25
 msgid "Pipeline edited"
-msgstr "Pipeline modifié"
+msgstr "Pipeline modifiée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:26
 msgid "Pipeline ran"
-msgstr "Pipeline exécuté"
+msgstr "Pipeline exécutée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
 msgid "Pipeline ran: check that your agents are connected"
-msgstr "Pipeline exécutée : vérifiez que vos agents sont bien connectés"
+msgstr "Pipeline exécutée : vérifiez que vos agents sont bien connectés"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:20
 msgid "Pipelines"
@@ -314,11 +314,11 @@ msgstr "Projets"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:33
 msgid "Projects: {names}"
-msgstr "Projets : {names}"
+msgstr "Projets : {names}"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:32
 msgid "Projects: all projects"
-msgstr "Projets : tous les projets"
+msgstr "Projets : tous les projets"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:25
 msgid "Read"
@@ -385,7 +385,7 @@ msgstr "Secrets"
 msgid "Server"
 msgstr "Serveur"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:171
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:167
 msgid "Server unreachable"
 msgstr "Serveur injoignable"
 
@@ -405,9 +405,9 @@ msgstr "Ignoré"
 msgid "Some projects"
 msgstr "Certains projets"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:176
-msgid "Someone else changed this item in the meantime. The page now shows the latest version."
-msgstr "Quelqu'un d'autre a modifié cet élément entre-temps. La page affiche maintenant la dernière version."
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:178
+msgid "Someone else changed this item in the meantime. Check the latest version and try again."
+msgstr "Quelqu'un d'autre a modifié cet élément entre-temps. Vérifiez la dernière version et réessayez."
 
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:5
 msgid "Started {time}"
@@ -459,7 +459,7 @@ msgstr "Les deux mots de passe ne sont pas identiques."
 
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:9
 msgid "The username is too long: 255 bytes at most."
-msgstr "Le nom d'utilisateur est trop long : 255 octets au maximum."
+msgstr "Le nom d'utilisateur est trop long : 255 octets au maximum."
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:31
 msgid "The workspace needs at least one other owner"
@@ -507,7 +507,7 @@ msgstr "Déclencheur activé"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:50
 msgid "Trigger fired: run started"
-msgstr "Déclencheur déclenché : exécution démarrée"
+msgstr "Déclencheur déclenché : exécution démarrée"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
 msgid "Trigger updated"
@@ -551,7 +551,7 @@ msgstr "Vérifiez d'abord votre adresse e-mail"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:26
 msgid "Wait {seconds} seconds before you send it again"
-msgstr "Attendez {seconds} secondes avant de le renvoyer"
+msgstr "{seconds, plural, one {Attendez {seconds} seconde avant de le renvoyer} other {Attendez {seconds} secondes avant de le renvoyer}}"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:27
 msgid "Wait before you send it again"
@@ -585,6 +585,6 @@ msgstr "Vous ne pouvez pas supprimer votre propre compte."
 msgid "You cannot do this on your own account"
 msgstr "Vous ne pouvez pas faire cela sur votre propre compte"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:172
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:168
 msgid "You don't have permission to perform this action"
 msgstr "Vous n'avez pas la permission d'effectuer cette action"

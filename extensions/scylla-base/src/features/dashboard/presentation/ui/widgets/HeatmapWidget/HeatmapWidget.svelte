@@ -1,9 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import CalendarDaysIcon from '@lucide/svelte/icons/calendar-days';
-  import { i18n } from '@lingui/core';
   import { ChartHeatCell, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
-  import { t } from '@scylla/ui/i18n';
+  import { intlLocale, t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { heatmapMessages as messages } from '@base/features/dashboard/presentation/messages/heatmap.messages.ts';
   import {
@@ -32,7 +31,7 @@
   const heatmap = createHeatmap(() => widgets, () => period);
   const small = $derived(size === 's' || size === 'xs');
   const levels = $derived(small ? heatLevels(pairHours(heatmap.grid)) : heatmap.levels);
-  const names = $derived(weekdayNames(i18n.locale || 'en', size === 's' ? 'narrow' : 'short'));
+  const names = $derived(weekdayNames(intlLocale(), size === 's' ? 'narrow' : 'short'));
   const busiest = $derived(busiestCell(heatmap.grid));
   const axis = $derived(size === 's' ? [0, 12, 24] : [0, 6, 12, 18, 24]);
   const labelPx = $derived(size === 's' ? 16 : 36);

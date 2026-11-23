@@ -62,6 +62,8 @@
   --error-foreground: #F4F7EB;
   --warning: #ECA851;
   --warning-foreground: #171715;
+  /* A warning drawn as text or an icon on the page: 3:1 at least on the background. */
+  --warning-strong: #A86A1C;
   --info: #287683;
   --info-foreground: #F4F7EB;
 
@@ -96,6 +98,10 @@
   /* Occurrence + bracket matches: a passive hint, deliberately weaker than the
      selection the user is actively dragging. */
   --code-editor-match-bg: rgba(93, 153, 114, 0.25);
+  /* The dim layer behind a modal, a sheet or the tour, and the lines drawn on it: the same in
+     the two themes. */
+  --overlay: #000000;
+  --overlay-foreground: #F4F7EB;
 }
 
 .dark {
@@ -149,6 +155,7 @@
   --error-foreground: #F4F7EB;
   --warning: #ECA851;
   --warning-foreground: #171715;
+  --warning-strong: #ECA851;
   --info: #4097A6;
   --info-foreground: #F4F7EB;
 
@@ -178,6 +185,8 @@
   --code-editor-selection-bg: rgba(122, 192, 145, 0.45);
   /* Matches keep the restrained accent — see the light-theme note above. */
   --code-editor-match-bg: rgba(93, 153, 114, 0.35);
+  --overlay: #000000;
+  --overlay-foreground: #F4F7EB;
 }
 
 @theme inline {
@@ -240,6 +249,7 @@
   --color-error-foreground: var(--error-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-warning-strong: var(--warning-strong);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
 
@@ -249,6 +259,9 @@
   --color-status-failed: var(--status-failed);
   --color-status-canceled: var(--status-canceled);
   --color-status-skipped: var(--status-skipped);
+
+  --color-overlay: var(--overlay);
+  --color-overlay-foreground: var(--overlay-foreground);
 }
 
 @layer base {

@@ -69,6 +69,10 @@ describe('LegalSettingsPage', () => {
       within(row).getByLabelText('Address of the page'),
       'https://acme.example/privacy',
     );
+    // The title of the operator has one language: the menus and the links show the kind.
+    expect(within(row).getByLabelText('Title')).toHaveAccessibleDescription(
+      'The page of the document shows this title. The menus and the links show "Privacy policy" in the language of the user.',
+    );
     // Only the terms ask an acceptance: no list of what changes.
     expect(within(row).queryByLabelText('What changes')).not.toBeInTheDocument();
     await user.click(within(row).getByRole('button', { name: 'Save' }));

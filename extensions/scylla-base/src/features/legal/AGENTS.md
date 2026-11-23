@@ -25,6 +25,9 @@ page "Legal and privacy" (`/admin/legal`). The data is in
 - One frame for each kind: the logo, "Back to Scylla", the language, Print; the table of contents
   from the h2 of the text (sticky on a wide screen); the title, the date and the version; the
   text; the other documents; `LegalFooter`. Print shows the text only.
+- The title above the text is the title of the operator, in the language of its text. The
+  eyebrow, the other documents and the page of a URL document show the title of the kind, in the
+  language of the UI.
 - A kind that is off, or unknown: "This document does not exist". A URL document: the page sends
   the browser to the URL.
 - The legal notice shows the identity of the operator above the text. The cookie policy shows
@@ -37,6 +40,7 @@ page "Legal and privacy" (`/admin/legal`). The data is in
 
 - The operator, each document (off, link or Markdown, with a title, a version, a date of effect
   and a preview), the privacy contact, and the state of the consent banner from the registry.
+  The hint of the title says that only the page of the document shows it.
 - Each card saves its own part: `UpdateLegalSettings` changes only the fields that it gets.
 - The switch "Users must accept this version again" and the text "What changes" (one change on
   each line, 2000 characters at most) are for the kinds of `ACCEPTANCE_KINDS`. The terms step of

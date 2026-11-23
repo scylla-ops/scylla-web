@@ -52,7 +52,7 @@ describe('ScyllaError', () => {
     expect(new ScyllaError('boom', { code: 'FAILED_PRECONDITION' }).isConflict()).toBe(false);
   });
 
-  it('is not transient for a conflict: the same write fails again until the item is read again', () => {
+  it('is not transient for a conflict: sending the same call again does not resolve it', () => {
     expect(new ScyllaError('boom', { code: 'ABORTED' }).isTransient()).toBe(false);
   });
 
@@ -115,15 +115,13 @@ describe('ScyllaError', () => {
       );
     });
 
-    it('tells a conflict in the words of the app, never with the server text', () => {
+    it('never shows the server text of a conflict: only a mutation has words for it', () => {
       expect(
         new ScyllaError("Pipeline 'p-1' changed since it was read; read it again and retry", {
           code: 'ABORTED',
           raw: true,
         }).userMessage(),
-      ).toBe(
-        'Someone else changed this item in the meantime. The page now shows the latest version.',
-      );
+      ).toBe('An unexpected error occurred');
     });
 
     it('never shows the raw text of a server fault or of a bug', () => {
@@ -147,6 +145,31 @@ describe('ScyllaError', () => {
       expect(new ScyllaError('', { code: 'INVALID_ARGUMENT' }).userMessage()).toBe(
         'An unexpected error occurred',
       );
+    });
+  });
+
+  describe('mutationMessage', () => {
+    it('tells a write refused by a conflict in the words of the app, never the server text', () => {
+      expect(
+        new ScyllaError('the pipeline changed: read it again', {
+          code: 'ABORTED',
+          raw: true,
+        }).mutationMessage(),
+      ).toBe(
+        'Someone else changed this item in the meantime. Check the latest version and try again.',
+      );
+    });
+
+    it('gives the user message of any other failure', () => {
+      expect(
+        new ScyllaError('name must be unique', {
+          code: 'ALREADY_EXISTS',
+          raw: true,
+        }).mutationMessage(),
+      ).toBe('name must be unique');
+      expect(
+        new ScyllaError('panic at db.rs:42', { code: 'INTERNAL', raw: true }).mutationMessage(),
+      ).toBe('An unexpected error occurred');
     });
   });
 

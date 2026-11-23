@@ -22,7 +22,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
 | `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
-| `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
+| `@scylla/ui/i18n` | `t`, `activeLocale`, `intlLocale` (the locale for `Intl`, `en` before the first activation), `formatNumber` (a decimal, a percent or a large number in the language of the UI), `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
 | `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
@@ -75,6 +75,13 @@ a new variant or a new state: add or change its entry in `catalog/src/` in the s
 `@scylla/ui/i18n` holds the Lingui runtime of the app. The core registers its own catalog and
 the catalogs of each extension (`@Extension({ catalogs })`) before `initializeAppLocale`. The
 catalogs of this package register themselves.
+
+A date, a time or a number that the user reads follows the language of the UI, also when it
+changes after the first render (the language of the server comes after the load). Read the
+locale with `intlLocale()` and format a number with `formatNumber`: both read the rune of the
+locale, thus a template or a `$derived` that calls them renders again at a switch. Do not read
+`i18n.locale` of Lingui for this, and do not call `toLocaleString()` or `toFixed()` for a text:
+they use the language of the browser or no language.
 
 ## Reuse these — do not reinvent
 
@@ -231,6 +238,12 @@ What a port has to get right, all of it invisible to the compiler:
   the dialog on click. Every confirmation here keeps the dialog open and disabled while its
   mutation runs; the parent owns `open`. Do not "fix" this.
 - The alert dialog is a **real** `role="alertdialog"` that ignores an outside click.
+- **A modal content (`DialogContent`, `AlertDialogContent`, `SheetContent`) renders its element
+  through the `child` snippet of bits-ui.** With `children`, bits-ui keeps `pointer-events: none`
+  on `<body>` until the exit animation ends, and a click in that time is lost. With `child`, the
+  lock ends when the modal closes. The overlay and the content also get `CLOSING_LAYER_CLASS`
+  (`dialog/dialog-variants.ts`): while they fade out, the pointer goes through them. The test
+  "gives the page back to the pointer when it closes" of each of the three fails without this.
 - **bits-ui drops ARIA roles Radix set, and the wrapper puts them back.** The tooltip content had
   no `role="tooltip"`; the select trigger had every piece of the combobox pattern —
   `aria-haspopup`, `aria-expanded`, `aria-activedescendant` — but no `role="combobox"`. Nothing
@@ -464,6 +477,13 @@ the app: red, and the red comes from a variant.
   Thus a title has no font class and no weight class, and an `h1` has no size, `leading-*` or
   `tracking-*` class. `layout/__test__/title-font.test.ts` fails when it has one. Text that is a
   title is a heading element: a `p` with a large or bold class keeps Funnel Sans.
+- **A color class names a token of the theme** (`text-success`, `bg-info/5`), never a color of
+  the default palette of Tailwind (`text-green-500`, `bg-black`, `text-white`). A palette color
+  does not change with the theme. A new color is a new token in `styles.css`. The dim layer
+  behind a modal, a sheet or the tour is `bg-overlay/<opacity>`, and a line on it is
+  `overlay-foreground`: the two tokens are the same in the two themes.
+  `__test__/theme-colors.test.ts` fails when a class string of `apps`, `packages`, `sdks`,
+  `extensions` or `catalog` names a palette color.
 - **A choice card centers its control.** A radio, a checkbox or a switch in a `Label` (a card
   with a title and a description, or a row) is centered vertically on the whole label, not on
   the line of the title: `items-center` on the label, and no `items-start`, `items-baseline`,

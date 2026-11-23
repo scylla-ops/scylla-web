@@ -6,6 +6,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { addAgentMessages as messages } from '@base/features/apps/presentation/messages/add-agent.messages.ts';
+  import { memoryText } from '@base/features/apps/presentation/presenters/agent-figures.presenter.ts';
 
   interface Props {
     app: AppEntity;
@@ -23,7 +24,7 @@
     return [
       `${host.os}/${host.arch}`,
       host.cpuCount ? `${host.cpuCount} CPU` : '',
-      host.totalMemoryMb ? `${Math.round(host.totalMemoryMb / 1024)} GB` : '',
+      host.totalMemoryMb ? memoryText(host.totalMemoryMb) : '',
       t(messages.jobsAtOnce(host.capacity)),
       host.containerRuntime,
     ].filter(Boolean);

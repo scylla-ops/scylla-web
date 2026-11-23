@@ -1,4 +1,4 @@
-import { t } from '@scylla/ui/i18n';
+import { formatNumber, t } from '@scylla/ui/i18n';
 import type { AppEntity, AppHost, AppJob } from '@base/features/apps';
 import type { PipelineSummary } from '@base/features/pipeline';
 import type { AgentMetricsBucket } from '@base/features/dashboard/domain/structs/agent-metrics.struct.ts';
@@ -20,6 +20,10 @@ const MIN_LOAD_FILL = 2;
 /** `null` is an hour with no sample. A load above 0 fills at least 2 % so it does not read as 0 %. */
 export const loadFill = (value: number | null): number | null =>
   value === null ? null : value <= 0 ? 0 : Math.min(100, Math.max(MIN_LOAD_FILL, value));
+
+/** A load in whole percent: "45%", "45 %" in French. `null` (no sample) gives a dash. */
+export const loadText = (value: number | null): string =>
+  value === null ? '—' : formatNumber(value / 100, { style: 'percent', maximumFractionDigits: 0 });
 
 const percentOf = (bytes: number, totalMb: number | null | undefined): number | null =>
   totalMb ? Math.min(100, Math.round((bytes / (totalMb * BYTES_IN_MB)) * 100)) : null;

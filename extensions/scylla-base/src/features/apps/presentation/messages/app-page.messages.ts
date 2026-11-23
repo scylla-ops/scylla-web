@@ -12,6 +12,7 @@ export const appPageMessages = {
   details: msg`Details`,
   expiry: msg`Expiry`,
   lastUsedColumn: msg`Last used`,
+  lastUsedLine: (when: string) => msg`Last used: ${when}`,
   noCredential: msg`No credential yet. Add one so the app can sign in.`,
   credentialsHint: msg`API tokens expire after 7, 30 or 90 days, or 1 year. A warning shows 14 days before the end. A CI identity and a key pair have no secret to expire.`,
   apiToken: msg`API token`,

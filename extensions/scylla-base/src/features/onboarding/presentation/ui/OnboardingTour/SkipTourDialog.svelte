@@ -1,38 +1,29 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition';
-  import { ScyllaDialog, motionDuration } from '@scylla/ui';
+  import { ScyllaDialog } from '@scylla/ui';
   import { Button, DialogFooter } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
     onboardingMessages,
   } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
   import { SCYLLA_DOCS_URL } from './tour-steps.registry.ts';
-  import { portalToBody } from './tour-tracking.attachments.svelte.ts';
 
   interface Props {
     open: boolean;
+    /** True when another dialog is open below: its overlay already dims the page. */
+    overBackdrop?: boolean;
     onSkip: () => void;
     onContinue: () => void;
   }
 
-  let { open, onSkip, onContinue }: Props = $props();
+  let { open, overBackdrop = false, onSkip, onContinue }: Props = $props();
 </script>
-
-{#if open}
-  <div
-    {@attach portalToBody}
-    out:fade={{ duration: motionDuration(150) }}
-    class="fixed inset-0 z-[205] bg-black/80"
-    data-tour-skip-backdrop
-    aria-hidden="true"
-  ></div>
-{/if}
 
 <ScyllaDialog
   {open}
   onOpenChange={next => {
     if (!next) onContinue();
   }}
+  overlayClass={overBackdrop ? 'z-[205] bg-transparent!' : 'z-[205]'}
   class="z-[210] sm:max-w-[440px]"
   title={t(onboardingMessages.skipTitle)}
   description={t(onboardingMessages.skipBody)}

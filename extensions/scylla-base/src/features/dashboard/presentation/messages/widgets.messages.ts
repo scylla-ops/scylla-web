@@ -18,9 +18,10 @@ export const widgetMessages = {
   noJobsInPeriodText: msg`No job started in this period. Choose a longer period.`,
   noEndedJobsInPeriod: msg`No ended jobs in this period`,
 
-  completed: msg`Completed`,
-  failed: msg`Failed`,
-  orphaned: msg`Orphaned`,
+  /** The names of the jobs of a legend, as `cancelledLegend`. */
+  completed: msg({ context: 'legend', message: 'Completed' }),
+  failed: msg({ context: 'legend', message: 'Failed' }),
+  orphaned: msg({ context: 'legend', message: 'Orphaned' }),
   cancelledApart: (count: number) => msg`${count} cancelled, not counted`,
   pointsChange: (change: string) => msg`${change} pts`,
   vsPreviousPeriod: msg`vs the previous period`,
@@ -77,6 +78,11 @@ export const widgetMessages = {
   failedLower: msg`failed`,
   orphanedLower: msg`orphaned`,
   completedLower: msg`completed`,
+  /** The outcome of one job, in a row. The words above name all the jobs of a legend. */
+  oneCompleted: msg({ context: 'one job', message: 'completed' }),
+  oneFailed: msg({ context: 'one job', message: 'failed' }),
+  oneCancelled: msg({ context: 'one job', message: 'cancelled' }),
+  oneOrphaned: msg({ context: 'one job', message: 'orphaned' }),
 
   runPipeline: msg`Run pipeline`,
   addAgent: msg`Add an agent`,

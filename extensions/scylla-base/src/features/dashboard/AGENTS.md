@@ -215,7 +215,11 @@ narrower permission without moving that redirect target too.
   has a track of the full height (`bg-muted/70`), and the value fills it from the bottom. A day
   bar fills against the highest day (`dayBars`); a load bar fills against 100 % (`loadFill`), at
   least 2 % above 0. A bucket with no run, or an hour with no sample, shows a dashed track and no
-  fill: it is not a real 0 %. The tooltip of a day with no run says "No run".
+  fill: it is not a real 0 %. The tooltip of a day with no run says "No run". The figure of a load
+  is `loadText`: the percent of the language of the UI ("45%", "45 %" in French).
+- **The legends of Success rate and of Last 24 hours use the same words**: the outcomes of all
+  the jobs, in the plural ("Completed", "completed"; "Terminés", "terminés"). The context `legend`
+  separates them from the outcome of one job (context `one job`).
 - **A mark of a strip of runs opens its job**, as on the pipelines list: Pipelines (`s`, `m`,
   `l` and the sheet), Pipeline (each size) and the recent jobs of Agent. Each mark is a
   `JobRunMark` of `@shared/presentation/ui`, with a `RunMark` of `widget-rows.presenter.ts`

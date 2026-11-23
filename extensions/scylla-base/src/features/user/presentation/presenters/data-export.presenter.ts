@@ -1,4 +1,4 @@
-import { i18n } from '@lingui/core';
+import { formatNumber } from '@scylla/ui/i18n';
 import type { AccountDataExport } from '@base/features/user/domain/entities/user.entity.ts';
 
 /** What the panel of the export shows of a copy, and the name of its file. */
@@ -16,12 +16,12 @@ const MEGABYTE = 1000 * KILOBYTE;
 const sizeOf = (bytes: number): string => {
   const [value, unit] =
     bytes >= MEGABYTE ? [bytes / MEGABYTE, 'megabyte'] : [bytes / KILOBYTE, 'kilobyte'];
-  return new Intl.NumberFormat(i18n.locale || 'en', {
+  return formatNumber(value, {
     style: 'unit',
     unit,
     unitDisplay: 'short',
     maximumFractionDigits: 1,
-  }).format(value);
+  });
 };
 
 /** The name and the size of the file of a copy of the account data. */

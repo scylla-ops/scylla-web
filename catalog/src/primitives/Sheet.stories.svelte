@@ -27,7 +27,7 @@
 
 <Story name="Light overlay" asChild>
   <Dialog open>
-    <SheetContent side="right" overlayClass="bg-black/25" class="p-5">
+    <SheetContent side="right" overlayClass="bg-overlay/25" class="p-5">
       <DialogTitle>Success rate</DialogTitle>
       <DialogDescription>The page stays readable behind the sheet.</DialogDescription>
     </SheetContent>

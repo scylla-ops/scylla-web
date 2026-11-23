@@ -117,8 +117,21 @@ const problemOf = (issue: NodeIssue | null): NodeSummary['problem'] => {
   return { label: issue.kind === 'run' ? detail : t(PROBLEM_LABELS[issue.kind]), detail };
 };
 
+/**
+ * The `before` box is the zone around the point: a pointer in it hovers the point, and can pull it.
+ * It goes far out of the node and only a little into it, so that the node can still be dragged.
+ * A hover changes the size, not `scale`: `scale` also scales the `transform` that centres a handle.
+ */
+export const HANDLE =
+  "size-2.5! border-[1.5px]! bg-card! transition-[width,height,background-color,border-color] duration-150 before:absolute before:-inset-y-5 before:content-[''] [&.source]:before:-left-1 [&.source]:before:-right-6 [&.target]:before:-right-1 [&.target]:before:-left-6 hover:size-3.5! hover:border-primary! hover:bg-primary!";
+
+/** Handles are 16 to 20 px apart on a node with many ports: the zone stays inside that, or it takes the wrong port. */
+export const STACKED_HANDLE_ZONE = 'before:-inset-y-px';
+
+export const START_HANDLE_CLASS = cn(HANDLE, 'border-primary!');
+
 export const handleClass = (summary: NodeSummary, selected: boolean) =>
-  cn('size-2.5! border-[1.5px]! bg-card!', selected ? summary.tone.handle : 'border-input!');
+  cn(HANDLE, selected ? summary.tone.handle : 'border-input!');
 
 /** The `error` handle is red, selected or not. */
-export const errorHandleClass = 'size-2.5! border-[1.5px]! border-destructive! bg-destructive!';
+export const errorHandleClass = cn(HANDLE, 'border-destructive! bg-destructive!');

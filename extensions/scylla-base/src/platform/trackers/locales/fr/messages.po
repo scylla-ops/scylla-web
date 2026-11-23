@@ -75,7 +75,7 @@ msgstr "Garde l'espace de travail et le projet que vous avez ouverts."
 
 #: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:25
 msgid "Keeps you signed in: it holds the token of the session of this browser."
-msgstr "Vous garde connecté : il contient le jeton de la session de ce navigateur."
+msgstr "Vous garde connecté : il contient le jeton de la session de ce navigateur."
 
 #: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:52
 msgid "Keeps your choice for the trackers that need your consent, so the app does not ask again. The app sets it only when it has such a tracker."
@@ -95,7 +95,7 @@ msgstr "Garde votre progression dans la visite guidée."
 
 #: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:61
 msgid "Keeps your theme: light, dark or the theme of the system."
-msgstr "Garde votre thème : clair, sombre ou celui du système."
+msgstr "Garde votre thème : clair, sombre ou celui du système."
 
 #: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:35
 msgid "Let you talk to the support team from the app."
@@ -103,7 +103,7 @@ msgstr "Vous permettent de parler à l'équipe de support depuis l'application."
 
 #: extensions/scylla-base/src/platform/trackers/presentation/messages/trackers.messages.ts:19
 msgid "Lifetime: {lifetime}"
-msgstr "Durée de vie : {lifetime}"
+msgstr "Durée de vie : {lifetime}"
 
 #: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:34
 msgid "Links a sign-in with GitHub, GitLab or OIDC to this browser, against a forged sign-in."

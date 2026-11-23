@@ -24,8 +24,9 @@ export const marketplaceMessages = {
   categoryHeading: msg`Category`,
   stackHeading: msg`Stack`,
   runsOnYourAgents: msg`Fragments run on your own agents. Check the steps and required secrets before adding one.`,
+  /** A title, as in `FeatureHeader`: "3 Fragments" in English, "3 fragments" in French. */
   fragmentCount: (count: number) =>
-    msg`${plural(count, { one: '# fragment', other: '# fragments' })}`,
+    msg`${plural(count, { one: '# Fragment', other: '# Fragments' })}`,
   verifiedPublishers: msg`verified publishers`,
   clearFilters: msg`Clear filters`,
   noMatch: msg`No fragment matches these filters.`,

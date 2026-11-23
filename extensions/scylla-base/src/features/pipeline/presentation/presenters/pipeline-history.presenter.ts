@@ -1,5 +1,5 @@
 import type { StatusState } from '@scylla/ui';
-import { t } from '@scylla/ui/i18n';
+import { formatNumber, t } from '@scylla/ui/i18n';
 import type { JobEntity } from '@base/features/jobs';
 import { isActiveStatus } from '@shared/domain/structs/job-status.struct.ts';
 import { formatDuration } from '@shared/utils/date-utils.ts';
@@ -131,7 +131,10 @@ export const historyStats = (jobs: JobEntity[], count: number, now: number): His
 export const historyFigures = (stats: HistoryStats): { label: string; value: string }[] => [
   {
     label: t(pipelineMessages.passed),
-    value: stats.passRate === null ? '-' : `${Math.round(stats.passRate * 100)}%`,
+    value:
+      stats.passRate === null
+        ? '-'
+        : formatNumber(stats.passRate, { style: 'percent', maximumFractionDigits: 0 }),
   },
   {
     label: t(pipelineMessages.median),

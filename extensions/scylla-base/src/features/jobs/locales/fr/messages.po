@@ -15,11 +15,11 @@ msgstr ""
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:44
 msgid "{count} {status} nodes"
-msgstr "{count} nœuds {status}"
+msgstr "{count, plural, one {{count} nœud {status}} other {{count} nœuds {status}}}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:46
 msgid "{count} / {total} nodes ({percent}%)"
-msgstr "{count} / {total} nœuds ({percent} %)"
+msgstr "{total, plural, one {{count} / {total} nœud ({percent} %)} other {{count} / {total} nœuds ({percent} %)}}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:20
 msgid "{path} @ {sha}"
@@ -51,7 +51,7 @@ msgstr "Approuver et exécuter"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:34
 msgid "Approve it to run it without secrets: the secret variables are empty and SCYLLA_GIT_FORK is true. Each new commit on the pull request needs a new approval."
-msgstr "Approuvez-la pour l'exécuter sans secrets : les variables secrètes sont vides et SCYLLA_GIT_FORK vaut true. Chaque nouveau commit de la pull request demande une nouvelle approbation."
+msgstr "Approuvez-la pour l'exécuter sans secrets : les variables secrètes sont vides et SCYLLA_GIT_FORK vaut true. Chaque nouveau commit de la pull request demande une nouvelle approbation."
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:43
 msgid "Approved at {time}"
@@ -152,7 +152,7 @@ msgstr "Durée"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:41
 msgid "Duration: {duration}"
-msgstr "Durée : {duration}"
+msgstr "Durée : {duration}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:86
 msgid "Error"
@@ -181,7 +181,7 @@ msgstr "Terminé le"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:40
 msgid "Finished: {time}"
-msgstr "Terminé : {time}"
+msgstr "Terminé : {time}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:74
 msgid "Fix the connection"
@@ -274,7 +274,7 @@ msgstr "aucun agent avec Git et le checkout n'est en ligne"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:72
 msgid "No case matched: the switch opened no port."
-msgstr "Aucun cas ne correspond : le switch n'a ouvert aucun port."
+msgstr "Aucun cas ne correspond : le switch n'a ouvert aucun port."
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:6
 msgid "No jobs found"
@@ -314,7 +314,7 @@ msgstr "Non pris"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:69
 msgid "Not taken: the path did not reach it."
-msgstr "Non pris : le chemin ne l'a pas atteint."
+msgstr "Non pris : le chemin ne l'a pas atteint."
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:41
 msgid "Only an editor of the project can approve this run."
@@ -338,11 +338,11 @@ msgstr "L'identifiant de pipeline est manquant"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:14
 msgid "Pipeline ID:"
-msgstr "ID de pipeline :"
+msgstr "ID de pipeline :"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:71
 msgid "Ports chosen: {ports}"
-msgstr "Ports choisis : {ports}"
+msgstr "Ports choisis : {ports}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:10
 msgid "PR"
@@ -366,7 +366,7 @@ msgstr "Push du tag {tag}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:24
 msgid "queued: waiting for an agent"
-msgstr "en file : en attente d'un agent"
+msgstr "en file : en attente d'un agent"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:28
 msgid "Re-run"
@@ -463,11 +463,11 @@ msgstr "Démarré le"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:39
 msgid "Started: {time}"
-msgstr "Démarré : {time}"
+msgstr "Démarré : {time}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:38
 msgid "State: {state}"
-msgstr "État : {state}"
+msgstr "État : {state}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:17
 msgid "Status"
@@ -487,7 +487,7 @@ msgstr "Tag"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:73
 msgid "The failure went to the error output: {nodes}."
-msgstr "L'échec est allé vers la sortie d'erreur : {nodes}."
+msgstr "L'échec est allé vers la sortie d'erreur : {nodes}."
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:42
 msgid "The job failed"

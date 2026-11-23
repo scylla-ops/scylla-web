@@ -33,11 +33,11 @@ msgstr "Personnaliser"
 
 #: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:19
 msgid "Partners: {names}"
-msgstr "Partenaires : {names}"
+msgstr "Partenaires : {names}"
 
 #: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:10
 msgid "Purposes: {purposes}"
-msgstr "Finalités : {purposes}"
+msgstr "Finalités : {purposes}"
 
 #: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:11
 msgid "Reject all"
@@ -65,7 +65,7 @@ msgstr "Vous n'avez pas encore fait de choix."
 
 #: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:23
 msgid "Your browser sends Global Privacy Control. Scylla takes it as a refusal of each purpose, so the trackers that need consent stay off."
-msgstr "Votre navigateur envoie le signal Global Privacy Control. Scylla le prend comme un refus de chaque finalité : les traceurs qui demandent un consentement restent inactifs."
+msgstr "Votre navigateur envoie le signal Global Privacy Control. Scylla le prend comme un refus de chaque finalité : les traceurs qui demandent un consentement restent inactifs."
 
 #: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:8
 msgid "Your choice about cookies"
@@ -77,4 +77,4 @@ msgstr "Votre choix est enregistré."
 
 #: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:21
 msgid "Your last choice: {date}"
-msgstr "Votre dernier choix : {date}"
+msgstr "Votre dernier choix : {date}"
