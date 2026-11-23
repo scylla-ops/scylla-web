@@ -47,6 +47,10 @@
   const linkSources = untrack(() =>
     contributions.flatMap(shell => shell.secondSidebarLinks?.(() => content?.id) ?? []),
   );
+  const searchSources = untrack(() =>
+    contributions.flatMap(shell => shell.secondSidebarSearch?.(() => content?.id) ?? []),
+  );
+  const search = $derived(searchSources.map(source => source()).find(Boolean));
   const shown = $derived(
     content && withModuleLinks(content, linkSources.flatMap(links => links())),
   );
@@ -129,6 +133,7 @@
     id={SECOND_SIDEBAR_ID}
     content={shown}
     {panel}
+    {search}
     {pathname}
     {ready}
     {badges}

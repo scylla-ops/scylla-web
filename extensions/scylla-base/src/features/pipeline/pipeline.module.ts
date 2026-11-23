@@ -12,7 +12,10 @@ import { DefaultNodeTemplateRepository } from './infrastructure/default-node-tem
 import { DefaultFragmentRepository } from './infrastructure/default-fragment.repository.ts';
 import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
 import { pipelineCommands } from './presentation/pipeline.commands.ts';
-import { fragmentLinks } from './presentation/ui/library/fragment-links.state.svelte.ts';
+import {
+  fragmentLinks,
+  fragmentSearch,
+} from './presentation/ui/library/fragment-links.state.svelte.ts';
 import './presentation/node-appearance.user-state.ts';
 
 const pipelineClient = new PipelineServiceClient(grpcTransport.getTransport());
@@ -103,5 +106,6 @@ export const PipelineModule = {
   },
   shell: {
     secondSidebarLinks: fragmentLinks,
+    secondSidebarSearch: fragmentSearch,
   },
 } satisfies ScyllaModule;

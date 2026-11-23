@@ -1,8 +1,9 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import type { Component } from 'svelte';
+  import type { SecondSidebarSearch } from '@scylla/core-sdk';
   import { prefersReducedMotion } from '@scylla/ui';
-  import { Skeleton } from '@scylla/ui/primitives';
+  import { Input, Skeleton } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import type { NavItem, SecondSidebarContent } from '../structs/nav-section.struct.ts';
   import { NAV_DANGER_APART_CLASS, NAV_HEADING_CLASS } from './nav-classes.ts';
@@ -13,6 +14,8 @@
     content: SecondSidebarContent | undefined;
     /** Replaces the title and the links of `content`. */
     panel?: Component;
+    /** A search field above the links. */
+    search?: SecondSidebarSearch;
     pathname: string;
     ready: boolean;
     badges: readonly Component<{ url: string }>[];
@@ -30,6 +33,7 @@
     badges,
     onOpenPage,
     panel: Panel,
+    search,
     untitled = false,
     class: className,
   }: Props = $props();
@@ -72,10 +76,22 @@
             <h2 class="truncate text-base" title={content.title}>{content.title}</h2>
           </div>
         {/if}
+        {#if search}
+          <div class={cn('shrink-0 px-2 pb-2', untitled && 'pt-2')}>
+            <Input
+              type="search"
+              value={search.value}
+              oninput={event => search.onchange(event.currentTarget.value)}
+              placeholder={search.placeholder}
+              aria-label={search.label}
+              class="h-8 bg-background"
+            />
+          </div>
+        {/if}
         <ul
           class={cn(
             'relative flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2',
-            untitled && 'pt-2',
+            untitled && !search && 'pt-2',
           )}
         >
           {#each content.pages as page (page.href)}

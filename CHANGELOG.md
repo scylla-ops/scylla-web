@@ -249,6 +249,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - A sign-in with GitHub, GitLab or OIDC plays the same arrival: the dots of the mark turn until the
   browser goes to the provider, and the panel, the curtain and the flight of the mark play when the
   provider sends the browser back to the app. A failed or stopped sign-in plays no motion.
+- Search the fragments in the sidebar of the Library to filter the list.
 
 ### Changed
 

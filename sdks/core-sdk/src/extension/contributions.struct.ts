@@ -53,6 +53,15 @@ export interface SecondSidebarLink {
   apart?: boolean;
 }
 
+/** A search field above the links of the second sidebar. The module filters its own links. */
+export interface SecondSidebarSearch {
+  /** The accessible name of the field. */
+  label: string;
+  placeholder: string;
+  value: string;
+  onchange: (value: string) => void;
+}
+
 /** What a module adds to the core's shell. */
 export interface ShellContributions {
   /** Below the sidebar links, e.g. the user menu. */
@@ -83,6 +92,11 @@ export interface ShellContributions {
    * id of what the second sidebar shows, a `NavGroup`, a section or the path of a link.
    */
   secondSidebarLinks?: (shown: () => string | undefined) => () => readonly SecondSidebarLink[];
+  /**
+   * A search field between the title and the links of the second sidebar, e.g. to filter the
+   * links of `secondSidebarLinks`. Called once, like it. It returns nothing while there is no field.
+   */
+  secondSidebarSearch?: (shown: () => string | undefined) => () => SecondSidebarSearch | undefined;
   /**
    * Replace the second sidebar while it shows a rail item, e.g. with the controls of a page. The
    * key is the id of the rail item: a `NavGroup`, a section or the path of a link.
