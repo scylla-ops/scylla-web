@@ -5,6 +5,7 @@ import { ARRIVAL_MS, arrival } from './arrival.state.svelte.ts';
 import ArrivalOverlay from './ArrivalOverlay.svelte';
 
 const overlay = () => document.querySelector('[data-slot="arrival"]');
+const appCover = () => document.querySelector('[data-slot="arrival-back"]');
 
 const media = (matching: readonly string[]) =>
   vi.mocked(window.matchMedia).mockImplementation(
@@ -15,6 +16,7 @@ beforeEach(() => vi.useFakeTimers());
 
 afterEach(() => {
   arrival.reset();
+  sessionStorage.clear();
   vi.useRealTimers();
 });
 
@@ -51,5 +53,67 @@ describe('ArrivalOverlay', () => {
     expect(overlay()).not.toBeNull();
     expect(overlay()?.querySelector('[data-part="arrival-panel"]')).toBeNull();
     expect(overlay()?.querySelector('img')).not.toBeNull();
+  });
+
+  describe('after a sign-in with a provider', () => {
+    const backFromProvider = () =>
+      sessionStorage.setItem(
+        'scylla.sign-in-arrival',
+        JSON.stringify({ at: Date.now(), to: window.location.pathname }),
+      );
+
+    it('hides the app under the panel of the sign-in page from the first frame', () => {
+      media(['(min-width: 64rem)']);
+      backFromProvider();
+
+      render(ArrivalOverlay);
+
+      expect(appCover()).toHaveAttribute('aria-hidden', 'true');
+      const mark = appCover()?.querySelector('[data-slot="logo-mark"]');
+      expect(mark).toHaveAttribute('data-state', 'idle');
+      vi.advanceTimersByTime(ARRIVAL_MS.back);
+      flushSync();
+      expect(mark).toHaveAttribute('data-state', 'lit');
+      expect(overlay()).toBeNull();
+    });
+
+    it('closes the curtain over it, then removes it under the full panel', () => {
+      media(['(min-width: 64rem)']);
+      backFromProvider();
+      render(ArrivalOverlay);
+
+      vi.advanceTimersByTime(ARRIVAL_MS.back + ARRIVAL_MS.light);
+      flushSync();
+      expect(overlay()?.querySelector('[data-part="arrival-panel"]')).not.toBeNull();
+      expect(appCover()).not.toBeNull();
+
+      vi.advanceTimersByTime(ARRIVAL_MS.curtain);
+      flushSync();
+      expect(overlay()).not.toBeNull();
+      expect(appCover()).toBeNull();
+    });
+
+    it('shows the veil from the first frame below lg', () => {
+      media([]);
+      backFromProvider();
+
+      render(ArrivalOverlay);
+
+      expect(overlay()?.querySelector('img')).not.toBeNull();
+      expect(appCover()).toBeNull();
+    });
+
+    it('plays nothing at the start of a page that is not the return path', () => {
+      media(['(min-width: 64rem)']);
+      sessionStorage.setItem(
+        'scylla.sign-in-arrival',
+        JSON.stringify({ at: Date.now(), to: '/acme/dashboard' }),
+      );
+
+      render(ArrivalOverlay);
+
+      expect(appCover()).toBeNull();
+      expect(overlay()).toBeNull();
+    });
   });
 });

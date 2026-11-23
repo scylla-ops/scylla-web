@@ -33,10 +33,13 @@ export class LoginState {
     return this.mutation.isPending || this.mutation.isSuccess;
   }
 
-  /** The dots of the mark of the panel: grey while the request runs, lit once it succeeds. */
+  /**
+   * The dots of the mark of the panel: grey while the request runs or the tab leaves for a
+   * provider, lit once the request succeeds.
+   */
   get mark(): LogoMarkState {
     if (this.mutation.isSuccess) return 'lit';
-    return this.mutation.isPending ? 'waiting' : 'idle';
+    return this.mutation.isPending || arrival.leaving ? 'waiting' : 'idle';
   }
 
   /** The panel closes over the form. */

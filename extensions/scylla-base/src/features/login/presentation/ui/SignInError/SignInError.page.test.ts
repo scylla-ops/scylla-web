@@ -1,6 +1,8 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { arrival } from '../ArrivalOverlay/arrival.state.svelte.ts';
 import SignInErrorPage from './SignInError.page.svelte';
 
 let teardown: Array<() => void> = [];
@@ -21,10 +23,17 @@ const openAt = (
 const hrefOf = (name: string) =>
   new URL(screen.getByRole('link', { name }).getAttribute('href') ?? '', window.location.origin);
 
+const stayHere = (event: Event) => event.preventDefault();
+
 afterEach(() => {
   teardown.forEach(restore => restore());
+  window.removeEventListener('click', stayHere);
+  arrival.reset();
+  sessionStorage.clear();
   history.replaceState(null, '', '/');
 });
+
+const mark = () => document.querySelector('[data-slot="logo-mark"]');
 
 describe('SignInErrorPage', () => {
   it('names the provider, tells the code, and offers to try again', async () => {
@@ -80,5 +89,25 @@ describe('SignInErrorPage', () => {
     const retry = hrefOf('Try again');
     expect(retry.searchParams.get('link')).toBe('true');
     expect(retry.searchParams.get('return_to')).toBe(`${window.location.origin}/account/security`);
+  });
+
+  it('waits on the mark when it tries the sign-in again, and plays the arrival at the return', async () => {
+    openAt('/sign-in-error?code=access_denied&provider=okta');
+    window.addEventListener('click', stayHere);
+
+    await userEvent.click(await screen.findByRole('link', { name: 'Try again' }));
+
+    expect(mark()).toHaveAttribute('data-state', 'waiting');
+    expect(sessionStorage.getItem('scylla.sign-in-arrival')).toContain('"to":"/"');
+  });
+
+  it('plays no arrival after a new link to the account', async () => {
+    openAt('/sign-in-error?code=provider_refused&provider=okta&link=true');
+    window.addEventListener('click', stayHere);
+
+    await userEvent.click(await screen.findByRole('link', { name: 'Try again' }));
+
+    expect(mark()).toHaveAttribute('data-state', 'idle');
+    expect(sessionStorage.getItem('scylla.sign-in-arrival')).toBeNull();
   });
 });

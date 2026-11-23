@@ -12,6 +12,7 @@
     linkSlot,
     termsLinks,
   } from '@base/features/login/presentation/presenters/linked-text.presenter.ts';
+  import { arrival } from '../ArrivalOverlay/arrival.state.svelte.ts';
   import LinkedText from '../LinkedText/LinkedText.svelte';
 
   interface Props {
@@ -36,7 +37,10 @@
   });
 </script>
 
-<!-- One link per identity provider of the server: a full page load to the provider. -->
+<!--
+  One link per identity provider of the server: a full page load to the provider. The arrival
+  plays when the provider sends the tab back.
+-->
 {#if providers.length > 0}
   <div class="mt-2 flex flex-col gap-2">
     <div class="flex items-center gap-2 text-xs text-muted-foreground">
@@ -50,6 +54,7 @@
         class="w-full"
         href={providerStartUrl(apiUrl, provider.slug, window.location.origin, returnPath)}
         rel="external"
+        onclick={event => arrival.leave(event, returnPath)}
       >
         <ProviderMark kind={provider.kind} />
         {t(signUpMessages.continueWith(provider.displayName))}

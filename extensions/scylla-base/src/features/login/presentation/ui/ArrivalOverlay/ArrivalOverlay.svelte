@@ -1,10 +1,29 @@
 <script lang="ts">
   import { cubicOut } from 'svelte/easing';
   import { fade } from 'svelte/transition';
-  import LogoMark from '@scylla/ui/assets/logo_mark.svg';
+  import LogoMarkImage from '@scylla/ui/assets/logo_mark.svg';
+  import LogoMark from '@shared/presentation/ui/layout/LogoMark/LogoMark.svelte';
   import { ARRIVAL_MS, arrival } from './arrival.state.svelte.ts';
   import { arrive } from './arrival.attachments.svelte.ts';
+
+  arrival.comeBack();
 </script>
+
+<svelte:window onpageshow={arrival.pageShown} />
+
+<!--
+  After a sign-in with a provider, from the first frame: the frame of the sign-in page, with no
+  column, over the app that starts. The curtain then closes over it.
+-->
+{#if arrival.hidesApp}
+  <div aria-hidden="true" data-slot="arrival-back" class="fixed inset-0 z-100 flex bg-sidebar">
+    <div
+      class="flex w-2/5 shrink-0 items-center justify-center border-r border-sidebar-border bg-sidebar"
+    >
+      <LogoMark state={arrival.phase === 'back' ? 'idle' : 'lit'} class="size-70" />
+    </div>
+  </div>
+{/if}
 
 <!--
   Over each page, after a sign-in: it keeps the panel and the mark of the sign-in page while the
@@ -34,7 +53,7 @@
     <div data-part="arrival-flight" class="absolute inset-0">
       <img
         data-part="arrival-mark"
-        src={LogoMark}
+        src={LogoMarkImage}
         alt=""
         class="absolute top-1/2 left-1/5 -mt-35 -ml-35 size-70 max-w-none"
       />
@@ -42,7 +61,10 @@
   </div>
 {/if}
 
-<!-- Below lg, or with reduced motion: a 200 ms fade in, and a 200 ms fade out to the app. -->
+<!--
+  Below lg, or with reduced motion: a 200 ms fade in, and a 200 ms fade out to the app. After a
+  sign-in with a provider, the veil is on the first frame, with no fade in.
+-->
 {#if arrival.covers && arrival.mode === 'fade'}
   <div
     aria-hidden="true"
@@ -50,6 +72,6 @@
     class="fixed inset-0 z-100 flex items-center justify-center bg-sidebar"
     transition:fade={{ duration: ARRIVAL_MS.fade, easing: cubicOut }}
   >
-    <img src={LogoMark} alt="" class="size-24 lg:size-70" />
+    <img src={LogoMarkImage} alt="" class="size-24 lg:size-70" />
   </div>
 {/if}

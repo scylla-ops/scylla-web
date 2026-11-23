@@ -12,6 +12,7 @@
   import { providerStartUrl } from '@base/features/login/presentation/mappers/provider-start.mapper.ts';
   import { signInErrorMessages } from '@base/features/login/presentation/messages/sign-in-error.messages.ts';
   import { signInErrorCard } from '@base/features/login/presentation/presenters/sign-in-error.presenter.ts';
+  import { arrival } from '../ArrivalOverlay/arrival.state.svelte.ts';
 
   const ACCOUNT_PATH = '/account/security';
 
@@ -33,17 +34,16 @@
     signInErrorCard(params.get('code'), provider?.displayName ?? t(signInErrorMessages.theProvider)),
   );
   const back = link ? ACCOUNT_PATH : '/login';
+  const returnPath = link ? ACCOUNT_PATH : '/';
   const backLabel = link ? signInErrorMessages.backToAccount : signInErrorMessages.backToSignIn;
   const retry = $derived(
     provider &&
-      providerStartUrl(
-        apiUrl,
-        provider.slug,
-        window.location.origin,
-        link ? ACCOUNT_PATH : '/',
-        { link },
-      ),
+      providerStartUrl(apiUrl, provider.slug, window.location.origin, returnPath, { link }),
   );
+  /** A new sign-in plays the arrival at its return. A link of a provider to the account does not. */
+  const leave = (event: MouseEvent) => {
+    if (!link) arrival.leave(event, returnPath);
+  };
   const icons = {
     info: InfoIcon,
     warning: TriangleAlertIcon,
@@ -63,7 +63,11 @@
     <Skeleton class="h-16 w-full" />
   </AuthLayout>
 {:else}
-  <AuthLayout footer={legalFooter} title={t(card.title)}>
+  <AuthLayout
+    footer={legalFooter}
+    title={t(card.title)}
+    mark={arrival.leaving ? 'waiting' : 'idle'}
+  >
     {#snippet icon()}
       <Icon
         class="size-6 shrink-0 {card.tone === 'warning' ? 'text-warning' : 'text-muted-foreground'}"
@@ -74,7 +78,7 @@
     <div class="flex flex-col items-center gap-4">
       <div class="flex flex-wrap justify-center gap-2">
         {#if card.action === 'retry' && retry}
-          <Button href={retry} rel="external" size="sm">{t(signInErrorMessages.tryAgain)}</Button>
+          <Button href={retry} rel="external" size="sm" onclick={leave}>{t(signInErrorMessages.tryAgain)}</Button>
         {/if}
         {#if card.action === 'start-again'}
           <Button href={back} size="sm">{t(signInErrorMessages.startAgain)}</Button>

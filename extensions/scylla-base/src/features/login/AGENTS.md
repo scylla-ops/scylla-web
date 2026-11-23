@@ -37,6 +37,9 @@ Each link to `providerStartUrl` has `rel="external"`: the server serves this pat
 takes a link of the same origin that does not have this value. This is also true for the link in
 `SignInMethods` of `features/user`.
 
+A link that starts a sign-in (not a link to the account) also calls `arrival.leave` at the click:
+see "The arrival after a sign-in".
+
 ## A failed sign-in with a provider
 
 The server sends the browser to `/sign-in-error?code=<code>&provider=<slug>`, with `&link=true`
@@ -101,7 +104,8 @@ presentation/
   messages/                          login, password-reset
   ui/login.state.svelte.ts           sign-in: the mutation, the dots of the mark, the start of the arrival
   ui/ArrivalOverlay/ArrivalOverlay.svelte   over each page (appOverlays): the curtain and the landing
-    arrival.state.svelte.ts                 arrival: the phases and their times, the wait for the app
+    arrival.state.svelte.ts                 arrival: the phases and their times, the wait for the app,
+                                            the marker of a sign-in with a provider
     arrival.attachments.svelte.ts           the Web Animations of the curtain, the flight and the page
   ui/Login/Login.page.svelte, ui/LoginForm/LoginForm.svelte
   ui/ForgotPassword/ForgotPassword.page.svelte
@@ -163,8 +167,8 @@ No nav entry — the sidebar only renders inside the authenticated shell.
 
 ## The arrival after a sign-in
 
-Motion A of the design "Sign-in to dashboard arrival animation". It plays only after a sign-in with
-the form. A reload, or a sign-in with a provider, opens the app with no motion.
+Motion A of the design "Sign-in to dashboard arrival animation". It plays after a sign-in with the
+form, and after a sign-in with a provider (see below). A reload opens the app with no motion.
 
 1. Submit: the four dots of the mark in the panel (`LogoMark` of `shared`) go grey and turn
    (`waiting`). A refusal stops the turn on the next quarter turn and the dots go back to `idle`.
@@ -187,6 +191,28 @@ the form. A reload, or a sign-in with a provider, opens the app with no motion.
   image. Change it when the image changes.
 - **The times are the times of the spec frame of the design** (`ARRIVAL_MS`). A test with fake timers
   calls `arrival.reset()` after each test: `arrival` is one object for the app.
+
+### After a sign-in with a provider
+
+The sign-in with a provider is a full page load to the provider, then a full page load of the return
+path. The tab keeps the arrival across the two loads with a marker in its session storage
+(`scylla.sign-in-arrival`, in the tracker registry): the time of the click and the return path.
+
+1. The click on a provider (`SignInProviders`, or "Try again" of `SignInError`) calls
+   `arrival.leave`: it writes the marker, and the dots wait until the tab leaves. A click with a
+   modifier opens another tab: it changes nothing.
+2. At the start of the app, `ArrivalOverlay` calls `arrival.comeBack`. It reads the marker one time
+   and removes it. The arrival plays only when the tab is on the return path of the marker, and the
+   marker is 10 minutes old at most (the life of a sign-in with a provider on the server).
+3. `back` (200 ms): from the first frame, the frame of the sign-in page, with no column, hides the
+   app that starts (`hidesApp`). Then the dots light, and the arrival goes on as after the form. At
+   the stage, the app is already under the panel: there is nothing to open.
+4. Below `lg`, or with reduced motion, the veil is there from the first frame, with no fade in.
+
+- **A failed sign-in plays nothing.** The server sends the tab to `/sign-in-error` or to
+  `/sign-in-link`, and the back button to `/login`: these are not the return path, and the marker
+  goes at the start. When the browser shows the sign-in page from its back-forward cache, the page
+  does not start again: `pageshow` stops the wait of the dots and removes the marker.
 
 ## The return path
 
