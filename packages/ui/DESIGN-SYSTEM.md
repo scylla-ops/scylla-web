@@ -95,8 +95,8 @@ The rules of the stories: [`catalog/AGENTS.md`](../../catalog/AGENTS.md).
 
 ## The checks
 
-- `pnpm tokens:check` fails when `tokens/` is not the export of `styles.css`. The CI step
-  "Design tokens" of `.github/workflows/frontend.yml` runs it.
+- `pnpm tokens:check` fails when `tokens/` is not the export of `styles.css`. The node
+  `static` of `.scylla/pipelines/ci.yaml` (the Scylla CI) runs it.
 - The test `scripts/__test__/design-tokens.test.mjs` does the same check in `pnpm test`.
 - The test `src/__test__/catalog.test.ts` fails in `pnpm test` when a component of `@scylla/ui`
   or `@scylla/ui/primitives` has no entry in the catalog.
