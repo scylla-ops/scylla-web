@@ -82,6 +82,7 @@ beforeEach(() => {
     getById: vi.fn().mockResolvedValue(pipeline()),
     getWithLayout: vi.fn().mockResolvedValue({ pipeline: pipeline(), layout: null }),
     edit: vi.fn().mockResolvedValue(pipeline()),
+    setAgentLabels: vi.fn().mockResolvedValue(pipeline()),
     saveLayout: vi.fn().mockResolvedValue(undefined),
     exportFile: vi.fn().mockResolvedValue({
       content: 'version = 1\n',

@@ -38,6 +38,7 @@ export const agentsListMessages = {
   columnAgent: msg`Agent`,
   columnStatus: msg`Status`,
   columnAccess: msg`Access`,
+  columnLabels: msg`Labels`,
   columnJobs: msg`Jobs, last 30 days`,
   columnActions: msg`Actions`,
   running: (count: number) =>

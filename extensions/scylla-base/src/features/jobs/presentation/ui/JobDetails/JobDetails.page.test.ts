@@ -205,6 +205,27 @@ describe('JobDetailsPage', () => {
     expect(screen.getByText('Install Git on its machine')).toBeInTheDocument();
   });
 
+  it('shows the labels that a waiting job asks, and why it waits', async () => {
+    await renderPage(
+      job({
+        status: 'pending',
+        startedAt: undefined,
+        finishedAt: undefined,
+        agentLabels: ['deploy', 'linux'],
+        waitingReason: 'NO_AGENT_WITH_LABELS',
+      }),
+    );
+
+    const labels = screen.getByRole('list', { name: 'Labels' });
+    expect(within(labels).getAllByRole('listitem').map(item => item.textContent?.trim())).toEqual([
+      'deploy',
+      'linux',
+    ]);
+    expect(
+      screen.getByText('queued: waiting for an agent with the labels deploy, linux'),
+    ).toBeInTheDocument();
+  });
+
   it('defaults to the whole job when the URL names no node', async () => {
     await renderPage(job());
     expect(openPanels()).toEqual(['logs for job-1/whole job']);

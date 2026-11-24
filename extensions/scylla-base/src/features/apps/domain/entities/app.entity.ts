@@ -30,6 +30,16 @@ export interface AppEntity {
   compatibility: AgentCompatibility;
   /** The features that the server can need and that the agent does not tell, e.g. `checkout`. */
   missingFeatures: string[];
+  /**
+   * The labels that an admin gave. A pipeline that asks labels runs its jobs only on an agent
+   * with each of them, from an admin or from its machine.
+   */
+  labels: string[];
+  /**
+   * The labels from the machine of the last hello: the system (`linux`, `macos`, `windows`), the
+   * architecture (`x64`, `arm64`) and `container`. Empty before the first hello.
+   */
+  automaticLabels: string[];
 }
 
 /**

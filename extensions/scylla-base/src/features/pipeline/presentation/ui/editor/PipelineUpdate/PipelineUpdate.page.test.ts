@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
-import { screen } from '@testing-library/svelte';
+import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { holdsLeave } from '@scylla/core-sdk';
 import { PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { PipelineRepository } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
 import { SavePipelineUseCase } from '@base/features/pipeline/domain/use-cases/save-pipeline.use-case.ts';
@@ -36,9 +36,10 @@ const isInert = (element: Element) => {
 const renderPage = (
   getWithLayout: () => Promise<unknown>,
   edit: () => Promise<unknown> = () => new Promise(() => {}),
+  setAgentLabels: (id: string, labels: string[]) => Promise<unknown> = () => new Promise(() => {}),
 ) => {
   const cache = withQueryClient();
-  const pipelineRepository = { getWithLayout, edit };
+  const pipelineRepository = { getWithLayout, edit, setAgentLabels };
   teardown = [
     cache.restore,
     withRegistry({
@@ -238,6 +239,30 @@ describe('PipelineUpdatePage', () => {
     expect(navigator.navigate).not.toHaveBeenCalled();
     expect(holdsLeave(vi.fn())).toBe(true);
     expect(await screen.findByRole('alertdialog')).toHaveTextContent('Leave without saving?');
+  });
+
+  it('saves the agent labels at once, apart from the nodes', async () => {
+    const setAgentLabels = vi.fn((_id: string, labels: string[]) =>
+      Promise.resolve({ ...loaded.pipeline, agentLabels: labels }),
+    );
+    const labelled = { ...loaded, pipeline: { ...loaded.pipeline, agentLabels: ['deploy'] } };
+    const edit = vi.fn(() => new Promise(() => {}));
+    renderPage(() => Promise.resolve(labelled), edit, setAgentLabels);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /Agent labels/ }));
+    // jsdom leaves the floating layer `visibility: hidden`, and a hidden field has no name.
+    const field = await screen.findByPlaceholderText('deploy');
+    // The caret goes to the new label, not to the remove button of the first label.
+    await waitFor(() => expect(field).toHaveFocus());
+    await user.type(field, 'linux{Enter}');
+    await user.click(await findFloating('button', 'Save labels'));
+
+    await waitFor(() =>
+      expect(setAgentLabels).toHaveBeenCalledWith('pipeline-1', ['deploy', 'linux']),
+    );
+    expect(await screen.findByRole('button', { name: /Agent labels 2/ })).toBeInTheDocument();
+    expect(edit).not.toHaveBeenCalled();
   });
 
   it('sends a file pipeline to its read-only page: its file changes in the repository', async () => {

@@ -62,6 +62,7 @@ const baseJob = (overrides: Partial<Job> = {}): Job => ({
   waitingReason: '',
   unfitAgents: [],
   origin: JobOrigin.UNSPECIFIED,
+  agentLabels: [],
   ...overrides,
 });
 
@@ -272,6 +273,16 @@ describe('grpcJob.toDomain', () => {
       expect(
         grpcJob.toDomain(baseJob({ waitingReason: 'NO_AGENT_WITH_CHECKOUT' })).waitingReason,
       ).toBe('NO_AGENT_WITH_CHECKOUT');
+    });
+
+    it('keeps the labels that the job asks, and none for a job of any agent', () => {
+      const domain = grpcJob.toDomain(
+        baseJob({ agentLabels: ['deploy', 'linux'], waitingReason: 'NO_AGENT_WITH_LABELS' }),
+      );
+
+      expect(domain.agentLabels).toEqual(['deploy', 'linux']);
+      expect(domain.waitingReason).toBe('NO_AGENT_WITH_LABELS');
+      expect(grpcJob.toDomain(baseJob()).agentLabels).toBeUndefined();
     });
 
     it('names the online agents that cannot get the code, and why', () => {

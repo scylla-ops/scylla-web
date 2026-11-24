@@ -208,6 +208,27 @@ export const pipelineMutations = {
       meta: { showsOwnError: true },
     }),
 
+  /**
+   * Saves the labels of the agents at once, apart from the nodes. The editor keeps its document:
+   * only the labels of the read pipeline change.
+   */
+  setAgentLabels: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: (labels: readonly string[]) =>
+        repository().setAgentLabels(pipelineId, labels),
+      onSuccess: pipeline => {
+        getQueryClient().setQueryData<PipelineWithLayout>(
+          PIPELINE_QUERY_KEY(pipelineId),
+          saved =>
+            saved && {
+              ...saved,
+              pipeline: { ...saved.pipeline, agentLabels: pipeline.agentLabels },
+            },
+        );
+        toast.success(i18n._(pipelineMessages.agentLabelsSaved));
+      },
+    }),
+
   create: () =>
     mutationOptions({
       mutationKey: CREATE_PIPELINE_MUTATION_KEY,

@@ -34,13 +34,3 @@ updates:
       # (AGENTS.md). Both names of the alias stay put. `@typescript/native` (TypeScript 7) moves.
       - dependency-name: typescript
       - dependency-name: '@typescript/typescript6'
-
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    target-branch: v0.8.0
-    commit-message:
-      prefix: chore
-      include: scope

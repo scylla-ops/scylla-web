@@ -99,7 +99,8 @@ other change:
 
 ## Checks
 
-The CI runs these commands on each pull request. Run them before you push. All of them must
+Scylla runs these commands on each pull request that is not a draft, and after each push to `main`
+or to a version branch. Run them before you push. All of them must
 pass with zero warnings, zero failures, zero violations, zero cycles and zero collisions.
 
 | Command | What it checks |
@@ -112,8 +113,9 @@ pass with zero warnings, zero failures, zero violations, zero cycles and zero co
 | `pnpm i18n:collisions` | No message translated in two different ways |
 | `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit |
 
-The job `ci-ok` sums these checks, and it is the required check of the version branch. CI runs again
-after each merge. If this run is red on a version branch, fix or revert the merge first.
+The file `.scylla/pipelines/ci.yaml` has these checks. The project `web` of the workspace Scylla Ops
+(app.scylla-ops.com) runs it on its CI agent, and GitHub shows the result as the check `scylla/ci`,
+which is required on `main`. If this run is red on a version branch, fix or revert the merge first.
 
 ## Changelog and releases
 

@@ -22,6 +22,8 @@ export const jobsMessages = {
   actions: msg`Actions`,
   copyId: msg`Copy ID`,
   queuedHint: msg`queued: waiting for an agent`,
+  noAgentWithLabels: (labels: string) => msg`queued: waiting for an agent with the labels ${labels}`,
+  agentLabels: msg`Labels`,
   orphanedHint: msg`agent disconnected mid-run`,
   view: msg`View`,
   cancel: msg`Cancel the job`,

@@ -93,6 +93,7 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.CREATE_JOIN_CODE]: { workspace: 'create_join_code' },
   [Permission.RENAME_APP_KEY]: { workspace: 'rename_app_key' },
   [Permission.REVOKE_APP_KEY]: { workspace: 'revoke_app_key' },
+  [Permission.SET_APP_LABELS]: { workspace: 'set_app_labels' },
   [Permission.LIST_APPS_BY_WORKSPACE]: { workspace: 'list_apps' },
   [Permission.CREATE_AGENT]: { workspace: 'create_app' },
   [Permission.LIST_AGENTS]: { workspace: 'list_apps' },

@@ -33,6 +33,8 @@ const agent = (id: string, name: string, patch: Record<string, unknown> = {}) =>
   disabledAt: '',
   compatibility: 'compatible',
   missingFeatures: [],
+  labels: [],
+  automaticLabels: [],
   ...patch,
 });
 
@@ -165,6 +167,23 @@ describe('AgentsList', () => {
     );
     expect(within(row('build-linux-01')).getByText('All projects')).toBeInTheDocument();
     expect(within(row('gpu-runner-01')).getByText('ml-training')).toBeInTheDocument();
+  });
+
+  it('shows the labels of each agent, the labels of an admin first', async () => {
+    setUp(ALL, [
+      agent('a1', 'prod-01', { labels: ['deploy'], automaticLabels: ['linux', 'x64'] }),
+      agent('a2', 'plain-01'),
+    ]);
+
+    const row = (name: string) => screen.getByText(name).closest('tr') as HTMLElement;
+    await screen.findByText('prod-01');
+    const labels = within(row('prod-01')).getByRole('list', { name: 'Labels' });
+    expect(within(labels).getAllByRole('listitem').map(item => item.textContent?.trim())).toEqual([
+      'deploy',
+      'linux',
+      'x64',
+    ]);
+    expect(within(row('plain-01')).queryByRole('list', { name: 'Labels' })).not.toBeInTheDocument();
   });
 
   it('marks an outdated agent and an incompatible agent', async () => {

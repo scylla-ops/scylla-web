@@ -1,0 +1,63 @@
+# The checks of scylla-web, run by the CI agent of the workspace Scylla Ops (scylla-ops/scylla-ci).
+# GitHub shows the result as the check run `scylla/ci`. The nodes run one after the other: the CI
+# agent has 4 CPUs and 8 GB, and the lint alone needs about 8 GB.
+version: 1
+name: CI
+on:
+  push:
+    branches: [main, "v*.*.*"]
+  pull_request: {}
+checkout:
+  depth: 0
+  submodules: true
+nodes:
+  - id: install
+    timeout_seconds: 1200
+    script: |
+      set -eu
+      . /usr/local/lib/scylla-ci/env.sh
+      pnpm install --frozen-lockfile
+      pnpm run gen-proto
+      pnpm run compile
+  - id: authors
+    needs: [install]
+    timeout_seconds: 300
+    script: |
+      set -eu
+      . /usr/local/lib/scylla-ci/env.sh
+      if [ "${SCYLLA_EVENT:-}" != pull_request ]; then echo "Only on a pull request."; exit 0; fi
+      node scripts/check-commit-authors.mjs "$(ci-pr-base)..HEAD"
+  - id: static
+    needs: [authors]
+    timeout_seconds: 1800
+    script: |
+      set -eu
+      . /usr/local/lib/scylla-ci/env.sh
+      pnpm run tokens:check
+      pnpm run typecheck
+      pnpm run depcruise
+      pnpm run depcruise:cycles
+      (pnpm run extract || true) && pnpm run i18n:collisions
+      pnpm run compile && pnpm exec vite build
+      pnpm --filter @scylla/catalog check && pnpm --filter @scylla/catalog build
+  - id: lint
+    needs: [static]
+    timeout_seconds: 1800
+    script: |
+      set -eu
+      . /usr/local/lib/scylla-ci/env.sh
+      NODE_OPTIONS=--max-old-space-size=6144 pnpm run lint
+  - id: test
+    needs: [lint]
+    timeout_seconds: 3600
+    script: |
+      set -eu
+      . /usr/local/lib/scylla-ci/env.sh
+      # The coverage thresholds apply to the pushes of main and of the version branches. The
+      # coverage makes the tests slower, and the whole suite runs on one agent: the CPU-heavy
+      # tests (the command bar on the real labels) need more than the default 5 s.
+      if [ "${SCYLLA_EVENT:-}" = pull_request ]; then
+        pnpm exec vitest run --maxWorkers=3 --reporter=dot
+      else
+        pnpm exec vitest run --maxWorkers=3 --reporter=dot --coverage --testTimeout=30000
+      fi

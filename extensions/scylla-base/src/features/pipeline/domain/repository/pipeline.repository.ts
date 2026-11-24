@@ -45,6 +45,11 @@ export interface PipelineRepository {
     /** The fragment links: they replace all the links. None: the links stay. */
     links?: FragmentLink[],
   ): Promise<PipelineEntity>;
+  /**
+   * Replaces the labels that the agent of a job must have, with a new version of the pipeline.
+   * An empty list removes them. The nodes stay.
+   */
+  setAgentLabels(id: string, labels: readonly string[]): Promise<PipelineEntity>;
   /** Only the places that changed: the others stay. The version of the pipeline does not change. */
   saveLayout(id: string, layout: PipelineLayout): Promise<void>;
   /** The saved version, as a file to put in the repository. */

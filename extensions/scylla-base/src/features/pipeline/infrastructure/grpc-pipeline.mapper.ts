@@ -248,6 +248,7 @@ export function toDomain(pipeline: Pipeline): PipelineEntity {
     projectId: idValue(pipeline.projectId),
     name: pipeline.name,
     nodes: pipeline.nodes.map(nodeToDomain),
+    ...(pipeline.agent?.labels.length && { agentLabels: [...pipeline.agent.labels] }),
   };
 }
 

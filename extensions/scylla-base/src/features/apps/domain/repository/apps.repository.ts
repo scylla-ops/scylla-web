@@ -54,6 +54,8 @@ export interface AppsRepository {
   /** A disabled app gets no token and no job; its running jobs stop. */
   disableApp(appId: string): Promise<AppEntity>;
   enableApp(appId: string): Promise<AppEntity>;
+  /** Replaces the labels that an admin gives to the app. An empty list removes them. */
+  setLabels(appId: string, labels: readonly string[]): Promise<AppEntity>;
   /** The secret comes one time. */
   createToken(appId: string, input: CreateTokenInput): Promise<CreatedToken>;
   /** Newest first, with the revoked and the expired ones. */

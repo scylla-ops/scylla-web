@@ -19,6 +19,7 @@
   import AgentMachineCard from './AgentMachineCard/AgentMachineCard.svelte';
   import AgentRecentJobsCard from './AgentRecentJobsCard.svelte';
   import AgentAccessCard from './AgentAccessCard.svelte';
+  import AgentLabelsCard from './AgentLabelsCard.svelte';
   import AgentKeysCard from './AgentKeysCard.svelte';
   import AgentConnectCard from './AgentConnectCard.svelte';
   import AgentDangerZone from './AgentDangerZone.svelte';
@@ -39,6 +40,7 @@
   );
   const canReadJobs = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE, target));
   const canReadStats = $derived(can(Permission.READ_APP_STATS, target));
+  const canSetLabels = $derived(can(Permission.SET_APP_LABELS, target));
 
   const details = createQuery(() => appQueries.byId(appId, workspaceId));
   const jobs = createQuery(() => appQueries.jobs(workspaceId, appId, canReadJobs));
@@ -153,15 +155,21 @@
           <AgentRecentJobsCard {workspaceId} jobs={jobs.data} />
         {/if}
       </div>
-      {#if canReadAccess}
-        <AgentAccessCard
-          agentId={agent.id}
-          {workspaceId}
-          {workspaceName}
-          access={access.data?.get(agent.id)}
-          canChange={canChangeAccess}
-        />
-      {/if}
+      <!-- The access card fills the height that the labels card leaves. -->
+      <div class="flex flex-col gap-4">
+        {#if canReadAccess}
+          <div class="min-h-0 flex-1">
+            <AgentAccessCard
+              agentId={agent.id}
+              {workspaceId}
+              {workspaceName}
+              access={access.data?.get(agent.id)}
+              canChange={canChangeAccess}
+            />
+          </div>
+        {/if}
+        <AgentLabelsCard {agent} canChange={canSetLabels} />
+      </div>
     </div>
 
     <AgentKeysCard

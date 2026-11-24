@@ -7,6 +7,7 @@
   import LockIcon from '@lucide/svelte/icons/lock';
   import PlayIcon from '@lucide/svelte/icons/play';
   import TagIcon from '@lucide/svelte/icons/tag';
+  import TagsIcon from '@lucide/svelte/icons/tags';
   import { ResizablePane } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -98,6 +99,16 @@
           {@render group(t(fileMessages.checkout))}
           <ul>
             {@render row(GitBranchIcon, checkout.title, checkout.detail)}
+          </ul>
+        {/if}
+        {#if view.file.agentLabels?.length}
+          {@render group(t(fileMessages.agent))}
+          <ul>
+            {@render row(
+              TagsIcon,
+              t(fileMessages.agentLabelsTitle),
+              view.file.agentLabels.join(', '),
+            )}
           </ul>
         {/if}
       {/if}
