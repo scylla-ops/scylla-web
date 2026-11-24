@@ -23,7 +23,7 @@
   >
     <ul class="flex flex-col gap-4 py-2">
       {#each release.highlights as highlight (highlight.id)}
-        <li class="flex items-start gap-3">
+        <li class="flex items-center gap-3">
           <span class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10">
             <highlight.icon class="size-4 text-primary" />
           </span>
