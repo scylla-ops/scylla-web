@@ -5,6 +5,8 @@ export const secretMessages = {
   secret: msg`Secret`,
   secrets: msg`Secrets`,
   newSecret: msg`New secret`,
+  emptyTitle: msg`No secret yet`,
+  emptyBody: msg`A secret is a value that your pipelines use and nobody can read. Use “New secret” to add one.`,
   createDenied: msg`You don't have permission to create secrets.`,
   deleteDenied: msg`You don't have permission to delete secrets.`,
 

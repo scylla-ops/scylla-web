@@ -10,6 +10,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Fixed
+
+- The Secrets page shows a clear empty state. The Library search and tab texts say "workspace". The
+  GitLab self-managed choice no longer wraps. The tour prompt shows the same step count as Help.
+
 ## [0.7.0] - 2026-11-24
 
 The web app of the new backend. A host repo or an extension must read the **Breaking** entries of

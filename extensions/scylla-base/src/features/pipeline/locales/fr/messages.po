@@ -1364,12 +1364,6 @@ msgstr "Ouvrir le port de chaque cas qui correspond"
 msgid "Open to the side"
 msgstr "Ouvrir à côté"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:27
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:16
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:81
-msgid "Organization"
-msgstr "Organisation"
-
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:94
 msgid "Organizations"
 msgstr "Organisations"
@@ -1691,8 +1685,8 @@ msgid "Search pipelines…"
 msgstr "Rechercher des pipelines…"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:9
-msgid "Search the {workspace} library"
-msgstr "Rechercher dans la bibliothèque {workspace}"
+msgid "Search the library"
+msgstr "Rechercher dans la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:55
 msgid "secret"
@@ -2206,6 +2200,12 @@ msgstr "Ce qui change pour une pipeline qui bascule."
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:31
 msgid "Working directory"
 msgstr "Répertoire de travail"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:27
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:16
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:81
+msgid "Workspace"
+msgstr "Espace de travail"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:11
 msgid "You don't have permission to create pipelines."
