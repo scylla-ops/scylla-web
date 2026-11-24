@@ -26,10 +26,12 @@ vi.mock('@base/features/workspace', () => ({
 
 let navigator: ReturnType<typeof installTestNavigator>;
 let cache: ReturnType<typeof withQueryClient>;
+/** What the wrapper reads: whether it renders the page. */
+let synced: ReturnType<typeof syncWorkspace>;
 
 const run = (slug: string | undefined) => {
   const cleanup = $effect.root(() => {
-    syncWorkspace(slug);
+    synced = syncWorkspace(slug);
   });
   flushSync();
   return cleanup;
@@ -180,13 +182,40 @@ describe('syncWorkspace', () => {
   it('keeps the page of a URL with no workspace, in the active workspace', () => {
     contextStore.setState({ workspace: { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' } });
     navigator.restore();
-    navigator = installTestNavigator({ pathname: '/marketplace/dashboard', search: '?q=helm' });
+    navigator = installTestNavigator({ pathname: '/marketplace', search: '?q=helm' });
     navigator.pages.add('/globex-inc/marketplace');
 
     run('marketplace')();
 
     expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/marketplace?q=helm', { replace: true });
     expect(contextStore.getState().workspace.slug).toBe('globex-inc');
+  });
+
+  it('renders no page for a slug that names no workspace, so no redirect changes the URL first', () => {
+    run('marketplace')();
+
+    expect(synced.matched).toBe(false);
+  });
+
+  it('renders the page once the slug names a workspace of the person', () => {
+    run('globex-inc')();
+
+    expect(synced.matched).toBe(true);
+  });
+
+  it('keeps the page on screen when the slug of its workspace changes after the mount', () => {
+    contextStore.setState({ workspace: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
+    const cleanup = run('acme-corp');
+
+    cache.queryClient.setQueryData(
+      ['workspaces', 'mine'],
+      [{ id: 'org-1', name: 'Acme Corp', slug: 'acme' }],
+    );
+    flushSync();
+    cleanup();
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme', { replace: true });
+    expect(synced.matched).toBe(true);
   });
 
   it('does nothing when the slug matches none and there is no workspace', () => {

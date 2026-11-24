@@ -22,6 +22,8 @@ mergeWidgetInjections(extensions, can)  the widget-injection half of loadExtensi
 compileRoutes(config)                AppRouterConfig -> the flat RouteTable
 createAppRouter(config)              compiles the routes, returns the AppNavigator
 setShellConfig, ShellBreadcrumbs     for the app-level tests
+RouterView                           for the app-level tests: the pages of the real routes, with the
+                                     layout and the guard that the test gives
 type AppRouterConfig, CompiledRoute, RouteTable, LoadedApp, StartOptions
 ```
 
