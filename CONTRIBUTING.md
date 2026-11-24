@@ -34,7 +34,7 @@ change of the protos. Run all commands from the repository root.
 ## Branches
 
 - `main` holds the released versions.
-- A **version branch** (`v0.7.0`, …) collects the work of the next version. It merges into
+- A **version branch** (`v0.7.1`, …) collects the work of the next version. It merges into
   `main` when the version is released.
 - Start your work from the current version branch, on a branch named after the type of the
   change:
@@ -78,7 +78,7 @@ other change:
   pull request. You answer the questions of the review.
 - **Only humans are authors and co-authors.** Do not add a `Co-Authored-By` trailer that names
   an AI agent, and do not add a "Generated with …" line to a pull request. Configure your agent
-  to not add them. The CI checks it: `pnpm check:authors origin/v0.7.0..HEAD` runs the same
+  to not add them. The CI checks it: `pnpm check:authors origin/v0.7.1..HEAD` runs the same
   check on your branch.
 - Agents read [`AGENTS.md`](AGENTS.md) and the `AGENTS.md` of each module. When you change a
   rule or a public API, update these files in the same pull request.
@@ -125,16 +125,16 @@ a minor version (0.7.0, 0.8.0). A patch version (0.7.1) only fixes a bug of a re
   change: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` or `Security`. Write
   `**Breaking:**` before an entry that changes what an extension imports.
 - **To release a version** (a maintainer does it):
-  1. On the version branch, rename `## [Unreleased]` to `## [0.7.0] - YYYY-MM-DD` in
+  1. On the version branch, rename `## [Unreleased]` to `## [0.7.1] - YYYY-MM-DD` in
      `CHANGELOG.md`. Add an empty `## [Unreleased]` above it, and update the links at the end
      of the file.
-  2. Create the next version branch (`v0.8.0`) from the version branch. Its first pull request
-     sets the new version in all the `package.json` files, and sets `target-branch` in
-     `.github/dependabot.yml` to the new branch.
+  2. Create the next version branch (`v0.8.0`) from the version branch, if it does not exist
+     yet. Its first pull request sets the new version in all the `package.json` files, and sets
+     `target-branch` in `.github/dependabot.yml` to the new branch.
   3. Open a pull request from the version branch to `main`, and merge it with a merge commit.
   4. Delete the version branch. A branch and a tag with the same name make `git` refs
      ambiguous.
-  5. Tag the merge commit on `main`: `git tag -a v0.7.0 -m "Scylla Web v0.7.0"`. Tags start
+  5. Tag the merge commit on `main`: `git tag -a v0.7.1 -m "Scylla Web v0.7.1"`. Tags start
      with a lowercase `v`. Never move or delete a tag.
   6. Create the GitHub Release from the tag. Its text is the section of the version in
      `CHANGELOG.md`.
