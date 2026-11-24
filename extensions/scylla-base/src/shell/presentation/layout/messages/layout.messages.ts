@@ -1,6 +1,7 @@
 import { msg } from '@lingui/core/macro';
 
 export const layoutMessages = {
+  serviceUnavailable: msg`Service unavailable, we'll be right back.`,
   workspace: msg`Workspace`,
   project: msg`Project`,
   access: msg`Access`,

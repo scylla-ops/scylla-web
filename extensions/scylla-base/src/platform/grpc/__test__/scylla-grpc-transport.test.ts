@@ -8,6 +8,7 @@ import { RefreshResponse } from '@base/generated/scylla/auth/v1/token_service.ts
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ScyllaGrpcTransport } from '../scylla-grpc-transport.ts';
 import { forgetSession, openSession } from '../session.ts';
+import { apiAnswers, serviceStatus } from '../service-status.svelte.ts';
 
 /** A gRPC-Web answer that carries only a status, as the server gives for a refused call. */
 const refusal = (status: number, message: string, details?: Status) =>
@@ -130,6 +131,36 @@ describe('ScyllaGrpcTransport', () => {
 
       await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAVAILABLE' });
     }
+  });
+
+  it('calls the answer of a maintenance page UNAVAILABLE and raises the service banner', async () => {
+    const pages = [
+      new Response('down', { status: 503, headers: { 'x-scylla-maintenance': '1' } }),
+      new Response('<html></html>', { status: 200, headers: { 'content-type': 'text/html' } }),
+    ];
+    for (const page of pages) {
+      serviceStatus.unavailable = false;
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue(page));
+
+      await expect(listSecrets()).rejects.toMatchObject({ code: 'UNAVAILABLE' });
+
+      expect(serviceStatus.unavailable).toBe(true);
+    }
+    serviceStatus.unavailable = false;
+  });
+
+  it('knows that the API answers only with a gRPC answer', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(refusal(12, 'unknown')));
+    expect(await apiAnswers()).toBe(true);
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(new Response('<html>', { headers: { 'content-type': 'text/html' } })),
+    );
+    expect(await apiAnswers()).toBe(false);
+
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+    expect(await apiAnswers()).toBe(false);
   });
 
   it('keeps an aborted request CANCELLED, not a network failure', async () => {

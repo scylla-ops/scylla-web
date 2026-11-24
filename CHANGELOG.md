@@ -21,6 +21,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The pipeline editor is usable on a phone and a tablet. In a narrow blueprint, the side panel goes
   under the canvas, the pipeline name has its own row, and the canvas toolbar shows icons only. The
   breadcrumb of the current page no longer goes under the menu icon.
+- Show one "Service unavailable" banner, and reload the page when the API answers again, when the
+  server is in maintenance or down.
 
 ## [0.7.0] - 2026-11-24
 

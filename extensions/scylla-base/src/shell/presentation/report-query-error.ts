@@ -9,9 +9,6 @@ const signOutAndReturn = (): void => {
   window.location.href = loginPathBackTo(window.location);
 };
 
-/** In an outage, each query of the page fails at the same time: they share one toast. */
-const UNREACHABLE_TOAST = 'server-unreachable';
-
 /**
  * The only error toast of the app: never add an `onError` toast in a query or a
  * mutation. A failure on the network never ends the session: only the server ends
@@ -35,10 +32,9 @@ export const reportQueryError: QueryErrorHandler = (thrown, source, options) => 
 
   if (options?.showsOwnError || options?.repeated) return;
 
-  if (source === 'query' && error.isNetworkError()) {
-    toast.error(error.userMessage(), { id: UNREACHABLE_TOAST });
-    return;
-  }
+  // In an outage, each query of the page fails at the same time: the banner of the shell
+  // (`ServiceBanner`) tells the user once, so a query gets no toast.
+  if (source === 'query' && error.isNetworkError()) return;
 
   if (source === 'mutation' && error.isConflict()) {
     toast.warning(error.mutationMessage());
