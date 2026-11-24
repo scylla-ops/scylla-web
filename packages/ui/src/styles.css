@@ -1,3 +1,6 @@
+@import '@fontsource-variable/funnel-sans';
+@import '@fontsource-variable/funnel-display';
+@import '@fontsource-variable/jetbrains-mono';
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
@@ -9,38 +12,41 @@
 
 :root {
   --background: #F4F7EB;
-  --foreground: #272921;
+  --foreground: #171715;
 
-  --card: #F7F9EE;
-  --card-foreground: #272921;
+  --card: #F4F7EB;
+  --card-foreground: #171715;
 
-  --popover: #F7F9EE;
-  --popover-foreground: #272921;
+  --popover: #F4F7EB;
+  --popover-foreground: #171715;
 
-  --select: #F7F9EE;
+  --select: #F4F7EB;
 
-  --primary: #5D9972;
-  --primary-hover: #67A37C;
+  --primary: #447857;
+  --primary-hover: #4F8763;
   --primary-foreground: #F4F7EB;
   --primary-subtle: #d4e5ce;
 
   --secondary: #E8EAE0;
-  --secondary-foreground: #272921;
+  --secondary-foreground: #171715;
   --secondary-subtle: #F0F2E8;
 
   --muted: #E8EAE0;
   --muted-foreground: #686965;
 
-  --accent: #EFF2E7;
-  --accent-foreground: #272921;
+  --accent: #E8EAE0;
+  --accent-foreground: #171715;
+
+  /* The placeholder of a loading part: a neutral grey, not a tint of the brand. */
+  --skeleton: #E6E6E2;
 
   --destructive: #BA4C43;
   --destructive-foreground: #F4F7EB;
-  --destructive-subtle: #F3D8D5;
+  --destructive-subtle: #C8584F1A;
 
-  --border: #D1D3CA;
+  --border: #E1E3D9;
   --input: #AFB0AA;
-  --ring: #5D9972;
+  --ring: #447857;
 
   /* Graphiques */
   --chart-1: #5D9972;
@@ -50,32 +56,37 @@
   --chart-5: #BA4C43;
 
   /* États */
-  --success: #5D9972;
+  --success: #447857;
   --success-foreground: #F4F7EB;
   --error: #BA4C43;
   --error-foreground: #F4F7EB;
   --warning: #ECA851;
-  --warning-foreground: #272921;
-  --info: #4097A6;
+  --warning-foreground: #171715;
+  /* A warning drawn as text or an icon on the page: 3:1 at least on the background. */
+  --warning-strong: #A86A1C;
+  --info: #287683;
   --info-foreground: #F4F7EB;
 
   --status-queued: #94968F;
   --status-running: #ECA851;
   --status-passed: #5D9972;
-  --status-failed: #BA4C43;
+  --status-failed: #C8584F;
   --status-canceled: #AFB0AA;
-  --status-skipped: #9b86c1;
+  --status-skipped: #8E7AB5;
 
   --radius: 0.625rem;
 
-  --sidebar: #EFF2E7;
-  --sidebar-foreground: #272921;
-  --sidebar-primary: #5D9972;
+  --sidebar: #F4F7EB;
+  --sidebar-foreground: #171715;
+  --sidebar-primary: #447857;
   --sidebar-primary-foreground: #F4F7EB;
-  --sidebar-accent: #E2E5DA;
-  --sidebar-accent-foreground: #272921;
-  --sidebar-border: #D1D3CA;
-  --sidebar-ring: #5D9972;
+  --sidebar-accent: #E8EAE0;
+  --sidebar-accent-foreground: #171715;
+  --sidebar-border: #E1E3D9;
+  --sidebar-ring: #447857;
+  /* The double sidebar is darker than the page: the rail most, then the second sidebar. */
+  --rail: #E2E5D9;
+  --second-sidebar: #EBEEE2;
   --code-editor-bg: #F7F9EE;
   /* Translucent: CodeMirror paints the selection *under* the lines, so an opaque
      active-line background would hide the selection on the caret's own line. */
@@ -87,42 +98,48 @@
   /* Occurrence + bracket matches: a passive hint, deliberately weaker than the
      selection the user is actively dragging. */
   --code-editor-match-bg: rgba(93, 153, 114, 0.25);
+  /* The dim layer behind a modal, a sheet or the tour, and the lines drawn on it: the same in
+     the two themes. */
+  --overlay: #000000;
+  --overlay-foreground: #F4F7EB;
 }
 
 .dark {
-  --background: #1C1C1A;
+  --background: #171715;
   --foreground: #F4F7EC;
 
-  --card: #21211E;
+  --card: #1E1E1C;
   --card-foreground: #F4F7EC;
 
-  --popover: #222220;
+  --popover: #1E1E1C;
   --popover-foreground: #F4F7EC;
 
   --select: #1E1E1C;
 
   --primary: #5D9972;
   --primary-hover: #69A57E;
-  --primary-foreground: #F4F7EB;
+  --primary-foreground: #171715;
   /* Hover surface for icon buttons: must lift clearly off --card (#21211E), which
      the previous #1C2A20 did not — it sat within 1.1:1 of the surface behind it. */
   --primary-subtle: #2F4838;
 
-  --secondary: #282826;
+  --secondary: #2F2F2D;
   --secondary-foreground: #F4F7EC;
   --secondary-subtle: #162629;
 
-  --muted: #282826;
+  --muted: #2F2F2D;
   --muted-foreground: #B4B5B1;
 
-  --accent: #222B24;
+  --accent: #363735;
   --accent-foreground: #F4F7EC;
+
+  --skeleton: #2A2A28;
 
   --destructive: #BA4C43;
   --destructive-foreground: #F4F7EB;
-  --destructive-subtle: #4E2E28;
+  --destructive-subtle: #C8584F33;
 
-  --border: #333330;
+  --border: #41413F;
   --input: #676865;
   --ring: #5D9972;
 
@@ -133,29 +150,32 @@
   --chart-5: #BA4C43;
 
   --success: #5D9972;
-  --success-foreground: #F4F7EB;
+  --success-foreground: #171715;
   --error: #BA4C43;
   --error-foreground: #F4F7EB;
   --warning: #ECA851;
   --warning-foreground: #171715;
+  --warning-strong: #ECA851;
   --info: #4097A6;
   --info-foreground: #F4F7EB;
 
   --status-queued: #8E8F8A;
   --status-running: #ECA851;
   --status-passed: #5D9972;
-  --status-failed: #BA4C43;
+  --status-failed: #C8584F;
   --status-canceled: #676865;
   --status-skipped: #8e7ab5;
 
-  --sidebar: #141412;
+  --sidebar: #171715;
   --sidebar-foreground: #F4F7EC;
   --sidebar-primary: #5D9972;
-  --sidebar-primary-foreground: #F4F7EB;
-  --sidebar-accent: #222B24;
+  --sidebar-primary-foreground: #171715;
+  --sidebar-accent: #363735;
   --sidebar-accent-foreground: #F4F7EC;
-  --sidebar-border: #333330;
+  --sidebar-border: #41413F;
   --sidebar-ring: #5D9972;
+  --rail: #080808;
+  --second-sidebar: #0F0F0E;
 
   --code-editor-bg: #1D1E1C;
   /* Translucent — see the light-theme note above. */
@@ -165,9 +185,14 @@
   --code-editor-selection-bg: rgba(122, 192, 145, 0.45);
   /* Matches keep the restrained accent — see the light-theme note above. */
   --code-editor-match-bg: rgba(93, 153, 114, 0.35);
+  --overlay: #000000;
+  --overlay-foreground: #F4F7EB;
 }
 
 @theme inline {
+  --font-sans: 'Funnel Sans Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Funnel Display Variable', 'Funnel Sans Variable', ui-sans-serif, sans-serif;
+  --font-mono: 'JetBrains Mono Variable', ui-monospace, monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -215,6 +240,8 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-rail: var(--rail);
+  --color-second-sidebar: var(--second-sidebar);
 
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
@@ -222,6 +249,7 @@
   --color-error-foreground: var(--error-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-warning-strong: var(--warning-strong);
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
 
@@ -231,6 +259,9 @@
   --color-status-failed: var(--status-failed);
   --color-status-canceled: var(--status-canceled);
   --color-status-skipped: var(--status-skipped);
+
+  --color-overlay: var(--overlay);
+  --color-overlay-foreground: var(--overlay-foreground);
 }
 
 @layer base {
@@ -244,6 +275,21 @@
 
   button:disabled {
     cursor: not-allowed;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  [role='heading'],
+  [data-slot='card-title'] {
+    @apply font-display font-medium;
+  }
+
+  h1:not([data-slot='card-title'] h1) {
+    @apply text-2xl leading-tight tracking-[-0.03em] sm:text-[2rem];
   }
 
   /* The canvas is `--sidebar` — the shell's base surface, which the panels sit on
@@ -263,6 +309,38 @@
 ::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
+}
+
+/* A skeleton waits before it shows: a load that ends sooner shows nothing, so a fast page does
+   not flash. Then it fades in and breathes softly. */
+.skeleton {
+  background-color: var(--skeleton);
+  opacity: 0;
+  animation:
+    skeleton-in 200ms ease-out 250ms forwards,
+    skeleton-breathe 1.8s ease-in-out 450ms infinite;
+}
+
+@keyframes skeleton-in {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes skeleton-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: skeleton-in 0s linear 250ms forwards;
+  }
 }
 
 @keyframes smooth-pulse {
@@ -309,6 +387,9 @@
   .animate-ping,
   .animate-pulse,
   .animate-in,
+  .animate-out,
+  [class*=':animate-in'],
+  [class*=':animate-out'],
   [class*='animate-['] {
     animation: none !important;
   }
@@ -346,6 +427,11 @@
 
 html {
   scrollbar-gutter: stable;
+}
+
+/* The shell scrolls inside its own frame: the page never has a scrollbar to keep room for. */
+html:has([data-slot='sidebar-wrapper']) {
+  scrollbar-gutter: auto;
 }
 
 * {

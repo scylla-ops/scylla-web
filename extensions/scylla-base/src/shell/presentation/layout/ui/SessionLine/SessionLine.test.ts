@@ -37,7 +37,7 @@ describe('SessionLine', () => {
     expect(name).toHaveAttribute('title', 'ada@example.com');
   });
 
-  it('links to the account page outside any organization', () => {
+  it('links to the account page outside any workspace', () => {
     render(SessionLine);
 
     expect(screen.getByRole('link', { name: 'Account' })).toHaveAttribute('href', '/account');

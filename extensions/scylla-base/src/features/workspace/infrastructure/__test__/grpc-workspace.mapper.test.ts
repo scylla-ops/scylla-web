@@ -1,0 +1,29 @@
+// @vitest-environment node
+import { describe, it, expect } from 'vitest';
+import { toDomain } from '../grpc-workspace.mapper.ts';
+
+describe('grpcWorkspace.toDomain', () => {
+  it('unwraps the id and keeps the other fields', () => {
+    expect(
+      toDomain({
+        id: { value: 'ws-1' },
+        name: 'Acme',
+        slug: 'acme',
+        personalTokensEnabled: true,
+        timeZone: 'Europe/Paris',
+      }),
+    ).toEqual({
+      id: 'ws-1',
+      name: 'Acme',
+      slug: 'acme',
+      personalTokensEnabled: true,
+      timeZone: 'Europe/Paris',
+    });
+  });
+
+  it('gives an empty id when the wrapper is absent', () => {
+    expect(
+      toDomain({ name: 'Acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'UTC' }).id,
+    ).toBe('');
+  });
+});

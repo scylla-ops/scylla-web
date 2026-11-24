@@ -14,7 +14,7 @@ If this document and one of them do not agree, they are correct: update this doc
 ### 1.1 Core principles
 
 - **The core knows no business.** It loads extensions, compiles their routes, runs the router and
-  renders the shell frame. It does not know organizations, permissions or the backend.
+  renders the shell frame. It does not know workspaces, permissions or the backend.
 - **Everything is declared by modules.** Routes, sidebar links, DI, the shell parts and the
   access policy come from the modules of the extensions. There is no second list to keep in sync.
 - **Dependencies point one way**, between packages and between the layers of a module. The
@@ -47,7 +47,10 @@ reads any thrown value. It is in scylla-base `shared/utils/scylla-error.ts`. Oth
 it from `@scylla/base-sdk`.
 
 The shell has the one error toast of the app (`reportQueryError`) and the retry policy
-(`retryQueryError`: only `UNAVAILABLE`, `DEADLINE_EXCEEDED` and `ABORTED` are retried).
+(`retryQueryError`: only `UNAVAILABLE` and `DEADLINE_EXCEEDED` are retried). A mutation that the
+server refused because the item changed since it was read (`ABORTED`, `isConflict`) is told as a
+conflict, and every query is invalidated so that the screen shows what the server has. What the
+user typed stays.
 
 ---
 
@@ -98,7 +101,7 @@ export const extensions: readonly ExtensionClass[] = [ScyllaBaseExtension];
 1. calls `loadExtensions` to read and merge the extensions (§3.2);
 2. registers the i18n catalogs of the core and of each extension;
 3. installs the DI registry (`setDependencyRegistry`), the query client (`setQueryClient`, with
-   the `onQueryError` handlers of the modules) and the shell config;
+   the `onQueryError` handlers of the modules, after `mount()`) and the shell config;
 4. initializes the locale before the first render, so no frame shows untranslated text;
 5. installs the router as the app navigator (`setAppNavigator`) and mounts `App.svelte`.
 
@@ -116,7 +119,7 @@ without an import of the core.
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.6.0',
+  version: '0.7.0',
   modules: [ShellModule, ...modules],
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
@@ -153,7 +156,7 @@ export const UserModule = {
   id: 'user',
   domain: { userRepository: repository },          // the DI surface
   routes: {
-    organization: [                                // the mount where the route grafts
+    workspace: [                                // the mount where the route grafts
       {
         path: 'users',
         permission: Permission.LIST_USERS,         // the route guard AND the sidebar link
@@ -174,7 +177,7 @@ export const UserModule = {
 
 The **frame** is also declared by modules, with optional fields: `mounts`, `navSections`,
 `access` (`can`, `ready`, `guard`), `shell` (sidebar footer, overlays, nav badge, breadcrumb and
-link parameters), `onQueryError` and `fallback`. In scylla-base, `ShellModule` declares all of
+link parameters, links of data in the second sidebar), `onQueryError` and `fallback`. In scylla-base, `ShellModule` declares all of
 them.
 
 A route's `permission` has the type that one extension registers on `Register` (scylla-base
@@ -266,8 +269,8 @@ extensions/scylla-base/src/
   scylla-base.extension.ts     the @Extension class
   shell/                       modules.ts (the feature list), ShellModule (the frame)
   features/                    agents, apps, dashboard, jobs, login, marketplace, membership,
-                               organization, pipeline, project, roles, secret, triggers, user
-  platform/                    authz, context, grpc
+                               workspace, pipeline, project, roles, secret, triggers, user
+  platform/                    authz, context, grpc, legal, trackers, user-state
   shared/                      shared code with a business meaning (ScyllaError, status presentation)
 ```
 
@@ -303,13 +306,13 @@ A barrel must not export:
 | Mount | Path | What it adds |
 |-------|------|--------------|
 | `public` | `/` | nothing — e.g. `/login` |
-| `app` | `/` | `AppLayout` (auth gate + organization gate) and the core's shell frame |
-| `organization` | `/:organizationSlug` | `OrganizationSyncWrapper` |
-| `project` | `/:organizationSlug/projects/:projectId` | `ContextCleanerWrapper`, the "Project" crumb |
+| `app` | `/` | `AppLayout` (auth gate + workspace gate) and the core's shell frame |
+| `workspace` | `/:workspaceSlug` | `WorkspaceSyncWrapper` |
+| `project` | `/:workspaceSlug/projects/:projectId` | `ContextCleanerWrapper`, the "Project" crumb |
 
-It also declares the nav sections (`organization`, `system`), the access policy (`can`,
+It also declares the nav sections (`workspace`, `system`), the access policy (`can`,
 `authorizationReady`, `RequirePermission`), the shell parts, the query error handler and the
-fallback page (a redirect to `/login`).
+fallback page (a "page not found" text with a link to `/`).
 
 ---
 
@@ -644,7 +647,7 @@ action), and `isPageSizeReady` is false until the measure is done.
 
 | Store | Package | Purpose |
 |-------|---------|---------|
-| `contextStore` | scylla-base `@platform/context` | Current organization, project and pipeline |
+| `contextStore` | scylla-base `@platform/context` | Current workspace, project and pipeline |
 | `permissionsStore` | scylla-base `@platform/authz` | Effective permissions of the user |
 | `selectionStore` | `@scylla/ui/stores` | Generic row selection, keyed by feature |
 
@@ -656,7 +659,7 @@ Do not copy query data into a store or into `$state`.
 
 ## 10. i18n
 
-Lingui 5. `lingui extract` does not read `.svelte` files: declare each message with `` msg`…` ``
+Lingui 6. `lingui extract` does not read `.svelte` files: declare each message with `` msg`…` ``
 in a `*.messages.ts` beside its component, and render it with `t()` from `@scylla/ui/i18n`.
 Catalogs are per module (`locales/{en,fr}/messages.po`). Each package registers its catalogs:
 `@scylla/ui` and the core their own, each extension through `@Extension({ catalogs })`. The
@@ -673,7 +676,7 @@ runtime merges them into one map, so `pnpm i18n:collisions` must stay at zero.
 | TanStack Query 5 (`@tanstack/svelte-query`) | Server state, caching, mutations |
 | TanStack Table 9 | Data tables |
 | Router written in `@scylla/core` | Routing |
-| Lingui 5 | Internationalization (en, fr) |
+| Lingui 6 | Internationalization (en, fr) |
 | gRPC-Web (protobuf-ts) | Backend communication |
 | bits-ui | UI component primitives (adapted from shadcn/ui) |
 | lucide (`@lucide/svelte`) | Icons |
@@ -681,6 +684,11 @@ runtime merges them into one map, so `pnpm i18n:collisions` must stay at zero.
 | `@xyflow/svelte` | Graphs |
 | CodeMirror 6 | Code editor |
 | Tailwind CSS 4 | Styling |
-| Vite 7 | Build tool |
+| Vite 8 | Build tool |
 | Vitest + Testing Library | Tests |
 | dependency-cruiser | Architecture rules |
+
+No SvelteKit, on purpose: `dist/` is embedded in the Rust binary (`rust-embed`), which serves it
+as static files. There is no Node runtime in production, so no server routes and no SSR. The
+router is written in `@scylla/core` for the same reason: the routes are declared by the modules
+of the extensions, which no file-based router can read.

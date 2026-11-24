@@ -3,12 +3,34 @@
   import { t } from '@scylla/ui/i18n';
   import type { AccountPage } from './account-page.state.svelte.ts';
   import ChangePasswordForm from './ChangePasswordForm.svelte';
+  import ChangeEmailDialog from '@base/features/user/presentation/ui/components/ChangeEmailDialog/ChangeEmailDialog.svelte';
+  import SignInMethods from '@base/features/user/presentation/ui/components/SignInMethods/SignInMethods.svelte';
   import SessionList from '@base/features/user/presentation/ui/components/SessionList.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   let { page }: { page: AccountPage } = $props();
+
+  let emailOpen = $state(false);
 </script>
+
+<SettingsSection title={t(userMessages.email)} description={t(userMessages.emailDescription)}>
+  {#snippet action()}
+    <Button variant="outline" size="sm" onclick={() => (emailOpen = true)}>
+      {t(userMessages.changeEmail)}
+    </Button>
+  {/snippet}
+  <p class="text-sm">{page.me?.email ?? ''}</p>
+</SettingsSection>
+
+<ChangeEmailDialog open={emailOpen} setOpen={open => (emailOpen = open)} />
+
+<SettingsSection
+  title={t(userMessages.signInMethods)}
+  description={t(userMessages.signInMethodsDescription)}
+>
+  <SignInMethods />
+</SettingsSection>
 
 <SettingsSection
   title={t(userMessages.password)}

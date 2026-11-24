@@ -1,46 +1,52 @@
 <script lang="ts">
-  import { Redirect } from '@scylla/core-sdk';
+  import { Redirect, routeParams } from '@scylla/core-sdk';
   import { Button, Skeleton } from '@scylla/ui/primitives';
-  import { ErrorState } from '@scylla/ui';
+  import { DangerZone, ErrorState } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { createAccountPage } from './account-page.state.svelte.ts';
   import { accountSection } from './account-sections.registry.ts';
+  import AccountAbout from './AccountAbout.svelte';
   import AccountHeader from './AccountHeader.svelte';
   import AccountNav from './AccountNav.svelte';
+  import AccountPrivacy from '../AccountPrivacy/AccountPrivacy.svelte';
   import AccountSecurity from './AccountSecurity.svelte';
+  import PersonalTokensSection from '../PersonalTokens/PersonalTokensSection.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
   import ThemePicker from '@base/features/user/presentation/ui/components/ThemePicker/ThemePicker.svelte';
-  import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {
     /** Absent on the `personal` mount (`/account/<section>`). */
-    organizationSlug?: string;
+    workspaceSlug?: string;
     section?: string;
   }
 
-  let { organizationSlug, section }: Props = $props();
+  let { workspaceSlug, section }: Props = $props();
 
   const page = createAccountPage();
-  const current = $derived(accountSection(section));
-  const base = $derived(organizationSlug ? `/${organizationSlug}/account` : '/account');
+  // The section changes inside the page (`inPageParams`): read it from the route, not the props.
+  const current = $derived(accountSection(routeParams().section ?? section));
 </script>
 
 {#if !current}
   <Redirect to="../profile" />
 {:else if page.isLoading}
   <Skeleton class="m-4 h-64 rounded-xl" />
-{:else if page.isError || !page.me}
+{:else if !page.me}
   <ErrorState message={t(userMessages.accountLoadError)} />
 {:else}
   {@const me = page.me}
-  <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-8">
+  <div class={cn('mx-auto flex w-full max-w-5xl flex-col gap-6', workspaceSlug ? 'pb-20' : 'pb-8')}>
     <AccountHeader user={me} systemRole={page.systemRole} />
 
     <div class="flex flex-col gap-6 md:flex-row md:items-start md:gap-10">
-      <AccountNav {base} current={current.id} />
+      <!-- In a workspace, the second sidebar of the shell has these links. -->
+      {#if !workspaceSlug}
+        <AccountNav current={current.id} />
+      {/if}
 
       <div class="flex min-w-0 flex-1 flex-col gap-6">
         {#if current.id === 'profile'}
@@ -65,29 +71,23 @@
           </SettingsSection>
         {:else if current.id === 'security'}
           <AccountSecurity {page} />
-        {:else if current.id === 'organizations'}
-          <SettingsSection
-            title={t(userMessages.organizationsAndRoles)}
-            description={t(userMessages.organizationsDescription)}
-          >
-            <UserAccessList
-              access={page.access}
-              isLoading={page.accessLoading}
-              isError={page.accessError}
-            />
-          </SettingsSection>
+        {:else if current.id === 'tokens'}
+          <PersonalTokensSection />
+        {:else if current.id === 'privacy'}
+          <AccountPrivacy />
+        {:else if current.id === 'about'}
+          <AccountAbout />
         {:else}
-          <SettingsSection
+          <DangerZone
             title={t(userMessages.deleteMyAccount)}
             description={t(userMessages.deleteMyAccountDescription)}
-            tone="danger"
           >
             {#snippet action()}
-              <Button variant="destructive" size="sm" onclick={page.openDelete}>
+              <Button variant="destructive" onclick={page.openDelete}>
                 {t(userMessages.deleteMyAccount)}
               </Button>
             {/snippet}
-          </SettingsSection>
+          </DangerZone>
         {/if}
       </div>
     </div>

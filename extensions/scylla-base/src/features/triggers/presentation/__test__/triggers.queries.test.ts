@@ -16,11 +16,12 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   id: 'trigger-1',
   pipelineId: PIPELINE_ID,
   name: 'github-push',
-  source: { kind: 'webhook', signatureHeader: '', webhookUrl: 'https://x/webhooks/1' },
+  source: { kind: 'webhook', webhookUrl: 'https://x/webhooks/1', conditions: [] },
   inputs: [],
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  fromFile: false,
   ...overrides,
 });
 
@@ -29,7 +30,7 @@ const cronTrigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity =>
 
 const draft: TriggerDraft = {
   name: 'github-push',
-  source: { kind: 'webhook', signatureHeader: '' },
+  source: { kind: 'webhook', conditions: [] },
   inputs: [],
 };
 
@@ -202,7 +203,10 @@ describe('triggerMutations.setEnabled', () => {
     seedCache(true);
     const options = triggerMutations.setEnabled(PIPELINE_ID);
 
-    const context = await options.onMutate?.({ triggerId: 'trigger-1', enabled: false }, undefined as never);
+    const context = await options.onMutate?.(
+      { triggerId: 'trigger-1', enabled: false },
+      undefined as never,
+    );
     expect(cached()[0].enabled).toBe(false);
 
     options.onError?.(

@@ -5,7 +5,7 @@
   import { buttonVariants, type ButtonSize, type ButtonVariant } from './button-variants.ts';
 
   type Props = HTMLButtonAttributes &
-    Pick<HTMLAnchorAttributes, 'href'> & {
+    Pick<HTMLAnchorAttributes, 'href' | 'rel'> & {
       variant?: ButtonVariant;
       size?: ButtonSize;
       children?: Snippet;

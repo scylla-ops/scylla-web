@@ -2,6 +2,7 @@
 export {
   currentPathname,
   currentSearch,
+  hasPage,
   navigateBack,
   navigateTo,
   setAppNavigator,
@@ -14,4 +15,9 @@ export {
   type ResourceErrorOptions,
 } from './resource-error.state.svelte.ts';
 export { contextStore } from './context.store.ts';
-export { organizationUrl, scyllaNavigate, type ScyllaNavigate } from './scylla-navigate.ts';
+export {
+  activeWorkspaceSlug,
+  workspaceUrl,
+  scyllaNavigate,
+  type ScyllaNavigate,
+} from './scylla-navigate.ts';

@@ -1,25 +1,41 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { selectionStore } from '@scylla/ui/stores';
 import { installTestNavigator } from '@test/navigator.ts';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { getQueryClient } from '@scylla/core-sdk';
+import { findTooltip, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import DashboardPipelinePage from './DashboardPipeline.page.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), warning: vi.fn(), error: vi.fn() } }));
 
+const EDITOR = { source: 'editor', filePath: '', fileErrorCount: 0 };
+
 const pipelines = [
-  { id: 'pipeline-1', projectId: 'project-1', name: 'nightly', nodeCount: 2, createdAt: '2026-09-01T10:00:00Z', updatedAt: '2026-09-01T10:00:00Z' },
-  { id: 'pipeline-2', projectId: 'project-1', name: 'release', nodeCount: 1, createdAt: '2026-09-02T10:00:00Z', updatedAt: '2026-09-02T10:00:00Z' },
+  { id: 'pipeline-1', projectId: 'project-1', name: 'nightly', nodeCount: 2, createdAt: '2026-09-01T10:00:00Z', updatedAt: '2026-09-01T10:00:00Z', origin: EDITOR },
+  { id: 'pipeline-2', projectId: 'project-1', name: 'release', nodeCount: 1, createdAt: '2026-09-02T10:00:00Z', updatedAt: '2026-09-02T10:00:00Z', origin: EDITOR },
 ];
+
+const filePipelines = [
+  { ...pipelines[0], name: 'build', origin: { source: 'file', filePath: '.scylla/pipelines/build.toml', fileErrorCount: 3 } },
+  { ...pipelines[1], name: 'deploy', origin: { source: 'file', filePath: '.scylla/pipelines/deploy.toml', fileErrorCount: 0, removedAt: '2026-09-04T10:00:00Z' } },
+];
+
+const link = {
+  projectId: 'project-1',
+  provider: 'github',
+  fullName: 'acme/api',
+  defaultBranch: 'main',
+  reportsEnabled: true,
+};
 
 const job = {
   id: 'job-7',
   pipelineId: 'pipeline-1',
-  status: 'success',
+  status: 'completed',
   nodeExecutions: [],
   createdAt: '2026-09-03T10:00:00Z',
   updatedAt: '2026-09-03T10:05:00Z',
@@ -27,7 +43,7 @@ const job = {
   finishedAt: '2026-09-03T10:05:00Z',
 };
 
-const page = (items: typeof pipelines) => ({
+const page = (items: readonly unknown[]) => ({
   items,
   pagination: { totalCount: items.length, page: 1, pageSize: 10, totalPages: 1, hasNext: false, hasPrevious: false },
 });
@@ -43,20 +59,39 @@ const grantEverything = () =>
     },
   });
 
-const setUp = (getMetadataByProjectId: () => Promise<unknown>) => {
+const setUp = (getMetadataByProjectId: () => Promise<unknown>, linked: unknown = null) => {
   run = vi.fn().mockResolvedValue(undefined);
   const cache = withQueryClient();
   teardown = [
     cache.restore,
     withRegistry({
-      pipeline: { pipelineRepository: { getMetadataByProjectId, run } },
+      pipeline: {
+        pipelineRepository: {
+          getMetadataByProjectId,
+          run,
+          getWithLayout: () => new Promise(() => {}),
+        },
+      },
+      integrations: {
+        repositoryLinkRepository: {
+          getByProject: () => Promise.resolve(linked),
+          listRefs: () =>
+            Promise.resolve({
+              refs: [
+                { name: 'main', kind: 'branch', sha: 'a1b2c3d4e5', defaultBranch: true, webUrl: '' },
+                { name: 'v1.2.0', kind: 'tag', sha: 'f6e5d4c3b2', defaultBranch: false, webUrl: '' },
+              ],
+              nextPageToken: '',
+            }),
+        },
+      },
       jobs: {
         jobsRepository: {
           getByPipelineId: (pipelineId: string) =>
-            Promise.resolve({ items: pipelineId === 'pipeline-1' ? [job] : [] }),
+            Promise.resolve(page(pipelineId === 'pipeline-1' ? [job] : [])),
         },
       },
-      agents: { agentsRepository: { listAgents: () => Promise.resolve([]) } },
+      apps: { appsRepository: { listApps: () => Promise.resolve([]) } },
     }),
   ];
   return render(DashboardPipelinePage, { projectId: 'project-1' });
@@ -67,7 +102,7 @@ beforeEach(() => {
   grantEverything();
   selectionStore.setState({ selectedIds: {} });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: 'project-1', name: 'web' },
   });
 });
@@ -98,10 +133,88 @@ describe('DashboardPipelinePage', () => {
     expect(screen.queryByText('nightly')).not.toBeInTheDocument();
   });
 
-  it('opens the last run of a pipeline', async () => {
+  it('calls the list once when it fails in a frame taller than the smallest page', async () => {
+    const frame = vi.spyOn(Element.prototype, 'clientHeight', 'get').mockReturnValue(800);
+    let calls = 0;
+    // A loop stops at the 10th call: with no limit, it fills the memory of the worker.
+    const list = () => {
+      calls += 1;
+      return calls < 10 ? Promise.reject(new ScyllaError('down')) : new Promise(() => {});
+    };
+    setUp(list);
+    teardown.push(() => frame.mockRestore());
+
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    expect(calls).toBe(1);
+    expect(await screen.findByText('Error')).toBeInTheDocument();
+  });
+
+  describe('when the layout gives a height that changes the page size', () => {
+    let height: PropertyDescriptor | undefined;
+
+    beforeEach(() => {
+      height = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'clientHeight');
+      Object.defineProperty(HTMLElement.prototype, 'clientHeight', {
+        configurable: true,
+        get: () => 900,
+      });
+    });
+
+    afterEach(() => {
+      Object.defineProperty(HTMLElement.prototype, 'clientHeight', height ?? { value: 0 });
+    });
+
+    it('asks once and shows the error when the first load fails', async () => {
+      const list = vi.fn(() => Promise.reject(new ScyllaError('backend is down')));
+      setUp(list);
+
+      expect(await screen.findByText('Error')).toBeInTheDocument();
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(list).toHaveBeenCalledTimes(1);
+    });
+
+    it('keeps the rows when a refetch fails', async () => {
+      const list = vi
+        .fn<() => Promise<unknown>>()
+        .mockResolvedValueOnce(page(pipelines))
+        .mockRejectedValue(new ScyllaError('backend is down'));
+      setUp(list);
+      expect(await screen.findByText('nightly')).toBeInTheDocument();
+
+      await getQueryClient().refetchQueries({ type: 'active' });
+      await new Promise(resolve => setTimeout(resolve, 50));
+
+      expect(screen.getByText('nightly')).toBeInTheDocument();
+      expect(screen.queryByText('Error')).not.toBeInTheDocument();
+      expect(list).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it('shows the history of each pipeline as bars, and says so when a pipeline has no run', async () => {
     setUp(() => Promise.resolve(page(pipelines)));
 
-    await userEvent.click(await screen.findByRole('button', { name: 'Open the last run' }));
+    expect(await screen.findByRole('button', { name: 'Job job-7: Success' })).toBeInTheDocument();
+    expect(screen.getByText('No run yet')).toBeInTheDocument();
+  });
+
+  it('starts the bars of the history at the left edge, and centers the notice of no run', async () => {
+    setUp(() => Promise.resolve(page(pipelines)));
+
+    const bar = await screen.findByRole('button', { name: 'Job job-7: Success' });
+
+    expect(bar.parentElement).toHaveClass('justify-start');
+    expect(bar.parentElement).not.toHaveClass('justify-center');
+    expect(screen.getByText('No run yet').parentElement).toHaveClass(
+      'items-center',
+      'justify-center',
+    );
+  });
+
+  it('opens a job from its bar in the history', async () => {
+    setUp(() => Promise.resolve(page(pipelines)));
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Job job-7: Success' }));
 
     expect(navigator.navigate).toHaveBeenCalledWith(
       '/acme/projects/project-1/pipelines/pipeline-1/jobs/job-7',
@@ -116,7 +229,70 @@ describe('DashboardPipelinePage', () => {
     const [runNightly] = screen.getAllByRole('button', { name: 'Run' });
     await userEvent.click(runNightly);
 
-    await waitFor(() => expect(run).toHaveBeenCalledWith('pipeline-1'));
+    await waitFor(() => expect(run).toHaveBeenCalledWith('pipeline-1', undefined));
+  });
+
+  it('asks which commit to run when the project has a linked repository, the default branch first', async () => {
+    setUp(() => Promise.resolve(page(pipelines)), link);
+    await screen.findByText('nightly');
+    // The link comes after the list: the Run of the row waits for it.
+    await waitFor(() => expect(getQueryClient().getQueryData(['repository-link', 'project-1'])).toBeTruthy());
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'Run' })[0]);
+
+    const dialog = await screen.findByRole('dialog', { name: 'Run nightly' });
+    expect(dialog).toHaveTextContent('Scylla reports the result to GitHub on this commit.');
+    expect(run).not.toHaveBeenCalled();
+
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Run' }));
+
+    await waitFor(() =>
+      expect(run).toHaveBeenCalledWith('pipeline-1', { kind: 'branch', name: 'main' }),
+    );
+  });
+
+  it('runs at a typed SHA, and refuses a SHA that is not one', async () => {
+    setUp(() => Promise.resolve(page(pipelines)), link);
+    await screen.findByText('nightly');
+    await waitFor(() => expect(getQueryClient().getQueryData(['repository-link', 'project-1'])).toBeTruthy());
+    await userEvent.click(screen.getAllByRole('button', { name: 'Run' })[0]);
+    const dialog = await screen.findByRole('dialog', { name: 'Run nightly' });
+
+    await userEvent.click(within(dialog).getByRole('combobox', { name: 'Branch, tag or commit' }));
+    // The list is in a floating layer, out of the accessibility tree of the dialog.
+    const rows = await screen.findAllByRole('option', { hidden: true });
+    await userEvent.click(rows.find(row => row.textContent?.includes('Use a commit SHA'))!);
+    const field = within(dialog).getByRole('textbox', { name: 'Commit SHA' });
+    const submit = within(dialog).getByRole('button', { name: 'Run' });
+
+    await userEvent.type(field, 'main');
+    expect(submit).toBeDisabled();
+    expect(dialog).toHaveTextContent('A SHA has only the characters 0 to 9 and a to f.');
+
+    await userEvent.clear(field);
+    await userEvent.type(field, 'A1B2C3D');
+    await userEvent.click(submit);
+
+    await waitFor(() =>
+      expect(run).toHaveBeenCalledWith('pipeline-1', { kind: 'sha', sha: 'A1B2C3D' }),
+    );
+  });
+
+  it('says which file pipelines have errors or left the default branch, and opens them read only', async () => {
+    setUp(() => Promise.resolve(page(filePipelines)), link);
+    await screen.findByText('build');
+
+    expect(screen.getByText('Removed')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Edit pipeline' })).not.toBeInTheDocument();
+    await userEvent.hover(await screen.findByText('3 errors'));
+    expect(await findTooltip()).toHaveTextContent('build.toml has 3 errors on main');
+
+    await userEvent.click(screen.getAllByRole('button', { name: 'View pipeline' })[0]);
+
+    expect(navigator.navigate).toHaveBeenCalledWith(
+      '/acme/projects/project-1/pipelines/pipeline-1',
+      undefined,
+    );
   });
 
   it('opens the editor, the jobs and the triggers of a pipeline', async () => {
@@ -139,6 +315,24 @@ describe('DashboardPipelinePage', () => {
       '/acme/projects/project-1/pipelines/pipeline-1/triggers',
       undefined,
     );
+  });
+
+  it('offers no jobs page to a reader of the pipelines who may not list the jobs', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.PROJECT,
+            scopeId: 'project-1',
+            access: { kind: 'restricted', permissions: [Permission.LIST_PIPELINES_BY_PROJECT] },
+          },
+        ],
+      },
+    });
+    setUp(() => Promise.resolve(page(pipelines)));
+    await screen.findByText('nightly');
+
+    expect(screen.queryByRole('button', { name: 'View Jobs' })).not.toBeInTheDocument();
   });
 
   it('opens the members and the secrets of the project from the header', async () => {

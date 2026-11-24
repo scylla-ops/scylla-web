@@ -209,21 +209,6 @@ module.exports = {
     },
 
     {
-      name: 'domain-accessor-is-private',
-      comment:
-        '`use-<feature>-domain.ts` is where a feature pins the type of its own injection. ' +
-        'Another module calling it would query that feature\'s repository directly — ' +
-        'bypassing its hooks and forking the query cache into two keys for one resource. ' +
-        'Consume the feature\'s hooks through its `index.ts` instead.',
-      severity: 'error',
-      from: { path: R + 'extensions/scylla-base/src/features/([^/]+)/' },
-      to: {
-        path: R + 'extensions/scylla-base/src/features/[^/]+/presentation/hooks/use-[^/]+-domain[.]ts$',
-        pathNot: R + 'extensions/scylla-base/src/features/$1/',
-      },
-    },
-
-    {
       name: 'shared-is-generic',
       comment:
         'shared/ holds reusable UI and utils with no business meaning. The moment it ' +

@@ -1,7 +1,8 @@
 <script lang="ts">
-  import { loadNoAgentsBanner } from '@base/features/agents';
+  import type { Snippet } from 'svelte';
+  import { loadNoAgentsBanner } from '@base/features/apps';
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, PaginationSlot } from '@scylla/ui';
+  import { ErrorState, ListSkeleton, PaginationSlot } from '@scylla/ui';
   import { createPagination } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -9,22 +10,30 @@
   import JobsHeader from './JobsHeader/JobsHeader.svelte';
   import JobsTable from './jobs-table/JobsTable.svelte';
   import { jobsMessages } from '../messages/jobs.messages.ts';
+  import type { JobFilter } from '../../domain/entities/job.entity.ts';
 
   interface Props {
     /** Passed by `PipelineJobsRoute`: `pipeline` owns this route (the Run action). */
     pipelineId?: string;
     onRun?: () => Promise<void>;
+    /** Only the jobs that match. */
+    filter?: JobFilter;
+    /** Under the header: the controls of the filter, given by the owner of the route. */
+    toolbar?: Snippet;
   }
 
-  let { pipelineId, onRun }: Props = $props();
+  let { pipelineId, onRun, filter, toolbar }: Props = $props();
 
   const pagination = createPagination({ responsive: true });
 
   const jobsQuery = createQuery(() =>
     jobQueries.byPipeline(pipelineId ?? '', pagination.paginationParams, {
       enabled: pagination.isPageSizeReady,
+      filter,
     }),
   );
+
+  const filtered = $derived(!!filter && Object.values(filter).some(value => value !== undefined));
 
   const jobs = $derived(jobsQuery.data?.items);
 
@@ -48,12 +57,14 @@
   <!-- The frame renders first: the table area's height decides what to fetch. -->
   <div class="flex flex-col gap-4 w-full h-full min-h-0">
     <JobsHeader
-      numberOfJobs={pagination.paginationInfo?.totalCount ?? jobs?.length ?? 0}
+      numberOfJobs={jobs ? (pagination.paginationInfo?.totalCount ?? jobs.length) : undefined}
       jobIds={jobs?.map(job => job.id) ?? []}
       {pipelineId}
       onRefresh={() => void jobsQuery.refetch()}
       {onRun}
     />
+
+    {@render toolbar?.()}
 
     <!-- A loader from the barrel. Nothing shows until it loads: the banner is advisory. -->
     {#await loadNoAgentsBanner() then banner}
@@ -64,11 +75,16 @@
       <div class="relative">
         {#if jobs && jobs.length > 0}
           <JobsTable {jobs} {pipelineId} />
-        {:else if jobs}
+        {:else if !jobs}
+          <!-- The rows of the jobs table. -->
+          <ListSkeleton rows={5} rowClass="h-14 w-full" />
+        {:else}
           <div class="flex items-center justify-center h-full min-h-[400px]">
             <div class="text-center space-y-2">
               <p class="text-muted-foreground">{t(jobsMessages.noJobsFound)}</p>
-              <p class="text-sm text-muted-foreground">{t(jobsMessages.noJobsBody)}</p>
+              {#if !filtered}
+                <p class="text-sm text-muted-foreground">{t(jobsMessages.noJobsBody)}</p>
+              {/if}
             </div>
           </div>
         {/if}

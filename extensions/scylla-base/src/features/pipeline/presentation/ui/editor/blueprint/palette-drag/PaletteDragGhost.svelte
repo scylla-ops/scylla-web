@@ -1,7 +1,8 @@
 <script lang="ts">
   import { Portal } from '@scylla/ui/primitives';
   import CatalogIcon from '../catalog/CatalogIcon.svelte';
-  import type { PaletteDrag } from './palette-drag.state.svelte.ts';
+  import { FragmentIcon } from '@shared/presentation/ui';
+  import { isFragment, type PaletteDrag } from './palette-drag.state.svelte.ts';
 
   interface Props {
     drag: PaletteDrag;
@@ -21,10 +22,14 @@
       class="pointer-events-none fixed top-0 left-0 z-50 will-change-transform"
       style:transform="translate({drag.pointer.x}px, {drag.pointer.y}px) translate(-50%, -50%)"
     >
-      <CatalogIcon
-        entry={drag.entry}
-        class="animate-in shadow-lg ring-[3px] ring-primary/25 duration-100 zoom-in-90"
-      />
+      {#if isFragment(drag.entry)}
+        <FragmentIcon class="animate-in shadow-lg ring-[3px] ring-info/25 duration-100 zoom-in-90" />
+      {:else}
+        <CatalogIcon
+          entry={drag.entry}
+          class="animate-in shadow-lg ring-[3px] ring-primary/25 duration-100 zoom-in-90"
+        />
+      {/if}
     </div>
   </Portal>
 {/if}

@@ -42,7 +42,7 @@
 >
   {#snippet footer({ isValid, isPending: pending })}
     <!-- Right under the password field. -->
-    <div class="-mt-2 flex justify-end">
+    <div class="-mt-2 flex justify-center">
       <a
         href="/forgot-password"
         class="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"

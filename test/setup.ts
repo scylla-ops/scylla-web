@@ -2,6 +2,12 @@ import '@testing-library/jest-dom/vitest';
 import { i18n } from '@lingui/core';
 import { beforeEach, vi } from 'vitest';
 
+// Node 25 has these globals, and its `localStorage` has no store. Node 22 (CI) has none.
+if (typeof window === 'undefined') {
+  Reflect.deleteProperty(globalThis, 'localStorage');
+  Reflect.deleteProperty(globalThis, 'sessionStorage');
+}
+
 // An empty catalog: lingui falls back to the message id, the English source. `test/i18n.ts` loads a real one.
 i18n.load('en', {});
 i18n.activate('en');
@@ -53,6 +59,8 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
   // jsdom logs "Not implemented" for it.
   window.scrollTo = vi.fn();
+  // jsdom has no canvas, and logs "Not implemented": no context, as in a browser without 2D.
+  HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue(null);
   // No media queries in jsdom: report the desktop layout.
   window.matchMedia = vi.fn().mockImplementation((query: string) => ({
     matches: false,

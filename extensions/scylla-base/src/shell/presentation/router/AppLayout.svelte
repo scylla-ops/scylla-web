@@ -1,13 +1,13 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import OrganizationGate from '../layout/ui/OrganizationGate/OrganizationGate.svelte';
+  import WorkspaceGate from '../layout/ui/WorkspaceGate/WorkspaceGate.svelte';
   import AuthGuard from './AuthGuard/Auth.guard.svelte';
 
   let { children }: { children: Snippet } = $props();
 </script>
 
 <AuthGuard>
-  <OrganizationGate>
+  <WorkspaceGate>
     {@render children()}
-  </OrganizationGate>
+  </WorkspaceGate>
 </AuthGuard>

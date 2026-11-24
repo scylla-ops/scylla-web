@@ -18,11 +18,12 @@ specific mistakes that module invites.
 apps/web/AGENTS.md                                       the build: the list of extensions
 packages/core/AGENTS.md                                  loader, router, shell frame
 packages/ui/AGENTS.md                                    design system: primitives, composites, stores, i18n
+catalog/AGENTS.md                                        the visual catalog of @scylla/ui (Storybook)
 sdks/core-sdk/AGENTS.md                                  the extension contract: @Extension, ScyllaModule, DI, query
 sdks/scylla-base-sdk/AGENTS.md                           the public API of scylla-base for other extensions
 extensions/scylla-base/AGENTS.md                         the Scylla extension
 extensions/scylla-base/src/features/<feature>/AGENTS.md  the 15 business modules
-extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc
+extensions/scylla-base/src/platform/<capability>/AGENTS.md   authz, context, grpc, legal, trackers, user-state
 extensions/scylla-base/src/shell/AGENTS.md               module list, ShellModule, Scylla shell parts
 extensions/scylla-base/src/shared/AGENTS.md              shared code with a business meaning
 ```
@@ -59,8 +60,12 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm typecheck` | `tsc -b && svelte-check` — `tsc` cannot see `.svelte` files, `svelte-check` can |
 | `pnpm test` | Vitest, single run — **must be green** |
 | `pnpm test:watch` | Vitest in watch mode |
+| `pnpm test:file <path>` | Run one test file. The path can be a part of the file name. With no path, this runs all tests |
+| `pnpm test:name "<name>" <path>` | Run the tests with this name in this file. With no path, this loads all test files |
+| `pnpm test:dir <folder>` | Run all tests in one folder or package |
+| `pnpm test:changed [<ref>]` | Run the tests linked to the uncommitted files. With a ref, also the tests linked to the commits after this ref |
 | `pnpm coverage` | Vitest + v8 coverage, enforces the thresholds in `vite.config.ts` |
-| `pnpm lint` | ESLint, `--max-warnings 0` (warnings are errors). Slow (~20 min) and needs an 8 GB heap, which the script sets |
+| `pnpm lint` | ESLint, `--max-warnings 0` (warnings are errors). About 30 s. The script sets an 8 GB heap |
 | `pnpm lint:fix` | ESLint with `--fix` |
 | `pnpm gen-proto` | Generate gRPC/protobuf-ts clients |
 | `pnpm extract` / `pnpm compile` | Lingui: extract messages (`--clean`, drops obsolete entries) / compile catalogs |
@@ -68,6 +73,25 @@ Lingui) covers every package. `vite.config.ts` builds `apps/web` into `dist/`.
 | `pnpm depcruise:cycles` | Module dependency cycles — **must be zero** |
 | `pnpm i18n:collisions` | Same msgid translated differently in two catalogs — **must be zero** |
 | `pnpm check:authors <range>` | No AI agent as author, committer or co-author of a commit in the range — **must be clean** |
+| `pnpm tokens:export` | Write `packages/ui/tokens/` (the design tokens for Figma) from `styles.css`. Run it after a change of a token |
+| `pnpm tokens:check` | The token files are the export of `styles.css` — **must be clean** |
+| `pnpm ui:catalog` | The visual catalog of `@scylla/ui` (Storybook) on <http://localhost:6006> |
+| `pnpm ui:catalog:build` | Type-check and build the catalog, as CI does. Not part of the gates above |
+
+**Which tests to run.** While you write code, run one file: `pnpm test:file <path>`. Before a push,
+run the changed tests: `pnpm test:changed origin/<base>`, where `<base>` is the target branch of
+the PR. CI runs the whole suite. `test:changed` does not select a test that reads source from the
+disk, for example `title-font.test.ts`, because it has no import edge.
+
+- These four commands do not measure coverage. They need no Node flag.
+- They keep the transformed modules in `node_modules/.vitest-cache`, so the second run of a file is
+  faster. If you change `svelte.config.js`, `lingui.config.js` or a `tsconfig` file, clear the cache:
+  `pnpm exec vitest --clearCache`.
+- The name of `pnpm test:name` is a regular expression. If no test has this name, all tests are
+  skipped and the exit code is 0. Read the count.
+- A change to a part that many tests use, for example a primitive of `packages/ui`, selects many
+  tests. To run fewer, add a folder: `pnpm test:changed --dir packages/ui`. A change to
+  `test/setup.ts` or `vite.config.ts` selects all tests. A change to a `package.json` selects no test.
 
 > `depcruise:cycles` is **not** redundant with `depcruise`'s `no-circular`. That rule works on the
 > *file* graph; a cycle can exist between two folders with no file in a loop (`a/x.ts → b/index.ts`,
@@ -83,9 +107,10 @@ the alias when TypeScript 7.1 and these tools support the new API.
 
 `prebuild` = `gen-proto` + `extract` + `compile`, and runs before `dev` and `build`. **Do not hand-edit generated proto code or compiled locale `messages.ts` files** — regenerate them.
 
-Before considering work done: `pnpm typecheck`, `pnpm test`, `pnpm lint`, `pnpm depcruise`,
+Before considering work done: `pnpm typecheck`, `pnpm test:changed origin/<base>`, `pnpm lint`, `pnpm depcruise`,
 `pnpm depcruise:cycles` and `pnpm i18n:collisions` must all pass clean (zero warnings, zero
-failures, zero violations, zero cycles, zero collisions). CI runs all six, and also checks that
+failures, zero violations, zero cycles, zero collisions). CI runs all six, with the whole suite of
+tests, and also checks that
 no commit of the branch names an AI agent as author or co-author (`pnpm check:authors`).
 
 **After moving any component between modules**, run `node scripts/restore-translations.mjs` —
@@ -121,7 +146,7 @@ deep path. Enforced in `.dependency-cruiser.cjs`, all `error`: `ui-is-generic`,
 - **An extension is a class with `@Extension`** (`@scylla/core-sdk`), listed in
   `apps/web/src/extensions.ts`. Its manifest is `{ id, name, version, dependencies?, modules,
   catalogs? }` — the modules carry everything else (see "The `ScyllaModule` contract").
-- **The core knows no business.** No organization, no `Permission` enum, no backend. What the
+- **The core knows no business.** No workspace, no `Permission` enum, no backend. What the
   frame shows (sections, links, header, footer, gate, guard, error policy) comes from modules.
 - **An extension reaches another one only through its SDK.** `@scylla/base-sdk` re-exports the
   barrels of scylla-base; scylla-base never imports it.
@@ -137,7 +162,8 @@ shell/                    the module list (modules.ts) and ShellModule: mounts, 
 features/                 the business modules.  May import platform + shared, never the shell,
                           and never another feature's internals.
   ↓
-platform/                 cross-cutting capabilities that own a domain: authz, context, grpc.
+platform/                 cross-cutting capabilities that own a domain: authz, consent,
+                          context, grpc, legal, trackers, user-state.
                           MUST NEVER import a feature.
   ↓
 shared/                   shared code with a business meaning (ScyllaError, status presentation).
@@ -159,9 +185,9 @@ import { Permission } from '@platform/authz';               // ✅
 import { Permission } from '@platform/authz/domain/structs/permission.struct.ts';           // ❌
 ```
 
-Enforced by six rules in `.dependency-cruiser.cjs`, all `error`: `feature-api-only`,
+Enforced by five rules in `.dependency-cruiser.cjs`, all `error`: `feature-api-only`,
 `shell-uses-feature-api`, `platform-api-only`, `platform-capability-api-only`,
-`module-declaration-is-private`, `domain-accessor-is-private`.
+`module-declaration-is-private`.
 
 What a barrel must **not** export:
 - **`<feature>.module.ts`** — it instantiates the feature's repository at import time, so
@@ -227,7 +253,9 @@ the types of its props). Every other file goes in the folder of its role:
   `pipelineDocument.withName(…)`.
 
 These three folders never import `ui/` (`presentation-logic-knows-no-ui`, in depcruise): `ui/`
-uses them, never the reverse. There is no `utils/` folder.
+uses them, never the reverse. There is no `utils/` folder in a feature: a helper with a
+business meaning that several features share goes to `shared/utils/`, a generic one to
+`@scylla/ui/utils`.
 
 To place a function of the view, look at what it gives and what it needs, not at what it takes:
 
@@ -360,10 +388,14 @@ injected, still substitutable in a test. Only the redundant indirection is gone.
 - `packages/ui` — primitives (adapted from shadcn/ui), generic composites, rune states, stores, i18n runtime, theme.
 - scylla-base `shell/` — `modules.ts` (the feature list), `ShellModule` (mounts, sidebar
   sections, auth gate, context wrappers, access policy, error policy, shell parts).
-- scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `context`
-  (current org/project/pipeline + navigation), `grpc`.
-- scylla-base `features/` — `agents`, `apps`, `dashboard`, `extensions`, `jobs`, `login`, `marketplace`,
-  `membership`, `organization`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
+- scylla-base `platform/` — `authz` (Permission, `can`, `Can`, `RequirePermission`), `consent`
+  (the banner and the cookie settings, hidden while each tracker is exempt), `context`
+  (current org/project/pipeline + navigation), `grpc`, `legal` (the legal documents and the
+  operator, public), `trackers` (the registry of the cookies and the storage keys),
+  `user-state` (the interface state of a person on the server, with `localStorage` as its read
+  copy).
+- scylla-base `features/` — `apps`, `dashboard`, `extensions`, `integrations`, `jobs`, `legal`, `login`, `marketplace`,
+  `membership`, `workspace`, `pipeline`, `project`, `roles`, `secret`, `triggers`, `user`.
 - scylla-base `shared/` — shared code with a business meaning. **No feature imports.**
 
 ### The `ScyllaModule` contract
@@ -399,7 +431,8 @@ Rules that matter:
   re-exported UI would drag every page back into the entry chunk.
 - The **frame** is declared by modules too, with optional fields: `mounts` (where routes graft),
   `navSections` (the sections a `nav.section` names), `access` (`can`, `ready`, `guard` — at most
-  one module), `shell` (sidebar footer, overlays, nav badge, breadcrumb and link parameters),
+  one module), `shell` (sidebar footer, overlays, overlays of each page, nav badge, breadcrumb and link parameters, links
+  of data in the second sidebar),
   `onQueryError`, `fallback` (exactly one module). In scylla-base they are all in `ShellModule`.
 - A route's `permission` has the type that one extension registers on `Register`
   (scylla-base: `Permission`). The core only passes it to the access policy.
@@ -410,7 +443,7 @@ The extension itself stays short:
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.6.0',
+  version: '0.7.0',
   modules: [ShellModule, ...modules],
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
 })
@@ -432,6 +465,12 @@ no Result type: TanStack Query already holds the success or the failure of each 
   error toast of the app, and `retryQueryError` retries only a transient code.
 - **To give a code a more precise meaning, catch, re-code and throw**, in the repository (the
   `login` repository makes `UNAUTHENTICATED` into `INVALID_CREDENTIALS`).
+- **A response this build cannot use has its own code, raw.** Without the entity it must carry:
+  `MALFORMED_RESPONSE`, read with `required(response.agent, 'agent')`
+  (`@shared/infrastructure/grpc/wrappers.ts`). With a value this build cannot read, from a newer
+  server (a oneof arm, an access mode): `UNSUPPORTED_RESPONSE`. A value the client itself cannot
+  send is a bug: a raw `ScyllaError` with no code (`UNKNOWN_ERROR`). All three show the generic
+  text and go to the console as errors. Never a plain `Error`: it has no code to branch on.
 - **To show a refusal beside a field, not in the toast,** use `refusalOf(call)`: it gives the
   message of a `FAILED_PRECONDITION` and throws any other error.
 - **Read an unknown value with `ScyllaError.from(error)`**: a `ScyllaError` stays as it is, an
@@ -466,6 +505,10 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
 - **List headers**: `FeatureHeader` (count, clear/delete selection, new button).
 - **Modals**: `ScyllaDialog` for every modal, never `Dialog` + `DialogContent` directly — a
   `{#key}` around `DialogContent` leaves the modal impossible to close.
+- **Destructive actions** (delete, remove, revoke, disable, deactivate): the destructive variant
+  of the menu item, the button or `IconButton`, never a red class; in a menu, at the end after a
+  separator; confirmed by `ConfirmOperationAlertDialog`; on a settings page, in a `DangerZone`.
+  See `packages/ui/AGENTS.md`, "Destructive actions". A conformance test enforces it.
 - **Forms**: declarative `ScyllaForm` from `FormItem[]`; `FormDialog` wraps it in a dialog;
   `createFormState(() => items)` manages values/changes/reset/validation. Both are generic over
   the item ids — type the items `readonly FormItem<'a' | 'b'>[]` and `onSubmit` hands back a typed
@@ -475,9 +518,28 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
 - **Navigation**: `scyllaNavigate` and `navigateTo` from `@platform/context` inside scylla-base
   (`navigateTo` comes from `@scylla/core-sdk`, which another extension imports). Never import
   the router.
-- **Global state**: only `contextStore` (current org/project) and `selectionStore` are app-wide,
-  plus `permissionsStore` in `@platform/authz`. Everything else = TanStack Query (server) or local
-  `$state`.
+- **Global state**: only `contextStore` (current org/project), `selectionStore` and
+  `dialogHoldStore` (the guided tour holds the dialogs open) are app-wide, plus `permissionsStore` in
+  `@platform/authz`, `cookieSettings` in `@platform/consent` (the one dialog of the cookie
+  settings, which the footer, the user menu and the account page open) and `arrival` in
+  `features/login` (the motion after a sign-in: the sign-in page starts it, the overlay of the app
+  plays it, the logo of the shell waits for it). Everything else = TanStack Query (server) or
+  local `$state`.
+- **Cookies and browser storage: no cookie and no storage key without a registry entry.** A
+  change that reads or writes a new cookie, a new `localStorage` key or a new `sessionStorage`
+  key adds its entry to the tracker registry (`@platform/trackers`) in the same change: owner,
+  purpose, lifetime, `exempt`. A tracker that is not exempt also names its `consent` purpose,
+  and loads only through `whenGranted(purpose, load)` of `@platform/consent`. The cookie page and
+  the consent framework read the registry: one entry that is not exempt shows the banner, the
+  cookie settings and their entries. `platform/trackers/__test__/trackers.registry.test.ts` fails
+  when the code and the registry are not equal. See `platform/trackers/AGENTS.md`.
+- **Content security policy: no script, style, font, image or call from another origin.** The
+  server that serves the app (scylla-ce, `scylla-core/src/api/web/policy.rs`) sends a
+  `Content-Security-Policy`: the own origin, the inline scripts of `index.html` by their hash,
+  inline styles, the API, and the hosts of the avatars of GitHub, GitLab and Gravatar. The
+  browser blocks each other origin. A new origin (a font host, a script, a tracker) is a change
+  of that policy in the same change, and a tracker also gets its registry entry. The server also
+  sends `Referrer-Policy: strict-origin-when-cross-origin`.
 - **Batch loads**: use `createQueries` to avoid N+1 (see jobs-per-pipeline).
 
 ### Query keys
@@ -495,7 +557,7 @@ export const JOBS_QUERY_KEY = (pipelineId: string) =>
 ## Svelte — Best Practices
 
 Svelte 5, **runes only** (`svelte.config.js` sets `runes: true`). No SvelteKit: the build is a
-static SPA that the Rust binary serves. See `refacto_svelte.md` for the reasons.
+static SPA that the Rust binary serves. `docs/architecture.md`, "Tech stack", gives the reasons.
 
 ### Where the logic goes
 
@@ -523,7 +585,7 @@ does not have a known place. A test takes the name of the file it tests
   state that orchestrates a view is named after the view (`user-list.state.svelte.ts`): that is
   the ViewModel of the view. If you cannot name a state with one noun, split it.
 - **An effect synchronizes with a system outside Svelte**, for a component that calls it
-  (`organization-sync.effect.svelte.ts`). It installs `$effect`s, and returns nothing or what
+  (`workspace-sync.effect.svelte.ts`). It installs `$effect`s, and returns nothing or what
   the component must connect.
 - **An adapter makes an outside API readable from rune code** (`to-rune.adapter.svelte.ts`).
 
@@ -577,6 +639,11 @@ its element), and can be conditional (`{@attach enabled && fn}`).
   `@tanstack/svelte-query` (`no-restricted-imports`).
 - Lists go through `DataTable` + `createPagination()`; don't render thousands of unpaginated
   rows. Row keys must be stable business ids, never array indices.
+- **`isError` is also true when a refetch fails and `data` is still there.** A page that holds a
+  draft shows an error only with no data (`!data` or `isLoadingError`), or a failed refetch on a focus
+  removes the form and what the user typed. A query that gives the first value of a draft that
+  follows the query, like the editor of a pipeline, sets `refetchOnWindowFocus: false` and
+  `refetchOnReconnect: false`.
 
 ### Component splitting
 
@@ -636,7 +703,7 @@ The package and layer structure is mandatory; everything else must earn its plac
 | Page component file | `*.page.svelte` | `UserAdmin.page.svelte` |
 | Svelte component | `PascalCase.svelte` | `SecretList.svelte` |
 | State (runes): a ViewModel, or UI state with one responsibility | `<view>.state.svelte.ts` / `<responsibility>.state.svelte.ts` → `create{Name}` or a `{View}State` class | `roles-page.state.svelte.ts`, `node-draft.state.svelte.ts` / `createNodeDraft` |
-| Effect (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` → a verb | `organization-sync.effect.svelte.ts` / `syncOrganization` |
+| Effect (runes): a synchronization with a system outside Svelte | `*.effect.svelte.ts` → a verb | `workspace-sync.effect.svelte.ts` / `syncWorkspace` |
 | Adapter (runes): an outside API read from rune code | `*.adapter.svelte.ts` | `to-rune.adapter.svelte.ts` / `toRune` |
 | Query / mutation options | `<feature>.queries.ts` → `{feature}Queries`, `{feature}Mutations` | `user.queries.ts` / `userQueries` |
 | Messages (i18n) | `presentation/messages/*.messages.ts` → `{name}Messages` | `secret.messages.ts` / `secretMessages` |
@@ -671,8 +738,6 @@ Code identifiers: Interfaces/Types/Classes/Components/Enums **PascalCase** (no `
 - Type-only imports must use `import type` (`@typescript-eslint/consistent-type-imports` is an error, and `verbatimModuleSyntax` requires it).
 - Colocate a type with the file that uses it; a dedicated file is only justified for shared or bulky types — and in `domain/` a type goes in the file of its concept, per the rules above.
 
-> Note: docs/naming-conventions.md shows `{Entity}RepositoryImpl` for the impl, but the actual codebase uses `Default{Entity}Repository` in `default-{entity}.repository.ts`. **Follow the codebase convention.**
-
 ---
 
 ## Testing (Vitest)
@@ -682,8 +747,9 @@ Where a test goes:
 - **A tested Svelte component has its own folder**, with its test and its fixtures:
   `PipelineScripting/PipelineScripting.svelte`, `PipelineScripting/PipelineScripting.test.ts`, `PipelineScripting/PipelineScripting.fixture.svelte`.
   A page drops `.page` from the folder name: `Login/Login.page.svelte`. This keeps a component
-  and what describes it in one place (Storybook stories will go there too). See "Component
-  folders" for the other reasons a component gets a folder.
+  and what describes it in one place. The Storybook stories of `@scylla/ui` are the exception:
+  they are in `catalog/`, out of the gates (`catalog/README.md` gives the reasons). See
+  "Component folders" for the other reasons a component gets a folder.
 - **The test of a file in a component folder goes in that folder too**, without `__test__/`:
   `DataTable/data-table.ts` → `DataTable/data-table.test.ts`.
 - **Every other test goes in the `__test__/` folder of the directory it covers**:
@@ -696,10 +762,10 @@ shared test code of the workspace:
 
 | | |
 |---|---|
-| `test/setup.ts` | Runs before every file. Activates an empty `en` catalog, and stubs the browser APIs jsdom lacks (`ResizeObserver`, `Element.animate`, pointer capture, `scrollIntoView`, `scrollTo`, `matchMedia`). **Never re-stub these per file.** |
+| `test/setup.ts` | Runs before every file. Activates an empty `en` catalog, and stubs the browser APIs jsdom lacks (`ResizeObserver`, `Element.animate`, pointer capture, `scrollIntoView`, `scrollTo`, `matchMedia`, the canvas `getContext`). **Never re-stub these per file.** |
 | `test/render.ts` | `render`, `withRegistry` (stub DI registry), `withQueryClient` (fresh cache, `retry: false`), `focusSettled`, `textSnippet`, `findFloating` / `findTooltip`. |
 | `test/navigator.ts` | `installTestNavigator` — a fake navigator, for a test that navigates. |
-| `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`. |
+| `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`, `fakePollTimers`. |
 | `test/i18n.ts` | `withLocale(locale, messages)` — for the handful of tests that assert on a real translation. |
 | `test/grpc.ts` | `unaryCall`, `failedCall` — the calls a fake `I…ServiceClient` returns, to test a repository. |
 
@@ -728,6 +794,10 @@ shared test code of the workspace:
 - **Name a test after the rule it pins**, not the action it performs: "still redirects for an
   empty-string token" beats "test token". The suite output is the spec.
 - **No snapshots.** None exist; keep it that way.
+- **Do not wait for real time.** A `findBy*` or a `waitFor` stops after 1 s. Under load, a cold
+  `import()` can take more time: a test of a component that loads a part with `import()` loads
+  that part in `beforeAll`. A test of a poll (`refetchInterval`) calls `fakePollTimers()` and moves
+  the poll with `vi.advanceTimersByTimeAsync`.
 
 ### Permission conformance — the one test that enumerates
 
@@ -756,13 +826,13 @@ the gating of a *button* is declared nowhere a type can see it:
 
 All three rules answer **completeness, not correctness**: they cannot tell you the permission on
 a button is the wrong one. That stays the job of the per-component tests. `UNGATED_FEATURES` and
-`UNCHECKED_SHARED_HOOKS` are ratchets seeded with today's state; `SEEDED DEBT` and `TRIAGE`
+`UNCHECKED_SHARED_QUERIES` are ratchets seeded with today's state; `SEEDED DEBT` and `TRIAGE`
 entries are open questions, not decisions.
 
 ### Coverage
 
-`pnpm coverage` enforces the thresholds in `vite.config.ts`, and CI runs it in place of
-`pnpm test`. They are a **ratchet**: raise them when a batch of tests lands, never lower them to
+`pnpm coverage` enforces the thresholds in `vite.config.ts`. CI runs it after a merge into `main`
+or a version branch, not on a PR, so a drop goes red there. They are a **ratchet**: raise them when a batch of tests lands, never lower them to
 turn a red run green. Generated proto code, compiled catalogs, `primitives/` (styling wrappers on bits-ui), barrels and
 `*.module.ts` are excluded — covering a re-export measures nothing.
 
@@ -778,7 +848,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 - A message with a placeholder is a function: `` newEntity: (label: string) => msg`New ${label}` ``.
   **When you port a message, keep its placeholder names**: they are part of the msgid.
 - The `msg`, `t` and `plural` macros of `@lingui/core/macro` compile in `.ts` files only, through
-  Babel (`linguiMacros` in `tooling/vite.ts`).
+  Babel (`babelTransforms` in `tooling/vite.ts`).
 - Catalogs live in `locales/{en,fr}/messages.po` per module. `lingui.config.js` finds them: each
   `locales/` folder under a package's `src/` is one catalog (`tooling/lingui.js`). Run `pnpm extract` after adding strings, `pnpm compile` to build catalogs. Don't edit `messages.ts` by hand.
 - At runtime, each package registers its catalogs with `registerCatalogs` (`@scylla/ui/i18n`):
@@ -810,14 +880,15 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
   imports.
 - Inside scylla-base, a relative import goes up one level at most (`./x`, `../x`). Above that,
   use the alias: `@platform/` for `platform/`, `@shared/` for `shared/`, `@base/` for the rest
-  (`@base/features/agents/domain/structs/agent-state.struct.ts`, not `../../../../domain/…`).
+  (`@base/features/apps/domain/structs/agent-install.struct.ts`, not `../../../../domain/…`).
 - Prettier: semicolons, single quotes (incl. JSX), 2-space tabs, trailing commas (all), printWidth 100, `arrowParens: avoid`. Match this style; don't reformat unrelated code.
 - Routing: written in the project, in `@scylla/core` (no router library); the declaration
   types are in `@scylla/core-sdk`. The mounts of scylla-base are in `ShellModule`
   (`shell/shell.module.ts`); the routes of the `app` mount and below are wrapped by `AppLayout`
-  (`AuthGuard` + `OrganizationGate`) and the core's shell frame.
-- `@Extension` is a standard decorator (no `experimentalDecorators`). `vite.config.ts` sets
-  `esbuild.target` so that the dev server lowers it, and the Lingui Babel pass parses it.
+  (`AuthGuard` + `WorkspaceGate`) and the core's shell frame.
+- `@Extension` is a standard decorator (no `experimentalDecorators`). Oxc, the transformer of
+  Vite, does not lower it: the Babel pass of `tooling/vite.ts` (`babelTransforms`) does, for the
+  dev server, the build and the tests.
 - Backend comms: gRPC-Web via protobuf-ts through `CoreGrpcTransport`.
 - Comments: **few, short, and only where the code cannot speak for itself.**
   - Write one when the logic is hard to follow, or when the role of a function, component or
@@ -835,7 +906,7 @@ turn a red run green. Generated proto code, compiled catalogs, `primitives/` (st
 - Lint rules worth knowing (see `eslint.config.js`): `no-floating-promises` and `no-misused-promises` are errors — never fire-and-forget a promise; unused bindings must be prefixed `_` to be tolerated. The `no-unsafe-*` rules are off only because of the generated proto layer — that is not a licence to spread `any`. `no-restricted-imports` forbids `@tanstack/svelte-query` (use `@scylla/core-sdk`).
 
 ### Stack
-Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 5 · gRPC-Web (protobuf-ts) · bits-ui (primitives adapted from shadcn/ui) · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 7 · Vitest + Testing Library.
+Svelte 5 (runes) · TypeScript 7 (`tsc`) + 6 (tool API) · TanStack Query 5 (`@tanstack/svelte-query`) · TanStack Table 9 · Lingui 6 · gRPC-Web (protobuf-ts) · bits-ui (primitives adapted from shadcn/ui) · lucide (`@lucide/svelte`) · svelte-sonner · `@xyflow/svelte` · CodeMirror 6 · Tailwind CSS 4 · Vite 8 · Vitest + Testing Library · Storybook 10 (the catalog of `@scylla/ui` only).
 
 ---
 
@@ -908,7 +979,7 @@ Because of that, the tooling of this repo must work from another root. Keep it s
 1. `extensions/<name>/` with a `package.json` (`"name": "@scylla/<name>"`, `exports: { ".": "./src/index.ts" }`,
    `dependencies` on `@scylla/core-sdk`, `@scylla/ui` and the SDKs it uses — `workspace:*`).
 2. Its modules, each a `*.module.ts` like a feature's: `domain`, `routes`, `nav` on the routes.
-   Graft pages on the mounts of another extension (`organization`, `project` of scylla-base),
+   Graft pages on the mounts of another extension (`workspace`, `project` of scylla-base),
    or declare new `mounts` / `navSections` in one module of your own.
 3. `src/<name>.extension.ts`: an
    `@Extension({ id, name, version, dependencies, modules, widgetInjections?, catalogs })` class,
@@ -933,7 +1004,7 @@ Because of that, the tooling of this repo must work from another root. Keep it s
    `@scylla/ui/styles.css`).
 8. Calls the backend directly? Declare the proto packages this extension uses in its
    `package.json`: `"scylla": { "protos": ["scylla/registration/v1"] }` (and `protoRoot`,
-   relative to the extension, when the protos are not in the `protos/` submodule).
+   relative to the extension, when the protos are not in `protos/`).
    `scripts/gen-proto.mjs` finds it. Never deep-import another extension's `src/generated/`. A
    proto package two extensions both need (e.g. `common`) is generated once per extension on
    purpose: each copy stays private to its own extension.

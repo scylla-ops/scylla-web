@@ -9,6 +9,23 @@ export const DETAILED_NODE = { width: NODE_WIDTH, startWidth: 180, height: 86 } 
 /** A square tile, centred over a column wide enough for the label under it. */
 export const MINIMAL_NODE = { width: 140, tile: 64 } as const;
 
+/** The row of a port on a detailed node: its name, and its handle on the right side. */
+export const PORT_ROW_HEIGHT = 20;
+
+/** The ports of a minimal node, spread on the right side of its tile: a tile with many grows. */
+export const minimalTileHeight = (ports: number) => Math.max(MINIMAL_NODE.tile, (ports + 1) * 16);
+
+const minimalPortTop = (index: number, ports: number) =>
+  ((index + 1) * minimalTileHeight(ports)) / (ports + 1);
+
+/** A source handle of a minimal node: one port alone is in the middle of the side, as a plain output. */
+export const minimalPortStyle = (index: number, ports: number) =>
+  `right: ${(MINIMAL_NODE.width - MINIMAL_NODE.tile) / 2}px; top: ${minimalPortTop(index, ports)}px;`;
+
+/** The name of a port, right of its handle. */
+export const minimalPortLabelStyle = (index: number, ports: number) =>
+  `left: ${(MINIMAL_NODE.width + MINIMAL_NODE.tile) / 2 + 7}px; top: ${minimalPortTop(index, ports)}px;`;
+
 /** The handles of a minimal node sit on the sides of the tile, not of the column. */
 export const minimalHandleStyle = (side: 'left' | 'right') =>
   `${side}: ${(MINIMAL_NODE.width - MINIMAL_NODE.tile) / 2}px; top: ${MINIMAL_NODE.tile / 2}px;`;

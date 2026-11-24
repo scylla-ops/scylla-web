@@ -11,7 +11,8 @@
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
 
   interface Props {
-    numberOfJobs: number;
+    /** `undefined` while the list loads: no `0` shows then. */
+    numberOfJobs: number | undefined;
     jobIds: string[];
     pipelineId: string;
     onRefresh: () => void;
@@ -52,7 +53,7 @@
           variant="outline"
           size="icon"
           onclick={onRefresh}
-          class="h-9 w-9 cursor-pointer transition-all hover:scale-110"
+          class="h-9 w-9 cursor-pointer transition-all"
         >
           <RefreshCwIcon class="size-4" />
           <!-- A closed tooltip gives the button no name. -->

@@ -182,6 +182,15 @@ describe('createPagination', () => {
     handle?.();
 
     expect(ResizeObserverMock.instances[0].disconnect).toHaveBeenCalled();
-    expect(pagination.isPageSizeReady).toBe(false);
+  });
+
+  it('keeps the page size when the container goes away: it is part of a query key', () => {
+    const pagination = createPagination({ responsive: true, rowHeight: 60, headerHeight: 40 });
+    const handle = attach(pagination.measure, 640);
+
+    handle?.();
+
+    expect(pagination.isPageSizeReady).toBe(true);
+    expect(pagination.pageSize).toBe(10);
   });
 });

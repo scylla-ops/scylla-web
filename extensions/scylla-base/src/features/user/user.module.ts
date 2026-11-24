@@ -3,28 +3,46 @@ import { msg } from '@lingui/core/macro';
 import UsersIcon from '@lucide/svelte/icons/users';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
-import { UserServiceClient } from '@base/generated/scylla/user/v1/user.client.ts';
+import { ADMIN_NAV_HEADINGS } from '@shared/presentation/admin-nav.ts';
+import { ProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
+import { PersonalTokenServiceClient } from '@base/generated/scylla/accounts/v1/personal_token_service.client.ts';
+import { UserAdminServiceClient } from '@base/generated/scylla/accounts/v1/user_admin_service.client.ts';
 import { DefaultUserRepository } from './infrastructure/default-user.repository.ts';
-import { accountSection } from './presentation/ui/account/Account/account-sections.registry.ts';
+import { userCommands } from './presentation/user.commands.ts';
+import {
+  ACCOUNT_SECTIONS,
+  accountSection,
+} from './presentation/ui/account/Account/account-sections.registry.ts';
 
-const repository = new DefaultUserRepository(new UserServiceClient(grpcTransport.getTransport()));
+const transport = grpcTransport.getTransport();
+const repository = new DefaultUserRepository(
+  new ProfileServiceClient(transport),
+  new UserAdminServiceClient(transport),
+  new PersonalTokenServiceClient(transport),
+  () => localStorage.getItem('userId'),
+);
 
 export const UserModule = {
   id: 'user',
   domain: {
     userRepository: repository,
   },
+  commands: userCommands,
   routes: {
-    organization: [
+    admin: [
       {
         path: 'users',
         permission: Permission.LIST_USERS,
         breadcrumb: () => ({ label: msg`Users` }),
         page: () => import('./presentation/ui/admin/UserAdmin.page.svelte'),
-        nav: { section: 'system', title: msg`Users`, icon: UsersIcon, order: 10 },
+        nav: {
+          section: 'instance',
+          title: msg`Users`,
+          icon: UsersIcon,
+          order: 10,
+          heading: ADMIN_NAV_HEADINGS.usersAndRoles,
+        },
         children: [
-          // The old address of the own settings: the account page replaces it.
-          { path: 'me', redirect: '../../account' },
           {
             // No `permission`: the page sends the own id to `account` before it checks READ_USER,
             // so an old link to the own settings works without that permission.
@@ -34,30 +52,47 @@ export const UserModule = {
           },
         ],
       },
+    ],
+    workspace: [
       {
-        // The account of the session, in the frame of the organization: its calls need no grant.
+        // The account of the session, in the frame of the workspace: its calls need no grant.
         path: 'account',
         breadcrumb: () => ({ label: msg`Account` }),
         children: [
           { redirect: 'profile' },
           {
             path: ':section',
+            inPageParams: ['section'],
             breadcrumb: ({ section }) => ({
               label: accountSection(section)?.title ?? msg`Account`,
             }),
             page: () => import('./presentation/ui/account/Account/Account.page.svelte'),
+            nav: ACCOUNT_SECTIONS.map(({ id, title, icon, danger, keywords }) => ({
+              section: 'account',
+              title,
+              icon,
+              danger,
+              keywords,
+              params: { section: id },
+            })),
           },
         ],
       },
     ],
-    // The same page with no organization: for a user who has none yet.
+    // The same page with no workspace: for a user who has none yet.
     personal: [
+      {
+        // The path of the link in the mail of the server: keep it.
+        path: 'change-email',
+        page: () => import('./presentation/ui/account/ChangeEmail/ChangeEmail.page.svelte'),
+      },
       {
         path: 'account',
         children: [
           { redirect: 'profile' },
           {
             path: ':section',
+            inPageParams: ['section'],
             page: () =>
               import('./presentation/ui/account/PersonalAccount/PersonalAccount.page.svelte'),
           },

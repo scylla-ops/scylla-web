@@ -13,67 +13,254 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:11
+msgid "{count, plural, =0 {Expires today} one {Expires in # day} other {Expires in # days}}"
+msgstr "{count, plural, =0 {Expires today} one {Expires in # day} other {Expires in # days}}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:7
+msgid "{count, plural, one {# day} other {# days}}"
+msgstr "{count, plural, one {# day} other {# days}}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:9
+msgid "{count, plural, one {# project} other {# projects}}"
+msgstr "{count, plural, one {# project} other {# projects}}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:8
+msgid "1 year"
+msgstr "1 year"
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:8
 msgid "A username cannot contain \"@\"."
 msgstr "A username cannot contain \"@\"."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:32
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:19
+msgid "Accept the current version of the terms of service"
+msgstr "Accept the current version of the terms of service"
+
+#: extensions/scylla-base/src/shared/presentation/access-nav.ts:6
+msgid "Access"
+msgstr "Access"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
+msgid "Add another sign-in method before you remove this one"
+msgstr "Add another sign-in method before you remove this one"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:17
+msgid "Advanced: choose the actions"
+msgstr "Advanced: choose the actions"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:18
+msgid "Advanced: custom actions (no preset)"
+msgstr "Advanced: custom actions (no preset)"
+
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:6
+msgid "Agent"
+msgstr "Agent"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
 msgid "Agent id copied"
 msgstr "Agent id copied"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:106
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:8
+msgid "all projects"
+msgstr "all projects"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:35
+msgid "All projects"
+msgstr "All projects"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:16
+msgid "All that the roles allow."
+msgstr "All that the roles allow."
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:9
+msgid "An account already uses this email"
+msgstr "An account already uses this email"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:33
+msgid "An app gets roles only in its own workspace"
+msgstr "An app gets roles only in its own workspace"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:32
+msgid "An invitation is already pending for this email"
+msgstr "An invitation is already pending for this email"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:17
+msgid "An invitation is required to sign up"
+msgstr "An invitation is required to sign up"
+
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:172
 msgid "An unexpected error occurred"
 msgstr "An unexpected error occurred"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:36
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:12
+msgid "Another account already uses this handle"
+msgstr "Another account already uses this handle"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:38
+msgid "Another secret of the project already uses this name"
+msgstr "Another secret of the project already uses this name"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:40
+msgid "Another trigger of the pipeline already uses this name"
+msgstr "Another trigger of the pipeline already uses this name"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:29
+msgid "Another workspace already uses this slug"
+msgstr "Another workspace already uses this slug"
+
+#: extensions/scylla-base/src/shared/presentation/messages/api-access.messages.ts:4
+msgid "API access"
+msgstr "API access"
+
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:7
+msgid "App"
+msgstr "App"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:37
 msgid "App id copied"
 msgstr "App id copied"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:84
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:24
+msgid "Apps"
+msgstr "Apps"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:29
+msgid "Cancel"
+msgstr "Cancel"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:70
 msgid "Cancelled"
 msgstr "Cancelled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:33
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:27
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:34
+msgid "Change"
+msgstr "Change"
+
+#: extensions/scylla-base/src/shared/presentation/messages/copy-box.messages.ts:4
+msgid "Copy"
+msgstr "Copy"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:34
 msgid "Could not copy: select the id manually"
 msgstr "Could not copy: select the id manually"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:7
+msgid "Custom"
+msgstr "Custom"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:30
+msgid "Delete the projects and the agents of the workspace first"
+msgstr "Delete the projects and the agents of the workspace first"
 
 #: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:4
 msgid "Deleted user"
 msgstr "Deleted user"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:13
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:5
+msgid "Deploy"
+msgstr "Deploy"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:5
+msgid "deploy-script"
+msgstr "deploy-script"
+
+#: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:7
+msgid "Duration: {duration}"
+msgstr "Duration: {duration}"
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:4
 msgid "Enter a valid email address."
 msgstr "Enter a valid email address."
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:57
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:12
+msgid "Expired on {day}"
+msgstr "Expired on {day}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:6
+msgid "Expires in"
+msgstr "Expires in"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:49
 msgid "Failed"
 msgstr "Failed"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:38
+msgid "Find a project"
+msgstr "Find a project"
+
+#: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:6
+msgid "Finished {time}"
+msgstr "Finished {time}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:15
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:6
+msgid "Full"
+msgstr "Full"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:34
+msgid "Give this person a role in the workspace first"
+msgstr "Give this person a role in the workspace first"
+
+#: extensions/scylla-base/src/shared/presentation/messages/copy-box.messages.ts:7
+msgid "Hidden secret"
+msgstr "Hidden secret"
+
+#: extensions/scylla-base/src/shared/presentation/admin-nav.ts:6
+msgid "Integrations"
+msgstr "Integrations"
+
+#: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:4
+msgid "Job {id}: {status}"
+msgstr "Job {id}: {status}"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
+msgid "Job queued: it needs a container, and no connected agent has a container runtime"
+msgstr "Job queued: it needs a container, and no connected agent has a container runtime"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:27
 msgid "Job queued: no agent connected"
 msgstr "Job queued: no agent connected"
 
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:21
+msgid "Jobs"
+msgstr "Jobs"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:10
+msgid "Limits"
+msgstr "Limits"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:31
+msgid "Manage"
+msgstr "Manage"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:20
+msgid "No account is linked to this identity"
+msgstr "No account is linked to this identity"
+
 #: extensions/scylla-base/src/shared/presentation/messages/status-bar.messages.ts:4
 msgid "No data"
 msgstr "No data"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:12
-msgid "Organization created"
-msgstr "Organization created"
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:39
+msgid "No project matches this search."
+msgstr "No project matches this search."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:13
-msgid "Organization deleted"
-msgstr "Organization deleted"
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:37
+msgid "No project yet."
+msgstr "No project yet."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:14
-msgid "Organization updated"
-msgstr "Organization updated"
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:9
+msgid "On {day}. A token never lasts forever."
+msgstr "On {day}. A token never lasts forever."
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:75
+#: extensions/scylla-base/src/shared/utils/status-config.ts:63
 msgid "Orphaned"
 msgstr "Orphaned"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:39
+#: extensions/scylla-base/src/shared/utils/status-config.ts:35
 msgid "Pending"
 msgstr "Pending"
 
@@ -85,7 +272,7 @@ msgstr "Pipeline created"
 msgid "Pipeline deleted"
 msgstr "Pipeline deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:30
 msgid "Pipeline duplicated successfully"
 msgstr "Pipeline duplicated successfully"
 
@@ -97,9 +284,13 @@ msgstr "Pipeline edited"
 msgid "Pipeline ran"
 msgstr "Pipeline ran"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:28
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:29
 msgid "Pipeline ran: check that your agents are connected"
 msgstr "Pipeline ran: check that your agents are connected"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:20
+msgid "Pipelines"
+msgstr "Pipelines"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:17
 msgid "Project created"
@@ -110,38 +301,119 @@ msgid "Project deleted"
 msgstr "Project deleted"
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:20
-msgid "Project name is required and you must select an organization."
-msgstr "Project name is required and you must select an organization."
+msgid "Project name is required and you must select a workspace."
+msgstr "Project name is required and you must select a workspace."
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:19
 msgid "Project updated"
 msgstr "Project updated"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:29
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:19
+msgid "Projects"
+msgstr "Projects"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:33
+msgid "Projects: {names}"
+msgstr "Projects: {names}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:32
+msgid "Projects: all projects"
+msgstr "Projects: all projects"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:25
+msgid "Read"
+msgstr "Read"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:30
+msgid "Read logs"
+msgstr "Read logs"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:26
+msgid "Read names"
+msgstr "Read names"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:11
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:4
+msgid "Read-only"
+msgstr "Read-only"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:12
+msgid "Reads projects, pipelines, jobs and logs."
+msgstr "Reads projects, pipelines, jobs and logs."
+
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:11
+msgid "Remove {name}"
+msgstr "Remove {name}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:13
+msgid "Revoked on {day}"
+msgstr "Revoked on {day}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:28
+msgid "Run"
+msgstr "Run"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:27
 msgid "Running"
 msgstr "Running"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:39
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:14
+msgid "Runs pipelines. Reads jobs and logs."
+msgstr "Runs pipelines. Reads jobs and logs."
+
+#: extensions/scylla-base/src/shared/presentation/messages/copy-box.messages.ts:5
+msgid "Scylla could not copy it. Select the text instead."
+msgstr "Scylla could not copy it. Select the text instead."
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
 msgid "Secret created"
 msgstr "Secret created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:41
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:42
 msgid "Secret deleted"
 msgstr "Secret deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:40
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:41
 msgid "Secret updated"
 msgstr "Secret updated"
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:103
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:22
+msgid "Secrets"
+msgstr "Secrets"
+
+#: extensions/scylla-base/src/shared/presentation/admin-nav.ts:7
+msgid "Server"
+msgstr "Server"
+
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:167
 msgid "Server unreachable"
 msgstr "Server unreachable"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:66
+#: extensions/scylla-base/src/shared/presentation/messages/copy-box.messages.ts:6
+msgid "Show the secret"
+msgstr "Show the secret"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:18
+msgid "Sign-up is closed on this server"
+msgstr "Sign-up is closed on this server"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:56
 msgid "Skipped"
 msgstr "Skipped"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:48
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:36
+msgid "Some projects"
+msgstr "Some projects"
+
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:178
+msgid "Someone else changed this item in the meantime. Check the latest version and try again."
+msgstr "Someone else changed this item in the meantime. Check the latest version and try again."
+
+#: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:5
+msgid "Started {time}"
+msgstr "Started {time}"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:42
 msgid "Success"
 msgstr "Success"
 
@@ -149,13 +421,37 @@ msgstr "Success"
 msgid "The display name must have 100 characters at most."
 msgstr "The display name must have 100 characters at most."
 
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:14
+msgid "The identity provider gives no email address"
+msgstr "The identity provider gives no email address"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:41
+msgid "The job has not ended yet"
+msgstr "The job has not ended yet"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:36
+msgid "The limit is reached"
+msgstr "The limit is reached"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:36
+msgid "The limit is reached ({used} of {limit})"
+msgstr "The limit is reached ({used} of {limit})"
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:6
 msgid "The password cannot be only spaces."
 msgstr "The password cannot be only spaces."
 
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:5
-msgid "The password must have 8 to 255 characters."
-msgstr "The password must have 8 to 255 characters."
+msgid "The password must have 8 to 128 characters."
+msgstr "The password must have 8 to 128 characters."
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:39
+msgid "The server has no key to encrypt secrets"
+msgstr "The server has no key to encrypt secrets"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:21
+msgid "The server needs at least one other administrator"
+msgstr "The server needs at least one other administrator"
 
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:7
 msgid "The two passwords are not the same."
@@ -165,31 +461,63 @@ msgstr "The two passwords are not the same."
 msgid "The username is too long: 255 bytes at most."
 msgstr "The username is too long: 255 bytes at most."
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:44
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:31
+msgid "The workspace needs at least one other owner"
+msgstr "The workspace needs at least one other owner"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:11
+msgid "This account already signs in with this provider"
+msgstr "This account already signs in with this provider"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:42
+msgid "This app is not a runner"
+msgstr "This app is not a runner"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:15
+msgid "This identity is already linked to another account"
+msgstr "This identity is already linked to another account"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:16
+msgid "This invitation is for another email address"
+msgstr "This invitation is for another email address"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:10
+msgid "This password is not valid"
+msgstr "This password is not valid"
+
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:4
+msgid "Token name"
+msgstr "Token name"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
 msgid "Trigger created"
 msgstr "Trigger created"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
 msgid "Trigger deleted"
 msgstr "Trigger deleted"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:49
 msgid "Trigger disabled"
 msgstr "Trigger disabled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:47
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:48
 msgid "Trigger enabled"
 msgstr "Trigger enabled"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:49
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:50
 msgid "Trigger fired: run started"
 msgstr "Trigger fired: run started"
 
-#: extensions/scylla-base/src/shared/utils/toast-messages.ts:45
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:46
 msgid "Trigger updated"
 msgstr "Trigger updated"
 
-#: extensions/scylla-base/src/shared/utils/status-config.ts:94
+#: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:23
+msgid "Triggers"
+msgstr "Triggers"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:85
 msgid "Unknown"
 msgstr "Unknown"
 
@@ -209,10 +537,54 @@ msgstr "User deleted"
 msgid "User information updated"
 msgstr "User information updated"
 
+#: extensions/scylla-base/src/shared/presentation/admin-nav.ts:5
+msgid "Users and roles"
+msgstr "Users and roles"
+
+#: extensions/scylla-base/src/shared/presentation/messages/version-badge.messages.ts:4
+msgid "v{number}"
+msgstr "v{number}"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:13
+msgid "Verify your email address first"
+msgstr "Verify your email address first"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:26
+msgid "Wait {seconds} seconds before you send it again"
+msgstr "Wait {seconds} seconds before you send it again"
+
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:27
+msgid "Wait before you send it again"
+msgstr "Wait before you send it again"
+
+#: extensions/scylla-base/src/shared/utils/status-config.ts:77
+msgid "Waiting for approval"
+msgstr "Waiting for approval"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:12
+msgid "Workspace created"
+msgstr "Workspace created"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:13
+msgid "Workspace deleted"
+msgstr "Workspace deleted"
+
+#: extensions/scylla-base/src/shared/utils/toast-messages.ts:14
+msgid "Workspace updated"
+msgstr "Workspace updated"
+
+#: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:8
+msgid "You"
+msgstr "You"
+
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:9
 msgid "You cannot delete your own account."
 msgstr "You cannot delete your own account."
 
-#: extensions/scylla-base/src/shared/utils/scylla-error.ts:104
+#: extensions/scylla-base/src/shared/utils/error-reasons.ts:23
+msgid "You cannot do this on your own account"
+msgstr "You cannot do this on your own account"
+
+#: extensions/scylla-base/src/shared/utils/scylla-error.ts:168
 msgid "You don't have permission to perform this action"
 msgstr "You don't have permission to perform this action"

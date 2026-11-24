@@ -41,6 +41,7 @@ export const createStreamedLogView = (logs: () => string): StreamedLogView => {
     if (end === 0) return;
 
     // A finished job arrives whole: jump to the end (CodeMirror only renders the viewport).
+    // The end of the text, not the start of the last line: a wrapped line has several rows.
     if (!hasAnchored) {
       hasAnchored = true;
       view.dispatch({ effects: EditorView.scrollIntoView(end, { y: 'end' }) });

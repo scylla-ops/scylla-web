@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
@@ -19,6 +19,8 @@ import {
 } from '../../__test__/test-permission.fixture.ts';
 import type { AppRouterConfig } from '../../compilation/compile-routes.ts';
 import { createAppRouter } from '../../runtime/app-router.ts';
+import { breakLoadOnce, breakOnce, failsThisLoad } from './fixtures/broken-page.fixture.ts';
+import TestBrokenPage from './fixtures/TestBrokenPage.fixture.svelte';
 import TestFallback from './fixtures/TestFallback.fixture.svelte';
 import TestFrame from './fixtures/TestFrame.fixture.svelte';
 import TestGuard from './fixtures/TestGuard.fixture.svelte';
@@ -30,13 +32,19 @@ import RouterView from './RouterView.svelte';
 
 const page: PageLoader = () => Promise.resolve({ default: TestPage });
 const otherPage: PageLoader = () => Promise.resolve({ default: TestOtherPage });
+const brokenPage: PageLoader = () => Promise.resolve({ default: TestBrokenPage });
+/** A chunk that is gone after a deploy: the import rejects. */
+const stalePage: PageLoader = () =>
+  failsThisLoad()
+    ? Promise.reject(new Error('stale chunk'))
+    : Promise.resolve({ default: TestOtherPage });
 
 const config: AppRouterConfig = {
   mounts: {
     public: {},
     app: { layout: TestLayout, shell: true },
-    organization: { parent: 'app', path: ':slug', wrapper: TestWrapper },
-    project: { parent: 'organization', path: 'projects/:projectId' },
+    workspace: { parent: 'app', path: ':slug', wrapper: TestWrapper },
+    project: { parent: 'workspace', path: 'projects/:projectId' },
   },
   fallback: TestFallback,
   guard: TestGuard,
@@ -46,7 +54,7 @@ const config: AppRouterConfig = {
       id: 'test',
       routes: {
         public: [{ path: 'login', page: otherPage }],
-        organization: [
+        workspace: [
           { redirect: 'secrets' },
           {
             path: 'secrets',
@@ -64,6 +72,9 @@ const config: AppRouterConfig = {
             ],
           },
           { path: 'open', breadcrumb: () => ({ label: msg`Open` }), page: otherPage },
+          { path: 'tabs/:tab', inPageParams: ['tab'], page },
+          { path: 'broken', page: brokenPage },
+          { path: 'stale', page: stalePage },
         ],
       },
     },
@@ -129,6 +140,28 @@ describe('the app router', () => {
     expect(currentPathname()).toBe('/acme/secrets');
   });
 
+  it('keeps the page mounted when only a param of `inPageParams` changes', async () => {
+    await renderAt('/acme/tabs/one');
+    const mounted = await screen.findByTestId('page');
+
+    navigateTo('/acme/tabs/two');
+    await expect.poll(() => routePathname()).toBe('/acme/tabs/two');
+
+    // The same element: no new mount, no transition. The page reads the tab from the route.
+    expect(screen.getByTestId('page')).toBe(mounted);
+  });
+
+  it('mounts the page again when another param changes', async () => {
+    grantOnly(LIST_SECRETS);
+    await renderAt('/acme/secrets/secret-1');
+    const first = await screen.findByTestId('page');
+
+    navigateTo('/acme/secrets/secret-2');
+
+    const second = await screen.findByText(/secretId=secret-2/);
+    expect(second).not.toBe(first);
+  });
+
   it('shows the page of the new URL after a navigation', async () => {
     await renderAt('/acme/open');
     await screen.findByTestId('other-page');
@@ -157,6 +190,58 @@ describe('the app router', () => {
 
     await expect.poll(() => window.location.search).toBe('?nodes=build,test');
     expect(currentPathname()).toBe('/acme/open');
+  });
+});
+
+describe('a page that fails', () => {
+  let consoleError: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('shows an error in its place when its render throws, and keeps the layout, the shell and the wrappers', async () => {
+    breakOnce();
+    await renderAt('/acme/broken');
+
+    expect(await screen.findByText('This page could not be shown')).toBeInTheDocument();
+    expect(screen.getByTestId('layout')).toBeInTheDocument();
+    expect(screen.getByTestId('frame')).toBeInTheDocument();
+    expect(screen.getByTestId('wrapper')).toBeInTheDocument();
+    expect(consoleError).toHaveBeenCalled();
+  });
+
+  it('renders the page again on "Try again"', async () => {
+    breakOnce();
+    await renderAt('/acme/broken');
+    await screen.findByText('This page could not be shown');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByTestId('broken-page')).toHaveTextContent('recovered');
+  });
+
+  it('shows the same error when its chunk cannot be loaded, and keeps the frame', async () => {
+    breakLoadOnce();
+    await renderAt('/acme/stale');
+
+    expect(await screen.findByText('This page could not be shown')).toBeInTheDocument();
+    expect(screen.getByTestId('frame')).toBeInTheDocument();
+    expect(consoleError).toHaveBeenCalled();
+  });
+
+  it('imports the page again on "Try again" after a chunk that could not be loaded', async () => {
+    breakLoadOnce();
+    await renderAt('/acme/stale');
+    await screen.findByText('This page could not be shown');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
+
+    expect(await screen.findByTestId('other-page')).toBeInTheDocument();
   });
 });
 
@@ -231,6 +316,27 @@ describe('the links of the app', () => {
     const link = document.createElement('a');
     link.href = '/acme/secrets';
     link.target = '_blank';
+    document.body.append(link);
+    let prevented: boolean | undefined;
+    const record = (event: MouseEvent) => {
+      prevented = event.defaultPrevented;
+      event.preventDefault();
+    };
+    window.addEventListener('click', record);
+
+    await userEvent.click(link);
+
+    expect(prevented).toBe(false);
+    expect(currentPathname()).toBe('/acme/open');
+    window.removeEventListener('click', record);
+    link.remove();
+  });
+
+  it('leaves a link that the server serves to the browser', async () => {
+    await renderAt('/acme/open');
+    const link = document.createElement('a');
+    link.href = '/auth/github/start?return_to=x';
+    link.rel = 'external';
     document.body.append(link);
     let prevented: boolean | undefined;
     const record = (event: MouseEvent) => {

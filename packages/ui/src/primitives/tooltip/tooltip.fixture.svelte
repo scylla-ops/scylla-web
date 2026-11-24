@@ -8,9 +8,10 @@
 
   interface Props {
     asChild?: boolean;
+    arrow?: boolean;
   }
 
-  let { asChild = false }: Props = $props();
+  let { asChild = false, arrow = true }: Props = $props();
 </script>
 
 <Tooltip>
@@ -23,5 +24,5 @@
   {:else}
     <TooltipTrigger>Delete</TooltipTrigger>
   {/if}
-  <TooltipContent>Delete this secret</TooltipContent>
+  <TooltipContent {arrow}>Delete this secret</TooltipContent>
 </Tooltip>

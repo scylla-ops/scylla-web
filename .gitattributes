@@ -1,0 +1,2 @@
+# LF in every checkout, so that diffs and merges stay clean.
+* text=auto eol=lf

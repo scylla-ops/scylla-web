@@ -2,7 +2,7 @@
 
 Pipelines: their definition, their editor, and the metadata the overviews read.
 
-**Layer** `features/` · **id** `pipeline` · **DI keys** `pipelineRepository`, `nodeTemplateRepository`, `savePipeline`
+**Layer** `features/` · **id** `pipeline` · **DI keys** `pipelineRepository`, `nodeTemplateRepository`, `fragmentRepository`, `savePipeline`
 
 ## Import rules
 
@@ -15,10 +15,15 @@ Pipelines: their definition, their editor, and the metadata the overviews read.
 ```typescript
 type PipelineEntity
 type PipelineMetadata, PipelineNodeEntity, PipelineIdentity
-PIPELINES_QUERY_KEY, ORGANIZATION_PIPELINES_QUERY_KEY, PIPELINES_QUERY_ROOT
+PIPELINES_QUERY_KEY, WORKSPACE_PIPELINES_QUERY_KEY, PIPELINES_QUERY_ROOT
 CREATE_PIPELINE_MUTATION_KEY, RUN_PIPELINE_MUTATION_KEY   // onboarding follows these writes
 pipelineQueries                // Query options factories
+type PipelineSummary, PipelineSummaryList, PipelineHealth, PipelineSummaryOrder,
+     PipelineTriggerKind, RecentRun    // ListPipelineSummaries, for the dashboard
+recentSuccessRate              // completed / (completed + failed) of the recent jobs
 asPipelineFeed                 // a page of metadata → the list, and whether it is partial
+fragmentQueries, fragmentMutations, versionFromContent, pendingUpstream, ...  // the library
+loadFragmentNodes, loadFragmentParameters  // loaders: the graph brings the editor and Svelte Flow
 ```
 
 Never add: `pipeline.module.ts`, pages — the module registry imports `.module.ts` by path,
@@ -30,13 +35,18 @@ not through the barrel.
 
 | Method | Returns |
 |---|---|
-| `getMetadataByProjectId(...)` | paginated `PipelineMetadata` |
-| `getMetadataByOrganizationId(...)` | paginated `PipelineMetadata` |
+| `getMetadataByProjectId(...)` | paginated `PipelineMetadata`, each with its `origin` |
+| `getMetadataByWorkspaceId(...)` | paginated `PipelineMetadata`, each with its `origin` |
+| `getSummaries(query)` | `PipelineSummaryList`: one page of `ListPipelineSummaries`, with the counts of all the pages. `pipelineIds` limits the page to these pipelines |
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
-| `create(pipeline)` | `void` |
-| `edit(id, nodes, name?)` | `PipelineEntity` |
+| `getWithLayout(id)` | `PipelineWithLayout`: the entity, the places of its nodes and its `origin` |
+| `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
+| `create(pipeline, layout?)` | `void` |
+| `edit(id, nodes, name?, layout?)` | `PipelineEntity` |
 | `deleteById(id)` | `void` |
-| `run(id)` | `void` |
+| `run(id, ref?)` | `PipelineRun`. A `CommitRef` (branch, tag or SHA) of the linked repository; none: an editor pipeline runs with no commit, a file pipeline at the head of the default branch |
+| `getFile(id, ref?)` | `PipelineFile`: the file of a file pipeline at the ref (none: the default branch), its nodes, its rules of `on`, its checkout and its errors |
+| `exportFile(id, format)` | `PipelineFileExport`: the saved version as a file of the repository, and its path |
 
 `NodeTemplateRepository` — `domain/repository/node-template.repository.ts`:
 
@@ -53,6 +63,32 @@ kind's icon. A node that runs exactly the code of a template (the same script, o
 command and arguments; its env, folder and shell do not count) shows the template's icon on its
 node and in the inspector (`templateFor`, `presenters/catalog.presenter.ts`).
 
+`FragmentRepository` — `domain/repository/fragment.repository.ts`, the library of the workspace:
+
+| Method | Returns |
+|---|---|
+| `list(workspaceId)` | `FragmentEntity[]`, each with its versions, the favorite of the reader and its usages |
+| `getById(workspaceId, id)` | `FragmentEntity` |
+| `create(input)` | `FragmentEntity` at version 1. A name taken in the workspace is `ALREADY_EXISTS` |
+| `publishVersion(input)` | `FragmentEntity` with one more version |
+| `setFavorite(id, favorite)` | `void` |
+| `delete(id)` | `void`. The pipelines that link it keep its nodes: their blocks name a fragment that is no longer in the library |
+| `linksOf(pipelineId)` | `FragmentLink[]`: the blocks of the pipeline, read with the pipeline. They are saved with its nodes: `PipelineRepository.edit(…, links)` |
+| `addFromMarketplace(input)` | `FragmentEntity`: a package of the marketplace, linked or forked |
+| `acceptUpstream(id, version)` / `skipUpstream(id, version)` | `FragmentEntity`: a linked fragment takes or leaves a version of its publisher |
+| `dismissUpstream(id)` | `FragmentEntity`: a fork stops showing the release of its publisher |
+| `detachAsFork(id)` | `FragmentEntity`: a linked fragment becomes a fork of the workspace |
+| `publishToMarketplace(input)` | `FragmentEntity` public, under `@workspace/name` |
+| `deprecateVersion(id, version)` | `FragmentEntity`. A fragment that is not public is a `ScyllaError` |
+
+`DefaultFragmentRepository` calls `FragmentService` of the core. A fragment of a package keeps
+its origin in the core (`FragmentOrigin`): the repository reads the package on the marketplace
+(`marketplaceTransport`, no token) to give `source.upstream`, and sends the content of a version
+that the workspace takes (`AcceptOriginVersion`): the core never calls the marketplace.
+`publication` comes from `ListPublications`, only when the marketplace is the server of the
+session (`marketplaceIsLocal`). A marketplace that does not answer leaves the library as the core
+gives it.
+
 **`PipelineMetadata` vs `PipelineEntity` is the split that matters**: lists fetch metadata (no
 nodes), the editor fetches the entity. Do not make a list page call `getById`.
 
@@ -62,68 +98,129 @@ Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline
 ## Layout
 
 ```
-pipeline.module.ts                           4 routes + DI wiring (private; registry only)
+pipeline.module.ts                           the routes + DI wiring (private; registry only)
 index.ts                                     public API
 domain/
   entities/pipeline.entity.ts                PipelineEntity, PipelineIdentity, PipelineMetadata, the
                                              root of its nodes: newPipeline,
-                                             pipelineIssue (can it be saved), repeatedNodeIds, and the
+                                             pipelineIssue (can it be saved), nodeIssues (the issue of
+                                             each node in its pipeline), repeatedNodeIds, and the
                                              graph of the nodes: addNode, updateNode, renameNode,
-                                             removeNode, moveNode, setDependencies, dependentsOf,
-                                             dependencyCandidates, nodeDepths, waitsFor, uniqueNodeId,
-                                             hasRepeats (pure, tested)
-  entities/pipeline-node.entity.ts           PipelineNodeEntity, NodeDefinition, Shell, EnvEntry:
-                                             definitionOf, nodeRunIssue,
-                                             nodeIssue, blankDefinition, withDefinition,
+                                             renamePort, dropPort, removeNode, moveNode,
+                                             setDependencies, dependentsOf, dependencyCandidates,
+                                             outputCandidates, nodeDepths, nodesBefore, waitsFor,
+                                             uniqueNodeId, hasRepeats, hasConditionalNodes (what the
+                                             export refuses) (pure, tested)
+  entities/pipeline-node.entity.ts           PipelineNodeEntity (exec, script, switch, merge),
+                                             Dependency, NodeDefinition, Shell, EnvEntry, the switch
+                                             (SwitchCase, SwitchRule, Operand, SwitchTest): runsStep,
+                                             portsOf, definitionOf, nodeRunIssue, switchIssue,
+                                             needIssue, nodeIssue, blankDefinition, blankCase,
+                                             blankRule, blankOperand, withDefinition,
                                              withDependencies, withoutDependency, withRenamedReference
   entities/node-template.entity.ts           NodeTemplateEntity: a ready-made node of the palette
+  entities/fragment.entity.ts                FragmentEntity, FragmentVersion, FragmentParameter,
+                                             FragmentLink: the versions (proposedVersion,
+                                             canPublishVersion), the parameters (detectParameters,
+                                             missingParameters, carryValues), instantiate (pure, tested)
   structs/node-id.struct.ts                  NodeId: the id rule of the server (nodeIdIssue, toNodeId)
+  structs/port-name.struct.ts                PortName, ERROR_PORT: the rule of NodeId, with no trim
   structs/pipeline-name.struct.ts            PipelineNameIssue, pipelineNameIssue
+  structs/pipeline-layout.struct.ts          NodePlace, PipelineLayout, the limits of the server, mergeLayouts
+  structs/pipeline-summary.struct.ts         PipelineSummary (the server computes it), PipelineSummaryQuery,
+                                             recentSuccessRate
+  structs/pipeline-file-format.struct.ts     PipelineFileFormat (toml, yaml, json), PIPELINE_FILE_FORMATS
+  structs/pipeline-file.struct.ts            PipelineFile, FileError, FileRules, CheckoutSettings,
+                                             blockingErrors (a warning keeps a file valid)
+  structs/commit-ref.struct.ts               CommitRef (branch, tag, SHA), commitShaIssue (7 to 40 hex)
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/node-template.repository.ts
+  repository/fragment.repository.ts
 infrastructure/
   default-pipeline.repository.ts             PipelineServiceClient → PipelineEntity
   default-node-template.repository.ts        BUILT_IN_NODE_TEMPLATES
-  grpc-pipeline.mapper.ts
+  default-fragment.repository.ts             FragmentService, and the marketplace for the origins
+  grpc-fragment.mapper.ts                    fragments, versions, links, origins (sourceOf), publications,
+                                             versionFromContent (the content of a package version)
+  grpc-pipeline.mapper.ts                    also originOf: the source, the file and its state
+  grpc-pipeline-file.mapper.ts               PipelineFile ↔ the proto, refToProto
+  grpc-pipeline-summary.mapper.ts            ListPipelineSummaries → PipelineSummaryList, healthOf
 presentation/
+  pipeline.commands.ts                       create, jobs and edit, for the search bar
   pipeline.queries.ts                        TanStack Query options factories
+  fragment.queries.ts                        the library: fragmentQueries, fragmentMutations,
+                                             (the links go with pipelineMutations.update)
   pipeline.query-keys.ts                     Query key factories (exported publicly)
-  messages/                                  pipeline, blueprint, scripting, node (.messages.ts)
+  messages/                                  pipeline, blueprint, scripting, node, export, file, run
+                                             (.messages.ts)
   presenters/                                domain data → what a view shows (plain TS, tested)
     node-summary.presenter.ts                summarize (what a node shows), nodePreview, envCounts
     node-kind.presenter.ts                   icon and colours of each kind of node
-    node-issue.presenter.ts                  the text of what stops a node (nodeIdIssueText)
+    node-issue.presenter.ts                  the text of what stops a node (nodeIdIssueText, nodeIssueText)
+    switch-form.presenter.ts                 the tests in two groups, the kinds of a value
     node-list.presenter.ts                   the rows, stages and links of the node list
     catalog.presenter.ts                     blank nodes, template entries, search, groups, templateFor
-    blueprint-layout.presenter.ts            the position of each node: one column per stage, positionAfter
+    blueprint-layout.presenter.ts            the position of each node: one column per stage (the
+                                             targets of a switch in the order of its ports), positionAfter
     blueprint-geometry.presenter.ts          the sizes, anchors and footprints of the nodes, linkDropPoint
     pipeline-issue.presenter.ts              the text of what stops a save (pipelineIssueText)
     pipeline-feed.presenter.ts               asPipelineFeed
+    pipeline-file.presenter.ts               a file pipeline: the rows of `on` and of the checkout,
+                                             the place of an error, the note of a row of the list
+                                             (originNote: a badge, its full text in a tooltip),
+                                             the notice of its page (fileNotice)
+    pipeline-history.presenter.ts            the bars of a row of the list (historyBars, barCapacity),
+                                             the figures of its stats card (historyStats)
+    ref-options.presenter.ts                 the rows of a branch or tag picker, and of the Run dialog
+    job-filter.presenter.ts                  the rows of the branch filter, the names of the events
+    fragment.presenter.ts                    a block (blockSummary, firstProposal), the search, the
+                                             tags and the order of the library
   mappers/                                   a view format ↔ the domain, both ways (plain TS, tested)
     pipeline-document.mapper.ts              the JSON text of the editor ↔ the nodes (toDocument writes it)
-    blueprint-flow.mapper.ts                 the nodes ↔ the nodes and edges of xyflow
+    blueprint-flow.mapper.ts                 the nodes ↔ the nodes and edges of xyflow; placesOf
     env-row.mapper.ts                        an env entry ↔ a row of the environment form
+    commit-ref.mapper.ts                     a CommitRef ↔ the value of a row of a picker
   ui/                                        Svelte only
     run-pipeline.state.svelte.ts             the Run action, shared by the dashboard and the jobs page
-    PipelineJobs.page.svelte                 the jobs page of a pipeline: JobsPage + the Run action
+    RunPipelineDialog/                       the commit to run, for a project with a linked repository
+                                             (run-request.state: dialog or direct run; run-target.state:
+                                             the picked ref or the typed SHA)
+    PipelineJobs/                            the jobs page of a pipeline: JobsPage + the Run action +
+                                             the filters (and its test)
+    JobFilters/                              branch, event, author, PR (job-filters.state.svelte.ts)
+    file/FilePipeline/                       the page of a file pipeline: the editor page, read only
+                                             (file-pipeline.state.svelte.ts, the header with the
+                                             branch picker, the notice, the locked panel, the text)
     dashboard/
       DashboardPipeline/                     the page, its header, pipeline-dashboard.state.svelte.ts
-      PipelineTable/                         the table, pipeline-table.columns.ts, and the cells only it
-                                             renders (PipelineActions, PipelineChart, PipelineLastJob, PipelineStatus)
+      PipelineTable/                         the table, pipeline-table.columns.ts, bar-capacity.state.svelte.ts,
+                                             and the cells only it renders (PipelineActions, PipelineChart,
+                                             PipelineStatus, PipelineStatsCard). Each bar of
+                                             PipelineChart is a JobRunMark of `@shared/presentation/ui`
     editor/
-      PipelineCreation.page.svelte, PipelineUpdate.page.svelte, PipelineEditor.svelte
+      PipelineCreation.page.svelte, PipelineEditor.svelte
+      PipelineUpdate/                        the edit page (and its test)
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
-                                             check, and the issue that stops the save
+                                             check, the issue that stops the save; MissingDocument
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
-      PipelineEditorHeader/                  the header, with the name field
-      controls/                              what the tabs share: Segmented, SearchField, and
+      unsaved-changes.state.svelte.ts        createUnsavedChanges: the document, the links and a typed
+                                             name; the version that a save sends
+      fragment-links.state.svelte.ts         the links of the edited pipeline, and their dirty check
+      PipelineEditorHeader/                  the header, with the name field and Export
+      ExportPipelineDialog/                  the export as a file: one tab per format, copy, download
+                                             (export-pipeline.state.svelte.ts)
+      controls/                              what the tabs share: SearchField and
                                              code-editor.effect.svelte.ts (CodeMirror ↔ a string)
       node/                                  the fields of one node, for every view that edits a node
         node-draft.state.svelte.ts           createNodeDraft: the draft of a node, applied at each edit
+        switch-draft.state.svelte.ts         createSwitchDraft: the cases of a switch in the draft,
+                                             PortChange (a port that an edit renamed or removed)
         NodeIdField, NodeKindPicker, NodeScriptField, NodeCommandFields, NodeWorkingDirField,
-        NodeTimeoutRetriesFields, NodeEnvFields
+        NodeTimeoutRetriesFields, NodeEnvFields, NodeErrorOutputField
                                              one field (or one group of fields) each, on a NodeDraft
+        NodeSwitchFields/                    the form of a switch: SwitchCase, SwitchRule,
+                                             SwitchOperand, PortNameField (and its test, its fixture)
       scripting/                             the scripting tab: the nodes one by one, or the full document
         PipelineScripting/                   the two views as tabs (and its test, its fixture)
         pipeline-scripting.state.svelte.ts   ViewModel: mode, add/remove/rename, deps, moveNode
@@ -139,19 +236,48 @@ presentation/
       blueprint/                             the visual editor, one folder per responsibility
         PipelineBlueprint.svelte             wires the graph, the canvas, the side panel, the drag
         blueprint.state.svelte.ts            graph ViewModel: nodes, edges, inspected node, add/insert/rename
+        node-places.state.svelte.ts          where the places go: at once for a saved node, with the save for a new one
+        editor-library.state.svelte.ts       the library as the editor sees it: the fragments, add a block
+        SaveFragmentDialog/                  Save to library: the draft of a fragment (save-fragment.state)
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
+          UpdateNotice.svelte                a newer version of a block
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
-          node-appearance-preference.state.svelte.ts   the viewer's node style, kept in localStorage
+          flow-theme.css                     the colours of the app on every Svelte Flow canvas
+          CanvasCurtain/                     what covers the blueprint until it is ready: the animated
+                                             logo, the slow line, the load error (canvas-curtain.state.svelte.ts)
+          node-appearance-preference.state.svelte.ts   the viewer's node style: the local copy of `platform/user-state`
           nodes/                             one node view and one start view per node style,
-                                             node-appearances.registry.ts (style → views)
+                                             node-appearances.registry.ts (style → views), MergeNode
+                                             (one small view for each style), follow-handles.effect
+                                             (xyflow measures the handles again when the ports change)
         catalog/                             CatalogIcon, CatalogItem, QuickAddMenu/ (quick-add.state.svelte.ts)
         palette-drag/                        a palette entry dragged to the canvas with the pointer
           palette-drag.state.svelte.ts       entry, pointer, spot, the canvas as a drop target
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
           PaletteDragGhost.svelte            the dragged icon, in place of the pointer
         side-panel/                          palette (nothing inspected) / inspector of the inspected node
-          NodeInspector/                     the inspector: the fields of node/, in two tabs
+                                             or block / the box selection
+          PalettePanel.svelte                the tabs Nodes and Library (LibraryPalette/)
+          FragmentInspector/                 a block: version, parameters, update, detach, remove
+                                             (block-inspector.state.svelte.ts)
+          SelectionPanel/                    the selected nodes and their parameters
+          NodeInspector/                     the inspector: the fields of node/ for the kind of the
+                                             node (NodeKindFields): two tabs, the switch form, or none;
+                                             read only for a fragment that the reader cannot edit
+    library/                                 the library pages, and what they share with the editor
+      FragmentLibrary/                       the grid: search, tabs (Organization, Favorites, Community),
+                                             tags or sources, the upstream strip (fragment-library.state)
+      FragmentDetail/                        one fragment: the graph of its nodes with the inspector of
+                                             the editor (FragmentGraph, FragmentNodes; changed and
+                                             published as a version: fragment-edit.state; a link
+                                             pulled onto empty canvas adds a node with QuickAddMenu),
+                                             parameters,
+                                             versions, usages, delete (DeleteFragmentZone); the
+                                             upstream cards, publish, compare and pipeline picker
+                                             dialogs (fragment-detail.state, publish-form.state)
+      fragment-links.state.svelte.ts         the fragments as links of the second sidebar
+      VersionHistory, ParameterKey, FavoriteButton, SourceLine (VersionBadge and FragmentIcon are in @shared)
 ```
 
 ## Routes & nav
@@ -161,9 +287,15 @@ presentation/
 | `project` | (the mount's own path) | `LIST_PIPELINES_BY_PROJECT` | `DashboardPipelinePage` |
 | `project` | `create` | `CREATE_PIPELINE` | `PipelineCreationPage` |
 | `project` | `edit/:pipelineId` | `UPDATE_PIPELINE` | `PipelineUpdatePage` |
+| `project` | `pipelines/:pipelineId` | `READ_PIPELINE` | `FilePipelinePage` |
 | `project` | `pipelines/:pipelineId/jobs` | `LIST_JOBS_BY_PIPELINE` | `PipelineJobsPage` |
+| `workspace` | `library` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentLibraryPage` |
+| `workspace` | `library/:fragmentId` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentDetailPage` |
 
-**No nav entry** — pipelines are the project index, reached by entering a project.
+**One nav entry**, Library, in the workspace section. Pipelines are the project index, reached
+by entering a project. While it shows, the second sidebar lists the fragments of the library
+(`shell.secondSidebarLinks: fragmentLinks`), under a search field that filters them by name
+(`shell.secondSidebarSearch: fragmentSearch`).
 
 The jobs **list** route is owned here, not by [`jobs`](../jobs/AGENTS.md): the page needs a
 **Run** action, which is a pipeline operation. `PipelineJobsPage` renders `JobsPage` (imported
@@ -174,6 +306,51 @@ the page.
 
 ## Rules that bite here
 
+- **A block of the library is drawn, never saved.** The document always holds the nodes of a
+  linked fragment, with the prefix of their block (`instantiate`), so the server runs them as any
+  node. The `FragmentLink`s are kept apart and sent with the save. `nodesToFlow` folds the nodes
+  of a link into one `fragmentNode`, and `flowToNodes` unfolds it: a dependency on a block is a
+  dependency on its last nodes. A link whose nodes changed in the Scripting tab is drawn as its
+  nodes. Only a saved pipeline links a fragment (`linkable`).
+- **A new version is proposed, never applied.** `proposedVersion` is the latest one, unless the
+  pipeline skipped it. Only the author and the workspace admins publish a version
+  (`canPublishVersion`).
+- **`fragment.queries.ts` types its repository by the interface**, not by `typeof
+  PipelineModule.domain`: the module imports `fragmentLinks`, which reads these queries, and the
+  type import would close a cycle.
+- **A fragment changes on its page, as a new version.** `fragment-edit.state` keeps the changed
+  nodes until `publish`; `editedParameters` keeps the choices of the author and exposes only the
+  variables that the change adds. The page of a linked fragment, and the marketplace, show the
+  same graph and inspector read only.
+- **A deletion keeps the pipelines running.** `canDeleteFragment`: the author or an admin, and
+  only an admin for a linked fragment. A public fragment is not deleted (`fragmentDeleteIssue`):
+  other workspaces link it. The confirmation names how many pipelines lose the updates.
+- **The marketplace reaches the library, never the reverse.** A fragment knows its `source`:
+  `linked` keeps the numbers of the publisher, and its `upstream` versions wait for an admin
+  (`pendingUpstream`, `acceptUpstream`, `skipUpstream`) before pipelines are proposed them; a
+  linked fragment never publishes a version. `forked` starts at v1 and shows the next release of
+  the publisher, never applies it. The [marketplace](../marketplace/AGENTS.md) feature imports
+  the barrel to add a package; nothing here imports it.
+- **Going public is checked, then chosen version by version.** `publicationChecks` stops a
+  secret default and a node that names the workspace, and warns on the rest. `publication.name`
+  holds the name without its scope: `publicName(slug, name)` makes `@slug/name`. A new version is
+  public only with `autoPublish` (`withNewVersion`).
+
+- **`pipelineQueries.summaries` is one call for the dashboard**, in place of one
+  `ListPipelineJobs` call for each pipeline. Its key is under `['pipelines', 'workspace', id]`.
+  The server needs the same permission as the list of the workspace pipelines: gate on
+  `LIST_PIPELINES_BY_WORKSPACE`. The health is the last ended job of the default branch:
+  `green` when it completed, `red` for another end, `none` when no job ended.
+
+- **`pipelineQueries.byId` does not refetch on a focus or on a reconnect.** It is the document of
+  the editor. A new document replaces the draft (`pipeline-document.state.svelte.ts`), and a new
+  version in the repository lets a save overwrite the change of another person. A mount or an
+  invalidation still reads it again.
+- **The frame of the pipeline list stays on an error.** The height of the table area gives the page
+  size, and the page size is in the query key. When an error removes the frame, the height goes,
+  the key changes, the error goes, and the frame comes back with the old key. Svelte stops this loop
+  with `effect_update_depth_exceeded`, and `RouteEntry` shows that the page failed. Show the error
+  inside the measured area. A failed refetch keeps the rows.
 - **Query options come from `pipeline.queries.ts`**, and the key factories are exported
   publicly so other modules invalidate what this one reads. After `run()`, also invalidate
   `JOBS_QUERY_KEY(pipelineId)` from `features/jobs` — a run creates a job.
@@ -191,13 +368,29 @@ the page.
   binds directly to its reactive state.
 - **`pipeline-document.state.svelte.ts` holds `script` + `initialScript` only** — draft editor text 
   and the baseline for the dirty check. It is UI state, not server state. Never put the fetched 
-  `PipelineEntity` in it.
+  `PipelineEntity` in it. A refetch moves the baseline and never erases an unsaved edit: the
+  document follows the server only when it is clean. So a failed background refetch keeps the
+  editor too (`isLoadingError`, not `isError`, in `PipelineUpdate.page.svelte`). The fragment
+  links follow the same rule (`fragment-links.state.svelte.ts`).
+- **A save that succeeds makes the sent version the saved one at once** (`createUnsavedChanges`:
+  `send()`, then `markSaved` on the document and the links), before the server sends it back. The
+  page calls `done` in the `onSuccess` of `mutate`, and the editor then calls `onSaved`, which goes
+  back to the project (`returnToProject`). `pipelineMutations.create` and `update` do not navigate:
+  their `onSuccess` runs before `done`, and the leave guard would hold the navigation. The guard
+  reads the dirty state at each navigation, not at the last run of its effect. A failed save marks
+  nothing: the guard stays. A name that is typed and not applied yet is an unsaved change too.
 - **The blueprint has one side panel, on the right.** It shows `blueprint.inspected`, which only
   a click sets (`blueprint.inspect(id)`): a click on a node, a click on a palette entry, a pick in
   `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
   a click on the empty canvas closes it. Nothing inspected: the palette. A node: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
-  xyflow's and is not the panel's state.
+  xyflow's and is not the panel's state. `blueprint.selecting` tells when the selection panel
+  shows: a selection that is more than the inspected node (a click inspects a
+  node, and `inspect` keeps only that node selected). It goes before the inspector: a box drawn
+  while an inspector is open takes the panel. The template follows `mode` only. The **Select** button of `CanvasToolbar`
+  sets `selectionOnDrag` (a local `$state` of `BlueprintCanvas`), as Shift does.
+  The selection panel shows the nodes and the parameters they give, and is the one place that
+  saves or deletes the selection, in its footer like the inspector. Nothing floats on the canvas.
 - **The scripting tab edits the document, never a copy.** `createPipelineScripting` reads
   `doc.nodes` and writes `doc.setNodes(...)` with the operations of `domain/entities/pipeline.entity.ts`,
   as the blueprint does. The nodes are views of the document, not files. A document that does
@@ -275,7 +468,9 @@ the page.
   called before the document changes). Each pane mounts one editor per node (`{#key node.id}`),
   so two nodes do not share an undo history.
 - **The dependency picker offers `dependencyCandidates` only**: the rule of `canConnect` (see
-  "No loop of dependencies"), so a pick cannot make a loop.
+  "No loop of dependencies"), so a pick cannot make a loop. A candidate comes with no port and
+  with each of its ports (`<switch>:<port>`, `<node>:error`); a drop in the list sets a need
+  with no port.
 - **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
   the name of the whole document. The start node opens nothing.
 - **The side panel of the blueprint is a paneforge pane** (`ResizablePane`), right of the
@@ -283,6 +478,23 @@ the page.
   keyed by the mode (`{#key mode}`) and each mode has its own `SIDE_PANEL_SIZES` (percent), so
   the group saves one width per mode: the layout is keyed by the constraints of the panes. The
   inspector holds code, so it is wider than the palette.
+- **The user never sees the first fit.** The edit page shows the editor at once: the header has
+  a skeleton in the name field, no status, and Save and the Scripting tab are disabled until the
+  pipeline comes (`missing`, `MissingDocument`). `PipelineBlueprint` mounts with the document
+  only: a graph built before keeps the places of an empty one. In it, the canvas mounts after the
+  first layout of the panes (`onLayoutChange`), and the panes have no transition until the canvas
+  is ready, so the first fit is at the final width. The canvas is ready when Svelte Flow is
+  initialised and the `fitView` promise resolves (the nodes are measured, the view is fitted).
+  Until then, `CanvasCurtain` covers the canvas and the side panel with the look of an empty
+  canvas, and the blueprint is `inert`: the user does not see the side panel or the view move.
+  The times are in `CURTAIN_TIMES`: nothing for 300 ms, then the logo for 400 ms at least, a
+  line after 4 s; the logo fades out in 120 ms, then the curtain in 200 ms. With reduced motion,
+  the dots do not move and a line says that the pipeline loads. A failed load shows in the
+  curtain, with Try again (`refetch`), never as a page of its own.
+- **The view frames the nodes until the user moves it.** `keepFitted` (`@scylla/ui`) fits again
+  at each resize of the canvas while `fitted` is true. A pan or a zoom by the user (`onmove` with an event, or a
+  zoom button) sets it to false; the fit button sets it to true. Use `onmove`, not `onmovestart`:
+  a click on the pane starts a move with no change of the view.
 - **A rebuild from the document keeps the canvas state.** When the document changes from outside
   (the script tab), the graph is built again: a node that is still there keeps its position and
   its selection, and only a new one is laid out. The document must also read back what it
@@ -303,6 +515,14 @@ the page.
   `DropSpot` draws the `footprint` of the current node style (`presenters/blueprint-geometry.presenter.ts`) in the
   front `ViewportPortal`, so it follows the zoom and no node hides it. No move transition: it
   must stay under the pointer.
+- **A connection point reacts in a zone around it, with CSS only** (`HANDLE`, `handleClass`,
+  `START_HANDLE_CLASS`). The `before` box of the handle is that zone. It goes far out of the node and only
+  a little into it, so that the node can still be dragged. A hover changes the size of the point.
+  Do not use `scale`: it also scales the `transform` with which xyflow centres a handle.
+  Stacked ports (a switch, or a node with many outputs) add `STACKED_HANDLE_ZONE`: the handles are 16 to
+  20 px apart, and a taller zone would take the wrong port.
+  A link is made by a pull only (`clickConnect={false}`): with this zone, two clicks near two
+  nodes would make a link.
 - **A node id follows the server's rule** (`NodeIdRule` in scylla-domain, `NodeId` in the
   protos): trimmed, 1 to 128 of `a-z`, `0-9`, `-`, `_`. `nodeIdIssue` (`domain/structs/node-id.struct.ts`)
   is that rule; keep both the same. A refused id is shown on the node, in the inspector while it
@@ -326,7 +546,7 @@ the page.
   the selected edge's `+` opens it too, to insert a node (`link: { replacing }`). Both go
   through `blueprint.addNode(nodeId, definition, placement)`. The menu is a combobox: the focus
   stays in the search, `aria-activedescendant` names the active option, Tab closes the menu.
-- **Node styles are a registry.** `NODE_APPEARANCES` (`canvas/node-appearance-preference.state.svelte.ts`) names them,
+- **Node styles are a registry.** `NODE_APPEARANCES` (`presentation/node-appearance.user-state.ts`) names them,
   `canvas/nodes/node-appearances.registry.ts` maps each to a node view (`PipelineNodeViewProps`), a start view
   (`StartNodeViewProps`), an `anchor`, a label and an icon. A new style is one name, two views
   and one entry: `PipelineNode` and `StartNode` only dispatch. The nodes read the style from the
@@ -352,7 +572,17 @@ the page.
   still equals `nodes`. The gRPC mapper also reads 0 retries as none.
 - `blueprint-flow.mapper.ts` is the single translation between the flow graph and
   `PipelineNodeEntity[]`. Both directions live there; do not inline conversion in a component.
-  The position of each node comes from `blueprint-layout.presenter.ts`.
+  The position of a node comes from the saved layout, else from `blueprint-layout.presenter.ts`.
+- **The pipeline owns the places of its nodes.** All members see the same canvas, so they are not in
+  `platform/user-state`. `byId` reads them with `getWithLayout`.
+- **A saved node saves its place 500 ms after the end of a drag**, with no Save button and no toast
+  (`meta: { showsOwnError: true }`). A node that the server does not hold (new or renamed) sends its
+  place with the next Create or Update, in the same transaction as the node.
+- **`saveLayout` uses `setQueryData`, not an invalidation.** A refetch replaces the draft of the
+  editor. The places do not change the version of the pipeline.
+- **Limits of the server:** 256 places in a request (a longer request is refused whole), 1,000,000
+  at most on each axis, whole numbers. `withinLimit` and `toNodePlace` apply them. A node with no
+  place gets an automatic place. A read-only canvas saves nothing.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in
   the folder of `ui/editor/blueprint/` that has its responsibility (`canvas/`, `catalog/`,
   `palette-drag/`, `side-panel/`), new list UI in `ui/dashboard/PipelineTable/`. A field of a
@@ -363,7 +593,97 @@ the page.
 - **`data-tour` attributes are anchors of the onboarding tour** (`pipelines` with `data-project-id`, `pipeline-editor`, `pipeline-submit`, and on each row
   `pipeline-history` / `pipeline-actions` / `pipeline-run` with `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`). Keep them on the same
-  element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
+  element when you move markup. The bars of `pipeline-history` have `data-item-id`, the newest bar last. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
+- **Export writes the saved version as a file of the repository** (`ExportPipeline`). Only the
+  edit page has it (`PipelineEditor` gets `pipelineId`). The button checks `READ_PIPELINE`: the
+  route `export_pipeline` is in the same catalog cell as `get_pipeline`. The dialog reads the file
+  of the selected format only while it is open (`pipelineQueries.fileExport`). Its key is under
+  `PIPELINE_QUERY_KEY`, so a save refreshes it. With unsaved changes, the dialog says that the file
+  has the saved version. The path comes from the server: do not build it in the client. A file has
+  no form for a switch, a merge or a need on a port (`CONDITIONAL_NODES` on the server): when the
+  saved nodes have one (`hasConditionalNodes`), Export is inert and says why (`exportIssue`), and
+  nothing is sent. The draft does not count: the file has the saved version.
+
+- **A file pipeline is read only, on a page of its own** (`pipelines/:pipelineId`, `READ_PIPELINE`:
+  the route `get_file_pipeline` is in the catalog cell of `get_pipeline`). The list opens it
+  with View (`goToFilePipeline`), and the edit page of a file pipeline redirects to it. For an
+  editor pipeline, this page redirects to the edit page: the crumb of the pipeline on the pages
+  under `pipelines/:pipelineId` (jobs, a job, triggers) links here for each source. It is the
+  only crumb that names the pipeline there: the crumb of the jobs is "Jobs" only. The page
+  is the editor page with no edit: `PipelineBlueprint` gets `locked` (the blueprint is
+  `readOnly` and saves no place), a `notice` in place of the notice of the repeated ids, and a
+  `sidePanel` in place of the palette (`FilePanel`: the rules of `on` and the checkout, or the
+  errors of the file). The Scripting tab shows the text of the file with the colors of its
+  format, read only. The branch picker reads the file at another ref
+  (`pipelineQueries.file`, keyed under `PIPELINE_QUERY_KEY`). When the file has errors (not
+  warnings) or cannot be read (none on the branch: `NOT_FOUND`), the graph shows the saved
+  pipeline, faded (`dimmed`): the server keeps the last valid version of the default branch. The
+  file query shows its own error (`showsOwnError`). A Schedule or a webhook of Scylla stays in
+  the triggers page.
+- **The list says the state of a file** under the name of a row (`originNote`): the number of
+  errors on the default branch, a file that left the default branch, an archived editor
+  pipeline. The default branch comes from the link of the project (`repositoryLinkQueries` of
+  `integrations`, which checks `READ_REPOSITORY_LINK`); without it, the text says "the default
+  branch".
+- **Run asks for a commit only with a linked repository** (`createRunRequest`). Without a link, or
+  while the link loads, Run runs at once, as before. The dialog offers the branches and the tags
+  (`ListRefs`, the default branch first and chosen) and a row to type a SHA (7 to 40 hex). The
+  command bar runs with no ref. The input of `pipelineMutations.run` is `{ pipelineId, ref? }`:
+  the guided tour reads `pipelineId` from it (`features/onboarding`).
+- **The filters of the jobs show only with a linked repository**: a job with no commit matches
+  no filter. A text field (author, PR number) applies its value on change or Enter, not per key.
+
+## Conditional nodes: the rules that bite
+
+- **A need is a node and a port** (`Dependency = { node, port? }`, the field keeps the name `deps`).
+  No port opens when the node completed; a port of a switch when the switch chose it; `error`
+  when a node that runs a step failed after its last attempt. Compare two needs with
+  `sameDependency`, never with `===`. A node can need one node on two ports (`test` and
+  `test:error`: always after `test`), never on the same pair two times (`hasRepeats`).
+- **A switch and a merge run no step.** `workingDir`, `timeoutSeconds`, `retries` and `image` are
+  on `exec` and `script` only; a merge has no env either. Narrow with `runsStep(node)` before you
+  read them. `NodeKindPicker` moves a node between a command and a script only: a switch or a
+  merge comes from the palette (the group "Flow": If, Switch, Merge) and stays what it is.
+- **The edges are the needs, and a port is a handle.** An edge from a port has
+  `sourceHandle = port` and the id `<source>:<port>-><target>` (`edgeBetween`, `edgeId`);
+  `flowToNodes` reads the handle back into the port. A switch has one source handle for each
+  case, in order, then `otherwise`, and no plain one: xyflow draws an edge with no port from the
+  first handle. A node that runs a step draws its plain handle first in the DOM for the same
+  reason, then the red `error` one. When the ports of a node change, `followHandles` calls
+  `updateNodeInternals`: xyflow measures the handles only at a resize, and a renamed handle
+  leaves its edges with no start. A need on a port that its node does not have is kept, not
+  drawn, and shown as an issue.
+- **The error toggle is not saved** (`NodeErrorOutputField`): the server has no field for it.
+  The handle shows while the toggle is on (a set in the blueprint and in the scripting
+  ViewModel, for the visit) or while a need names the port. Off, it removes the needs on
+  `error`, with the "Undo" toast.
+- **A port is renamed on blur or Enter, as an id is** (`PortNameField`, `renameCase`): an empty
+  name keeps the old one, a taken one gets a suffix. The draft says which port an edit renamed or
+  removed (`PortChange`), and the ViewModels move the needs on it (`renamePort`) or remove them
+  (`dropPort`) with an "Undo" that puts back the switch as it was and its needs. The blueprint
+  bumps `revision` on that undo: the inspector is keyed by it and builds its draft again.
+- **`error` is a reserved port name.** It is the error port of a node that runs a step, and
+  nothing else: no case and no `otherwise` has it (`reserved-port`, as `ReservedName` on the
+  server). So `port === ERROR_PORT` means the error port everywhere: the red handles and edges,
+  `canConnect`, the path of a job. `PortNameField` says it as it is typed, and the draft keeps the
+  old name, as for an empty one. A document typed by hand with it shows the issue and stops the save.
+- **The saved layout holds places only.** A switch and a merge have a place as each node has; the
+  edges and their ports come from the needs, never from the layout (`nodesToFlow`). A save sends
+  the needs with their ports and the places of the new nodes in the same request.
+- **A rename of a node follows into the outputs that a switch reads** (`withRenamedReference`).
+- **The checks of the server are in the domain.** `switchIssue` and `needIssue` check one node,
+  `nodeIssues` adds what the pipeline decides (a port that its node does not have, an output of a
+  node that does not run a step before the switch). `pipelineIssue` refuses the switch and need
+  issues (`nodes`), so `SavePipelineUseCase` sends nothing. It does not refuse a node that cannot
+  run yet (no command, empty script), as before: the server says it. The canvas, the list and the
+  properties read the issue from `nodeIssues` of the document (`issueOf`), not of the node alone.
+- **The JSON tab writes a need as a text** (`dependencyText`, `parseDependency`): `build`, or
+  `is-main:true`. A node id and a port never hold a `:`; an empty port reads as no port. A switch
+  is `kind: 'switch', switch: { cases, otherwise, allMatches }` (`otherwise: null` for none), a
+  merge `kind: 'merge', merge: {}`. A rule gets the right value its test needs, so it reads back
+  what it writes.
+- **The literals of a number test follow `f64::from_str`**, once trimmed: `1e3`, `-.5` and `5.`
+  are numbers; `0x10`, `inf` and an empty text are not.
 
 ## Before done
 

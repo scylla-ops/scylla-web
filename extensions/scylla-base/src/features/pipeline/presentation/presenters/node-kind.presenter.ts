@@ -2,13 +2,13 @@ import BoxIcon from '@lucide/svelte/icons/box';
 import FileCodeIcon from '@lucide/svelte/icons/file-code';
 import FlaskConicalIcon from '@lucide/svelte/icons/flask-conical';
 import GitBranchIcon from '@lucide/svelte/icons/git-branch';
+import MergeIcon from '@lucide/svelte/icons/merge';
 import PackageIcon from '@lucide/svelte/icons/package';
 import RocketIcon from '@lucide/svelte/icons/rocket';
+import SplitIcon from '@lucide/svelte/icons/split';
 import TerminalIcon from '@lucide/svelte/icons/terminal';
 import type { LucideIcon } from '@scylla/ui';
-import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
-
-type NodeKind = PipelineNodeEntity['kind'];
+import type { NodeKind } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 
 /** The icon hints a template may give. An unknown hint falls back to the kind of the node. */
 const HINTED: Record<string, LucideIcon> = {
@@ -22,6 +22,8 @@ const HINTED: Record<string, LucideIcon> = {
 const KIND_ICONS: Record<NodeKind, LucideIcon> = {
   script: FileCodeIcon,
   exec: TerminalIcon,
+  switch: SplitIcon,
+  merge: MergeIcon,
 };
 
 export const nodeIcon = (kind: NodeKind, hint?: string): LucideIcon =>
@@ -45,5 +47,19 @@ export const KIND_TONES: Record<
     border: 'border-chart-2',
     ring: 'ring-chart-2/25',
     handle: 'border-chart-2!',
+  },
+  switch: {
+    text: 'text-chart-4',
+    tile: 'bg-chart-4/12',
+    border: 'border-chart-4',
+    ring: 'ring-chart-4/25',
+    handle: 'border-chart-4!',
+  },
+  merge: {
+    text: 'text-chart-3',
+    tile: 'bg-chart-3/12',
+    border: 'border-chart-3',
+    ring: 'ring-chart-3/25',
+    handle: 'border-chart-3!',
   },
 };

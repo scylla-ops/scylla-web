@@ -1,71 +1,77 @@
-import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
-import ShieldIcon from '@lucide/svelte/icons/shield';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
-import { GrantServiceClient } from '@base/generated/scylla/authz/v1/grant.client.ts';
-import { RoleServiceClient } from '@base/generated/scylla/authz/v1/role.client.ts';
-import { DefaultPermissionRepository } from './infrastructure/default-permission.repository.ts';
-import { UpdateRoleUseCase } from '@base/features/roles/domain/use-cases/update-role.use-case.ts';
+import type { ScyllaModule } from '@scylla/core-sdk';
+import { AccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
+import { RoleServiceClient } from '@base/generated/scylla/access/v1/role_service.client.ts';
+import { ACCESS_NAV } from '@shared/presentation/access-nav.ts';
+import { DefaultRoleRepository } from './infrastructure/default-role.repository.ts';
+import { rolesCommands } from './presentation/roles.commands.ts';
+import { roleCrumbName } from './presentation/role-crumb.state.svelte.ts';
 
-const repository = new DefaultPermissionRepository(
-  new RoleServiceClient(grpcTransport.getTransport()),
-  new GrantServiceClient(grpcTransport.getTransport()),
+const transport = grpcTransport.getTransport();
+const roleRepository = new DefaultRoleRepository(
+  new RoleServiceClient(transport),
+  new AccessServiceClient(transport),
 );
 
 export const RolesModule = {
   id: 'roles',
   domain: {
-    permissionRepository: repository,
-    updateRole: new UpdateRoleUseCase(repository),
+    roleRepository,
   },
+  commands: rolesCommands,
   routes: {
-    organization: [
+    admin: [
       {
         path: 'roles',
-        permission: Permission.MANAGE_ORG_ROLES,
+        permission: Permission.LIST_ROLES,
         breadcrumb: () => ({ label: msg`Roles` }),
-        page: () => import('./presentation/ui/Roles/Roles.page.svelte'),
-        nav: { section: 'organization', title: msg`Roles`, icon: ShieldIcon, order: 35 },
+        page: () => import('./presentation/ui/InstanceRoles/InstanceRoles.page.svelte'),
+        nav: { section: 'instance', title: msg`Roles`, icon: ShieldCheckIcon, order: 20 },
         children: [
           {
             path: 'new',
-            permission: Permission.MANAGE_ORG_ROLES,
+            permission: Permission.MANAGE_ROLES,
             breadcrumb: () => ({ label: msg`New role` }),
-            page: () => import('./presentation/ui/RoleEditor/RoleEditor.page.svelte'),
+            page: () => import('./presentation/ui/RoleEditor/NewRole.page.svelte'),
           },
           {
-            path: ':roleId/edit',
-            permission: Permission.MANAGE_ORG_ROLES,
-            breadcrumb: () => ({ label: msg`Edit role` }),
-            page: () => import('./presentation/ui/RoleEditor/RoleEditor.page.svelte'),
+            path: ':roleKey',
+            permission: Permission.LIST_ROLES,
+            breadcrumb: () => ({ label: roleCrumbName() ?? msg`Role` }),
+            page: () => import('./presentation/ui/RoleDetail/InstanceRole.page.svelte'),
           },
         ],
       },
+    ],
+    access: [
       {
-        path: 'platform-roles',
-        permission: Permission.MANAGE_ROLES,
-        breadcrumb: () => ({ label: msg`Platform roles` }),
-        page: () => import('./presentation/ui/PlatformRoles/PlatformRoles.page.svelte'),
+        path: 'roles',
+        permission: Permission.LIST_WORKSPACE_ROLES,
+        breadcrumb: () => ({ label: msg`Roles` }),
+        page: () => import('./presentation/ui/WorkspaceRoles/WorkspaceRoles.page.svelte'),
         nav: {
-          section: 'system',
-          title: msg`Platform roles`,
+          section: 'workspace',
+          title: msg`Roles`,
           icon: ShieldCheckIcon,
-          order: 20,
+          order: 31,
+          group: ACCESS_NAV,
+          permission: Permission.MANAGE_WORKSPACE_ROLES,
         },
         children: [
           {
             path: 'new',
-            permission: Permission.MANAGE_ROLES,
+            permission: Permission.MANAGE_WORKSPACE_ROLES,
             breadcrumb: () => ({ label: msg`New role` }),
-            page: () => import('./presentation/ui/PlatformRoleEditor/PlatformRoleEditor.page.svelte'),
+            page: () => import('./presentation/ui/RoleEditor/NewWorkspaceRole.page.svelte'),
           },
           {
-            path: ':roleId/edit',
-            permission: Permission.MANAGE_ROLES,
-            breadcrumb: () => ({ label: msg`Edit role` }),
-            page: () => import('./presentation/ui/PlatformRoleEditor/PlatformRoleEditor.page.svelte'),
+            path: ':roleKey',
+            permission: Permission.LIST_WORKSPACE_ROLES,
+            breadcrumb: () => ({ label: roleCrumbName() ?? msg`Role` }),
+            page: () => import('./presentation/ui/RoleDetail/WorkspaceRole.page.svelte'),
           },
         ],
       },

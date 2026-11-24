@@ -7,7 +7,6 @@ import { secretMessages } from '@base/features/secret/presentation/messages/secr
 
 export interface SecretCells {
   name: Snippet<[SecretEntity]>;
-  description: Snippet<[SecretEntity]>;
   createdAt: Snippet<[SecretEntity]>;
   actions: Snippet<[SecretEntity]>;
 }
@@ -20,14 +19,6 @@ export const secretColumns = (cells: SecretCells): DataTableColumn<SecretEntity>
     size: 240,
     minSize: 240,
     meta: { align: 'left', card: 'title' },
-  },
-  {
-    accessorKey: 'description',
-    header: t(secretMessages.description),
-    cell: ({ row }) => renderSnippet(cells.description, row.original),
-    size: 300,
-    minSize: 180,
-    meta: { align: 'center', card: 'body' },
   },
   {
     accessorKey: 'createdAt',

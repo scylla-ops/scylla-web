@@ -8,8 +8,8 @@
 </script>
 
 <!--
-  The account page with no organization (`/account/<section>`): no sidebar holds the sign-out, so it comes
-  after the last section, in the style of the line under the first-organization card. Here, not
+  The account page with no workspace (`/account/<section>`): no sidebar holds the sign-out, so it comes
+  after the last section, in the style of the line under the first-workspace card. Here, not
   in the layout: the router places the page out of the flow of its layout.
 -->
 <div class="flex flex-col gap-2 pb-8">

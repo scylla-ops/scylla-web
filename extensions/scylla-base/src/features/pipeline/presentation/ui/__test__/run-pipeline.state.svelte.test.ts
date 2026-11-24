@@ -21,16 +21,16 @@ const grant = (...permissions: Permission[]) =>
     },
   });
 
-const setUp = (agents: { connected: boolean }[]) => {
-  runRepository = vi.fn().mockResolvedValue(undefined);
+const setUp = (agents: { connected: boolean; host?: { containerRuntime: string } }[]) => {
+  runRepository = vi.fn().mockResolvedValue({ needsContainer: false });
   const cache = withQueryClient();
   teardown = [
     cache.restore,
     withRegistry({
       pipeline: { pipelineRepository: { run: runRepository } },
-      agents: {
-        agentsRepository: {
-          listAgents: vi.fn().mockResolvedValue(agents),
+      apps: {
+        appsRepository: {
+          listApps: vi.fn().mockResolvedValue(agents),
         },
       },
     }),
@@ -49,7 +49,7 @@ const runIn = async (run: (runner: ReturnType<typeof createRunPipeline>) => Prom
 
 beforeEach(() => {
   vi.clearAllMocks();
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme' } });
+  contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => teardown.forEach(restore => restore()));
@@ -63,8 +63,19 @@ describe('createRunPipeline', () => {
       await runner.run('pipeline-1');
     });
 
-    expect(runRepository).toHaveBeenCalledWith('pipeline-1');
+    expect(runRepository).toHaveBeenCalledWith('pipeline-1', undefined);
     expect(toast.success).toHaveBeenCalledTimes(1);
+  });
+
+  it('runs the pipeline at the ref that the user chose', async () => {
+    grant();
+    setUp([]);
+
+    await runIn(async runner => {
+      await runner.run('pipeline-1', { kind: 'tag', name: 'v1.2.0' });
+    });
+
+    expect(runRepository).toHaveBeenCalledWith('pipeline-1', { kind: 'tag', name: 'v1.2.0' });
   });
 
   it('marks the pipeline as running while the run is in flight', async () => {
@@ -96,7 +107,8 @@ describe('createRunPipeline', () => {
 
 describe('createRunPipeline with the agent list', () => {
   it('warns that the job waits when no agent is connected', async () => {
-    grant(Permission.LIST_AGENTS);
+    // The app list reads with list_apps, which both permissions stand for.
+    grant(Permission.LIST_AGENTS, Permission.LIST_APPS_BY_WORKSPACE);
     setUp([{ connected: false }]);
 
     await runIn(async runner => {
@@ -108,13 +120,41 @@ describe('createRunPipeline with the agent list', () => {
   });
 
   it('confirms the run when an agent is connected', async () => {
-    grant(Permission.LIST_AGENTS);
+    // The app list reads with list_apps, which both permissions stand for.
+    grant(Permission.LIST_AGENTS, Permission.LIST_APPS_BY_WORKSPACE);
     setUp([{ connected: true }]);
 
     await runIn(async runner => {
       await new Promise(resolve => setTimeout(resolve, 0));
       await runner.run('pipeline-1');
     });
+
+    expect(toast.success).toHaveBeenCalledTimes(1);
+    expect(toast.warning).not.toHaveBeenCalled();
+  });
+
+  const runContainerJob = async (agents: Parameters<typeof setUp>[0]) => {
+    grant(Permission.LIST_AGENTS, Permission.LIST_APPS_BY_WORKSPACE);
+    setUp(agents);
+    runRepository.mockResolvedValue({ needsContainer: true });
+    await runIn(async runner => {
+      await new Promise(resolve => setTimeout(resolve, 0));
+      await runner.run('pipeline-1');
+    });
+  };
+
+  it('warns that a container job waits when no connected agent has a container runtime', async () => {
+    await runContainerJob([
+      { connected: true, host: { containerRuntime: '' } },
+      { connected: false, host: { containerRuntime: 'docker' } },
+    ]);
+
+    expect(toast.warning).toHaveBeenCalledTimes(1);
+    expect(toast.success).not.toHaveBeenCalled();
+  });
+
+  it('confirms a container job when a connected agent has a container runtime', async () => {
+    await runContainerJob([{ connected: true, host: { containerRuntime: 'docker' } }]);
 
     expect(toast.success).toHaveBeenCalledTimes(1);
     expect(toast.warning).not.toHaveBeenCalled();

@@ -17,5 +17,5 @@
 {#if !pipelineId || !projectId}
   <ErrorState message={t(triggersMessages.pipelineIdMissing)} />
 {:else}
-  <TriggerEditorView {pipelineId} {triggerId} />
+  <TriggerEditorView {projectId} {pipelineId} {triggerId} />
 {/if}

@@ -56,6 +56,15 @@ describe('Tooltip', () => {
     expect((square as HTMLElement).parentElement?.style.position).toBe('absolute');
   });
 
+  it('leaves the arrow off a content that asks for none', async () => {
+    render(TooltipFixture, { arrow: false });
+
+    await userEvent.hover(screen.getByRole('button', { name: 'Delete' }));
+
+    const tooltip = await findTooltip();
+    expect(tooltip.querySelector('.rotate-45')).toBeNull();
+  });
+
   it('shows the content on keyboard focus, which is the accessible path', async () => {
     render(TooltipFixture);
 

@@ -1,248 +1,236 @@
 <script lang="ts">
-  import { i18n } from '@lingui/core';
-  import { can, Permission, PermissionScope } from '@platform/authz';
+  import InfoIcon from '@lucide/svelte/icons/info';
+  import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery, WidgetZone } from '@scylla/core-sdk';
-  import { organizationQueries } from '@base/features/organization';
-  import { invalidateProjectMembers, projectQueries } from '@base/features/project';
-  import { roleConfers, roleQueries } from '@base/features/roles';
-  import type { UserSummary } from '@base/features/user';
-  import { userName } from '@shared/presentation/ui';
-  import { ConfirmOperationAlertDialog, FeatureHeader, GatedButton } from '@scylla/ui';
-  import { toRune } from '@scylla/ui/stores';
-  import { toast } from '@scylla/ui/utils';
+  import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
+  import { accessQueries, projectRef } from '@base/features/access';
+  import { appQueries } from '@base/features/apps';
+  import { userQueries } from '@base/features/user';
+  import { GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
-    buildProjectMembers,
-    MemberRoleOrigin,
-    type ScopeMember,
-  } from '@base/features/membership/presentation/presenters/scope-members.presenter.ts';
-  import {
-    createAssignableRoles,
-  } from '@base/features/membership/presentation/ui/components/assignable-roles.state.svelte.ts';
-  import {
-    createScopeMembership,
-  } from '@base/features/membership/presentation/ui/scope-membership.state.svelte.ts';
+    Button,
+    Skeleton,
+    Table,
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
+  import { toRune } from '@scylla/ui/stores';
+  import { Identity } from '@shared/presentation/ui';
   import {
     membershipPoints,
     type ProjectMembersContext,
   } from '@base/features/membership/presentation/membership.points.ts';
-  import AddMemberDialog from '../components/AddMemberDialog/AddMemberDialog.svelte';
-  import MembersHint from '../components/MembersHint/MembersHint.svelte';
-  import MembersList from '../components/MembersList/MembersList.svelte';
-  import { membershipMessages } from '@base/features/membership/presentation/messages/membership.messages.ts';
+  import {
+    addTo,
+    changeIn,
+    membersOf,
+    membershipMessages,
+    projectRuleTitle,
+  } from '../../messages/membership.messages.ts';
+  import { appChoice, memberChoice } from '../../presenters/actor-choice.presenter.ts';
+  import { memberRoleName } from '../../presenters/member-role-name.ts';
+  import { buildProjectMemberRows, memberProfile } from '../../presenters/member-rows.presenter.ts';
+  import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
+  import ChooseActorRow from '../components/ChooseActorRow/ChooseActorRow.svelte';
+  import ScopeLabel from '../components/ScopeLabel.svelte';
 
-  interface Props {
-    projectId?: string;
+  let { projectId }: { projectId?: string } = $props();
+
+  interface Changing {
+    actorId: string;
+    name: string;
+    holder: 'people' | 'apps';
   }
 
-  let { projectId }: Props = $props();
-
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id);
-  // About this project, not the context's: a direct URL can land here before the two agree.
+  const workspaceId = $derived(context().workspace.id);
+  const workspaceName = $derived(context().workspace.name ?? '');
   const target = $derived({
     projectId: projectId ?? undefined,
-    organizationId: organizationId ?? undefined,
+    workspaceId: workspaceId ?? undefined,
   });
 
   const canManage = $derived(can(Permission.MANAGE_PROJECT_GRANTS, target));
-  // Inherited roles need the organization's grants (organization admins only).
-  const canReadOrganizationGrants = $derived(can(Permission.MANAGE_ORG_GRANTS, target));
-  const canListOrganizationMembers = $derived(
-    can(Permission.LIST_ORGANIZATION_MEMBERS, target),
-  );
+  const object = $derived(projectId ? projectRef(projectId) : null);
 
-  const projectMembersQuery = createQuery(() =>
-    projectQueries.members(projectId ?? null, {
-      enabled: can(Permission.LIST_PROJECT_MEMBERS, target),
-    }),
-  );
-  const organizationMembersQuery = createQuery(() =>
-    organizationQueries.members(organizationId, { enabled: canListOrganizationMembers }),
-  );
-  const organizationGrantsQuery = createQuery(() =>
-    roleQueries.scopedGrants(PermissionScope.ORGANIZATION, organizationId, {
-      enabled: canReadOrganizationGrants,
-    }),
-  );
+  const projectName = $derived(context().project.name ?? '');
 
-  const projectMembers = $derived(projectMembersQuery.data ?? []);
-  const organizationMembers = $derived(organizationMembersQuery.data ?? []);
-  const organizationGrants = $derived(organizationGrantsQuery.data ?? []);
+  const membersQuery = createQuery(() =>
+    accessQueries.members(object, { enabled: can(Permission.LIST_PROJECT_MEMBERS, target) }),
+  );
+  const rows = $derived(buildProjectMemberRows(membersQuery.data ?? []));
 
-  const roles = createAssignableRoles(PermissionScope.PROJECT, () => organizationId);
+  let changing = $state<Changing | null>(null);
+  let adding = $state(false);
 
-  const membership = createScopeMembership({
-    scope: PermissionScope.PROJECT,
-    scopeId: () => projectId ?? null,
-    canManage: () => canManage,
-    // The backend derives members from grants; the grant mutations cannot reach this key.
-    onMembershipChanged: () => void invalidateProjectMembers(projectId ?? null),
+  const appsQuery = createQuery(() => {
+    const query = appQueries.list(workspaceId ?? '');
+    return { ...query, enabled: query.enabled && adding };
   });
 
-  let addOpen = $state(false);
-  let pendingRemoval = $state<{ userId: string; name: string } | null>(null);
-
-  const userById = $derived.by(() => {
-    // Rebuilt whole by the `$derived` and never mutated after it is read, so a
-    // reactive collection would only make a throwaway object track dependencies.
-    // eslint-disable-next-line svelte/prefer-svelte-reactivity
-    const users = new Map<string, UserSummary>();
-    for (const member of organizationMembers) users.set(member.id, member);
-    for (const member of projectMembers) users.set(member.id, member);
-    return users;
-  });
-
-  const userFor = (memberId: string) => userById.get(memberId);
-
-  /** An organization role reaches the project when it confers reading one. `organization-member` does not. */
-  const reachesProjects = $derived((roleId: string) =>
-    roleConfers(roles.roleById.get(roleId), Permission.READ_PROJECT),
+  const usersQuery = createQuery(() =>
+    userQueries.list({ enabled: adding && can(Permission.LIST_USERS) }),
   );
 
-  const members = $derived(
-    buildProjectMembers(
-      membership.grants,
-      organizationGrants,
-      reachesProjects,
-      projectMembers.map(member => member.id),
-    ),
-  );
+  /** A person with a role in the workspace, or an app of the workspace, with no role here yet. */
+  const candidates = $derived([
+    ...rows
+      .filter(row => row.inheritedOnly)
+      .map(row => memberChoice(row, usersQuery.data?.items.find(user => user.id === row.actorId))),
+    ...(appsQuery.data ?? [])
+      .filter(app => !rows.some(row => row.actorId === app.id))
+      .map(appChoice),
+  ]);
 
-  const memberIds = $derived(new Set(members.map(member => member.userId)));
+  const startChange = (id: string, name: string) => {
+    const row = rows.find(one => one.actorId === id);
+    changing = { actorId: id, name, holder: row?.tab ?? 'apps' };
+  };
 
-  const candidates = $derived(
-    organizationMembers.filter(member => !memberIds.has(member.id)),
-  );
+  const changingRoles = $derived(rows.find(row => row.actorId === changing?.actorId)?.roles ?? []);
+
+  const refresh = () => {
+    void membersQuery.refetch();
+  };
 
   const zoneContext: ProjectMembersContext = $derived({
-    organizationId: organizationId ?? '',
+    workspaceId: workspaceId ?? '',
     projectId: projectId ?? '',
     canManage,
-    memberCount: members.length,
-    refreshMembers: membership.refresh,
+    memberCount: rows.length,
+    refreshMembers: refresh,
   });
 
-  const currentUserId = localStorage.getItem('userId') ?? '';
-
-  /** The project's own roles: the editable ones. */
-  const directRoleIds = (member: ScopeMember): Set<string> =>
-    new Set(
-      member.roles
-        .filter(role => role.origin === MemberRoleOrigin.DIRECT)
-        .map(role => role.roleId),
-    );
-
-  const handleAdd = async (userId: string, roleIds: string[]) => {
-    const granted = await membership.grantRoles(userId, roleIds);
-    if (granted) toast.success(i18n._(membershipMessages.memberAdded(roleIds.length)));
-    return granted;
-  };
-
-  const handleRemove = async () => {
-    if (!pendingRemoval) return;
-    await membership.removeMember(pendingRemoval.userId, pendingRemoval.name);
-    pendingRemoval = null;
-  };
+  const slug = $derived(routePathname().split('/')[1] ?? '');
+  // The members of the workspace need their own permission: without it, the row has no link.
+  const canSeeWorkspace = $derived(can(Permission.LIST_WORKSPACE_MEMBERS));
+  const openChange = () => navigateTo(`/${slug}/access/members`);
 </script>
 
-<!--
-  The project's own members plus the organization roles that reach it, each badged
-  with its scope. Inherited roles are locked: revoking them changes every project.
-  Candidates are the organization's members (a project grant needs one).
--->
-{#snippet actions()}
-  <WidgetZone point={membershipPoints.projectActions} context={zoneContext}>
-    <GatedButton
-      allowed={canManage}
-      deniedReason={t(membershipMessages.projectNewDenied)}
-      onclick={() => (addOpen = true)}
-    >
-      {t(membershipMessages.addAMember)}
-    </GatedButton>
-  </WidgetZone>
-{/snippet}
-
-{#snippet blurb()}
-  <p class="max-w-3xl text-sm text-muted-foreground">{t(membershipMessages.projectBlurb)}</p>
-{/snippet}
-
 {#if projectId}
-  <div class="flex h-full min-h-0 w-full flex-col gap-4">
-    <FeatureHeader
-      count={members.length}
-      label={t(membershipMessages.member)}
-      pluralLabel={t(membershipMessages.members)}
-      underLabel={blurb}
-      extraActions={actions}
-    />
+  <div class="flex w-full flex-col gap-4 pb-20">
+    <header class="flex items-start justify-between gap-6">
+      <div class="flex flex-col gap-1">
+        <h2 class="text-xl">{t(membersOf(projectName))}</h2>
+        <p class="max-w-3xl text-sm text-muted-foreground">
+          {t(membershipMessages.projectBlurb)}
+        </p>
+      </div>
+      <WidgetZone point={membershipPoints.projectActions} context={zoneContext}>
+        <GatedButton
+          allowed={canManage}
+          deniedReason={t(membershipMessages.projectNewDenied)}
+          onclick={() => (adding = true)}
+        >
+          {t(addTo(projectName))}
+        </GatedButton>
+      </WidgetZone>
+    </header>
 
-    <MembersList
-      {members}
-      isLoading={projectMembersQuery.isLoading ||
-        organizationMembersQuery.isLoading ||
-        organizationGrantsQuery.isLoading ||
-        membership.isLoading}
-      emptyMessage={t(membershipMessages.projectEmpty)}
-      {userFor}
-      missing={canListOrganizationMembers ? 'deleted' : 'unknown'}
-      organizationName={context().organization.name ?? ''}
-      labelFor={roles.labelFor}
-      {currentUserId}
-      {canManage}
-      disabled={membership.isPending}
-      onRevokeRole={role => void membership.revokeRole(role)}
-      addableRolesFor={member => {
-        // Only project roles count as held: an inherited role can still be granted here.
-        const held = directRoleIds(member);
-        return roles.assignableRoles.filter(role => !held.has(role.roleId));
-      }}
-      onAddRole={(memberId, roleId) => void membership.addRole(memberId, roleId)}
-      emptyRoles={t(membershipMessages.managedByProjectAdmin)}
-      canRemove={member => canManage && directRoleIds(member).size > 0}
-      removeTooltip={t(membershipMessages.removeFromProject)}
-      onRemove={member =>
-        (pendingRemoval = {
-          userId: member.userId,
-          name: userName(userFor(member.userId), canListOrganizationMembers ? 'deleted' : 'unknown'),
-        })}
-    />
+    {#if adding}
+      <ChooseActorRow
+        choices={candidates}
+        loading={appsQuery.isLoading}
+        onChoose={choice => {
+          startChange(choice.id, choice.name);
+          adding = false;
+        }}
+        onCancel={() => (adding = false)}
+      />
+    {/if}
 
-    <MembersHint>
-      {canReadOrganizationGrants
-        ? t(membershipMessages.inheritedHintVisible)
-        : t(membershipMessages.inheritedHintHidden)}
-    </MembersHint>
+    {#if membersQuery.isLoading}
+      <div role="status" aria-busy="true" class="flex flex-col gap-2">
+        {#each [0, 1, 2] as index (index)}
+          <Skeleton class="h-14 w-full rounded-xl" />
+        {/each}
+      </div>
+    {:else if rows.length === 0}
+      <p class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+        {t(membershipMessages.projectEmpty)}
+      </p>
+    {:else}
+      <TableFrame>
+        <Table class="min-w-[720px]">
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t(membershipMessages.member)}</TableHead>
+              <TableHead>{t(membershipMessages.rolesHere)}</TableHead>
+              <TableHead>{t(membershipMessages.comesFrom)}</TableHead>
+              <TableHead class="w-40"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {#each rows as row (row.actorId)}
+              <TableRow class={row.inheritedOnly ? '[&>td]:bg-muted/50' : ''}>
+                <TableCell>
+                  <Identity profile={memberProfile(row)} kind={row.kind} />
+                </TableCell>
+                <TableCell class="whitespace-normal">
+                  <div class="flex flex-wrap gap-1.5">
+                    {#each row.roles as role (`${role.scopeKind}-${role.role}`)}
+                      <span class="rounded-full border bg-muted px-2.5 py-0.5 text-xs font-medium">
+                        {memberRoleName(role)}
+                      </span>
+                    {/each}
+                  </div>
+                </TableCell>
+                <TableCell class="whitespace-normal">
+                  <div class="flex flex-wrap gap-x-3 gap-y-1.5">
+                    {#each row.scopes as scope (scope.scopeKind)}
+                      <ScopeLabel kind={scope.scopeKind} name={scope.scopeName} />
+                    {/each}
+                  </div>
+                </TableCell>
+                <TableCell class="text-right">
+                  {#if row.inheritedOnly && canSeeWorkspace}
+                    <button
+                      type="button"
+                      class="text-xs font-medium text-primary hover:underline"
+                      onclick={openChange}
+                    >
+                      {t(changeIn(workspaceName))}
+                    </button>
+                  {:else if canManage && !row.inheritedOnly}
+                    <Button variant="ghost" onclick={() => startChange(row.actorId, row.name)}>
+                      {t(membershipMessages.changeRoles)}
+                    </Button>
+                  {/if}
+                </TableCell>
+              </TableRow>
+            {/each}
+          </TableBody>
+        </Table>
+      </TableFrame>
+
+      <aside class="flex gap-3 rounded-xl border border-primary/40 bg-primary/5 p-4">
+        <InfoIcon class="mt-0.5 size-4 shrink-0 text-primary" />
+        <div>
+          <p class="text-sm font-medium">{t(projectRuleTitle(workspaceName))}</p>
+          <p class="mt-1 text-xs text-muted-foreground">{t(membershipMessages.projectRuleHint)}</p>
+        </div>
+      </aside>
+    {/if}
 
     <WidgetZone point={membershipPoints.projectSection} context={zoneContext} />
 
-    <AddMemberDialog
-      open={addOpen}
-      onOpenChange={open => (addOpen = open)}
-      title={t(membershipMessages.addToProject)}
-      description={t(membershipMessages.addToProjectBody)}
-      {candidates}
-      emptyCandidatesLabel={canListOrganizationMembers
-        ? t(membershipMessages.everyOrgMemberHere)
-        : t(membershipMessages.cannotBrowseOrgMembers)}
-      roles={roles.assignableRoles}
-      organizationName={context().organization.name ?? ''}
-      rolesLabel={t(membershipMessages.projectRolesToGrant)}
-      rolesLoading={roles.isLoading}
-      isPending={membership.isPending}
-      onSubmit={handleAdd}
-    />
-
-    <ConfirmOperationAlertDialog
-      open={pendingRemoval !== null}
-      onOpenChange={open => {
-        if (!open) pendingRemoval = null;
-      }}
-      isLoading={membership.isRemoving}
-      title={t(membershipMessages.confirmRemoveFromProject(pendingRemoval?.name ?? ''))}
-      description={t(membershipMessages.confirmRemoveFromProjectBody)}
-      onContinue={() => void handleRemove()}
-    />
+    {#if object && workspaceId}
+      <ChangeRolesDialog
+        {...changing ? { actorId: changing.actorId, holder: changing.holder } : {}}
+        name={changing?.name ?? ''}
+        scopeName={projectName}
+        roles={changingRoles.filter(role => role.scopeKind === 'project')}
+        otherRoles={changingRoles.filter(role => role.scopeKind === 'workspace')}
+        {workspaceId}
+        {object}
+        onClose={() => (changing = null)}
+        onChanged={() => membersQuery.refetch()}
+      />
+    {/if}
   </div>
 {/if}

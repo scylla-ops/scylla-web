@@ -6,6 +6,13 @@ import { installTestNavigator } from '@test/navigator.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
 import { loginPath } from '@base/features/login/presentation/mappers/return-path.mapper.ts';
+import {
+  legalDocument,
+  legalInfo,
+  termsToAcceptAt,
+  withLegalInfo,
+} from '../../__test__/legal-info.fixture.ts';
+import { arrival } from '../ArrivalOverlay/arrival.state.svelte.ts';
 import LoginPage from './Login.page.svelte';
 
 const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
@@ -14,6 +21,14 @@ const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
     login,
     requestPasswordReset: vi.fn(),
     resetPassword: vi.fn(),
+    listSignInMethods: vi.fn().mockResolvedValue({ providers: [], signUpMode: 'closed' }),
+    signUp: vi.fn(),
+    pendingLink: vi.fn(),
+    linkPendingIdentity: vi.fn(),
+    verifyEmail: vi.fn(),
+    termsStatus: vi.fn(),
+    acceptTerms: vi.fn(),
+    ...overrides,
   };
   return { repository, login };
 };
@@ -33,6 +48,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  arrival.reset();
   teardown.forEach(restore => restore());
   history.replaceState(null, '', '/');
 });
@@ -73,16 +89,71 @@ describe('LoginPage', () => {
     expect(screen.getByLabelText('Email or username')).toBeInTheDocument();
   });
 
-  it('replaces the form with the loading screen once sign-in succeeds', async () => {
+  it('keeps the form disabled under the arrival once sign-in succeeds', async () => {
     const { repository } = makeFakeRepository();
     setUp(repository);
     render(LoginPage);
 
     await signIn();
 
-    await waitFor(() =>
-      expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument(),
-    );
+    await waitFor(() => expect(arrival.phase).not.toBe('idle'));
+    expect(screen.getByRole('button', { name: 'Sign in' })).toBeDisabled();
+  });
+
+  describe('the dots of the mark in the panel', () => {
+    const mark = () => document.querySelector('[data-slot="logo-mark"]');
+
+    it('turn grey while the request runs, and light when it succeeds', async () => {
+      let accept: () => void = () => undefined;
+      const login = vi.fn(
+        () => new Promise<void>(resolve => (accept = () => resolve(undefined))),
+      );
+      setUp(makeFakeRepository({ login }).repository);
+      render(LoginPage);
+      expect(mark()).toHaveAttribute('data-state', 'idle');
+
+      await signIn();
+
+      await waitFor(() => expect(mark()).toHaveAttribute('data-state', 'waiting'));
+      accept();
+      await waitFor(() => expect(mark()).toHaveAttribute('data-state', 'lit'));
+    });
+
+    it('turn grey when the tab leaves for a provider, and keep its return path', async () => {
+      setUp(
+        makeFakeRepository({
+          listSignInMethods: vi.fn().mockResolvedValue({
+            providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
+            signUpMode: 'closed',
+          }),
+        }).repository,
+      );
+      history.replaceState(null, '', loginPath('/acme/projects'));
+      render(LoginPage);
+      const stayHere = (event: Event) => event.preventDefault();
+      window.addEventListener('click', stayHere);
+      teardown.push(() => {
+        window.removeEventListener('click', stayHere);
+        sessionStorage.clear();
+      });
+
+      await userEvent.click(await screen.findByRole('link', { name: 'Continue with GitHub' }));
+
+      await waitFor(() => expect(mark()).toHaveAttribute('data-state', 'waiting'));
+      expect(sessionStorage.getItem('scylla.sign-in-arrival')).toContain('"to":"/acme/projects"');
+    });
+
+    it('go back to idle when the credentials are refused', async () => {
+      const error = new ScyllaError('bad credentials', { code: 'INVALID_CREDENTIALS' });
+      setUp(makeFakeRepository({ login: vi.fn().mockRejectedValue(error) }).repository);
+      render(LoginPage);
+
+      await signIn('ravenne', 'wrong');
+
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled());
+      expect(mark()).toHaveAttribute('data-state', 'idle');
+      expect(arrival.phase).toBe('idle');
+    });
   });
 
   it('goes back to the return path after the sign-in, with its fragment', async () => {
@@ -131,5 +202,100 @@ describe('LoginPage', () => {
     await signIn('ada@example.com', 'hunter22');
 
     await waitFor(() => expect(login).toHaveBeenCalledWith('ada@example.com', 'hunter22'));
+  });
+
+  it('shows a button for each identity provider, to its start route with the way back', async () => {
+    const { repository } = makeFakeRepository({
+      listSignInMethods: vi.fn().mockResolvedValue({
+        providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
+        signUpMode: 'closed',
+      }),
+    });
+    setUp(repository);
+    history.replaceState(null, '', loginPath('/acme/projects'));
+    render(LoginPage);
+
+    const button = await screen.findByRole('link', { name: 'Continue with GitHub' });
+    const href = new URL(button.getAttribute('href') ?? '', window.location.origin);
+    expect(href.pathname).toBe('/auth/github/start');
+    expect(href.searchParams.get('return_to')).toBe(`${window.location.origin}/acme/projects`);
+    expect(button).toHaveAttribute('rel', 'external');
+  });
+
+  describe('the notice of the terms under the providers', () => {
+    const withGitHub = () =>
+      makeFakeRepository({
+        listSignInMethods: vi.fn().mockResolvedValue({
+          providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
+          signUpMode: 'open',
+        }),
+      }).repository;
+
+    it('links the terms to accept and the privacy policy, in a new tab', async () => {
+      setUp(withGitHub());
+      teardown.push(withLegalInfo(termsToAcceptAt('2.0')).restore);
+      render(LoginPage);
+
+      const terms = await screen.findByRole('link', { name: 'Terms of service' });
+      const notice = terms.closest('p');
+      expect(notice).toHaveTextContent(
+        'By continuing, you agree to the Terms of service and acknowledge the Privacy policy.',
+      );
+      expect(terms).toHaveAttribute('href', '/legal/terms');
+      expect(terms).toHaveAttribute('target', '_blank');
+      expect(screen.getByRole('link', { name: 'Privacy policy' })).toHaveAttribute(
+        'href',
+        '/legal/privacy',
+      );
+    });
+
+    it('names the terms alone when the privacy policy is off', async () => {
+      setUp(withGitHub());
+      const terms = legalDocument('terms', { version: '2.0', acceptanceRequired: true });
+      teardown.push(withLegalInfo(legalInfo(terms)).restore);
+      render(LoginPage);
+
+      const link = await screen.findByRole('link', { name: 'Terms of service' });
+      expect(link.closest('p')).toHaveTextContent(
+        'By continuing, you agree to the Terms of service.',
+      );
+    });
+
+    it('shows no notice when the terms need no acceptance', async () => {
+      setUp(withGitHub());
+      const { info, restore } = withLegalInfo(
+        legalInfo(legalDocument('terms', { version: '2.0' })),
+      );
+      teardown.push(restore);
+      render(LoginPage);
+
+      await screen.findByRole('link', { name: 'Continue with GitHub' });
+      await waitFor(() => expect(info).toHaveBeenCalled());
+      expect(screen.queryByText(/By continuing/)).not.toBeInTheDocument();
+    });
+  });
+
+  it('links to the sign-up page only when the sign-up is open', async () => {
+    const { repository } = makeFakeRepository({
+      listSignInMethods: vi.fn().mockResolvedValue({ providers: [], signUpMode: 'open' }),
+    });
+    setUp(repository);
+    render(LoginPage);
+
+    expect(await screen.findByRole('link', { name: 'No account yet? Create one' })).toHaveAttribute(
+      'href',
+      '/sign-up',
+    );
+  });
+
+  it('shows no sign-up link on a closed server', async () => {
+    const { repository } = makeFakeRepository();
+    setUp(repository);
+    render(LoginPage);
+
+    await waitFor(() => expect(repository.listSignInMethods).toHaveBeenCalled());
+    expect(
+      screen.queryByRole('link', { name: 'No account yet? Create one' }),
+    ).not.toBeInTheDocument();
   });
 });

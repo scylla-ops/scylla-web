@@ -1,0 +1,213 @@
+<script lang="ts">
+  import CheckIcon from '@lucide/svelte/icons/check';
+  import PlusIcon from '@lucide/svelte/icons/plus';
+  import SearchIcon from '@lucide/svelte/icons/search';
+  import { untrack } from 'svelte';
+  import { Button, Dialog, DialogContent, DialogTitle, Input } from '@scylla/ui/primitives';
+  import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
+  import type {
+    LayoutSize,
+    WidgetData,
+  } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
+  import { editorMessages as messages } from '@base/features/dashboard/presentation/messages/editor.messages.ts';
+  import {
+    DATA,
+    kindOf,
+    searchKinds,
+    SIZE_CELLS,
+    SIZE_ORDER,
+    sizeLabel,
+    sizeShort,
+    targetOptions,
+    type WidgetKind,
+  } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
+  import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
+  import type { DashboardWidgets } from '@base/features/dashboard/presentation/ui/widgets/dashboard-widgets.state.svelte.ts';
+  import KindThumb from './KindThumb.svelte';
+  import SizeGlyph from './SizeGlyph.svelte';
+  import TargetPicker from './TargetPicker.svelte';
+  import WidgetPreview from './WidgetPreview.svelte';
+
+  interface Props {
+    kind: WidgetKind;
+    widgets: DashboardWidgets;
+    period: DashboardPeriodState;
+    onAdd: (data: WidgetData, size: LayoutSize, target?: string) => void;
+    onClose: () => void;
+  }
+
+  let { kind: firstKind, widgets, period, onAdd, onClose }: Props = $props();
+
+  let kind = $state(untrack(() => firstKind));
+  let query = $state('');
+  const entry = $derived(kindOf(kind));
+  let data = $state<WidgetData | null>(untrack(() => kindOf(firstKind).data[0] ?? null));
+  let size = $state<LayoutSize>(untrack(() => (kindOf(firstKind).data[0] ? DATA[kindOf(firstKind).data[0]].sizes[0] : 'm')));
+
+  let picked = $state<string | undefined>();
+  const targetKind = $derived(data ? DATA[data].target : undefined);
+  const target = $derived.by(() => {
+    if (!targetKind) return undefined;
+    const options = targetOptions(targetKind, widgets.agents.data ?? [], widgets.summaries.data?.items ?? []);
+    return options.some(option => option.id === picked) ? picked : options[0]?.id;
+  });
+
+  const kinds = $derived(searchKinds(query));
+  const sizes = $derived(data ? DATA[data].sizes : []);
+
+  const pickKind = (next: WidgetKind) => {
+    kind = next;
+    const first = kindOf(next).data[0] ?? null;
+    data = first;
+    if (first) size = DATA[first].sizes[0];
+  };
+
+  const pickData = (next: WidgetData) => {
+    data = next;
+    if (!DATA[next].sizes.includes(size)) size = DATA[next].sizes[0];
+  };
+
+  const STEPS = [messages.stepKind, messages.stepSize, messages.stepData];
+</script>
+
+<Dialog open onOpenChange={open => !open && onClose()}>
+  <DialogContent
+    class="flex h-[min(780px,calc(100dvh-2rem))] max-h-none max-w-[944px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[944px]"
+  >
+    <header class="flex shrink-0 items-center gap-4 border-b border-border px-6 py-5 pr-14">
+      <DialogTitle>{t(messages.addWidget)}</DialogTitle>
+      <ol class="ml-auto hidden items-center gap-2 text-xs sm:flex">
+        {#each STEPS as step, index (index)}
+          <li class="flex items-center gap-2">
+            {#if index > 0}<span class="h-px w-4 bg-border" aria-hidden="true"></span>{/if}
+            <span
+              class={cn(
+                'flex size-5 items-center justify-center rounded-full text-[10px]',
+                index === 0 ? 'bg-primary/15 text-primary' : index === 1 ? 'bg-foreground text-background' : 'bg-muted',
+              )}
+            >
+              {#if index === 0}<CheckIcon class="size-3" aria-hidden="true" />{:else}{index + 1}{/if}
+            </span>
+            <span class={index === 1 ? 'font-medium' : 'text-muted-foreground'}>{t(step)}</span>
+          </li>
+        {/each}
+      </ol>
+    </header>
+
+    <div class="grid min-h-0 flex-1 grid-cols-1 grid-rows-[auto_minmax(0,1fr)_auto] md:grid-cols-[220px_minmax(0,1fr)_220px] md:grid-rows-1">
+      <div class="flex min-h-0 flex-col gap-2 border-b border-border p-2 md:border-r md:border-b-0 md:p-3">
+        <label class="relative hidden md:block">
+          <SearchIcon class="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+          <Input class="h-8 pl-8 text-xs" placeholder={t(messages.searchKinds)} aria-label={t(messages.searchKinds)} bind:value={query} />
+        </label>
+        <p class="hidden px-1 pt-1 text-[11px] text-muted-foreground uppercase md:block">{t(messages.kinds)}</p>
+        <ul class="relative flex min-h-0 gap-1.5 overflow-x-auto md:flex-col md:gap-1 md:overflow-x-visible md:overflow-y-auto">
+          {#each kinds as item (item.kind)}
+            <li class={cn('shrink-0', item.data.length === 0 && 'max-md:hidden')}>
+              <button
+                type="button"
+                disabled={item.data.length === 0}
+                aria-pressed={item.kind === kind}
+                class={cn(
+                  'flex items-center gap-3 rounded-full border px-3 py-1 text-left md:w-full md:rounded-lg md:border-0 md:p-1.5',
+                  item.kind === kind ? 'bg-primary/10' : 'hover:bg-accent',
+                  item.data.length === 0 && 'opacity-50',
+                )}
+                onclick={() => pickKind(item.kind)}
+              >
+                <KindThumb kind={item.kind} class="hidden md:flex" />
+                <span class="min-w-0">
+                  <span class={cn('block truncate text-sm', item.kind === kind && 'text-primary')}>{t(item.title)}</span>
+                  <span class="hidden truncate text-[11px] text-muted-foreground md:block">
+                    {item.data.length === 0 ? t(messages.soon) : t(item.text)}
+                  </span>
+                </span>
+              </button>
+            </li>
+          {/each}
+        </ul>
+      </div>
+
+      <div class="flex min-h-0 min-w-0 flex-col gap-3 p-3 md:gap-4 md:p-5">
+        <p class="shrink-0 text-base">
+          <span class="font-medium">{t(entry.title)}</span>
+          <span class="text-sm text-muted-foreground"> · {t(messages.pickSize)}</span>
+        </p>
+        <div class="relative min-h-24 flex-1">
+          {#if data}
+            <WidgetPreview item={{ data, size, target }} {widgets} {period} width={430} fill />
+          {/if}
+        </div>
+        <div role="radiogroup" aria-label={t(messages.stepSize)} class="grid shrink-0 grid-cols-4 gap-2">
+          {#each SIZE_ORDER as option (option)}
+            {@const allowed = sizes.includes(option)}
+            <button
+              type="button"
+              role="radio"
+              aria-checked={option === size}
+              disabled={!allowed}
+              title={allowed ? undefined : t(messages.notInThisSize)}
+              class={cn(
+                'flex flex-col items-center gap-2 rounded-xl border p-2 text-center md:p-3',
+                option === size ? 'border-primary bg-primary/10 text-primary' : 'border-border hover:bg-accent',
+                !allowed && 'opacity-40',
+              )}
+              onclick={() => (size = option)}
+            >
+              <SizeGlyph size={option} class="hidden md:grid" />
+              <span class="text-sm md:hidden">{sizeShort(option)}</span>
+              <span class="hidden text-sm md:inline">{sizeLabel(option)}</span>
+              <span class="hidden font-mono text-[11px] text-muted-foreground md:inline">
+                {t(messages.cells(SIZE_CELLS[option].columns, SIZE_CELLS[option].rows))}
+              </span>
+            </button>
+          {/each}
+        </div>
+        <p class="hidden shrink-0 text-xs text-muted-foreground md:block">{t(messages.sameDataEverySize)}</p>
+      </div>
+
+      <div class="relative flex max-h-28 min-h-0 flex-col gap-2 overflow-y-auto border-t border-border p-3 md:max-h-none md:gap-3 md:border-t-0 md:border-l md:p-5">
+        <p class="text-sm font-medium">{t(messages.whatShouldItShow)}</p>
+        <div role="radiogroup" aria-label={t(messages.whatShouldItShow)} class="flex flex-col gap-1">
+          {#each entry.data as option (option)}
+            <button
+              type="button"
+              role="radio"
+              aria-checked={option === data}
+              class={cn(
+                'flex items-start gap-2.5 rounded-lg p-2 text-left',
+                option === data ? 'bg-primary/10' : 'hover:bg-accent',
+              )}
+              onclick={() => pickData(option)}
+            >
+              <span
+                class={cn(
+                  'mt-0.5 size-3.5 shrink-0 rounded-full border',
+                  option === data ? 'border-4 border-primary' : 'border-border',
+                )}
+              ></span>
+              <span>
+                <span class="block text-sm">{t(DATA[option].title)}</span>
+                <span class="block text-[11px] text-muted-foreground">{t(DATA[option].hint)}</span>
+              </span>
+            </button>
+          {/each}
+        </div>
+        {#if targetKind}
+          <TargetPicker kind={targetKind} value={target} {widgets} onChange={value => (picked = value)} />
+        {/if}
+        <p class="mt-2 text-xs text-muted-foreground">{t(messages.followsDashboard)}</p>
+      </div>
+    </div>
+
+    <footer class="flex shrink-0 items-center gap-3 border-t border-border px-6 py-3">
+      <p class="mr-auto text-xs text-muted-foreground">{t(messages.landsFirstFreeSpot)}</p>
+      <Button variant="ghost" size="sm" onclick={onClose}>{t(messages.back)}</Button>
+      <Button size="sm" disabled={!data} onclick={() => data && onAdd(data, size, target)}>
+        <PlusIcon aria-hidden="true" />
+        {t(messages.addWidgetAction)}
+      </Button>
+    </footer>
+  </DialogContent>
+</Dialog>

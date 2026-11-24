@@ -7,16 +7,23 @@
     useConnection,
     useSvelteFlow,
     type EdgeTypes,
+    type FitViewOptions,
     type NodeTypes,
     type OnConnectEnd,
     type XYPosition,
   } from '@xyflow/svelte';
   import '@xyflow/svelte/dist/style.css';
+  import './flow-theme.css';
+  import { keepFitted } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
-  import type { Blueprint } from '../blueprint.state.svelte.ts';
+  import type { Blueprint, NodePlacement } from '../blueprint.state.svelte.ts';
+  import type { FragmentEntity } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import type { NodeAppearancePreference } from './node-appearance-preference.state.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
-  import { DEFAULT_EDGE_STYLE } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import {
+    DEFAULT_EDGE_STYLE,
+    edgeBetween,
+  } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import { setBlueprintCanvas } from './blueprint-canvas.context.ts';
@@ -25,10 +32,11 @@
   import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import DropSpot from './DropSpot.svelte';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
-  import type { PaletteDrag } from '../palette-drag/palette-drag.state.svelte.ts';
+  import { isFragment, type PaletteDrag, type PaletteEntry } from '../palette-drag/palette-drag.state.svelte.ts';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
   import StartNode from './nodes/StartNode.svelte';
   import PipelineNode from './nodes/PipelineNode.svelte';
+  import FragmentNode from './nodes/FragmentNode.svelte';
   import QuickAddMenu from '../catalog/QuickAddMenu/QuickAddMenu.svelte';
 
   interface Props {
@@ -37,35 +45,80 @@
     quickAdd: QuickAdd;
     drag: PaletteDrag;
     entries: readonly CatalogEntry[];
+    /** The nodes and the edges are faded: an older version than the one the page talks about. */
+    dimmed?: boolean;
+    /** Called once: the nodes are measured and the view frames them. */
+    onReady?: () => void;
+    fragmentOf: (fragmentId: string) => FragmentEntity | undefined;
+    onAddFragment: (fragment: FragmentEntity, placement: NodePlacement) => void;
   }
 
-  let { blueprint, appearance, quickAdd, drag, entries }: Props = $props();
+  let {
+    blueprint,
+    appearance,
+    quickAdd,
+    drag,
+    entries,
+    dimmed = false,
+    onReady,
+    fragmentOf,
+    onAddFragment,
+  }: Props = $props();
 
-  const nodeTypes: NodeTypes = { pipelineNode: PipelineNode, startNode: StartNode };
+  const nodeTypes: NodeTypes = {
+    pipelineNode: PipelineNode,
+    fragmentNode: FragmentNode,
+    startNode: StartNode,
+  };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
 
-  const { screenToFlowPosition } = useSvelteFlow();
+  const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.25, maxZoom: 1 };
+
+  const { screenToFlowPosition, fitView } = useSvelteFlow();
+
+  /** The view frames all the nodes until the user pans or zooms; the fit button frames them again. */
+  let fitted = $state(true);
+  // A drag on the pane draws a selection box instead of moving the view, as Shift does.
+  let selectMode = $state(false);
+  // A read-only canvas hides the button, so the mode must not outlive it.
+  const selecting = $derived(selectMode && !blueprint.readOnly);
+
+  const onControlsClick = (event: MouseEvent) => {
+    const button = (event.target as Element).closest('button');
+    if (button) fitted = button.classList.contains('svelte-flow__controls-fitview');
+  };
 
   setBlueprintCanvas({
     appearance: () => appearance.current,
     isDetached: nodeId => blueprint.isDetached(nodeId),
+    issueOf: nodeId => blueprint.issueOf(nodeId),
+    hasErrorPort: nodeId => blueprint.hasErrorPort(nodeId),
     iconHintOf: definition => templateFor(entries, definition)?.icon,
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
+    fragmentOf: fragmentId => fragmentOf(fragmentId),
   });
+
+  /** Dropped on an edge, the entry goes inside it; anywhere else, it waits for the start node. */
+  const dropEntry = (entry: PaletteEntry, position: XYPosition, edgeId: string | undefined) => {
+    const placement: NodePlacement = edgeId ? { replacing: edgeId, position } : { position };
+    if (isFragment(entry)) onAddFragment(entry, placement);
+    else blueprint.addNode(entry.nodeId, entry.definition, placement);
+  };
 
   const clientPoint = (event: MouseEvent | TouchEvent): XYPosition => {
     const point = 'changedTouches' in event ? event.changedTouches[0] : event;
     return { x: point.clientX, y: point.clientY };
   };
 
-  /** A link dropped on empty canvas asks which node to create there. */
+  /** A link dropped on empty canvas asks which node to create there; the new node waits for the port of the link. */
   const onConnectEnd: OnConnectEnd = (event, connection) => {
     const from = connection.fromNode;
     const droppedOnEmpty = !connection.isValid && !connection.toNode;
     if (!from || !droppedOnEmpty || connection.fromHandle?.type !== 'source') return;
 
     const client = clientPoint(event);
-    quickAdd.open({ client, flow: screenToFlowPosition(client), link: { after: from.id } });
+    const port = connection.fromHandle.id ?? undefined;
+    quickAdd.open({ client, flow: screenToFlowPosition(client), link: { after: from.id, port } });
   };
 
   const connection = useConnection();
@@ -82,12 +135,14 @@
   role="application"
   aria-label={t(pipelineMessages.blueprint)}
   class="canvas relative h-full min-w-0 flex-1"
+  class:dimmed
   {@attach acceptPaletteDrop(() => ({
     drag,
     // The middle of the node lands on the pointer: the dragged icon is in the middle of the outline.
     positionAt: client => nodePositionAt(appearance.current, screenToFlowPosition(client)),
-    drop: (entry, position) => blueprint.addNode(entry.nodeId, entry.definition, { position }),
+    drop: dropEntry,
   }))}
+  {@attach keepFitted(() => ({ fitted, fit: () => void fitView(FIT_VIEW_OPTIONS) }))}
 >
   <!--
     `nodes` and `edges` are bound: the library drags, selects and deletes; the callbacks report the
@@ -99,28 +154,46 @@
     {nodeTypes}
     {edgeTypes}
     fitView
-    fitViewOptions={{ padding: 0.25, maxZoom: 1 }}
+    fitViewOptions={FIT_VIEW_OPTIONS}
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
+    clickConnect={false}
     selectNodesOnDrag={false}
-    edgesFocusable
+    selectionOnDrag={selecting}
+    panOnDrag={selecting ? [1, 2] : true}
+    edgesFocusable={!blueprint.readOnly}
+    elementsSelectable={!blueprint.readOnly}
     defaultEdgeOptions={DEFAULT_EDGE_STYLE}
-    onbeforeconnect={connection => (blueprint.canConnect(connection) ? connection : false)}
+    onbeforeconnect={connection =>
+      blueprint.canConnect(connection)
+        ? edgeBetween(connection.source, connection.target, connection.sourceHandle)
+        : false}
     onconnect={() => blueprint.sync()}
     onconnectend={onConnectEnd}
     ondelete={() => blueprint.sync()}
     onnodeclick={({ node }) => blueprint.inspect(node.id)}
+    onnodedragstop={({ nodes }) => blueprint.placesMoved(nodes)}
+    onselectiondragstop={(_, nodes) => blueprint.placesMoved(nodes)}
     onpaneclick={() => blueprint.inspect(null)}
+    oninit={() => void fitView(FIT_VIEW_OPTIONS).then(() => onReady?.())}
+    onmove={event => {
+      // A move with no event is the code's own, such as a fit.
+      if (event) fitted = false;
+    }}
   >
     <Background variant={BackgroundVariant.Dots} gap={16} size={1} class="bg-background!" />
     <Controls
       showLock={false}
+      fitViewOptions={FIT_VIEW_OPTIONS}
+      onclick={onControlsClick}
       class="overflow-hidden rounded-[10px]! border! border-border! shadow-xs!"
     />
     <CanvasToolbar
       appearance={appearance.current}
       onAppearanceChange={next => appearance.set(next)}
       onArrange={() => blueprint.arrange()}
+      selectMode={blueprint.readOnly ? undefined : selectMode}
+      onSelectModeChange={next => (selectMode = next)}
     />
     {#if spot}
       <DropSpot
@@ -152,19 +225,7 @@
     cursor: grabbing;
   }
 
-  :global(.svelte-flow__controls-button) {
-    --xy-controls-button-background-color: var(--card);
-    --xy-controls-button-background-color-hover: var(--muted);
-    --xy-controls-button-color: var(--foreground);
-    --xy-controls-button-color-hover: var(--foreground);
-    --xy-controls-button-border-color: var(--border);
-  }
-
-  :global(.svelte-flow__attribution) {
-    background: transparent;
-  }
-
-  :global(.svelte-flow__edge:not(.selected):hover .svelte-flow__edge-path) {
-    stroke: var(--muted-foreground) !important;
+  .canvas.dimmed :global(.svelte-flow__viewport) {
+    opacity: 0.4;
   }
 </style>

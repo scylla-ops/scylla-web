@@ -39,6 +39,23 @@ describe('IconButton', () => {
     expect(onclick).not.toHaveBeenCalled();
   });
 
+  it('is red when it deletes, as a destructive menu item and a destructive button are', () => {
+    render(IconButton, { icon: PencilIcon, tooltip: 'Delete secret', variant: 'destructive' });
+
+    const button = screen.getByRole('button', { name: 'Delete secret' });
+    expect(button).toHaveAttribute('data-variant', 'destructive');
+    expect(button).toHaveClass('text-destructive');
+    expect(button).not.toHaveClass('hover:text-primary');
+  });
+
+  it('is not red by default', () => {
+    render(IconButton, { icon: PencilIcon, tooltip: 'Edit secret' });
+
+    const button = screen.getByRole('button', { name: 'Edit secret' });
+    expect(button).toHaveAttribute('data-variant', 'default');
+    expect(button).not.toHaveClass('text-destructive');
+  });
+
   it('marks itself busy and stops responding while the action runs', async () => {
     const onclick = vi.fn();
     render(IconButton, { icon: PencilIcon, tooltip: 'Edit secret', busy: true, onclick });

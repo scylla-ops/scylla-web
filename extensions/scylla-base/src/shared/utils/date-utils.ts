@@ -1,23 +1,24 @@
-import { i18n } from '@lingui/core';
+import { formatNumber, intlLocale } from '@scylla/ui/i18n';
 
-/** Cached per locale, never at import time: the locale changes at runtime. */
+/**
+ * Cached per locale, never at import time: the locale changes at runtime. The locale is the rune
+ * of the UI, so a date in a template follows a switch of the language.
+ */
 const dateFormatters = new Map<string, Intl.DateTimeFormat>();
 const relativeFormatters = new Map<string, Intl.RelativeTimeFormat>();
 
-const currentLocale = (): string => i18n.locale || 'en';
-
 const getDateFormatter = (key: string, options: Intl.DateTimeFormatOptions) => {
-  const cacheKey = `${currentLocale()}:${key}`;
+  const cacheKey = `${intlLocale()}:${key}`;
   let formatter = dateFormatters.get(cacheKey);
   if (!formatter) {
-    formatter = new Intl.DateTimeFormat(currentLocale(), options);
+    formatter = new Intl.DateTimeFormat(intlLocale(), options);
     dateFormatters.set(cacheKey, formatter);
   }
   return formatter;
 };
 
 const getRelativeFormatter = () => {
-  const locale = currentLocale();
+  const locale = intlLocale();
   let formatter = relativeFormatters.get(locale);
   if (!formatter) {
     // 'short': 'narrow' renders French as "-3 j", which reads as a negative number.
@@ -44,15 +45,23 @@ export const calculateExecutionDuration = (
   return Math.max(0, Math.floor((end - start) / 1000));
 };
 
-/** E.g. "1m 12s", "45s", "2h 15m". */
+/** English keeps its compact units: "1m 12s". The narrow French units have no space ("1min"). */
+const durationPart = (value: number, unit: 'hour' | 'minute' | 'second'): string =>
+  formatNumber(value, {
+    style: 'unit',
+    unit,
+    unitDisplay: intlLocale() === 'en' ? 'narrow' : 'short',
+  });
+
+/** E.g. "1m 12s", "45s", "2h 15m"; "1 min 12 s", "45 s", "2 h 15 min" in French. */
 export const formatDuration = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const secs = seconds % 60;
 
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  if (minutes > 0) return `${minutes}m ${secs}s`;
-  return `${secs}s`;
+  if (hours > 0) return `${durationPart(hours, 'hour')} ${durationPart(minutes, 'minute')}`;
+  if (minutes > 0) return `${durationPart(minutes, 'minute')} ${durationPart(secs, 'second')}`;
+  return durationPart(secs, 'second');
 };
 
 export const getRelativeTime = (dateString: string): string => {
@@ -100,6 +109,18 @@ export function formatDay(isoString: string | undefined): string {
     day: 'numeric',
   }).format(date);
 }
+
+const UTC_DAY_FORMATS = {
+  day: { day: 'numeric', month: 'short' },
+  month: { month: 'short' },
+  weekday: { weekday: 'short', day: 'numeric', month: 'short' },
+} satisfies Record<string, Intl.DateTimeFormatOptions>;
+
+/** A day in UTC, as the server counts the stats, with no year: "14 Jul", "Jul", "Tue 22 Sep". */
+export const formatUtcDay = (day: string, style: keyof typeof UTC_DAY_FORMATS = 'day'): string =>
+  getDateFormatter(`utc-${style}`, { ...UTC_DAY_FORMATS[style], timeZone: 'UTC' }).format(
+    new Date(day),
+  );
 
 export function formatTime(isoString: string | undefined): string {
   if (!isoString) return '-';

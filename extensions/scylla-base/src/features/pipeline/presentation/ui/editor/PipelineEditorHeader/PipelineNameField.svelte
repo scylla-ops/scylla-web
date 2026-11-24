@@ -1,5 +1,6 @@
 <script lang="ts">
   import WorkflowIcon from '@lucide/svelte/icons/workflow';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
@@ -9,10 +10,14 @@
     /** Read once: the header rebuilds the field when the document's name changes. */
     name: string;
     onNameChange: (name: string) => void;
+    /** The draft at each change: the editor shows a typed name as unsaved before it is applied. */
+    onDraftChange?: (draft: string) => void;
     disabled?: boolean;
+    /** The name is on its way: a placeholder takes its place, with no shift when it comes. */
+    loading?: boolean;
   }
 
-  let { name, onNameChange, disabled = false }: Props = $props();
+  let { name, onNameChange, onDraftChange, disabled = false, loading = false }: Props = $props();
 
   const uid = $props.id();
 
@@ -21,9 +26,14 @@
   let draft = $state(name);
   const issue = $derived(pipelineNameIssue(draft));
 
+  const setDraft = (next: string) => {
+    draft = next;
+    onDraftChange?.(next);
+  };
+
   const apply = () => {
     const next = draft.trim();
-    if (issue) draft = name;
+    if (issue) setDraft(name);
     else if (next !== name) onNameChange(next);
   };
 </script>
@@ -45,22 +55,26 @@
       <WorkflowIcon class="size-3.5" />
       {t(pipelineMessages.pipelineName)}
     </span>
-    <input
-      class="field-sizing-content h-full max-w-120 min-w-32 shrink bg-transparent px-2.5 font-mono text-sm outline-none placeholder:text-muted-foreground"
-      bind:value={draft}
-      {disabled}
-      placeholder={t(pipelineMessages.namePlaceholder)}
-      aria-invalid={issue === 'spaces'}
-      aria-describedby={issue === 'spaces' ? `${uid}-issue` : undefined}
-      onblur={apply}
-      onkeydown={event => {
-        if (event.key === 'Enter') event.currentTarget.blur();
-        if (event.key === 'Escape') {
-          draft = name;
-          event.currentTarget.blur();
-        }
-      }}
-    />
+    {#if loading}
+      <Skeleton class="mx-2.5 h-2.5 w-30 rounded-full" />
+    {:else}
+      <input
+        class="field-sizing-content h-full max-w-120 min-w-32 shrink bg-transparent px-2.5 font-mono text-sm outline-none placeholder:text-muted-foreground"
+        bind:value={() => draft, setDraft}
+        {disabled}
+        placeholder={t(pipelineMessages.namePlaceholder)}
+        aria-invalid={issue === 'spaces'}
+        aria-describedby={issue === 'spaces' ? `${uid}-issue` : undefined}
+        onblur={apply}
+        onkeydown={event => {
+          if (event.key === 'Enter') event.currentTarget.blur();
+          if (event.key === 'Escape') {
+            setDraft(name);
+            event.currentTarget.blur();
+          }
+        }}
+      />
+    {/if}
   </label>
   {#if issue === 'spaces'}
     <p

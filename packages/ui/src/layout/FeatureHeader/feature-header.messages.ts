@@ -2,7 +2,6 @@ import { msg } from '@lingui/core/macro';
 import { plural } from '@lingui/core/macro';
 
 export const featureHeaderMessages = {
-  inTotal: msg`in total`,
   selectAll: msg`Select all`,
   clear: msg`Clear`,
   delete: msg`Delete`,

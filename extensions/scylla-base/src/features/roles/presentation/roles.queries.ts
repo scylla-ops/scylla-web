@@ -1,201 +1,120 @@
-import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
-import {
-  permissionsStore,
-  type EffectivePermissions,
-  type PermissionScope,
-  type Principal,
-} from '@platform/authz';
-import type {
-  CreateRoleInput,
-  GrantableRole,
-  RoleEntity,
-  UpdateRoleInput,
-} from '../domain/entities/role.entity.ts';
-import type {
-  CreateGrantInput,
-  GrantEntity,
-  RevokeAllAccessInput,
-} from '../domain/entities/grant.entity.ts';
+import { i18n } from '@lingui/core';
+import { authorizationReady, can, Permission } from '@platform/authz';
+import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
+import { toast } from '@scylla/ui/utils';
+import type { CreateRoleInput, UpdateRoleInput } from '../domain/entities/role.entity.ts';
 import type { RolesModule } from '../roles.module.ts';
+import { rolesMessages } from './messages/roles.messages.ts';
 
-// Resolved per call: tests swap the registry.
-const domain = () => getModuleDomain<typeof RolesModule.domain>('roles');
+const repository = () => getModuleDomain<typeof RolesModule.domain>('roles').roleRepository;
 
-const ROLES_QUERY_ROOT = 'permission-roles';
+const ROLES_ROOT = 'roles';
 
-/** Every role of the installation. Also the prefix of every role list: one invalidation reaches them all. */
-export const ROLES_QUERY_KEY = [ROLES_QUERY_ROOT] as const;
-
-/** The platform roles and the roles of one organization. */
-export const ORGANIZATION_ROLES_QUERY_KEY = (organizationId: string) =>
-  [ROLES_QUERY_ROOT, 'organization', organizationId] as const;
-
-/** One prefix for every grant list, so one mutation invalidates them all. */
-const GRANTS_QUERY_ROOT = 'permission-grants';
-
-/** No scope: the system-wide list (system admins only). A scope narrows it. Different permissions, so different keys. */
-export const GRANTS_QUERY_KEY = (scope?: PermissionScope, scopeId?: string) =>
-  [GRANTS_QUERY_ROOT, scope ?? 'all', scopeId ?? ''] as const;
-
-const GRANTABLE_ROLES_QUERY_ROOT = 'permission-grantable-roles';
-
-/** No organization: the platform roles. With one: its roles too. Different permissions, so different keys. */
-export const GRANTABLE_ROLES_QUERY_KEY = (scope?: PermissionScope, organizationId?: string | null) =>
-  [GRANTABLE_ROLES_QUERY_ROOT, scope ?? 'all', organizationId ?? ''] as const;
-
+export const CREATE_ROLE_MUTATION_KEY = ['role', 'create'] as const;
 
 export const roleQueries = {
-  /** Every role. Needs `MANAGE_ROLES`: without it, pass `enabled: false` and use `grantable`. */
-  catalog: (options: { enabled?: boolean } = {}) =>
-    queryOptions<RoleEntity[]>({
-      queryKey: ROLES_QUERY_KEY,
+  catalog: () =>
+    queryOptions({
+      queryKey: [ROLES_ROOT, 'catalog'] as const,
+      queryFn: () => repository().catalog(),
+      staleTime: Infinity,
+    }),
+
+  /** Checks for itself: the users page also lists the roles. */
+  list: (workspaceId?: string, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: [ROLES_ROOT, 'list', workspaceId ?? 'instance'] as const,
+      queryFn: () => repository().list(workspaceId),
+      enabled:
+        (options.enabled ?? true) &&
+        authorizationReady() &&
+        (workspaceId
+          ? can(Permission.LIST_WORKSPACE_ROLES, { workspaceId })
+          : can(Permission.LIST_ROLES)),
+    }),
+
+  /** The caller gives `enabled`: read `canSeeRoleHolders`. */
+  holders: (key: string, workspaceId?: string, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: [ROLES_ROOT, 'holders', key, workspaceId ?? 'instance'] as const,
+      queryFn: () => repository().holders(key, workspaceId),
       enabled: options.enabled ?? true,
-      queryFn: () => domain().permissionRepository.listRoles(),
     }),
 
-  /** The platform roles and this organization's. Needs `MANAGE_ORG_ROLES` there: pass it as `enabled`. Idle while `organizationId` is `null`. */
-  organizationCatalog: (organizationId: string | null, options: { enabled?: boolean } = {}) =>
-    queryOptions<RoleEntity[]>({
-      queryKey: ORGANIZATION_ROLES_QUERY_KEY(organizationId ?? ''),
-      enabled: (options.enabled ?? true) && !!organizationId,
-      queryFn: () => domain().permissionRepository.listRoles(organizationId ?? ''),
-    }),
-
-  /**
-   * The roles a grant may give at `scope`. Without an organization: the platform roles, no
-   * permission. With one: its roles too, which needs `READ_ORGANIZATION` there: pass it as `enabled`.
-   */
-  grantable: (
-    scope?: PermissionScope,
-    organizationId?: string | null,
-    options: { enabled?: boolean } = {},
-  ) =>
-    queryOptions<GrantableRole[]>({
-      queryKey: GRANTABLE_ROLES_QUERY_KEY(scope, organizationId),
-      enabled: options.enabled ?? true,
-      queryFn: () =>
-        domain().permissionRepository.listGrantableRoles(scope, organizationId ?? undefined),
-    }),
-
-  /** System admins only. */
-  allGrants: (options: { enabled?: boolean } = {}) =>
-    queryOptions<GrantEntity[]>({
-      queryKey: GRANTS_QUERY_KEY(),
-      enabled: options.enabled ?? true,
-      queryFn: () => domain().permissionRepository.listGrants(),
-    }),
-
-  /** Needs `MANAGE_*_GRANTS` on the scope: pass `enabled: false` when the user lacks it. Idle while `scopeId` is `null`. */
-  scopedGrants: (
-    scope: PermissionScope,
-    scopeId: string | null,
-    options: { enabled?: boolean } = {},
-  ) =>
-    queryOptions<GrantEntity[]>({
-      queryKey: GRANTS_QUERY_KEY(scope, scopeId ?? ''),
-      enabled: (options.enabled ?? true) && !!scopeId,
-      queryFn: () => domain().permissionRepository.listGrants(scope, scopeId ?? ''),
+  byKey: (key: string, workspaceId?: string) =>
+    queryOptions({
+      queryKey: [ROLES_ROOT, 'one', key, workspaceId ?? 'instance'] as const,
+      queryFn: () => repository().get(key, workspaceId),
     }),
 };
 
-/** Every `can()` reads the store this writes. */
-export const refreshMyPermissions = async (): Promise<void> => {
-  const setPermissions = permissionsStore.getState().setPermissions;
-  const userId = localStorage.getItem('userId') ?? '';
+/**
+ * The holders of a role: a reader of the members of the workspace, or a manager of the instance
+ * roles. On the instance, `list_role_holders` comes with `create_role` only: a giver of the roles
+ * reads the roles, not their holders.
+ */
+export const canSeeRoleHolders = (workspaceId?: string): boolean =>
+  workspaceId
+    ? can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId })
+    : can(Permission.MANAGE_ROLES);
 
-  if (userId === '') {
-    setPermissions({ scopes: [] });
-    return;
-  }
+/** The page of the people: the members of the workspace, or the users of the instance. */
+export const canSeePeople = (workspaceId?: string): boolean =>
+  workspaceId
+    ? can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId })
+    : can(Permission.LIST_USERS);
 
-  try {
-    setPermissions(await domain().permissionRepository.getMyPermissions());
-  } catch {
-    // On failure: no permissions. The backend still enforces.
-    setPermissions({ scopes: [] });
-  }
-};
+const invalidateRoles = () => getQueryClient().invalidateQueries({ queryKey: [ROLES_ROOT] });
 
-/** Reloads only when user, organization or project change. */
-let lastSyncedKey: string | null = null;
-
-export const syncMyPermissions = (
-  organizationId: string | null,
-  projectId: string | null,
-): void => {
-  const userId = localStorage.getItem('userId') ?? '';
-  const key = `${userId}/${organizationId ?? ''}/${projectId ?? ''}`;
-  if (lastSyncedKey === key) return; // nothing relevant changed
-
-  lastSyncedKey = key;
-  void refreshMyPermissions();
-};
-
-/** For tests and sign-out. */
-export const resetPermissionSync = (): void => {
-  lastSyncedKey = null;
-};
-
-/** A role change also changes what may be granted. */
-/** A role I hold that changes changes what I may do, so the caller's permissions reload too. */
-const invalidateRoles = () => {
-  void getQueryClient().invalidateQueries({ queryKey: ROLES_QUERY_KEY });
-  void getQueryClient().invalidateQueries({ queryKey: [GRANTABLE_ROLES_QUERY_ROOT] });
-  void refreshMyPermissions();
-};
-
-/** `update` goes through `UpdateRoleUseCase`: read, apply `updateRole`, save. */
 export const roleMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: (input: CreateRoleInput) => domain().permissionRepository.createRole(input),
-      onSuccess: invalidateRoles,
+      mutationKey: CREATE_ROLE_MUTATION_KEY,
+      meta: { showsOwnError: true },
+      mutationFn: (input: CreateRoleInput) => repository().create(input),
+      onSuccess: () => {
+        toast.success(i18n._(rolesMessages.created));
+        return invalidateRoles();
+      },
     }),
 
   update: () =>
     mutationOptions({
-      mutationFn: (input: UpdateRoleInput) => domain().updateRole.execute(input),
-      onSuccess: invalidateRoles,
+      meta: { showsOwnError: true },
+      mutationFn: (input: UpdateRoleInput) => repository().update(input),
+      onSuccess: () => {
+        toast.success(i18n._(rolesMessages.updated));
+        return invalidateRoles();
+      },
     }),
 
   remove: () =>
     mutationOptions({
-      mutationFn: (roleId: string) => domain().permissionRepository.deleteRole(roleId),
-      onSuccess: invalidateRoles,
+      mutationFn: ({ id, moveTo }: { id: string; moveTo?: string }) =>
+        repository().remove(id, moveTo),
+      onSuccess: () => {
+        toast.success(i18n._(rolesMessages.deleted));
+        return invalidateRoles();
+      },
     }),
 
-  /** A mutation: it runs when asked, and its answer is not cached. */
-  effectivePermissions: () =>
+  changeInstanceRoles: () =>
     mutationOptions({
-      mutationFn: (principal: Principal): Promise<EffectivePermissions> =>
-        domain().permissionRepository.getEffectivePermissions(principal),
+      mutationFn: ({ userId, give, takeBack }: InstanceRolesChange) =>
+        repository().changeInstanceRoles(userId, give, takeBack),
+      onSuccess: () => {
+        toast.success(i18n._(rolesMessages.rolesChanged));
+        const client = getQueryClient();
+        return Promise.all([
+          client.invalidateQueries({ queryKey: ['users'] }),
+          client.invalidateQueries({ queryKey: [ROLES_ROOT] }),
+        ]);
+      },
     }),
 };
 
-/** Invalidates every grant list (views do not know each other), then reloads the caller's permissions. */
-const afterGrantChange = () => {
-  void getQueryClient().invalidateQueries({ queryKey: [GRANTS_QUERY_ROOT] });
-  void refreshMyPermissions();
-};
-
-export const grantMutations = {
-  create: () =>
-    mutationOptions({
-      mutationFn: (input: CreateGrantInput) => domain().permissionRepository.createGrant(input),
-      onSuccess: afterGrantChange,
-    }),
-
-  revoke: () =>
-    mutationOptions({
-      mutationFn: (grantId: string) => domain().permissionRepository.revokeGrant(grantId),
-      onSuccess: afterGrantChange,
-    }),
-
-  /** Removes a principal from a scope entirely, unlike `revoke` (one grant). */
-  revokeAllAccess: () =>
-    mutationOptions({
-      mutationFn: (input: RevokeAllAccessInput) =>
-        domain().permissionRepository.revokeAllAccess(input),
-      onSuccess: afterGrantChange,
-    }),
-};
+export interface InstanceRolesChange {
+  userId: string;
+  give: string[];
+  takeBack: string[];
+}

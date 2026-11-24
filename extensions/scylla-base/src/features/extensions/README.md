@@ -16,7 +16,7 @@ Only the core knows which extensions it loaded, so the core gives the list. It d
 
 The page itself cannot live in the core:
 
-- The core has no mount. The mounts (`app`, `organization`, `project`) are declared by
+- The core has no mount. The mounts (`app`, `workspace`, `project`) are declared by
   scylla-base's `ShellModule`. A core page would have to name one, and so know an extension.
 - The core does not know what a permission is. The type comes from scylla-base, and every page
   in the shell must be able to declare one.

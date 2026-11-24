@@ -4,11 +4,11 @@ import type { MessageDescriptor } from '@lingui/core';
 export type BreadcrumbParams = Readonly<Record<string, string | undefined>>;
 
 /**
- * `label` and `detail` are translated; `highlight` is data, shown as it is.
- * Descriptors, so that routes can be declared in a plain `.ts` file.
+ * A descriptor `label` and `detail` are translated; a text `label` and `highlight` are data, shown
+ * as they are. Descriptors, so that routes can be declared in a plain `.ts` file.
  */
 export interface Crumb {
-  label: MessageDescriptor;
+  label: MessageDescriptor | string;
   highlight?: string;
   /** E.g. "Edit" or "Jobs". */
   detail?: MessageDescriptor;

@@ -1,12 +1,11 @@
 <script lang="ts">
   import { Button } from '@scylla/ui/primitives';
-  import { ConfirmOperationAlertDialog } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, DangerZone } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import type { UserDetail } from './user-detail.state.svelte.ts';
   import SessionList from '@base/features/user/presentation/ui/components/SessionList.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
-  import UserAccessList from '@base/features/user/presentation/ui/components/UserAccessList/UserAccessList.svelte';
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import UserDetailHeader from './UserDetailHeader.svelte';
   import UserSecurity from './UserSecurity.svelte';
@@ -15,7 +14,7 @@
   let { page, user }: { page: UserDetail; user: UserEntity } = $props();
 </script>
 
-<div class="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-8">
+<div class="mx-auto flex w-full max-w-3xl flex-col gap-6 pb-20">
   <UserDetailHeader {user} />
 
   <SettingsSection title={t(userMessages.profile)} description={t(userMessages.profileDescription)}>
@@ -28,10 +27,6 @@
     />
   </SettingsSection>
 
-  <SettingsSection title={t(userMessages.organizationsAndRoles)}>
-    <UserAccessList access={page.access} isLoading={page.accessLoading} isError={page.accessError} />
-  </SettingsSection>
-
   <SettingsSection
     title={t(userMessages.sessions)}
     description={t(userMessages.userSessionsDescription)}
@@ -41,7 +36,7 @@
         sessions={page.sessions}
         isLoading={page.sessionsLoading}
         isError={page.sessionsError}
-        canRevoke={page.canUpdate}
+        canRevoke={false}
         isRevoking={page.isRevokingSession}
         onRevoke={page.revokeSession}
       />
@@ -69,21 +64,20 @@
   {/if}
 
   {#if page.canDelete}
-    <SettingsSection
-      title={t(userMessages.dangerZone)}
-      description={t(userMessages.deleteUserBody)}
-      tone="danger"
-    >
-      <Button variant="destructive" onclick={() => page.askDelete()}>
-        {t(userMessages.deleteUser)}
-      </Button>
-    </SettingsSection>
+    <DangerZone title={t(userMessages.dangerZone)} description={t(userMessages.deleteUserBody)}>
+      {#snippet action()}
+        <Button variant="destructive" onclick={() => page.askDelete()}>
+          {t(userMessages.deleteUser)}
+        </Button>
+      {/snippet}
+    </DangerZone>
   {/if}
 
   <ConfirmOperationAlertDialog
     open={page.confirmStatusChange}
     onOpenChange={page.askStatusChange}
     isLoading={page.isChangingStatus}
+    variant={user.isActive ? 'destructive' : 'default'}
     title={user.isActive ? t(userMessages.deactivateTitle) : t(userMessages.reactivateTitle)}
     description={user.isActive ? t(userMessages.deactivateBody) : t(userMessages.reactivateBody)}
     continueLabel={user.isActive

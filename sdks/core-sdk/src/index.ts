@@ -14,6 +14,8 @@ export type {
   NavSectionDefinition,
   QueryErrorHandler,
   QueryRetryPolicy,
+  SecondSidebarLink,
+  SecondSidebarSearch,
   ShellContributions,
 } from './extension/contributions.struct.ts';
 
@@ -22,12 +24,25 @@ export type {
   ModuleRoute,
   ModuleRoutes,
   NavLink,
+  NavGroup,
   PageComponent,
   PageLoader,
   RouteMount,
   RouteParams,
   RouteSource,
 } from './routing/scylla-module.struct.ts';
+export { commandForm } from './extension/command.struct.ts';
+export type {
+  ChoiceCommand,
+  CommandDefinition,
+  CommandForm,
+  CommandFormProps,
+  ConfirmCommand,
+  CreateCommand,
+  GoCommand,
+  ToggleCommand,
+} from './extension/command.struct.ts';
+export { navLinks, setNavLinks, type AppNavLink } from './navigation/nav-links.ts';
 export type { BreadcrumbFn, BreadcrumbParams, Crumb, TrailCrumb } from './routing/crumb.struct.ts';
 export type { LayoutComponent, MountDefinition, RouteWrapper } from './routing/mount.struct.ts';
 export { default as Redirect } from './routing/Redirect.svelte';
@@ -35,6 +50,7 @@ export { default as Redirect } from './routing/Redirect.svelte';
 export {
   currentPathname,
   currentSearch,
+  hasPage,
   navigateBack,
   navigateTo,
   routeParams,
@@ -44,6 +60,7 @@ export {
   type AppNavigator,
   type NavigateOptions,
 } from './navigation/navigator.ts';
+export { guardLeave, holdsLeave, type LeaveGuard } from './navigation/leave-guard.ts';
 
 export {
   getModuleDomain,

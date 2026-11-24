@@ -1,6 +1,6 @@
 # `platform/context` — agent guide
 
-Which organization / project / pipeline the user is currently looking at, and navigation derived
+Which workspace / project / pipeline the user is currently looking at, and navigation derived
 from it.
 
 **Layer** `platform/` · alias `@platform/context`
@@ -16,9 +16,10 @@ from it.
 ```typescript
 contextStore
 scyllaNavigate, type ScyllaNavigate       context-aware navigation (goToUser, goToAccount, …)
-organizationUrl(name, path = 'dashboard') the URL of a page of any organization, for a link
+workspaceUrl(name, path = 'dashboard') the URL of a page of any workspace, for a link
 navigateTo, navigateBack                  plain navigation
 currentPathname, currentSearch            the current URL
+hasPage                                  whether the router has a page for a pathname, also through a redirect
 setAppNavigator, type AppNavigator, type NavigateOptions
 createResourceError                       NOT_FOUND on a detail page → toast + redirect
 ```
@@ -28,10 +29,11 @@ createResourceError                       NOT_FOUND on a detail page → toast +
 `contextStore` holds **ids and display names, nothing else**:
 
 ```typescript
-organization: { id, name }
+workspace: { id, name, slug }
 project:      { id, name }
 pipeline:     { id, name }
-setOrganization(id, name)   // also clears project + pipeline
+setWorkspace(id, name, slug)   // also clears project + pipeline
+renameWorkspace(name, slug)    // the same workspace: project + pipeline stay
 setProject(id, name)
 setPipeline(id, name)
 reset()
@@ -43,17 +45,27 @@ it below the features that own those entities.
 
 **Never widen it.** Adding a `ProjectEntity` here would make `platform/` import a feature and
 break the layer. If a component needs more than an id and a name, it reads the id from here and
-calls that feature's hook.
+runs that feature's query.
+
+The names are a copy of the data of the server, and a reload keeps them. Something must write each
+new name: for a project, `projectMutations.update` and `cleanContext` of the shell; for a
+pipeline, the navigation functions that take a name and `namePipeline` of the shell. A delete also
+needs a writer: `projectMutations.remove` clears the project and the pipeline when the project is
+the active one.
 
 Persistence: `createStore` (`@scylla/ui/stores`) keeps it in
-`localStorage` under key `scylla-context`, so a reload keeps the user where they were. The stored
-format is the format that Zustand used before Phase 6, so a stored context stays valid.
+`localStorage` under key `scylla-workspace-context`, so a reload keeps the user where they were. The stored
+format does not change: a context stored by an earlier version stays valid.
 
-## Cascade on organization change
+## Cascade on workspace change
 
-`setOrganization` **clears `project` and `pipeline`**. A project id from another organization is
+`setWorkspace` **clears `project` and `pipeline`**. A project id from another workspace is
 meaningless and would produce a broken URL or a cross-tenant query. Preserve that behaviour if
 you touch the store.
+
+`renameWorkspace` does not clear them: the id does not change, so they stay valid. The name and the
+slug in the store are a copy of the data of the server. The shell keeps them equal to the list of
+workspaces in `syncWorkspace`, so do not write them from a mutation.
 
 `reset()` exists for sign-out; the shell also uses `ContextCleaner.wrapper.svelte` to drop
 context when leaving a scope.
@@ -83,10 +95,10 @@ The navigator of the app is in `@scylla/core-sdk`; `index.ts` re-exports `naviga
 
 - **`scyllaNavigate` is the only sanctioned way to navigate between scoped screens.** It builds
   URLs from the current context so callers do not hand-assemble
-  `/${orgSlug}/projects/${projectId}/…`. A template string passed to `navigateTo` is how a route
+  `/${workspaceSlug}/projects/${projectId}/…`. A template string passed to `navigateTo` is how a route
   change becomes fourteen broken links.
 - **The URL is the source of truth, the store is the mirror.** The shell's
-  `OrganizationSync.wrapper.svelte` syncs the store *from* route params. Do not add a second sync
+  `WorkspaceSync.wrapper.svelte` syncs the store *from* route params. Do not add a second sync
   in the other direction — that is the effect cascade this design exists to avoid.
 - Server state never goes in here. Only TanStack Query holds fetched data.
 - `contextStore` and `selectionStore` (`@shared`) are the app's **only** two global

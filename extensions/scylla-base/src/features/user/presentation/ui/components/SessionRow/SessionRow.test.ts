@@ -17,7 +17,6 @@ const session = (overrides: Partial<UserSessionEntity> = {}): UserSessionEntity 
   id: 'session-2',
   createdAt: minutesAgo(600),
   lastActiveAt: minutesAgo(1),
-  expiresAt: minutesAgo(-600),
   userAgent: CHROME_MAC,
   ipAddress: '203.0.113.7',
   current: false,

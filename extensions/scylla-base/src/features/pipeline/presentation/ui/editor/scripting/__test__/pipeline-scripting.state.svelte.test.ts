@@ -9,6 +9,7 @@ import {
   createPipelineScripting,
   type PipelineScripting,
 } from '../pipeline-scripting.state.svelte.ts';
+import { dependencyText } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
 
 const toast = vi.hoisted(() => vi.fn());
 vi.mock('@scylla/ui/utils', async importOriginal => ({
@@ -96,7 +97,7 @@ describe('createPipelineScripting', () => {
       flushSync();
 
       expect(doc.nodes.map(node => node.id)).toEqual(['compile', 'test']);
-      expect(nodeIn(doc, 'test')?.deps).toEqual(['compile']);
+      expect(nodeIn(doc, 'test')?.deps.map(dependencyText)).toEqual(['compile']);
       expect(scripting.panes.focusedId).toBe('compile');
 
       // The renamed node keeps its draft: an edit after the rename still reaches the document.
@@ -112,7 +113,11 @@ describe('createPipelineScripting', () => {
       scripting.add();
       flushSync();
 
-      expect(nodeIn(doc, 'node')).toMatchObject({ deps: ['build'], kind: 'script', shell: 'bash' });
+      expect(nodeIn(doc, 'node')).toMatchObject({
+        deps: [{ node: 'build' }],
+        kind: 'script',
+        shell: 'bash',
+      });
       expect(scripting.panes.focusedId).toBe('node');
     });
   });
@@ -123,14 +128,17 @@ describe('createPipelineScripting', () => {
       flushSync();
 
       expect(doc.nodes.map(node => node.id)).toEqual(['test']);
-      expect(nodeIn(doc, 'test')?.deps).toEqual([]);
+      expect(nodeIn(doc, 'test')?.deps.map(dependencyText)).toEqual([]);
     });
   });
 
   it('offers as dependencies only the nodes that do not wait for the node', () => {
     withScripting(scripting => {
       expect(scripting.dependencyCandidates('build')).toEqual([]);
-      expect(scripting.dependencyCandidates('test')).toEqual(['build']);
+      expect(scripting.dependencyCandidates('test').map(dependencyText)).toEqual([
+        'build',
+        'build:error',
+      ]);
       expect(scripting.dependentsOf('build')).toEqual(['test']);
     });
   });
@@ -160,12 +168,12 @@ describe('createPipelineScripting', () => {
         scripting.moveNode('test', 'build', false);
         flushSync();
 
-        expect(nodeIn(doc, 'test')?.deps).toEqual(['build']);
+        expect(nodeIn(doc, 'test')?.deps.map(dependencyText)).toEqual(['build']);
         expect(toast).toHaveBeenCalledOnce();
 
         undo();
         flushSync();
-        expect(nodeIn(doc, 'test')?.deps).toEqual(['build', 'lint']);
+        expect(nodeIn(doc, 'test')?.deps.map(dependencyText)).toEqual(['build', 'lint']);
       }, graph);
     });
 
@@ -174,7 +182,7 @@ describe('createPipelineScripting', () => {
         scripting.moveNode('deploy', 'lint', true);
         flushSync();
 
-        expect(nodeIn(doc, 'deploy')?.deps).toEqual(['test', 'lint']);
+        expect(nodeIn(doc, 'deploy')?.deps.map(dependencyText)).toEqual(['test', 'lint']);
         expect(toast).not.toHaveBeenCalled();
       }, graph);
     });
@@ -184,7 +192,7 @@ describe('createPipelineScripting', () => {
         scripting.moveNode('deploy', null, false);
         flushSync();
 
-        expect(nodeIn(doc, 'deploy')?.deps).toEqual([]);
+        expect(nodeIn(doc, 'deploy')?.deps.map(dependencyText)).toEqual([]);
       }, graph);
     });
 
@@ -193,14 +201,14 @@ describe('createPipelineScripting', () => {
         scripting.moveNode('test', 'deploy', false);
         flushSync();
 
-        expect(nodeIn(doc, 'deploy')?.deps).toEqual(['build', 'lint']);
-        expect(nodeIn(doc, 'test')?.deps).toEqual(['deploy']);
+        expect(nodeIn(doc, 'deploy')?.deps.map(dependencyText)).toEqual(['build', 'lint']);
+        expect(nodeIn(doc, 'test')?.deps.map(dependencyText)).toEqual(['deploy']);
         expect(toast).toHaveBeenCalledOnce();
 
         undo();
         flushSync();
-        expect(nodeIn(doc, 'test')?.deps).toEqual(['build', 'lint']);
-        expect(nodeIn(doc, 'deploy')?.deps).toEqual(['test']);
+        expect(nodeIn(doc, 'test')?.deps.map(dependencyText)).toEqual(['build', 'lint']);
+        expect(nodeIn(doc, 'deploy')?.deps.map(dependencyText)).toEqual(['test']);
       }, graph);
     });
 
@@ -212,8 +220,105 @@ describe('createPipelineScripting', () => {
 
         undo();
         flushSync();
-        expect(nodeIn(doc, 'test')?.deps).toEqual(['build']);
+        expect(nodeIn(doc, 'test')?.deps.map(dependencyText)).toEqual(['build']);
       }, graph);
     });
+  });
+});
+
+describe('the ports', () => {
+  afterEach(() => toast.mockClear());
+
+  const undo = () =>
+    (toast.mock.lastCall?.[1] as { action: { onClick: () => void } }).action.onClick();
+
+  const flow = JSON.stringify({
+    name: 'web',
+    nodes: [
+      { id: 'test', deps: [], kind: 'exec', command: 'make', args: ['test'], env: [] },
+      {
+        id: 'is-main',
+        deps: ['test'],
+        kind: 'switch',
+        env: [],
+        switch: {
+          cases: [
+            {
+              port: 'true',
+              combinator: 'all',
+              rules: [{ left: { kind: 'var', name: 'A' }, test: 'not_empty' }],
+            },
+          ],
+          otherwise: 'false',
+          allMatches: false,
+        },
+      },
+      { id: 'deploy', deps: ['is-main:true'], kind: 'exec', command: 'x', args: [], env: [] },
+      { id: 'notify', deps: ['test:error'], kind: 'exec', command: 'x', args: [], env: [] },
+    ],
+  });
+
+  it('follows the rename of a case port in the needs that name it', () => {
+    withScripting((scripting, doc) => {
+      scripting.draftOf(scripting.nodeOf('is-main')!).switch.renameCase(0, 'yes');
+      flushSync();
+
+      expect(nodeIn(doc, 'deploy')?.deps.map(dependencyText)).toEqual(['is-main:yes']);
+    }, flow);
+  });
+
+  it('removes the needs of a deleted case, and puts back the case and its needs on undo', () => {
+    withScripting((scripting, doc) => {
+      scripting.draftOf(scripting.nodeOf('is-main')!).switch.removeCase(0);
+      flushSync();
+      expect(nodeIn(doc, 'deploy')?.deps).toEqual([]);
+      expect(toast).toHaveBeenCalledWith(
+        'These nodes no longer wait for is-main:true: deploy.',
+        expect.anything(),
+      );
+
+      undo();
+      flushSync();
+      expect(nodeIn(doc, 'deploy')?.deps.map(dependencyText)).toEqual(['is-main:true']);
+      expect(nodeIn(doc, 'is-main')).toMatchObject({ cases: [{ port: 'true' }] });
+    }, flow);
+  });
+
+  it('shows the error output of a node that a need names, and removes its needs when off', () => {
+    withScripting((scripting, doc) => {
+      expect(scripting.hasErrorOutput('test')).toBe(true);
+      expect(scripting.hasErrorOutput('deploy')).toBe(false);
+
+      scripting.setErrorOutput('test', false);
+      flushSync();
+      expect(nodeIn(doc, 'notify')?.deps).toEqual([]);
+      expect(scripting.hasErrorOutput('test')).toBe(false);
+
+      undo();
+      flushSync();
+      expect(nodeIn(doc, 'notify')?.deps.map(dependencyText)).toEqual(['test:error']);
+    }, flow);
+  });
+
+  it('keeps an error output that is on with no need, for the visit', () => {
+    withScripting(scripting => {
+      scripting.setErrorOutput('deploy', true);
+      expect(scripting.hasErrorOutput('deploy')).toBe(true);
+    }, flow);
+  });
+
+  it('gives the issue of a node in its pipeline', () => {
+    withScripting(
+      scripting => {
+        expect(scripting.issueOf('deploy')).toMatchObject({ issue: { kind: 'unknown-port' } });
+      },
+      JSON.stringify({
+        name: 'web',
+        nodes: [
+          { id: 'build', deps: [], kind: 'exec', command: 'x', args: [], env: [] },
+          { id: 'deploy', deps: ['build:true'], kind: 'exec', command: 'x', args: [], env: [] },
+        ],
+      }),
+    );
   });
 });

@@ -55,6 +55,10 @@
           <Select
             type="single"
             value={input.valueKind}
+            items={[
+              { value: 'literal', label: t(triggersMessages.literal) },
+              { value: 'jsonPointer', label: t(triggersMessages.jsonPointer) },
+            ]}
             onValueChange={value =>
               update(index, { valueKind: value as DraftInput['valueKind'] })}
           >
@@ -84,7 +88,7 @@
           onclick={() => remove(index)}
           class="size-8 shrink-0"
         >
-          <Trash2Icon class="size-4 text-destructive" />
+          <Trash2Icon class="size-4" />
           <span class="sr-only">{t(triggersMessages.removeInput)}</span>
         </Button>
       </div>

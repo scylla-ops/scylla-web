@@ -22,7 +22,7 @@ So authz was split in half along the line of *who needs I/O*:
   sits in `platform/` below the features.
 - **The load side stays in `features/roles`.** Fetching the current user's effective permissions
   needs a repository call, so `syncMyPermissions` lives there and the shell calls it when the
-  active organization or project changes.
+  active workspace or project changes.
 
 ```
 features/roles ──syncMyPermissions──▶ permissionsStore ──can()──▶ every feature
@@ -42,7 +42,7 @@ from stale data.
 
 - **`Permission`** — a single capability (`LIST_SECRETS`, `MANAGE_ROLES`, …). The enum every
   module gates on.
-- **`PermissionScope`** — system, organization or project. Permissions are held at a scope, and
+- **`PermissionScope`** — system, workspace or project. Permissions are held at a scope, and
   a broader scope covers the narrower ones (`scopeCovers`). Not the reverse.
 - **`Principal` / `PrincipalKind`** — who holds access: a user, or an app.
 - **`Access`** — what a role or a scope confers: full control, a list of permissions, or an arm
@@ -54,7 +54,7 @@ None of them is an entity: the module owns no thing with an identity. They are s
 file per concept, in `domain/structs/`.
 
 Scope resolution is the part worth *not* reimplementing. "Does this user have `X` on project
-`P`?" means checking the project's own grants and the parent organization's. `can` does it; comparing permission arrays by hand gets it wrong.
+`P`?" means checking the project's own grants and the parent workspace's. `can` does it; comparing permission arrays by hand gets it wrong.
 
 ## Ways to gate
 

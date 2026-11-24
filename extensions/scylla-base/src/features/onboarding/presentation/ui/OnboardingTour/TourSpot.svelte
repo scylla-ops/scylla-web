@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
+  import { dialogHoldStore } from '@scylla/ui/stores';
   import {
     onboardingMessages,
   } from '@base/features/onboarding/presentation/messages/onboarding.messages.ts';
@@ -9,14 +10,20 @@
   import {
     VIEWPORT_MARGIN,
     placeCard,
-    spotlightRect,
+    presentRects,
   } from '@base/features/onboarding/presentation/presenters/tour-placement.presenter.ts';
+  import type { OnboardingSubject } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
   import type { TourSpotStep } from './tour-steps.registry.ts';
   import {
     allowedAnchor,
     blockPage,
+    holdDialogs,
+    holdKeyboard,
+    markTourActive,
     portalToBody,
+    pressable,
     trackTourStep,
+    type TourActionState,
     type TourLayout,
   } from './tour-tracking.attachments.svelte.ts';
   import TourCard from './TourCard.svelte';
@@ -29,50 +36,85 @@
 
   let { tour, step }: Props = $props();
 
-  let layout = $state<TourLayout>({ targets: [], allowed: null });
-  let lostStepId = $state<string | null>(null);
+  let layout = $state<TourLayout>({ targets: [], final: [], allowed: null, avoid: [], moving: false });
+  let lostAt = $state<{ stepId: string; onPage: boolean } | null>(null);
   let hintStepId = $state<string | null>(null);
+  let actionState = $state<{ stepId: string; action: TourActionState | null } | null>(null);
   let cardWidth = $state(0);
   let cardHeight = $state(0);
-  let noteWidth = $state(0);
-  let noteHeight = $state(0);
   let viewportWidth = $state(0);
   let viewportHeight = $state(0);
 
   const viewport = $derived({ width: viewportWidth, height: viewportHeight });
-  const holes = $derived(
-    layout.targets.filter(rect => rect !== null).map(rect => spotlightRect(rect, viewport)),
-  );
-  const target = $derived(layout.targets[0] ? spotlightRect(layout.targets[0], viewport) : null);
+  const holes = $derived(presentRects(layout.targets));
+  const target = $derived(layout.final[0] ?? null);
+  const others = $derived(presentRects(layout.final.slice(1)));
+  const cardSize = $derived({ width: cardWidth, height: cardHeight });
   const card = $derived(
-    target ? placeCard(target, { width: cardWidth, height: cardHeight }, viewport) : null,
+    target ? placeCard(target, cardSize, viewport, layout.avoid, others) : null,
   );
-  const noteTarget = $derived(step.note && layout.targets[step.note.target]);
-  const note = $derived(
-    noteTarget
-      ? placeCard(
-          spotlightRect(noteTarget, viewport),
-          { width: noteWidth, height: noteHeight },
-          viewport,
-        )
-      : null,
-  );
-  const connectors = $derived(
-    [card?.connector, note?.connector].filter(connector => typeof connector === 'string'),
-  );
-  const lost = $derived(!card && lostStepId === step.id);
+  const connectors = $derived(card?.connector && !layout.moving ? [card.connector] : []);
+  const lost = $derived(!card && lostAt?.stepId === step.id);
   const showNext = $derived(step.advance.on === 'next' || !!step.nextWhen);
-  const blocking = $derived(!!card && showNext);
+  const blocking = $derived(!!card && showNext && !step.form);
 
-  const controls = $derived({
-    showNext: showNext && !lost,
-    canGoNext: tour.canGoNext,
-    onNext: () => tour.next(),
-    onSkip: () => tour.requestSkip(),
+  const action = $derived(actionState?.stepId === step.id ? actionState.action : null);
+  const ready = $derived(!!step.action && !!action && !action.disabled);
+  const absent = $derived(
+    actionState?.stepId === step.id && !action ? step.action?.absent : undefined,
+  );
+  const shown = $derived.by(() => {
+    if (ready && step.action?.ready) return step.action.ready;
+    return absent ? { title: step.title, body: absent.body } : step;
   });
 
+  const press = () => {
+    if (!step.action) return;
+    pressable(step.action.anchor(document, tour.subject))?.click();
+  };
+
+  const primary = $derived.by(() => {
+    if ((lost && !step.go) || absent) return undefined;
+    if (step.action) {
+      const label = step.action.label ? t(step.action.label) : action?.label;
+      return label ? { label, disabled: !ready, onClick: press } : undefined;
+    }
+    if (step.go) {
+      return { label: t(onboardingMessages.go), disabled: false, onClick: () => tour.go() };
+    }
+    if (!showNext) return undefined;
+    return {
+      label: t(tour.isLastStep ? onboardingMessages.finish : onboardingMessages.next),
+      disabled: !tour.canGoNext,
+      onClick: () => tour.next(),
+    };
+  });
+
+  const waiting = $derived.by(() => {
+    if (!step.waiting || tour.agentOffline) return undefined;
+    const pending = step.action ? !ready : !tour.canGoNext;
+    return pending ? t(step.waiting) : undefined;
+  });
+
+  /** A step before this one can sit under the dialog that this one points at: close it first. */
+  const closeOpenDialog = () => {
+    if (!document.querySelector('[data-slot="dialog-content"]')) return;
+    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  };
+
+  const onPrevious = $derived(
+    tour.canGoPrevious
+      ? () => {
+          dialogHoldStore.setState({ held: false });
+          closeOpenDialog();
+          tour.previous();
+        }
+      : undefined,
+  );
+
   const notice = $derived.by(() => {
-    if (lost) {
+    if (lost && !step.go) {
+      if (lostAt?.onPage) return { text: t(onboardingMessages.lostAbsentNotice) };
       return {
         text: t(onboardingMessages.lostNotice),
         action: tour.canGoBack
@@ -98,23 +140,40 @@
   const tracking = $derived({
     step,
     subject: tour.subject,
+    rewound: tour.rewound,
     onLayout: (next: TourLayout) => {
       layout = next;
     },
-    onAdvance: () => tour.advance(step.id),
+    onAction: (next: TourActionState | null) => {
+      actionState = { stepId: step.id, action: next };
+    },
+    onAdvance: (found?: OnboardingSubject) => tour.advance(step.id, found),
     onUnlock: () => tour.unlock(step.id),
+    onLock: () => tour.lock(step.id),
     onLost: () => {
-      lostStepId = step.id;
+      lostAt = { stepId: step.id, onPage: tour.onStepPage };
       tour.recover(step.id);
     },
-    onHint: (shown: boolean) => {
-      hintStepId = shown ? step.id : null;
+    onFound: () => {
+      lostAt = null;
     },
+    onHint: (visible: boolean) => {
+      hintStepId = visible ? step.id : null;
+    },
+    isLoading: () => tour.isLoading,
   });
 
   const blockingOptions = $derived({
-    active: blocking,
+    active: blocking && !tour.confirmingSkip,
     allowed: () => allowedAnchor(step)?.(document, tour.subject) ?? null,
+  });
+
+  const holdingDialogs = $derived(!!step.holdsDialog && !lost && !tour.confirmingSkip);
+
+  const keyboard = $derived({
+    holdSearch: !lost,
+    loopTab: !!card && !tour.confirmingSkip,
+    targets: () => step.targets.map(anchor => anchor(document, tour.subject)),
   });
 </script>
 
@@ -122,15 +181,19 @@
 
 {#snippet stepCard(x: number, y: number)}
   <TourCard
-    title={t(step.title)}
-    body={step.body.map(paragraph => t(paragraph))}
+    title={t(shown.title)}
+    body={shown.body.map(paragraph => t(paragraph))}
     link={step.link}
-    waiting={step.waiting && !tour.canGoNext ? t(step.waiting) : undefined}
+    {waiting}
     {hint}
     {notice}
     count={tour.count}
-    {controls}
+    onSkip={() => tour.requestSkip()}
+    {onPrevious}
+    {primary}
     wide={step.wide}
+    hidden={tour.confirmingSkip}
+    gliding={layout.moving}
     {x}
     {y}
     bind:width={cardWidth}
@@ -142,23 +205,16 @@
   {@attach portalToBody}
   {@attach blockPage(() => blockingOptions)}
   {@attach trackTourStep(() => tracking)}
+  {@attach holdDialogs(() => holdingDialogs)}
+  {@attach holdKeyboard(() => keyboard)}
+  {@attach markTourActive}
   data-onboarding-tour
   class="contents"
+  style:visibility={tour.confirmingSkip ? 'hidden' : undefined}
 >
   {#if card}
     <TourSpotlight {viewport} {holes} {connectors} {blocking} allowed={layout.allowed} />
     {@render stepCard(card.x, card.y)}
-    {#if step.note && note}
-      <TourCard
-        body={[t(step.note.body)]}
-        link={step.note.link}
-        wide={step.wide}
-        x={note.x}
-        y={note.y}
-        bind:width={noteWidth}
-        bind:height={noteHeight}
-      />
-    {/if}
   {:else if lost}
     {@render stepCard(
       viewport.width - cardWidth - VIEWPORT_MARGIN,

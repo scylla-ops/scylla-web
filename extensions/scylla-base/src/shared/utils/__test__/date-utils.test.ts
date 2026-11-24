@@ -1,5 +1,6 @@
 // @vitest-environment node
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest';
+import { i18n } from '@lingui/core';
 import {
   calculateDuration,
   calculateExecutionDuration,
@@ -8,6 +9,7 @@ import {
   formatDate,
   formatDay,
   formatTime,
+  formatUtcDay,
 } from '../date-utils';
 
 describe('calculateDuration', () => {
@@ -36,15 +38,15 @@ describe('calculateExecutionDuration', () => {
   });
 
   it('uses finishedAt once the node is done', () => {
-    expect(
-      calculateExecutionDuration('2026-01-01T00:00:00.000Z', '2026-01-01T00:00:45.000Z'),
-    ).toBe(45);
+    expect(calculateExecutionDuration('2026-01-01T00:00:00.000Z', '2026-01-01T00:00:45.000Z')).toBe(
+      45,
+    );
   });
 
   it('never goes negative if the clock is off (finishedAt before startedAt)', () => {
-    expect(
-      calculateExecutionDuration('2026-01-01T00:00:45.000Z', '2026-01-01T00:00:00.000Z'),
-    ).toBe(0);
+    expect(calculateExecutionDuration('2026-01-01T00:00:45.000Z', '2026-01-01T00:00:00.000Z')).toBe(
+      0,
+    );
   });
 });
 
@@ -152,5 +154,60 @@ describe('formatTime', () => {
     const result = formatTime('2026-01-01T12:34:56.000Z');
     expect(result).not.toBe('-');
     expect(result.length).toBeGreaterThan(0);
+  });
+});
+
+describe('formatUtcDay', () => {
+  it('formats the UTC day, also where the local day is another one', () => {
+    expect(formatUtcDay('2026-07-14')).toBe('Jul 14');
+    expect(formatUtcDay('2026-08-01', 'month')).toBe('Aug');
+    expect(formatUtcDay('2026-09-22', 'weekday')).toBe('Tue, Sep 22');
+  });
+});
+
+/** French puts a no-break space, U+00A0 or U+202F after the version of ICU. */
+const spaced = (text: string): string => text.replace(/\s/gu, ' ');
+
+describe('the language of the UI', () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-11-23T10:33:00.000Z'));
+    i18n.load('fr', {});
+  });
+
+  afterEach(() => {
+    i18n.activate('en');
+    vi.useRealTimers();
+  });
+
+  it('writes a date and a relative time in English', () => {
+    expect(formatUtcDay('2026-11-23', 'weekday')).toBe('Mon, Nov 23');
+    expect(getRelativeTime('2026-11-23T10:00:00.000Z')).toBe('33 min. ago');
+    expect(getRelativeTime('2026-11-20T10:00:00.000Z')).toBe('3 days ago');
+  });
+
+  it('writes a duration with its short units in English', () => {
+    expect(formatDuration(19)).toBe('19s');
+    expect(formatDuration(72)).toBe('1m 12s');
+    expect(formatDuration(8100)).toBe('2h 15m');
+  });
+
+  it('writes a duration with spaced units in French', () => {
+    i18n.activate('fr');
+
+    expect(spaced(formatDuration(19))).toBe('19 s');
+    expect(spaced(formatDuration(72))).toBe('1 min 12 s');
+    expect(spaced(formatDuration(8100))).toBe('2 h 15 min');
+  });
+
+  it('writes a date and a relative time in French, after a switch of the language', () => {
+    expect(getRelativeTime('2026-11-23T10:00:00.000Z')).toBe('33 min. ago');
+
+    i18n.activate('fr');
+
+    expect(spaced(formatUtcDay('2026-11-23', 'weekday'))).toBe('lun. 23 nov.');
+    expect(spaced(formatDay('2026-11-23T10:00:00.000Z'))).toBe('23 nov. 2026');
+    expect(spaced(getRelativeTime('2026-11-23T10:00:00.000Z'))).toBe('il y a 33 min');
+    expect(spaced(getRelativeTime('2026-11-20T10:00:00.000Z'))).toBe('il y a 3 j');
   });
 });

@@ -18,11 +18,12 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Group | Exports |
 |---|---|
 | Extension | `Extension` (the class decorator), `extensionOf`, `ExtensionManifest`, `ExtensionClass`, `installedExtensions`, `setInstalledExtensions` |
-| Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteSource` |
-| Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
+| Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `NavGroup`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteSource` |
+| Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `SecondSidebarLink`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
-| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect` |
+| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `hasPage`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink`, `guardLeave`, `holdsLeave`, `LeaveGuard` |
+| Commands of the bar | `CommandDefinition`, `GoCommand`, `CreateCommand`, `ChoiceCommand`, `ToggleCommand`, `ConfirmCommand`, `CommandBase`, `CommandForm`, `CommandFormProps`, `commandForm` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |
 | Widgets | `point`, `WidgetZone`, `WidgetPoint`, `ZonePoint`, `TextsPoint`, `ValuePoint`, `ZoneComponentOptions`, `ZonePosition`, `WidgetInjection`, `installWidgetInjectionsForTest` |
@@ -35,11 +36,14 @@ src/
   index.ts
   extension/  extension.decorator.ts   @Extension, extensionOf, ExtensionManifest
               installed-extensions.ts  the manifests the core loaded, for a page that lists them
-              contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, QueryErrorHandler, QueryRetryPolicy
+              contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, SecondSidebarLink, QueryErrorHandler, QueryRetryPolicy
               register.struct.ts       Register, RoutePermission
-  routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink
+              command.struct.ts        the commands of the search bar, one type per kind
+  routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink, NavGroup (links of one group fold under one item)
               mount.struct.ts, route.struct.ts, crumb.struct.ts, Redirect.svelte
   navigation/ navigator.ts             the AppNavigator the core installs, and its readers
+              leave-guard.ts           guardLeave (a page asks before the user leaves it), holdsLeave (the router)
+              nav-links.ts             the sidebar links of all extensions, for the search bar
   di/         dependencies.registry.ts
   query/      active-query-client.ts, svelte-query.ts
   widgets/    widget-points.struct.ts        WidgetPoint, ZonePoint, TextsPoint, ValuePoint, WidgetInjectionItem (internal)
@@ -70,12 +74,14 @@ export class AcmeAuthExtension {}
 
 - The decorator puts the manifest on the class. `apps/web` lists the classes; the core reads
   them with `extensionOf`. Nothing registers itself as a side effect of an import.
-- It is a **standard** decorator (no `experimentalDecorators`). `vite.config.ts` sets
-  `esbuild.target` so that the dev server lowers it, and the Lingui Babel pass parses it.
+- It is a **standard** decorator (no `experimentalDecorators`). Oxc, the transformer of Vite,
+  does not lower it: the Babel pass of `tooling/vite.ts` (`babelTransforms`) does, for the dev
+  server, the build and the tests.
 - Everything else is **in the modules**, with one exception: `widgetInjections` (below) is a
   field of `@Extension` itself, not of a module — it changes another extension's UI, which is
   not what any one module owns. A feature module declares `domain` and `routes`, with its
-  sidebar links in `nav`. The module that builds the frame (scylla-base: `ShellModule`) declares
+  sidebar links in `nav` (one link, or a list with one link per value of a parameter,
+  `NavLink.params`). The module that builds the frame (scylla-base: `ShellModule`) declares
   `mounts`, `navSections`, `access`, `shell`, `onQueryError`, `onQueryRetry` and `fallback`.
 
 ## Widgets — letting one extension change another's UI
@@ -171,10 +177,15 @@ two augmentations with different types do not compile.
 
 ## Runtime API — installed by the core
 
-`setAppNavigator`, `setDependencyRegistry`, `setQueryClient` and `setInstalledExtensions` are
-called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
-`getModuleDomain`, `createQuery`, `installedExtensions`.
+`setAppNavigator`, `setDependencyRegistry`, `setQueryClient`, `setInstalledExtensions` and
+`setNavLinks` are called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
+`getModuleDomain`, `createQuery`, `installedExtensions`, `navLinks`.
 
+- **`guardLeave(guard)` lets a page ask before the user leaves it.** One guard at a time; it
+  returns the function that removes it. The guard gets `leave` and returns `true` to hold the
+  navigation, then calls `leave` to go on, or never. Only the router calls `holdsLeave`. Install
+  the guard only while the page needs it (in an `$effect`), and remove it in the cleanup: a guard
+  that stays holds every navigation of the app.
 - **`DomainRegistry` is untyped per module — on purpose.** If it named each module's domain,
   every feature would depend on every other one. A feature pins the type on its side:
   `getModuleDomain<typeof XModule.domain>('x').xRepository`. **Only a `*.queries.ts` or a
@@ -187,6 +198,8 @@ called by `startCore`, once. Extensions only read: `navigateTo`, `routeParams`,
   cache silently.
 - `getQueryClient()` falls back to a plain client until the core installs the app's. A test
   installs its own with `withQueryClient()` (`test/render.ts`, `retry: false`).
+- A `QueryErrorHandler` gets `showsOwnError` when the page shows the error, and `repeated` when the
+  last fetch of this query failed too. A handler that tells the user does not do it for `repeated`.
 - `installedExtensions()` is empty until the core starts. Read it per call, never at import
   time: the modules load before `startCore` installs it.
 - `routeParams()` and `routeTrail()` are empty until a router is installed; `currentPathname()`

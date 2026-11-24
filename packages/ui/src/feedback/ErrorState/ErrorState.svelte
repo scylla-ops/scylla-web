@@ -12,7 +12,7 @@
 
 <div class="flex h-full items-center justify-center">
   <div class="space-y-2 text-center">
-    <p class="text-lg font-semibold text-destructive">{title ?? t(errorStateMessages.title)}</p>
+    <h2 class="text-lg text-destructive">{title ?? t(errorStateMessages.title)}</h2>
     <p class="text-sm text-muted-foreground">{message ?? t(errorStateMessages.message)}</p>
   </div>
 </div>

@@ -103,6 +103,13 @@ describe('DataTable as cards', () => {
     expect(states).toEqual([null, 'selected']);
   });
 
+  it('marks each card as a row, so that code outside can point at it', () => {
+    const { container } = render(DataTable, { columns, data });
+    resizeTo(375);
+
+    expect(container.querySelectorAll('[data-part="data-table-row"]')).toHaveLength(2);
+  });
+
   it('shows "No results." in card mode too', () => {
     render(DataTable, { columns, data: [] });
     resizeTo(375);

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { scyllaNavigate } from '@platform/context';
-  import { createMutation } from '@scylla/core-sdk';
+  import { createMutation, createQuery } from '@scylla/core-sdk';
   import {
     ConfirmOperationAlertDialog,
     CopyableText,
@@ -15,8 +15,11 @@
   } from '@shared/utils/date-utils.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
   import { isActiveStatus, isFinishedStatus } from '@shared/domain/structs/job-status.struct.ts';
+  import { vcsReportQueries } from '@base/features/integrations';
   import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
+  import { worstTone } from '@base/features/jobs/presentation/presenters/job-report.presenter.ts';
   import JobActions from './JobActions/JobActions.svelte';
+  import JobSource from './JobSource/JobSource.svelte';
   import JobStatus from './JobStatus/JobStatus.svelte';
   import JobTimeline from './JobTimeline/JobTimeline.svelte';
   import { jobColumns } from './jobs-table.columns.ts';
@@ -32,6 +35,7 @@
   const selection = createSelection('jobs');
   const deleteJob = createMutation(() => jobMutations.remove(pipelineId));
   const rerunJob = createMutation(() => jobMutations.rerun(pipelineId));
+  const cancelJob = createMutation(() => jobMutations.cancel(pipelineId));
 
   let jobToDelete = $state<string | null>(null);
 
@@ -43,15 +47,36 @@
     return calculateExecutionDuration(job.startedAt, job.finishedAt);
   };
 
+  const REPORTS_POLL_MS = 5000;
+
+  // One call for the reports of the jobs with a commit on this page.
+  const sourceJobIds = $derived(jobs.filter(job => job.source).map(job => job.id));
+  const reports = createQuery(() => ({
+    ...vcsReportQueries.byJobs(sourceJobIds),
+    refetchInterval: query =>
+      jobs.some(job => job.source && isActiveStatus(job.status)) ||
+      query.state.data?.some(entry =>
+        entry.reports.some(report => report.state === 'sending' || report.state === 'retrying'),
+      )
+        ? REPORTS_POLL_MS
+        : false,
+  }));
+  const toneOf = (job: JobEntity) =>
+    worstTone(reports.data?.find(entry => entry.jobId === job.id)?.reports ?? []);
+
   const columns = $derived(
-    jobColumns({
-      status: statusCell,
-      id: idCell,
-      timeline: timelineCell,
-      duration: durationCell,
-      created: createdCell,
-      actions: actionsCell,
-    }),
+    jobColumns(
+      {
+        status: statusCell,
+        id: idCell,
+        source: sourceCell,
+        timeline: timelineCell,
+        duration: durationCell,
+        created: createdCell,
+        actions: actionsCell,
+      },
+      { withSource: sourceJobIds.length > 0 },
+    ),
   );
 </script>
 
@@ -61,6 +86,14 @@
 
 {#snippet idCell(job: JobEntity)}
   <CopyableText value={job.id} truncate={12} copyLabel={t(jobsMessages.copyId)} />
+{/snippet}
+
+{#snippet sourceCell(job: JobEntity)}
+  {#if job.source}
+    <JobSource source={job.source} reportTone={toneOf(job)} />
+  {:else}
+    <span class="text-sm text-muted-foreground">-</span>
+  {/if}
 {/snippet}
 
 {#snippet timelineCell(job: JobEntity)}
@@ -98,6 +131,13 @@
         }
       : undefined}
     isRerunning={rerunJob.isPending}
+    onCancel={isFinishedStatus(job.status)
+      ? undefined
+      : event => {
+          event.stopPropagation();
+          cancelJob.mutate(job.id);
+        }}
+    isCancelling={cancelJob.isPending}
   />
 {/snippet}
 

@@ -80,7 +80,7 @@ describe('AddUserDialog', () => {
     });
 
     expect(screen.getByText('Enter a valid email address.')).toBeInTheDocument();
-    expect(screen.getByText('The password must have 8 to 255 characters.')).toBeInTheDocument();
+    expect(screen.getByText('The password must have 8 to 128 characters.')).toBeInTheDocument();
     expect(screen.getByText('The two passwords are not the same.')).toBeInTheDocument();
     expect(create).not.toHaveBeenCalled();
   });

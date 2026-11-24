@@ -1,0 +1,25 @@
+import { msg } from '@lingui/core/macro';
+
+export const invitationMessages = {
+  invite: msg`Invite by email`,
+  inviteTitle: msg`Invite a person`,
+  inviteDescription: msg`We send a link to this address. The person joins the workspace with the role.`,
+  email: msg`Email`,
+  emailPlaceholder: msg`name@example.com`,
+  role: msg`Role`,
+  send: msg`Send the invitation`,
+  sent: (email: string) => msg`Invitation sent to ${email}`,
+  revoked: msg`Invitation revoked`,
+  pending: msg`Open invitations`,
+  pendingDescription: msg`The people who have a link and have not joined yet.`,
+  noPending: msg`No open invitation.`,
+  expires: (date: string) => msg`Expires ${date}`,
+  resend: msg`Send again`,
+  revoke: msg`Revoke`,
+  acceptTitle: msg`Join a workspace`,
+  accepting: msg`Joining the workspace…`,
+  signInFirst: msg`Sign in or create an account to accept the invitation.`,
+  signIn: msg`Sign in`,
+  createAccount: msg`Create an account`,
+  invalidLink: msg`This invitation is not valid any more. Ask for a new one.`,
+};

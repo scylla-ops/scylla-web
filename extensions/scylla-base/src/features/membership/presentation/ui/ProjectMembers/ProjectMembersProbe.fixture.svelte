@@ -7,5 +7,5 @@
 </script>
 
 <span data-testid="project-members-probe">
-  {context.organizationId}|{context.projectId}|{context.memberCount}|{context.canManage}
+  {context.workspaceId}|{context.projectId}|{context.memberCount}|{context.canManage}
 </span>

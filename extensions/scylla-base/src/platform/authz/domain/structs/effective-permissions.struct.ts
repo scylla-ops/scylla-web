@@ -17,10 +17,10 @@ export interface EffectivePermissions {
 
 /**
  * What a check is about. A grant covers narrower targets: SYSTEM covers
- * everything, ORGANIZATION covers the organization and its projects.
+ * everything, WORKSPACE covers the workspace and its projects.
  */
 export interface PermissionTarget {
-  organizationId?: string;
+  workspaceId?: string;
   projectId?: string;
 }
 
@@ -36,8 +36,8 @@ export const canAccess = (
     switch (entry.scope) {
       case PermissionScope.SYSTEM:
         return true;
-      case PermissionScope.ORGANIZATION:
-        return !!target.organizationId && entry.scopeId === target.organizationId;
+      case PermissionScope.WORKSPACE:
+        return !!target.workspaceId && entry.scopeId === target.workspaceId;
       case PermissionScope.PROJECT:
         return !!target.projectId && entry.scopeId === target.projectId;
       default:
@@ -47,33 +47,33 @@ export const canAccess = (
 
 /**
  * The backend's escalation rule (`ensure_no_escalation`): an author puts in a role only what it
- * holds through a grant at System, or at the organization that owns the role (`null` for a
+ * holds through a grant at System, or at the workspace that owns the role (`null` for a
  * platform role). A project grant never counts.
  */
 const authoringScopes = (
   effective: EffectivePermissions | null,
-  organizationId: string | null,
+  workspaceId: string | null,
 ): EffectiveScope[] =>
   (effective?.scopes ?? []).filter(
     entry =>
       entry.scope === PermissionScope.SYSTEM ||
-      (organizationId !== null &&
-        entry.scope === PermissionScope.ORGANIZATION &&
-        entry.scopeId === organizationId),
+      (workspaceId !== null &&
+        entry.scope === PermissionScope.WORKSPACE &&
+        entry.scopeId === workspaceId),
   );
 
 export const holdsFullControl = (
   effective: EffectivePermissions | null,
-  organizationId: string | null,
+  workspaceId: string | null,
 ): boolean =>
-  authoringScopes(effective, organizationId).some(entry => entry.access.kind === 'fullControl');
+  authoringScopes(effective, workspaceId).some(entry => entry.access.kind === 'fullControl');
 
 export const holdsPermission = (
   effective: EffectivePermissions | null,
-  organizationId: string | null,
+  workspaceId: string | null,
   permission: Permission,
 ): boolean =>
-  authoringScopes(effective, organizationId).some(
+  authoringScopes(effective, workspaceId).some(
     entry =>
       entry.access.kind === 'fullControl' ||
       (entry.access.kind === 'restricted' && entry.access.permissions.includes(permission)),

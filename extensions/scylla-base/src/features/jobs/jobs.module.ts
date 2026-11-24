@@ -2,7 +2,7 @@ import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
-import { JobServiceClient } from '@base/generated/scylla/job/v1/job.client.ts';
+import { JobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import { DefaultJobsRepository } from './infrastructure/default-jobs.repository.ts';
 
 const jobsRepository = new DefaultJobsRepository(

@@ -44,7 +44,7 @@ describe('JobLogDisplay', () => {
 
     render(JobLogDisplay, { jobId: '' });
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    expect(screen.getByRole('status')).toHaveAttribute('aria-busy', 'true');
     expect(tailLogs).not.toHaveBeenCalled();
     expect(editor()).toBeNull();
   });
@@ -59,6 +59,23 @@ describe('JobLogDisplay', () => {
     expect(await screen.findByText('Error loading logs...')).toBeInTheDocument();
   });
 
+  it('keeps the lines and says so under them when the live tail stops', async () => {
+    install(() => ({
+      // eslint-disable-next-line @typescript-eslint/require-await
+      logs: (async function* () {
+        yield logLine('first line');
+        throw new ScyllaError('gone', { code: 'UNAVAILABLE' });
+      })(),
+      cancel: vi.fn(),
+    }));
+
+    render(JobLogDisplay, { jobId: 'job-1' });
+
+    expect(await screen.findByRole('status')).toHaveTextContent('The live tail stopped.');
+    expect(editor()?.textContent).toContain('first line');
+    expect(screen.queryByText('Error loading logs...')).not.toBeInTheDocument();
+  });
+
   it('writes the streamed lines into the editor document', async () => {
     install(() => streamOf(['first line', 'second line']));
 
@@ -67,6 +84,26 @@ describe('JobLogDisplay', () => {
     // The end of the stream flushes at once.
     await waitFor(() => expect(editor()?.textContent).toContain('first line'));
     expect(editor()?.textContent).toContain('second line');
+  });
+
+  it('wraps a long line and keeps its spaces, so the log never scrolls sideways', async () => {
+    install(() => streamOf([' * branch            054d6b539de355c9eb6e015b07ae7ce31fa604e1']));
+
+    render(JobLogDisplay, { jobId: 'job-1' });
+
+    const log = await screen.findByRole('textbox');
+    expect(['pre-wrap', 'break-spaces']).toContain(getComputedStyle(log).whiteSpace);
+    expect(getComputedStyle(log).overflowWrap).toBe('anywhere');
+  });
+
+  it('says in the center of the panel that no log was written, for a stream with no line', async () => {
+    install(() => streamOf([]));
+
+    render(JobLogDisplay, { jobId: 'job-1' });
+
+    const empty = await screen.findByText('No log was written.');
+    expect(empty).toHaveClass('flex-1', 'items-center', 'justify-center', 'text-center');
+    expect(editor()).toBeNull();
   });
 
   it('scopes the stream to the node when the caller names one', async () => {

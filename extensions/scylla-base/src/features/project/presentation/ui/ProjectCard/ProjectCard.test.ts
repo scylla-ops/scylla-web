@@ -16,6 +16,7 @@ vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
   id: 'project-1',
+  workspaceId: 'org-1',
   name: 'web',
   description: 'the web app',
   ...overrides,
@@ -26,8 +27,7 @@ let testNavigator: ReturnType<typeof installTestNavigator>;
 
 const renderCard = (entity: ProjectEntity = project()) => {
   const repository = {
-    getByOrganizationId: vi.fn(),
-    listMembers: vi.fn(),
+    getByWorkspaceId: vi.fn(),
     create: vi.fn(),
     update: vi.fn().mockResolvedValue(entity),
     delete: vi.fn(),
@@ -44,7 +44,7 @@ const renderCard = (entity: ProjectEntity = project()) => {
 beforeEach(() => {
   selectionStore.setState({ selectedIds: {} });
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    workspace: { id: 'org-1', name: 'Acme', slug: null },
     project: { id: null, name: null },
   });
   permissionsStore.setState({

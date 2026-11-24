@@ -1,25 +1,24 @@
-/** `secretsOf` and `accessOf` check `READ_APP` themselves. */
+/** The apps of a workspace; an agent is an app that runs jobs. Each read checks itself. */
 export type {
   AppEntity,
-  AppSecretEntity,
-  AppAccess,
+  AppHost,
+  AppJob,
+  AppKeyEntity,
+  AppState,
   CreatedApp,
-  CreatedAppSecret,
-  ResetAppSecret,
+  JoinCode,
 } from './domain/entities/app.entity.ts';
-export type { SecretLabelIssue } from './domain/structs/secret-label.struct.ts';
-export {
-  SECRET_LABEL_MAX_BYTES,
-  normalizeSecretLabel,
-  secretLabelIssue,
-  suggestSecretLabel,
-  trimSecretLabel,
-} from './domain/structs/secret-label.struct.ts';
+export { appStateOf } from './domain/entities/app.entity.ts';
+export { dailyCountsOf, type AgentStats } from './domain/structs/agent-stats.struct.ts';
 export {
   appQueries,
   appMutations,
+  APPS_QUERY_ROOT,
   APPS_QUERY_KEY,
   APP_QUERY_KEY,
-  APP_SECRETS_QUERY_KEY,
-  APP_ACCESS_QUERY_KEY,
+  CREATE_APP_MUTATION_KEY,
+  type AppFilter,
 } from './presentation/apps.queries.ts';
+/** A loader: a barrel must not re-export a component. */
+export const loadNoAgentsBanner = () =>
+  import('./presentation/ui/components/NoAgentsBanner/NoAgentsBanner.svelte');

@@ -29,12 +29,12 @@
     {@attach holdPointer}
     d={dimPath(viewport, holes)}
     fill-rule="evenodd"
-    class="pointer-events-auto fill-black/55"
+    class="pointer-events-auto fill-overlay/55"
   />
 </svg>
 
 {#if blocking}
-  <svg class="pointer-events-none fixed inset-0 z-[55] size-full" aria-hidden="true">
+  <svg class="pointer-events-none fixed inset-0 z-[195] size-full" aria-hidden="true">
     <path
       {@attach holdPointer}
       d={dimPath(viewport, allowed ? [allowed] : [])}
@@ -46,7 +46,7 @@
 {/if}
 
 <svg
-  class="pointer-events-none fixed inset-0 z-[60] size-full"
+  class="pointer-events-none fixed inset-0 z-[200] size-full"
   aria-hidden="true"
   transition:fade={{ duration: motionDuration(200) }}
 >
@@ -56,7 +56,7 @@
   {#each connectors as connector, index (index)}
     <path
       d={connector}
-      class="fill-none stroke-white"
+      class="fill-none stroke-overlay-foreground"
       stroke-width="1.5"
       stroke-dasharray="5 5"
       stroke-linecap="round"

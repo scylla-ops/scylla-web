@@ -1,9 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { getQueryClient } from '@scylla/core-sdk';
 import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
 import { reportQueryError } from '../report-query-error.ts';
 
 const toastError = vi.fn();
-vi.mock('svelte-sonner', () => ({ toast: { error: (message: string) => toastError(message) } }));
+const toastWarning = vi.fn();
+vi.mock('svelte-sonner', () => ({
+  toast: {
+    error: (message: string) => toastError(message),
+    warning: (message: string) => toastWarning(message),
+  },
+}));
+
+const close = vi.hoisted(() => vi.fn(() => Promise.resolve()));
+vi.mock('@platform/grpc', () => ({ browserSession: { close } }));
 
 const errorWith = (code: ScyllaErrorCode) => new ScyllaError('boom', { code });
 let location: Location;
@@ -22,7 +32,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   vi.spyOn(console, 'warn').mockImplementation(() => {});
   vi.spyOn(console, 'error').mockImplementation(() => {});
-  localStorage.setItem('token', 'a-token');
   localStorage.setItem('userId', 'user-1');
   location = window.location;
   at('/acme');
@@ -34,12 +43,32 @@ afterEach(() => {
 });
 
 describe('reportQueryError', () => {
+  it('shows no new toast for a repeated failure, but still ends a lost session', () => {
+    reportQueryError(errorWith('INTERNAL'), 'query', { repeated: true });
+    expect(toastError).not.toHaveBeenCalled();
+    expect(close).not.toHaveBeenCalled();
+
+    reportQueryError(errorWith('UNAUTHENTICATED'), 'query', { repeated: true });
+    expect(returnPathOf(window.location.href)).toBe('/acme');
+  });
+
+  it('leaves an error to the page that shows it, but still ends a lost session', () => {
+    at('/acme/members', '', '');
+
+    reportQueryError(errorWith('UNAVAILABLE'), 'query', { showsOwnError: true });
+    expect(close).not.toHaveBeenCalled();
+    expect(toastError).not.toHaveBeenCalled();
+
+    reportQueryError(errorWith('UNAUTHENTICATED'), 'query', { showsOwnError: true });
+    expect(close).toHaveBeenCalledOnce();
+  });
+
   it('signs out when the backend no longer knows the user, and comes back after the sign-in', () => {
     at('/acme/members', '', '?tab=roles');
 
     reportQueryError(errorWith('UNAUTHENTICATED'), 'mutation');
 
-    expect(localStorage.getItem('token')).toBeNull();
+    expect(close).toHaveBeenCalledOnce();
     expect(localStorage.getItem('userId')).toBeNull();
     expect(window.location.href.startsWith('/login#')).toBe(true);
     expect(returnPathOf(window.location.href)).toBe('/acme/members?tab=roles');
@@ -73,24 +102,52 @@ describe('reportQueryError', () => {
     expect(window.location.href).toBe('/login');
   });
 
-  it('signs out when a query cannot reach the control plane', () => {
+  it('keeps the user signed in and on the page when a query cannot reach the server', () => {
+    at('/acme/members');
+
     reportQueryError(errorWith('UNAVAILABLE'), 'query');
 
-    expect(window.location.href).toBe('/login');
+    expect(close).not.toHaveBeenCalled();
+    expect(window.location.href).toBe('/acme/members');
+    expect(localStorage.getItem('userId')).toBe('user-1');
+    expect(toastError).toHaveBeenCalledOnce();
   });
 
   it('keeps the user signed in when a mutation cannot reach it, so that they can retry', () => {
     reportQueryError(errorWith('UNAVAILABLE'), 'mutation');
 
-    expect(localStorage.getItem('token')).toBe('a-token');
+    expect(close).not.toHaveBeenCalled();
     expect(toastError).toHaveBeenCalledOnce();
+  });
+
+  it('shows a mutation refused because the item changed as a conflict, and reloads the screen', () => {
+    const invalidate = vi.spyOn(getQueryClient(), 'invalidateQueries').mockResolvedValue();
+
+    reportQueryError(errorWith('ABORTED'), 'mutation');
+
+    expect(toastWarning).toHaveBeenCalledWith(
+      'Someone else changed this item in the meantime. Check the latest version and try again.',
+    );
+    expect(toastError).not.toHaveBeenCalled();
+    expect(invalidate).toHaveBeenCalledExactlyOnceWith();
+    expect(localStorage.getItem('userId')).toBe('user-1');
+  });
+
+  it('gives a query that the server aborted the generic message, and reloads nothing', () => {
+    const invalidate = vi.spyOn(getQueryClient(), 'invalidateQueries').mockResolvedValue();
+
+    reportQueryError(new ScyllaError('boom', { code: 'ABORTED', raw: true }), 'query');
+
+    expect(toastWarning).not.toHaveBeenCalled();
+    expect(toastError).toHaveBeenCalledExactlyOnceWith('An unexpected error occurred');
+    expect(invalidate).not.toHaveBeenCalled();
   });
 
   it('toasts the message of any other Scylla error', () => {
     reportQueryError(errorWith('NOT_FOUND'), 'query');
 
     expect(toastError).toHaveBeenCalledOnce();
-    expect(localStorage.getItem('token')).toBe('a-token');
+    expect(close).not.toHaveBeenCalled();
   });
 
   it('gives an error that does not come from Scylla the generic message, not its own text', () => {

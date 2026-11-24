@@ -8,16 +8,16 @@ export const ToastMessages = {
   USER_UPDATE: msg`User information updated`,
   USER_DELETE_OWN_ACCOUNT_ERROR: msg`You cannot delete your own account.`,
 
-  // Organizations
-  ORGANIZATION_CREATE: msg`Organization created`,
-  ORGANIZATION_DELETE: msg`Organization deleted`,
-  ORGANIZATION_UPDATE: msg`Organization updated`,
+  // Workspaces
+  WORKSPACE_CREATE: msg`Workspace created`,
+  WORKSPACE_DELETE: msg`Workspace deleted`,
+  WORKSPACE_UPDATE: msg`Workspace updated`,
 
   // Projects
   PROJECT_CREATE: msg`Project created`,
   PROJECT_DELETE: msg`Project deleted`,
   PROJECT_UPDATE: msg`Project updated`,
-  PROJECT_NAME_REQUIRED_ERROR: msg`Project name is required and you must select an organization.`,
+  PROJECT_NAME_REQUIRED_ERROR: msg`Project name is required and you must select a workspace.`,
 
   // Pipelines
   PIPELINE_CREATE: msg`Pipeline created`,
@@ -25,6 +25,7 @@ export const ToastMessages = {
   PIPELINE_UPDATE: msg`Pipeline edited`,
   PIPELINE_RUN: msg`Pipeline ran`,
   PIPELINE_JOB_QUEUED_WARNING: msg`Job queued: no agent connected`,
+  PIPELINE_NO_CONTAINER_RUNTIME: msg`Job queued: it needs a container, and no connected agent has a container runtime`,
   PIPELINE_RUN_CHECK_AGENTS: msg`Pipeline ran: check that your agents are connected`,
   PIPELINE_DUPLICATE: msg`Pipeline duplicated successfully`,
 

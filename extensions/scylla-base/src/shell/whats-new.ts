@@ -1,11 +1,13 @@
 import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
-import MousePointer2 from '@lucide/svelte/icons/mouse-pointer-2';
-import ShieldCheck from '@lucide/svelte/icons/shield-check';
-import Smartphone from '@lucide/svelte/icons/smartphone';
-import SquarePen from '@lucide/svelte/icons/square-pen';
-import SquareTerminal from '@lucide/svelte/icons/square-terminal';
-import UserCog from '@lucide/svelte/icons/user-cog';
+import Bell from '@lucide/svelte/icons/bell';
+import GitBranch from '@lucide/svelte/icons/git-branch';
+import LibraryBig from '@lucide/svelte/icons/library-big';
+import Palette from '@lucide/svelte/icons/palette';
+import Search from '@lucide/svelte/icons/search';
+import Server from '@lucide/svelte/icons/server';
+import Split from '@lucide/svelte/icons/split';
+import Store from '@lucide/svelte/icons/store';
 import type { LucideIcon } from '@scylla/ui';
 
 export interface ReleaseHighlight {
@@ -26,44 +28,58 @@ export interface Release {
 
 /** The release announcement: the first-launch dialog and the sidebar badges come from it. */
 export const WHATS_NEW = {
-  version: '0.6.0',
+  version: '0.7.0',
   highlights: [
     {
-      id: 'scripting-by-node',
-      title: msg`Scripting, node by node`,
-      description: msg`The scripting tab lists the nodes of a pipeline by stage and shows the script of each node as shell code. Open two nodes side by side.`,
-      icon: SquareTerminal,
+      id: 'conditional-nodes',
+      title: msg`Pipelines that branch`,
+      description: msg`The If, Switch and Merge nodes choose the next nodes from a value or the output of a node. A node that fails can send its error to a port.`,
+      icon: Split,
     },
     {
-      id: 'blueprint-drag-and-drop',
-      title: msg`Drag and drop on the blueprint`,
-      description: msg`See where a node lands while you drag it from the palette. A node that runs a template shows the icon of the template.`,
-      icon: MousePointer2,
+      id: 'library',
+      title: msg`A library of fragments`,
+      description: msg`Save a group of nodes as a fragment, then use it in each pipeline of the workspace. A new version is proposed, never forced.`,
+      icon: LibraryBig,
+      navUrl: 'library',
     },
     {
-      id: 'safe-pipeline-save',
-      title: msg`Safer pipeline saves`,
-      description: msg`The pipeline editor tells you why it cannot save, for example two nodes with the same id. The blueprint refuses a link that closes a loop.`,
-      icon: ShieldCheck,
+      id: 'marketplace',
+      title: msg`The marketplace`,
+      description: msg`Browse the fragments that teams publish on the Scylla marketplace, and add one to your library: linked, to get its new versions, or as a copy that you own.`,
+      icon: Store,
+      navUrl: 'marketplace',
     },
     {
-      id: 'role-and-trigger-pages',
-      title: msg`Roles and triggers on their own page`,
-      description: msg`Create and edit a role or a trigger on a full page, with room for all of its permissions and settings.`,
-      icon: SquarePen,
-      navUrl: 'roles',
+      id: 'command-bar',
+      title: msg`A command bar`,
+      description: msg`Press Ctrl K to find a page, a project, a pipeline, an agent or a person, even with a typing error. It also runs a pipeline and changes the theme.`,
+      icon: Search,
     },
     {
-      id: 'account-settings',
-      title: msg`A new account page`,
-      description: msg`Profile, appearance, security and organizations: each setting has its own page. Choose your theme in Appearance.`,
-      icon: UserCog,
+      id: 'notifications-inbox',
+      title: msg`An inbox`,
+      description: msg`The bell shows your notifications. Accept an invitation in its row, and see the failed runs of your workspace.`,
+      icon: Bell,
+      navUrl: 'notifications',
     },
     {
-      id: 'tables-on-phone',
-      title: msg`Scylla on your phone`,
-      description: msg`On a small screen, each row of a table shows as a card.`,
-      icon: Smartphone,
+      id: 'machines',
+      title: msg`Agents and apps under Machines`,
+      description: msg`Connect an agent in three steps. An app takes a token, a CI identity or a key pair, and shows its last use.`,
+      icon: Server,
+    },
+    {
+      id: 'git-integrations',
+      title: msg`GitHub and GitLab`,
+      description: msg`Connect a repository to a project, run a pipeline from a file of the repository, and export a pipeline as TOML, YAML or JSON.`,
+      icon: GitBranch,
+    },
+    {
+      id: 'new-look',
+      title: msg`A new look`,
+      description: msg`A double sidebar that you can resize, new colors and fonts, and your theme and language on each of your devices.`,
+      icon: Palette,
     },
   ],
 } satisfies Release;

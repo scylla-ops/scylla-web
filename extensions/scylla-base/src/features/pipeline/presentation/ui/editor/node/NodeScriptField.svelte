@@ -1,5 +1,6 @@
 <script lang="ts">
   import { StreamLanguage } from '@codemirror/language';
+  import { EditorState } from '@codemirror/state';
   import { shell as shellLanguage } from '@codemirror/legacy-modes/mode/shell';
   import { renderCodeMirror } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -12,15 +13,16 @@
     draft: NodeDraft;
     /** The editor fills a pane that draws the frame (see `renderCodeMirror`). */
     flush?: boolean;
+    readOnly?: boolean;
     class?: string;
   }
 
-  let { draft, flush = false, class: className }: Props = $props();
+  let { draft, flush = false, readOnly = false, class: className }: Props = $props();
 
   const editor = syncCodeEditor({
     value: () => draft.script,
     onChange: next => (draft.script = next),
-    extensions: () => [StreamLanguage.define(shellLanguage)],
+    extensions: () => [StreamLanguage.define(shellLanguage), EditorState.readOnly.of(readOnly)],
   });
 </script>
 

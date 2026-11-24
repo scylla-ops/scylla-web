@@ -2,8 +2,6 @@ import { getContext, setContext } from 'svelte';
 import { MediaQuery } from 'svelte/reactivity';
 
 const SIDEBAR_KEY = Symbol('sidebar');
-const SIDEBAR_COOKIE_NAME = 'sidebar_state';
-const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 const MOBILE_QUERY = 'max-width: 767px';
 
 /** The open state of the sidebar, shared by every sidebar part below the provider. */
@@ -21,9 +19,9 @@ const createSidebarState = (): SidebarState => {
   let openMobile = $state(false);
   const mobile = new MediaQuery(MOBILE_QUERY);
 
+  /** The state stays in memory: no cookie and no storage key. */
   const setOpen = (value: boolean) => {
     open = value;
-    document.cookie = `${SIDEBAR_COOKIE_NAME}=${value}; path=/; max-age=${SIDEBAR_COOKIE_MAX_AGE}`;
   };
 
   return {

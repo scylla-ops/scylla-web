@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 export const pipelineMessages = {
   loadError: msg`Unable to load pipelines`,
@@ -15,9 +15,7 @@ export const pipelineMessages = {
 
   status: msg`Status`,
   history: msg`History`,
-  lastRun: msg`Last Run`,
   actions: msg`Actions`,
-  creation: msg`Creation:`,
 
   run: msg`Run`,
   edit: msg`Edit`,
@@ -29,25 +27,33 @@ export const pipelineMessages = {
 
   jobsForbidden: msg`You don't have permission to view this pipeline's jobs`,
   jobsError: msg`Error loading jobs`,
-  noJobsYet: msg`No jobs yet`,
-  openLastRun: msg`Open the last run`,
-  runNumber: (runNumber: number) => msg`Run #${runNumber}`,
-  startedAt: (time: string) => msg`Started ${time}`,
-  finishedAt: (time: string) => msg`Finished ${time}`,
-  durationOf: (duration: string) => msg`Duration: ${duration}`,
+  noRunYet: msg`No run yet`,
+  lastRunAt: (when: string) => msg`Last run ${when}`,
+  historyOfLast: (count: number) =>
+    msg`History · last ${plural(count, { one: '# run', other: '# runs' })}`,
+  runsInTotal: (count: number) =>
+    msg`${plural(count, { one: '# run in total', other: '# runs in total' })}`,
+  passed: msg`passed`,
+  median: msg`median`,
+  failed: msg`failed`,
+  lastFailure: msg`Last failure`,
+  created: msg`Created`,
 
   selectProjectFirst: msg`Select a project first`,
   create: msg`Create`,
   save: msg`Save`,
-  loadPipelineError: msg`Failed to load pipeline`,
-  loading: msg`Loading...`,
-  invalidJson: msg`Invalid JSON`,
+  invalidJson: (error: string) => msg`Invalid JSON: ${error}`,
   scripting: msg`Scripting`,
   blueprint: msg`Blueprint`,
   statusDraft: msg`Draft: not created yet`,
   statusSaving: msg`Saving…`,
+  statusError: msg`Save failed`,
   statusDirty: msg`Unsaved changes`,
   statusSaved: msg`All changes saved`,
+  leaveTitle: msg`Leave without saving?`,
+  leaveBody: msg`Your changes to this pipeline are not saved. If you leave now, you lose them.`,
+  leaveStay: msg`Stay`,
+  leaveAnyway: msg`Leave without saving`,
   editDenied: msg`You don't have permission to edit this pipeline.`,
 
   deleteEdge: msg`Delete edge`,
@@ -61,6 +67,7 @@ export const pipelineMessages = {
   repeatedNodeIds: (ids: string) =>
     msg`Two nodes or more have the ID ${ids}. Give each node its own ID before you save.`,
   repeatedNodeId: msg`Same ID as another node`,
+  invalidNodes: (ids: string) => msg`Fix these nodes before you save: ${ids}`,
   repeatedHint: msg`Two nodes or more have the same ID. Give each node its own ID in the Scripting tab: the blueprint shows them, but cannot change them.`,
 
   /** A pipeline name is one word: the copy keeps it one word. */

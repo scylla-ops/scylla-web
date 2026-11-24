@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   currentPathname,
   currentSearch,
+  hasPage,
   navigateBack,
   navigateTo,
   routeParams,
@@ -15,7 +16,7 @@ const fake = (pathname = '/acme', search = '') => ({
   back: vi.fn<AppNavigator['back']>(),
   pathname: () => pathname,
   search: () => search,
-  params: () => ({ organizationSlug: 'acme' }),
+  params: () => ({ workspaceSlug: 'acme' }),
   trail: () => [],
 });
 
@@ -53,7 +54,7 @@ describe('the app navigator', () => {
 
   it('reads the route parameters through the router', () => {
     setAppNavigator(fake('/acme'));
-    expect(routeParams()).toEqual({ organizationSlug: 'acme' });
+    expect(routeParams()).toEqual({ workspaceSlug: 'acme' });
   });
 
   it('gives no parameters and no crumbs when nothing is installed', () => {
@@ -65,5 +66,14 @@ describe('the app navigator', () => {
     setAppNavigator(fake('/acme'));
     setAppNavigator(null);
     expect(currentPathname()).toBe(window.location.pathname);
+  });
+
+  it('asks the router for a page, and has none without a router', () => {
+    expect(hasPage('/acme/agents')).toBe(false);
+
+    setAppNavigator({ ...fake(), hasPage: pathname => pathname === '/acme/agents' });
+
+    expect(hasPage('/acme/agents')).toBe(true);
+    expect(hasPage('/acme/nothing')).toBe(false);
   });
 });

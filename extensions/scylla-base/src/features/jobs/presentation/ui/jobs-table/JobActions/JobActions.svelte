@@ -3,15 +3,17 @@
   import MoreHorizontalIcon from '@lucide/svelte/icons/more-horizontal';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
   import TrashIcon from '@lucide/svelte/icons/trash';
+  import CircleStopIcon from '@lucide/svelte/icons/circle-stop';
   import { Permission, can } from '@platform/authz';
   import {
     buttonVariants,
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
-  import { IconButton } from '@scylla/ui';
+  import { IconButton, getDataTableLayout } from '@scylla/ui';
   import { createCompactContainer } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -22,24 +24,38 @@
     onDelete: (event: Event) => void;
     onRerun?: (event: Event) => void;
     isRerunning?: boolean;
+    /** Only for a pending or running job. */
+    onCancel?: (event: Event) => void;
+    isCancelling?: boolean;
   }
 
-  let { onView, onDelete, onRerun, isRerunning = false }: Props = $props();
+  let {
+    onView,
+    onDelete,
+    onRerun,
+    isRerunning = false,
+    onCancel,
+    isCancelling = false,
+  }: Props = $props();
 
   const canDelete = $derived(can(Permission.DELETE_JOB));
-  const canRerun = $derived(!!onRerun && can(Permission.RUN_PIPELINE));
+  const canRerun = $derived(!!onRerun && can(Permission.CREATE_JOB));
+  const canCancel = $derived(!!onCancel && can(Permission.UPDATE_JOB));
 
-  const container = createCompactContainer();
+  // Three 32 px buttons and their two 8 px gaps. A card gives the buttons the width they need.
+  const container = createCompactContainer(3 * 32 + 2 * 8);
+  const layout = getDataTableLayout();
+  const asMenu = $derived(container.isCompact && !layout.isCard);
 </script>
 
 <!-- Falls back to a menu when the column is too narrow. -->
 <div {@attach container.measure} class="flex w-full items-center justify-center gap-2 shrink-0">
-  {#if container.isCompact}
+  {#if asMenu}
     <DropdownMenu>
       <DropdownMenuTrigger
         class={cn(
           buttonVariants({ variant: 'ghost', size: 'icon' }),
-          'h-8 w-8 shrink-0 rounded-full text-slate-400 hover:text-slate-900',
+          'h-8 w-8 shrink-0 rounded-full text-muted-foreground hover:text-foreground',
         )}
         onclick={(event: MouseEvent) => event.stopPropagation()}
       >
@@ -57,8 +73,15 @@
             {t(jobsMessages.rerun)}
           </DropdownMenuItem>
         {/if}
+        {#if canCancel && onCancel}
+          <DropdownMenuItem onSelect={onCancel} disabled={isCancelling}>
+            <CircleStopIcon class="w-4 h-4 mr-2" />
+            {t(jobsMessages.cancel)}
+          </DropdownMenuItem>
+        {/if}
         {#if canDelete}
-          <DropdownMenuItem onSelect={onDelete} class="text-destructive">
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive" onSelect={onDelete}>
             <TrashIcon class="w-4 h-4 mr-2" />
             {t(jobsMessages.delete)}
           </DropdownMenuItem>
@@ -77,12 +100,21 @@
       />
     {/if}
 
+    {#if canCancel && onCancel}
+      <IconButton
+        icon={CircleStopIcon}
+        tooltip={t(jobsMessages.cancel)}
+        onclick={onCancel}
+        busy={isCancelling}
+      />
+    {/if}
+
     {#if canDelete}
       <IconButton
         icon={TrashIcon}
         tooltip={t(jobsMessages.delete)}
         onclick={onDelete}
-        class="hover:text-destructive hover:bg-destructive-subtle"
+        variant="destructive"
       />
     {/if}
   {/if}

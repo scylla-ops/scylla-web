@@ -1,91 +1,93 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import { Permission, authorizationReady, can } from '@platform/authz';
+import { contextStore } from '@platform/context';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
-import type { ProjectList } from '../domain/entities/project.entity.ts';
+import type { ProjectEntity, ProjectList } from '../domain/entities/project.entity.ts';
 import type { ProjectModule } from '../project.module.ts';
 
 // Resolved per call: tests swap the registry.
-const repository = () =>
-  getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
+const repository = () => getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
 
-export const PROJECTS_QUERY_KEY = (
-  organizationId: string | null,
-  pagination?: PaginationParams,
-) => ['projects', organizationId, pagination] as const;
+export const PROJECTS_QUERY_KEY = (workspaceId: string | null, pagination?: PaginationParams) =>
+  ['projects', workspaceId, pagination] as const;
 
 export const PROJECTS_QUERY_ROOT = ['projects'] as const;
 
+const PROJECT_QUERY_KEY = (projectId: string | undefined) =>
+  [...PROJECTS_QUERY_ROOT, 'one', projectId] as const;
+
 export const CREATE_PROJECT_MUTATION_KEY = ['project', 'create'] as const;
 
-/** One request for an organization's whole list, for the lookups by name. */
-export const PROJECTS_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
-
-export const PROJECT_MEMBERS_QUERY_KEY = (projectId: string) =>
-  ['projects', projectId, 'members'] as const;
+/** A workspace's whole list: the repository reads each page, then cuts this one from them. */
+export const PROJECTS_LOOKUP_PAGE: PaginationParams = {
+  page: 1,
+  pageSize: Number.MAX_SAFE_INTEGER,
+};
 
 const FIRST_PAGE: PaginationParams = { page: 1, pageSize: DEFAULT_PAGE_SIZE };
 
 /** Used outside this module's route guard, so checked here. An empty list is then not proof of "no projects". */
-export const canListProjects = (organizationId: string | null): boolean =>
+export const canListProjects = (workspaceId: string | null): boolean =>
   authorizationReady() &&
-  !!organizationId &&
-  can(Permission.LIST_PROJECTS_BY_ORGANIZATION, { organizationId });
+  !!workspaceId &&
+  can(Permission.LIST_PROJECTS_BY_WORKSPACE, { workspaceId });
 
 export const projectQueries = {
-  byOrganization: (organizationId: string | null, pagination: PaginationParams = FIRST_PAGE) =>
+  /** Scoped by the backend: a reader of the workspace with no right on the projects gets the projects of its project roles. */
+  byWorkspace: (workspaceId: string | null, pagination: PaginationParams = FIRST_PAGE) =>
     queryOptions({
-      queryKey: PROJECTS_QUERY_KEY(organizationId, pagination),
-      queryFn: () => repository().getByOrganizationId(organizationId!, pagination),
-      enabled: canListProjects(organizationId),
+      queryKey: PROJECTS_QUERY_KEY(workspaceId, pagination),
+      queryFn: () => repository().getByWorkspaceId(workspaceId!, pagination),
+      enabled: !!workspaceId,
     }),
 
   /** The whole list, scoped by the backend: no client-side gate. */
-  lookup: (organizationId: string | null) =>
+  lookup: (workspaceId: string | null) =>
     queryOptions({
-      queryKey: PROJECTS_QUERY_KEY(organizationId, PROJECTS_LOOKUP_PAGE),
-      queryFn: () => repository().getByOrganizationId(organizationId!, PROJECTS_LOOKUP_PAGE),
-      enabled: !!organizationId,
+      queryKey: PROJECTS_QUERY_KEY(workspaceId, PROJECTS_LOOKUP_PAGE),
+      queryFn: () => repository().getByWorkspaceId(workspaceId!, PROJECTS_LOOKUP_PAGE),
+      enabled: !!workspaceId,
       staleTime: 30_000,
     }),
 
-  /** Derived from grants: callers invalidate it with `invalidateProjectMembers`. */
-  members: (projectId: string | null, options: { enabled?: boolean } = {}) =>
+  /** One project, scoped by the backend: no client-side gate. Gives `null`, see the repository. */
+  byId: (projectId: string | undefined) =>
     queryOptions({
-      queryKey: PROJECT_MEMBERS_QUERY_KEY(projectId ?? ''),
-      queryFn: () => repository().listMembers(projectId!),
-      enabled: (options.enabled ?? true) && !!projectId,
+      queryKey: PROJECT_QUERY_KEY(projectId),
+      queryFn: () => repository().getById(projectId!),
+      enabled: !!projectId,
     }),
 };
 
 export interface ProjectLookupEntry {
   name: string;
-  organizationId: string;
+  workspaceId: string;
 }
 
 /**
- * projectId → name and organization, across organizations. Asks only the
- * organizations the user may list (one denial each otherwise). Shares `PROJECTS_QUERY_KEY`.
+ * projectId → name and workspace, across workspaces. Asks only the
+ * workspaces the user may list (one denial each otherwise). Shares `PROJECTS_QUERY_KEY`.
  */
-export const projectLookupQueries = (organizationIds: string[], enabled = true) => {
+export const projectLookupQueries = (workspaceIds: string[], enabled = true) => {
   const readableIds =
     enabled && authorizationReady()
-      ? organizationIds.filter(organizationId =>
-          can(Permission.LIST_PROJECTS_BY_ORGANIZATION, { organizationId }),
+      ? workspaceIds.filter(workspaceId =>
+          can(Permission.LIST_PROJECTS_BY_WORKSPACE, { workspaceId }),
         )
       : [];
 
   return {
-    queries: readableIds.map(organizationId => projectQueries.lookup(organizationId)),
+    queries: readableIds.map(workspaceId => projectQueries.lookup(workspaceId)),
     // Folded here so TanStack Query memoizes it on the results.
     combine: (results: { data?: ProjectList }[]) => {
       const byProjectId = new Map<string, ProjectLookupEntry>();
       results.forEach((result, index) => {
-        const organizationId = readableIds[index];
+        const workspaceId = readableIds[index];
         for (const project of result.data?.items ?? []) {
-          byProjectId.set(project.id, { name: project.name, organizationId });
+          byProjectId.set(project.id, { name: project.name, workspaceId });
         }
       });
       return byProjectId;
@@ -93,16 +95,15 @@ export const projectLookupQueries = (organizationIds: string[], enabled = true) 
   };
 };
 
-export const invalidateProjectMembers = (projectId: string | null): void => {
-  if (!projectId) return;
-  void getQueryClient().invalidateQueries({
-    queryKey: PROJECT_MEMBERS_QUERY_KEY(projectId),
-    exact: true,
-  });
-};
-
 const invalidateProjects = () =>
   getQueryClient().invalidateQueries({ queryKey: PROJECTS_QUERY_ROOT });
+
+/**
+ * Only an entry that a read made: an entry that this write makes has no `queryFn`, and
+ * `refetchType: 'all'` fails on it.
+ */
+const writeReadOfProject = (projectId: string, project: ProjectEntity | null) =>
+  getQueryClient().setQueriesData({ queryKey: PROJECT_QUERY_KEY(projectId), exact: true }, project);
 
 export const projectMutations = {
   create: () =>
@@ -110,13 +111,13 @@ export const projectMutations = {
       mutationKey: CREATE_PROJECT_MUTATION_KEY,
       mutationFn: ({
         name,
-        organizationId,
+        workspaceId,
         description,
       }: {
         name: string;
-        organizationId: string;
+        workspaceId: string;
         description?: string;
-      }) => repository().create(name, organizationId, description),
+      }) => repository().create(name, workspaceId, description),
       onSuccess: () => {
         toast.success(i18n._(ToastMessages.PROJECT_CREATE));
         return invalidateProjects();
@@ -134,17 +135,33 @@ export const projectMutations = {
         name?: string;
         description?: string;
       }) => repository().update(projectId, name, description),
-      onSuccess: () => {
+      onSuccess: updated => {
         toast.success(i18n._(ToastMessages.PROJECT_UPDATE));
-        return invalidateProjects();
+        // No `cleanContext` is mounted on the list, and the search bar shows the stored name there.
+        const { project, setProject } = contextStore.getState();
+        if (project.id === updated.id) setProject(updated.id, updated.name);
+        writeReadOfProject(updated.id, updated);
+        // `all`: the dashboard and the menus read a list that nothing has mounted now.
+        return getQueryClient().invalidateQueries({
+          queryKey: PROJECTS_QUERY_ROOT,
+          refetchType: 'all',
+        });
       },
     }),
 
   remove: () =>
     mutationOptions({
       mutationFn: (projectId: string) => repository().delete(projectId),
-      onSuccess: () => {
+      onSuccess: (_, projectId) => {
         toast.success(i18n._(ToastMessages.PROJECT_DELETE));
+        // No `cleanContext` is mounted on the list, and the search bar reads the store there.
+        const { project, setProject, setPipeline } = contextStore.getState();
+        if (project.id === projectId) {
+          setProject(null, null);
+          setPipeline(null, null);
+        }
+        // A browser back then has its answer at once, and the page of the project does not mount.
+        writeReadOfProject(projectId, null);
         return invalidateProjects();
       },
     }),

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { Skeleton } from '@scylla/ui/primitives';
   import { createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { signOut } from '@base/features/login';
@@ -18,11 +19,14 @@
 
 <!--
   The session on a screen with no sidebar, as one line in the style of the links of the sign-in
-  page: who is signed in, the account page (`/account`: the user may have no organization), the
+  page: who is signed in, the account page (`/account`: the user may have no workspace), the
   sign-out.
 -->
 <p class="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-sm">
-  {#if meQuery.data}
+  {#if meQuery.isLoading}
+    <Skeleton class="h-4 w-40" />
+    <span aria-hidden="true" class="text-muted-foreground">·</span>
+  {:else if meQuery.data}
     <span class="text-muted-foreground" title={userSecondaryLine(meQuery.data)}>
       {t(layoutMessages.signedInAs(userName(meQuery.data)))}
     </span>

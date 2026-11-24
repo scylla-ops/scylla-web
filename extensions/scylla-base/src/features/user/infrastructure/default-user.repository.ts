@@ -1,93 +1,202 @@
 import type { UserRepository } from '@base/features/user/domain/repository/user.repository.ts';
 import type {
+  AccountDataExport,
   CreateUserInput,
   UpdateUserInput,
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
-import type { UserAccess } from '../domain/entities/user.entity.ts';
-import type { IUserServiceClient } from '@base/generated/scylla/user/v1/user.client.ts';
-import type { User } from '@base/generated/scylla/user/v1/user.ts';
+import type { SignInMethodsOfUser } from '@base/features/user/domain/entities/identity.entity.ts';
+import type { IProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
+import type { IUserAdminServiceClient } from '@base/generated/scylla/accounts/v1/user_admin_service.client.ts';
+import type { UserEntry } from '@base/generated/scylla/accounts/v1/user_admin_service.ts';
+import type { User } from '@base/generated/scylla/accounts/v1/user.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import {
+  apiTokenToDomain,
+  expiryToProto,
+  limitsToProto,
+} from '@shared/infrastructure/grpc/api-token.mapper.ts';
+import type { CreateTokenInput, CreatedToken } from '@shared/domain/structs/api-token.struct.ts';
+import type { IPersonalTokenServiceClient } from '@base/generated/scylla/accounts/v1/personal_token_service.client.ts';
+import type { PersonalTokens } from '@base/features/user/domain/entities/personal-tokens.entity.ts';
 import * as grpcUser from './grpc-user.mapper.ts';
 
-/** The wrapped entity is optional on the wire: fail here rather than pass an empty user on. */
-const requireUser = (user: User | undefined): UserEntity => {
-  if (!user) throw new Error('Server returned a response without a user.');
-  return grpcUser.toDomain(user);
-};
+const requireUser = (user: User | undefined): UserEntity =>
+  grpcUser.toDomain(required(user, 'user'));
 
+const PAGE_SIZE = 100;
+
+/**
+ * The own account goes to `ProfileService`, which needs no right. Another user goes to
+ * `UserAdminService`, for an admin of the instance.
+ */
 export class DefaultUserRepository implements UserRepository {
-  constructor(private readonly client: IUserServiceClient) {}
+  constructor(
+    private readonly profiles: IProfileServiceClient,
+    private readonly admin: IUserAdminServiceClient,
+    private readonly tokens: IPersonalTokenServiceClient,
+    /** The id of the user of the session. */
+    private readonly selfId: () => string | null,
+  ) {}
+
+  public async listPersonalTokens(): Promise<PersonalTokens> {
+    const response = await this.tokens.listPersonalTokens({}).response;
+    return {
+      tokens: response.tokens.map(apiTokenToDomain),
+      enabled: response.enabled,
+      refusedWorkspaceIds: response.refusedWorkspaceIds.map(id => idValue(id)),
+    };
+  }
+
+  public async createPersonalToken(input: CreateTokenInput): Promise<CreatedToken> {
+    const { token, secret } = await this.tokens.createPersonalToken({
+      name: input.name,
+      expiry: expiryToProto(input.expiry),
+      limits: limitsToProto(input.limits),
+    }).response;
+    return { token: apiTokenToDomain(required(token, 'token')), secret };
+  }
+
+  public async revokePersonalToken(tokenId: string): Promise<void> {
+    await this.tokens.revokePersonalToken({ tokenId: wrapId(tokenId) }).response;
+  }
+
+  private isSelf(userId: string): boolean {
+    return userId === this.selfId();
+  }
 
   public async getAll(): Promise<PaginatedList<UserEntity>> {
-    const response = await this.client.listUsers({}).response;
-    return grpcUser.toDomainList(response);
+    const users: UserEntry[] = [];
+    let token = '';
+    do {
+      const response = await this.admin.listUsers({
+        query: '',
+        withInstanceRole: false,
+        page: { size: PAGE_SIZE, token },
+      }).response;
+      users.push(...response.users);
+      token = response.page?.nextToken ?? '';
+    } while (token);
+    return grpcUser.toDomainList(users);
   }
 
   public async getById(userId: string): Promise<UserEntity> {
-    const response = await this.client.getUser({ userId: wrapId(userId) }).response;
+    if (this.isSelf(userId)) return this.getMe();
+    const response = await this.admin.getUser({ userId: wrapId(userId) }).response;
     return requireUser(response.user);
   }
 
   public async getMe(): Promise<UserEntity> {
-    const response = await this.client.getMe({}).response;
+    const response = await this.profiles.getMe({}).response;
     return requireUser(response.user);
   }
 
   public async create(input: CreateUserInput): Promise<UserEntity> {
-    const response = await this.client.createUser(grpcUser.toCreateRequest(input)).response;
+    const response = await this.admin.createUser(grpcUser.toCreateRequest(input)).response;
     return requireUser(response.user);
   }
 
+  /** The own profile changes its name and handle only: a new email has its own flow. */
   public async update(input: UpdateUserInput): Promise<UserEntity> {
-    const response = await this.client.updateUser(grpcUser.toUpdateRequest(input)).response;
+    if (this.isSelf(input.id) && input.email === undefined) {
+      const response = await this.profiles.updateProfile({
+        ...(input.displayName !== undefined && { displayName: input.displayName }),
+        ...(input.username !== undefined && { handle: input.username }),
+      }).response;
+      return requireUser(response.user);
+    }
+    const response = await this.admin.updateUser(grpcUser.toUpdateRequest(input)).response;
     return requireUser(response.user);
   }
 
   public async delete(userId: string): Promise<void> {
-    await this.client.deleteUser({ userId: wrapId(userId) }).response;
+    await this.admin.deleteUser({ userId: wrapId(userId) }).response;
   }
 
   public async setActive(userId: string, isActive: boolean): Promise<UserEntity> {
-    const response = await this.client.setUserActive({ userId: wrapId(userId), isActive }).response;
+    const status = isActive ? 'active' : 'disabled';
+    const response = await this.admin.setUserStatus({ userId: wrapId(userId), status }).response;
     return requireUser(response.user);
   }
 
   public async changePassword(currentPassword: string, newPassword: string): Promise<void> {
-    await this.client.changePassword({ currentPassword, newPassword }).response;
+    await this.profiles.changePassword({ currentPassword, newPassword }).response;
   }
 
   public async sendPasswordReset(userId: string): Promise<PasswordResetDelivery> {
-    const response = await this.client.sendPasswordReset({ userId: wrapId(userId) }).response;
-    return grpcUser.deliveryToDomain(response.delivery);
+    await this.admin.sendPasswordReset({ userId: wrapId(userId) }).response;
+    return 'unknown';
   }
 
+  /** The server gives no count: the count is the sessions of the list before the revocation. */
   public async revokeSessions(userId: string): Promise<number> {
-    const response = await this.client.revokeUserSessions({ userId: wrapId(userId) }).response;
-    return response.revoked;
+    const sessions = await this.listSessions(userId);
+    if (this.isSelf(userId)) {
+      await this.profiles.revokeOtherSessions({}).response;
+      return sessions.filter(session => !session.current).length;
+    }
+    await this.admin.revokeUserSessions({ userId: wrapId(userId) }).response;
+    return sessions.length;
   }
 
   public async deleteAccount(password: string): Promise<void> {
-    await this.client.deleteAccount({ password }).response;
+    await this.profiles.deleteAccount({ password }).response;
   }
 
-  public async listAccess(userId: string): Promise<UserAccess[]> {
-    const response = await this.client.listUserAccess({ userId: wrapId(userId) }).response;
-    return response.access.map(grpcUser.accessToDomain);
+  public async exportAccountData(): Promise<AccountDataExport> {
+    const { json, exportedAt } = await this.profiles.exportAccountData({}).response;
+    return { json: required(json, 'data'), exportedAt: timestampToIso(exportedAt) };
   }
 
   public async listSessions(userId: string): Promise<UserSessionEntity[]> {
-    const response = await this.client.listUserSessions({ userId: wrapId(userId) }).response;
-    return response.sessions.map(grpcUser.sessionToDomain);
+    const { sessions } = this.isSelf(userId)
+      ? await this.profiles.listSessions({}).response
+      : await this.admin.listUserSessions({ userId: wrapId(userId) }).response;
+    return sessions.map(grpcUser.sessionToDomain);
   }
 
   public async revokeSession(userId: string, sessionId: string): Promise<void> {
-    await this.client.revokeUserSession({
-      userId: wrapId(userId),
-      sessionId: wrapId(sessionId),
-    }).response;
+    if (!this.isSelf(userId)) {
+      throw new ScyllaError('one session of another user cannot be revoked', {
+        code: 'UNIMPLEMENTED',
+      });
+    }
+    await this.profiles.revokeSession({ sessionId: wrapId(sessionId) }).response;
+  }
+
+  public async requestEmailChange(newEmail: string, password: string): Promise<void> {
+    await this.profiles.requestEmailChange({ newEmail, password }).response;
+  }
+
+  public async confirmEmailChange(token: string): Promise<UserEntity> {
+    const response = await this.profiles.confirmEmailChange({ token }).response;
+    return requireUser(response.user);
+  }
+
+  public async listSignInMethods(): Promise<SignInMethodsOfUser> {
+    const response = await this.profiles.listIdentities({}).response;
+    return {
+      hasPassword: response.hasPassword,
+      identities: response.identities.map(identity => ({
+        provider: identity.provider,
+        subject: identity.subject,
+        email: identity.email,
+        linkedAt: timestampToIso(identity.linkedAt),
+      })),
+    };
+  }
+
+  public async unlinkIdentity(provider: string, subject: string): Promise<void> {
+    await this.profiles.unlinkIdentity({ provider, subject }).response;
+  }
+
+  public async setInstanceAdmin(userId: string, admin: boolean): Promise<void> {
+    const request = { userId: wrapId(userId) };
+    if (admin) await this.admin.grantInstanceAdmin(request).response;
+    else await this.admin.revokeInstanceAdmin(request).response;
   }
 }

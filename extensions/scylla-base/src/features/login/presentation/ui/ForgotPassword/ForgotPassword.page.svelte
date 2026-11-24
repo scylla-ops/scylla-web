@@ -9,7 +9,8 @@
   import {
     ForgotPasswordState,
   } from './forgot-password.state.svelte.ts';
-  import AuthLayout from '../AuthLayout.svelte';
+  import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
+  import { LegalFooter } from '@platform/legal';
   import { passwordResetMessages } from '@base/features/login/presentation/messages/password-reset.messages.ts';
 
   // Built during initialisation: its mutation needs an owner.
@@ -34,12 +35,18 @@
   ]);
 </script>
 
+<!-- The legal links that the operator turned on, at the bottom of the frame. -->
+{#snippet legalFooter()}
+  <LegalFooter class="pt-6" />
+{/snippet}
+
 <AuthLayout
+  footer={legalFooter}
   title={t(passwordResetMessages.forgotTitle)}
   description={state.delivery ? undefined : t(passwordResetMessages.forgotDescription)}
 >
   {#if state.delivery}
-    <p role="status" class="text-sm">{t(SENT[state.delivery])}</p>
+    <p role="status" class="text-center text-sm">{t(SENT[state.delivery])}</p>
   {:else}
     <ScyllaForm {items} onSubmit={values => state.submit(values.email)} isPending={state.isPending}>
       {#snippet footer({ isValid, isPending })}

@@ -28,6 +28,14 @@ describe('NodePalette', () => {
     expect(screen.getByRole('button', { name: /npm ci/ })).toBeInTheDocument();
   });
 
+  it('offers If, Switch and Merge in the group Flow', () => {
+    render(NodePalette, { entries, onAdd: vi.fn() });
+
+    expect(screen.getByRole('heading', { name: 'Flow' })).toBeInTheDocument();
+    for (const name of [/^If/, /^Switch/, /^Merge/])
+      expect(screen.getByRole('button', { name })).toBeInTheDocument();
+  });
+
   it('adds the clicked entry', async () => {
     const onAdd = vi.fn();
     render(NodePalette, { entries, onAdd });
@@ -91,10 +99,11 @@ describe('NodePalette', () => {
       await release(row, 800);
       await fireEvent.click(row);
 
-      expect(drop).toHaveBeenCalledWith(expect.objectContaining({ id: 'kind:bash' }), {
-        x: 800,
-        y: 0,
-      });
+      expect(drop).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'kind:bash' }),
+        { x: 800, y: 0 },
+        { x: 800, y: 0 },
+      );
       expect(onAdd).not.toHaveBeenCalled();
     });
 

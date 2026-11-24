@@ -1,0 +1,182 @@
+import type { RoleHolder, RoleLevel } from '../../domain/entities/role.entity.ts';
+import {
+  ACTION_ORDER,
+  ACTIONS,
+  canHoldArea,
+  checkPermissions,
+  needsOf,
+  uncheckPermissions,
+  type CatalogArea,
+} from '../../domain/structs/catalog.struct.ts';
+import { t } from '@scylla/ui/i18n';
+import {
+  actionLabels,
+  areaLabels,
+  cellLabels,
+  needsOthers,
+  rolesMessages,
+} from '../messages/roles.messages.ts';
+
+const LEVELS: readonly RoleLevel[] = ['platform', 'workspace', 'project'];
+
+export interface LevelTab {
+  level: RoleLevel;
+  areas: CatalogArea[];
+  count: number;
+  total: number;
+}
+
+/** One tab for each level that has areas the role can hold. The areas of a machine go last. */
+export const levelTabs = (
+  areas: readonly CatalogArea[],
+  level: RoleLevel,
+  holder: RoleHolder,
+  selected: ReadonlySet<string>,
+): LevelTab[] =>
+  LEVELS.map(tab => {
+    const held = areas
+      .filter(area => area.level === tab && canHoldArea(area, level, holder))
+      .sort((a, b) => Number(a.machine) - Number(b.machine));
+    const ids = held.flatMap(area => area.permissions.map(permission => permission.id));
+    return {
+      level: tab,
+      areas: held,
+      count: ids.filter(id => selected.has(id)).length,
+      total: ids.length,
+    };
+  }).filter(tab => tab.areas.length > 0);
+
+const rank = (action: string) => {
+  const at = ACTION_ORDER.indexOf(action);
+  return at === -1 ? ACTION_ORDER.length : at;
+};
+
+/** The columns of a tab: each action of `ACTIONS`, and each other action that its areas have. */
+export const tableActions = (areas: readonly CatalogArea[]): string[] =>
+  [
+    ...new Set<string>([
+      ...ACTIONS,
+      ...areas.flatMap(area => area.permissions.map(permission => permission.action)),
+    ]),
+  ].sort((a, b) => rank(a) - rank(b));
+
+export const actionLabel = (action: string): string =>
+  actionLabels[action] ? t(actionLabels[action]) : action;
+
+/** `always`: on at this level, no one changes it. `locked`: the caller cannot give it. */
+export type PermissionCell =
+  | { action: string; kind: 'none' }
+  | {
+      action: string;
+      kind: 'always' | 'locked' | 'open';
+      id: string;
+      checked: boolean;
+      notHeld: boolean;
+      /** The ids of the permissions that a click also checks. */
+      needs: readonly string[];
+    };
+
+/** The name of a permission in the table: its full name, else its area, then its action. */
+export const permissionLabel = (id: string, areas: readonly CatalogArea[]): string => {
+  for (const area of areas) {
+    const permission = area.permissions.find(one => one.id === id);
+    if (!permission) continue;
+    if (cellLabels[id]) return t(cellLabels[id].title);
+    const title = areaLabels[area.id] ? t(areaLabels[area.id].title) : area.id;
+    return `${title} · ${actionLabel(permission.action)}`;
+  }
+  return id;
+};
+
+const whyOf = (cell: Extract<PermissionCell, { id: string }>, areas: readonly CatalogArea[]) => {
+  if (cell.notHeld) return t(rolesMessages.lockedCell);
+  if (cell.needs.length === 0) return undefined;
+  return t(needsOthers(cell.needs.map(id => permissionLabel(id, areas)).join(', ')));
+};
+
+/**
+ * What a cell tells on hover: what the permission does when its name does not say it, then why it
+ * is locked or what a click on it also checks.
+ */
+export const cellTitle = (
+  cell: Extract<PermissionCell, { id: string }>,
+  areas: readonly CatalogArea[],
+): string | undefined => {
+  const hint = cellLabels[cell.id]?.hint;
+  const lines = [hint && t(hint), whyOf(cell, areas)].filter(line => line !== undefined);
+  return lines.length > 0 ? lines.join('\n') : undefined;
+};
+
+export interface PermissionRow {
+  area: CatalogArea;
+  cells: PermissionCell[];
+  /** The cells that a click can change. */
+  open: string[];
+}
+
+const cellOf = (
+  area: CatalogArea,
+  catalog: readonly CatalogArea[],
+  action: string,
+  level: RoleLevel,
+  selected: ReadonlySet<string>,
+  held: ReadonlySet<string> | undefined,
+): PermissionCell => {
+  const permission = area.permissions.find(one => one.action === action);
+  if (!permission) return { action, kind: 'none' };
+  const checked = selected.has(permission.id);
+  const notHeld = held !== undefined && !permission.implicit && !held.has(permission.id);
+  const kind =
+    permission.implicit && area.level === level
+      ? 'always'
+      : notHeld && !checked
+        ? 'locked'
+        : 'open';
+  const needs = needsOf(permission.id, catalog, level);
+  return { action, kind, id: permission.id, checked, notHeld, needs };
+};
+
+/**
+ * The rows of the areas of a tab. `catalog` is the whole catalog: a permission can need a
+ * permission of another tab.
+ */
+export const permissionRows = (
+  areas: readonly CatalogArea[],
+  catalog: readonly CatalogArea[],
+  level: RoleLevel,
+  selected: ReadonlySet<string>,
+  held?: ReadonlySet<string>,
+): PermissionRow[] => {
+  const actions = tableActions(areas);
+  return areas.map(area => {
+    const cells = actions.map(action => cellOf(area, catalog, action, level, selected, held));
+    return { area, cells, open: cells.flatMap(cell => (cell.kind === 'open' ? [cell.id] : [])) };
+  });
+};
+
+export const openInColumn = (rows: readonly PermissionRow[], action: string): string[] =>
+  rows.flatMap(row =>
+    row.cells.flatMap(cell => (cell.kind === 'open' && cell.action === action ? [cell.id] : [])),
+  );
+
+export const openInTab = (rows: readonly PermissionRow[]): string[] =>
+  rows.flatMap(row => row.open);
+
+export type Mark = 'none' | 'some' | 'all';
+
+export const markOf = (ids: readonly string[], selected: ReadonlySet<string>): Mark => {
+  const count = ids.filter(id => selected.has(id)).length;
+  if (count === 0) return 'none';
+  return count === ids.length ? 'all' : 'some';
+};
+
+/** A tab, a row or a column: when all its cells are on, a click clears them, else it selects them. */
+export const flipAll = (
+  ids: readonly string[],
+  selected: ReadonlySet<string>,
+  areas: readonly CatalogArea[],
+  level: RoleLevel,
+): Set<string> =>
+  markOf(ids, selected) === 'all'
+    ? uncheckPermissions(selected, ids, areas, level)
+    : checkPermissions(selected, ids, areas, level);

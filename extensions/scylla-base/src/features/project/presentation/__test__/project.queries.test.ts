@@ -3,28 +3,31 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { QueryClient } from '@tanstack/query-core';
 import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { contextStore } from '@platform/context';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
-import type {
-  ProjectRepository,
-} from '@base/features/project/domain/repository/project.repository.ts';
+import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
+import { DefaultProjectRepository } from '@base/features/project/infrastructure/default-project.repository.ts';
+import type { IProjectServiceClient } from '@base/generated/scylla/projects/v1/project_service.client.ts';
+import { unaryCall } from '@test/grpc.ts';
 import {
   canListProjects,
-  invalidateProjectMembers,
   projectLookupQueries,
   projectMutations,
   projectQueries,
   PROJECTS_LOOKUP_PAGE,
   PROJECTS_QUERY_KEY,
   PROJECTS_QUERY_ROOT,
-  PROJECT_MEMBERS_QUERY_KEY,
 } from '../project.queries.ts';
 
 const toastSuccess = vi.fn();
-vi.mock('svelte-sonner', () => ({ toast: { success: (...args: unknown[]) => toastSuccess(...args) } }));
+vi.mock('svelte-sonner', () => ({
+  toast: { success: (...args: unknown[]) => toastSuccess(...args) },
+}));
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
   id: 'project-1',
+  workspaceId: 'org-1',
   name: 'web',
   description: 'the web app',
   ...overrides,
@@ -32,13 +35,20 @@ const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
 
 const page = (projects: ProjectEntity[]) => ({
   items: projects,
-  pagination: { page: 1, pageSize: 10, totalCount: projects.length, totalPages: 1, hasNext: false, hasPrevious: false },
+  pagination: {
+    page: 1,
+    pageSize: 10,
+    totalCount: projects.length,
+    totalPages: 1,
+    hasNext: false,
+    hasPrevious: false,
+  },
 });
 
 const withRepository = (overrides: Partial<ProjectRepository> = {}) => {
   const repository = {
-    getByOrganizationId: vi.fn().mockResolvedValue(page([project()])),
-    listMembers: vi.fn().mockResolvedValue([]),
+    getById: vi.fn().mockResolvedValue(project()),
+    getByWorkspaceId: vi.fn().mockResolvedValue(page([project()])),
     create: vi.fn().mockResolvedValue(project()),
     update: vi.fn().mockResolvedValue(project()),
     delete: vi.fn().mockResolvedValue(undefined),
@@ -69,6 +79,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
+  contextStore.getState().reset();
   setDependencyRegistry(null);
   setQueryClient(null);
   forgetPermissions();
@@ -80,59 +91,79 @@ describe('canListProjects', () => {
     expect(canListProjects('org-1')).toBe(false);
   });
 
-  it('denies without LIST_PROJECTS_BY_ORGANIZATION', () => {
+  it('denies without LIST_PROJECTS_BY_WORKSPACE', () => {
     grantNothing();
     expect(canListProjects('org-1')).toBe(false);
   });
 
-  it('denies without an organization', () => {
+  it('denies without a workspace', () => {
     expect(canListProjects(null)).toBe(false);
   });
 });
 
-describe('projectQueries.byOrganization', () => {
-  it('fetches the first page for the given organization', async () => {
+describe('projectQueries.byWorkspace', () => {
+  it('fetches the first page for the given workspace', async () => {
     const repository = withRepository();
 
-    const result = await runQueryFn(projectQueries.byOrganization('org-1'));
+    const result = await runQueryFn(projectQueries.byWorkspace('org-1'));
 
-    expect(repository.getByOrganizationId).toHaveBeenCalledWith('org-1', {
+    expect(repository.getByWorkspaceId).toHaveBeenCalledWith('org-1', {
       page: 1,
       pageSize: expect.any(Number) as number,
     });
     expect(result.items).toHaveLength(1);
   });
 
-  it('never asks for a list it may not read', () => {
+  it('asks with no right on the projects: the server gives those of the project roles', () => {
     grantNothing();
     withRepository();
-    expect(projectQueries.byOrganization('org-1').enabled).toBe(false);
+    expect(projectQueries.byWorkspace('org-1').enabled).toBe(true);
   });
 
-  it('is disabled without an organization', () => {
+  it('is disabled without a workspace', () => {
     withRepository();
-    expect(projectQueries.byOrganization(null).enabled).toBe(false);
+    expect(projectQueries.byWorkspace(null).enabled).toBe(false);
   });
 
   it('keys each page separately, so a page change is a new cache entry', () => {
     withRepository();
-    const first = projectQueries.byOrganization('org-1', { page: 1, pageSize: 10 }).queryKey;
-    const second = projectQueries.byOrganization('org-1', { page: 2, pageSize: 10 }).queryKey;
+    const first = projectQueries.byWorkspace('org-1', { page: 1, pageSize: 10 }).queryKey;
+    const second = projectQueries.byWorkspace('org-1', { page: 2, pageSize: 10 }).queryKey;
 
     expect(first).not.toEqual(second);
   });
 });
 
 describe('projectQueries.lookup', () => {
+  it('keeps each project, also after the 100th: a search reads this list', async () => {
+    const projects = Array.from({ length: 150 }, (_, index) => ({
+      id: { value: `project-${index}` },
+      name: `project-${index}`,
+      description: '',
+    }));
+    setDependencyRegistry({
+      project: {
+        projectRepository: new DefaultProjectRepository({
+          listProjects: vi.fn(() => unaryCall({ projects, page: { nextToken: '' } })),
+        } as unknown as IProjectServiceClient),
+      },
+    });
+
+    const list = await runQueryFn(projectQueries.lookup('org-1'));
+
+    expect(list.items).toHaveLength(150);
+    expect(list.pagination.totalPages).toBe(1);
+  });
+
   it('asks for the whole list in one page', async () => {
     const repository = withRepository();
 
     await runQueryFn(projectQueries.lookup('org-1'));
 
-    expect(repository.getByOrganizationId).toHaveBeenCalledWith('org-1', PROJECTS_LOOKUP_PAGE);
+    expect(repository.getByWorkspaceId).toHaveBeenCalledWith('org-1', PROJECTS_LOOKUP_PAGE);
   });
 
-  it('shares its cache entry with the fan-out lookup for the same organization', () => {
+  it('shares its cache entry with the fan-out lookup for the same workspace', () => {
     withRepository();
 
     expect(projectQueries.lookup('org-1').queryKey).toEqual(
@@ -140,21 +171,51 @@ describe('projectQueries.lookup', () => {
     );
   });
 
-  it('is disabled without an organization', () => {
+  it('is disabled without a workspace', () => {
     withRepository();
     expect(projectQueries.lookup(null).enabled).toBe(false);
   });
 });
 
+describe('projectQueries.byId', () => {
+  it('reads the one project', async () => {
+    const repository = withRepository();
+
+    await expect(runQueryFn(projectQueries.byId('project-1'))).resolves.toEqual(project());
+
+    expect(repository.getById).toHaveBeenCalledWith('project-1');
+    expect(repository.getByWorkspaceId).not.toHaveBeenCalled();
+  });
+
+  it('is under the projects root, so that each invalidation reaches it', () => {
+    withRepository();
+
+    expect(projectQueries.byId('project-1').queryKey.slice(0, 1)).toEqual([...PROJECTS_QUERY_ROOT]);
+  });
+
+  it('asks no permission of the store: the store gets the project from this answer', () => {
+    grantNothing();
+    withRepository();
+
+    expect(projectQueries.byId('project-1').enabled).toBe(true);
+  });
+
+  it('is disabled without an id', () => {
+    withRepository();
+
+    expect(projectQueries.byId(undefined).enabled).toBe(false);
+  });
+});
+
 describe('projectLookupQueries', () => {
-  it('skips the organizations the caller may not read rather than collecting denials', () => {
+  it('skips the workspaces the caller may not read rather than collecting denials', () => {
     permissionsStore.setState({
       permissions: {
         scopes: [
           {
-            scope: PermissionScope.ORGANIZATION,
+            scope: PermissionScope.WORKSPACE,
             scopeId: 'org-1',
-            access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_ORGANIZATION] },
+            access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_WORKSPACE] },
           },
         ],
       },
@@ -172,7 +233,7 @@ describe('projectLookupQueries', () => {
     expect(projectLookupQueries(['org-1'], false).queries).toHaveLength(0);
   });
 
-  it('combines results into a projectId -> {name, organizationId} map', () => {
+  it('combines results into a projectId -> {name, workspaceId} map', () => {
     withRepository();
     const { combine } = projectLookupQueries(['org-1', 'org-2']);
 
@@ -181,18 +242,18 @@ describe('projectLookupQueries', () => {
       { data: page([project({ id: 'p-2', name: 'api' })]) },
     ]);
 
-    expect(map.get('p-1')).toEqual({ name: 'web', organizationId: 'org-1' });
-    expect(map.get('p-2')).toEqual({ name: 'api', organizationId: 'org-2' });
+    expect(map.get('p-1')).toEqual({ name: 'web', workspaceId: 'org-1' });
+    expect(map.get('p-2')).toEqual({ name: 'api', workspaceId: 'org-2' });
   });
 
-  it('keeps each result attached to the organization it came from when some are skipped', () => {
+  it('keeps each result attached to the workspace it came from when some are skipped', () => {
     permissionsStore.setState({
       permissions: {
         scopes: [
           {
-            scope: PermissionScope.ORGANIZATION,
+            scope: PermissionScope.WORKSPACE,
             scopeId: 'org-2',
-            access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_ORGANIZATION] },
+            access: { kind: 'restricted', permissions: [Permission.LIST_PROJECTS_BY_WORKSPACE] },
           },
         ],
       },
@@ -203,64 +264,28 @@ describe('projectLookupQueries', () => {
     const map = combine([{ data: page([project({ id: 'p-2' })]) }]);
 
     // The indexes follow the readable ids, not the requested ones.
-    expect(map.get('p-2')?.organizationId).toBe('org-2');
-  });
-});
-
-describe('projectQueries.members', () => {
-  it('lists members for the given project', async () => {
-    const repository = withRepository();
-
-    await runQueryFn(projectQueries.members('project-1'));
-
-    expect(repository.listMembers).toHaveBeenCalledWith('project-1');
-  });
-
-  it('is disabled without a project', () => {
-    withRepository();
-    expect(projectQueries.members(null).enabled).toBe(false);
-  });
-
-  it("invalidates exactly this project's members key", () => {
-    withRepository();
-    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
-
-    invalidateProjectMembers('project-1');
-
-    expect(invalidate).toHaveBeenCalledWith({
-      queryKey: PROJECT_MEMBERS_QUERY_KEY('project-1'),
-      exact: true,
-    });
-  });
-
-  it('invalidating without a project is a no-op', () => {
-    withRepository();
-    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
-
-    invalidateProjectMembers(null);
-
-    expect(invalidate).not.toHaveBeenCalled();
+    expect(map.get('p-2')?.workspaceId).toBe('org-2');
   });
 });
 
 describe('the mutations', () => {
-  it('create scopes the project to the organization, toasts and invalidates the projects root', async () => {
+  it('create scopes the project to the workspace, toasts and invalidates the projects root', async () => {
     const repository = withRepository();
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
 
     await runMutationFn(projectMutations.create(), {
       name: 'web',
-      organizationId: 'org-1',
+      workspaceId: 'org-1',
       description: 'd',
     });
-    runOnSuccess(projectMutations.create(), project(), { name: 'web', organizationId: 'org-1' });
+    runOnSuccess(projectMutations.create(), project(), { name: 'web', workspaceId: 'org-1' });
 
     expect(repository.create).toHaveBeenCalledWith('web', 'org-1', 'd');
     expect(toastSuccess).toHaveBeenCalledWith('Project created');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: PROJECTS_QUERY_ROOT });
   });
 
-  it('update sends only what changed and invalidates the projects root', async () => {
+  it('update sends only what changed and refetches each list, also one that nothing has mounted', async () => {
     const repository = withRepository();
     const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
 
@@ -269,7 +294,56 @@ describe('the mutations', () => {
 
     expect(repository.update).toHaveBeenCalledWith('project-9', 'renamed', undefined);
     expect(toastSuccess).toHaveBeenCalledWith('Project updated');
-    expect(invalidate).toHaveBeenCalledWith({ queryKey: PROJECTS_QUERY_ROOT });
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: PROJECTS_QUERY_ROOT,
+      refetchType: 'all',
+    });
+  });
+
+  it('update gives the store the new name of the active project', () => {
+    withRepository();
+    contextStore.setState({ project: { id: 'project-1', name: 'web' } });
+
+    runOnSuccess(projectMutations.update(), project({ name: 'renamed' }), {
+      projectId: 'project-1',
+    });
+
+    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'renamed' });
+  });
+
+  it('update gives the read of the project the new name, so a next page shows no old name', () => {
+    withRepository();
+    queryClient.setQueryData(projectQueries.byId('project-1').queryKey, () => project());
+
+    runOnSuccess(projectMutations.update(), project({ name: 'renamed' }), {
+      projectId: 'project-1',
+    });
+
+    expect(queryClient.getQueryData(projectQueries.byId('project-1').queryKey)).toEqual(
+      project({ name: 'renamed' }),
+    );
+  });
+
+  it('update makes no read of a project that nothing read: a refetch of it could not run', () => {
+    withRepository();
+
+    runOnSuccess(projectMutations.update(), project({ name: 'renamed' }), {
+      projectId: 'project-1',
+    });
+
+    expect(queryClient.getQueryCache().find({ queryKey: projectQueries.byId('project-1').queryKey }))
+      .toBeUndefined();
+  });
+
+  it('update leaves the store when another project is active', () => {
+    withRepository();
+    contextStore.setState({ project: { id: 'project-2', name: 'api' } });
+
+    runOnSuccess(projectMutations.update(), project({ name: 'renamed' }), {
+      projectId: 'project-1',
+    });
+
+    expect(contextStore.getState().project).toEqual({ id: 'project-2', name: 'api' });
   });
 
   it('remove deletes and invalidates the projects root', async () => {
@@ -282,5 +356,49 @@ describe('the mutations', () => {
     expect(repository.delete).toHaveBeenCalledWith('project-9');
     expect(toastSuccess).toHaveBeenCalledWith('Project deleted');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: PROJECTS_QUERY_ROOT });
+  });
+
+  it('remove takes the active project and its pipeline out of the store', () => {
+    withRepository();
+    contextStore.setState({
+      project: { id: 'project-1', name: 'web' },
+      pipeline: { id: 'pipeline-1', name: 'ci' },
+    });
+
+    runOnSuccess(projectMutations.remove(), undefined, 'project-1');
+
+    expect(contextStore.getState().project).toEqual({ id: null, name: null });
+    expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
+  });
+
+  it('remove leaves the store when another project is active', () => {
+    withRepository();
+    contextStore.setState({
+      project: { id: 'project-2', name: 'api' },
+      pipeline: { id: 'pipeline-1', name: 'ci' },
+    });
+
+    runOnSuccess(projectMutations.remove(), undefined, 'project-1');
+
+    expect(contextStore.getState().project).toEqual({ id: 'project-2', name: 'api' });
+    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'ci' });
+  });
+
+  it('remove tells the read of the project that it is gone, for a browser back', () => {
+    withRepository();
+    queryClient.setQueryData(projectQueries.byId('project-1').queryKey, () => project());
+
+    runOnSuccess(projectMutations.remove(), undefined, 'project-1');
+
+    expect(queryClient.getQueryData(projectQueries.byId('project-1').queryKey)).toBeNull();
+  });
+
+  it('remove makes no read of a project that nothing read: a refetch of it could not run', () => {
+    withRepository();
+
+    runOnSuccess(projectMutations.remove(), undefined, 'project-1');
+
+    expect(queryClient.getQueryCache().find({ queryKey: projectQueries.byId('project-1').queryKey }))
+      .toBeUndefined();
   });
 });

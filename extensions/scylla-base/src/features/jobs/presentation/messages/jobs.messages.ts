@@ -24,6 +24,7 @@ export const jobsMessages = {
   queuedHint: msg`queued: waiting for an agent`,
   orphanedHint: msg`agent disconnected mid-run`,
   view: msg`View`,
+  cancel: msg`Cancel the job`,
   rerun: msg`Re-run`,
   delete: msg`Delete`,
   jobActions: msg`Job actions`,
@@ -38,6 +39,7 @@ export const jobsMessages = {
   nodeStarted: (time: string) => msg`Started: ${time}`,
   nodeFinished: (time: string) => msg`Finished: ${time}`,
   nodeDuration: (duration: string) => msg`Duration: ${duration}`,
+  jobFailed: msg`The job failed`,
   attempt: (attempt: number, maxAttempts: number) => msg`Attempt ${attempt}/${maxAttempts}`,
   groupLabel: (count: number, status: string) => msg`${count} ${status} nodes`,
   groupShare: (count: number, total: number, percent: number) =>
@@ -61,6 +63,16 @@ export const jobsMessages = {
   collapseLogsFor: (label: string) => msg`Collapse the logs for ${label}`,
   expandLogsFor: (label: string) => msg`Expand the logs for ${label}`,
 
-  loading: msg`Loading...`,
   logsError: msg`Error loading logs...`,
+  noLogs: msg`No log was written.`,
+  nodeSkipped: msg`It did not run, because another node of the job failed first.`,
+  nodeNotTaken: msg`Not taken: the path did not reach it.`,
+  notTaken: msg`Not taken`,
+  portsChosen: (ports: string) => msg`Ports chosen: ${ports}`,
+  noPortChosen: msg`No case matched: the switch opened no port.`,
+  errorBranch: (nodes: string) => msg`The failure went to the error output: ${nodes}.`,
+  jobGraph: msg`Graph of the job`,
+  openLogsOf: (id: string) => msg`Open the logs of ${id}`,
+  agent: msg`Agent`,
+  liveTailStopped: msg`The live tail stopped. The lines above were read before it broke.`,
 };

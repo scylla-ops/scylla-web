@@ -1,8 +1,8 @@
 import type { RouteParams } from '@scylla/core-sdk';
 
 /**
- * A route path as a list of segments: `/:organizationSlug/agents` is
- * `[':organizationSlug', 'agents']`. A segment that starts with `:` is a parameter.
+ * A route path as a list of segments: `/:workspaceSlug/agents` is
+ * `[':workspaceSlug', 'agents']`. A segment that starts with `:` is a parameter.
  */
 export type RoutePath = readonly string[];
 
@@ -28,17 +28,18 @@ export const startsWithPath = (path: RoutePath, prefix: RoutePath): boolean =>
 /**
  * Orders the more specific path first: at the first segment where the two
  * differ in kind, a static segment beats a parameter. So `/login` is tried
- * before `/:organizationSlug`.
+ * before `/:workspaceSlug`. With no such segment, the shorter path comes first, so
+ * the order stays consistent for any list of paths.
  */
 export const bySpecificity = (a: RoutePath, b: RoutePath): number => {
   for (let index = 0; index < Math.min(a.length, b.length); index++) {
     const rank = Number(isParam(a[index])) - Number(isParam(b[index]));
     if (rank !== 0) return rank;
   }
-  return 0;
+  return a.length - b.length;
 };
 
-/** `[':organizationSlug', 'agents']` with `{ organizationSlug: 'acme' }` → `/acme/agents`. `null` when a parameter has no value. */
+/** `[':workspaceSlug', 'agents']` with `{ workspaceSlug: 'acme' }` → `/acme/agents`. `null` when a parameter has no value. */
 export const fillPath = (pattern: RoutePath, params: RouteParams): string | null => {
   const segments: string[] = [];
   for (const segment of pattern) {
@@ -48,3 +49,16 @@ export const fillPath = (pattern: RoutePath, params: RouteParams): string | null
   }
   return joinPath(segments);
 };
+
+/**
+ * The target of a redirect, with the value of each `:name` segment from the params of the route:
+ * `/admin/:page` with `{ page: 'users' }` → `/admin/users`. A segment with no value stays.
+ */
+export const fillTarget = (target: string, params: RouteParams): string =>
+  target
+    .split('/')
+    .map(segment => {
+      const value = isParam(segment) ? params[segment.slice(1)] : undefined;
+      return value ? encodeURIComponent(value) : segment;
+    })
+    .join('/');

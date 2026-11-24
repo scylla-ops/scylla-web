@@ -18,7 +18,7 @@ describe('createSecretsItems', () => {
     expect(pattern.test('path/to/secret')).toBe(false);
   });
 
-  it('declares name, description, and value, in that order', () => {
-    expect(createSecretsItems().map(i => i.id)).toEqual(['name', 'description', 'value']);
+  it('declares the name, then the value', () => {
+    expect(createSecretsItems().map(i => i.id)).toEqual(['name', 'value']);
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import { render } from '@test/render.ts';
+import userEvent from '@testing-library/user-event';
+import { findTooltip, render } from '@test/render.ts';
 import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import TriggerSourceCell from './TriggerSourceCell.svelte';
 
@@ -13,6 +14,7 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  fromFile: false,
   ...overrides,
 });
 
@@ -39,8 +41,8 @@ describe('TriggerSourceCell', () => {
       trigger: trigger({
         source: {
           kind: 'webhook',
-          signatureHeader: '',
           webhookUrl: 'https://x/webhooks/1',
+          conditions: [],
         },
       }),
     });
@@ -54,13 +56,43 @@ describe('TriggerSourceCell', () => {
       trigger: trigger({
         source: {
           kind: 'webhook',
-          signatureHeader: '',
           webhookUrl: 'https://x/webhooks/1',
+          conditions: [],
         },
       }),
     });
 
     expect(screen.getByRole('button', { name: 'Copy url' })).toBeInTheDocument();
+  });
+
+  it('counts the conditions of a webhook in a badge, and lists them in its tooltip', async () => {
+    render(TriggerSourceCell, {
+      trigger: trigger({
+        source: {
+          kind: 'webhook',
+          webhookUrl: 'https://x/webhooks/1',
+          conditions: [
+            { source: 'header', field: 'X-GitHub-Event', operator: 'is', values: ['push'] },
+            { source: 'jsonPointer', field: '/ref', operator: 'matches', values: ['refs/heads/*'] },
+          ],
+        },
+      }),
+    });
+
+    await userEvent.hover(screen.getByText('2 conditions'));
+    const tooltip = await findTooltip();
+    expect(tooltip).toHaveTextContent('X-GitHub-Event is push');
+    expect(tooltip).toHaveTextContent('/ref matches refs/heads/*');
+  });
+
+  it('shows no badge for a webhook with no condition', () => {
+    render(TriggerSourceCell, {
+      trigger: trigger({
+        source: { kind: 'webhook', webhookUrl: 'https://x/webhooks/1', conditions: [] },
+      }),
+    });
+
+    expect(screen.queryByText(/condition/)).not.toBeInTheDocument();
   });
 
   it('shows a plain em dash for a source arm this build does not understand', () => {

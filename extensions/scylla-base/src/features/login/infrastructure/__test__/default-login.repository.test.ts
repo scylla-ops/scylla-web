@@ -1,56 +1,139 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { PasswordResetDelivery } from '@base/generated/scylla/auth/v1/auth.ts';
-import type { IAuthServiceClient } from '@base/generated/scylla/auth/v1/auth.client.ts';
+import type { IAccountServiceClient } from '@base/generated/scylla/accounts/v1/account_service.client.ts';
+import type { IProfileServiceClient } from '@base/generated/scylla/accounts/v1/profile_service.client.ts';
 import { failedCall, unaryCall } from '@test/grpc.ts';
 import { DefaultLoginRepository } from '../default-login.repository.ts';
-import { hasSession } from '../session.ts';
 
-const client = (overrides: Partial<Record<keyof IAuthServiceClient, unknown>> = {}) =>
+const browserSession = vi.hoisted(() => ({ open: vi.fn() }));
+vi.mock('@platform/grpc', () => ({ browserSession }));
+
+const token = { value: 'a-token' };
+
+const accounts = (overrides: Partial<Record<keyof IAccountServiceClient, unknown>> = {}) =>
   ({
-    login: vi.fn(() => unaryCall({ token: 'a-token', userId: { value: 'user-1' } })),
-    requestPasswordReset: vi.fn(() => unaryCall({ delivery: PasswordResetDelivery.SERVER_LOG })),
+    signIn: vi.fn(() => unaryCall({ token, refreshToken: '' })),
+    signUp: vi.fn(() => unaryCall({})),
+    verifyEmail: vi.fn(() => unaryCall({})),
+    listSignInMethods: vi.fn(() =>
+      unaryCall({
+        providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
+        signUpMode: 'invite_only',
+      }),
+    ),
+    requestPasswordReset: vi.fn(() => unaryCall({})),
     resetPassword: vi.fn(() => unaryCall({})),
     ...overrides,
-  }) as unknown as IAuthServiceClient;
+  }) as unknown as IAccountServiceClient;
 
-beforeEach(() => localStorage.clear());
+const acceptedAt = { seconds: 1_795_000_000n, nanos: 0 };
+
+const profiles = () =>
+  ({
+    getMe: vi.fn(() =>
+      unaryCall({
+        user: { id: { value: 'user-1' }, displayName: 'Ada', email: 'ada@example.com' },
+        termsAcceptanceRequired: true,
+        acceptedTerms: { version: '1.0', acceptedAt },
+      }),
+    ),
+    acceptTerms: vi.fn(() => unaryCall({ acceptance: { version: '2.0', acceptedAt } })),
+  }) as unknown as IProfileServiceClient;
+
+beforeEach(() => {
+  localStorage.clear();
+  vi.clearAllMocks();
+});
 
 describe('DefaultLoginRepository', () => {
-  it('opens a session with the token the server gives', async () => {
-    const auth = client();
+  it('signs in with the cookie, keeps the token and the id of the user', async () => {
+    const client = accounts();
 
-    await new DefaultLoginRepository(auth).login('ada@example.com', 'hunter22');
+    await new DefaultLoginRepository(client, profiles()).login('ada@example.com', 'hunter22');
 
-    expect(auth.login).toHaveBeenCalledWith({
+    expect(client.signIn).toHaveBeenCalledWith({
       identifier: 'ada@example.com',
       password: 'hunter22',
+      cookie: true,
     });
-    expect(hasSession()).toBe(true);
+    expect(browserSession.open).toHaveBeenCalledWith(token);
+    expect(localStorage.getItem('userId')).toBe('user-1');
   });
 
   it('re-codes UNAUTHENTICATED as wrong credentials, so the global handler does not sign out', async () => {
-    const auth = client({ login: vi.fn(() => failedCall('UNAUTHENTICATED', 'no such user')) });
+    const client = accounts({ signIn: vi.fn(() => failedCall('UNAUTHENTICATED', 'no such user')) });
 
     await expect(
-      new DefaultLoginRepository(auth).login('ada@example.com', 'wrong'),
+      new DefaultLoginRepository(client, profiles()).login('ada@example.com', 'wrong'),
     ).rejects.toMatchObject({ code: 'INVALID_CREDENTIALS', message: 'Incorrect credentials' });
-    expect(hasSession()).toBe(false);
+    expect(browserSession.open).not.toHaveBeenCalled();
   });
 
-  it('gives the delivery of a reset request in domain terms', async () => {
-    const auth = client();
-
+  it('gives the sign-in methods in domain terms', async () => {
     await expect(
-      new DefaultLoginRepository(auth).requestPasswordReset('ada@example.com'),
-    ).resolves.toBe('server-log');
-    expect(auth.requestPasswordReset).toHaveBeenCalledWith({ email: { value: 'ada@example.com' } });
+      new DefaultLoginRepository(accounts(), profiles()).listSignInMethods(),
+    ).resolves.toEqual({
+      providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
+      signUpMode: 'invite_only',
+    });
+  });
+
+  it('sends the sign-up with an empty invitation by default', async () => {
+    const client = accounts();
+
+    await new DefaultLoginRepository(client, profiles()).signUp({
+      email: 'ada@example.com',
+      password: 'hunter22',
+      displayName: 'Ada',
+    });
+
+    expect(client.signUp).toHaveBeenCalledWith({
+      email: 'ada@example.com',
+      password: 'hunter22',
+      displayName: 'Ada',
+      invitationToken: '',
+    });
+  });
+
+  it('sends the version of the terms that the person accepted', async () => {
+    const client = accounts();
+
+    await new DefaultLoginRepository(client, profiles()).signUp({
+      email: 'ada@example.com',
+      password: 'hunter22',
+      displayName: 'Ada',
+      acceptedTermsVersion: '2.0',
+    });
+
+    expect(client.signUp).toHaveBeenCalledWith(
+      expect.objectContaining({ acceptedTermsVersion: '2.0' }),
+    );
+  });
+
+  it('gives the terms of the user of the session in domain terms', async () => {
+    await expect(new DefaultLoginRepository(accounts(), profiles()).termsStatus()).resolves.toEqual(
+      {
+        acceptanceRequired: true,
+        accepted: { version: '1.0', acceptedAt: '2026-11-18T11:06:40.000Z' },
+        displayName: 'Ada',
+        email: 'ada@example.com',
+      },
+    );
+  });
+
+  it('accepts a version of the terms, and gives the acceptance', async () => {
+    const client = profiles();
+
+    const acceptance = await new DefaultLoginRepository(accounts(), client).acceptTerms('2.0');
+
+    expect(client.acceptTerms).toHaveBeenCalledWith({ version: '2.0' });
+    expect(acceptance).toEqual({ version: '2.0', acceptedAt: '2026-11-18T11:06:40.000Z' });
   });
 
   it('passes the token and the new password through', async () => {
-    const auth = client();
+    const client = accounts();
 
-    await new DefaultLoginRepository(auth).resetPassword('a-token', 'hunter22');
+    await new DefaultLoginRepository(client, profiles()).resetPassword('a-token', 'hunter22');
 
-    expect(auth.resetPassword).toHaveBeenCalledWith({ token: 'a-token', newPassword: 'hunter22' });
+    expect(client.resetPassword).toHaveBeenCalledWith({ token: 'a-token', password: 'hunter22' });
   });
 });

@@ -14,7 +14,6 @@ const secret: SecretEntity = {
   id: 'secret-1',
   projectId: 'project-1',
   name: 'DATABASE_URL',
-  description: 'prod db',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
 };
@@ -57,29 +56,11 @@ afterEach(() => {
 });
 
 describe('EditSecretDialog', () => {
-  it('starts from the description and never shows the value', async () => {
+  it('never shows the value', async () => {
     setUp();
     await focusSettled();
 
-    expect(screen.getByLabelText('Description')).toHaveValue('prod db');
     expect(screen.getByLabelText('New value')).toHaveValue('');
-  });
-
-  it('saves a description change at once, with no warning', async () => {
-    const user = userEvent.setup();
-    setUp();
-    await focusSettled();
-
-    await user.clear(screen.getByLabelText('Description'));
-    await user.type(screen.getByLabelText('Description'), 'staging db');
-    await user.click(screen.getByRole('button', { name: 'Save' }));
-
-    await waitFor(() =>
-      expect(update).toHaveBeenCalledWith({ secretId: 'secret-1', description: 'staging db' }),
-    );
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-    expect(listPipelines).not.toHaveBeenCalled();
-    expect(onClose).toHaveBeenCalled();
   });
 
   it('warns before it replaces a value, with the pipelines that use the secret', async () => {
@@ -106,7 +87,6 @@ describe('EditSecretDialog', () => {
     await waitFor(() =>
       expect(update).toHaveBeenCalledWith({
         secretId: 'secret-1',
-        description: 'prod db',
         value: 'postgres://new',
       }),
     );

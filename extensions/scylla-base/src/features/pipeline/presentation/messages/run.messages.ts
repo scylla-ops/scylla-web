@@ -1,0 +1,40 @@
+import { msg } from '@lingui/core/macro';
+
+/** The Run dialog of a project with a linked repository, and the filters of its jobs. */
+export const runMessages = {
+  title: (name: string) => msg`Run ${name}`,
+  titleUnnamed: msg`Run the pipeline`,
+  description: msg`Choose the code to run. Scylla checks it out on the agent and reports on its commit.`,
+  target: msg`Branch, tag or commit`,
+  searchRefs: msg`Search a branch or a tag`,
+  noRefs: msg`No branch or tag`,
+  head: (sha: string) => msg`head ${sha}`,
+  defaultRef: msg`default`,
+  useSha: msg`Use a commit SHA`,
+  shaLabel: msg`Commit SHA`,
+  shaPlaceholder: msg`7 to 40 hexadecimal characters`,
+  shaEmpty: msg`Type the SHA of a commit.`,
+  shaNotHex: msg`A SHA has only the characters 0 to 9 and a to f.`,
+  shaLength: msg`A SHA has 7 to 40 characters.`,
+  reportsOn: (provider: string) => msg`Scylla reports the result to ${provider} on this commit.`,
+  reportsOff: msg`The reports of this repository are off: the provider gets no result.`,
+  fromFile: (path: string) =>
+    msg`This pipeline comes from ${path}: Scylla reads the file at this commit.`,
+  cancel: msg`Cancel`,
+  run: msg`Run`,
+
+  filters: msg`Filter the jobs`,
+  branch: msg`Branch`,
+  allBranches: msg`Branch: All`,
+  event: msg`Event`,
+  allEvents: msg`Event: All`,
+  eventPush: msg`Push`,
+  eventPullRequest: msg`Pull request`,
+  eventTag: msg`Tag`,
+  eventManual: msg`Manual run`,
+  eventProviderRerun: msg`Re-run on the provider`,
+  eventTrigger: msg`Trigger`,
+  author: msg`Author login`,
+  pullRequest: msg`PR number`,
+  clearFilters: msg`Clear filters`,
+};

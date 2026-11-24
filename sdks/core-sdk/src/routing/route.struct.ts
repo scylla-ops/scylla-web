@@ -2,7 +2,7 @@
 export type RouteParams = Record<string, string | undefined>;
 
 /**
- * Where a module's routes graft, e.g. `organization`. A module declares the
+ * Where a module's routes graft, e.g. `workspace`. A module declares the
  * mounts; the core gives each one its path, layout and wrappers.
  */
 export type RouteMount = string;

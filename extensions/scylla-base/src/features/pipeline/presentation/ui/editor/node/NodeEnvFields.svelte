@@ -1,8 +1,10 @@
 <script lang="ts">
   import PlusIcon from '@lucide/svelte/icons/plus';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import { Permission, can } from '@platform/authz';
   import { createQuery } from '@scylla/core-sdk';
   import { secretQueries } from '@base/features/secret';
+  import { SearchSelect } from '@scylla/ui';
   import {
     Button,
     Input,
@@ -25,9 +27,21 @@
 
   let { draft, projectId }: Props = $props();
 
-  // Same options object as the `secret` module: one cache entry.
-  const secretsQuery = createQuery(() => secretQueries.byProject(projectId ?? ''));
+  // Same options object as the `secret` module: one cache entry. Without LIST_SECRETS, the list is
+  // empty and the field takes a typed name.
+  const secretsQuery = createQuery(() => ({
+    ...secretQueries.byProject(projectId ?? ''),
+    enabled: !!projectId && can(Permission.LIST_SECRETS, { projectId }),
+  }));
   const secrets = $derived(secretsQuery.data ?? []);
+
+  /** A reference can name a secret that is not there: it stays in the list. */
+  const secretChoices = (reference: string) => [
+    ...(reference && !secrets.some(secret => secret.name === reference)
+      ? [{ value: reference, label: reference }]
+      : []),
+    ...secrets.map(secret => ({ value: secret.name, label: secret.name })),
+  ];
 
   // Below the container's `sm` width the value control moves to its own line.
   const valueClass = 'min-w-0 order-last basis-full @sm:order-none @sm:flex-1';
@@ -46,6 +60,10 @@
       <Select
         type="single"
         value={row.kind}
+        items={[
+          { value: 'literal', label: t(nodeMessages.envKindLiteral) },
+          { value: 'secret', label: t(nodeMessages.envKindSecret) },
+        ]}
         onValueChange={value => draft.setEnv(index, { kind: value as EnvRow['kind'] })}
       >
         <SelectTrigger aria-label={t(nodeMessages.envKindLabel)} class="w-26 shrink-0">
@@ -64,23 +82,14 @@
       {#if row.kind === 'secret'}
         <!-- A free-text box when there is nothing to pick: writing a reference must still work. -->
         {#if secrets.length > 0 || row.secretRef}
-          <Select
-            type="single"
+          <SearchSelect
+            class={valueClass}
+            options={secretChoices(row.secretRef)}
             value={row.secretRef}
             onValueChange={value => draft.setEnv(index, { secretRef: value })}
-          >
-            <SelectTrigger aria-label={t(nodeMessages.referenceASecret)} class={valueClass}>
-              <SelectValue placeholder={t(nodeMessages.referenceASecret)} />
-            </SelectTrigger>
-            <SelectContent>
-              {#if row.secretRef && !secrets.some(secret => secret.name === row.secretRef)}
-                <SelectItem value={row.secretRef} label={row.secretRef}>{row.secretRef}</SelectItem>
-              {/if}
-              {#each secrets as secret (secret.id)}
-                <SelectItem value={secret.name} label={secret.name}>{secret.name}</SelectItem>
-              {/each}
-            </SelectContent>
-          </Select>
+            placeholder={t(nodeMessages.referenceASecret)}
+            aria-label={t(nodeMessages.referenceASecret)}
+          />
         {:else}
           <Input
             value={row.secretRef}

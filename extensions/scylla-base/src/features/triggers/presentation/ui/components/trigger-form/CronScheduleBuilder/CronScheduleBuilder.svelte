@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { i18n } from '@lingui/core';
   import {
     Input,
     Label,
@@ -16,7 +15,7 @@
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { buildCron, pad2, parseCron, type CronFrequency, type CronModel } from '@base/features/triggers/presentation/mappers/cron.mapper.ts';
-import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/presenters/cron.presenter.ts';
+  import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/presenters/cron.presenter.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
 
   interface Props {
@@ -61,7 +60,11 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
 </script>
 
 {#snippet numberSelect(label: string, value: number, options: number[], onPick: (n: number) => void, format: (n: number) => string)}
-  <Select type="single" value={String(value)} onValueChange={picked => onPick(Number(picked))}>
+  <Select
+    type="single"
+    value={String(value)}
+    items={options.map(option => ({ value: String(option), label: format(option) }))}
+    onValueChange={picked => onPick(Number(picked))}>
     <SelectTrigger class="w-[72px]" aria-label={label}>
       <SelectValue />
     </SelectTrigger>
@@ -107,14 +110,14 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
       <Label
         for={`freq-${frequency.value}`}
         class={cn(
-          'flex cursor-pointer items-start gap-2 rounded-md border p-2.5 transition-colors',
+          'flex cursor-pointer items-center gap-2 rounded-md border p-2.5 transition-colors',
           model.frequency === frequency.value
             ? 'border-primary bg-primary/5'
             : 'hover:bg-muted/50',
           frequency.wide && 'col-span-2',
         )}
       >
-        <RadioGroupItem value={frequency.value} id={`freq-${frequency.value}`} class="mt-0.5" />
+        <RadioGroupItem value={frequency.value} id={`freq-${frequency.value}`} />
         <div class="flex flex-col">
           <span class="text-sm font-medium leading-tight">{frequency.title}</span>
           <span class="text-xs text-muted-foreground">{frequency.description}</span>
@@ -147,7 +150,7 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
       >
         {#each WEEKDAYS as day (day.value)}
           <ToggleGroupItem value={String(day.value)} class="px-2.5">
-            {i18n._(day.label)}
+            {t(day.label)}
           </ToggleGroupItem>
         {/each}
       </ToggleGroup>
@@ -179,7 +182,7 @@ import { describeCron, WEEKDAYS } from '@base/features/triggers/presentation/pre
   {/if}
 
   <div class="flex flex-wrap items-center gap-2 rounded-md bg-muted/50 px-3 py-2">
-    <span class="text-xs text-muted-foreground">{describeCron(model, i18n)}</span>
+    <span class="text-xs text-muted-foreground">{describeCron(model)}</span>
     <code class="ml-auto font-mono text-xs text-foreground">{expression || '—'}</code>
   </div>
 </div>

@@ -5,15 +5,16 @@
   import LogoScyllaDark from '@scylla/ui/assets/logo_scylla_dark.svg';
   import { t } from '@scylla/ui/i18n';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
+  import NotificationsMenu from '../../layout/ui/NotificationsMenu/NotificationsMenu.svelte';
   import AuthGuard from '../AuthGuard/Auth.guard.svelte';
 
   let { children }: { children: Snippet } = $props();
 </script>
 
 <!--
-  The layout of the `personal` mount: the pages of the signed-in user that need no organization.
-  The frame of the sign-in pages (the logo, a centered column, a way back), with no organization
-  gate, no sidebar and no bar: a user who has no organization reaches these pages too.
+  The layout of the `personal` mount: the pages of the signed-in user that need no workspace.
+  The frame of the sign-in pages (the logo, a centered column, a way back), with no workspace
+  gate, no sidebar and no bar: a user who has no workspace reaches these pages too.
 -->
 <AuthGuard>
   <!-- `pt-16`: the core's dark-mode toggle is fixed in the top-right corner, 56px high. -->
@@ -23,14 +24,17 @@
     <img src={LogoScyllaDark} alt="Scylla" class="mb-8 hidden w-56 dark:block" />
 
     <div class="flex w-full max-w-5xl flex-col gap-4">
-      <!-- `/` opens the organization of the user, or the first-organization screen. -->
-      <a
-        href="/"
-        class="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
-      >
-        <ArrowLeftIcon class="size-4" />
-        {t(layoutMessages.back)}
-      </a>
+      <!-- `/` opens the workspace of the user, or the first-workspace screen. -->
+      <div class="flex items-center justify-between gap-2">
+        <a
+          href="/"
+          class="inline-flex w-fit items-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+        >
+          <ArrowLeftIcon class="size-4" />
+          {t(layoutMessages.back)}
+        </a>
+        <NotificationsMenu />
+      </div>
 
       <!-- The page puts the sign-out after its last section: the router places it out of this flow. -->
       {@render children()}

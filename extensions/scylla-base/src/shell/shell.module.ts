@@ -1,17 +1,27 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { RequirePermission, authorizationReady, can } from '@platform/authz';
-import OrganizationSelector from './presentation/layout/ui/context-selector/OrganizationSelector/OrganizationSelector.svelte';
+import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
+import WorkspaceSelector from './presentation/layout/ui/context-selector/WorkspaceSelector/WorkspaceSelector.svelte';
 import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverlays.svelte';
+import ConsentHost from './presentation/layout/ui/ConsentHost/ConsentHost.svelte';
+import { languageCommands } from './presentation/layout/language.commands.ts';
 import { layoutMessages } from './presentation/layout/messages/layout.messages.ts';
+import AdminBar from './presentation/layout/ui/AdminBar/AdminBar.svelte';
+import { ADMIN_SECTION } from './presentation/admin-space.ts';
 import NavUser from './presentation/layout/ui/NavUser/NavUser.svelte';
 import NewBadge from './presentation/layout/ui/NewBadge.svelte';
+import GlobalSearch from './presentation/layout/ui/GlobalSearch/GlobalSearch.svelte';
+import NotificationsMenu from './presentation/layout/ui/NotificationsMenu/NotificationsMenu.svelte';
+import ShellBrand from './presentation/layout/ui/ShellBrand/ShellBrand.svelte';
+import { projectLinks } from './presentation/layout/project-links.state.svelte.ts';
 import { markNavSeen } from './presentation/layout/whats-new.state.svelte.ts';
 import { reportQueryError } from './presentation/report-query-error.ts';
 import { retryQueryError } from './presentation/retry-query-error.ts';
+import AdminColumnWrapper from './presentation/router/AdminColumn.wrapper.svelte';
 import AppLayout from './presentation/router/AppLayout.svelte';
 import ContextCleanerWrapper from './presentation/router/ContextCleaner.wrapper.svelte';
-import LoginRedirect from './presentation/router/LoginRedirect.svelte';
-import OrganizationSyncWrapper from './presentation/router/OrganizationSync.wrapper.svelte';
+import NotFoundPage from './presentation/router/NotFound/NotFound.page.svelte';
+import WorkspaceSyncWrapper from './presentation/router/WorkspaceSync.wrapper.svelte';
 import PersonalLayout from './presentation/router/PersonalLayout/PersonalLayout.svelte';
 import { breadcrumbParams, linkParams } from './presentation/shell-params.ts';
 
@@ -26,35 +36,91 @@ export const ShellModule = {
   mounts: {
     public: {},
     app: { layout: AppLayout, shell: true },
-    // Signed in, but outside any organization: a user who has none reaches these pages too.
+    // Signed in, but outside any workspace: a user who has none reaches these pages too.
     personal: { layout: PersonalLayout },
-    organization: { parent: 'app', path: ':organizationSlug', wrapper: OrganizationSyncWrapper },
+    workspace: {
+      parent: 'app',
+      path: ':workspaceSlug',
+      wrapper: WorkspaceSyncWrapper,
+    },
+    // Members and roles of the workspace.
+    access: {
+      parent: 'workspace',
+      path: 'access',
+      breadcrumb: () => ({ label: layoutMessages.access }),
+    },
+    // The pages of the whole server: a space apart, outside any workspace.
+    admin: {
+      parent: 'app',
+      path: 'admin',
+      space: ADMIN_SECTION,
+      wrapper: AdminColumnWrapper,
+    },
+    // The old links of the pages of the server, from before they left the workspace. No wrapper:
+    // the workspace keeps no memory of a page that only sends the person on.
+    instance: { parent: 'app', path: ':workspaceSlug/instance' },
     project: {
-      parent: 'organization',
+      parent: 'workspace',
       path: 'projects/:projectId',
       wrapper: ContextCleanerWrapper,
-      breadcrumb: ({ projectName }) => ({ label: layoutMessages.project, highlight: projectName }),
+      breadcrumb: ({ projectName }) => ({ label: projectName ?? layoutMessages.project }),
     },
   },
   routes: {
     // The pages the shell owns, which send the user on to a module's page.
-    app: [{ page: () => import('./presentation/router/OrganizationRedirect.wrapper.svelte') }],
-    organization: [{ redirect: 'dashboard' }],
+    app: [{ page: () => import('./presentation/router/WorkspaceRedirect.wrapper.svelte') }],
+    workspace: [{ redirect: 'dashboard' }],
+    access: [{ redirect: 'members' }],
+    admin: [{ page: () => import('./presentation/router/AdminRedirect.wrapper.svelte') }],
+    instance: [
+      { redirect: '/admin' },
+      {
+        path: ':page',
+        redirect: '/admin/:page',
+        children: [{ path: ':id', redirect: '/admin/:page/:id' }],
+      },
+    ],
   },
   navSections: [
-    { id: 'organization', title: layoutMessages.organization, header: OrganizationSelector },
-    { id: 'system', title: layoutMessages.system },
+    { id: 'workspace', title: layoutMessages.workspace },
+    {
+      id: 'project',
+      title: layoutMessages.project,
+      within: { railItem: 'projects', titleParam: 'projectName' },
+    },
+    // The rail of a workspace opens it. Its pages show in a frame of their own.
+    {
+      id: ADMIN_SECTION,
+      title: layoutMessages.instanceAdministration,
+      railItem: { icon: ShieldCheckIcon },
+      space: { icon: ShieldCheckIcon, bar: AdminBar },
+    },
+    // The user menu opens it: the avatar of the rail is its item.
+    { id: 'account', title: layoutMessages.account, noRailItem: true },
+    // The user menu opens it too: the guided tours and the docs.
+    { id: 'help', title: layoutMessages.help, noRailItem: true },
+    // The bell opens it.
+    { id: 'notifications', title: layoutMessages.notifications, noRailItem: true },
   ],
-  access: { can: permission => can(permission), ready: authorizationReady, guard: RequirePermission },
+  access: {
+    can: permission => can(permission),
+    ready: authorizationReady,
+    guard: RequirePermission,
+  },
   shell: {
+    brand: ShellBrand,
+    topBarEnd: [GlobalSearch, NotificationsMenu, WorkspaceSelector],
     sidebarFooter: [NavUser],
     overlays: [LaunchOverlays],
+    appOverlays: [ConsentHost],
     navBadge: NewBadge,
     onNavOpen: markNavSeen,
+    secondSidebarLinks: projectLinks,
     breadcrumbParams,
     linkParams,
   },
+  commands: languageCommands,
   onQueryError: reportQueryError,
   onQueryRetry: retryQueryError,
-  fallback: LoginRedirect,
+  fallback: NotFoundPage,
 } satisfies ScyllaModule;

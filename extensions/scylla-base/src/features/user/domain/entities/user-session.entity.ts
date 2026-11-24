@@ -2,9 +2,10 @@
 export interface UserSessionEntity {
   id: string;
   createdAt: string;
-  /** Up to five minutes old: the server moves it at most once every five minutes. */
+  /** The last refresh of the session. */
   lastActiveAt: string;
-  expiresAt: string;
+  /** How the session was opened, e.g. `password` or `oidc`. */
+  methods?: string[];
   /** Empty when the client sent none. */
   userAgent: string;
   /** Empty when the server does not know it. */

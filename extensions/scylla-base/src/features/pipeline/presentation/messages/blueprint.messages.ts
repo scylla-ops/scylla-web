@@ -13,6 +13,14 @@ export const blueprintMessages = {
   shScriptDetail: msg`A POSIX shell script`,
   commandDetail: msg`One program and its arguments`,
 
+  flow: msg`Flow`,
+  ifNode: msg`If`,
+  ifDetail: msg`Two ways: true or false`,
+  switchNode: msg`Switch`,
+  switchDetail: msg`One way for each case`,
+  mergeNode: msg`Merge`,
+  mergeDetail: msg`Joins branches again`,
+
   addNode: msg`Add a node`,
   addAfter: (id: string) => msg`Add a node after ${id}`,
   insertNode: msg`Insert a node here`,
@@ -21,7 +29,15 @@ export const blueprintMessages = {
   keyCancel: msg`cancel`,
   closeMenu: msg`Close the menu`,
 
+  loadingPipeline: msg`Loading the pipeline…`,
+  slowLoad: msg`Taking longer than usual…`,
+  loadFailed: msg`Couldn't load the pipeline`,
+  loadFailedHint: msg`Check your connection, then try again.`,
+  retry: msg`Try again`,
+
   arrange: msg`Arrange`,
+  selectMode: msg`Select`,
+  selectModeHint: msg`Drag a box around nodes to select them, then save them to the library. Shift does the same.`,
   nodeStyle: msg`Node style`,
   styleDetailed: msg`Detailed`,
   styleMinimal: msg`Simplified`,

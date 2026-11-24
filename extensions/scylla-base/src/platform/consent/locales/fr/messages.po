@@ -1,0 +1,80 @@
+msgid ""
+msgstr ""
+"POT-Creation-Date: 2026-11-21 05:32+0100\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: @lingui/cli\n"
+"Language: fr\n"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:13
+msgid "Accept all"
+msgstr "Tout accepter"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:18
+msgid "Always on"
+msgstr "Toujours actif"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:15
+msgid "Choose the purposes that you accept. A purpose that you refuse loads no tracker. You can change your choice at any time."
+msgstr "Choisissez les finalités que vous acceptez. Une finalité que vous refusez ne charge aucun traceur. Vous pouvez changer votre choix à tout moment."
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:6
+msgid "Cookie policy"
+msgstr "Politique de cookies"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:5
+msgid "Cookie settings"
+msgstr "Paramètres des cookies"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:12
+msgid "Customize"
+msgstr "Personnaliser"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:19
+msgid "Partners: {names}"
+msgstr "Partenaires : {names}"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:10
+msgid "Purposes: {purposes}"
+msgstr "Finalités : {purposes}"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:11
+msgid "Reject all"
+msgstr "Tout refuser"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:20
+msgid "Save my choices"
+msgstr "Enregistrer mes choix"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:9
+msgid "Scylla uses the cookies and the storage that the service needs. With your consent, it also uses trackers for the purposes below. You can change your choice at any time in the cookie settings."
+msgstr "Scylla utilise les cookies et le stockage dont le service a besoin. Avec votre consentement, il utilise aussi des traceurs pour les finalités ci-dessous. Vous pouvez changer votre choix à tout moment dans les paramètres des cookies."
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:16
+msgid "Strictly necessary"
+msgstr "Strictement nécessaire"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:17
+msgid "The session, the security of the sign-in and your interface choices. The service needs them, so they are always on."
+msgstr "La session, la sécurité de la connexion et vos choix d'interface. Le service en a besoin, ils sont donc toujours actifs."
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:22
+msgid "You have not made a choice yet."
+msgstr "Vous n'avez pas encore fait de choix."
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:23
+msgid "Your browser sends Global Privacy Control. Scylla takes it as a refusal of each purpose, so the trackers that need consent stay off."
+msgstr "Votre navigateur envoie le signal Global Privacy Control. Scylla le prend comme un refus de chaque finalité : les traceurs qui demandent un consentement restent inactifs."
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:8
+msgid "Your choice about cookies"
+msgstr "Votre choix sur les cookies"
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:24
+msgid "Your choice is saved."
+msgstr "Votre choix est enregistré."
+
+#: extensions/scylla-base/src/platform/consent/presentation/messages/consent.messages.ts:21
+msgid "Your last choice: {date}"
+msgstr "Votre dernier choix : {date}"

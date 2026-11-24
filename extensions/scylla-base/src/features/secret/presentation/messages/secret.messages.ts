@@ -11,7 +11,6 @@ export const secretMessages = {
   createSecret: msg`Create secret`,
 
   name: msg`Name`,
-  description: msg`Description`,
   created: msg`Created`,
   actions: msg`Actions`,
   deleteSecret: msg`Delete secret`,

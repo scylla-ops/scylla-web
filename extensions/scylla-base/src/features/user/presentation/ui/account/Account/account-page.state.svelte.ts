@@ -5,7 +5,6 @@ import {
   profileChanges,
   type ProfileValues,
 } from '@base/features/user/presentation/presenters/profile-form.presenter.ts';
-import { groupUserAccess } from '@base/features/user/presentation/presenters/user-access.presenter.ts';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
 
@@ -16,9 +15,8 @@ import { userMutations, userQueries } from '@base/features/user/presentation/use
 export const createAccountPage = () => {
   const meQuery = createQuery(() => userQueries.me());
   const me = $derived(meQuery.data);
-  const accessQuery = createQuery(() => userQueries.access(me?.id));
   const sessionsQuery = createQuery(() => userQueries.sessions(me?.id));
-  const systemRole = $derived(groupUserAccess(accessQuery.data ?? []).system[0]?.roleName);
+  const systemRole = $derived(me?.instanceAdmin ? i18n._(userMessages.instanceAdmin) : undefined);
 
   const profileUpdate = createMutation(() => userMutations.update());
   const passwordChange = createMutation(() => userMutations.changePassword());
@@ -36,18 +34,6 @@ export const createAccountPage = () => {
     },
     get isLoading() {
       return meQuery.isLoading;
-    },
-    get isError() {
-      return meQuery.isError;
-    },
-    get access() {
-      return accessQuery.data;
-    },
-    get accessLoading() {
-      return accessQuery.isLoading;
-    },
-    get accessError() {
-      return accessQuery.isError;
     },
     /** The role of the first system grant, for the identity card. */
     get systemRole() {
@@ -116,7 +102,7 @@ export const createAccountPage = () => {
     get isDeletingAccount() {
       return accountDeletion.isPending;
     },
-    /** The message of the server: a wrong password, or the organizations to hand over first. */
+    /** The message of the server: a wrong password, or the workspaces to hand over first. */
     get deleteRefusal() {
       return accountDeletion.data ?? undefined;
     },

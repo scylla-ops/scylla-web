@@ -8,6 +8,7 @@
   let { class: className, children, ...rest }: Props = $props();
 </script>
 
-<div data-slot="skeleton" class={cn('bg-accent animate-pulse rounded-md', className)} {...rest}>
+<div data-slot="skeleton" class={cn('skeleton rounded-md', className)}
+  aria-hidden="true" {...rest}>
   {@render children?.()}
 </div>

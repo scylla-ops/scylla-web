@@ -34,7 +34,7 @@ describe('ScyllaError', () => {
   });
 
   it('is transient for the failures that a second call can pass', () => {
-    for (const code of ['UNAVAILABLE', 'DEADLINE_EXCEEDED', 'ABORTED'] as const) {
+    for (const code of ['UNAVAILABLE', 'DEADLINE_EXCEEDED'] as const) {
       expect(new ScyllaError('boom', { code }).isTransient()).toBe(true);
     }
     for (const code of [
@@ -45,6 +45,15 @@ describe('ScyllaError', () => {
     ] as const) {
       expect(new ScyllaError('boom', { code }).isTransient()).toBe(false);
     }
+  });
+
+  it('recognizes ABORTED as a conflict: the item changed since it was read', () => {
+    expect(new ScyllaError('boom', { code: 'ABORTED' }).isConflict()).toBe(true);
+    expect(new ScyllaError('boom', { code: 'FAILED_PRECONDITION' }).isConflict()).toBe(false);
+  });
+
+  it('is not transient for a conflict: sending the same call again does not resolve it', () => {
+    expect(new ScyllaError('boom', { code: 'ABORTED' }).isTransient()).toBe(false);
   });
 
   describe('from', () => {
@@ -106,6 +115,15 @@ describe('ScyllaError', () => {
       );
     });
 
+    it('never shows the server text of a conflict: only a mutation has words for it', () => {
+      expect(
+        new ScyllaError("Pipeline 'p-1' changed since it was read; read it again and retry", {
+          code: 'ABORTED',
+          raw: true,
+        }).userMessage(),
+      ).toBe('An unexpected error occurred');
+    });
+
     it('never shows the raw text of a server fault or of a bug', () => {
       expect(
         new ScyllaError('panic at db.rs:42', { code: 'INTERNAL', raw: true }).userMessage(),
@@ -130,6 +148,31 @@ describe('ScyllaError', () => {
     });
   });
 
+  describe('mutationMessage', () => {
+    it('tells a write refused by a conflict in the words of the app, never the server text', () => {
+      expect(
+        new ScyllaError('the pipeline changed: read it again', {
+          code: 'ABORTED',
+          raw: true,
+        }).mutationMessage(),
+      ).toBe(
+        'Someone else changed this item in the meantime. Check the latest version and try again.',
+      );
+    });
+
+    it('gives the user message of any other failure', () => {
+      expect(
+        new ScyllaError('name must be unique', {
+          code: 'ALREADY_EXISTS',
+          raw: true,
+        }).mutationMessage(),
+      ).toBe('name must be unique');
+      expect(
+        new ScyllaError('panic at db.rs:42', { code: 'INTERNAL', raw: true }).mutationMessage(),
+      ).toBe('An unexpected error occurred');
+    });
+  });
+
   describe('log', () => {
     afterEach(() => {
       vi.unstubAllEnvs();
@@ -146,6 +189,17 @@ describe('ScyllaError', () => {
       expect(error).toHaveBeenCalledWith('[ScyllaError] INTERNAL x.v1.S/Get: boom', cause);
     });
 
+    it('writes a response this build cannot use as an error, in production too', () => {
+      vi.stubEnv('DEV', false);
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      new ScyllaError('no agent', { code: 'MALFORMED_RESPONSE', raw: true }).log();
+      new ScyllaError('new arm', { code: 'UNSUPPORTED_RESPONSE', raw: true }).log();
+
+      expect(error).toHaveBeenCalledWith('[ScyllaError] MALFORMED_RESPONSE: no agent');
+      expect(error).toHaveBeenCalledWith('[ScyllaError] UNSUPPORTED_RESPONSE: new arm');
+    });
+
     it('writes a refusal of the server in development only', () => {
       const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
       const refusal = new ScyllaError('gone', { code: 'NOT_FOUND' });
@@ -157,6 +211,17 @@ describe('ScyllaError', () => {
       vi.stubEnv('DEV', true);
       refusal.log();
       expect(warn).toHaveBeenCalledWith('[ScyllaError] NOT_FOUND: gone');
+    });
+
+    it('writes a conflict as a refusal, not as a fault', () => {
+      vi.stubEnv('DEV', false);
+      const error = vi.spyOn(console, 'error').mockImplementation(() => {});
+      const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+      new ScyllaError('changed', { code: 'ABORTED' }).log();
+
+      expect(error).not.toHaveBeenCalled();
+      expect(warn).not.toHaveBeenCalled();
     });
   });
 });

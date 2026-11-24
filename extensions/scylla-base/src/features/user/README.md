@@ -7,22 +7,22 @@ User accounts: the human principals of the system. This module covers three scre
 administrator's directory of every account, the page of one account for an administrator, and
 the account page of the signed-in user.
 
-## System-wide, not organization-scoped
+## System-wide, not workspace-scoped
 
-The user directory sits in the sidebar's **System** section, not the organization section, and
+The user directory sits in the sidebar's **System** section, not the workspace section, and
 that placement is the module's defining fact: it lists every account in the Scylla installation,
-regardless of which organization you happen to be viewing.
+regardless of which workspace you happen to be viewing.
 
-The question "who is in *this* organization?" is a different one, answered by
+The question "who is in _this_ workspace?" is a different one, answered by
 [membership](../membership/README.md) from grants. Filtering this directory by the current
-organization would quietly conflate the two, and an administrator would lose the only view of
+workspace would quietly conflate the two, and an administrator would lose the only view of
 all accounts.
 
 ## Who is a person
 
 An account has an id, an email, a username and an optional display name. The username is a
 handle: unique, without '@', and shown as `@username`. The display name is what people read.
-One component shows a person everywhere, `UserIdentity` in `shared/`: initials, then the display
+One component shows a person everywhere, `Identity` in `shared/`: initials, then the display
 name (else the username), then the email when it is known (else the handle). A user that no list
 knows any more shows as "Deleted user", never as an id. `UserSummary` is the part of a user that
 it needs, and the member lists of other modules return that type.
@@ -33,17 +33,18 @@ it needs, and the member lists of other modules return that type.
 the status of the account, a "New user" dialog and a deletion of the selection.
 
 **The page of a user** (`/:org/users/:userId`, behind `READ_USER`) is the administrator's view
-of one account: an identity card (status, creation date, id), its profile, its organizations and
+of one account: an identity card (status, creation date, id), its profile, its workspaces and
 roles, its sessions, the security actions (a reset link, the deactivation) and the deletion. Each
 action shows only to a viewer with the permission of its RPC, because a button that the server
 would refuse is noise.
 
 **The account page** (`/:org/account/<section>`) is the signed-in user's own page: a short
 identity header, a settings nav, and one page for each section: profile, appearance, security
-(password and sessions), organizations and roles, and the deletion of the account. The backend lets a user act
+(password and sessions), personal tokens, privacy (the export of the data), the versions, and the
+deletion of the account. The backend lets a user act
 on the own account with no grant, so this page carries no permission. It exists at two
-addresses: `/:org/account` inside the frame of an organization, and `/account` with a plain
-layout, for a user who has no organization yet (an account that an administrator made, a new
+addresses: `/:org/account` inside the frame of an workspace, and `/account` with a plain
+layout, for a user who has no workspace yet (an account that an administrator made, a new
 sign-up) and must still change the password or delete the account. The two pages look alike
 but are separate on purpose: the own account changes the password with the current one, cannot
 change its email or deactivate itself, and deletes itself with its password. The page of a user
@@ -58,11 +59,23 @@ shows no token, and a session id cannot authenticate a call. The app reads the u
 of them at once. The current session cannot be signed out from the list: "Sign out" in the menu
 does that.
 
+## Privacy
+
+The section Privacy of the account page gives the user the data of the account: one JSON file
+with the profile, the emails, the ways to sign in, the sessions, the tokens (with no secret), the
+settings, the workspaces and the roles, and the data that the edition adds. The server makes it in
+one call, because the data of one account is small: there is no job, no mail and no link that
+expires. The file goes to the browser at once, and the page keeps the copy for a second download,
+but the query cache never holds it. The section also links to the public pages of the privacy
+policy and of the cookies, which the operator of the server writes. The deletion dialog tells what
+goes and what stays before the user types the password, and links back to the export, so that a
+user can keep a copy first.
+
 ## Answers that are not errors
 
 Two calls of the account page can fail in a way that the user must read beside the form: a wrong
 current password, and a deletion that the server refuses because the user is the last
-administrator of an organization (the message names those organizations). The queries give
+administrator of an workspace (the message names those workspaces). The queries give
 these refusals back as data, so the page shows them in place and the global error toast does not
 show them a second time.
 
@@ -73,7 +86,7 @@ with `grpc-user.mapper.ts`; there is no data source between them.
 
 The two pages each have a view model (`account-page.state.svelte.ts`,
 `user-detail.state.svelte.ts`) and share their sections: the profile form, the list of
-organizations and roles, and the frame of a section.
+workspaces and roles, and the frame of a section.
 
 ## Related modules
 

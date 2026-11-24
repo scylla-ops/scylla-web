@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
+import { nodeRunIssue } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
   BUILT_IN_NODE_TEMPLATES,
   DefaultNodeTemplateRepository,
@@ -29,9 +30,7 @@ describe('DefaultNodeTemplateRepository', () => {
 
   it('only offers templates that can run as they are', () => {
     for (const template of BUILT_IN_NODE_TEMPLATES) {
-      const { definition } = template;
-      const body = definition.kind === 'exec' ? definition.command : definition.script;
-      expect(body.trim(), template.id).not.toBe('');
+      expect(nodeRunIssue(template.definition), template.id).toBeNull();
     }
   });
 });

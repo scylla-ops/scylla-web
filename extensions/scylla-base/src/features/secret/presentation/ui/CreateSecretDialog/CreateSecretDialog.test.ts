@@ -15,7 +15,6 @@ const setUp = (props: { projectId?: string; setOpen?: (open: boolean) => void } 
     id: 'secret-1',
     projectId: props.projectId ?? 'project-1',
     name: 'DATABASE_URL',
-    description: '',
     createdAt: '',
     updatedAt: '',
   });
@@ -30,7 +29,7 @@ const setUp = (props: { projectId?: string; setOpen?: (open: boolean) => void } 
 
   return render(CreateSecretDialog, {
     projectId: props.projectId ?? 'project-1',
-    isOpen: true,
+    open: true,
     setOpen: props.setOpen ?? vi.fn(),
   });
 };
@@ -41,7 +40,6 @@ beforeEach(() => vi.clearAllMocks());
 const fillValidForm = async (user: ReturnType<typeof userEvent.setup>) => {
   await focusSettled();
   await user.type(screen.getByLabelText('Secret name'), 'DATABASE_URL');
-  await user.type(screen.getByLabelText('Description'), 'the prod db');
   await user.type(screen.getByLabelText('Value'), 'postgres://...');
 };
 
@@ -52,7 +50,6 @@ describe('CreateSecretDialog', () => {
 
     await focusSettled();
     await user.type(screen.getByLabelText('Secret name'), 'not a valid name');
-    await user.type(screen.getByLabelText('Description'), 'desc');
     await user.type(screen.getByLabelText('Value'), 'value');
 
     expect(screen.getByRole('button', { name: 'Create' })).toBeDisabled();
@@ -70,7 +67,6 @@ describe('CreateSecretDialog', () => {
       expect(create).toHaveBeenCalledWith({
         projectId: 'project-42',
         name: 'DATABASE_URL',
-        description: 'the prod db',
         value: 'postgres://...',
       }),
     );

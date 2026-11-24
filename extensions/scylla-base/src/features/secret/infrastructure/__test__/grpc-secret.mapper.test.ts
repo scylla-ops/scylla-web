@@ -1,75 +1,73 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import * as grpcSecret from '../grpc-secret.mapper.ts';
-import type { Secret } from '@base/generated/scylla/secret/v1/secret.ts';
+import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
+import { toDomain, usageToDomain } from '../grpc-secret.mapper.ts';
 
 const TS = { seconds: 1735689600n, nanos: 0 };
 const ISO = '2025-01-01T00:00:00.000Z';
 
+const pipeline = (id: string, secret?: string): Pipeline => ({
+  id: { value: id },
+  name: `pipeline ${id}`,
+  version: 1n,
+  fragmentLinks: [],
+  nodes: [
+    {
+      id: 'build',
+      needs: [],
+      step: { oneofKind: 'exec', exec: { argv: ['make'] } },
+      env: [
+        { name: 'MODE', value: { oneofKind: 'literal', literal: 'release' } },
+        ...(secret ? [{ name: 'TOKEN', value: { oneofKind: 'secret' as const, secret } }] : []),
+      ],
+      timeoutSeconds: 0,
+      retries: 0,
+      workingDir: '',
+    },
+  ],
+  source: PipelineSource.EDITOR,
+  fileKey: '',
+  filePath: '',
+  fileErrorCount: 0,
+});
+
 describe('grpcSecret.toDomain', () => {
-  it('unwraps ids, formats timestamps, never carries the value (metadata only)', () => {
-    const secret: Secret = {
-      secretId: { value: 'secret-1' },
-      projectId: { value: 'project-1' },
-      name: 'DATABASE_URL',
-      description: 'prod db',
-      createdAt: TS,
-      updatedAt: TS,
-    };
-    const domain = grpcSecret.toDomain(secret);
-    expect(domain).toEqual({
+  it('unwraps the ids and formats the times', () => {
+    expect(
+      toDomain({
+        id: { value: 'secret-1' },
+        projectId: { value: 'project-1' },
+        name: 'DATABASE_URL',
+        createdAt: TS,
+        updatedAt: TS,
+      }),
+    ).toEqual({
       id: 'secret-1',
       projectId: 'project-1',
       name: 'DATABASE_URL',
-      description: 'prod db',
       createdAt: ISO,
       updatedAt: ISO,
     });
-    expect(domain).not.toHaveProperty('value');
-  });
-
-  it('defaults to empty ids when the wrappers are absent', () => {
-    const secret: Secret = {
-      secretId: undefined,
-      projectId: undefined,
-      name: 'DATABASE_URL',
-      description: '',
-      createdAt: TS,
-      updatedAt: TS,
-    };
-    const domain = grpcSecret.toDomain(secret);
-    expect(domain.id).toBe('');
-    expect(domain.projectId).toBe('');
   });
 });
 
 describe('grpcSecret.usageToDomain', () => {
-  it('keeps the id and the name of each pipeline of the page, and the total of every page', () => {
-    const usage = grpcSecret.usageToDomain({
-      pipelines: [
-        {
-          pipelineId: { value: 'pipeline-1' },
-          projectId: { value: 'project-1' },
-          name: 'deploy',
-          nodeCount: 2,
-          createdAt: TS,
-          updatedAt: TS,
-        },
-      ],
-      pagination: {
-        totalCount: 12,
-        page: 1,
-        pageSize: 10,
-        totalPages: 2,
-        hasNext: true,
-        hasPrevious: false,
-      },
-    });
+  it('keeps the pipelines with a variable that names the secret', () => {
+    const usage = usageToDomain(
+      [pipeline('a', 'DATABASE_URL'), pipeline('b'), pipeline('c', 'OTHER')],
+      'DATABASE_URL',
+    );
 
-    expect(usage).toEqual({ pipelines: [{ id: 'pipeline-1', name: 'deploy' }], totalCount: 12 });
+    expect(usage).toEqual({ pipelines: [{ id: 'a', name: 'pipeline a' }], totalCount: 1 });
   });
 
-  it('counts the page when the server sends no pagination', () => {
-    expect(grpcSecret.usageToDomain({ pipelines: [] }).totalCount).toBe(0);
+  it('lists ten names at most, and counts them all', () => {
+    const many = Array.from({ length: 12 }, (_, index) => pipeline(`p${index}`, 'TOKEN'));
+
+    const usage = usageToDomain(many, 'TOKEN');
+
+    expect(usage.pipelines).toHaveLength(10);
+    expect(usage.totalCount).toBe(12);
   });
 });

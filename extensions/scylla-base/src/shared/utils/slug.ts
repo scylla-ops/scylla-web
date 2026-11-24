@@ -1,5 +1,5 @@
-/** "My Organization" → "my-organization". */
-export const slugifyOrgName = (name: string): string =>
+/** "My Workspace" → "my-workspace". */
+export const slugifyWorkspaceName = (name: string): string =>
   name
     .toLowerCase()
     .trim()

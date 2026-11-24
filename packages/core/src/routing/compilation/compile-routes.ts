@@ -1,4 +1,4 @@
-import type { Component } from 'svelte';
+import type { Component, Snippet } from 'svelte';
 import type {
   AccessPolicy,
   BreadcrumbFn,
@@ -20,13 +20,16 @@ import {
   type RoutePath,
 } from './route-path.ts';
 
+/** The frame of the shell. `space`: the space of the page, from its mount. */
+export type ShellComponent = Component<{ children: Snippet; space?: string }>;
+
 export interface AppRouterConfig {
   mounts: Readonly<Record<RouteMount, MountDefinition>>;
   modules: readonly RouteSource[];
   /** Rendered without any layout. */
   fallback: Component;
   /** Around the pages of a root mount that asks for the shell. */
-  shell?: LayoutComponent;
+  shell?: ShellComponent;
   /** Around every page that declares a `permission`. */
   guard?: AccessPolicy['guard'];
 }
@@ -40,15 +43,19 @@ export interface TrailMark {
 /** A page or a redirect, with everything needed to render it. */
 export interface CompiledRoute {
   mount: RouteMount;
-  /** From the root, e.g. `[':organizationSlug', 'agents']`. */
+  /** From the root, e.g. `[':workspaceSlug', 'agents']`. */
   path: RoutePath;
   page?: PageLoader;
   redirect?: string;
   permission?: RoutePermission;
+  /** The params whose change keeps the page mounted. */
+  inPageParams?: readonly string[];
   /** The layout of the root mount, around the shell. */
   layout?: LayoutComponent;
   /** The root mount renders its pages inside the shell. */
   shell: boolean;
+  /** The space of the nearest mount that names one: the shell shows the frame of that space. */
+  space?: string;
   /** From the outermost. */
   wrappers: readonly RouteWrapper[];
   /** From the root. */
@@ -58,7 +65,7 @@ export interface CompiledRoute {
 export interface RouteTable {
   routes: readonly CompiledRoute[];
   fallback: Component;
-  shell?: LayoutComponent;
+  shell?: ShellComponent;
   guard?: AccessPolicy['guard'];
 }
 
@@ -72,7 +79,7 @@ export const mountChain = (mount: RouteMount, mounts: Mounts): MountDefinition[]
   return [...(parent ? mountChain(parent, mounts) : []), definition];
 };
 
-/** The path of a mount from the root, e.g. `project` → `/:organizationSlug/projects/:projectId`. */
+/** The path of a mount from the root, e.g. `project` → `/:workspaceSlug/projects/:projectId`. */
 export const mountPath = (mount: RouteMount, mounts: Mounts): RoutePath =>
   mountChain(mount, mounts).flatMap(definition => splitPath(definition.path));
 
@@ -82,25 +89,37 @@ const mountCrumbs = (mounts: Mounts): FlatRoute[] =>
     return breadcrumb ? [{ mount, path: [], breadcrumb, declaredBy: [`mount "${mount}"`] }] : [];
   });
 
-/** Moves a route from its mount to the root: `agents` → `:organizationSlug/agents`. */
+/** Moves a route from its mount to the root: `agents` → `:workspaceSlug/agents`. */
 const placeInMount = (route: FlatRoute, mounts: Mounts): FlatRoute => ({
   ...route,
   path: [...mountPath(route.mount, mounts), ...route.path],
 });
 
+/** The paths of the mounts where a trail starts. */
+const rootCrumbPaths = (mounts: Mounts): RoutePath[] =>
+  Object.keys(mounts)
+    .filter(mount => mounts[mount].rootCrumb)
+    .map(mount => mountPath(mount, mounts));
+
 /**
  * The crumbs of a page: those of every path its own path starts with, from the
  * root. So the page of `jobs/:jobId` shows the crumb that another module
- * declares on `jobs`.
+ * declares on `jobs`. Under a mount with `rootCrumb`, the trail starts at that mount.
  */
 export const trailOf = (
   path: RoutePath,
   crumbs: readonly { path: RoutePath; breadcrumb: BreadcrumbFn }[],
-): TrailMark[] =>
-  crumbs
-    .filter(crumb => startsWithPath(path, crumb.path))
+  roots: readonly RoutePath[] = [],
+): TrailMark[] => {
+  const start = Math.max(
+    0,
+    ...roots.filter(root => startsWithPath(path, root)).map(root => root.length),
+  );
+  return crumbs
+    .filter(crumb => startsWithPath(path, crumb.path) && crumb.path.length >= start)
     .sort((a, b) => a.path.length - b.path.length)
     .map(crumb => ({ breadcrumb: crumb.breadcrumb, depth: crumb.path.length }));
+};
 
 const assertGuarded = (routes: readonly CompiledRoute[], guard: RouteTable['guard']): void => {
   const gated = routes.find(route => route.permission !== undefined);
@@ -146,21 +165,25 @@ export const compileRoutes = ({
   const crumbs = declared.flatMap(({ path, breadcrumb }) =>
     breadcrumb ? [{ path, breadcrumb }] : [],
   );
+  const roots = rootCrumbPaths(mounts);
 
   const routes: CompiledRoute[] = declared
     .filter(route => route.page || route.redirect)
-    .map(({ mount, path, page, redirect, permission }) => {
+    .map(({ mount, path, page, redirect, permission, inPageParams }) => {
       const chain = mountChain(mount, mounts);
+      const space = [...chain].reverse().find(definition => definition.space)?.space;
       return {
         mount,
         path,
         page,
         redirect,
         permission,
+        ...(inPageParams && { inPageParams }),
         layout: chain[0].layout,
         shell: chain[0].shell ?? false,
+        ...(space && { space }),
         wrappers: chain.flatMap(definition => (definition.wrapper ? [definition.wrapper] : [])),
-        trail: trailOf(path, crumbs),
+        trail: trailOf(path, crumbs, roots),
       };
     })
     .sort((a, b) => bySpecificity(a.path, b.path));

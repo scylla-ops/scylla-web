@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ListSkeleton } from '@scylla/ui';
   import { createQuery } from '@scylla/core-sdk';
   import { secretQueries } from '../secret.queries.ts';
   import CreateSecretDialog from './CreateSecretDialog/CreateSecretDialog.svelte';
@@ -19,19 +20,24 @@
 </script>
 
 {#if projectId}
-  <div class="flex min-h-full w-full flex-col gap-4">
+  <div class="flex min-h-full w-full shrink-0 flex-col gap-4 pb-20" data-tour="secrets">
     <SecretHeader
       {projectId}
-      activeCount={secrets.length}
+      activeCount={secretsQuery.isLoading ? undefined : secrets.length}
       secretIds={secrets.map(secret => secret.id)}
       onAddSecret={() => (isCreateDialogOpen = true)}
     />
     <div class="overflow-hidden">
-      <SecretList {secrets} {projectId} />
+      {#if secretsQuery.isLoading}
+        <!-- The rows of the secrets table. -->
+        <ListSkeleton rows={4} rowClass="h-12 w-full" />
+      {:else}
+        <SecretList {secrets} {projectId} />
+      {/if}
       <CreateSecretDialog
         {projectId}
-        isOpen={isCreateDialogOpen}
-        setOpen={open => (isCreateDialogOpen = open)}
+        open={isCreateDialogOpen}
+        setOpen={next => (isCreateDialogOpen = next)}
       />
     </div>
   </div>

@@ -8,16 +8,17 @@
 
   interface Props {
     draft: NodeDraft;
+    readOnly?: boolean;
   }
 
-  let { draft }: Props = $props();
+  let { draft, readOnly = false }: Props = $props();
 </script>
 
 <div class="flex min-h-0 flex-1 flex-col gap-3 p-4">
   <NodeKindPicker {draft} />
 
   {#if draft.mode === 'script'}
-    <NodeScriptField {draft} />
+    <NodeScriptField {draft} {readOnly} />
   {:else}
     <NodeCommandFields {draft} />
   {/if}

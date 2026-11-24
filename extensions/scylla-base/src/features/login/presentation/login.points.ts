@@ -10,7 +10,7 @@ export interface LoginZoneContext {
 /** Listed in `LoginModule.points`: the loader names them `login.<key>`. */
 export const loginPoints = {
   /**
-   * Below the card. Receives components; there is no default content.
+   * Below the form. Receives components; there is no default content.
    * No `permission`: the user has none yet on this page.
    */
   footer: point.zone<LoginZoneContext>(),

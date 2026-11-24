@@ -5,7 +5,7 @@ import { splitPath } from '../../compilation/route-path.ts';
 import { matchRoute } from '../match-route.ts';
 
 const route = (path: string): CompiledRoute => ({
-  mount: 'organization',
+  mount: 'workspace',
   path: splitPath(path),
   shell: false,
   wrappers: [],

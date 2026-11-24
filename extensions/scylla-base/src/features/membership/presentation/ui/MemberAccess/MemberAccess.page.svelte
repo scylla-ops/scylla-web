@@ -1,0 +1,169 @@
+<script lang="ts">
+  import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
+  import { can, Permission } from '@platform/authz';
+  import { contextStore } from '@platform/context';
+  import { createQuery, navigateTo, routeParams, routePathname } from '@scylla/core-sdk';
+  import {
+    accessQueries,
+    projectRef,
+    workspaceRef,
+    type ObjectRef,
+  } from '@base/features/access';
+  import { projectQueries } from '@base/features/project';
+  import { roleQueries } from '@base/features/roles';
+  import { userQueries } from '@base/features/user';
+  import { ErrorState, ListSkeleton, SearchSelect } from '@scylla/ui';
+  import { t } from '@scylla/ui/i18n';
+  import { Button } from '@scylla/ui/primitives';
+  import { toRune } from '@scylla/ui/stores';
+  import { Identity, identityKindOf } from '@shared/presentation/ui';
+  import {
+    effectiveHint,
+    membershipMessages,
+    projectOption,
+    whatCanDo,
+    workspaceOption,
+  } from '../../messages/membership.messages.ts';
+  import { memberProfile } from '../../presenters/member-rows.presenter.ts';
+  import { setMemberCrumbName } from '../../member-crumb.state.svelte.ts';
+  import ChangeRolesDialog from '../components/ChangeRolesDialog/ChangeRolesDialog.svelte';
+  import EffectiveAccessTable from '../components/EffectiveAccessTable/EffectiveAccessTable.svelte';
+  import MemberRolesCard from '../components/MemberRolesCard/MemberRolesCard.svelte';
+
+  const context = toRune(contextStore);
+  const workspaceId = $derived(context().workspace.id);
+  const workspaceName = $derived(context().workspace.name ?? '');
+  const actorId = $derived(routeParams().actorId ?? '');
+  const listUrl = $derived(routePathname().split('/').slice(0, -1).join('/'));
+  const slug = $derived(routePathname().split('/')[1] ?? '');
+
+  const projectsQuery = createQuery(() => ({
+    ...projectQueries.lookup(workspaceId ?? ''),
+    enabled: !!workspaceId,
+  }));
+  const projects = $derived(projectsQuery.data?.items ?? []);
+
+  /** Empty: the workspace itself. */
+  let scopeId = $state('');
+  /** Not a project id, and not empty: Enter does not pick an option with an empty value. */
+  const WORKSPACE_SCOPE = 'workspace';
+  const scopeChoices = $derived([
+    { value: WORKSPACE_SCOPE, label: t(workspaceOption(workspaceName)) },
+    ...projects.map(project => ({ value: project.id, label: t(projectOption(project.name)) })),
+  ]);
+  const object = $derived<ObjectRef | null>(
+    scopeId ? projectRef(scopeId) : workspaceId ? workspaceRef(workspaceId) : null,
+  );
+  const scopeName = $derived(
+    scopeId ? (projects.find(project => project.id === scopeId)?.name ?? '') : workspaceName,
+  );
+
+  const accessQuery = createQuery(() => accessQueries.memberAccess(actorId, object));
+  const catalogQuery = createQuery(() => roleQueries.catalog());
+  const meQuery = createQuery(() => userQueries.me());
+  const member = $derived(accessQuery.data?.member);
+
+  const name = $derived(member?.displayName ?? '');
+  $effect(() => {
+    setMemberCrumbName(name || undefined);
+    return () => setMemberCrumbName(undefined);
+  });
+
+  const canManage = $derived(
+    workspaceId ? can(Permission.MANAGE_WORKSPACE_GRANTS, { workspaceId }) : false,
+  );
+  /** The server gives no member when the last role goes: this keeps the name in the dialog. */
+  let changing = $state<{ name: string; holder: 'people' | 'apps' } | null>(null);
+  const workspaceRoles = $derived(
+    (member?.roles ?? []).filter(role => role.scopeKind === 'workspace'),
+  );
+
+  const closeChange = () => {
+    changing = null;
+    if (!member) navigateTo(listUrl);
+  };
+</script>
+
+<div class="flex w-full flex-col gap-6 pb-20">
+  <button
+    type="button"
+    class="flex w-fit items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
+    onclick={() => navigateTo(listUrl)}
+  >
+    <ChevronLeftIcon class="size-4" />
+    {t(membershipMessages.members)}
+  </button>
+
+  {#if accessQuery.isLoading || catalogQuery.isLoading}
+    <ListSkeleton header rows={8} rowClass="h-12 w-full" />
+  {:else if accessQuery.isError || !member}
+    <ErrorState message={t(membershipMessages.memberNotFound)} />
+  {:else}
+    <header class="flex items-start justify-between gap-6">
+      <div class="flex min-w-0 flex-col gap-3">
+        <Identity
+          format="header"
+          profile={memberProfile({ name, handle: member.handle })}
+          kind={identityKindOf(member)}
+          self={member.actorId === meQuery.data?.id}
+        />
+        <p class="max-w-3xl text-sm text-muted-foreground">{t(whatCanDo(name))}</p>
+      </div>
+      {#if canManage}
+        <Button
+          onclick={() =>
+            (changing = { name, holder: member.actorKind === 'user' ? 'people' : 'apps' })}
+        >
+          {t(membershipMessages.changeRoles)}
+        </Button>
+      {/if}
+    </header>
+
+    <div class="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
+      <MemberRolesCard roles={member.roles} {workspaceName} />
+
+      <section class="overflow-hidden rounded-2xl border bg-card">
+        <div class="flex items-start justify-between gap-4 p-5">
+          <div>
+            <h2 class="text-xl">{t(membershipMessages.effectiveAccess)}</h2>
+            <p class="mt-1 text-xs text-muted-foreground">
+              {t(effectiveHint(scopeName))}
+            </p>
+          </div>
+          <SearchSelect
+            class="w-56"
+            options={scopeChoices}
+            value={scopeId || WORKSPACE_SCOPE}
+            onValueChange={next => (scopeId = next === WORKSPACE_SCOPE ? '' : next)}
+            loading={projectsQuery.isLoading}
+            aria-label={t(membershipMessages.scope)}
+          />
+        </div>
+        <EffectiveAccessTable
+          areas={catalogQuery.data ?? []}
+          level={scopeId ? 'project' : 'workspace'}
+          scopeId={scopeId || (workspaceId ?? '')}
+          {scopeName}
+          sources={accessQuery.data?.sources ?? new Map()}
+          holder={member.actorKind === 'user' ? 'people' : 'apps'}
+          {slug}
+        />
+      </section>
+    </div>
+
+  {/if}
+
+  {#if workspaceId}
+    <ChangeRolesDialog
+      {...changing ? { actorId, holder: changing.holder } : {}}
+      name={changing?.name ?? ''}
+      scopeName={workspaceName}
+      roles={workspaceRoles}
+      otherRoles={(member?.roles ?? []).filter(role => role.scopeKind === 'project')}
+      {workspaceId}
+      object={workspaceRef(workspaceId)}
+      onClose={closeChange}
+      onChanged={() => accessQuery.refetch()}
+    />
+  {/if}
+</div>

@@ -1,10 +1,8 @@
-import {
-  nodeIssue,
-  type PipelineNodeEntity,
-} from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
+import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import {
   dependentsOf,
   nodeDepths,
+  nodeIssues,
 } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
 
 export interface NodeRow {
@@ -18,11 +16,12 @@ export interface NodeRow {
 /** The nodes in the order they run: by stage, then in the order of the document. */
 export const nodeRows = (nodes: PipelineNodeEntity[]): NodeRow[] => {
   const depths = nodeDepths(nodes);
+  const issues = nodeIssues(nodes);
   return nodes
     .map(node => ({
       node,
       depth: depths.get(node.id) ?? 0,
-      hasIssue: !!nodeIssue(node),
+      hasIssue: issues.has(node.id),
     }))
     .sort((a, b) => a.depth - b.depth);
 };
@@ -44,7 +43,7 @@ export const nodeRelations = (
   const relations = new Map<string, NodeRelation>();
   const focused = nodes.find(node => node.id === focus);
   if (!focused) return relations;
-  for (const dep of focused.deps) relations.set(dep, 'dependency');
+  for (const dep of focused.deps) relations.set(dep.node, 'dependency');
   for (const id of dependentsOf(nodes, focused.id)) relations.set(id, 'dependent');
   return relations;
 };

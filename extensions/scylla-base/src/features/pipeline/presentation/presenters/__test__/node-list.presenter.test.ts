@@ -5,7 +5,10 @@ import { nodeRelations, nodeRows, nodeStages } from '../node-list.presenter.ts';
 
 const script = (id: string, deps: string[] = [], body = 'make'): PipelineNodeEntity => ({
   id,
-  deps,
+  deps: deps.map(text => {
+    const [node, port] = text.split(':');
+    return port ? { node, port } : { node };
+  }),
   kind: 'script',
   shell: 'sh',
   script: body,
@@ -25,6 +28,11 @@ describe('nodeRows', () => {
   it('marks a node that cannot run, or whose id the server refuses', () => {
     const rows = nodeRows([script('empty', [], ''), script('Bad Id'), script('ok')]);
     expect(rows.map(row => row.hasIssue)).toEqual([true, true, false]);
+  });
+
+  it('marks a node whose need names a port that its node does not have', () => {
+    const rows = nodeRows([script('build'), script('deploy', ['build:true'])]);
+    expect(rows.map(row => row.hasIssue)).toEqual([false, true]);
   });
 });
 

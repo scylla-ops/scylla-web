@@ -22,34 +22,19 @@
 
   let replacement = $state<UpdateSecretValues | null>(null);
 
-  const items = $derived<readonly FormItem<'description' | 'value'>[]>([
-    {
-      id: 'description',
-      label: t(messages.description),
-      type: FormItemType.Input,
-      inputType: 'text',
-      optional: true,
-      defaultValue: secret?.description ?? '',
-    },
+  const items = $derived<readonly FormItem<'value'>[]>([
     {
       id: 'value',
       label: t(messages.newValue),
-      placeholder: t(messages.keepValue),
       type: FormItemType.Input,
       inputType: 'text',
-      optional: true,
     },
   ]);
 
-  const handleSubmit = ({ description, value }: FormValues<'description' | 'value'>) => {
-    if (!secret) return;
-    const values = { secretId: secret.id, description: description.trim() };
-    if (value.trim()) {
-      replacement = { ...values, value };
-      return;
-    }
-    update.mutate(values);
-    onClose();
+  /** A new value breaks what the old one gave: the pipelines that use it are listed first. */
+  const handleSubmit = ({ value }: FormValues<'value'>) => {
+    if (!secret || !value.trim()) return;
+    replacement = { secretId: secret.id, value };
   };
 
   const finish = (confirmed: boolean) => {

@@ -4,42 +4,55 @@ import type {
   TriggerEntity,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
-import type { ITriggerServiceClient } from '@base/generated/scylla/trigger/v1/trigger.client.ts';
-import type { Trigger } from '@base/generated/scylla/trigger/v1/trigger.ts';
-import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import type { ITriggerServiceClient } from '@base/generated/scylla/pipelines/v1/trigger_service.client.ts';
+import type { Trigger } from '@base/generated/scylla/pipelines/v1/trigger.ts';
+import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcTrigger from './grpc-trigger.mapper.ts';
 
-const requireTrigger = (trigger: Trigger | undefined, rpc: string): TriggerEntity => {
-  if (!trigger) throw new Error(`${rpc} returned no trigger`);
-  return grpcTrigger.toDomain(trigger);
-};
+const PAGE_SIZE = 100;
 
 export class DefaultTriggersRepository implements TriggersRepository {
-  constructor(private readonly client: ITriggerServiceClient) {}
+  constructor(
+    private readonly client: ITriggerServiceClient,
+    /** The base URL of the API: the address of a webhook starts with it. */
+    private readonly apiUrlOf: () => string = () => '',
+  ) {}
+
+  private require(trigger: Trigger | undefined): TriggerEntity {
+    return grpcTrigger.toDomain(required(trigger, 'trigger'), this.apiUrlOf());
+  }
 
   public async listByPipelineId(pipelineId: string): Promise<TriggerEntity[]> {
-    const response = await this.client.listPipelineTriggers({ pipelineId: wrapId(pipelineId) })
-      .response;
-    return grpcTrigger.toDomainList(response.triggers);
+    const triggers: Trigger[] = [];
+    let token = '';
+    do {
+      const response = await this.client.listPipelineTriggers({
+        pipelineId: wrapId(pipelineId),
+        page: { size: PAGE_SIZE, token },
+      }).response;
+      triggers.push(...response.triggers);
+      token = response.page?.nextToken ?? '';
+    } while (token);
+    return triggers.map(trigger => grpcTrigger.toDomain(trigger, this.apiUrlOf()));
   }
 
   public async getById(triggerId: string): Promise<TriggerEntity> {
     const response = await this.client.getTrigger({ triggerId: wrapId(triggerId) }).response;
-    return requireTrigger(response.trigger, 'GetTrigger');
+    return this.require(response.trigger);
   }
 
   public async create(pipelineId: string, draft: TriggerDraft): Promise<CreatedTrigger> {
     const response = await this.client.createTrigger(
       grpcTrigger.draftToCreateRequest(pipelineId, draft),
     ).response;
-    return grpcTrigger.createdToDomain(response);
+    return grpcTrigger.createdToDomain(response, this.apiUrlOf());
   }
 
   public async update(triggerId: string, draft: TriggerDraft): Promise<TriggerEntity> {
     const response = await this.client.updateTrigger(
       grpcTrigger.draftToUpdateRequest(triggerId, draft),
     ).response;
-    return requireTrigger(response.trigger, 'UpdateTrigger');
+    return this.require(response.trigger);
   }
 
   public async deleteById(triggerId: string): Promise<void> {
@@ -51,12 +64,12 @@ export class DefaultTriggersRepository implements TriggersRepository {
       triggerId: wrapId(triggerId),
       enabled,
     }).response;
-    return requireTrigger(response.trigger, 'SetTriggerEnabled');
+    return this.require(response.trigger);
   }
 
   /** Gives only the id of the job it created. */
   public async fireNow(triggerId: string): Promise<string> {
     const response = await this.client.fireTriggerNow({ triggerId: wrapId(triggerId) }).response;
-    return idValue(response.jobId);
+    return idValue(response.job?.id);
   }
 }

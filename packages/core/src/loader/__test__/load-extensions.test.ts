@@ -25,7 +25,7 @@ const extension = (manifest: ExtensionManifest): ExtensionClass => {
 const frame: ScyllaModule = {
   id: 'frame',
   domain: {},
-  mounts: { public: {}, app: { shell: true }, organization: { parent: 'app', path: ':slug' } },
+  mounts: { public: {}, app: { shell: true }, workspace: { parent: 'app', path: ':slug' } },
   navSections: [{ id: 'main', title: msg`Main` }],
   access: policy,
   fallback: Fallback,
@@ -35,7 +35,7 @@ const agents: ScyllaModule = {
   id: 'agents',
   domain: { agentsRepository: {} },
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'agents',
         page,
@@ -50,7 +50,7 @@ const billing = (overrides: Partial<ScyllaModule> = {}): ScyllaModule => ({
   id: 'billing',
   domain: { billingRepository: {} },
   routes: {
-    organization: [{ path: 'billing', page, nav: { section: 'main', title: msg`Billing` } }],
+    workspace: [{ path: 'billing', page, nav: { section: 'main', title: msg`Billing` } }],
   },
   ...overrides,
 });
@@ -147,6 +147,20 @@ describe('loadExtensions', () => {
     );
   });
 
+  it('refuses two commands with one id, which would be one row of the command bar', () => {
+    const command = {
+      id: 'billing.pay',
+      kind: 'go',
+      title: msg`Pay`,
+      icon: {} as never,
+      path: () => null,
+    } as const;
+
+    expect(() =>
+      loadExtensions([Base, addOn([billing({ commands: [command, command] })])]),
+    ).toThrow(/Two commands have the id "billing.pay"/);
+  });
+
   it('refuses a mount that two modules declare', () => {
     expect(() => loadExtensions([Base, addOn([billing({ mounts: { app: {} } })])])).toThrow(
       /Two mounts have the id "app"/,
@@ -168,10 +182,18 @@ describe('loadExtensions', () => {
     expect(() => loadExtensions([bare])).toThrow(/No module gives the fallback page/);
   });
 
+  it('refuses a mount whose space no nav section declares', () => {
+    const admin = billing({ mounts: { admin: { parent: 'app', path: 'admin', space: 'main' } } });
+
+    expect(() => loadExtensions([Base, addOn([admin])])).toThrow(
+      /The mount "admin" names the space "main", which no nav section declares/,
+    );
+  });
+
   it('refuses a sidebar link to a section that no module declares', () => {
     const lost = billing({
       routes: {
-        organization: [{ path: 'billing', page, nav: { section: 'money', title: msg`Billing` } }],
+        workspace: [{ path: 'billing', page, nav: { section: 'money', title: msg`Billing` } }],
       },
     });
 

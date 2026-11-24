@@ -1,75 +1,182 @@
 import type { PipelineRepository } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
-import type { PipelineEntity, PipelineMetadata } from '../domain/entities/pipeline.entity.ts';
+import type {
+  PipelineEntity,
+  PipelineFileExport,
+  PipelineMetadata,
+  PipelineRun,
+  PipelineWithLayout,
+} from '../domain/entities/pipeline.entity.ts';
+import type { CommitRef } from '../domain/structs/commit-ref.struct.ts';
+import type { PipelineFile } from '../domain/structs/pipeline-file.struct.ts';
+import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
+import type { PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
-import type { IPipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
-import type { Pipeline } from '@base/generated/scylla/pipeline/v1/pipeline.ts';
+import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
+import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
 import { DEFAULT_PAGE_SIZE, type PaginatedList, type PaginationParams } from '@scylla/ui/structs';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcPipeline from './grpc-pipeline.mapper.ts';
+import { linkFromDomain } from './grpc-fragment.mapper.ts';
+import type { FragmentLink } from '../domain/entities/fragment.entity.ts';
+import * as grpcPipelineFile from './grpc-pipeline-file.mapper.ts';
+import type {
+  PipelineSummaryList,
+  PipelineSummaryQuery,
+} from '../domain/structs/pipeline-summary.struct.ts';
+import * as grpcPipelineSummary from './grpc-pipeline-summary.mapper.ts';
 
-/** The wrapped entity is optional on the wire: fail here rather than pass `undefined` to a mapper. */
-const requirePipeline = (pipeline: Pipeline | undefined): PipelineEntity => {
-  if (!pipeline) throw new Error('Server response carried no pipeline');
-  return grpcPipeline.toDomain(pipeline);
+const PAGE_SIZE = 100;
+const FIRST_PAGE: PaginationParams = { page: 1, pageSize: DEFAULT_PAGE_SIZE };
+
+/** Reads each page of a list. */
+const allPages = async (
+  read: (token: string) => Promise<{ pipelines: Pipeline[]; next: string }>,
+): Promise<Pipeline[]> => {
+  const items: Pipeline[] = [];
+  let token = '';
+  do {
+    const page = await read(token);
+    items.push(...page.pipelines);
+    token = page.next;
+  } while (token);
+  return items;
 };
 
 export class DefaultPipelineRepository implements PipelineRepository {
+  /**
+   * The version of each pipeline that this client read. `UpdatePipeline` sends it back: a pipeline
+   * that changed since gives ABORTED, and the editor reads it again.
+   */
+  private readonly versions = new Map<string, bigint>();
+
   constructor(private readonly client: IPipelineServiceClient) {}
+
+  private keep(response: Pipeline | undefined): PipelineEntity {
+    const pipeline = required(response, 'pipeline');
+    const entity = grpcPipeline.toDomain(pipeline);
+    this.versions.set(entity.id, pipeline.version);
+    return entity;
+  }
 
   public async getMetadataByProjectId(
     projectId: string,
-    pagination?: PaginationParams,
+    pagination: PaginationParams = FIRST_PAGE,
   ): Promise<PaginatedList<PipelineMetadata>> {
-    const response = await this.client.listProjectPipelines({
-      projectId: wrapId(projectId),
-      pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
-    }).response;
-    return grpcPipeline.toMetadataList(response);
+    const pipelines = await allPages(async token => {
+      const response = await this.client.listProjectPipelines({
+        projectId: wrapId(projectId),
+        page: { size: PAGE_SIZE, token },
+      }).response;
+      return { pipelines: response.pipelines, next: response.page?.nextToken ?? '' };
+    });
+    return grpcPipeline.toMetadataPage(pipelines, pagination);
   }
 
-  public async getMetadataByOrganizationId(
-    organizationId: string,
-    pagination?: PaginationParams,
+  public async getMetadataByWorkspaceId(
+    workspaceId: string,
+    pagination: PaginationParams = FIRST_PAGE,
   ): Promise<PaginatedList<PipelineMetadata>> {
-    const response = await this.client.listOrganizationPipelines({
-      organizationId: wrapId(organizationId),
-      pagination: pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
+    const pipelines = await allPages(async token => {
+      const response = await this.client.listWorkspacePipelines({
+        workspaceId: wrapId(workspaceId),
+        page: { size: PAGE_SIZE, token },
+      }).response;
+      return { pipelines: response.pipelines, next: response.page?.nextToken ?? '' };
+    });
+    return grpcPipeline.toMetadataPage(pipelines, pagination);
+  }
+
+  public async getSummaries(query: PipelineSummaryQuery): Promise<PipelineSummaryList> {
+    const response = await this.client.listPipelineSummaries({
+      workspaceId: wrapId(query.workspaceId),
+      projectIds: [],
+      pipelineIds: (query.pipelineIds ?? []).map(wrapId),
+      runs: query.runs,
+      order: grpcPipelineSummary.orderToProto(query.order),
+      page: { size: query.limit, token: '' },
     }).response;
-    return grpcPipeline.toMetadataList(response);
+    return grpcPipelineSummary.listToDomain(response);
   }
 
   public async deleteById(id: string): Promise<void> {
     await this.client.deletePipeline({ pipelineId: wrapId(id) }).response;
+    this.versions.delete(id);
   }
 
-  /** The returned job id is not needed: callers refetch the job list. */
-  public async run(id: string): Promise<void> {
-    await this.client.runPipeline({ pipelineId: wrapId(id) }).response;
+  public async run(id: string, ref?: CommitRef): Promise<PipelineRun> {
+    const { job } = await this.client.runPipeline({
+      pipelineId: wrapId(id),
+      ...(ref && { ref: grpcPipelineFile.refToProto(ref) }),
+    }).response;
+    return { needsContainer: (job?.nodes ?? []).some(node => !!node.container?.image) };
   }
 
-  public async create(pipeline: Omit<PipelineEntity, 'id'>): Promise<void> {
-    await this.client.createPipeline({
+  public async getFile(id: string, ref?: CommitRef): Promise<PipelineFile> {
+    const { file } = await this.client.getFilePipeline({
+      pipelineId: wrapId(id),
+      ...(ref && { ref: grpcPipelineFile.refToProto(ref) }),
+    }).response;
+    return grpcPipelineFile.fileToDomain(required(file, 'pipeline file'));
+  }
+
+  public async create(pipeline: Omit<PipelineEntity, 'id'>, layout?: PipelineLayout): Promise<void> {
+    const response = await this.client.createPipeline({
       name: pipeline.name,
       projectId: wrapId(pipeline.projectId),
       nodes: pipeline.nodes.map(grpcPipeline.nodeFromDomain),
+      fragmentLinks: [],
+      ...(layout && { layout: grpcPipeline.layoutFromDomain(layout) }),
     }).response;
+    this.keep(response.pipeline);
   }
 
   public async getById(id: string): Promise<PipelineEntity> {
     const response = await this.client.getPipeline({ pipelineId: wrapId(id) }).response;
-    return requirePipeline(response.pipeline);
+    return this.keep(response.pipeline);
+  }
+
+  public async getWithLayout(id: string): Promise<PipelineWithLayout> {
+    const response = await this.client.getPipeline({ pipelineId: wrapId(id) }).response;
+    const pipeline = required(response.pipeline, 'pipeline');
+    return {
+      pipeline: this.keep(pipeline),
+      layout: grpcPipeline.layoutToDomain(response.layout),
+      origin: grpcPipeline.originOf(pipeline),
+    };
+  }
+
+  public async saveLayout(id: string, layout: PipelineLayout): Promise<void> {
+    await this.client.savePipelineLayout({
+      pipelineId: wrapId(id),
+      layout: grpcPipeline.layoutFromDomain(layout),
+    }).response;
+  }
+
+  public async exportFile(id: string, format: PipelineFileFormat): Promise<PipelineFileExport> {
+    const { content, path } = await this.client.exportPipeline({
+      pipelineId: wrapId(id),
+      format: grpcPipeline.fileFormatToProto(format),
+    }).response;
+    return { content, path };
   }
 
   public async edit(
     id: string,
     nodes: PipelineNodeEntity[],
     name?: string,
+    layout?: PipelineLayout,
+    links?: FragmentLink[],
   ): Promise<PipelineEntity> {
+    // A pipeline that this client never read: read it first, for its version.
+    if (!this.versions.has(id)) await this.getById(id);
     const response = await this.client.updatePipeline({
       pipelineId: wrapId(id),
-      nodes: nodes.map(grpcPipeline.nodeFromDomain),
-      name,
+      version: this.versions.get(id) ?? 0n,
+      nodes: { nodes: nodes.map(grpcPipeline.nodeFromDomain) },
+      ...(name !== undefined && { name }),
+      ...(layout && { layout: grpcPipeline.layoutFromDomain(layout) }),
+      ...(links && { fragmentLinks: { links: links.map(linkFromDomain) } }),
     }).response;
-    return requirePipeline(response.pipeline);
+    return this.keep(response.pipeline);
   }
 }

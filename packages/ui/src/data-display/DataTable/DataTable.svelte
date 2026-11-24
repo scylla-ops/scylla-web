@@ -2,7 +2,14 @@
   import type { Snippet } from 'svelte';
   import { createTable, FlexRender } from '@tanstack/svelte-table';
   import type { Row, RowData } from '@tanstack/table-core';
-  import { TableBody, TableCell, TableHead, TableHeader, TableRow } from '../../primitives/index.ts';
+  import {
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import { dataTableMessages } from './data-table.messages.ts';
@@ -95,6 +102,7 @@
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     data-slot="data-table-card"
+    data-part="data-table-row"
     data-state={selected ? 'selected' : undefined}
     onclick={() => onRowClick?.(row)}
     class={cn(
@@ -163,9 +171,9 @@
     {/each}
   </ul>
 {:else}
-    <div
-      class="relative h-full w-full overflow-auto rounded-2xl border border-border/70 bg-card shadow-[0_1px_2px_oklch(0_0_0/0.04),0_12px_32px_-16px_oklch(0_0_0/0.18)]"
-    >
+    <!-- Inset rows: the frame keeps a 6 px margin around the header and the rows, which are
+      rounded and spaced instead of divided by lines. -->
+    <TableFrame class="relative h-full overflow-auto">
       <!-- Rows are CSS grids (see `buildGridTemplate`); table, thead and tbody stay blocks so
         the header can stick. They lose their implicit ARIA roles: restate them. -->
       <!-- svelte-ignore a11y_no_redundant_roles -->
@@ -174,20 +182,19 @@
         class="block w-full text-sm"
         style:min-width={minTableWidth > 0 ? `${minTableWidth}px` : undefined}
       >
-        <TableHeader
-          role="rowgroup"
-          class="sticky top-0 z-10 block bg-card/80 shadow-[inset_0_-1px_0_0_var(--border)] backdrop-blur-xl"
-        >
+        <!-- The card behind the sticky header hides the rows that scroll under it. -->
+        <TableHeader role="rowgroup" class="sticky top-0 z-10 block bg-card pb-0.5">
           {#each table.getHeaderGroups() as headerGroup (headerGroup.id)}
-            <TableRow role="row" class="grid hover:bg-transparent" style={rowStyle}>
+            <TableRow role="row" class="grid" style={rowStyle}>
               {#each headerGroup.headers as header (header.id)}
                 {@const align = header.column.columnDef.meta?.align ?? defaultAlign(alignColumnsCenter)}
                 <TableHead
                   role="columnheader"
                   class={cn(
-                    'flex h-11 min-w-0 items-center overflow-hidden px-5 text-[0.6875rem] font-semibold tracking-[0.08em] text-muted-foreground/90 uppercase',
+                    'flex min-w-0 items-center overflow-hidden',
                     alignClass[align],
                     headAlignClass[align],
+                    header.column.columnDef.meta?.class,
                   )}
                 >
                   {#if !header.isPlaceholder}
@@ -199,28 +206,26 @@
           {/each}
         </TableHeader>
 
-        <TableBody role="rowgroup" class="block">
+        <TableBody role="rowgroup" class="flex flex-col gap-0.5">
           {#each table.getRowModel().rows as row (row.id)}
             {@const selected = isRowSelected?.(row.original) ?? false}
             <TableRow
               role="row"
+              data-part="data-table-row"
               data-state={selected ? 'selected' : undefined}
-              onclick={() => onRowClick?.(row)}
+              onclick={onRowClick && (() => onRowClick(row))}
               style={rowStyle}
-              class={cn(
-                'grid transition-colors duration-150',
-                onRowClick && 'cursor-pointer',
-                onRowClick && !selected && 'hover:bg-muted/40',
-                // An inset shadow, not a border: the accent bar does not shift the first column.
-                selected &&
-                  '[&>td]:bg-primary/[0.07] [&>td:first-child]:shadow-[inset_3px_0_0_0_var(--primary)] hover:[&>td]:bg-primary/[0.1]',
-              )}
+              class="grid"
             >
               {#each row.getAllCells() as cell (cell.id)}
                 {@const align = cell.column.columnDef.meta?.align ?? defaultAlign(alignRowsCenter)}
                 <TableCell
                   role="cell"
-                  class={cn('flex min-w-0 items-center overflow-hidden px-5 py-3.5', alignClass[align])}
+                  class={cn(
+                    'flex min-w-0 items-center overflow-hidden',
+                    alignClass[align],
+                    cell.column.columnDef.meta?.class,
+                  )}
                 >
                   <div class={cn('w-full min-w-0', cellAlignClass[align])}>
                     <FlexRender {cell} />
@@ -230,14 +235,14 @@
             </TableRow>
 
             {#if (isRowExpanded?.(row.original) ?? false) && expandedContent}
-              <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)] hover:bg-transparent">
+              <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)]">
                 <TableCell role="cell" class="min-w-0 overflow-hidden bg-muted/30 p-0">
                   {@render expandedContent(row)}
                 </TableCell>
               </TableRow>
             {/if}
           {:else}
-            <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)] hover:bg-transparent">
+            <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)]">
               <TableCell
                 role="cell"
                 class="flex h-28 items-center justify-center text-sm text-muted-foreground"
@@ -248,6 +253,6 @@
           {/each}
         </TableBody>
       </table>
-    </div>
+    </TableFrame>
   {/if}
 </div>

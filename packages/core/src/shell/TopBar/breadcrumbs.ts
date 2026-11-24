@@ -17,7 +17,7 @@ export const breadcrumbsFor = (
     const crumb = breadcrumb(params);
 
     return {
-      label: translate(crumb.label),
+      label: typeof crumb.label === 'string' ? crumb.label : translate(crumb.label),
       highlight: crumb.highlight,
       detail: crumb.detail && translate(crumb.detail),
       pathname,

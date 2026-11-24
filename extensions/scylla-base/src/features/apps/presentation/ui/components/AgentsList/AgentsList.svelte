@@ -1,0 +1,309 @@
+<script lang="ts">
+  import { MediaQuery } from 'svelte/reactivity';
+  import BotIcon from '@lucide/svelte/icons/bot';
+  import SearchIcon from '@lucide/svelte/icons/search';
+  import { can, Permission } from '@platform/authz';
+  import { contextStore, scyllaNavigate } from '@platform/context';
+  import { createMutation, createQuery } from '@scylla/core-sdk';
+  import {
+    ConfirmOperationAlertDialog,
+    ErrorState,
+    FeatureHeader,
+    ListSkeleton,
+    SegmentedControl,
+    type SegmentedDot,
+  } from '@scylla/ui';
+  import {
+    Input,
+    Table,
+    TableBody,
+    TableCell,
+    TableFrame,
+    TableHead,
+    TableHeader,
+    TableRow,
+  } from '@scylla/ui/primitives';
+  import { toRune } from '@scylla/ui/stores';
+  import { t } from '@scylla/ui/i18n';
+  import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
+  import {
+    AGENT_FILTERS,
+    countByFilter,
+    dailyJobs,
+    matchesFilter,
+    matchesSearch,
+    summarizeAgents,
+    type AgentFilter,
+  } from '@base/features/apps/domain/structs/agent-list.struct.ts';
+  import { endedJobs, sumOutcomes } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
+  import type { AgentAccess } from '@base/features/apps/domain/structs/agent-access.struct.ts';
+  import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
+  import EmptyList from '../EmptyList/EmptyList.svelte';
+  import Sparkline from '../Sparkline/Sparkline.svelte';
+  import AgentCard from './AgentCard.svelte';
+  import AgentStatCards from './AgentStatCards.svelte';
+  import AgentStatusCell from './AgentStatusCell.svelte';
+  import AppRowMenu from '../AppRowMenu/AppRowMenu.svelte';
+  import { agentsListMessages as messages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
+
+  const phone = new MediaQuery('(max-width: 639px)');
+
+  const context = toRune(contextStore);
+  const workspaceId = $derived(context().workspace.id ?? '');
+  const target = $derived({ workspaceId });
+
+  const canCreate = $derived(can(Permission.CREATE_APP, target));
+  const canManage = $derived(can(Permission.DELETE_APP, target));
+  const canReadAccess = $derived(can(Permission.LIST_WORKSPACE_MEMBERS, target));
+
+  const agents = createQuery(() => appQueries.list(workspaceId, 'agents'));
+  const stats = createQuery(() => appQueries.agentStats(workspaceId));
+  const agentIds = $derived((agents.data ?? []).map(agent => agent.id));
+  const access = createQuery(() => appQueries.agentAccess(workspaceId, agentIds, canReadAccess));
+
+  const disable = createMutation(() => appMutations.disable());
+  const enable = createMutation(() => appMutations.enable());
+  const remove = createMutation(() => appMutations.remove('agent'));
+
+  let filter = $state<AgentFilter>('all');
+  let search = $state('');
+  let disabling = $state<AppEntity | null>(null);
+  let deleting = $state<AppEntity | null>(null);
+
+  const all = $derived(agents.data ?? []);
+  const counts = $derived(countByFilter(all));
+  const summary = $derived(summarizeAgents(all));
+  const shown = $derived(
+    all.filter(agent => matchesFilter(agent, filter) && matchesSearch(agent, search)),
+  );
+  const outcomes = $derived(
+    stats.data ? sumOutcomes([...stats.data.values()].map(item => item.outcomes)) : null,
+  );
+
+  const FILTER_LABEL = {
+    all: messages.filterAll,
+    online: messages.filterOnline,
+    offline: messages.filterOffline,
+    never: messages.filterNever,
+    disabled: messages.filterDisabled,
+  } as const;
+
+  const filters = $derived(
+    phone.current
+      ? AGENT_FILTERS.filter(
+          value => value !== 'disabled' || counts.disabled > 0 || filter === 'disabled',
+        )
+      : AGENT_FILTERS,
+  );
+  const filterLabel = (value: AgentFilter) =>
+    phone.current && value === 'never' ? messages.filterNeverShort : FILTER_LABEL[value];
+
+  const FILTER_DOT: Record<Exclude<AgentFilter, 'all'>, SegmentedDot> = {
+    online: { color: 'text-success', pulse: true },
+    offline: { color: 'text-muted-foreground' },
+    never: { color: 'text-info', hollow: true },
+    disabled: { color: 'text-muted-foreground', hollow: true },
+  };
+  const filterOptions = $derived(
+    filters.map(value => ({
+      value,
+      label: t(filterLabel(value)),
+      count: counts[value],
+      dot: value === 'all' ? undefined : FILTER_DOT[value],
+    })),
+  );
+
+  const accessLabel = (value: AgentAccess | undefined) => {
+    if (!value) return '';
+    if (value.kind === 'all') return t(messages.allProjects);
+    if (value.kind === 'none') return t(messages.noProject);
+    return value.projects.map(project => project.name).join(', ');
+  };
+
+  const openAgent = (id: string) => scyllaNavigate.goToWorkspaceRoute(`/agents/${id}`);
+  const addAgent = () => scyllaNavigate.goToWorkspaceRoute('/agents/new');
+  /** A new join code, and the install step of the page of a new agent. */
+  const connect = (agent: AppEntity) =>
+    scyllaNavigate.goToWorkspaceRoute(`/agents/${agent.id}/connect`);
+</script>
+
+{#snippet blurb()}
+  <p class="text-sm text-muted-foreground">{t(messages.blurb)}</p>
+{/snippet}
+
+<div class="flex min-h-full w-full shrink-0 flex-col gap-6 pb-20" data-tour="agents">
+  <FeatureHeader
+    label={t(messages.agent)}
+    pluralLabel={t(messages.agents)}
+    count={agents.data?.length}
+    underLabel={blurb}
+    onNew={addAgent}
+    newLabel={t(messages.add)}
+    canNew={canCreate}
+    newDeniedReason={t(messages.onlyAdmins)}
+  />
+
+  {#if agents.isError}
+    <ErrorState message={agents.error?.message} />
+  {:else if agents.isPending}
+    <ListSkeleton rows={4} rowClass="h-16 w-full rounded-xl" />
+  {:else if all.length === 0}
+    <EmptyList
+      icon={BotIcon}
+      title={canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
+      body={canCreate ? t(messages.firstBody) : t(messages.askAdmin)}
+      addLabel={t(messages.add)}
+      onAdd={canCreate ? addAgent : undefined}
+    />
+  {:else}
+    {#if phone.current}
+      <p class="text-xs text-muted-foreground">
+        {t(messages.phoneOnline(summary.online, summary.total))} ·
+        {t(messages.jobsRunning(summary.runningJobs))}
+      </p>
+    {:else}
+      <AgentStatCards {summary} {outcomes} />
+    {/if}
+
+    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <SegmentedControl
+        value={filter}
+        options={filterOptions}
+        onChange={next => (filter = next)}
+        aria-label={t(messages.filterLabel)}
+        class="max-w-full flex-wrap"
+      />
+      <div class="relative md:w-72">
+        <SearchIcon
+          class="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground"
+          aria-hidden="true"
+        />
+        <Input
+          type="search"
+          class="pl-9"
+          placeholder={t(messages.search)}
+          aria-label={t(messages.search)}
+          bind:value={search}
+        />
+      </div>
+    </div>
+
+    {#if phone.current}
+      <div class="flex flex-col gap-3">
+        {#each shown as agent (agent.id)}
+          {@const agentStats = stats.data?.get(agent.id)}
+          <AgentCard
+            {agent}
+            access={canReadAccess ? accessLabel(access.data?.get(agent.id)) : ''}
+            jobs={agentStats ? dailyJobs(agentStats) : []}
+            total={agentStats ? endedJobs(agentStats.outcomes) : 0}
+            onOpen={() => openAgent(agent.id)}
+            onFinishSetup={canCreate ? () => connect(agent) : undefined}
+          />
+        {:else}
+          <p class="py-8 text-center text-sm text-muted-foreground">{t(messages.noMatch)}</p>
+        {/each}
+      </div>
+    {:else}
+    <TableFrame>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>{t(messages.columnAgent)}</TableHead>
+            <TableHead>{t(messages.columnStatus)}</TableHead>
+            {#if canReadAccess}
+              <TableHead>{t(messages.columnAccess)}</TableHead>
+            {/if}
+            <TableHead>{t(messages.columnJobs)}</TableHead>
+            <TableHead class="w-12"><span class="sr-only">{t(messages.columnActions)}</span></TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {#each shown as agent (agent.id)}
+            {@const agentStats = stats.data?.get(agent.id)}
+            {@const total = agentStats ? endedJobs(agentStats.outcomes) : 0}
+            <TableRow>
+              <TableCell>
+                <button
+                  type="button"
+                  class="flex flex-col items-start text-left"
+                  onclick={() => openAgent(agent.id)}
+                >
+                  <span class="font-mono font-medium hover:underline">{agent.name}</span>
+                  <span class="text-xs text-muted-foreground">
+                    {agent.host?.hostname ?? t(messages.neverSaidHello)}
+                  </span>
+                </button>
+              </TableCell>
+              <TableCell>
+                <AgentStatusCell
+                  {agent}
+                  onFinishSetup={canCreate ? () => connect(agent) : undefined}
+                />
+              </TableCell>
+              {#if canReadAccess}
+                <TableCell>{accessLabel(access.data?.get(agent.id))}</TableCell>
+              {/if}
+              <TableCell>
+                {#if agentStats && total > 0}
+                  <span class="flex items-center gap-3">
+                    <Sparkline values={dailyJobs(agentStats)} label={t(messages.jobsTotal(total))} />
+                    <span class="font-mono tabular-nums">{total}</span>
+                  </span>
+                {:else}
+                  <span class="text-muted-foreground" title={t(messages.noJob)}>–</span>
+                {/if}
+              </TableCell>
+              <TableCell class="text-right">
+                <AppRowMenu
+                  app={agent}
+                  openLabel={t(messages.openAgent)}
+                  onOpen={() => openAgent(agent.id)}
+                  onConnect={canCreate ? () => connect(agent) : undefined}
+                  onDisable={canManage ? () => (disabling = agent) : undefined}
+                  onEnable={canManage ? () => enable.mutate(agent.id) : undefined}
+                  onDelete={canManage ? () => (deleting = agent) : undefined}
+                />
+              </TableCell>
+            </TableRow>
+          {:else}
+            <TableRow>
+              <TableCell colspan={canReadAccess ? 5 : 4} class="px-6 py-8 text-center text-muted-foreground">
+                {t(messages.noMatch)}
+              </TableCell>
+            </TableRow>
+          {/each}
+        </TableBody>
+      </Table>
+    </TableFrame>
+    {/if}
+  {/if}
+</div>
+
+<ConfirmOperationAlertDialog
+  open={!!disabling}
+  onOpenChange={open => {
+    if (!open) disabling = null;
+  }}
+  title={t(messages.disableTitle(disabling?.name ?? ''))}
+  description={t(messages.disableBody)}
+  continueLabel={t(messages.disable)}
+  isLoading={disable.isPending}
+  onContinue={() => {
+    if (disabling) disable.mutate(disabling.id, { onSuccess: () => (disabling = null) });
+  }}
+/>
+
+<ConfirmOperationAlertDialog
+  open={!!deleting}
+  onOpenChange={open => {
+    if (!open) deleting = null;
+  }}
+  title={t(messages.deleteTitle(deleting?.name ?? ''))}
+  description={t(messages.deleteBody)}
+  continueLabel={t(messages.delete)}
+  isLoading={remove.isPending}
+  onContinue={() => {
+    if (deleting) remove.mutate(deleting.id, { onSuccess: () => (deleting = null) });
+  }}
+/>

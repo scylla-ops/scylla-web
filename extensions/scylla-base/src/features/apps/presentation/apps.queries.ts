@@ -1,171 +1,275 @@
-import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
-import { Permission, can } from '@platform/authz';
-import type {
-  AppEntity,
-  AppSecretEntity,
-  AppAccess,
-  CreatedApp,
-  CreatedAppSecret,
-  ResetAppSecret,
-} from '../domain/entities/app.entity.ts';
-import { trimSecretLabel } from '../domain/structs/secret-label.struct.ts';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
+import { i18n } from '@lingui/core';
+import { Permission, authorizationReady, can } from '@platform/authz';
+import { toast } from '@scylla/ui/utils';
 import type { AppsModule } from '../apps.module.ts';
+import type { AppDetails } from '../domain/entities/app.entity.ts';
+import { appsMessages } from './messages/apps.messages.ts';
+import { appRolesOf } from '@base/features/apps/domain/structs/app-list.struct.ts';
+import { agentAccessOf, type RunnerChange } from '../domain/structs/agent-access.struct.ts';
+import type { AgentStats } from '../domain/structs/agent-stats.struct.ts';
+import type { StatsPeriod } from '../domain/structs/stats-period.struct.ts';
+import { accessQueries, projectRef, workspaceRef, type ObjectRef } from '@base/features/access';
+import { projectQueries } from '@base/features/project';
 
-// Resolved per call: tests swap the registry.
-const domain = () => getModuleDomain<typeof AppsModule.domain>('apps');
-const repository = () => domain().appsRepository;
+const repository = () => getModuleDomain<typeof AppsModule.domain>('apps').appsRepository;
 
-export const APPS_QUERY_KEY = (organizationId: string) => ['apps', organizationId] as const;
-export const APP_QUERY_KEY = (appId: string) => ['apps', 'detail', appId] as const;
-export const APP_SECRETS_QUERY_KEY = (appId: string) => ['app-secrets', appId] as const;
-export const APP_ACCESS_QUERY_KEY = (appId: string) => ['app-access', appId] as const;
+/** A new app. An agent of some projects gets `runner` on each of them only. */
+export interface NewApp {
+  name: string;
+  runner: boolean;
+  projectIds?: readonly string[];
+}
 
-export const appQueries = {
-  byOrganization: (organizationId: string) =>
-    queryOptions<AppEntity[]>({
-      queryKey: APPS_QUERY_KEY(organizationId),
-      enabled: !!organizationId,
-      queryFn: () => repository().listApps(organizationId),
-    }),
+/** Which apps a list shows. */
+export type AppFilter = 'all' | 'agents' | 'others';
 
-  byId: (appId: string) =>
-    queryOptions<AppEntity>({
-      queryKey: APP_QUERY_KEY(appId),
-      enabled: !!appId,
-      queryFn: () => repository().getApp(appId),
-    }),
+const runnerOf = (filter: AppFilter): boolean | undefined =>
+  filter === 'all' ? undefined : filter === 'agents';
 
-  /** Metadata only. `agents` reads it outside this module's pages: checked here. */
-  secretsOf: (appId: string) =>
-    queryOptions<AppSecretEntity[]>({
-      queryKey: APP_SECRETS_QUERY_KEY(appId),
-      enabled: !!appId && can(Permission.READ_APP),
-      queryFn: () => repository().listAppSecrets(appId),
-    }),
+/** A machine joined with a new key, and, for an agent, it is connected. */
+export const hasJoined = (details: AppDetails | undefined, keysBefore: number): boolean =>
+  !!details && details.keys.length > keysBefore && (!details.app.runner || details.app.connected);
 
-  /** Every grant of the app, with names. Checked here, like `secretsOf`. */
-  accessOf: (appId: string) =>
-    queryOptions<AppAccess[]>({
-      queryKey: APP_ACCESS_QUERY_KEY(appId),
-      enabled: !!appId && can(Permission.READ_APP),
-      staleTime: 30_000,
-      queryFn: () => repository().listAppAccess(appId),
-    }),
-};
+/** A machine joined with a new key, and its agent did not connect yet. */
+export const isJoining = (details: AppDetails | undefined, keysBefore: number): boolean =>
+  !!details && details.keys.length > keysBefore && !details.app.connected;
 
-const invalidateList = (organizationId: string) =>
-  getQueryClient().invalidateQueries({ queryKey: APPS_QUERY_KEY(organizationId) });
+export const APPS_QUERY_ROOT = ['apps'] as const;
+/** The onboarding tour follows the creation of the first agent. */
+export const CREATE_APP_MUTATION_KEY = ['apps', 'create'] as const;
+export const APPS_QUERY_KEY = (workspaceId: string, filter: AppFilter) =>
+  [...APPS_QUERY_ROOT, workspaceId, filter] as const;
+export const APP_QUERY_KEY = (appId: string) => [...APPS_QUERY_ROOT, 'one', appId] as const;
+export const APP_JOBS_QUERY_KEY = (appId: string) => [...APPS_QUERY_ROOT, 'jobs', appId] as const;
 
-const invalidateSecrets = (appId: string) =>
-  getQueryClient().invalidateQueries({ queryKey: APP_SECRETS_QUERY_KEY(appId) });
-
-/** Before the refetch of the list: until it comes back, the cached list holds the app. */
-const forgetApp = async (organizationId: string, appId: string) => {
-  const client = getQueryClient();
-  const list = APPS_QUERY_KEY(organizationId);
-  const entries = [APP_QUERY_KEY(appId), APP_SECRETS_QUERY_KEY(appId), APP_ACCESS_QUERY_KEY(appId)];
-  await Promise.all(
-    [list, ...entries].map(queryKey => client.cancelQueries({ queryKey, exact: true })),
-  );
-  client.setQueryData<AppEntity[]>(list, apps => apps?.filter(app => app.id !== appId));
-  for (const queryKey of entries) client.removeQueries({ queryKey, exact: true });
-};
+/** The recent jobs of an agent: enough for its stats and its list. */
+const RECENT_JOBS = 100;
 
 /**
- * `null` when another secret of the app has the label (`ALREADY_EXISTS`): the dialog shows it
- * under the field, not in the global toast. Any other error throws.
+ * Each read checks `list_apps` or `get_app` itself: other features run them. The agents and the
+ * other apps need the same right on the server; the UI names it twice.
  */
-const unlessLabelTaken = async <T>(call: Promise<T>): Promise<T | null> => {
-  try {
-    return await call;
-  } catch (error) {
-    if (ScyllaError.from(error).isAlreadyExists()) return null;
-    throw error;
-  }
+const canList = (workspaceId: string) =>
+  authorizationReady() &&
+  (can(Permission.LIST_AGENTS, { workspaceId: workspaceId }) ||
+    can(Permission.LIST_APPS_BY_WORKSPACE, { workspaceId: workspaceId }));
+
+/** The stats of the agents need their own right: a reader of the apps can miss it. */
+const canReadStats = (workspaceId: string) =>
+  authorizationReady() && can(Permission.READ_APP_STATS, { workspaceId: workspaceId });
+
+/** The roles on the workspace, and on each of its projects. */
+const rolesInWorkspace = async (workspaceId: string) => {
+  const client = getQueryClient();
+  const roles = (object: ObjectRef) =>
+    client.fetchQuery({ ...accessQueries.list(object), staleTime: 0 });
+  const [workspace, projects] = await Promise.all([
+    roles(workspaceRef(workspaceId)),
+    client.fetchQuery(projectQueries.lookup(workspaceId)),
+  ]);
+  const byProject = await Promise.all(
+    projects.items.map(async project => ({
+      id: project.id,
+      name: project.name,
+      entries: await roles(projectRef(project.id)),
+    })),
+  );
+  return { workspace, byProject };
 };
 
-export const appMutations = {
-  /** The value passes through once and is never stored. */
-  create: (organizationId: string) =>
-    mutationOptions({
-      mutationFn: ({ name }: { name: string }): Promise<CreatedApp> =>
-        repository().createApp(organizationId, name),
-      onSuccess: () => void invalidateList(organizationId),
+export const appQueries = {
+  /** Anyone can read it, and only a new server changes it. */
+  server: () =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'server'] as const,
+      queryFn: () => repository().getServerInfo(),
+      staleTime: 60 * 60 * 1000,
     }),
 
-  remove: (organizationId: string) =>
-    mutationOptions({
-      mutationFn: (appId: string) => repository().deleteApp(appId),
-      onSuccess: async (_data, appId) => {
-        await forgetApp(organizationId, appId);
-        void invalidateList(organizationId);
-      },
+  list: (workspaceId: string, filter: AppFilter = 'all') =>
+    queryOptions({
+      queryKey: APPS_QUERY_KEY(workspaceId, filter),
+      queryFn: () => repository().listApps(workspaceId, runnerOf(filter)),
+      enabled: !!workspaceId && canList(workspaceId),
+      // The connection of an agent changes on its own.
+      refetchInterval: 15_000,
     }),
 
-  /** Reversible, unlike deleting. */
-  setActive: (organizationId: string) =>
-    mutationOptions({
-      mutationFn: ({ appId, active }: { appId: string; active: boolean }) =>
-        repository().setAppActive(appId, active),
-      onSuccess: (_data, { appId }) => {
-        // The list and the detail both show the flag.
-        void invalidateList(organizationId);
-        void getQueryClient().invalidateQueries({ queryKey: APP_QUERY_KEY(appId) });
-      },
-    }),
+  /** The agents of a workspace: the pipelines warn when none is connected. */
+  runners: (workspaceId: string) => appQueries.list(workspaceId, 'agents'),
 
-  createSecret: (appId: string) =>
-    mutationOptions({
-      mutationFn: (label: string): Promise<CreatedAppSecret> =>
-        repository().createAppSecret(appId, label),
-      onSuccess: () => void invalidateSecrets(appId),
+  byId: (appId: string, workspaceId: string) =>
+    queryOptions({
+      queryKey: APP_QUERY_KEY(appId),
+      queryFn: () => repository().getApp(appId),
+      enabled:
+        !!appId && authorizationReady() && can(Permission.READ_APP, { workspaceId: workspaceId }),
+      refetchInterval: 15_000,
     }),
 
   /**
-   * Through `ResetAppSecretUseCase`: a new secret, then the others revoked when asked. The
-   * result holds the plaintext: `gcTime: 0` drops it from the cache once the caller resets.
-   * `null`: the label is taken, nothing changed.
+   * An app that a join waits for: it reads it every 2 s until a machine joined with a new key
+   * (more than `keysBefore`) and the agent connected.
    */
-  resetSecret: (appId: string) =>
-    mutationOptions({
-      gcTime: 0,
-      mutationFn: ({
-        label,
-        revokeOthers,
-      }: {
-        label: string;
-        revokeOthers: boolean;
-      }): Promise<ResetAppSecret | null> =>
-        unlessLabelTaken(domain().resetAppSecret.execute({ appId, label, revokeOthers })),
-      onSuccess: () => void invalidateSecrets(appId),
+  waiting: (appId: string, workspaceId: string, keysBefore: number) =>
+    queryOptions({
+      ...appQueries.byId(appId, workspaceId),
+      refetchInterval: query => (hasJoined(query.state.data, keysBefore) ? false : 2_000),
     }),
 
-  /** Irreversible, and cuts any session using the secret. Confirm first. */
-  revokeSecret: (appId: string) =>
-    mutationOptions({
-      mutationFn: (secretId: string) => repository().revokeAppSecret(secretId),
-      onSuccess: () => void invalidateSecrets(appId),
+  jobs: (workspaceId: string, appId: string, enabled = true) =>
+    queryOptions({
+      queryKey: APP_JOBS_QUERY_KEY(appId),
+      queryFn: () => repository().listJobs(workspaceId, appId, RECENT_JOBS),
+      enabled: enabled && !!workspaceId && !!appId,
     }),
 
-  setSecretEnabled: (appId: string) =>
-    mutationOptions({
-      mutationFn: ({ secretId, enabled }: { secretId: string; enabled: boolean }) =>
-        repository().setAppSecretEnabled(secretId, enabled),
-      onSuccess: () => void invalidateSecrets(appId),
+  /** The 30 days of each agent with a job in them, by agent. */
+  agentStats: (workspaceId: string) =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'stats', workspaceId] as const,
+      queryFn: async () =>
+        new Map(
+          (await repository().listAgentStats(workspaceId)).map(stats => [stats.agentId, stats]),
+        ),
+      enabled: !!workspaceId && canReadStats(workspaceId),
+      refetchInterval: 60_000,
     }),
 
-  /** `null`: the label is taken. The secrets refresh in both cases, to show the taken label. */
-  setSecretLabel: (appId: string) =>
+  /** The projects of each agent, from the `runner` roles on the workspace and on each project. */
+  agentAccess: (workspaceId: string, agentIds: readonly string[], enabled: boolean) =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'access', workspaceId, [...agentIds].sort()] as const,
+      queryFn: async () => {
+        const { workspace, byProject } = await rolesInWorkspace(workspaceId);
+        return new Map(agentIds.map(id => [id, agentAccessOf(id, workspace, byProject)]));
+      },
+      enabled: enabled && !!workspaceId && agentIds.length > 0,
+    }),
+
+  /** The roles of each app, on the workspace and on each project. */
+  appRoles: (
+    workspaceId: string,
+    workspaceName: string,
+    appIds: readonly string[],
+    enabled: boolean,
+  ) =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'roles', workspaceId, [...appIds].sort()] as const,
+      queryFn: async () => {
+        const { workspace, byProject } = await rolesInWorkspace(workspaceId);
+        const named = { name: workspaceName, entries: workspace };
+        return new Map(appIds.map(id => [id, appRolesOf(id, named, byProject)]));
+      },
+      enabled: enabled && !!workspaceId && appIds.length > 0,
+    }),
+
+  /**
+   * The days of a period of one agent. A new period keeps the stats of the last one on the screen
+   * until its own stats come.
+   */
+  agentStatsOf: (appId: string, workspaceId: string, period: StatsPeriod | null) =>
+    queryOptions({
+      queryKey: [...APPS_QUERY_ROOT, 'stats', 'one', period?.from, period?.to, appId] as const,
+      queryFn: () => repository().getAgentStats(appId, period ?? undefined),
+      enabled: !!appId && !!period && canReadStats(workspaceId),
+      placeholderData: (previous: AgentStats | undefined) =>
+        previous?.agentId === appId ? previous : undefined,
+      refetchInterval: 60_000,
+    }),
+};
+
+const invalidateApps = () => getQueryClient().invalidateQueries({ queryKey: APPS_QUERY_ROOT });
+
+/**
+ * The key of a query on one app ends with its id. A page stays open during the invalidation, and
+ * the server refuses each read on a deleted app.
+ */
+const removeQueriesOfApp = (appId: string) =>
+  getQueryClient().removeQueries({
+    queryKey: APPS_QUERY_ROOT,
+    predicate: query => query.queryKey.at(-1) === appId,
+  });
+
+export const appMutations = {
+  /** Gives the first join code: the page shows it once. */
+  create: (workspaceId: string) =>
     mutationOptions({
-      mutationFn: ({
-        secretId,
-        label,
-      }: {
-        secretId: string;
-        label: string;
-      }): Promise<AppSecretEntity | null> =>
-        unlessLabelTaken(repository().setAppSecretLabel(secretId, trimSecretLabel(label))),
-      onSuccess: () => void invalidateSecrets(appId),
+      mutationKey: CREATE_APP_MUTATION_KEY,
+      mutationFn: ({ name, runner, projectIds = [] }: NewApp) =>
+        repository().createApp(workspaceId, name.trim(), runner, projectIds),
+      onSuccess: () => invalidateApps(),
+    }),
+
+  /** With a `name`, the toast names the app. */
+  remove: (kind: 'app' | 'agent' = 'app', name?: string) =>
+    mutationOptions({
+      mutationFn: (appId: string) => repository().deleteApp(appId),
+      onSuccess: (_result, appId) => {
+        const deleted = kind === 'agent' ? appsMessages.agentDeleted : appsMessages.deleted;
+        toast.success(i18n._(name ? appsMessages.namedDeleted(name) : deleted));
+        removeQueriesOfApp(appId);
+        return invalidateApps();
+      },
+    }),
+
+  joinCode: () =>
+    mutationOptions({
+      mutationFn: (appId: string) => repository().createJoinCode(appId),
+    }),
+
+  renameKey: () =>
+    mutationOptions({
+      mutationFn: ({ appId, keyId, label }: { appId: string; keyId: string; label: string }) =>
+        repository().renameKey(appId, keyId, label.trim()),
+      onSuccess: (_key, { appId }) => {
+        toast.success(i18n._(appsMessages.keyRenamed));
+        return getQueryClient().invalidateQueries({ queryKey: APP_QUERY_KEY(appId) });
+      },
+    }),
+
+  /** Gives and takes back the role `runner` of an agent, the grants first. */
+  changeAccess: (workspaceId: string) =>
+    mutationOptions({
+      mutationFn: ({ appId, changes }: { appId: string; changes: readonly RunnerChange[] }) =>
+        repository().changeRunner(workspaceId, appId, changes),
+      onSuccess: () => {
+        toast.success(i18n._(appsMessages.accessChanged));
+        const client = getQueryClient();
+        return Promise.all([
+          client.invalidateQueries({ queryKey: ['access'] }),
+          client.invalidateQueries({ queryKey: [...APPS_QUERY_ROOT, 'access'] }),
+        ]);
+      },
+    }),
+
+  /** A disabled app gets no token and no job; its running jobs stop. */
+  disable: () =>
+    mutationOptions({
+      mutationFn: (appId: string) => repository().disableApp(appId),
+      onSuccess: app => {
+        toast.success(i18n._(appsMessages.disabledToast(app.name)));
+        return invalidateApps();
+      },
+    }),
+
+  enable: () =>
+    mutationOptions({
+      mutationFn: (appId: string) => repository().enableApp(appId),
+      onSuccess: app => {
+        toast.success(i18n._(appsMessages.enabledToast(app.name)));
+        return invalidateApps();
+      },
+    }),
+
+  revokeKey: () =>
+    mutationOptions({
+      mutationFn: ({ appId, keyId }: { appId: string; keyId: string }) =>
+        repository().revokeKey(appId, keyId),
+      onSuccess: (_result, { appId }) => {
+        toast.success(i18n._(appsMessages.keyRevoked));
+        return getQueryClient().invalidateQueries({ queryKey: APP_QUERY_KEY(appId) });
+      },
     }),
 };

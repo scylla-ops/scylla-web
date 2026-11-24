@@ -1,12 +1,18 @@
 <script lang="ts">
   import type { MessageDescriptor } from '@lingui/core';
+  import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
+  import CloudCheckIcon from '@lucide/svelte/icons/cloud-check';
+  import FileDownIcon from '@lucide/svelte/icons/file-down';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
+  import SaveIcon from '@lucide/svelte/icons/save';
   import { Permission, can } from '@platform/authz';
   import { TabsList, TabsTrigger } from '@scylla/ui/primitives';
   import { GatedButton } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
+  import { exportMessages } from '@base/features/pipeline/presentation/messages/export.messages.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import type { MissingDocument } from '../pipeline-document.state.svelte.ts';
   import PipelineNameField from './PipelineNameField.svelte';
 
   interface Props {
@@ -14,6 +20,8 @@
     submitLabel: string;
     /** `edit` tracks the unsaved changes; `create` does not. */
     mode: 'create' | 'edit';
+    /** No document to name, to edit or to save: no status, and Save is disabled. */
+    missing?: MissingDocument;
     submitDisabled?: boolean;
     /** Why the pipeline cannot be saved: shown in place of the save status, and Save is disabled. */
     issue?: string;
@@ -21,35 +29,63 @@
     blueprintDisabled?: boolean;
     isDirty: boolean;
     isSaving?: boolean;
+    /** The message of the last save that failed: the changes are still unsaved. */
+    saveError?: string;
     pipelineName: string;
     onNameChange: (name: string) => void;
+    /** The text of the name field at each key, before it is applied. */
+    onNameDraft?: (name: string) => void;
+    /** A saved pipeline: the header shows Export, which writes it as a file of the repository. */
+    onExport?: () => void;
+    /** Why the saved pipeline cannot be exported: Export shows it and opens nothing. */
+    exportIssue?: string;
   }
 
   let {
     onSubmit,
     submitLabel,
     mode,
+    missing,
     submitDisabled = false,
     issue,
     blueprintDisabled = false,
     isDirty,
     isSaving = false,
+    saveError,
     pipelineName,
     onNameChange,
+    onNameDraft,
+    onExport,
+    exportIssue,
   }: Props = $props();
 
-  type SaveStatus = 'draft' | 'saving' | 'dirty' | 'saved';
+  type SaveStatus = 'draft' | 'saving' | 'error' | 'dirty' | 'saved';
 
   const STATUS_LABEL: Record<SaveStatus, MessageDescriptor> = {
     draft: pipelineMessages.statusDraft,
     saving: pipelineMessages.statusSaving,
+    error: pipelineMessages.statusError,
     dirty: pipelineMessages.statusDirty,
     saved: pipelineMessages.statusSaved,
   };
 
   const status = $derived<SaveStatus>(
-    isSaving ? 'saving' : mode === 'create' ? 'draft' : isDirty ? 'dirty' : 'saved',
+    isSaving
+      ? 'saving'
+      : saveError !== undefined
+        ? 'error'
+        : mode === 'create'
+          ? 'draft'
+          : isDirty
+            ? 'dirty'
+            : 'saved',
   );
+
+  const statusText = $derived(
+    status === 'error' && saveError ? saveError : t(STATUS_LABEL[status]),
+  );
+
+  const canExport = $derived(can(Permission.READ_PIPELINE));
 
   const canSubmit = $derived(
     can(mode === 'create' ? Permission.CREATE_PIPELINE : Permission.UPDATE_PIPELINE),
@@ -61,11 +97,19 @@
   <div class="flex min-w-0 flex-1 items-center gap-3">
     <!-- An invalid script has no name to edit: `blueprintDisabled` says so. -->
     {#key pipelineName}
-      <PipelineNameField name={pipelineName} {onNameChange} disabled={blueprintDisabled} />
+      <PipelineNameField
+        name={pipelineName}
+        {onNameChange}
+        onDraftChange={onNameDraft}
+        loading={missing === 'loading'}
+        disabled={blueprintDisabled || missing === 'failed'}
+      />
     {/key}
 
     <TabsList class="shrink-0">
-      <TabsTrigger value="scripting">{t(pipelineMessages.scripting)}</TabsTrigger>
+      <TabsTrigger value="scripting" disabled={!!missing}>
+        {t(pipelineMessages.scripting)}
+      </TabsTrigger>
       <TabsTrigger value="blueprint" disabled={blueprintDisabled}>
         {t(pipelineMessages.blueprint)}
       </TabsTrigger>
@@ -73,33 +117,51 @@
   </div>
 
   <div class="flex shrink-0 items-center gap-3">
-    {#if issue}
+    {#if missing}
+      <!-- No status for a document that is not here. -->
+    {:else if issue}
       <p role="alert" class="max-w-md text-sm text-destructive">{issue}</p>
     {:else}
-      <div class="flex items-center gap-2 text-sm text-foreground/80">
-        <span class="relative flex size-2">
-          {#if status === 'dirty'}
-            <span class="absolute inline-flex size-full animate-ping rounded-full bg-amber-500/70"
-            ></span>
-          {/if}
-          <span
-            class={cn(
-              'relative inline-flex size-2 rounded-full transition-colors duration-300',
-              (status === 'draft' || status === 'saving') && 'bg-muted-foreground/60',
-              status === 'dirty' && 'bg-amber-500',
-              status === 'saved' && 'bg-emerald-500',
-            )}
-          ></span>
-        </span>
-        <!-- `{#key}` replays the enter animation on each status change. -->
+      <!-- A discreet icon: the label is its tooltip and what a screen reader says. -->
+      <span
+        role="status"
+        title={statusText}
+        class={cn(
+          'inline-flex size-8 shrink-0 items-center justify-center transition-colors duration-300',
+          status === 'dirty' && 'text-warning-strong',
+          status === 'error' && 'text-destructive',
+          status !== 'dirty' && status !== 'error' && 'text-muted-foreground',
+        )}
+      >
         {#key status}
-          <span
-            class="hidden animate-in fade-in-0 slide-in-from-bottom-1 duration-150 ease-out whitespace-nowrap md:inline-flex"
-          >
-            {t(STATUS_LABEL[status])}
+          <span class="inline-flex animate-in items-center justify-center fade-in-0 duration-150">
+            {#if status === 'saving'}
+              <Loader2Icon class="size-4 animate-spin" />
+            {:else if status === 'error'}
+              <CircleAlertIcon class="size-4" />
+            {:else if status === 'saved'}
+              <CloudCheckIcon class="size-4" />
+            {:else}
+              <SaveIcon class="size-4" />
+            {/if}
           </span>
         {/key}
-      </div>
+        <span class="sr-only">{statusText}</span>
+      </span>
+    {/if}
+
+    {#if onExport}
+      <GatedButton
+        variant="outline"
+        allowed={canExport && !exportIssue}
+        deniedReason={canExport ? exportIssue : t(exportMessages.exportDenied)}
+        onclick={onExport}
+        disabled={!!missing}
+      >
+        <FileDownIcon />
+        <!-- A narrow header shows the icon only; the name stays for a screen reader. -->
+        <span class="max-md:sr-only">{t(exportMessages.export)}</span>
+      </GatedButton>
     {/if}
 
     <GatedButton
@@ -108,7 +170,7 @@
         ? t(pipelineMessages.createDenied)
         : t(pipelineMessages.editDenied)}
       onclick={onSubmit}
-      disabled={submitDisabled || !!issue || isSaving}
+      disabled={submitDisabled || !!missing || !!issue || isSaving || (mode === 'edit' && !isDirty)}
       data-tour="pipeline-submit"
     >
       {#if isSaving}<Loader2Icon class="mr-2 size-4 animate-spin" />{/if}

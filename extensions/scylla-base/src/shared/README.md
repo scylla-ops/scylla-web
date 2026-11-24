@@ -38,12 +38,22 @@ instead of throwing it to that toast, which would show the same message a second
 
 ## A person shows one way
 
-`UserIdentity` shows a person in every place the app names one: the user menu, the lists of
-users and members, the holders of a role. The same initials, the same name (the display name,
+`Identity` shows a person in every place the app names one: the user menu, the lists of
+users and members, the holders of a role. It also shows an agent and another app, with an avatar
+of another shape, so that a name such as "test" tells if it is a person or a machine. The same initials, the same name (the display name,
 else the username), the same second line (the email, else `@username`) make one person
 recognizable from page to page. A user that no list knows any more shows as "Deleted user": an
 id means nothing to the reader. It lives here, not in `features/user`, because a feature cannot
 import another feature's components, and four features show people.
+
+## One frame for the public pages
+
+`AuthLayout` is the frame of the pages that come before the session: the pages of
+[login](../features/login/README.md) and the page of an
+[invitation](../features/invitation/README.md). It lives here because a feature cannot import a
+component of another feature, and it shows the Scylla logo, so it is not generic. A public page
+imports it by path, not through the barrel of this folder: the barrel would put the components of
+the signed-in pages in the chunk of the page.
 
 ## The account rules
 

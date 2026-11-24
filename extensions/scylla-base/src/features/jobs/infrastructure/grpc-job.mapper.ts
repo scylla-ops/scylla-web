@@ -1,84 +1,128 @@
 import type {
+  ApprovalState,
+  JobApproval,
+  JobCheckout,
   JobEntity,
+  JobEvent,
+  JobFilter,
+  JobNode,
   JobNodeExecution,
   JobLog,
+  JobSource,
   NodeExecutionState,
+  PipelineFileError,
+  PipelineFileRef,
+  UnfitAgent,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobFilter as GrpcJobFilter } from '@base/generated/scylla/pipelines/v1/job_service.ts';
+import {
+  ApprovalState as GrpcApprovalState,
+  type FileError as GrpcFileError,
+  type JobApproval as GrpcJobApproval,
+  type JobSource as GrpcJobSource,
+  type PipelineFileRef as GrpcPipelineFileRef,
+  SourceEvent,
+} from '@base/generated/scylla/pipelines/v1/source.ts';
+import { VcsProvider } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 import {
+  type CheckoutRun,
   type Job,
-  type JobLogEntry,
-  type JobNode,
-  JobOutcome,
-  type ListJobLogsResponse,
-  type ListPipelineJobsResponse,
-  NodeOutcome,
-} from '@base/generated/scylla/job/v1/job.ts';
-import { LogStream } from '@base/generated/scylla/common/v1/common.ts';
-import type { PaginationInfo, PaginatedList } from '@scylla/ui/structs';
-
-type JobListResponse = Pick<ListPipelineJobsResponse, 'jobs' | 'pagination'>;
+  JobStatus as GrpcJobStatus,
+  type LogLine,
+  LogStream,
+  NodeStatus,
+  type NodeRun,
+  type UnfitAgent as GrpcUnfitAgent,
+  UnfitReason,
+} from '@base/generated/scylla/pipelines/v1/job.ts';
+import type { Node } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import type { PaginatedList, PaginationParams } from '@scylla/ui/structs';
 import {
   idValue,
   timestampToIso,
   timestampToIsoOpt,
 } from '@shared/infrastructure/grpc/wrappers.ts';
 
-/** An arm newer than this build becomes `unknown`. */
-function jobStatusFromState(state: Job['state']): JobStatus {
-  switch (state.oneofKind) {
-    case 'pending':
-      return 'pending';
-    case 'running':
-      return 'running';
-    case 'terminal':
-      return jobOutcomeToStatus(state.terminal.outcome);
-    default:
-      return 'unknown';
-  }
-}
+const SOURCE_EVENTS: Record<JobEvent, SourceEvent> = {
+  push: SourceEvent.PUSH,
+  pull_request: SourceEvent.PULL_REQUEST,
+  tag: SourceEvent.TAG,
+  manual: SourceEvent.MANUAL,
+  provider_rerun: SourceEvent.PROVIDER_RERUN,
+  trigger: SourceEvent.TRIGGER,
+};
 
-function jobOutcomeToStatus(outcome: JobOutcome): JobStatus {
-  switch (outcome) {
-    case JobOutcome.COMPLETED:
+const EVENTS: Partial<Record<SourceEvent, JobEvent>> = Object.fromEntries(
+  Object.entries(SOURCE_EVENTS).map(([event, value]) => [value, event as JobEvent]),
+);
+
+const APPROVAL_STATES: Partial<Record<GrpcApprovalState, ApprovalState>> = {
+  [GrpcApprovalState.WAITING]: 'waiting',
+  [GrpcApprovalState.APPROVED]: 'approved',
+  [GrpcApprovalState.REJECTED]: 'rejected',
+};
+
+/** A field that is not set gives each job: an empty text, no event, 0, an empty list. */
+export const filterToProto = (filter: JobFilter): GrpcJobFilter => ({
+  branch: filter.branch?.trim() ?? '',
+  event: filter.event ? SOURCE_EVENTS[filter.event] : SourceEvent.UNSPECIFIED,
+  authorLogin: filter.authorLogin?.trim() ?? '',
+  pullRequest: filter.pullRequest ?? 0,
+  statuses: [],
+  origins: [],
+});
+
+const STATUSES: Record<Exclude<JobStatus, 'unknown'>, GrpcJobStatus> = {
+  pending: GrpcJobStatus.PENDING,
+  running: GrpcJobStatus.RUNNING,
+  completed: GrpcJobStatus.COMPLETED,
+  failed: GrpcJobStatus.FAILED,
+  cancelled: GrpcJobStatus.CANCELLED,
+  orphaned: GrpcJobStatus.ORPHANED,
+  awaiting_approval: GrpcJobStatus.AWAITING_APPROVAL,
+};
+
+/** The status of a filter. `unknown` is no status of the server: it cannot filter. */
+export const statusToProto = (status: Exclude<JobStatus, 'unknown'>): GrpcJobStatus =>
+  STATUSES[status];
+
+/** UNSPECIFIED or a status newer than this build: `unknown`, never a success. */
+function jobStatusToDomain(status: GrpcJobStatus): JobStatus {
+  switch (status) {
+    case GrpcJobStatus.PENDING:
+      return 'pending';
+    case GrpcJobStatus.RUNNING:
+      return 'running';
+    case GrpcJobStatus.COMPLETED:
       return 'completed';
-    case JobOutcome.FAILED:
+    case GrpcJobStatus.FAILED:
       return 'failed';
-    case JobOutcome.CANCELLED:
+    case GrpcJobStatus.CANCELLED:
       return 'cancelled';
-    case JobOutcome.ORPHANED:
+    case GrpcJobStatus.ORPHANED:
       return 'orphaned';
-    // UNSPECIFIED or a newer outcome: never a success.
+    case GrpcJobStatus.AWAITING_APPROVAL:
+      return 'awaiting_approval';
     default:
       return 'unknown';
   }
 }
 
-/** An arm newer than this build becomes `unknown`. */
-function nodeStateFromExecution(execution: JobNode['execution']): NodeExecutionState {
-  switch (execution.oneofKind) {
-    case 'pending':
+function nodeStatusToDomain(status: NodeStatus): NodeExecutionState {
+  switch (status) {
+    case NodeStatus.PENDING:
       return 'pending';
-    case 'running':
+    case NodeStatus.RUNNING:
       return 'running';
-    case 'finished':
-      return nodeOutcomeToState(execution.finished.outcome);
-    default:
-      return 'unknown';
-  }
-}
-
-function nodeOutcomeToState(outcome: NodeOutcome): NodeExecutionState {
-  switch (outcome) {
-    case NodeOutcome.COMPLETED:
+    case NodeStatus.COMPLETED:
       return 'completed';
-    case NodeOutcome.FAILED:
+    case NodeStatus.FAILED:
       return 'failed';
-    case NodeOutcome.CANCELLED:
-      return 'cancelled';
-    case NodeOutcome.SKIPPED:
+    case NodeStatus.SKIPPED:
       return 'skipped';
-    // UNSPECIFIED or a newer outcome: never a success.
+    case NodeStatus.CANCELLED:
+      return 'cancelled';
     default:
       return 'unknown';
   }
@@ -96,67 +140,182 @@ function logStreamToString(stream: LogStream): string {
   }
 }
 
-function jobStartedAt(state: Job['state']): string | undefined {
-  if (state.oneofKind === 'running') return timestampToIsoOpt(state.running.startedAt);
-  if (state.oneofKind === 'terminal') return timestampToIsoOpt(state.terminal.startedAt);
-  return undefined;
+/**
+ * One execution for each node of the job, from its last attempt. A node with no run yet is
+ * pending. The attempts are counted from 1; the maximum is one more than the retries.
+ */
+function nodeExecutionsOf(job: Job): JobNodeExecution[] {
+  const lastRun = new Map<string, NodeRun>();
+  for (const run of job.runs) {
+    const known = lastRun.get(run.nodeId);
+    if (!known || run.attempt >= known.attempt) lastRun.set(run.nodeId, run);
+  }
+  return job.nodes.map(node => {
+    const run = lastRun.get(node.id);
+    return {
+      id: node.id,
+      state: run ? nodeStatusToDomain(run.status) : 'pending',
+      startedAt: timestampToIsoOpt(run?.startedAt),
+      finishedAt: timestampToIsoOpt(run?.finishedAt),
+      attempts: run?.attempt ?? 0,
+      maxAttempts: node.retries + 1,
+      ports: run?.ports ?? [],
+    };
+  });
 }
 
-function nodeStartedAt(execution: JobNode['execution']): string | undefined {
-  if (execution.oneofKind === 'running') return timestampToIsoOpt(execution.running.startedAt);
-  if (execution.oneofKind === 'finished') return timestampToIsoOpt(execution.finished.startedAt);
-  return undefined;
+/** The graph of a node of the snapshot. A step newer than this build is drawn as a run node. */
+function jobNodeOf({ id, needs, step }: Node): JobNode {
+  const deps = needs.map(({ node, port }) => (port ? { node, port } : { node }));
+  if (step.oneofKind === 'switch') {
+    const { cases, otherwise } = step.switch;
+    const ports = [...cases.map(({ port }) => port), ...(otherwise ? [otherwise] : [])];
+    return { id, kind: 'switch', deps, ports };
+  }
+  return { id, kind: step.oneofKind === 'merge' ? 'merge' : 'run', deps, ports: [] };
 }
 
-function nodeExecutionToDomain(node: JobNode): JobNodeExecution {
-  const running = node.execution.oneofKind === 'running' ? node.execution.running : undefined;
-  const finished = node.execution.oneofKind === 'finished' ? node.execution.finished : undefined;
+/** A provider that this build does not know: the job shows no source. */
+function sourceToDomain(source: GrpcJobSource | undefined): JobSource | undefined {
+  if (!source) return undefined;
+  const provider =
+    source.provider === VcsProvider.GITHUB
+      ? 'github'
+      : source.provider === VcsProvider.GITLAB
+        ? 'gitlab'
+        : undefined;
+  if (!provider) return undefined;
+  const event = EVENTS[source.event];
   return {
-    id: idValue(node.nodeId),
-    state: nodeStateFromExecution(node.execution),
-    startedAt: nodeStartedAt(node.execution),
-    finishedAt: timestampToIsoOpt(finished?.finishedAt),
-    attempts: running?.attempt ?? finished?.attempts ?? 0,
-    maxAttempts: node.maxAttempts,
+    provider,
+    repository: source.repository,
+    repositoryUrl: source.repositoryUrl,
+    sha: source.sha,
+    commitUrl: source.commitUrl,
+    branch: source.branch,
+    tag: source.tag,
+    pullRequests: source.pullRequests.map(({ number, title, url }) => ({ number, title, url })),
+    fromFork: source.fromFork,
+    forkRepository: source.forkRepository,
+    authorLogin: source.authorLogin,
+    authorAvatarUrl: source.authorAvatarUrl,
+    title: source.messageTitle,
+    ...(event && { event }),
   };
 }
+
+/** A state newer than this build: the job is not known to be decided, so it waits. */
+function approvalToDomain(approval: GrpcJobApproval | undefined): JobApproval | undefined {
+  if (!approval) return undefined;
+  const decidedAt = timestampToIsoOpt(approval.decidedAt);
+  return {
+    state: APPROVAL_STATES[approval.state] ?? 'waiting',
+    ...(approval.decidedBy?.value && { decidedBy: approval.decidedBy.value }),
+    ...(decidedAt && { decidedAt }),
+    changesPipelineFiles: approval.changesPipelineFiles,
+    changesUrl: approval.changesUrl,
+  };
+}
+
+const pipelineFileToDomain = (file?: GrpcPipelineFileRef): PipelineFileRef | undefined =>
+  file ? { path: file.path, commitSha: file.commitSha, url: file.url } : undefined;
+
+const fileErrorToDomain = (error: GrpcFileError): PipelineFileError => ({
+  path: error.path,
+  line: error.line,
+  column: error.column,
+  field: error.field,
+  message: error.message,
+  warning: error.warning,
+});
+
+function checkoutToDomain(checkout: CheckoutRun | undefined): JobCheckout | undefined {
+  if (!checkout) return undefined;
+  return {
+    state: nodeStatusToDomain(checkout.status),
+    startedAt: timestampToIsoOpt(checkout.startedAt),
+    finishedAt: timestampToIsoOpt(checkout.finishedAt),
+    error: checkout.error || undefined,
+  };
+}
+
+/** A reason newer than this build: `unknown`. */
+const UNFIT_REASONS: Partial<Record<UnfitReason, UnfitAgent['reason']>> = {
+  [UnfitReason.UPDATE_AGENT]: 'update-agent',
+  [UnfitReason.INSTALL_GIT]: 'install-git',
+};
+
+const unfitAgentToDomain = (agent: GrpcUnfitAgent): UnfitAgent => ({
+  id: idValue(agent.id),
+  name: agent.name,
+  version: agent.version,
+  reason: UNFIT_REASONS[agent.reason] ?? 'unknown',
+});
 
 export function toDomain(job: Job): JobEntity {
-  const terminal = job.state.oneofKind === 'terminal' ? job.state.terminal : undefined;
+  const createdAt = timestampToIso(job.createdAt);
+  const startedAt = timestampToIsoOpt(job.startedAt);
+  const finishedAt = timestampToIsoOpt(job.finishedAt);
   return {
-    id: idValue(job.jobId),
+    id: idValue(job.id),
     pipelineId: idValue(job.pipelineId),
-    status: jobStatusFromState(job.state),
-    nodeExecutions: job.nodeExecutions.map(nodeExecutionToDomain),
-    createdAt: timestampToIso(job.createdAt),
-    updatedAt: timestampToIso(job.updatedAt),
-    startedAt: jobStartedAt(job.state),
-    finishedAt: timestampToIsoOpt(terminal?.finishedAt),
+    status: jobStatusToDomain(job.status),
+    nodes: job.nodes.map(jobNodeOf),
+    nodeExecutions: nodeExecutionsOf(job),
+    createdAt,
+    // The server has no time of the last change: the last time it knows.
+    updatedAt: finishedAt ?? startedAt ?? createdAt,
+    startedAt,
+    finishedAt,
+    error: job.error || undefined,
+    agentId: job.agentId ? idValue(job.agentId) : undefined,
+    source: sourceToDomain(job.source),
+    approval: approvalToDomain(job.approval),
+    pipelineFile: pipelineFileToDomain(job.pipelineFile),
+    fileErrors: job.fileErrors.length > 0 ? job.fileErrors.map(fileErrorToDomain) : undefined,
+    checkout: checkoutToDomain(job.checkout),
+    waitingReason: job.waitingReason || undefined,
+    unfitAgents: job.unfitAgents.length > 0 ? job.unfitAgents.map(unfitAgentToDomain) : undefined,
   };
 }
 
-/** The pipeline, project and organization listings share this shape. */
-export function toDomainList(response: JobListResponse): PaginatedList<JobEntity> {
+/**
+ * One page of the whole list, most recent first. The server pages with tokens and has no
+ * count: the list is read whole, then cut here, so that the page numbers of the UI stay.
+ */
+export function toDomainPage(
+  jobs: Job[],
+  { page, pageSize }: PaginationParams,
+): PaginatedList<JobEntity> {
+  const sorted = jobs.map(toDomain).sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const start = (page - 1) * pageSize;
   return {
-    items: response.jobs.map(toDomain),
-    pagination: response.pagination as PaginationInfo,
+    items: sorted.slice(start, start + pageSize),
+    pagination: {
+      totalCount: sorted.length,
+      page,
+      pageSize,
+      totalPages,
+      hasNext: page < totalPages,
+      hasPrevious: page > 1,
+    },
   };
 }
 
-export function logEntryToDomain(entry: JobLogEntry): JobLog {
-  return {
-    id: idValue(entry.jobLogId),
-    jobId: idValue(entry.jobId),
-    nodeId: idValue(entry.nodeId),
-    stream: logStreamToString(entry.stream),
-    line: entry.line,
-    timestamp: timestampToIso(entry.timestamp),
-  };
-}
-
-export function logsToDomainList(response: ListJobLogsResponse): PaginatedList<JobLog> {
-  return {
-    items: response.logs.map(logEntryToDomain),
-    pagination: response.pagination as PaginationInfo,
-  };
+/** The lines of one answer of the stream. A line has no id: its cursor and its place give one. */
+export function logLinesToDomain(
+  jobId: string,
+  nodeId: string,
+  cursor: string,
+  lines: LogLine[],
+): JobLog[] {
+  return lines.map((line, index) => ({
+    id: `${cursor}:${index}`,
+    jobId,
+    nodeId,
+    stream: logStreamToString(line.stream),
+    line: line.text,
+    timestamp: timestampToIso(line.at),
+  }));
 }

@@ -1,11 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
-import {
-  render,
-  withRegistry,
-  withQueryClient,
-  withWidgetInjections,
-} from '@test/render.ts';
+import { render, withRegistry, withQueryClient, withWidgetInjections } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import type { LoginRepository } from '@base/features/login/domain/repository/login.repository.ts';
 import { loginPoints } from '@base/features/login/presentation/login.points.ts';
@@ -13,11 +8,17 @@ import LoginPage from './Login.page.svelte';
 
 /**
  * The reference case of the widget mechanism: a cloud-like extension turns the identifier field
- * into an email field and adds a sign-up link below the card, through the login page's own
+ * into an email field and adds a sign-up link below the form, through the login page's own
  * widget points — with no change to `Login.page.svelte` or `LoginForm.svelte` for this test.
  */
 
+const probe = () => import('./SignUpLinkProbe.fixture.svelte');
+
 let teardown: Array<() => void> = [];
+
+beforeAll(async () => {
+  await probe();
+});
 
 beforeEach(() => {
   teardown = [];
@@ -32,6 +33,13 @@ const setUp = () => {
     login,
     requestPasswordReset: vi.fn(),
     resetPassword: vi.fn(),
+    listSignInMethods: vi.fn().mockResolvedValue({ providers: [], signUpMode: 'closed' }),
+    signUp: vi.fn(),
+    verifyEmail: vi.fn(),
+    pendingLink: vi.fn(),
+    linkPendingIdentity: vi.fn(),
+    termsStatus: vi.fn(),
+    acceptTerms: vi.fn(),
   };
   const restoreRegistry = withRegistry({ login: { loginRepository } });
   const testNavigator = installTestNavigator();
@@ -47,7 +55,10 @@ describe('Login.page with widget injections', () => {
           loginPoints.texts.override({
             identifier: { id: 'cloud.email', message: 'Email' },
             identifierPlaceholder: { id: 'cloud.email-placeholder', message: 'you@example.com' },
-            description: { id: 'cloud.description', message: 'Enter your email and your password.' },
+            description: {
+              id: 'cloud.description',
+              message: 'Enter your email and your password.',
+            },
           }),
           loginPoints.fields.patch(fields =>
             fields.map(field =>
@@ -68,14 +79,10 @@ describe('Login.page with widget injections', () => {
     expect(screen.getByText('Enter your email and your password.')).toBeInTheDocument();
   });
 
-  it('renders a component injected into the footer zone, below the card', async () => {
+  it('renders a component injected into the footer zone, below the form', async () => {
     setUp();
     teardown.push(
-      withWidgetInjections({
-        'sign-up-link': [
-          loginPoints.footer.inject({ component: () => import('./SignUpLinkProbe.fixture.svelte') }),
-        ],
-      }),
+      withWidgetInjections({ 'sign-up-link': [loginPoints.footer.inject({ component: probe })] }),
     );
 
     render(LoginPage);

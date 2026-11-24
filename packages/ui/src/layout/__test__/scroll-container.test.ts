@@ -16,11 +16,11 @@ const POSITIONED_ELSEWHERE: Record<string, string> = {
 
 const sources = ['apps', 'packages', 'sdks', 'extensions'].flatMap(dir =>
   readdirSync(join(WORKSPACE, dir), { recursive: true, encoding: 'utf8' })
+    .map(path => `${dir}/${path.replaceAll('\\', '/')}`)
     .filter(
       path =>
         /\.(svelte|ts)$/.test(path) && !/node_modules|dist\/|generated\/|\.test\.ts$/.test(path),
-    )
-    .map(path => join(dir, path)),
+    ),
 );
 
 const scrollers = sources.flatMap(path =>
@@ -30,9 +30,9 @@ const scrollers = sources.flatMap(path =>
 );
 
 describe('an element that scrolls', () => {
-  it('is searched in every class string, the roles list included', () => {
+  it('is searched in every class string, the frame of the tables included', () => {
     expect(scrollers.map(scroller => scroller.path)).toContain(
-      'extensions/scylla-base/src/features/roles/presentation/ui/components/RolesView.svelte',
+      'packages/ui/src/primitives/table/table-frame.svelte',
     );
   });
 

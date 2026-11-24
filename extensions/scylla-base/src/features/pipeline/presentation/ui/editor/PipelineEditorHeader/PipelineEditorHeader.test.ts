@@ -58,6 +58,17 @@ describe('PipelineEditorHeader', () => {
     expect(screen.getByText('All changes saved')).toBeInTheDocument();
   });
 
+  it('shows a failed save with its message, and goes back to the normal states', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    const { rerender } = renderHeader({ isDirty: true, saveError: 'Name already used.' });
+
+    expect(screen.getByRole('status')).toHaveAttribute('title', 'Name already used.');
+    expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
+
+    await rerender({ isDirty: true, saveError: undefined });
+    expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
+  });
+
   it('submits when the user may edit the pipeline', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     renderHeader({ isDirty: true });
@@ -79,6 +90,25 @@ describe('PipelineEditorHeader', () => {
     renderHeader({ blueprintDisabled: true });
 
     expect(screen.getByRole('tab', { name: 'Blueprint' })).toBeDisabled();
+  });
+
+  it('waits for the pipeline with no name, no status and nothing to save', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ missing: 'loading', pipelineName: '' });
+
+    expect(screen.queryByRole('textbox', { name: 'Pipeline name' })).not.toBeInTheDocument();
+    expect(screen.queryByText('All changes saved')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Scripting' })).toBeDisabled();
+    expect(screen.getByRole('tab', { name: 'Blueprint' })).toBeEnabled();
+  });
+
+  it('disables the name of a pipeline that failed to load', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ missing: 'failed', pipelineName: '' });
+
+    expect(screen.getByRole('textbox', { name: 'Pipeline name' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
   it('renames the pipeline in place, on Enter', async () => {
@@ -114,5 +144,51 @@ describe('PipelineEditorHeader', () => {
 
     expect(onNameChange).not.toHaveBeenCalled();
     expect(name).toHaveValue('nightly');
+  });
+
+  it('tells each key of a typed name before it is applied, and the saved name on Escape', async () => {
+    const onNameDraft = vi.fn();
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ onNameDraft });
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.type(name, '-v');
+    expect(onNameDraft).toHaveBeenLastCalledWith('nightly-v');
+    expect(onNameChange).not.toHaveBeenCalled();
+
+    await userEvent.keyboard('{Escape}');
+    expect(onNameDraft).toHaveBeenLastCalledWith('nightly');
+  });
+
+  it('shows Export for a saved pipeline only, to a user who may read it', async () => {
+    const onExport = vi.fn();
+    grantOnly(Permission.UPDATE_PIPELINE, Permission.READ_PIPELINE);
+    const { rerender } = renderHeader();
+    expect(screen.queryByRole('button', { name: 'Export' })).not.toBeInTheDocument();
+
+    await rerender({ onExport });
+    await userEvent.click(screen.getByRole('button', { name: 'Export' }));
+
+    expect(onExport).toHaveBeenCalled();
+  });
+
+  it('keeps Export inert for a user who may not read the pipeline', () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader({ onExport: vi.fn() });
+
+    expect(screen.getByRole('button', { name: 'Export' })).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('keeps Export inert and says why when the saved pipeline cannot be a file', async () => {
+    const onExport = vi.fn();
+    grantOnly(Permission.UPDATE_PIPELINE, Permission.READ_PIPELINE);
+    renderHeader({ onExport, exportIssue: 'A file cannot hold them yet.' });
+
+    const exportButton = screen.getByRole('button', { name: 'Export' });
+    await userEvent.click(exportButton);
+
+    expect(exportButton).toHaveAttribute('aria-disabled', 'true');
+    expect(exportButton).toHaveAccessibleDescription('A file cannot hold them yet.');
+    expect(onExport).not.toHaveBeenCalled();
   });
 });

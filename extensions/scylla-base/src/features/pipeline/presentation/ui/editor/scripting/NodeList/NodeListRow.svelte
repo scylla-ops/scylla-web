@@ -6,6 +6,7 @@
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
+    DropdownMenuSeparator,
     DropdownMenuTrigger,
     buttonVariants,
   } from '@scylla/ui/primitives';
@@ -20,6 +21,8 @@
     nodeIcon,
   } from '@base/features/pipeline/presentation/presenters/node-kind.presenter.ts';
   import { nodeMessages } from '@base/features/pipeline/presentation/messages/node.messages.ts';
+  import { dependencyText } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
+  import { ERROR_PORT } from '@base/features/pipeline/domain/structs/port-name.struct.ts';
 
   interface Props {
     row: NodeRow;
@@ -36,6 +39,11 @@
 
   const Icon = $derived(nodeIcon(row.node.kind));
   const dragged = $derived(drag.dragged === row.node.id);
+  const kind = $derived.by(() => {
+    if (row.node.kind === 'script') return row.node.shell;
+    if (row.node.kind === 'exec') return t(scriptingMessages.commandShort);
+    return t(row.node.kind === 'switch' ? nodeMessages.kindSwitch : nodeMessages.kindMerge);
+  });
 </script>
 
 <li
@@ -77,14 +85,19 @@
       {/if}
       <!-- Shown before the id, read after it: the name of the button starts with the node. -->
       <span class="-order-1 shrink-0 text-[11px] text-muted-foreground">
-        {row.node.kind === 'script' ? row.node.shell : t(scriptingMessages.commandShort)}
+        {kind}
       </span>
     </span>
     {#if row.node.deps.length > 0}
       <span class="w-full truncate pl-5.5 text-[11px] text-muted-foreground">
         <span aria-hidden="true">←</span>
         <span class="sr-only">{t(scriptingMessages.waitsFor)}</span>
-        {row.node.deps.join(', ')}
+        <!-- A need on the error output of a node is red. -->
+        {#each row.node.deps as dep, index (index)}
+          {index > 0 ? ', ' : ''}<span class={cn(dep.port === ERROR_PORT && 'text-destructive')}
+            >{dependencyText(dep)}</span
+          >
+        {/each}
       </span>
     {/if}
   </button>
@@ -99,7 +112,8 @@
       <DropdownMenuItem onSelect={() => onOpenToSide(row.node.id)}>
         {t(scriptingMessages.openToSide)}
       </DropdownMenuItem>
-      <DropdownMenuItem onSelect={() => onRemove(row.node.id)} class="text-destructive">
+      <DropdownMenuSeparator />
+      <DropdownMenuItem variant="destructive" onSelect={() => onRemove(row.node.id)}>
         {t(nodeMessages.deleteNode)}
       </DropdownMenuItem>
     </DropdownMenuContent>

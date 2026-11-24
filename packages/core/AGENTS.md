@@ -1,8 +1,8 @@
 # `@scylla/core` — agent guide
 
 What starts the application: it loads the extensions, compiles their routes, runs the router,
-and renders the shell (sidebar, top bar, breadcrumbs and language). It knows no
-business: no organization, no permission enum, no backend.
+and renders the shell (sidebars, top bar and breadcrumbs). It knows no
+business: no workspace, no permission enum, no backend.
 
 **Package** `packages/core` · entry `@scylla/core` · **no router library**
 
@@ -22,6 +22,8 @@ mergeWidgetInjections(extensions, can)  the widget-injection half of loadExtensi
 compileRoutes(config)                AppRouterConfig -> the flat RouteTable
 createAppRouter(config)              compiles the routes, returns the AppNavigator
 setShellConfig, ShellBreadcrumbs     for the app-level tests
+RouterView                           for the app-level tests: the pages of the real routes, with the
+                                     layout and the guard that the test gives
 type AppRouterConfig, CompiledRoute, RouteTable, LoadedApp, StartOptions
 ```
 
@@ -29,25 +31,37 @@ type AppRouterConfig, CompiledRoute, RouteTable, LoadedApp, StartOptions
 
 ```
 src/
-  index.ts  start-core.ts  App.svelte          RouterView + Toaster
+  index.ts  start-core.ts  App.svelte          RouterView, the `appOverlays` of the modules, Toaster
   loader/load-extensions.ts                    checks and merges the extensions
   loader/merge-widget-injections.ts            widget injections: owners, dependencies, conflicts, order (pure)
   query/query-client.ts                        createAppQueryClient(handlers, retryPolicies)
   routing/
     compilation/                               declarations -> data, pure functions (node tests)
-      route-path.ts                            split, join, key, prefix, specificity, fillPath
+      route-path.ts                            split, join, key, prefix, specificity, fillPath,
+                                               fillTarget (the parameters of a redirect)
       flatten-routes.ts                        flattenModuleRoutes = unfoldRoutes + mergeSamePath
       compile-routes.ts                        compileRoutes, AppRouterConfig, mountPath
       nav-entries.ts                           navEntriesFor
     runtime/                                   location, matchRoute, route state, createAppRouter
-    view/RouterView/                           RouterView, RoutePage, RouteEntry
+    view/RouterView/                           RouterView, RoutePage, RouteEntry (+ the error
+                                               boundary of a page, route-entry.messages.ts)
   shell/
-    ShellFrame/                                sidebar + top bar around the pages of a `shell` mount
-    AppSidebar/                                the sidebar, built from the nav entries
-                                               (NavMain, nav-sections.ts, nav-classes.ts)
-    TopBar/                                    SidebarTrigger + the crumbs of the route trail
-                                               (ShellBreadcrumbs, breadcrumbs.ts)
-    LanguageSelector/
+    ShellFrame/                                the sidebars + top bar around the pages of a `shell` mount,
+                                               or SpaceFrame for a page in a space
+    SpaceFrame/                                the frame of a space: its title and `bar` above one column of
+                                               its links, with the `sidebarFooter`, and the page
+    AppSidebar/                                the sidebars, built from the nav entries
+                                               DoubleSidebar: the brand band, Rail, SecondSidebar
+                                               (nav-rail.ts: the rail of the sections,
+                                               rail-tile.attachments.svelte.ts: the tile of the active row)
+                                               SecondSidebarHandle: the edge that the user moves
+                                               (second-sidebar-width.state.svelte.ts: the width, its limits, the drag,
+                                               second-sidebar-handle.attachments.ts: the drag and the keys)
+                                               Below `md`, the sheet: NavMain, where a NavGroup folds its links
+                                               (nav-groups.state.svelte.ts keeps which groups are open)
+    TopBar/                                    the crumbs of the route trail, after the name of the section, and `topBarEnd`
+                                               (ShellBreadcrumbs, breadcrumbs.ts; SidebarTrigger on a phone only)
+    nav-links.ts                               the sidebar links for `navLinks` of the SDK
     shell-config.ts                            ShellConfig, set once by startCore
   locales/                                     the catalog of the shell (tests excluded)
 ```
@@ -57,7 +71,8 @@ src/
 1. `loadExtensions` reads the `@Extension` of each class and checks it (below).
 2. The catalogs are registered (the core's, then each extension's), the DI registry, the
    widget injection registry (`setWidgetInjectionRegistry`), the installed extensions
-   (`setInstalledExtensions`), the query client and the shell config are installed.
+   (`setInstalledExtensions`), the query client (after `queryClient.mount()`) and the shell config
+   are installed.
 3. `initializeAppLocale()` — before the first render, so no frame shows untranslated text.
 4. `setAppNavigator(createAppRouter(app.router))`, then `mount(App)`.
 
@@ -71,6 +86,7 @@ It **throws**, at start-up and in `apps/web`'s conformance test, on:
 - a dependency that is not loaded, or extensions that depend on each other;
 - a second `access` policy or a second `fallback` page; no `fallback` page at all;
 - a sidebar link whose `nav.section` no module declares;
+- a mount whose `space` names no nav section with `space`;
 - a class without `@Extension`.
 
 Load order: an extension comes after its `dependencies`, else in list order. Registration
@@ -104,7 +120,7 @@ checks, without the extensions that own their points.
 3. **`placeInMount`** — each route gets the path of its mount in front of its own.
 4. **`trailOf`** — the crumbs of a page are the crumbs of each path that its path starts with.
 5. **`bySpecificity`** — a static segment before a parameter, so `/login` matches before
-   `/:organizationSlug`.
+   `/:workspaceSlug`.
 
 It **throws** when two declarations of one path set the same field; a route has a `page` and a
 `redirect`; a route has a `permission` or a `nav` but no `page`; two mounts put a page on one
@@ -114,7 +130,9 @@ module gives an access policy.
 ## Mounts, shell and guard
 
 - A mount is data a module declares (`ScyllaModule.mounts`): `parent`, `path`, `wrapper`,
-  `breadcrumb`, and on a root mount `layout` and `shell`.
+  `breadcrumb`, `space`, and on a root mount `layout` and `shell`.
+- A `redirect` with a `:name` segment gets the value of that parameter of the route
+  (`fillTarget`): `{ path: ':page', redirect: '/admin/:page' }` keeps the page of an old link.
 - Render order of a page: **layout** (e.g. an auth gate) → **`ShellFrame`** when the root mount
   has `shell: true` → **wrappers**, outermost first → **the access policy's `guard`** when the
   route has a `permission` → the page. A root mount with neither `layout` nor `shell` renders
@@ -125,18 +143,171 @@ module gives an access policy.
 
 ## Rules that follow from the design
 
+- **`startCore` calls `queryClient.mount()`.** The app has no `QueryClientProvider`, the component
+  that makes this call in other apps. Without it, no query refetches on a focus or on a reconnect.
+  One focus refetches each active query that is stale, and most queries have `staleTime` 0.
+- **A focus is a `visibilitychange` event.** A change of tab and a window that shows again are a
+  focus. A click between two visible windows is not, because TanStack Query does not read the
+  `focus` event of the window.
+- **`mount()` also starts `onlineManager`.** After an `offline` event, a query or a mutation pauses
+  and does not fail. It continues after the `online` event. A page with no data stays on its
+  skeleton during this time.
+- **`createAppQueryClient` tells the handlers when a failure is `repeated`.** A query that failed
+  at its last fetch gets `repeated: true` until it has a success. During an outage, each focus and
+  each poll fails again: a handler must not tell the user each time.
+- **The router takes each link of the same origin, with no page load.** A link to a path that the
+  server serves must have `rel="external"`, or the browser never calls the server. The compiled
+  build has the same origin as the API, so this failure does not show on a Vite dev server, where
+  the API has another origin.
+- **A page can hold a leave** (`guardLeave` of the SDK). The router asks the guard before a
+  navigation of the user: `navigate`, a click on a link, back and forward. A redirect (`replace`)
+  and a change of the query only are never held. Back and forward change the URL before the
+  router knows: a held one puts the URL of the page back, and the guard's `leave` opens the target
+  as a new entry. Tests: `runtime/__test__/leave-guard.test.ts`.
 - **`RouteEntry` reads the route once, when it mounts.** The page transition keeps the old page
   on screen for its exit animation; `RoutePage` mounts a new `RouteEntry` for each pathname.
 - **A change of pathname mounts the page again, with its wrappers.** A change of the query
   string does not.
+- **A page that fails, fails alone.** `RouteEntry` renders the page inside a `<svelte:boundary>`,
+  and its `{#await}` has a `:catch`: a render that throws and a chunk that cannot be loaded both
+  show an error in place with a "Try again" button (`route-entry.messages.ts`), which resets the
+  boundary or imports the page again. The layout, the shell and the wrappers stay, and the error
+  goes to the console. A redirect and the guard are outside both.
 - **Route parameters arrive as props**, on the page and on each wrapper (`params`).
 - **`permission` is declared once.** The guard and the sidebar read the same value. Never also
   wrap a page in the guard component.
 - **The shell renders, it does not decide.** Every link comes from the `nav` of a route, every
   section from `navSections`, every part of the frame from a module's `shell`. No business
   word appears in `shell/`.
+- **The frame keeps free the band that an overlay covers.** `ShellFrame` sets the largest
+  `shell.bottomInset` in `--shell-bottom-inset` on its scroll area, and the bottom padding of
+  this area is at least that value. With no such overlay, it stays 8 px (32 px from `md`). The
+  rule for the pages is in `packages/ui/AGENTS.md`.
+- **The crumbs stay on one line in the top bar.** The top bar has a fixed height, so a second
+  line goes out of the window. Only the highlight of the current crumb shrinks (`line-clamp-1`
+  and `break-all`), down to one character and the ellipsis. The crumbs before it do not shrink:
+  a label is at most `max-w-48` and a highlight at most `max-w-40`, with an ellipsis. When the
+  bar is too narrow for them, the list stays at its `min-content` width and goes out at the left
+  edge, in a fade of 12 px (`justify-end` on the `nav`). The current crumb thus stays visible.
+  Each text that can be cut has a `title` with the full text.
 - A sidebar link carries `data-nav-url` (its path in the mount): code outside the core can point
-  at a link without knowing its title.
+  at a link without knowing its title. A rail item carries the URL of its first page, and
+  `data-nav-group` when it comes from a group.
+- **A space is a frame apart, for the pages of one section.** A nav section with `space` names
+  a space, and a mount with `space: '<section id>'` puts its pages and the pages of its child
+  mounts in it (`CompiledRoute.space`). `ShellFrame` then renders `SpaceFrame`: no rail, no brand,
+  no crumbs and no `topBarEnd`. A top bar of `h-17` has the icon and the title of the section in
+  a cell as wide as the column (`w-64`), and the `bar` of the section in the rest. Below it, one
+  column of `w-64` shows all the links of the section, with their headings and no title, and the
+  `sidebarFooter` of the modules below a line. The column cannot be resized. On a phone, the cell
+  has the trigger of the sheet, and the sheet shows the links of the section only.
+- **A heading goes to the next link that the person sees.** When the first link of a run under a
+  heading is hidden (a permission, a parameter), the next link of the run shows the heading. A
+  run with no link to show has no heading.
+- **The rail shows the sections, the second sidebar shows the pages of one.** Each `NavGroup` and
+  each link without a group is one rail item. A section with `railItem` is one item at the end. A
+  section with `within` has no item: it replaces the pages of that item while the URL fills its
+  parameters. A section with `noRailItem` has no row: a part of an extension opens it, and the
+  second sidebar shows its links while the URL is on one of them. A page alone in its section still
+  gets a `NavGroup`: the group names the section, the link names the page.
+- **One route can have several links.** `nav` takes a list, and each link fills a parameter of the
+  route with `params`. The page stays one route: with `inPageParams`, a click on a link keeps it
+  mounted. A link with `danger` is apart from the links before it, and it stays red when it is the
+  current one. A link with `heading` has this title above it, in the second sidebar and in the
+  sheet of a phone. The title also covers the links after it, up to the next heading. A link with
+  `inCommandBar: false` is in the sidebar only: use it for a filter of a list, not for a page.
+- **A module can add links of data to the second sidebar** (`shell.secondSidebarLinks`, e.g. the
+  projects under "All projects"). They come after the pages, apart from them, and they look and
+  open like the pages (`withModuleLinks`). Only the first link is apart, unless a link sets `apart`
+  (the dashboards set `false`, and `true` on "New dashboard"). `DoubleSidebar` calls each source once, when it mounts,
+  thus a source can create a query: read it only while `shown` is the id of its item. The sheet of a
+  phone does not show them.
+- **A module can add a search field to the second sidebar** (`shell.secondSidebarSearch`, same
+  call as `secondSidebarLinks`). It sits between the title and the links. The module keeps the
+  value and filters its own links. It returns `undefined` while it has no field.
+- **A module can replace the second sidebar of a rail item** (`shell.secondSidebarPanels`, keyed
+  by the id of the rail item, e.g. the controls of the dashboard). The panel replaces the title
+  and the links. The sheet of a phone still shows the links.
+- **The sheet of a phone shows a section with `noRailItem` on its pages only** (`sheetSections`).
+  A click on a link closes the sheet. `NavMain` does this, because a link that changes only an
+  in-page param mounts nothing.
+- **The double sidebar is darker than the page, but the band of the brand is not.** The rail has
+  `bg-rail` and the second sidebar `bg-second-sidebar`. The tokens are in `@scylla/ui/styles.css`,
+  for each theme. Do not give them `bg-background`. The band of the brand
+  (`data-slot="sidebar-brand"`) has one color above the two columns: `bg-background`, the color
+  of the top bar.
+- **One light line marks the right edge of the double sidebar**, from the top to the bottom: on
+  the band, then on the second sidebar, or on the open rail that covers it. All these parts have
+  `sidebar-border`, the open and the closed rail too. The handle shows its line only on a hover, a
+  focus or a drag, thus it does not hide this line.
+- **One light line goes below the band and the top bar**, across the full width, and it meets the
+  line of the right edge at one corner. The two are at the same height (`h-17`), thus they make one
+  straight line. The band has `sidebar-border` and the top bar has `border`: the two tokens have
+  the same value in each theme, and all the lines are 1 px, thus the two directions look the same.
+- **Do not give the lines of the shell `input`.** Its contrast is much higher than the contrast of
+  `border`, thus a 1 px line of `input` looks thick. Version 0.7.0 tried it and removed it.
+- **The rail does not move the page.** It has a fixed slot of 56px and it opens in an absolute
+  layer, by a CSS transition of its width, so the page has no layout work and a second click in
+  the middle reverses it from where it is. The open rail has the width of the slot and the second
+  sidebar, to the same edge as the band: at each width it covers all the second sidebar, and
+  never the page. Inside it, the rows keep the width of the open rail while it moves.
+- **A closed rail shows only the icons, thus a row has a tooltip with its title.** The tooltip
+  shows while the pointer is on the row, and on a focus from the keyboard (`:focus-visible`,
+  `ignoreNonKeyboardFocus`). A focus from a click does not open it, also when the window gives
+  this focus back. The open rail shows the title in the row, thus it shows no tooltip: the
+  tooltip is `disabled` while the rail is open. Only the content of a tooltip closes it when the
+  pointer goes out, and the open rail has no content. Without `disabled`, each row that the
+  pointer crosses on the open rail keeps its tooltip open, and the tooltip shows when the rail
+  closes.
+- **The tile of the active row fades and pops, it does not move along the rail.** Each row has
+  its own tile (`data-slot="sidebar-rail-tile"`) on a hover layer, under the icon and the title.
+  When the active row changes, the old tile shrinks to 75 % and fades out in 160 ms. The new tile
+  starts at 56 %, fades in in 100 ms and grows on a spring (bounce 0.4, 500 ms) that goes a
+  little past its size (`animateTile`, Web Animations). The class of the tile gives its end
+  state, thus the first render has no motion. The hover layer stays 200 ms after the click,
+  under the tile that grows, then fades out. The row has no `overflow-hidden`, because it must
+  not cut the spring. With `prefers-reduced-motion`, the tile only fades in 150 ms, and the
+  color of the icon changes in 150 ms.
+- **Only the user opens the rail, and each other action closes it.** A hover or a focus does not
+  open it. A click on the free room below the rows (`data-slot="sidebar-rail-space"`) or on the
+  separator opens and closes it, and their cursor shows the direction: these two are "the bar".
+  On the closed rail, a click between the rows, beside them, and at least 8 px above and below
+  them does nothing and the cursor does not change: a click that misses a row by a few pixels does
+  not open the rail. The separator is the way for the keyboard. On the open rail, each click that
+  is not on the bar or on the handle closes it: a row (it also opens its page), a gap between the
+  rows, the logo of the band, a footer, the page. A press outside and Escape also close it. While
+  one of its menus is open, the rail stays open: the click that opens the menu does not close it,
+  and a choice in the menu closes the menu, then the rail. Thus `closeOnClick` reads the menus
+  after the handlers of the click, in a microtask.
+- **The user sets the width of the second sidebar, not of the rail.** The handle
+  (`SecondSidebarHandle`) is on the right edge of the second sidebar, below the band, and the page
+  follows the width. A drag moves it, and a double click gives the default width. The handle has the
+  `separator` role: the arrow keys move it by 16 px, Home and End go to the limits, and Enter gives
+  the default width. It is not on a page with no second sidebar, not while the access policy is not
+  ready, and not in the sheet of a phone.
+- **The handle is above the rail (`z-30` over `z-20`).** On the open rail, it covers the separator,
+  thus a drag on the edge also sets the width while the rail is open, and a press or a click on
+  it does not close the rail. During a drag, the open rail has no transition (`width.dragging`),
+  thus its edge stays on the pointer.
+- **The width is in pixels, thus `ResizablePaneGroup` does not fit.** Its sizes are percent of the
+  group, thus a minimum in percent gives a different width for each window, and the group must
+  also hold the page.
+- **The width stays between 140 px and 400 px, and the default is 200 px.** At 140 px the logo (109 px
+  wide), the section titles and the headings fit on one line, and no English link is cut. Below this,
+  the English links and then the titles are cut. A longer link, for example in French, is cut with an
+  ellipsis, and its `title` gives the full text. At 200 px the longest link ("Exécutions en échec")
+  has 14 px of free room. A resize above the default keeps 704 px for the page: a table of 640 px
+  (`CARD_LAYOUT_WIDTH_PX`) and the padding of the page, thus it never turns a table into cards. A
+  narrow window lowers the maximum, but never below the default. It does not change the stored
+  width: a wider window gives this width back.
+- **The width is for this browser only.** `localStorage` keeps it, under
+  `scylla.shell.second-sidebar-width`. A drag writes it at its end, not at each move. A key writes
+  it at each press. A blocked storage only forgets it.
+- **A folding group never closes by itself** (in the sheet of a phone). It opens when the user goes to a page of its links.
+  Only the user closes it, and it stays closed until the user opens it or goes to a page of its
+  links. The open state is in memory, out of the sidebar, because a page with no shell unmounts
+  the sidebar. A page load resets it. `AppSidebar` watches the pages, not `NavMain`: `NavMain`
+  unmounts while the access policy is not ready.
 
 ## Tests
 

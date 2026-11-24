@@ -41,6 +41,7 @@
           <Button
             type="button"
             variant="outline"
+            data-dialog-dismiss
             onclick={() => onOpenChange(false)}
             disabled={pending}
           >

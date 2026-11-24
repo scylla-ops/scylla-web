@@ -7,7 +7,6 @@ import type { ProjectEntity } from '@base/features/project/domain/entities/proje
 import type {
   ProjectRepository,
 } from '@base/features/project/domain/repository/project.repository.ts';
-import AddProjectDialog from '../AddProjectDialog.svelte';
 import EditProjectDialog from '../EditProjectDialog.svelte';
 
 const toastError = vi.fn();
@@ -17,6 +16,7 @@ vi.mock('svelte-sonner', () => ({
 
 const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
   id: 'project-1',
+  workspaceId: 'org-1',
   name: 'web',
   description: 'the web app',
   ...overrides,
@@ -30,8 +30,7 @@ const install = () => {
   create = vi.fn().mockResolvedValue(project());
   update = vi.fn().mockResolvedValue(project());
   const repository = {
-    getByOrganizationId: vi.fn(),
-    listMembers: vi.fn(),
+    getByWorkspaceId: vi.fn(),
     create,
     update,
     delete: vi.fn(),
@@ -43,67 +42,10 @@ const install = () => {
 
 beforeEach(() => {
   vi.clearAllMocks();
-  contextStore.setState({ organization: { id: 'org-1', name: 'Acme' } });
+  contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: null } });
 });
 
 afterEach(() => teardown.forEach(restore => restore()));
-
-describe('AddProjectDialog', () => {
-  it('toasts an error and never calls the repository when no organization is selected', async () => {
-    contextStore.setState({ organization: { id: null, name: null } });
-    install();
-    render(AddProjectDialog, { open: true, setOpen: vi.fn() });
-    await focusSettled();
-
-    await userEvent.type(screen.getByLabelText('Project name'), 'web');
-    await userEvent.type(screen.getByLabelText('Description'), 'the web app');
-    await userEvent.click(screen.getByRole('button', { name: 'Create Project' }));
-
-    expect(toastError).toHaveBeenCalledWith(
-      'Project name is required and you must select an organization.',
-    );
-    expect(create).not.toHaveBeenCalled();
-  });
-
-  it('creates the project under the current organization and closes on success', async () => {
-    const setOpen = vi.fn();
-    install();
-    render(AddProjectDialog, { open: true, setOpen });
-    await focusSettled();
-
-    await userEvent.type(screen.getByLabelText('Project name'), 'web');
-    await userEvent.type(screen.getByLabelText('Description'), '  the web app  ');
-    await userEvent.click(screen.getByRole('button', { name: 'Create Project' }));
-
-    await waitFor(() => expect(create).toHaveBeenCalledWith('web', 'org-1', 'the web app'));
-    await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
-  });
-
-  it('creates a project from a name alone: the description is optional', async () => {
-    install();
-    render(AddProjectDialog, { open: true, setOpen: vi.fn() });
-    await focusSettled();
-
-    await userEvent.type(screen.getByLabelText('Project name'), 'web');
-    const submit = screen.getByRole('button', { name: 'Create Project' });
-    expect(submit).toBeEnabled();
-    await userEvent.click(submit);
-
-    await waitFor(() => expect(create).toHaveBeenCalledWith('web', 'org-1', undefined));
-  });
-
-  it('sends a whitespace-only description as no description', async () => {
-    install();
-    render(AddProjectDialog, { open: true, setOpen: vi.fn() });
-    await focusSettled();
-
-    await userEvent.type(screen.getByLabelText('Project name'), 'web');
-    await userEvent.type(screen.getByLabelText('Description'), '   ');
-    await userEvent.click(screen.getByRole('button', { name: 'Create Project' }));
-
-    await waitFor(() => expect(create).toHaveBeenCalledWith('web', 'org-1', undefined));
-  });
-});
 
 describe('EditProjectDialog', () => {
   it('prefills the current name and description, ready to save unmodified', async () => {

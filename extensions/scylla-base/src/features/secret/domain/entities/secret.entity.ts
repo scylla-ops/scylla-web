@@ -3,7 +3,6 @@ export interface SecretEntity {
   id: string;
   projectId: string;
   name: string;
-  description: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -13,11 +12,10 @@ export interface CreateSecretInput {
   projectId: string;
   name: string;
   value: string;
-  description: string;
 }
 
+/** The value is the only thing that changes: the name is the key that pipelines use. */
 export interface UpdateSecretInput {
   secretId: string;
-  value?: string;
-  description?: string;
+  value: string;
 }

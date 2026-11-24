@@ -27,6 +27,12 @@ describe('DataTable', () => {
     expect(screen.getByText('deploy')).toBeInTheDocument();
   });
 
+  it('marks each row for code outside, not the header', () => {
+    const { container } = render(DataTable, { columns, data });
+
+    expect(container.querySelectorAll('[data-part="data-table-row"]')).toHaveLength(data.length);
+  });
+
   it('shows a single "No results." row for an empty dataset, not an empty body', () => {
     render(DataTable, { columns, data: [] });
 
@@ -136,5 +142,22 @@ describe('DataTable', () => {
     const [name, status] = screen.getAllByRole('columnheader');
     expect(name).toHaveClass('text-right', 'justify-end');
     expect(status).toHaveClass('text-center', 'justify-center');
+  });
+
+  it('gives the classes of meta.class to the header and to each cell of its column only', () => {
+    render(DataTable, {
+      columns: [
+        { id: 'name', header: 'Name', accessorKey: 'name', meta: { class: 'pl-2 pr-3' } },
+        { id: 'status', header: 'Status', accessorKey: 'status' },
+      ] satisfies DataTableColumn<Datum>[],
+      data,
+    });
+
+    const [nameHead, statusHead] = screen.getAllByRole('columnheader');
+    expect(nameHead).toHaveClass('pl-2', 'pr-3');
+    expect(statusHead).not.toHaveClass('pl-2');
+    const [build, running] = screen.getAllByRole('cell');
+    expect(build).toHaveClass('pl-2', 'pr-3');
+    expect(running).not.toHaveClass('pl-2');
   });
 });

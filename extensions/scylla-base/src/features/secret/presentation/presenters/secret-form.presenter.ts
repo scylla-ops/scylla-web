@@ -2,7 +2,7 @@ import { type FormItem, FormItemType } from '@scylla/ui';
 import { t } from '@lingui/core/macro';
 
 /** Built at call time: the caller rebuilds it on a locale switch. The camelCase file name keeps the Lingui ownership. */
-export const createSecretsItems: () => readonly FormItem<'name' | 'description' | 'value'>[] =
+export const createSecretsItems: () => readonly FormItem<'name' | 'value'>[] =
   () => [
     {
       id: 'name',
@@ -12,13 +12,6 @@ export const createSecretsItems: () => readonly FormItem<'name' | 'description' 
       inputType: 'text',
       // The backend rule (scylla-domain secret/name.rs).
       pattern: '^[A-Za-z0-9._-]+$',
-    },
-    {
-      id: 'description',
-      label: t`Description`,
-      placeholder: t`e.g., Our company's main secret`,
-      type: FormItemType.Input,
-      inputType: 'text',
     },
     {
       id: 'value',

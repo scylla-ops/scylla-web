@@ -14,8 +14,14 @@ lifecycle — authoring a pipeline and watching it run.
   cell, opens that job's details page in [jobs](../jobs/README.md); "View jobs" still opens the
   full, unclipped list.
 - **The editor** — creating and updating a pipeline, in two coordinated views.
-- **Running** — the Run action, and the jobs page that follows it.
-- **Organization-wide reads** — pipeline metadata across every project, for the
+- **File pipelines** — a pipeline that comes from a file of the linked repository. Its page is
+  the editor page, read only: the change goes in the repository, so Scylla shows the file and
+  its errors, at the branch or the tag that the user picks.
+- **Running** — the Run action, and the jobs page that follows it. With a linked repository,
+  Run asks for the commit to run, and the jobs page can filter the jobs by branch, event, author
+  and pull request.
+- **The library** — nodes saved once and used by many pipelines of the workspace. See below.
+- **Workspace-wide reads** — pipeline metadata across every project, for the
   [dashboard](../dashboard/README.md).
 
 ## Metadata vs entity
@@ -84,6 +90,16 @@ what will happen, and you can still connect it to the node you meant.
   is applied too, and the inspector and the node both say why: holding the edit back would show
   one node in the panel and another on the canvas, and lose the edit when the panel closes.
 
+### The canvas opens on a still view
+
+Svelte Flow measures the nodes before it can frame them, and the panes take their width after
+they mount. When the user saw these steps, the view jumped and zoomed while it centred on the
+nodes. Now a curtain with the look of an empty canvas covers the blueprint, the side panel too,
+until the view is fitted at its final width. A load that ends within 300 ms shows nothing more;
+a longer one shows the Scylla logo, its four dots lit in turn; a load that fails says so in the
+canvas, with Try again. Then the graph and the panel fade in, already in place. The header is
+there from the start, so the page does not change its shape when the pipeline comes.
+
 ### Node styles
 
 The viewer picks how nodes look: **detailed** (a card: icon, id, what it runs, folder,
@@ -124,6 +140,57 @@ CodeMirror is the clearest legitimate use of Svelte `$effect` in this module: it
 outside the framework that has to be synchronized imperatively. That licence stops at the
 editor's edge: the rest of the module derives during render with Runes.
 
+## The library of fragments
+
+A fragment is some nodes of a pipeline, saved in the library of the workspace. In the blueprint,
+a box selection of nodes (the **Select** button of the toolbar, or Shift and a drag) is saved
+with **Save to library**, and so is one node, also from its inspector. The dialog detects the
+variables of the nodes, which become the parameters of the fragment, and puts one block in place
+of the nodes.
+The **Library** tab of the palette inserts a fragment on a link or in empty space, and asks for a
+secret that has no value.
+
+A pipeline links one version of a fragment. A new version is proposed on the canvas and in the
+side panel, never forced: the pipeline takes it or stays. A block can also be detached, and its
+nodes become the pipeline's own. Only the author and the admins publish a version. The library
+page lists the fragments, with a search, the tags and the favorites; the page of a fragment shows
+its nodes, its parameters, its versions and the pipelines that use it, and **Use in a pipeline**
+opens one.
+
+The **Community** tab holds the fragments taken from the [marketplace](../marketplace/README.md).
+A **linked** fragment is read only: a new version of its publisher shows what it changes and
+which pipelines keep their own values, and an admin accepts it into the library or skips it.
+A **fork** belongs to the workspace and only shows the next release of its publisher. The other
+way, a fragment of the workspace goes public from its page, as `@workspace/name`, after checks on
+its defaults and nodes; its page then follows its installs and the versions other organizations
+use.
+
+The library is on the server (`FragmentService` of the core), and the marketplace is a service
+that Scylla hosts. The document of a pipeline stays plain nodes: what makes a block is a
+`FragmentLink`, saved with the nodes. A block has no port: what leaves it leaves from its last
+nodes.
+
+## Conditional nodes
+
+A pipeline can choose its path at run time, as in n8n. A **switch** checks its cases and opens a
+port; an **If** is a switch with the case `true` and `otherwise: false`. A **merge** joins
+branches again. A node that runs a step can send its failure to an **error** port. The backend
+decides what runs (`DECISIONS.md` of the server, "Conditional nodes"); the editor lets an author
+build them on the canvas, in the inspector and in the JSON tab.
+
+A need names a node and, as an option, one of its ports. On the canvas a port is a handle: an edge
+that leaves from it is a need on that port, so the graph stays the only picture of the needs and
+no list of links lives beside it. The handles of a switch are its ports, in the order of the cases,
+because the order is the order in which the agent checks them.
+
+The error output of a node has no field on the server: a need on `error` is what exists. The
+toggle in the inspector only shows the handle, so that there is something to link from; it lasts
+for the visit. Turned off, it removes the links of the port, with an "Undo", like a case that goes.
+
+The checks of the server on a switch and on the needs are in the domain, as the other rules: the
+canvas, the list and the inspector show them on the node, and a save sends nothing that the
+server refuses for them.
+
 ## The rules live in the domain
 
 The server refuses a whole pipeline for one node id it does not accept. That rule, and the
@@ -155,7 +222,7 @@ is its single consumer.
 
 ## Cache coordination
 
-`PIPELINES_QUERY_KEY`, `ORGANIZATION_PIPELINES_QUERY_KEY` and `PIPELINES_QUERY_ROOT` are part of
+`PIPELINES_QUERY_KEY`, `WORKSPACE_PIPELINES_QUERY_KEY` and `PIPELINES_QUERY_ROOT` are part of
 the public API so other modules invalidate exactly what this one reads.
 
 Running a pipeline is the interesting case: it creates a *job*, so `createRunPipeline` invalidates
@@ -169,9 +236,12 @@ export their key factories instead of writing arrays inline.
 | project index | `LIST_PIPELINES_BY_PROJECT` | the pipeline dashboard |
 | `create` | `CREATE_PIPELINE` | new pipeline |
 | `edit/:pipelineId` | `UPDATE_PIPELINE` | editor |
+| `pipelines/:pipelineId` | `READ_PIPELINE` | a file pipeline, read only |
 | `pipelines/:pipelineId/jobs` | `LIST_JOBS_BY_PIPELINE` | runs, with Run |
+| `library` (workspace) | `LIST_PIPELINES_BY_WORKSPACE` | the fragments of the workspace |
+| `library/:fragmentId` (workspace) | `LIST_PIPELINES_BY_WORKSPACE` | one fragment |
 
-No sidebar entry: pipelines *are* the project, reached by entering one.
+One sidebar entry, Library. Pipelines *are* the project, reached by entering one.
 
 ## Related modules
 

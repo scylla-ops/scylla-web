@@ -13,14 +13,15 @@ const trigger = (overrides: Partial<TriggerEntity> = {}): TriggerEntity => ({
   enabled: true,
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
+  fromFile: false,
   ...overrides,
 });
 
 const webhookSource = {
-  kind: 'webhook',
-  signatureHeader: '',
+  kind: 'webhook' as const,
   webhookUrl: 'x',
-} as const;
+  conditions: [],
+};
 
 describe('TriggersOverview', () => {
   it('shows how many of the triggers are enabled', () => {

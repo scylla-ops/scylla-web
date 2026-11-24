@@ -1,14 +1,22 @@
+import type { CreateTokenInput, CreatedToken } from '@shared/domain/structs/api-token.struct.ts';
+import type { PersonalTokens } from '../entities/personal-tokens.entity.ts';
 import type { PasswordResetDelivery } from '@base/features/login';
 import type {
+  AccountDataExport,
   CreateUserInput,
   UpdateUserInput,
-  UserAccess,
   UserEntity,
   UserList,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
+import type { SignInMethodsOfUser } from '@base/features/user/domain/entities/identity.entity.ts';
 
 export interface UserRepository {
+  /** The personal tokens of the user of the session, and where they act. */
+  listPersonalTokens(): Promise<PersonalTokens>;
+  /** FAILED_PRECONDITION with PERSONAL_TOKENS_DISABLED when the server refuses them. */
+  createPersonalToken(input: CreateTokenInput): Promise<CreatedToken>;
+  revokePersonalToken(tokenId: string): Promise<void>;
   getAll(): Promise<UserList>;
   getById(id: string): Promise<UserEntity>;
   /** The account of the session. Needs no permission. */
@@ -25,9 +33,23 @@ export interface UserRepository {
   revokeSessions(userId: string): Promise<number>;
   /** Of the session's account, with its password. */
   deleteAccount(password: string): Promise<void>;
-  listAccess(userId: string): Promise<UserAccess[]>;
+  /** Of the session's account. Refused to a personal token with the read-only preset. */
+  exportAccountData(): Promise<AccountDataExport>;
   /** The sessions that have not expired, the most recently active first. */
   listSessions(userId: string): Promise<UserSessionEntity[]>;
-  /** The current session can be revoked too: its caller is then signed out. */
+  /**
+   * The current session can be revoked too: its caller is then signed out. Only for the own id:
+   * for another user, revoke each session with `revokeSessions`.
+   */
   revokeSession(userId: string, sessionId: string): Promise<void>;
+  /** Of the session's account: a link goes to the new email. The same answer for a used email. */
+  requestEmailChange(newEmail: string, password: string): Promise<void>;
+  /** With the token of that link: the new email becomes the primary one. */
+  confirmEmailChange(token: string): Promise<UserEntity>;
+  /** Of the session's account. */
+  listSignInMethods(): Promise<SignInMethodsOfUser>;
+  /** FAILED_PRECONDITION with LAST_SIGN_IN_METHOD for the last way to sign in. */
+  unlinkIdentity(provider: string, subject: string): Promise<void>;
+  /** For an admin of the instance. The last active admin stays: LAST_ADMIN. */
+  setInstanceAdmin(userId: string, admin: boolean): Promise<void>;
 }

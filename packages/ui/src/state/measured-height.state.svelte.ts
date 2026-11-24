@@ -1,7 +1,7 @@
 import type { Attachment } from 'svelte/attachments';
 
 export interface MeasuredHeight {
-  /** `null` until the element is attached. */
+  /** `null` until the first attach. The last value stays when the element goes away. */
   readonly height: number | null;
   measure: Attachment<HTMLElement>;
 }
@@ -22,10 +22,7 @@ export const createMeasuredHeight = (): MeasuredHeight => {
     });
     observer.observe(node);
 
-    return () => {
-      observer.disconnect();
-      height = null;
-    };
+    return () => observer.disconnect();
   };
 
   return {

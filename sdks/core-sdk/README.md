@@ -17,7 +17,7 @@ start-up.
 ## Write an extension
 
 An extension is a package in `extensions/`. This example adds a **Billing** page to each
-organization. It uses the `organization` mount and the `organization` sidebar section that
+workspace. It uses the `workspace` mount and the `workspace` sidebar section that
 `scylla-base` declares.
 
 **1. A module declares the page.**
@@ -33,20 +33,20 @@ export const BillingModule = {
   id: 'billing',
   domain: {},
   routes: {
-    organization: [
+    workspace: [
       {
         path: 'billing',
-        permission: Permission.READ_ORGANIZATION,
+        permission: Permission.READ_WORKSPACE,
         breadcrumb: () => ({ label: msg`Billing` }),
         page: () => import('./presentation/ui/Billing.page.svelte'),
-        nav: { section: 'organization', title: msg`Billing`, icon: CreditCardIcon, order: 90 },
+        nav: { section: 'workspace', title: msg`Billing`, icon: CreditCardIcon, order: 90 },
       },
     ],
   },
 } satisfies ScyllaModule;
 ```
 
-This one declaration gives the URL `/:organizationSlug/billing`, a sidebar link that shows only
+This one declaration gives the URL `/:workspaceSlug/billing`, a sidebar link that shows only
 to users with the permission, a guard on the page, and a breadcrumb.
 
 **2. A class declares the extension.**
@@ -91,7 +91,7 @@ frame around the pages. An app usually has them in one module (in `scylla-base`:
 | `mounts` | Places where routes attach: `parent`, `path`, `layout`, `wrapper`, `breadcrumb`, `shell`. |
 | `navSections` | The sidebar sections, with an optional component in place of the title. |
 | `access` | The access policy: `can`, `ready`, `guard`. At most one module in the app. |
-| `shell` | Parts of the frame: sidebar footer, overlays, link badge, breadcrumb and link parameters. |
+| `shell` | Parts of the frame: sidebar footer, overlays and the band they cover (`bottomInset`), link badge, breadcrumb and link parameters. |
 | `onQueryError` | Receives each query and mutation error. |
 | `fallback` | The page when no route matches. Exactly one module in the app. |
 
@@ -164,7 +164,7 @@ The core installs these functions at start-up. An extension only calls them.
 import { navigateTo, routeParams, getModuleDomain, createQuery, queryOptions } from '@scylla/core-sdk';
 
 navigateTo('/acme/billing');                       // navigation
-const { organizationSlug } = routeParams();        // parameters of the current route
+const { workspaceSlug } = routeParams();        // parameters of the current route
 
 // in billing.queries.ts — the only kind of file that reads the DI registry
 const { invoiceRepository } = getModuleDomain<typeof BillingModule.domain>('billing');

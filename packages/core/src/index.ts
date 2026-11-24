@@ -8,5 +8,6 @@ export {
   type RouteTable,
 } from './routing/compilation/compile-routes.ts';
 export { createAppRouter } from './routing/runtime/app-router.ts';
+export { default as RouterView } from './routing/view/RouterView/RouterView.svelte';
 export { setShellConfig } from './shell/shell-config.ts';
 export { default as ShellBreadcrumbs } from './shell/TopBar/ShellBreadcrumbs.svelte';

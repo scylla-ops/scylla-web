@@ -99,12 +99,27 @@ export const loadExtensions = (classes: readonly ExtensionClass[]): LoadedApp =>
   const modules = extensions.flatMap(extension => extension.modules);
   uniqueBy(modules, module => module.id, 'module');
 
+  uniqueBy(
+    modules.flatMap(module => module.commands ?? []),
+    command => command.id,
+    'command',
+  );
+
   const mountList = modules.flatMap(module => Object.entries(module.mounts ?? {}));
   uniqueBy(mountList, ([id]) => id, 'mount');
   const mounts: Record<RouteMount, MountDefinition> = Object.fromEntries(mountList);
 
   const sections = modules.flatMap(module => module.navSections ?? []);
   uniqueBy(sections, section => section.id, 'nav section');
+
+  const spaceless = Object.entries(mounts).find(
+    ([, { space }]) =>
+      space !== undefined && !sections.some(section => section.id === space && section.space),
+  );
+  if (spaceless) {
+    const [id, { space }] = spaceless;
+    throw new Error(`The mount "${id}" names the space "${space}", which no nav section declares.`);
+  }
 
   const access = onlyOne<AccessPolicy>(modules, module => module.access, 'an access policy');
   const fallback = onlyOne<Component>(modules, module => module.fallback, 'the fallback page');

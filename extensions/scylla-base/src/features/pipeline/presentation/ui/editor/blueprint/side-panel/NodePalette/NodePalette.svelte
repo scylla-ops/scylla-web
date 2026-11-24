@@ -15,9 +15,11 @@
     onAdd: (entry: CatalogEntry) => void;
     /** Lets a row be dragged onto the canvas. */
     drag?: PaletteDrag;
+    /** `false`: the panel around the palette has the title. */
+    heading?: boolean;
   }
 
-  let { entries, onAdd, drag }: Props = $props();
+  let { entries, onAdd, drag, heading = true }: Props = $props();
 
   let query = $state('');
 
@@ -26,14 +28,16 @@
 
 <div class="flex h-full flex-col">
   <div class="flex flex-col gap-2.5 p-3 pb-2">
-    <h2 class="px-1 text-sm font-semibold">{t(blueprintMessages.addNode)}</h2>
+    {#if heading}
+      <h2 class="px-1 text-sm">{t(blueprintMessages.addNode)}</h2>
+    {/if}
     <SearchField bind:value={query} label={t(blueprintMessages.searchNodes)} />
   </div>
 
   <div class="relative min-h-0 flex-1 overflow-y-auto px-2 pb-2">
     {#each groups as { group, items } (group)}
       <h3
-        class="px-2 pt-3 pb-1 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase"
+        class="px-2 pt-3 pb-1 text-[11px] tracking-wider text-muted-foreground uppercase"
       >
         {t(CATALOG_GROUP_TITLES[group])}
       </h3>

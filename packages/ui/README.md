@@ -1,7 +1,8 @@
 # `@scylla/ui`
 
 > [Scylla frontend](../../README.md) › `packages/ui` ·
-> [agent guide](./AGENTS.md) · [architecture](../../docs/architecture.md)
+> [agent guide](./AGENTS.md) · [design system](./DESIGN-SYSTEM.md) ·
+> [architecture](../../docs/architecture.md)
 
 The design system: generic components, state helpers and utilities with **no business meaning**.
 Tables, forms, dialogs, pagination, the primitives (adapted from shadcn/ui), the theme tokens and the i18n
@@ -16,7 +17,7 @@ look like the rest of Scylla: it builds with the same parts.
 > Could this live in a completely different product, unchanged?
 
 If the answer is yes, it belongs here. If it mentions a pipeline, a job, a role or an
-organization — even in a type name — it belongs to the extension that owns that concept
+workspace — even in a type name — it belongs to the extension that owns that concept
 (for scylla-base: the feature, or [`shared/`](../../extensions/scylla-base/src/shared/README.md)).
 
 The corollary is a rule about *timing*: something moves here at its **second real usage**, not
@@ -29,6 +30,14 @@ and behave alike:
 
 - **`DataTable`** with **`createPagination()`** — local page state merged with the server's
   `totalCount` and `totalPages`. Row keys are business ids, never array indices.
+- **Inset rows, not ruled rows.** The rows of a table are rounded and spaced inside a framed
+  card, with a grey header pill and no line between them: the eye follows a row by its own
+  shape, and a soft green tint with a 3 px bar marks the selection without a hard outline. The
+  pages sit under the table, outside its frame, so the table stays one calm block.
+- **A status is a shape, made of the logo.** `StatusShape` turns the four dots of the logo into
+  the form of a status — a grid that waits, marbles that run, a disc, a cross, a slash — and
+  moves from one to the next instead of swapping an icon. The brand carries the meaning, and a
+  change of status is something the eye sees happen.
 - **`createSelection(key)`** over a single `selectionStore`. Selection is keyed by feature, so
   `createSelection('jobs')` and `createSelection('users')` are independent — which is why there is
   no per-feature selection store anywhere in the codebase.

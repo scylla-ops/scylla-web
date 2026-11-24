@@ -21,7 +21,9 @@ const walk = (dir: string): string[] =>
 
 /** A test's mention of a permission proves nothing. */
 const sourcesIn = (dir: string): string[] =>
-  existsSync(dir) ? walk(dir).filter(f => /\.(tsx?|svelte)$/.test(f) && !/\.(test|fixture)\./.test(f)) : [];
+  existsSync(dir)
+    ? walk(dir).filter(f => /\.(tsx?|svelte)$/.test(f) && !/\.(test|fixture)\./.test(f))
+    : [];
 
 const read = (path: string): string => readFileSync(path, 'utf8');
 
@@ -37,7 +39,6 @@ const featureDirs = modules.map(module => {
   return {
     id: module.id,
     dir,
-    hooks: join(dir, 'presentation/hooks'),
     ui: join(dir, 'presentation/ui'),
   };
 });
@@ -55,12 +56,12 @@ describe('feature permission conformance', () => {
   const UNGATED_FEATURES: Readonly<Record<string, string>> = {
     login:
       'Signing in is what establishes identity; there is no permission to hold before holding one.',
+    access: 'It has no UI: its Grant and Revoke run from the membership pages, which gate them.',
   };
 
   describe('a feature that mutates gates something in its UI', () => {
-    /** A write is a `useMutation(` call or a `mutationOptions(` declaration. */
+    /** A write is a `mutationOptions(` declaration. */
     const writesIn = (feature: (typeof featureDirs)[number]) =>
-      sourcesIn(feature.hooks).some(file => code(file).includes('useMutation(')) ||
       sourcesIn(join(feature.dir, 'presentation'))
         .filter(file => file.endsWith('.queries.ts') || file.endsWith('.mutations.ts'))
         .some(file => code(file).includes('mutationOptions('));
@@ -68,7 +69,7 @@ describe('feature permission conformance', () => {
     const mutating = featureDirs.filter(writesIn);
 
     it('finds the mutating features it is supposed to check', () => {
-      expect(mutating.length).toBeGreaterThan(5);
+      expect(mutating.length).toBeGreaterThan(3);
     });
 
     /** The components, and the ViewModels where their gate logic belongs. */
@@ -80,9 +81,7 @@ describe('feature permission conformance', () => {
     ];
 
     it.each(mutating.map(feature => [feature.id, feature] as const))('%s', (id, feature) => {
-      const gates = uiSources(feature).some(file =>
-        /Permission\.[A-Z_]+|PermissionButton|useCan|useAuthorization|\bcan\(/.test(code(file)),
-      );
+      const gates = uiSources(feature).some(file => /Permission\.[A-Z_]+|\bcan\(/.test(code(file)));
 
       if (id in UNGATED_FEATURES) {
         expect(
@@ -106,13 +105,13 @@ describe('feature permission conformance', () => {
    * check its permission itself (like `jobsByPipelinesQueries`).
    */
   describe('a query hook consumed across a feature boundary checks for itself', () => {
-    const isSharedRead = (name: string) => /^use[A-Z]/.test(name) || /Queries$/.test(name);
+    const isSharedRead = (name: string) => /Queries$/.test(name);
 
     const barrelExports = new Map(
       featureDirs.map(feature => {
         const barrel = join(feature.dir, 'index.ts');
         const names = existsSync(barrel)
-          ? [...code(barrel).matchAll(/\b(?:use[A-Z]\w*|\w+Queries)\b/g)].map(match => match[0])
+          ? [...code(barrel).matchAll(/\b\w+Queries\b/g)].map(match => match[0])
           : [];
         return [feature.id, new Set(names)];
       }),
@@ -167,61 +166,50 @@ describe('feature permission conformance', () => {
         });
     };
 
-    const sharedHooks: SharedHook[] = featureDirs.flatMap(feature => [
-      ...sourcesIn(feature.hooks).flatMap(file =>
-        // `useQueryClient` is not a query: match the call.
-        /\buseQuery\(|\buseQueries\(/.test(code(file))
-          ? sharedReadsIn(
-              feature.id,
-              file,
-              /export const (use[A-Z]\w*)/g,
-              /useAuthorization|useCan/,
-            )
-          : [],
-      ),
-      // A `*.queries.ts` factory gates with a `can(...)` inside its options.
-      ...sourcesIn(join(feature.dir, 'presentation'))
+    // A `*.queries.ts` factory gates with a `can(...)` inside its options.
+    const sharedHooks: SharedHook[] = featureDirs.flatMap(feature =>
+      sourcesIn(join(feature.dir, 'presentation'))
         .filter(file => file.endsWith('.queries.ts'))
         .flatMap(file =>
           sharedReadsIn(feature.id, file, /export const (\w+Queries)\b/g, /\bcan\(/),
         ),
-    ]);
+    );
 
     /** A ratchet. `TRIAGE`: nobody decided yet what the consuming page should show instead. */
     const UNCHECKED_SHARED_HOOKS: Readonly<Record<string, string>> = {
+      'user.personalTokenQueries':
+        '`mine` is the account of the session: it needs no right. The workspace settings page ' +
+        'reads only whether the server refuses the tokens.',
+      'login.loginQueries':
+        '`signInMethods` is public: the sign-in page reads it with no session. The account page ' +
+        'reads it to offer the providers to link. `pendingLink` reads a cookie of this browser. ' +
+        '`terms` is the account of the session (GetMe): the privacy page of the account reads it.',
       'jobs.jobQueries':
-        'The entry `useOrganizationJobs` left behind. `byOrganization`, the read that crosses ' +
-        'the barrel, is organization-scoped and filtered server-side; the per-project fan-out it ' +
-        'replaced cost one PERMISSION_DENIED toast per unreadable project — see ' +
-        'use-org-overview.ts. The fan-out that *does* check lives in its own file precisely so ' +
-        'its `can(` does not vouch for this one.',
+        '`byWorkspace`, the read that crosses the barrel, needs LIST_JOBS_BY_WORKSPACE: the ' +
+        'failed runs sit behind it. The fan-out that ' +
+        '*does* check lives in its own file precisely so its `can(` does not vouch for this one.',
       'pipeline.pipelineQueries':
-        'The entry `useOrganizationPipelines` left behind, for the same reason as jobQueries: ' +
-        '`byOrganization` is the one read that crosses the barrel, and ' +
-        '`ListOrganizationPipelines` is scoped server-side, so there is nothing to gate ' +
-        "client-side. The hook is now this factory's React binding and goes in Phase 5.",
-      'organization.organizationQueries':
-        'One entry where there were three hooks, and the same reasons. `members` is consumed by ' +
-        'membership, whose route requires LIST_ORGANIZATION_MEMBERS — the permission the read ' +
-        'needs, so the route guard covers it. TRIAGE for `mine`: roles consumes it on a route ' +
-        'requiring MANAGE_ROLES, and listing organizations is a different permission.',
+        '`byWorkspace` needs LIST_PIPELINES_BY_WORKSPACE, which each consumer adds to ' +
+        '`enabled`. The trigger pages read `byId` for the file of a file pipeline, and the ' +
+        "shell's `namePipeline` for the name in the crumbs: both add READ_PIPELINE to `enabled`.",
+      'pipeline.fragmentQueries':
+        'The marketplace reads `list` to tell which packages are in the library, on routes that ' +
+        'require LIST_PIPELINES_BY_WORKSPACE, as the library itself does.',
       'secret.secretQueries':
-        "TRIAGE: consumed by pipeline's step dialog to offer secret names, on an editor route " +
-        'requiring UPDATE_PIPELINE rather than LIST_SECRETS. Newly listed rather than newly ' +
-        'true — `useSecrets` crossed the same boundary before the factory replaced it.',
-      'roles.roleQueries':
-        'The entry `useGrantableRoles` left behind, and a decision rather than debt: every read ' +
-        "this factory exposes across the barrel takes the caller's gate as `enabled`, which is " +
-        'the only place the answer is known. `grantable` needs no permission without an ' +
-        'organization and READ_ORGANIZATION with one; `catalog`, `organizationCatalog` and ' +
-        '`scopedGrants` are asked for only when the consumer already holds MANAGE_ROLES, ' +
-        'MANAGE_ORG_ROLES or MANAGE_*_GRANTS, which is what membership passes (see ' +
-        'assignable-roles.state.svelte.ts). Gating inside the factory would mean naming one ' +
-        'permission for reads that each need their own.',
+        "Consumed by pipeline's step dialog to offer secret names, on an editor route requiring " +
+        'UPDATE_PIPELINE: the dialog adds LIST_SECRETS to `enabled`, and takes a typed name.',
+      'workspace.workspaceQueries':
+        '`mine` needs no permission: ListWorkspaces gives the workspaces of the caller. The ' +
+        'invitation page reads it after AcceptInvitation, to open the new workspace. The ' +
+        'dashboard reads it for the time zone of the workspace.',
+      'access.accessQueries':
+        "`list` takes the caller's gate as `enabled`, which is the only place the answer is " +
+        'known: a workspace needs LIST_WORKSPACE_MEMBERS and a project LIST_PROJECT_MEMBERS ' +
+        '(see scope-membership.state.svelte.ts and ProjectMembers.page.svelte).',
     };
 
     it('finds the shared hooks it is supposed to check', () => {
-      expect(sharedHooks.length).toBeGreaterThan(5);
+      expect(sharedHooks.length).toBeGreaterThan(1);
     });
 
     it.each(sharedHooks.map(hook => [hook.key, hook] as const))('%s', (key, hook) => {

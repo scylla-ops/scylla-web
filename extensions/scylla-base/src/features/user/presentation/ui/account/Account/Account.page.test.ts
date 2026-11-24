@@ -3,10 +3,10 @@ import type * as Login from '@base/features/login';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { toast } from 'svelte-sonner';
+import { getQueryClient } from '@scylla/core-sdk';
 import { installTestNavigator } from '@test/navigator.ts';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { UserAccess } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import AccountPage from './Account.page.svelte';
 
@@ -28,33 +28,6 @@ const me = {
   updatedAt: '2025-01-01T00:00:00.000Z',
 };
 
-const access: UserAccess[] = [
-  {
-    grantId: 'g-system',
-    scope: 'system',
-    roleId: 'system-admin',
-    roleName: 'System admin',
-  },
-  {
-    grantId: 'g-org',
-    scope: 'organization',
-    organizationId: 'org-1',
-    organizationName: 'Acme Corp',
-    roleId: 'organization-admin',
-    roleName: 'Organization admin',
-  },
-  {
-    grantId: 'g-project',
-    scope: 'project',
-    organizationId: 'org-1',
-    organizationName: 'Acme Corp',
-    projectId: 'project-1',
-    projectName: 'Web',
-    roleId: 'project-viewer',
-    roleName: 'Viewer',
-  },
-];
-
 const recently = () => new Date(Date.now() - 60_000).toISOString();
 
 const sessions: UserSessionEntity[] = [
@@ -62,7 +35,6 @@ const sessions: UserSessionEntity[] = [
     id: 'session-1',
     createdAt: recently(),
     lastActiveAt: recently(),
-    expiresAt: '',
     userAgent:
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36',
     ipAddress: '203.0.113.7',
@@ -72,7 +44,6 @@ const sessions: UserSessionEntity[] = [
     id: 'session-2',
     createdAt: recently(),
     lastActiveAt: recently(),
-    expiresAt: '',
     userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:131.0) Gecko/20100101 Firefox/131.0',
     ipAddress: '198.51.100.4',
     current: false,
@@ -81,18 +52,25 @@ const sessions: UserSessionEntity[] = [
 
 const refused = (message: string) => new ScyllaError(message, { code: 'FAILED_PRECONDITION' });
 
+const serverInfo = {
+  edition: 'enterprise',
+  version: '0.7.0-rc.1+240da00',
+  agentImage: 'ghcr.io/scylla-ops/scylla-agent:0.7.0-rc.1',
+  agentProtocol: { min: 1, current: 2 },
+};
+
 let teardown: Array<() => void> = [];
 let repository: Record<string, ReturnType<typeof vi.fn>>;
+let getServerInfo: ReturnType<typeof vi.fn>;
 let navigator: ReturnType<typeof installTestNavigator>;
 
 const setUp = (
   section: string | undefined,
   overrides: Record<string, ReturnType<typeof vi.fn>> = {},
-  organizationSlug: string | null = 'acme-corp',
+  workspaceSlug: string | null = 'acme-corp',
 ) => {
   repository = {
     getMe: vi.fn().mockResolvedValue(me),
-    listAccess: vi.fn().mockResolvedValue(access),
     update: vi.fn().mockResolvedValue(me),
     changePassword: vi.fn().mockResolvedValue(undefined),
     revokeSessions: vi.fn().mockResolvedValue(2),
@@ -102,14 +80,21 @@ const setUp = (
     ...overrides,
   };
   const cache = withQueryClient();
-  teardown = [cache.restore, withRegistry({ user: { userRepository: repository } })];
-  render(AccountPage, { organizationSlug: organizationSlug ?? undefined, section });
+  teardown = [
+    cache.restore,
+    withRegistry({
+      user: { userRepository: repository },
+      apps: { appsRepository: { getServerInfo } },
+    }),
+  ];
+  render(AccountPage, { workspaceSlug: workspaceSlug ?? undefined, section });
 };
 
 const section = (name: string) => screen.getByRole('region', { name });
 
 beforeEach(() => {
   vi.clearAllMocks();
+  getServerInfo = vi.fn().mockResolvedValue(serverInfo);
   localStorage.setItem('userId', 'user-1');
   navigator = installTestNavigator({ pathname: '/acme-corp/account/profile' });
 });
@@ -117,6 +102,7 @@ beforeEach(() => {
 afterEach(() => {
   teardown.forEach(restore => restore());
   navigator.restore();
+  vi.unstubAllEnvs();
   localStorage.clear();
 });
 
@@ -130,47 +116,59 @@ describe('AccountPage', () => {
     expect(repository.getMe).toHaveBeenCalled();
   });
 
-  it('shows the email, the handle and the role of the first system grant in the header', async () => {
-    setUp('profile');
+  it('shows the email, the handle and the instance admin badge in the header', async () => {
+    setUp('profile', { getMe: vi.fn().mockResolvedValue({ ...me, instanceAdmin: true }) });
 
     const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
     expect(within(header).getByText('ada@example.com')).toBeInTheDocument();
     expect(within(header).getByText('@ada')).toHaveAttribute('data-slot', 'badge');
-    expect(await within(header).findByText('System admin')).toHaveAttribute('data-slot', 'badge');
+    expect(await within(header).findByText('Instance admin')).toHaveAttribute('data-slot', 'badge');
   });
 
-  it('shows no role badge for a user with no system grant', async () => {
-    setUp('organizations', { listAccess: vi.fn().mockResolvedValue(access.slice(1)) });
+  it('shows no role badge for a user who is not an instance admin', async () => {
+    setUp('profile');
 
-    await screen.findByText('Organization admin');
-    const header = screen.getByRole('heading', { level: 1 }).closest('header')!;
-    expect(within(header).queryByText('Organization admin')).not.toBeInTheDocument();
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
     expect(header.querySelectorAll('[data-slot="badge"]')).toHaveLength(1);
   });
 
-  it('links each entry of the settings nav to its page, and marks the current one', async () => {
+  it('ends with a space above a floating button at the bottom right, in a workspace', async () => {
+    setUp('profile');
+
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
+    expect(header.parentElement).toHaveClass('pb-20');
+  });
+
+  it('keeps a short space before the sign-out that follows it with no workspace', async () => {
+    setUp('profile', {}, null);
+
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
+    expect(header.parentElement).toHaveClass('pb-8');
+    expect(header.parentElement).not.toHaveClass('pb-20');
+  });
+
+  it('has no nav of its own in a workspace: the second sidebar has the links', async () => {
     setUp('security');
+
+    await screen.findByRole('region', { name: 'Password' });
+    expect(screen.queryByRole('navigation', { name: 'Account settings' })).not.toBeInTheDocument();
+  });
+
+  it('links each entry of the nav to its page outside a workspace, and marks the current one', async () => {
+    setUp('security', {}, null);
 
     const nav = await screen.findByRole('navigation', { name: 'Account settings' });
     const links = within(nav).getAllByRole('link');
     expect(links.map(link => [link.textContent?.trim(), link.getAttribute('href')])).toEqual([
-      ['Profile', '/acme-corp/account/profile'],
-      ['Appearance', '/acme-corp/account/appearance'],
-      ['Security', '/acme-corp/account/security'],
-      ['Organizations', '/acme-corp/account/organizations'],
-      ['Danger zone', '/acme-corp/account/danger-zone'],
+      ['Profile', '/account/profile'],
+      ['Appearance', '/account/appearance'],
+      ['Security', '/account/security'],
+      ['Tokens', '/account/tokens'],
+      ['Privacy', '/account/privacy'],
+      ['About', '/account/about'],
+      ['Danger zone', '/account/danger-zone'],
     ]);
     expect(within(nav).getByRole('link', { current: 'page' })).toHaveTextContent('Security');
-  });
-
-  it('links the nav to /account outside an organization', async () => {
-    setUp('profile', {}, null);
-
-    const nav = await screen.findByRole('navigation', { name: 'Account settings' });
-    expect(within(nav).getByRole('link', { name: 'Profile' })).toHaveAttribute(
-      'href',
-      '/account/profile',
-    );
   });
 
   it('shows only the sections of the current page', async () => {
@@ -179,7 +177,7 @@ describe('AccountPage', () => {
     await screen.findByRole('region', { name: 'Password' });
     expect(
       screen.getAllByRole('heading', { level: 2 }).map(heading => heading.textContent?.trim()),
-    ).toEqual(['Password', 'Sessions']);
+    ).toEqual(['Email', 'Ways to sign in', 'Password', 'Sessions']);
   });
 
   it('sends an unknown section to the profile', async () => {
@@ -194,6 +192,20 @@ describe('AccountPage', () => {
     setUp('profile', { getMe: vi.fn().mockRejectedValue(refused('down')) });
 
     expect(await screen.findByText('Error loading your account')).toBeInTheDocument();
+  });
+
+  it('keeps the page and what the user typed when a refetch of the account fails', async () => {
+    setUp('profile');
+    const username = await screen.findByLabelText('Username');
+    await userEvent.clear(username);
+    await userEvent.type(username, 'draft');
+
+    repository.getMe.mockRejectedValue(refused('down'));
+    await getQueryClient().refetchQueries({ type: 'active' });
+    await new Promise(resolve => setTimeout(resolve, 20));
+
+    expect(repository.getMe).toHaveBeenCalledTimes(2);
+    expect(screen.getByLabelText('Username')).toHaveValue('draft');
   });
 
   describe('profile', () => {
@@ -360,19 +372,52 @@ describe('AccountPage', () => {
     });
   });
 
-  it('lists the roles by organization, the system grants apart', async () => {
-    setUp('organizations');
+  it('shows the export of the data, the privacy policy and the cookies on the privacy page', async () => {
+    setUp('privacy');
 
-    const roles = await screen.findByRole('region', { name: 'Organizations and roles' });
-    await within(roles).findByText('System admin');
-    expect(within(roles).getByText('System')).toBeInTheDocument();
-    expect(within(roles).getByRole('link', { name: 'Acme Corp' })).toHaveAttribute(
-      'href',
-      '/acme-corp/dashboard',
-    );
-    expect(within(roles).getByText('Organization admin')).toBeInTheDocument();
-    expect(within(roles).getByText('Project Web')).toBeInTheDocument();
-    expect(repository.listAccess).toHaveBeenCalledWith('user-1');
+    await screen.findByRole('region', { name: 'Your data' });
+    expect(section('Your data')).toHaveTextContent('No export yet');
+    expect(section('Privacy policy')).toBeInTheDocument();
+    expect(section('Cookies and storage')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Versions' })).not.toBeInTheDocument();
+  });
+
+  describe('about', () => {
+    /** Each fact of the card: its label, and the text of its badge. */
+    const facts = (region: HTMLElement) =>
+      within(region)
+        .getAllByRole('term')
+        .map(term => {
+          const badge = term.nextElementSibling?.querySelector('[data-slot="badge"]');
+          return [term.textContent?.trim(), badge?.textContent?.trim()];
+        });
+
+    it('shows the edition, the version of the web app and the version of the server', async () => {
+      vi.stubEnv('SCYLLA_WEB_VERSION', '0.7.0-rc.1+9c4e2b7');
+      setUp('about');
+
+      const versions = await screen.findByRole('region', { name: 'Versions' });
+      await within(versions).findByText('0.7.0-rc.1+240da00');
+      expect(facts(versions)).toEqual([
+        ['Edition', 'enterprise'],
+        ['Web app', '0.7.0-rc.1+9c4e2b7'],
+        ['Server', '0.7.0-rc.1+240da00'],
+      ]);
+    });
+
+    it('shows a dash for what the server does not tell', async () => {
+      vi.stubEnv('SCYLLA_WEB_VERSION', '0.7.0-rc.1+dev');
+      getServerInfo.mockRejectedValue(new ScyllaError('down', { code: 'UNAVAILABLE' }));
+      setUp('about');
+
+      const versions = await screen.findByRole('region', { name: 'Versions' });
+      await waitFor(() => expect(getServerInfo).toHaveBeenCalled());
+      expect(facts(versions)).toEqual([
+        ['Edition', '–'],
+        ['Web app', '0.7.0-rc.1+dev'],
+        ['Server', '–'],
+      ]);
+    });
   });
 
   describe('deletion', () => {

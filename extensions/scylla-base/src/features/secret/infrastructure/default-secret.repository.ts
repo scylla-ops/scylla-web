@@ -1,6 +1,8 @@
-import type { ISecretServiceClient } from '@base/generated/scylla/secret/v1/secret.client.ts';
-import type { IPipelineServiceClient } from '@base/generated/scylla/pipeline/v1/pipeline.client.ts';
-import { wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import type { ISecretServiceClient } from '@base/generated/scylla/projects/v1/secret_service.client.ts';
+import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
+import type { Secret } from '@base/generated/scylla/projects/v1/secret.ts';
+import type { Pipeline } from '@base/generated/scylla/pipelines/v1/pipeline.ts';
+import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import type {
   CreateSecretInput,
   SecretEntity,
@@ -10,7 +12,21 @@ import type { SecretUsage } from '@base/features/secret/domain/structs/secret-us
 import type { SecretRepository } from '@base/features/secret/domain/repository/secret.repository.ts';
 import * as grpcSecret from './grpc-secret.mapper.ts';
 
-const USAGE_PAGE = { page: 1, pageSize: 10 };
+const PAGE_SIZE = 100;
+
+/** Reads each page of a list. */
+const allPages = async <T>(
+  read: (token: string) => Promise<{ items: T[]; next: string }>,
+): Promise<T[]> => {
+  const items: T[] = [];
+  let token = '';
+  do {
+    const page = await read(token);
+    items.push(...page.items);
+    token = page.next;
+  } while (token);
+  return items;
+};
 
 export class DefaultSecretRepository implements SecretRepository {
   constructor(
@@ -19,8 +35,14 @@ export class DefaultSecretRepository implements SecretRepository {
   ) {}
 
   public async listByProjectId(projectId: string): Promise<SecretEntity[]> {
-    const response = await this.client.listSecrets({ projectId: wrapId(projectId) }).response;
-    return response.secrets.map(grpcSecret.toDomain);
+    const secrets = await allPages<Secret>(async token => {
+      const response = await this.client.listSecrets({
+        projectId: wrapId(projectId),
+        page: { size: PAGE_SIZE, token },
+      }).response;
+      return { items: response.secrets, next: response.page?.nextToken ?? '' };
+    });
+    return secrets.map(grpcSecret.toDomain);
   }
 
   public async create(input: CreateSecretInput): Promise<SecretEntity> {
@@ -28,30 +50,28 @@ export class DefaultSecretRepository implements SecretRepository {
       projectId: wrapId(input.projectId),
       name: input.name,
       value: input.value,
-      description: input.description,
     }).response;
-    // No `secret` in the response: a shape this build cannot read.
-    if (!response.secret) throw new Error('CreateSecret returned no secret');
-    return grpcSecret.toDomain(response.secret);
+    return grpcSecret.toDomain(required(response.secret, 'secret'));
   }
 
   public async update(input: UpdateSecretInput): Promise<SecretEntity> {
     const response = await this.client.updateSecret({
       secretId: wrapId(input.secretId),
       value: input.value,
-      description: input.description,
     }).response;
-    if (!response.secret) throw new Error('UpdateSecret returned no secret');
-    return grpcSecret.toDomain(response.secret);
+    return grpcSecret.toDomain(required(response.secret, 'secret'));
   }
 
+  /** The server has no filter: the pipelines of the project are read, and their nodes searched. */
   public async listPipelinesUsing(projectId: string, secretName: string): Promise<SecretUsage> {
-    const response = await this.pipelineClient.listProjectPipelines({
-      projectId: wrapId(projectId),
-      pagination: USAGE_PAGE,
-      secretRef: secretName,
-    }).response;
-    return grpcSecret.usageToDomain(response);
+    const pipelines = await allPages<Pipeline>(async token => {
+      const response = await this.pipelineClient.listProjectPipelines({
+        projectId: wrapId(projectId),
+        page: { size: PAGE_SIZE, token },
+      }).response;
+      return { items: response.pipelines, next: response.page?.nextToken ?? '' };
+    });
+    return grpcSecret.usageToDomain(pipelines, secretName);
   }
 
   public async deleteById(secretId: string): Promise<void> {

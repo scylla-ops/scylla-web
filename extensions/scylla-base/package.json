@@ -1,7 +1,7 @@
 {
   "name": "@scylla/base",
   "private": true,
-  "version": "0.6.0",
+  "version": "0.7.0",
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
@@ -16,7 +16,9 @@
   },
   "scylla": {
     "protos": [
-      "scylla"
-    ]
+      "scylla",
+      "google/rpc"
+    ],
+    "protoRoot": "protos"
   }
 }

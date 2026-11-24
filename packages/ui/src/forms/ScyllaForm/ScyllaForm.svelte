@@ -87,6 +87,7 @@
           <Select
             type="single"
             value={form.values[item.id]}
+            items={item.options}
             onValueChange={value => form.handleChange(item.id, value)}
             disabled={isPending || item.disabled}
           >

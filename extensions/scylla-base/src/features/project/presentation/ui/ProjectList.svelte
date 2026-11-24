@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, Pagination } from '@scylla/ui';
+  import { ErrorState, Pagination, ListSkeleton } from '@scylla/ui';
   import { createPagination } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { projectQueries } from '../project.queries.ts';
@@ -9,15 +9,15 @@
   import { projectMessages } from '../messages/project.messages.ts';
 
   interface Props {
-    organizationId: string;
+    workspaceId: string;
   }
 
-  let { organizationId }: Props = $props();
+  let { workspaceId }: Props = $props();
 
   const pagination = createPagination();
 
   const projectsQuery = createQuery(() =>
-    projectQueries.byOrganization(organizationId, pagination.paginationParams),
+    projectQueries.byWorkspace(workspaceId, pagination.paginationParams),
   );
 
   const projects = $derived(projectsQuery.data?.items);
@@ -25,11 +25,17 @@
 </script>
 
 {#if projectsQuery.isLoading}
-  <!-- Nothing while loading: the grid would only flash. -->
+  <!-- The header and the grid of the project cards. -->
+  <ListSkeleton
+    header
+    rows={4}
+    class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
+    rowClass="h-36 w-full rounded-xl"
+  />
 {:else if projectsQuery.isError || !projects}
   <ErrorState message={t(projectMessages.loadError)} />
 {:else}
-  <div data-tour="projects" class="flex min-h-full w-full flex-col gap-4">
+  <div data-tour="projects" class="flex min-h-full w-full shrink-0 flex-col gap-4 pb-20">
     <ProjectHeader
       numberOfProjects={paginationInfo?.totalCount ?? projects.length}
       projectIds={projects.map(project => project.id)}
@@ -41,7 +47,7 @@
       {/each}
     </div>
     {#if paginationInfo && paginationInfo.totalPages > 1}
-      <Pagination {paginationInfo} onPageChange={page => pagination.setPage(page)} class="pb-2" />
+      <Pagination {paginationInfo} onPageChange={page => pagination.setPage(page)} />
     {/if}
   </div>
 {/if}

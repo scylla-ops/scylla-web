@@ -17,7 +17,6 @@ const secret = (overrides: Partial<SecretEntity> = {}): SecretEntity => ({
   id: 'secret-1',
   projectId: 'project-1',
   name: 'DATABASE_URL',
-  description: 'prod db',
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:00:00.000Z',
   ...overrides,
@@ -79,14 +78,12 @@ describe('secretMutations.create', () => {
     await runMutationFn(secretMutations.create('project-42'), {
       name: 'DATABASE_URL',
       value: 'postgres://…',
-      description: 'prod db',
     });
 
     expect(repository.create).toHaveBeenCalledWith({
       projectId: 'project-42',
       name: 'DATABASE_URL',
       value: 'postgres://…',
-      description: 'prod db',
     });
   });
 
@@ -97,7 +94,6 @@ describe('secretMutations.create', () => {
     runOnSuccess(secretMutations.create('project-1'), secret(), {
       name: 'a',
       value: 'b',
-      description: '',
     });
 
     expect(toastSuccess).toHaveBeenCalled();
@@ -126,15 +122,15 @@ describe('secretMutations.remove', () => {
 });
 
 describe('secretMutations.update', () => {
-  it('sends only the fields it gets', async () => {
+  it('sends the new value', async () => {
     const repository = withRepository();
 
     await runMutationFn(secretMutations.update('project-1'), {
       secretId: 'secret-1',
-      description: 'rotated',
+      value: 'v2',
     });
 
-    expect(repository.update).toHaveBeenCalledWith({ secretId: 'secret-1', description: 'rotated' });
+    expect(repository.update).toHaveBeenCalledWith({ secretId: 'secret-1', value: 'v2' });
   });
 
   it('toasts and refreshes the list of the project', () => {
@@ -143,7 +139,7 @@ describe('secretMutations.update', () => {
 
     runOnSuccess(secretMutations.update('project-1'), secret(), {
       secretId: 'secret-1',
-      description: 'rotated',
+      value: 'v2',
     });
 
     expect(toastSuccess).toHaveBeenCalled();

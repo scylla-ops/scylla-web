@@ -17,6 +17,7 @@ export interface TourPlacement {
 }
 
 export const CARD_GAP = 56;
+export const NEAR_GAP = 16;
 export const VIEWPORT_MARGIN = 16;
 export const SPOTLIGHT_PADDING = 8;
 export const SPOTLIGHT_EDGE = 2;
@@ -45,7 +46,31 @@ const curve = (
   return `M ${point(from)} C ${point(c1)}, ${point(c2)}, ${point(to)}`;
 };
 
-export const placeCard = (target: TourRect, card: TourSize, viewport: TourSize): TourPlacement => {
+const overlapArea = (a: TourRect, b: TourRect): number => {
+  const width = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
+  const height = Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y);
+  return width > 0 && height > 0 ? width * height : 0;
+};
+
+const clipRect = (rect: TourRect, to: TourRect): TourRect => {
+  const left = Math.max(rect.x, to.x);
+  const top = Math.max(rect.y, to.y);
+  const right = Math.min(rect.x + rect.width, to.x + to.width);
+  const bottom = Math.min(rect.y + rect.height, to.y + to.height);
+  return { x: left, y: top, width: Math.max(right - left, 0), height: Math.max(bottom - top, 0) };
+};
+
+/**
+ * The first side with room and no overlap, else the place that covers `avoid` the least, then the
+ * target, then `others`: the other targets of the step, which the card may cover if it must.
+ */
+export const placeCard = (
+  target: TourRect,
+  card: TourSize,
+  viewport: TourSize,
+  avoid: readonly TourRect[] = [],
+  others: readonly TourRect[] = [],
+): TourPlacement => {
   const right = target.x + target.width;
   const bottom = target.y + target.height;
   const centerX = target.x + target.width / 2;
@@ -63,60 +88,102 @@ export const placeCard = (target: TourRect, card: TourSize, viewport: TourSize):
   const anchorY = (y: number) => clamp(centerY, y + 16, y + card.height - 16);
   const anchorX = (x: number) => clamp(centerX, x + 16, x + card.width - 16);
 
-  if (right + CARD_GAP <= maxX) {
-    const x = right + CARD_GAP;
-    const y = alignedY;
-    const from = { x, y: anchorY(y) };
-    return { x, y, connector: curve(from, { x: right, y: clamp(from.y, target.y, bottom) }, 'x') };
-  }
-  if (bottom + CARD_GAP <= maxY) {
-    const x = alignedX;
-    const y = bottom + CARD_GAP;
-    const from = { x: anchorX(x), y };
-    return { x, y, connector: curve(from, { x: clamp(from.x, target.x, right), y: bottom }, 'y') };
-  }
-  if (target.x - CARD_GAP - card.width >= VIEWPORT_MARGIN) {
-    const x = target.x - CARD_GAP - card.width;
-    const y = alignedY;
-    const from = { x: x + card.width, y: anchorY(y) };
-    return {
-      x,
-      y,
-      connector: curve(from, { x: target.x, y: clamp(from.y, target.y, bottom) }, 'x'),
-    };
-  }
-  if (target.y - CARD_GAP - card.height >= VIEWPORT_MARGIN) {
-    const x = alignedX;
-    const y = target.y - CARD_GAP - card.height;
-    const from = { x: anchorX(x), y: y + card.height };
-    return {
-      x,
-      y,
-      connector: curve(from, { x: clamp(from.x, target.x, right), y: target.y }, 'y'),
-    };
-  }
+  const beside = (gap: number): TourPlacement[] => {
+    const line = (from: { x: number; y: number }, to: { x: number; y: number }, axis: 'x' | 'y') =>
+      gap === CARD_GAP ? curve(from, to, axis) : null;
+    const places: TourPlacement[] = [];
+    if (right + gap <= maxX) {
+      const x = right + gap;
+      const y = alignedY;
+      const from = { x, y: anchorY(y) };
+      places.push({
+        x,
+        y,
+        connector: line(from, { x: right, y: clamp(from.y, target.y, bottom) }, 'x'),
+      });
+    }
+    if (bottom + gap <= maxY) {
+      const x = alignedX;
+      const y = bottom + gap;
+      const from = { x: anchorX(x), y };
+      places.push({
+        x,
+        y,
+        connector: line(from, { x: clamp(from.x, target.x, right), y: bottom }, 'y'),
+      });
+    }
+    if (target.x - gap - card.width >= VIEWPORT_MARGIN) {
+      const x = target.x - gap - card.width;
+      const y = alignedY;
+      const from = { x: x + card.width, y: anchorY(y) };
+      places.push({
+        x,
+        y,
+        connector: line(from, { x: target.x, y: clamp(from.y, target.y, bottom) }, 'x'),
+      });
+    }
+    if (target.y - gap - card.height >= VIEWPORT_MARGIN) {
+      const x = alignedX;
+      const y = target.y - gap - card.height;
+      const from = { x: anchorX(x), y: y + card.height };
+      places.push({
+        x,
+        y,
+        connector: line(from, { x: clamp(from.x, target.x, right), y: target.y }, 'y'),
+      });
+    }
+    return places;
+  };
+
+  const covered = ({ x, y }: TourPlacement) =>
+    [avoid, [target], others].map(rects =>
+      rects.reduce((area, rect) => area + overlapArea({ x, y, ...card }, rect), 0),
+    );
+
+  const sides = [...beside(CARD_GAP), ...beside(NEAR_GAP)];
+  const free = sides.find(place => covered(place).every(area => area === 0));
+  if (free) return free;
 
   const roomLeft = target.x;
   const roomRight = viewport.width - right;
   const y = alignedY;
   const below = y + card.height;
   const canHook = below + CARD_GAP / 2 < Math.min(bottom, viewport.height);
-  if (roomLeft >= roomRight) {
-    const x = VIEWPORT_MARGIN;
-    const hookX = target.x - CARD_GAP;
+  const farRight = Math.max(maxX, VIEWPORT_MARGIN);
+  const farBottom = Math.max(maxY, VIEWPORT_MARGIN);
+  const over = (): TourPlacement => {
+    if (roomLeft >= roomRight) {
+      const x = VIEWPORT_MARGIN;
+      const hookX = target.x - CARD_GAP;
+      const connector =
+        canHook && hookX > x
+          ? curve({ x: hookX, y: below }, { x: target.x, y: below + CARD_GAP / 2 }, 'y')
+          : null;
+      return { x, y, connector };
+    }
+    const x = farRight;
+    const hookX = right + CARD_GAP;
     const connector =
-      canHook && hookX > x
-        ? curve({ x: hookX, y: below }, { x: target.x, y: below + CARD_GAP / 2 }, 'y')
+      canHook && hookX < x + card.width
+        ? curve({ x: hookX, y: below }, { x: right, y: below + CARD_GAP / 2 }, 'y')
         : null;
     return { x, y, connector };
-  }
-  const x = clamp(viewport.width - card.width - VIEWPORT_MARGIN, VIEWPORT_MARGIN, maxX);
-  const hookX = right + CARD_GAP;
-  const connector =
-    canHook && hookX < x + card.width
-      ? curve({ x: hookX, y: below }, { x: right, y: below + CARD_GAP / 2 }, 'y')
-      : null;
-  return { x, y, connector };
+  };
+
+  const places: readonly TourPlacement[] = [
+    over(),
+    { x: VIEWPORT_MARGIN, y: VIEWPORT_MARGIN, connector: null },
+    { x: farRight, y: VIEWPORT_MARGIN, connector: null },
+    { x: VIEWPORT_MARGIN, y: farBottom, connector: null },
+    { x: farRight, y: farBottom, connector: null },
+    ...sides,
+  ];
+  return places.reduce((best, place) => {
+    const areas = covered(place);
+    const bestAreas = covered(best);
+    const first = areas.findIndex((area, tier) => area !== bestAreas[tier]);
+    return first >= 0 && areas[first] < bestAreas[first] ? place : best;
+  });
 };
 
 export const padRect = (rect: TourRect, padding = SPOTLIGHT_PADDING): TourRect => ({
@@ -126,14 +193,42 @@ export const padRect = (rect: TourRect, padding = SPOTLIGHT_PADDING): TourRect =
   height: rect.height + padding * 2,
 });
 
-/** The padded target, kept inside the viewport so that its ring is never cut. */
-export const spotlightRect = (rect: TourRect, viewport: TourSize): TourRect => {
-  const padded = padRect(rect);
-  const left = Math.max(padded.x, SPOTLIGHT_EDGE);
-  const top = Math.max(padded.y, SPOTLIGHT_EDGE);
-  const right = Math.min(padded.x + padded.width, viewport.width - SPOTLIGHT_EDGE);
-  const bottom = Math.min(padded.y + padded.height, viewport.height - SPOTLIGHT_EDGE);
-  return { x: left, y: top, width: Math.max(right - left, 0), height: Math.max(bottom - top, 0) };
+const viewportBox = ({ width, height }: TourSize): TourRect => ({ x: 0, y: 0, width, height });
+
+/** The part of the viewport that shows through the scrollers around an element. */
+export const visibleArea = (viewport: TourSize, scrollers: readonly TourRect[]): TourRect =>
+  scrollers.reduce(clipRect, viewportBox(viewport));
+
+/** The padded target, cut by its scrollers and kept inside the viewport: its ring stays whole. */
+export const spotlightRect = (
+  rect: TourRect,
+  viewport: TourSize,
+  scrollers: readonly TourRect[] = [],
+): TourRect =>
+  clipRect(scrollers.reduce(clipRect, padRect(rect)), {
+    x: SPOTLIGHT_EDGE,
+    y: SPOTLIGHT_EDGE,
+    width: viewport.width - SPOTLIGHT_EDGE * 2,
+    height: viewport.height - SPOTLIGHT_EDGE * 2,
+  });
+
+export const presentRects = (rects: readonly (TourRect | null | undefined)[]): TourRect[] =>
+  rects.filter((rect): rect is TourRect => !!rect && rect.width > 0 && rect.height > 0);
+
+/**
+ * How to bring a target into view, or `null` when it shows. A target taller than the area shows
+ * from its top.
+ */
+export const scrollPlan = (rect: TourRect, area: TourRect): 'start' | 'center' | null => {
+  const areaBottom = area.y + area.height;
+  const inside =
+    rect.x >= area.x &&
+    rect.y >= area.y &&
+    rect.x + rect.width <= area.x + area.width &&
+    rect.y + rect.height <= areaBottom;
+  if (inside) return null;
+  if (rect.height <= area.height) return 'center';
+  return rect.y >= area.y && rect.y < areaBottom ? null : 'start';
 };
 
 const roundedRect = ({ x, y, width, height }: TourRect, radius: number): string => {
@@ -145,10 +240,22 @@ const roundedRect = ({ x, y, width, height }: TourRect, radius: number): string 
   );
 };
 
+/** The even-odd rule fills a hole inside a hole: holes that touch become their bounding box. */
+export const mergeHoles = (holes: readonly TourRect[]): readonly TourRect[] => {
+  for (const [index, hole] of holes.entries()) {
+    const other = holes.find((rect, at) => at > index && overlapArea(hole, rect) > 0);
+    if (other) {
+      const union = unionRect([hole, other]) ?? hole;
+      return mergeHoles([union, ...holes.filter(rect => rect !== hole && rect !== other)]);
+    }
+  }
+  return holes;
+};
+
 export const dimPath = (viewport: TourSize, holes: readonly TourRect[]): string =>
   [
     `M 0 0 H ${viewport.width} V ${viewport.height} H 0 Z`,
-    ...holes.map(hole => roundedRect(hole, SPOTLIGHT_RADIUS)),
+    ...mergeHoles(holes).map(hole => roundedRect(hole, SPOTLIGHT_RADIUS)),
   ].join(' ');
 
 export const ringPath = (rect: TourRect): string => roundedRect(rect, SPOTLIGHT_RADIUS);

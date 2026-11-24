@@ -18,6 +18,8 @@ export interface AppNavigator {
   params: () => RouteParams;
   /** Reactive. The crumbs of the current route, from the root. */
   trail: () => TrailCrumb[];
+  /** Whether a page, or a redirect to one, answers this pathname. Absent: no page. */
+  hasPage?: (pathname: string) => boolean;
 }
 
 let current: AppNavigator | null = null;
@@ -49,6 +51,9 @@ export const currentSearch = (): string =>
 
 /** Reactive once the router is installed. */
 export const routePathname = currentPathname;
+
+/** Whether the router has a page for this pathname. `false` when no router is installed. */
+export const hasPage = (pathname: string): boolean => current?.hasPage?.(pathname) ?? false;
 
 /** Reactive. Empty when no router is installed. */
 export const routeParams = (): RouteParams => current?.params() ?? {};

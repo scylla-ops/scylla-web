@@ -22,7 +22,25 @@ describe('FeatureHeader in French', () => {
   it('keeps the singular label for zero, as French does', () => {
     render(FeatureHeader, { count: 0, label: 'Rôle', pluralLabel: 'Rôles' });
 
-    expect(screen.getByRole('heading')).toHaveTextContent('0 Rôle');
+    expect(screen.getByRole('heading')).toHaveTextContent('0 rôle');
+  });
+
+  it('writes the noun after the count in lower case', () => {
+    render(FeatureHeader, { count: 3, label: 'Projet', pluralLabel: 'Projets' });
+
+    expect(screen.getByRole('heading')).toHaveTextContent(/^3 projets$/);
+  });
+
+  it('keeps the capital of the title while the count loads', () => {
+    render(FeatureHeader, { label: 'Projet', pluralLabel: 'Projets' });
+
+    expect(screen.getByRole('heading')).toHaveTextContent(/^Projets$/);
+  });
+
+  it('keeps an acronym after the count', () => {
+    render(FeatureHeader, { count: 2, label: 'API', pluralLabel: 'APIs' });
+
+    expect(screen.getByRole('heading')).toHaveTextContent(/^2 APIs$/);
   });
 
   it('interpolates the label into the New button', () => {

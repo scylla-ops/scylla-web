@@ -29,6 +29,11 @@ bun.lockb
 **/locales/*/messages.ts
 extensions/*/src/generated
 coverage
+storybook-static
 
 .env
 .vitest
+
+# Playwright
+test-results/
+playwright-report/

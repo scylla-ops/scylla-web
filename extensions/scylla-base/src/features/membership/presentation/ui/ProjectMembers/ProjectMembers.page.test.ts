@@ -1,37 +1,51 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach, type Mock } from 'vitest';
+import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { Permission, PermissionScope, PrincipalKind, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
+import type { WidgetInjection } from '@scylla/core-sdk';
 import { render, withQueryClient, withRegistry, withWidgetInjections } from '@test/render.ts';
 import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import ProjectMembersPage from './ProjectMembers.page.svelte';
 
-const projectGrant = (overrides: Record<string, unknown> = {}) => ({
-  id: 'grant-1',
-  principal: { kind: PrincipalKind.USER, id: 'user-1' },
-  roleId: 'project-admin',
-  scope: PermissionScope.PROJECT,
+const probe = () => import('./ProjectMembersProbe.fixture.svelte');
+
+beforeAll(async () => {
+  await probe();
+});
+
+const role = (overrides: Partial<MemberRoleEntity>): MemberRoleEntity => ({
+  scopeKind: 'project',
   scopeId: 'project-1',
+  scopeName: 'Web',
+  role: 'editor',
+  roleKey: 'project-editor',
+  roleName: 'Project editor',
   ...overrides,
 });
 
-const organizationGrant = (overrides: Record<string, unknown> = {}) => ({
-  id: 'grant-org-1',
-  principal: { kind: PrincipalKind.USER, id: 'user-2' },
-  roleId: 'organization-admin',
-  scope: PermissionScope.ORGANIZATION,
+const member = (id: string, name: string, roles: MemberRoleEntity[]): MemberEntity => ({
+  actorId: id,
+  actorKind: 'user',
+  displayName: name,
+  handle: name.toLowerCase(),
+  runner: false,
+  roles,
+});
+
+const inWorkspace = {
+  scopeKind: 'workspace',
   scopeId: 'org-1',
-  ...overrides,
-});
+  scopeName: 'Acme',
+  role: 'viewer',
+  roleKey: 'workspace-viewer',
+  roleName: 'Workspace viewer',
+} as const;
 
-let listProjectMembers: ReturnType<typeof vi.fn>;
-let listOrganizationMembers: ReturnType<typeof vi.fn>;
-let listGrants: ReturnType<typeof vi.fn>;
-let listRoles: ReturnType<typeof vi.fn>;
-let revokeAllAccess: ReturnType<typeof vi.fn>;
-let cache: ReturnType<typeof withQueryClient>;
-let restoreRegistry: () => void;
+let teardown: Array<() => void> = [];
+let listMembers: Mock<() => Promise<MemberEntity[]>>;
+let revokeRole: Mock<() => Promise<void>>;
 
 const grant = (permissions: Permission[] | 'all') =>
   permissionsStore.setState({
@@ -47,208 +61,139 @@ const grant = (permissions: Permission[] | 'all') =>
     },
   });
 
+const setUp = (injection?: WidgetInjection) => {
+  if (injection) teardown.push(withWidgetInjections({ 'ee-members': injection }));
+  render(ProjectMembersPage, { projectId: 'project-1' });
+};
+
 beforeEach(() => {
-  listProjectMembers = vi.fn().mockResolvedValue([{ id: 'user-1', username: 'alice' }]);
-  listOrganizationMembers = vi.fn().mockResolvedValue([
-    { id: 'user-1', username: 'alice' },
-    { id: 'user-2', username: 'bob' },
-    { id: 'user-3', username: 'carol' },
+  listMembers = vi.fn<() => Promise<MemberEntity[]>>().mockResolvedValue([
+    member('user-1', 'Alice', [role({}), role(inWorkspace)]),
+    member('user-2', 'Bob', [role(inWorkspace)]),
   ]);
+  revokeRole = vi.fn<() => Promise<void>>().mockResolvedValue(undefined);
 
-  // The scope decides which grant list answers.
-  listGrants = vi
-    .fn()
-    .mockImplementation((scope?: PermissionScope) =>
-      Promise.resolve(
-        scope === PermissionScope.ORGANIZATION ? [organizationGrant()] : [projectGrant()],
-      ),
-    );
-  listRoles = vi.fn().mockResolvedValue([
-    {
-      id: 'organization-admin',
-      name: 'Organization admin',
-      description: '',
-      scope: PermissionScope.ORGANIZATION,
-      origin: { kind: 'builtin' },
-      access: { kind: 'fullControl' },
+  const cache = withQueryClient();
+  const restoreRegistry = withRegistry({
+    access: {
+      accessRepository: {
+        listMembers,
+        grant: vi.fn(),
+        revoke: revokeRole,
+        check: vi.fn().mockResolvedValue(new Set()),
+        heldPermissions: vi.fn().mockResolvedValue(new Set()),
+      },
     },
-  ]);
-  revokeAllAccess = vi.fn().mockResolvedValue(1);
-
-  cache = withQueryClient();
-  restoreRegistry = withRegistry({
-    project: { projectRepository: { listMembers: listProjectMembers } },
-    organization: { organizationRepository: { listMembers: listOrganizationMembers } },
     roles: {
-      permissionRepository: {
-        listGrants,
-        listRoles,
-        listGrantableRoles: vi.fn().mockResolvedValue([]),
-        createGrant: vi.fn().mockResolvedValue(undefined),
-        revokeGrant: vi.fn().mockResolvedValue(undefined),
-        revokeAllAccess,
-        getMyPermissions: vi.fn().mockResolvedValue({ scopes: [] }),
+      roleRepository: {
+        catalog: vi.fn().mockResolvedValue([]),
+        list: vi.fn().mockResolvedValue([]),
       },
     },
   });
+  teardown = [cache.restore, restoreRegistry];
 
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
+    workspace: { id: 'org-1', name: 'Acme', slug: 'acme' },
     project: { id: 'project-1', name: 'Web' },
   });
-  localStorage.setItem('userId', 'user-9');
   grant('all');
 });
 
 afterEach(() => {
-  cache.restore();
-  restoreRegistry();
-  localStorage.clear();
+  teardown.forEach(restore => restore());
   permissionsStore.setState({ permissions: null });
 });
 
 describe('ProjectMembersPage', () => {
   it('renders nothing without a project id', () => {
-    render(ProjectMembersPage, {});
+    render(ProjectMembersPage);
 
-    expect(listProjectMembers).not.toHaveBeenCalled();
-    expect(screen.queryByRole('button', { name: 'Add a member' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
   });
 
-  it('lists the holders of a project-scoped grant', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('shows the roles here and where they come from', async () => {
+    setUp();
 
-    expect(await screen.findByText('alice')).toBeInTheDocument();
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+    expect(within(alice).getByText('Project editor')).toBeInTheDocument();
+    expect(within(alice).getByText('Workspace viewer')).toBeInTheDocument();
+    expect(within(alice).getByText('Web')).toBeInTheDocument();
+    expect(within(alice).getByText('Acme')).toBeInTheDocument();
   });
 
-  it('also lists someone who only reaches the project through an organization role', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('sends a role from above to the place where it is given', async () => {
+    setUp();
 
-    expect(await screen.findByText('bob')).toBeInTheDocument();
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    expect(within(bob).getByRole('button', { name: 'Change in Acme' })).toBeInTheDocument();
   });
 
-  it('leaves out an organization member whose role confers nothing here', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('gives no link to the workspace members to a user who may not open them', async () => {
+    grant([Permission.LIST_PROJECT_MEMBERS, Permission.MANAGE_PROJECT_GRANTS]);
+    setUp();
 
-    await screen.findByText('alice');
-    // carol holds no grant: listing her would show access she does not have.
-    expect(screen.queryByText('carol')).not.toBeInTheDocument();
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    expect(within(bob).queryByRole('button', { name: 'Change in Acme' })).not.toBeInTheDocument();
+    expect(within(bob).queryByRole('button', { name: 'Change roles' })).not.toBeInTheDocument();
   });
 
-  it('explains that inherited roles are visible and managed elsewhere', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('lets a manager change only the roles of the project', async () => {
+    setUp();
+
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    expect(within(alice).getByRole('button', { name: 'Change roles' })).toBeInTheDocument();
+    expect(within(bob).queryByRole('button', { name: 'Change roles' })).not.toBeInTheDocument();
+  });
+
+  it('says that a project role needs a role in the workspace', async () => {
+    setUp();
 
     expect(
-      await screen.findByText(/inherited from the organization and are managed there/),
+      await screen.findByText('A project role needs a role in Acme first'),
     ).toBeInTheDocument();
   });
 
-  it('says what it cannot show when the organization grants are out of reach', async () => {
-    grant([
-      Permission.LIST_PROJECT_MEMBERS,
-      Permission.MANAGE_PROJECT_GRANTS,
-      Permission.LIST_ORGANIZATION_MEMBERS,
-    ]);
-    render(ProjectMembersPage, { projectId: 'project-1' });
+  it('disables adding without MANAGE_PROJECT_GRANTS', async () => {
+    grant([Permission.LIST_PROJECT_MEMBERS]);
+    setUp();
+    await screen.findByText('Alice');
 
-    expect(
-      await screen.findByText(/Their roles are managed at the organization level/),
-    ).toBeInTheDocument();
-  });
-
-  it('says so when nobody has access to the project yet', async () => {
-    listProjectMembers.mockResolvedValue([]);
-    listGrants.mockResolvedValue([]);
-    render(ProjectMembersPage, { projectId: 'project-1' });
-
-    expect(await screen.findByText('Nobody has access to this project yet.')).toBeInTheDocument();
-  });
-
-  it('disables adding a member without MANAGE_PROJECT_GRANTS', async () => {
-    grant([Permission.LIST_PROJECT_MEMBERS, Permission.LIST_ORGANIZATION_MEMBERS]);
-    render(ProjectMembersPage, { projectId: 'project-1' });
-
-    await vi.waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Add a member' })).toHaveAttribute(
-        'aria-disabled',
-        'true',
-      ),
+    expect(screen.getByRole('button', { name: 'Add to Web' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
     );
   });
 
-  it('gives the project, the right to manage and the member count to its zones', async () => {
-    const restoreInjections = withWidgetInjections({
-      'ee-members': [
-        membershipPoints.projectActions.inject({
-          component: () => import('./ProjectMembersProbe.fixture.svelte'),
-        }),
-        membershipPoints.projectSection.inject({
-          component: () => import('./ProjectMembersProbe.fixture.svelte'),
-        }),
-      ],
+  it('gives the project, the right to manage and the member count to its zone', async () => {
+    setUp([membershipPoints.projectSection.inject({ component: probe })]);
+
+    expect(await screen.findByTestId('project-members-probe')).toHaveTextContent(
+      'org-1|project-1|2|true',
+    );
+  });
+
+  it('shows a removed role at once in the dialog, and shows the roles from above as read only', async () => {
+    let aliceRoles: MemberRoleEntity[] = [role({}), role(inWorkspace)];
+    listMembers.mockImplementation(() => Promise.resolve([member('user-1', 'Alice', aliceRoles)]));
+    revokeRole.mockImplementation(() => {
+      aliceRoles = [role(inWorkspace)];
+      return Promise.resolve();
     });
-    try {
-      render(ProjectMembersPage, { projectId: 'project-1' });
-      await screen.findByText('bob');
+    setUp();
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
 
-      await vi.waitFor(() =>
-        expect(
-          screen.getAllByTestId('project-members-probe').map(probe => probe.textContent?.trim()),
-        ).toEqual(['org-1|project-1|2|true', 'org-1|project-1|2|true']),
-      );
-    } finally {
-      restoreInjections();
-    }
-  });
-
-  it('removes only someone who holds a project-scoped grant', async () => {
-    render(ProjectMembersPage, { projectId: 'project-1' });
-    await screen.findByText('bob');
-
-    // bob's role is inherited: only alice can be removed from this project.
-    const removals = screen.getAllByRole('button', { name: 'Remove from the project' });
-    expect(removals).toHaveLength(1);
-
-    await userEvent.click(removals[0]);
-    await userEvent.click(await screen.findByRole('button', { name: 'Continue' }));
+    await userEvent.click(within(alice).getByRole('button', { name: 'Change roles' }));
+    const dialog = await screen.findByRole('dialog');
+    const row = await within(dialog).findByRole('checkbox', { name: 'Project editor' });
+    expect(within(dialog).queryByRole('checkbox', { name: 'Workspace viewer' })).not.toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Change in Acme' })).toBeInTheDocument();
+    await userEvent.click(row);
 
     await vi.waitFor(() =>
-      expect(revokeAllAccess).toHaveBeenCalledWith({
-        principal: { kind: PrincipalKind.USER, id: 'user-1' },
-        scope: PermissionScope.PROJECT,
-        scopeId: 'project-1',
-      }),
+      expect(within(dialog).queryByRole('checkbox', { name: 'Project editor' })).not.toBeInTheDocument(),
     );
-  });
-
-  it('waits for the members of the organization before it names an inherited holder', async () => {
-    let answer: (value: unknown) => void = () => {};
-    listOrganizationMembers.mockReturnValue(new Promise(resolve => (answer = resolve)));
-    render(ProjectMembersPage, { projectId: 'project-1' });
-
-    await screen.findByRole('status');
-    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
-    expect(screen.queryByText('Unknown user')).not.toBeInTheDocument();
-
-    answer([
-      { id: 'user-1', username: 'alice' },
-      { id: 'user-2', username: 'bob' },
-    ]);
-
-    expect(await screen.findByText('bob')).toBeInTheDocument();
-    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
-  });
-
-  it('names an inherited holder "Unknown user" when the organization members are out of reach', async () => {
-    grant([
-      Permission.LIST_PROJECT_MEMBERS,
-      Permission.MANAGE_PROJECT_GRANTS,
-      Permission.MANAGE_ORG_GRANTS,
-    ]);
-    render(ProjectMembersPage, { projectId: 'project-1' });
-
-    expect(await screen.findByText('Unknown user')).toBeInTheDocument();
-    expect(screen.queryByText('Deleted user')).not.toBeInTheDocument();
-    expect(listOrganizationMembers).not.toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toHaveTextContent('Change the roles of Alice');
   });
 });

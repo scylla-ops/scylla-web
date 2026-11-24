@@ -11,6 +11,7 @@
   import GatedButton from '../../controls/GatedButton/GatedButton.svelte';
   import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog/ConfirmOperationAlertDialog.svelte';
   import { featureHeaderMessages } from './feature-header.messages.ts';
+  import { countedLabel } from './feature-header.ts';
 
   interface Props {
     count?: number;
@@ -65,11 +66,11 @@
     phone.current && selectedCount > 0 && (!!onClearSelection || !!onDeleteSelection),
   );
 
-  /** The plural rule of the locale: English says "0 roles", French "0 rôle". */
+  /** With no count yet (the list still loads), the title names the whole list: the plural. */
   const displayLabel = $derived(
-    count !== undefined && new Intl.PluralRules(activeLocale()).select(count) !== 'one'
+    count === undefined
       ? (pluralLabel ?? label)
-      : label,
+      : countedLabel(count, label, pluralLabel ?? label, activeLocale()),
   );
   const newButtonLabel = $derived(newLabel ?? t(featureHeaderMessages.newEntity(label)));
 
@@ -110,7 +111,7 @@
       size="icon"
       variant="destructive"
       onclick={() => (deleteDialogOpen = true)}
-      class={onBar ? 'size-11' : 'h-9 w-9 cursor-pointer transition-all hover:scale-110'}
+      class={onBar ? 'size-11' : 'h-9 w-9 cursor-pointer transition-all'}
     >
       <TrashIcon class="size-4" />
       <span class="sr-only">{t(featureHeaderMessages.delete)}</span>
@@ -118,20 +119,13 @@
   {/if}
 {/snippet}
 
-<div class="flex w-full flex-row flex-wrap items-end justify-between gap-x-4 gap-y-3">
-  <div class="flex min-w-0 flex-col gap-2">
+<div class="flex w-full flex-row flex-wrap items-center justify-between gap-x-4 gap-y-3">
+  <div class="flex min-w-0 flex-col gap-0.75">
     <div class="flex flex-row flex-wrap gap-4">
-      <div class="flex min-w-0 items-baseline gap-2">
-        <h1 class="min-w-0 text-2xl font-bold tracking-tight break-words sm:text-3xl">
-          {#if count !== undefined}<span class="mr-2 text-primary">{count}</span>{/if}
-          <span class="text-foreground">{displayLabel}</span>
-        </h1>
-        {#if count !== undefined}
-          <span class="text-sm font-medium whitespace-nowrap text-muted-foreground">
-            {t(featureHeaderMessages.inTotal)}
-          </span>
-        {/if}
-      </div>
+      <h1 class="min-w-0 break-words">
+        {#if count !== undefined}<span class="mr-2 text-primary">{count}</span>{/if}
+        <span class="text-foreground">{displayLabel}</span>
+      </h1>
     </div>
     {#if underLabel}{@render underLabel()}{/if}
   </div>
@@ -166,7 +160,7 @@
   {#if showSelectionBar}
     <div
       data-part="feature-header-selection-bar"
-      class="fixed inset-x-3 bottom-4 z-40 flex items-center gap-1 rounded-2xl bg-foreground py-1.5 pr-1.5 pl-4 text-background shadow-[0_12px_32px_-8px_oklch(0_0_0/0.35)]"
+      class="fixed inset-x-3 bottom-[calc(1rem+var(--shell-bottom-inset,0px))] z-40 flex items-center gap-1 rounded-2xl bg-foreground py-1.5 pr-1.5 pl-4 text-background shadow-[0_12px_32px_-8px_oklch(0_0_0/0.35)]"
     >
       <span class="flex-1 text-sm font-semibold">
         {t(featureHeaderMessages.selected(selectedCount))}

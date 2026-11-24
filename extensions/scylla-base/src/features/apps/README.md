@@ -1,70 +1,38 @@
-# Apps
+# `features/apps` — agent guide
 
-> [Scylla frontend](../../../../../README.md) › `features/` › **apps** ·
-> [agent guide](./AGENTS.md) · [architecture](../../../../../docs/architecture.md)
+The apps of a workspace (`scylla.apps.v1.AppService`). An agent is an app that runs jobs
+(`runner`); a CI or a script is an app that does not. One page shows them, with a filter.
 
-An **app** is a machine identity: a non-human principal that authenticates to Scylla with a
-secret instead of a password. Where [agents](../agents/README.md) are runners that execute
-work, apps are API clients — CI systems, scripts, integrations — that call Scylla.
+**Layer** `features/` · **id** `apps` · **DI keys** `appsRepository`
 
-## What it covers
+## Import rules
 
-- **The app list** — every machine identity in the organization, active or disabled.
-- **App details** — an app's metadata and the secrets issued to it.
-- **Secret lifecycle** — issuing a labelled secret, disabling it temporarily, revoking it for
-  good.
-- **Activation** — an app can be deactivated without being deleted, which cuts off every one of
-  its secrets at once.
+- May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts`.
+- Must never import: `shell/`, `@scylla/core`, another feature's internals.
+- Outside code reaches this module **only** through `index.ts`.
 
-## Not routed yet
+## What it does
 
-`apps.module.ts` declares its `domain` and nothing else: no `routes`, no `nav`. The repository,
-the query factories and both pages are written and working, but nothing mounts them, so the
-feature is currently invisible in the running app.
-
-This is deliberate — the module was built ahead of the decision about where apps belong in the
-navigation. Surfacing it is a small change confined to `apps.module.ts`: add a route mounted on
-`organization`, gate it on the right permission, and add the sidebar entry. Because routes and
-nav are *derived* from the module declaration, that one file is the whole job.
-
-## How it is built
-
-**Domain** carries two entities — `AppEntity` (the identity) and `AppSecretEntity` (a credential
-belonging to it) — plus the `CreatedApp` / `CreatedAppSecret` structs. Those two are separate
-from the entities on purpose: they are the *creation response*, and they hold the plaintext
-secret the backend returns exactly once.
-
-**Infrastructure** implements `AppsRepository` over gRPC-Web: `DefaultAppsRepository` calls the
-generated client and `grpc-app.mapper.ts` does proto → domain.
-
-**Presentation**: `apps.queries.ts` declares every read and write as `queryOptions` /
-`mutationOptions` — plain data with no framework in it — and the two pages run them with
-`createQuery` / `createMutation`. The pages are composed from `AppCard` and `AppSecretsCard`, and both creation
-dialogs are declarative `ScyllaForm`s built from the form presenters (`app-form.presenter.ts`).
-
-Every string the screens show is declared in `messages/apps.messages.ts` rather than inside a
-component: `lingui extract` does not read `.svelte`, so a message written in one would disappear
-from the catalogs with no gate noticing. See `refacto_svelte.md` §4.5.
-
-## Used by agents
-
-An agent is an app. The pages of [agents](../agents/README.md) use this module for the secrets,
-the enable flag and the grants of an agent (`ListAppAccess`, with the names of each scope and
-role). The reset of a secret is `ResetAppSecretUseCase`: it creates a new secret with the name
-that the user chose, then revokes the old ones when the user asks for it. It is a use case because it does three calls in order,
-and because a failed revoke must not hide the new secret.
-
-## The one-time secret rule
-
-When you create an app or issue a secret, the response contains a plaintext value that will
-never be retrievable again. The UI shows it once, in a reveal dialog, with a copy button — and
-that is the end of it. Never write it to a Zustand store, never put it in a query cache that
-outlives the dialog, never log it. Losing it means issuing a new secret; leaking it means
-revoking one.
-
-## Related modules
-
-- [agents](../agents/README.md) — the other machine identity: runners rather than callers.
-- [secret](../secret/README.md) — project-scoped secrets injected into pipeline runs. Different
-  thing, similar reveal-once handling.
-- [roles](../roles/README.md) — an app is a principal that can hold grants.
+- An app has no shared secret. `CreateApp` and `CreateJoinCode` give a join code; the machine
+  runs `scylla-agent join <server> <code>`, makes a key pair and sends the public key. The keys
+  card lists the keys and revokes one.
+- The roles of an app are workspace roles, given with `AccessService.Grant` (see
+  `features/access`): an agent needs `runner`.
+- The recent jobs of an agent come from `JobService.ListWorkspaceJobs` with its id; its stats come
+  from the server (`agent-stats.struct.ts`).
+- The agent page keeps the period of its stats in the URL, so that a reload or a link shows the
+  same days. A drag of the timeline window changes the URL only at its end: one entry in the
+  history, and one request to the server.
+- The install step has one tab for each of Linux, macOS, Windows and Docker. The command holds the
+  address of the server in this browser, because the machine must reach the same address. The
+  server gives the image of the agent and its version with `GetCapabilities`, so that the Docker
+  command and the update command match the server.
+- The connect card makes a join code only after a click. A new code stops the previous code, so a
+  page that opens must not stop the install of a machine.
+- "Add an agent" is a page, not a dialog: the install command is long, and the user goes to a
+  terminal and back. The URL changes to `/agents/<id>/connect` once the agent exists, so a reload
+  shows the install step of this agent, not a second agent. A user who leaves before a machine
+  joins gets a choice (stay, keep, delete): an agent with no machine is not deleted in the
+  background, because a close of the tab is not a choice.
+- `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
+  jobs wait and no agent is connected.

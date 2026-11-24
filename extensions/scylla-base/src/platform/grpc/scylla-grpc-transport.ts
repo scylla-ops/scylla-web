@@ -5,8 +5,11 @@ import {
   ServerStreamingCall,
   UnaryCall,
 } from '@protobuf-ts/runtime-rpc';
-import type { MethodInfo, RpcInterceptor, RpcOptions } from '@protobuf-ts/runtime-rpc';
+import type { MethodInfo, RpcInterceptor } from '@protobuf-ts/runtime-rpc';
 import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
+import { fetchOrUnavailable } from './fetch-or-unavailable.ts';
+import { accessToken, apiUrl, isPublicCall, refreshSession } from './session.ts';
+import { statusDetailsOf } from './status-details.ts';
 
 /**
  * The server percent-encodes the `grpc-message` trailer and
@@ -21,14 +24,22 @@ const decode = (message: string): string => {
   }
 };
 
+const requestIdOf = (meta: RpcError['meta']): { requestId?: string } => {
+  const value = meta['x-request-id'];
+  const requestId = Array.isArray(value) ? value[0] : value;
+  return requestId ? { requestId } : {};
+};
+
 const toScyllaError = (error: unknown, method: MethodInfo): ScyllaError =>
   error instanceof RpcError
     ? new ScyllaError(decode(error.message), {
         // A cast: the value comes from the wire. An unknown code matches no branch.
         code: error.code as ScyllaErrorCode,
         rpc: `${method.service.typeName}/${method.name}`,
+        ...requestIdOf(error.meta),
         raw: true,
         cause: error,
+        ...statusDetailsOf(error.meta),
       })
     : ScyllaError.from(error);
 
@@ -73,36 +84,46 @@ const scyllaErrorInterceptor: RpcInterceptor = {
   },
 };
 
+/** A call to another server: the token of the session stays here. */
+const anonymousFetch: typeof fetch = (input, init) => send(input, init, null);
+
+/** The gRPC code of an answer that has only a status: the server gives it before any message. */
+const UNAUTHENTICATED = '16';
+
+const send = (input: RequestInfo | URL, init: RequestInit | undefined, token: string | null) => {
+  const headers = new Headers(init?.headers);
+  if (token) headers.set('authorization', `Bearer ${token}`);
+  else headers.delete('authorization');
+  return fetchOrUnavailable(input, { ...init, headers, credentials: 'include' });
+};
+
 /**
- * A request that does not get to the server is `UNAVAILABLE`. Without this, the transport gives
- * it `INTERNAL` and the text of the browser, which is different in each browser.
+ * Adds the access token to each call, for unary calls and for streams. An `UNAUTHENTICATED`
+ * answer gets one refresh and one more try: the token can end between the check and the call.
  */
-const fetchOrUnavailable: typeof fetch = (input, init) =>
-  globalThis.fetch(input, init).catch((error: unknown) => {
-    // The transport makes an abort CANCELLED itself.
-    if ((error as { name?: unknown } | null)?.name === 'AbortError') throw error;
-    throw new RpcError(error instanceof Error ? error.message : String(error), 'UNAVAILABLE');
-  });
+const authorizedFetch: typeof fetch = async (input, init) => {
+  const url = input instanceof Request ? input.url : String(input);
+  if (isPublicCall(url)) return send(input, init, null);
+  const sent = await accessToken();
+  const response = await send(input, init, sent);
+  // No token: the server refused the session, and it refuses a second refresh too.
+  if (!sent || response.headers.get('grpc-status') !== UNAUTHENTICATED) return response;
+  const token = await refreshSession();
+  if (!token) return response;
+  await response.body?.cancel();
+  return send(input, init, token);
+};
 
 export class ScyllaGrpcTransport {
   private readonly _transport: GrpcWebFetchTransport;
 
-  constructor() {
-    const authInterceptor: RpcInterceptor = {
-      interceptUnary(next, method, input, options: RpcOptions) {
-        options.meta = options.meta ?? {};
-        const token = localStorage.getItem('token');
-        if (token) {
-          options.meta['Authorization'] = `Bearer ${token}`;
-        }
-        return next(method, input, options);
-      },
-    };
+  /** With no option: the API, with the token of the session. Another server gets no token. */
+  constructor({ baseUrl = apiUrl(), withToken = true }: { baseUrl?: string; withToken?: boolean } = {}) {
     this._transport = new GrpcWebFetchTransport({
-      baseUrl: import.meta.env.VITE_API_URL ?? '',
+      baseUrl,
       format: 'binary',
-      fetch: fetchOrUnavailable,
-      interceptors: [authInterceptor, scyllaErrorInterceptor],
+      fetch: withToken ? authorizedFetch : anonymousFetch,
+      interceptors: [scyllaErrorInterceptor],
     });
   }
 

@@ -18,7 +18,6 @@ describe('FeatureHeader', () => {
     render(FeatureHeader, { count: 1, label: 'Secret' });
 
     expect(screen.getByRole('heading')).toHaveTextContent('1 Secret');
-    expect(screen.getByText('in total')).toBeInTheDocument();
   });
 
   it('switches to the plural label once count > 1', () => {
@@ -42,7 +41,7 @@ describe('FeatureHeader', () => {
   it('omits the count block entirely when no count was given', () => {
     render(FeatureHeader, { label: 'Secret' });
 
-    expect(screen.queryByText('in total')).toBeNull();
+    expect(screen.getByRole('heading')).toHaveTextContent(/^Secret$/);
   });
 
   it('omits "Select all" once everything is already selected', () => {
@@ -254,6 +253,12 @@ describe('FeatureHeader on a phone', () => {
     expect(onClearSelection).toHaveBeenCalledOnce();
     // One set of actions: none left in the header itself.
     expect(screen.getAllByRole('button', { name: 'Clear' })).toHaveLength(1);
+  });
+
+  it('floats the bar above the band that an overlay of the shell covers', () => {
+    render(FeatureHeader, { label: 'Secret', selectedCount: 2, onClearSelection: vi.fn() });
+
+    expect(selectionBar()).toHaveClass('bottom-[calc(1rem+var(--shell-bottom-inset,0px))]');
   });
 
   it('still confirms before a delete started from the bar', async () => {

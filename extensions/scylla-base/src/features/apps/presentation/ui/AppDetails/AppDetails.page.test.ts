@@ -1,154 +1,252 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { type Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { toast } from 'svelte-sonner';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
-import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
-import AppDetailsPage from './AppDetails.page.svelte';
+import AppDetails from './AppDetails.page.svelte';
 
-const app = (overrides: Record<string, unknown> = {}) => ({
-  id: 'app-1',
-  organizationId: 'org-1',
-  name: 'deploy-bot',
-  isActive: true,
-  createdAt: '2026-01-01T00:00:00.000Z',
-  updatedAt: '2026-01-02T00:00:00.000Z',
-  ...overrides,
-});
+vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
-const secret = (overrides: Record<string, unknown> = {}) => ({
-  id: 'secret-1',
-  appId: 'app-1',
-  label: 'ci',
-  enabled: true,
-  createdAt: '2026-01-01T00:00:00.000Z',
-  ...overrides,
-});
+const DAY = 24 * 60 * 60 * 1000;
+const at = (days: number) => new Date(Date.now() + days * DAY).toISOString();
 
-let getApp: ReturnType<typeof vi.fn>;
-let deleteApp: ReturnType<typeof vi.fn>;
-let setAppActive: ReturnType<typeof vi.fn>;
-let listAppSecrets: ReturnType<typeof vi.fn>;
-let cache: ReturnType<typeof withQueryClient>;
-let restoreRegistry: () => void;
-let nav: ReturnType<typeof installTestNavigator>;
+const app = {
+  id: '01JC3NAAAAAAAAAAAAAAAA8QW',
+  workspaceId: 'ws-1',
+  name: 'release-bot',
+  runner: false,
+  connected: false,
+  lastSeenAt: '',
+  host: null,
+  createdAt: '2026-11-02T00:00:00.000Z',
+  runningJobs: 0,
+  disabledAt: '',
+};
 
-const grant = (permissions: Permission[] | 'all') =>
+const limits = { preset: 'deploy' as const, actions: [], projectIds: [] };
+
+const token = {
+  id: 't-1',
+  name: 'deploy-script',
+  hint: 'scya_7Hq2…',
+  createdBy: 'u-1',
+  createdAt: at(-1),
+  expiresAt: at(9.2),
+  lastUsedAt: at(-0.1),
+  revokedAt: '',
+  limits,
+};
+
+const identity = {
+  id: 'ci-1',
+  provider: 'github' as const,
+  issuer: '',
+  repository: 'acme/release-tools',
+  gitRef: 'refs/heads/main',
+  environment: '',
+  limits: { preset: 'full' as const, actions: [], projectIds: [] },
+  createdAt: at(-2),
+  lastUsedAt: at(-0.01),
+};
+
+const ALL = [
+  Permission.READ_APP,
+  Permission.CREATE_APP,
+  Permission.DELETE_APP,
+  Permission.LIST_WORKSPACE_MEMBERS,
+];
+
+let teardown: Array<() => void> = [];
+let apps: Record<string, ReturnType<typeof vi.fn>>;
+let navigate: ReturnType<typeof vi.fn>;
+
+const setUp = (permissions = ALL) => {
   permissionsStore.setState({
     permissions: {
       scopes: [
         {
-          scope: PermissionScope.SYSTEM,
-          scopeId: '',
-          access:
-            permissions === 'all' ? { kind: 'fullControl' } : { kind: 'restricted', permissions },
+          scope: PermissionScope.WORKSPACE,
+          scopeId: 'ws-1',
+          access: { kind: 'restricted', permissions },
         },
       ],
     },
   });
+  contextStore.setState({ workspace: { id: 'ws-1', name: 'acme', slug: 'acme' } });
+  apps = {
+    getApp: vi.fn().mockResolvedValue({
+      app,
+      keys: [
+        {
+          id: 'k-01JC3P2X9D',
+          label: 'backup-01.acme.lan',
+          createdAt: at(-2),
+          revokedAt: '',
+          lastUsedAt: '',
+        },
+      ],
+    }),
+    listTokens: vi.fn().mockResolvedValue([token]),
+    listCiIdentities: vi.fn().mockResolvedValue([identity]),
+    revokeToken: vi.fn().mockResolvedValue(undefined),
+    createToken: vi
+      .fn()
+      .mockResolvedValue({ token: { ...token, id: 't-2', name: 'nightly' }, secret: 'scya_NEW' }),
+    deleteApp: vi.fn().mockResolvedValue(undefined),
+  };
+  const access = { listAccess: vi.fn().mockResolvedValue([]) };
+  const projects = {
+    getByWorkspaceId: vi.fn().mockResolvedValue({
+      items: [],
+      pagination: { page: 1, pageSize: 100, total: 0 },
+    }),
+  };
+  const cache = withQueryClient();
+  const navigator = installTestNavigator({ pathname: '/acme/apps/x' });
+  navigate = navigator.navigate;
+  teardown = [
+    cache.restore,
+    navigator.restore,
+    withRegistry({
+      apps: { appsRepository: apps },
+      access: { accessRepository: access },
+      project: { projectRepository: projects },
+    }),
+  ];
+  return render(AppDetails, { appId: app.id });
+};
 
-beforeEach(() => {
-  getApp = vi.fn().mockResolvedValue(app());
-  deleteApp = vi.fn().mockResolvedValue(undefined);
-  setAppActive = vi.fn().mockResolvedValue(app({ isActive: false }));
-  listAppSecrets = vi.fn().mockResolvedValue([secret()]);
-
-  cache = withQueryClient();
-  restoreRegistry = withRegistry({
-    apps: {
-      appsRepository: {
-        getApp,
-        deleteApp,
-        setAppActive,
-        listAppSecrets,
-        listApps: vi.fn(),
-        createApp: vi.fn(),
-        createAppSecret: vi.fn(),
-        revokeAppSecret: vi.fn(),
-        setAppSecretEnabled: vi.fn(),
-      } as unknown as AppsRepository,
-    },
-  });
-
-  contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme' },
-    project: { id: null, name: null },
-  });
-  nav = installTestNavigator({ pathname: '/acme/apps/app-1' });
-  grant('all');
-});
-
+beforeEach(() => vi.clearAllMocks());
 afterEach(() => {
-  cache.restore();
-  restoreRegistry();
-  nav.restore();
+  teardown.forEach(restore => restore());
   permissionsStore.setState({ permissions: null });
 });
 
-describe('AppDetailsPage', () => {
-  it('reads the app named by the route parameter', async () => {
-    render(AppDetailsPage, { appId: 'app-1' });
+describe('AppDetails', () => {
+  it('lists the credentials of the app, with their expiry and their last use', async () => {
+    setUp();
 
-    expect(await screen.findByRole('heading', { name: 'deploy-bot' })).toBeInTheDocument();
-    expect(getApp).toHaveBeenCalledWith('app-1');
+    expect(await screen.findByRole('heading', { name: 'release-bot' })).toBeInTheDocument();
+    expect(await screen.findByText('deploy-script')).toBeInTheDocument();
+    expect(screen.getByText('Expires in 9 days')).toBeInTheDocument();
+    expect(screen.getByText('Deploy · all projects')).toBeInTheDocument();
+    expect(await screen.findByText('acme/release-tools')).toBeInTheDocument();
+    expect(screen.getByText('branch main')).toBeInTheDocument();
+    expect(screen.getByText('No secret to expire')).toBeInTheDocument();
+    expect(screen.getByText('backup-01.acme.lan')).toBeInTheDocument();
+    expect(screen.getByText('No expiry')).toBeInTheDocument();
+    expect(screen.getByText('With CI identity (OIDC) GitHub Actions.')).toBeInTheDocument();
   });
 
-  it('says plainly that an app is a credential, not a process to monitor', async () => {
-    render(AppDetailsPage, { appId: 'app-1' });
+  it('ends with a space under the last card, above a floating button at the bottom right', async () => {
+    const { container } = setUp();
 
-    expect(await screen.findByText(/Apps are credentials, not processes/)).toBeInTheDocument();
+    await screen.findByRole('heading', { name: 'release-bot' });
+
+    expect(container.firstElementChild).toHaveClass('pb-20');
   });
 
-  it('lists the app’s secrets', async () => {
-    render(AppDetailsPage, { appId: 'app-1' });
+  it('revokes a token after a confirmation', async () => {
+    setUp();
+    const user = userEvent.setup();
 
-    expect(await screen.findByText('ci')).toBeInTheDocument();
-    expect(listAppSecrets).toHaveBeenCalledWith('app-1');
+    await user.click(await screen.findByRole('button', { name: 'Actions of deploy-script' }));
+    await user.click(await findFloating('menuitem', 'Revoke'));
+    const confirm = await screen.findByRole('alertdialog');
+    expect(within(confirm).getByText('Revoke deploy-script?')).toBeInTheDocument();
+    await user.click(within(confirm).getByRole('button', { name: 'Revoke' }));
+
+    await waitFor(() => expect(apps.revokeToken).toHaveBeenCalledWith(app.id, 't-1'));
   });
 
-  it('toggles the app active state from the switch', async () => {
-    render(AppDetailsPage, { appId: 'app-1' });
-    await screen.findByRole('heading', { name: 'deploy-bot' });
+  it('adds an API token and shows its secret once', async () => {
+    setUp();
+    const user = userEvent.setup();
 
-    await userEvent.click(screen.getByRole('switch', { name: 'Toggle app active' }));
+    await user.click(await screen.findByRole('button', { name: 'Add a credential' }));
+    const dialog = await screen.findByRole('dialog');
+    await focusSettled();
+    await user.click(within(dialog).getByRole('button', { name: 'Next' }));
+    await user.type(await within(dialog).findByLabelText('Token name'), 'nightly');
+    await user.click(within(dialog).getByRole('button', { name: 'Create token' }));
 
-    await vi.waitFor(() =>
-      expect(setAppActive).toHaveBeenCalledWith('app-1', false),
+    await waitFor(() =>
+      expect(apps.createToken).toHaveBeenCalledWith(app.id, {
+        name: 'nightly',
+        expiry: 90,
+        limits: { preset: 'read_only', actions: [], projectIds: [] },
+      }),
     );
+    expect(await within(dialog).findByText('scya_NEW')).toBeInTheDocument();
   });
 
-  it('reports a failed load rather than a blank page', async () => {
-    getApp.mockRejectedValue(new ScyllaError('boom', { code: 'INTERNAL' }));
-    render(AppDetailsPage, { appId: 'app-1' });
+  it('deletes the app only after its name is typed', async () => {
+    setUp();
+    const user = userEvent.setup();
 
-    expect(await screen.findByText('Error loading app')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Delete app' }));
+    const dialog = await screen.findByRole('dialog');
+    await focusSettled();
+    await user.type(within(dialog).getByLabelText('Type release-bot to confirm'), 'release-bot');
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+
+    await waitFor(() => expect(apps.deleteApp).toHaveBeenCalledWith(app.id));
+    await waitFor(() => expect(toast.success).toHaveBeenCalledWith('App deleted'));
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/apps', undefined));
   });
 
-  it('leaves for the list when the app no longer exists', async () => {
-    getApp.mockRejectedValue(new ScyllaError('gone', { code: 'NOT_FOUND' }));
-    render(AppDetailsPage, { appId: 'app-1' });
+  it('asks nothing more about the app after its delete: the server would refuse', async () => {
+    setUp();
+    const user = userEvent.setup();
 
-    await vi.waitFor(() => expect(nav.navigate).toHaveBeenCalledWith('..', expect.anything()));
+    await user.click(await screen.findByRole('button', { name: 'Delete app' }));
+    const dialog = await screen.findByRole('dialog');
+    await focusSettled();
+    await user.type(within(dialog).getByLabelText('Type release-bot to confirm'), 'release-bot');
+    await user.click(within(dialog).getByRole('button', { name: 'Delete' }));
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/apps', undefined));
+
+    expect(apps.getApp).toHaveBeenCalledTimes(1);
+    expect(apps.listTokens).toHaveBeenCalledTimes(1);
+    expect(apps.listCiIdentities).toHaveBeenCalledTimes(1);
   });
 
-  it('confirms before deleting, then returns to the list', async () => {
-    render(AppDetailsPage, { appId: 'app-1' });
-    await screen.findByRole('heading', { name: 'deploy-bot' });
+  it('hides the actions that the user may not use', async () => {
+    setUp([Permission.READ_APP]);
 
-    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
-    expect(await screen.findByText('Delete app?')).toBeInTheDocument();
-    expect(deleteApp).not.toHaveBeenCalled();
-
-    await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
-    await vi.waitFor(() => expect(deleteApp).toHaveBeenCalledWith('app-1'));
+    expect(await screen.findByText('deploy-script')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Add a credential' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Actions of deploy-script' }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Delete app' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Disable' })).not.toBeInTheDocument();
   });
+});
 
-  it('asks for nothing at all without an app id', () => {
-    render(AppDetailsPage, {});
+const onAPhone = () => {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: true,
+    media: query,
+    onchange: null,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    addListener: vi.fn(),
+    removeListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  }));
+};
 
-    expect(getApp).not.toHaveBeenCalled();
+describe('AppDetails on a phone', () => {
+  it('lists the credentials as cards, with their actions, and no table', async () => {
+    onAPhone();
+    setUp();
+
+    expect(await screen.findByText('Deploy · all projects')).toBeInTheDocument();
+    expect(screen.queryByRole('table')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Actions of deploy-script' })).toBeInTheDocument();
   });
 });

@@ -15,7 +15,7 @@ const inRoute = (params: Record<string, string>) =>
 
 beforeEach(() => {
   contextStore.setState({
-    organization: { id: 'org-1', name: 'Acme Corp' },
+    workspace: { id: 'org-1', name: 'Acme Corp', slug: null },
     project: { id: 'project-1', name: 'Scylla' },
     pipeline: { id: 'pipeline-1', name: 'Nightly' },
   });
@@ -24,11 +24,11 @@ beforeEach(() => {
 afterEach(() => setAppNavigator(null));
 
 describe('breadcrumbParams', () => {
-  it('names the organization, the project and the pipeline of the URL', () => {
+  it('names the workspace, the project and the pipeline of the URL', () => {
     inRoute({ pipelineId: 'pipeline-1' });
 
     expect(breadcrumbParams()).toEqual({
-      organizationName: 'Acme Corp',
+      workspaceName: 'Acme Corp',
       projectName: 'Scylla',
       pipelineName: 'Nightly',
     });
@@ -42,13 +42,13 @@ describe('breadcrumbParams', () => {
 });
 
 describe('linkParams', () => {
-  it('opens the sidebar links in the active organization', () => {
-    expect(linkParams()).toEqual({ organizationSlug: 'acme-corp' });
+  it('opens the sidebar links in the active workspace', () => {
+    expect(linkParams()).toEqual({ workspaceSlug: 'acme-corp' });
   });
 
-  it('gives no organization when none is active', () => {
-    contextStore.setState({ organization: { id: null, name: null } });
+  it('gives no workspace when none is active', () => {
+    contextStore.setState({ workspace: { id: null, name: null, slug: null } });
 
-    expect(linkParams()).toEqual({ organizationSlug: undefined });
+    expect(linkParams()).toEqual({ workspaceSlug: undefined });
   });
 });

@@ -1,7 +1,7 @@
 import type { MessageDescriptor } from '@lingui/core';
 import type { NavSectionDefinition, RoutePermission } from '@scylla/core-sdk';
 import type { NavEntry } from '../../routing/compilation/nav-entries.ts';
-import type { NavSection } from '../structs/nav-section.struct.ts';
+import type { NavItem, NavNode, NavSection } from '../structs/nav-section.struct.ts';
 
 export interface NavSectionsInput {
   entries: readonly NavEntry[];
@@ -12,9 +12,76 @@ export interface NavSectionsInput {
   translate: (message: MessageDescriptor) => string;
 }
 
+/** A link that the user can open, with its entry. */
+interface Link {
+  entry: NavEntry;
+  item: NavItem;
+}
+
+/**
+ * Puts the links of one group under one folding item, at the place of the first link of the
+ * group.
+ */
+const grouped = (
+  links: readonly Link[],
+  translate: (message: MessageDescriptor) => string,
+): NavNode[] => {
+  const nodes: NavNode[] = [];
+  const groups = new Map<string, NavItem[]>();
+  for (const { entry, item } of links) {
+    const group = entry.group;
+    if (!group) {
+      nodes.push(item);
+      continue;
+    }
+    const items = groups.get(group.id);
+    if (items) {
+      items.push(item);
+      continue;
+    }
+    const created = [item];
+    groups.set(group.id, created);
+    nodes.push({ id: group.id, title: translate(group.title), icon: group.icon, items: created });
+  }
+  return nodes;
+};
+
+/** The entries of a section that the user can open from the current URL, with their URL. */
+export const openableEntries = (
+  { entries, hrefOf, can }: Pick<NavSectionsInput, 'entries' | 'hrefOf' | 'can'>,
+  sectionId: string,
+): { entry: NavEntry; href: string }[] =>
+  entries
+    .filter(entry => entry.section === sectionId)
+    .filter(entry => entry.permission === undefined || can(entry.permission))
+    .flatMap(entry => {
+      const href = hrefOf(entry);
+      return href === null ? [] : [{ entry, href }];
+    });
+
+/**
+ * The heading of each entry that shows. A heading covers the links up to the next one, so the
+ * heading of a hidden link goes to the next link of its run that shows.
+ */
+const headingsOf = (
+  entries: readonly NavEntry[],
+  sectionId: string,
+  shown: ReadonlySet<NavEntry>,
+): Map<NavEntry, MessageDescriptor> => {
+  const headings = new Map<NavEntry, MessageDescriptor>();
+  let pending: MessageDescriptor | undefined;
+  for (const entry of entries.filter(({ section }) => section === sectionId)) {
+    pending = entry.heading ?? pending;
+    if (!shown.has(entry)) continue;
+    if (pending) headings.set(entry, pending);
+    pending = undefined;
+  }
+  return headings;
+};
+
 /**
  * Hides the entries the user cannot open or the current URL cannot fill, then
- * the empty sections. A section with a header stays.
+ * the empty sections. The links of one group fold under one item.
  */
 export const navSectionsFor = ({
   entries,
@@ -24,18 +91,30 @@ export const navSectionsFor = ({
   translate,
 }: NavSectionsInput): NavSection[] =>
   sections
-    .map(({ id, title, header }) => ({
-      id,
-      title: translate(title),
-      header,
-      items: entries
-        .filter(entry => entry.section === id)
-        .filter(entry => entry.permission === undefined || can(entry.permission))
-        .flatMap(entry => {
-          const href = hrefOf(entry);
-          return href === null
-            ? []
-            : [{ title: translate(entry.title), href, url: entry.url, icon: entry.icon }];
-        }),
-    }))
-    .filter(section => section.items.length > 0 || section.header);
+    .map(({ id, title, railItem, within, noRailItem }) => {
+      const openable = openableEntries({ entries, hrefOf, can }, id);
+      const headings = headingsOf(entries, id, new Set(openable.map(({ entry }) => entry)));
+      const links = openable.map(({ entry, href }): Link => {
+        const heading = headings.get(entry);
+        return {
+          entry,
+          item: {
+            title: translate(entry.title),
+            href,
+            url: entry.url,
+            icon: entry.icon,
+            danger: entry.danger,
+            heading: heading && translate(heading),
+          },
+        };
+      });
+      return {
+        id,
+        title: translate(title),
+        railItem,
+        within,
+        noRailItem,
+        items: grouped(links, translate),
+      };
+    })
+    .filter(section => section.items.length > 0);

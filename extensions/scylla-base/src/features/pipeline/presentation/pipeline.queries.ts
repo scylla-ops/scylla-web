@@ -3,28 +3,47 @@ import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '
 import { scyllaNavigate, contextStore } from '@platform/context';
 import { JOBS_QUERY_KEY } from '@base/features/jobs';
 import type { PaginationParams, PaginatedList } from '@scylla/ui/structs';
+import { activeLocale, t } from '@scylla/ui/i18n';
 import { toast } from '@scylla/ui/utils';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { PipelineEntity, PipelineMetadata } from '../domain/entities/pipeline.entity.ts';
+import type {
+  PipelineFileExport,
+  PipelineMetadata,
+  PipelineWithLayout,
+} from '../domain/entities/pipeline.entity.ts';
+import type { CommitRef } from '../domain/structs/commit-ref.struct.ts';
+import type { PipelineFile } from '../domain/structs/pipeline-file.struct.ts';
+import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
+import { mergeLayouts, type PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import {
   InvalidPipelineError,
   type SavePipelineInput,
 } from '../domain/use-cases/save-pipeline.use-case.ts';
 import type { NodeTemplateEntity } from '../domain/entities/node-template.entity.ts';
 import type { PipelineModule } from '../pipeline.module.ts';
+import { libraryMessages } from './messages/library.messages.ts';
 import { pipelineMessages } from './messages/pipeline.messages.ts';
 import { pipelineIssueText } from './presenters/pipeline-issue.presenter.ts';
 import {
   CREATE_PIPELINE_MUTATION_KEY,
-  ORGANIZATION_PIPELINES_QUERY_KEY,
+  WORKSPACE_PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
+  PIPELINE_EXPORT_QUERY_KEY,
+  PIPELINE_FILE_QUERY_KEY,
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
   RUN_PIPELINE_MUTATION_KEY,
   NODE_TEMPLATES_QUERY_KEY,
+  WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY,
+  FRAGMENTS_QUERY_ROOT,
+  FRAGMENT_LINKS_QUERY_KEY,
 } from './pipeline.query-keys.ts';
+import type {
+  PipelineSummaryList,
+  PipelineSummaryQuery,
+} from '../domain/structs/pipeline-summary.struct.ts';
 
 //todo: check about split this file into multiple .queries to improve readability
 
@@ -42,6 +61,8 @@ const currentProject = () => contextStore.getState().project;
 /** One request for a project's whole list, on the overview pages. */
 const PIPELINES_LOOKUP_PAGE: PaginationParams = { page: 1, pageSize: 100 };
 
+const ALL_PIPELINES: PaginationParams = { page: 1, pageSize: Number.MAX_SAFE_INTEGER };
+
 export const pipelineQueries = {
   /** `enabled`: wait until the page size is measured, or the first page is fetched twice. */
   byProject: (
@@ -56,24 +77,90 @@ export const pipelineQueries = {
       staleTime: 5_000,
     }),
 
+  /**
+   * The pipelines of the workspace with their last jobs, failing first by default. Read again
+   * each 30 s, as the design of the dashboard asks.
+   */
+  summaries: (
+    workspaceId: string | null,
+    shape: Omit<PipelineSummaryQuery, 'workspaceId'> = {
+      runs: 20,
+      order: 'failing-first',
+      limit: 100,
+    },
+    enabled = true,
+  ) =>
+    queryOptions<PipelineSummaryList>({
+      queryKey: WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY(workspaceId, shape),
+      enabled: enabled && !!workspaceId,
+      queryFn: () => repository().getSummaries({ workspaceId: workspaceId!, ...shape }),
+      staleTime: 10_000,
+      refetchInterval: 30_000,
+    }),
+
   /** One call, scoped by the backend: nothing to gate here. */
-  byOrganization: (organizationId: string | null) =>
+  byWorkspace: (workspaceId: string | null) =>
     queryOptions<PaginatedList<PipelineMetadata>>({
-      queryKey: ORGANIZATION_PIPELINES_QUERY_KEY(organizationId, PIPELINES_LOOKUP_PAGE),
-      enabled: !!organizationId,
-      queryFn: () =>
-        repository().getMetadataByOrganizationId(organizationId!, PIPELINES_LOOKUP_PAGE),
+      queryKey: WORKSPACE_PIPELINES_QUERY_KEY(workspaceId, PIPELINES_LOOKUP_PAGE),
+      enabled: !!workspaceId,
+      queryFn: () => repository().getMetadataByWorkspaceId(workspaceId!, PIPELINES_LOOKUP_PAGE),
       staleTime: 30_000,
     }),
 
-  byId: (pipelineId: string) =>
-    queryOptions<PipelineEntity>({
-      queryKey: PIPELINE_QUERY_KEY(pipelineId),
-      enabled: !!pipelineId,
-      queryFn: () => repository().getById(pipelineId),
+  /** Every pipeline of a workspace, for a search: `byWorkspace` keeps a window of the list. */
+  allOfWorkspace: (workspaceId: string | null) =>
+    queryOptions<PaginatedList<PipelineMetadata>>({
+      queryKey: WORKSPACE_PIPELINES_QUERY_KEY(workspaceId, ALL_PIPELINES),
+      enabled: !!workspaceId,
+      queryFn: () => repository().getMetadataByWorkspaceId(workspaceId!, ALL_PIPELINES),
       staleTime: 30_000,
     }),
+
+  /** The document of the editor: a refetch would replace an unsaved draft. */
+  byId: (pipelineId: string) =>
+    queryOptions<PipelineWithLayout>({
+      queryKey: PIPELINE_QUERY_KEY(pipelineId),
+      enabled: !!pipelineId,
+      queryFn: () => repository().getWithLayout(pipelineId),
+      staleTime: 30_000,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+    }),
+
+  /** Opened from the editor only, behind its own route guard and its own button check. */
+  fileExport: (pipelineId: string, format: PipelineFileFormat) =>
+    queryOptions<PipelineFileExport>({
+      queryKey: PIPELINE_EXPORT_QUERY_KEY(pipelineId, format),
+      enabled: !!pipelineId,
+      queryFn: () => repository().exportFile(pipelineId, format),
+      staleTime: 30_000,
+    }),
+
+  /**
+   * The page of a file pipeline reads it, behind its own route guard. No ref: the default branch.
+   * The page says why a file cannot be read (no file on the branch): no toast.
+   */
+  file: (pipelineId: string, ref?: CommitRef) =>
+    queryOptions<PipelineFile>({
+      queryKey: PIPELINE_FILE_QUERY_KEY(pipelineId, ref),
+      enabled: !!pipelineId,
+      queryFn: () => repository().getFile(pipelineId, ref),
+      staleTime: 30_000,
+      meta: { showsOwnError: true },
+      // Another branch keeps the graph of the last one until its file comes.
+      placeholderData: (previous: PipelineFile | undefined) => previous,
+    }),
 };
+
+export interface UpdatePipelineInput extends SavePipelineInput {
+  id: string;
+}
+
+/** No ref: an editor pipeline runs with no commit, a file pipeline at the head of the default branch. */
+export interface RunPipelineInput {
+  pipelineId: string;
+  ref?: CommitRef;
+}
 
 /** Read by the editor only, behind its own route guard: nothing to gate here. */
 export const nodeTemplateQueries = {
@@ -86,22 +173,41 @@ export const nodeTemplateQueries = {
 };
 
 /** A pipeline the domain refuses gets the error toast of the app, in the language of the user. */
-const save = async (input: SavePipelineInput) => {
+const save = async (input: SavePipelineInput): Promise<string[]> => {
   try {
-    await savePipeline().execute(input);
+    return await savePipeline().execute(input);
   } catch (error) {
     if (!(error instanceof InvalidPipelineError)) throw error;
     throw new ScyllaError(pipelineIssueText(error.issue), { code: error.code, cause: error });
   }
 };
 
-/** Needs the name too: `goToProject` writes it into the context (the breadcrumb). */
-const returnToProject = () => {
+/**
+ * Needs the name too: `goToProject` writes it into the context (the breadcrumb). The editor calls
+ * it after a save, once it holds no unsaved change: else its guard would hold the navigation.
+ */
+export const returnToProject = () => {
   const { id, name } = currentProject();
   if (id && name) scyllaNavigate.goToProject(id, name);
 };
 
 export const pipelineMutations = {
+  /**
+   * With no toast: a lost place costs one position, and the Save button is for the nodes. It writes
+   * the cache and does not invalidate it, because a refetch would replace an unsaved draft.
+   */
+  saveLayout: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: (layout: PipelineLayout) => repository().saveLayout(pipelineId, layout),
+      onMutate: (layout: PipelineLayout) => {
+        getQueryClient().setQueryData<PipelineWithLayout>(
+          PIPELINE_QUERY_KEY(pipelineId),
+          saved => saved && { ...saved, layout: mergeLayouts(saved.layout, layout) },
+        );
+      },
+      meta: { showsOwnError: true },
+    }),
+
   create: () =>
     mutationOptions({
       mutationKey: CREATE_PIPELINE_MUTATION_KEY,
@@ -111,19 +217,28 @@ export const pipelineMutations = {
         void getQueryClient().invalidateQueries({
           queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId),
         });
-        returnToProject();
       },
     }),
 
+  /** With `links`, the fragments that the pipeline links are saved with its nodes. */
   update: () =>
     mutationOptions({
-      mutationFn: (pipeline: SavePipelineInput & { id: string }) => save(pipeline),
-      onSuccess: (_, { id, projectId }) => {
+      mutationFn: (pipeline: UpdatePipelineInput) =>
+        save({ ...pipeline, workspaceId: contextStore.getState().workspace.id ?? undefined }),
+      onSuccess: (detached, { id, projectId, links }) => {
         const queryClient = getQueryClient();
+        if (links) {
+          void queryClient.invalidateQueries({ queryKey: FRAGMENT_LINKS_QUERY_KEY(id) });
+          // The library counts the pipelines that use each fragment.
+          void queryClient.invalidateQueries({ queryKey: FRAGMENTS_QUERY_ROOT });
+        }
         void queryClient.invalidateQueries({ queryKey: PROJECT_PIPELINES_QUERY_ROOT(projectId) });
         void queryClient.invalidateQueries({ queryKey: PIPELINE_QUERY_KEY(id) });
         toast.success(i18n._(ToastMessages.PIPELINE_UPDATE));
-        returnToProject();
+        if (detached.length) {
+          const blocks = new Intl.ListFormat(activeLocale(), { type: 'unit' }).format(detached);
+          toast.warning(t(libraryMessages.blocksDetached(blocks)));
+        }
       },
     }),
 
@@ -140,12 +255,13 @@ export const pipelineMutations = {
   duplicate: () =>
     mutationOptions({
       mutationFn: async (pipelineId: string) => {
-        const pipeline = await repository().getById(pipelineId);
+        const { pipeline, layout } = await repository().getWithLayout(pipelineId);
 
         await save({
           projectId: pipeline.projectId,
           name: i18n._(pipelineMessages.copyOf(pipeline.name)),
           nodes: pipeline.nodes,
+          ...(layout && { layout }),
         });
       },
       onSuccess: () => {
@@ -159,8 +275,8 @@ export const pipelineMutations = {
   run: () =>
     mutationOptions({
       mutationKey: RUN_PIPELINE_MUTATION_KEY,
-      mutationFn: (pipelineId: string) => repository().run(pipelineId),
-      onSuccess: (_data, pipelineId) => {
+      mutationFn: ({ pipelineId, ref }: RunPipelineInput) => repository().run(pipelineId, ref),
+      onSuccess: (_data, { pipelineId }) => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
       },
     }),

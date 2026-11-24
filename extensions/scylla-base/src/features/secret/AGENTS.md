@@ -10,10 +10,8 @@ Project-scoped secrets, injected into pipeline runs.
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
-**Presentation is Svelte** (Phase 2 of `refacto_svelte.md`). Domain and infrastructure are
-unchanged. There is no `use-<feature>-domain.ts` and no hooks: reads and writes are declared as
-options objects in `presentation/*.queries.ts`, which a component or another feature runs with
-`createQuery`.
+Reads and writes are declared as options objects in `presentation/*.queries.ts`, which a
+component or another feature runs with `createQuery`.
 
 ## Public API — `index.ts`
 
@@ -42,7 +40,7 @@ Never add: `secret.module.ts`, pages.
 `CreateSecretInput` and `UpdateSecretInput` live in `domain/entities/secret.entity.ts`. The repository
 is reached from `presentation/secret.queries.ts` and nowhere else — never from a component.
 
-No method returns a stored value. That is a backend constraint — do not add hooks pretending
+No method returns a stored value. That is a backend constraint — do not add a query pretending
 otherwise.
 
 `listPipelinesUsing` calls `PipelineService.ListProjectPipelines` with `secret_ref` from this
@@ -62,6 +60,7 @@ infrastructure/
   default-secret.repository.ts       SecretServiceClient → SecretEntity
   grpc-secret.mapper.ts
 presentation/
+  secret.commands.ts                 "Create secret...", for the search bar
   secret.queries.ts                  the reads and the writes, as options objects
   ui/Secret.page.svelte, CreateSecretDialog.svelte
   ui/EditSecretDialog/               EditSecretDialog (the form), ReplaceSecretValueDialog
@@ -80,7 +79,7 @@ presentation/
 |---|---|---|---|
 | `project` | `secrets` | `LIST_SECRETS` | `SecretPage` |
 
-**No nav entry** — reached from inside a project, not the organization sidebar.
+**No nav entry** — reached from inside a project, not the workspace sidebar.
 
 ## Rules that bite here
 

@@ -4,6 +4,8 @@ import { msg } from '@lingui/core/macro';
 export const nodeMessages = {
   nodeKind: msg`Node kind`,
   kindCommand: msg`command`,
+  kindSwitch: msg`switch`,
+  kindMerge: msg`merge`,
   runsFirst: msg`Runs first`,
   environment: msg`Environment`,
   nodeId: msg`Node ID`,
@@ -43,4 +45,73 @@ export const nodeMessages = {
   addVariable: msg`Add variable`,
   removeArgument: msg`Remove argument`,
   removeVariable: msg`Remove variable`,
+
+  invalidSwitch: msg`Invalid switch`,
+  invalidLink: msg`Invalid link`,
+  caseCount: msg`A switch needs 1 to 16 cases.`,
+  portEmpty: msg`A port has no name.`,
+  portInvalid: (port: string) =>
+    msg`The port "${port}" is not valid. Use 1 to 128 lowercase letters (a-z), digits, - and _.`,
+  repeatedPort: (port: string) => msg`Two ports have the name ${port}.`,
+  reservedPort: msg`The port name "error" is for the error output of a node that runs a step. Use another name.`,
+  ruleCount: (port: string) => msg`The case ${port} needs 1 to 32 rules.`,
+  notANumber: (port: string, value: string) =>
+    msg`In the case ${port}, "${value}" is not a number.`,
+  textTooLong: (port: string) =>
+    msg`In the case ${port}, a text is longer than 64 KiB or holds a NUL character.`,
+  invalidVariable: (port: string, name: string) =>
+    msg`In the case ${port}, "${name}" is not a variable name.`,
+  invalidOutputKey: (port: string, key: string) =>
+    msg`In the case ${port}, "${key}" is not an output key.`,
+  outputNotBefore: (port: string, node: string) =>
+    msg`In the case ${port}, ${node} is not a node that runs a step before this switch.`,
+  mergeWithoutNeeds: msg`A merge needs at least one link in.`,
+  repeatedNeed: (need: string) => msg`The link ${need} comes two times.`,
+  unknownPort: (node: string, port: string) => msg`${node} has no port ${port}.`,
+
+  cases: msg`Cases`,
+  portName: msg`Port name`,
+  matchRules: msg`Rules to match`,
+  // `context`: the rules of a case, "Toutes" and "Au moins une", not the "Tous" of a filter.
+  combinatorAll: msg({ context: 'rules', message: 'All' }),
+  combinatorAny: msg({ context: 'rules', message: 'Any' }),
+  moveCaseUp: (port: string) => msg`Move the case ${port} up`,
+  moveCaseDown: (port: string) => msg`Move the case ${port} down`,
+  deleteCase: (port: string) => msg`Delete the case ${port}`,
+  addCase: msg`Add a case`,
+  addRule: msg`Add a rule`,
+  deleteRule: msg`Delete the rule`,
+  allMatches: msg`Open the port of each case that matches`,
+  otherwise: msg`Open a port when no case matches`,
+  otherwisePort: msg`Port when no case matches`,
+
+  leftKind: msg`Kind of the left value`,
+  rightKind: msg`Kind of the right value`,
+  leftValue: msg`Left value`,
+  rightValue: msg`Right value`,
+  operandVariable: msg`Variable`,
+  operandOutput: msg`Output`,
+  operandText: msg`Text`,
+  outputNode: msg`Node of the output`,
+  outputKey: msg`Key of the output`,
+  test: msg`Test`,
+  testsNumber: msg`Number`,
+  testEquals: msg`is equal to`,
+  testNotEquals: msg`is not equal to`,
+  testContains: msg`contains`,
+  testNotContains: msg`does not contain`,
+  testStartsWith: msg`starts with`,
+  testEndsWith: msg`ends with`,
+  testEmpty: msg`is empty`,
+  testNotEmpty: msg`is not empty`,
+  testGreater: msg`is greater than`,
+  testGreaterOrEqual: msg`is greater than or equal to`,
+  testLess: msg`is less than`,
+  testLessOrEqual: msg`is less than or equal to`,
+
+  errorOutput: msg`Send a failure to an error output`,
+  errorOutputHint: msg`A node linked to the error output runs when this node fails. The job still fails.`,
+  mergeHint: msg`A merge runs when one of its links in or more is open.`,
+  linksRemoved: (need: string, nodes: string) =>
+    msg`These nodes no longer wait for ${need}: ${nodes}.`,
 };

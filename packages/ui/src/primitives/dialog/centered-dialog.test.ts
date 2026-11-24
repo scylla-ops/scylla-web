@@ -10,8 +10,8 @@ const SLIDE = /slide-(in-from|out-to)-/;
 
 const sources = ['apps', 'packages', 'extensions'].flatMap(dir =>
   readdirSync(join(WORKSPACE, dir), { recursive: true, encoding: 'utf8' })
-    .filter(path => /\.(svelte|ts)$/.test(path) && !/node_modules|dist\/|\.test\.ts$/.test(path))
-    .map(path => join(dir, path)),
+    .map(path => `${dir}/${path.replaceAll('\\', '/')}`)
+    .filter(path => /\.(svelte|ts)$/.test(path) && !/node_modules|dist\/|\.test\.ts$/.test(path)),
 );
 
 describe('a centered element', () => {

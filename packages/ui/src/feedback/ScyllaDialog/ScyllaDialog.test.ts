@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { dialogHoldStore } from '../../stores/index.ts';
 import ScyllaDialog from './ScyllaDialog.fixture.svelte';
 
 const closed = () =>
@@ -10,6 +11,35 @@ const closed = () =>
   });
 
 describe('ScyllaDialog', () => {
+  afterEach(() => dialogHoldStore.setState({ held: false }));
+
+  it('takes no Escape while the dialogs are held, and hides its close button', async () => {
+    render(ScyllaDialog);
+    dialogHoldStore.setState({ held: true });
+
+    await userEvent.keyboard('{Escape}');
+
+    const dialog = screen.getByRole('dialog');
+    await waitFor(() => expect(dialog.className).toContain('[&>button]:hidden'));
+    expect(dialog.className).toContain('[&_[data-dialog-dismiss]]:hidden');
+  });
+
+  it('closes on Escape again once the hold ends', async () => {
+    render(ScyllaDialog);
+    dialogHoldStore.setState({ held: true });
+    dialogHoldStore.setState({ held: false });
+
+    await userEvent.keyboard('{Escape}');
+
+    await closed();
+  });
+
+  it('gives its data attributes to the box of the dialog', () => {
+    render(ScyllaDialog, { 'data-mark': 'here' });
+
+    expect(screen.getByRole('dialog')).toHaveAttribute('data-mark', 'here');
+  });
+
   it('closes on its close button', async () => {
     render(ScyllaDialog);
 

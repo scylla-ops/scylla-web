@@ -1,17 +1,24 @@
+import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
-import Building2Icon from '@lucide/svelte/icons/building-2';
+import InfoIcon from '@lucide/svelte/icons/info';
+import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+import ShieldIcon from '@lucide/svelte/icons/shield';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import SunIcon from '@lucide/svelte/icons/sun';
 import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
 import UserIcon from '@lucide/svelte/icons/user';
 import type { LucideIcon } from '@scylla/ui';
+import { personalTokensMessages } from '@base/features/user/presentation/messages/personal-tokens.messages.ts';
+import { privacyMessages } from '@base/features/user/presentation/messages/privacy.messages.ts';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
 export type AccountSectionId =
   | 'profile'
   | 'appearance'
   | 'security'
-  | 'organizations'
+  | 'tokens'
+  | 'privacy'
+  | 'about'
   | 'danger-zone';
 
 export interface AccountSection {
@@ -20,15 +27,25 @@ export interface AccountSection {
   title: MessageDescriptor;
   icon: LucideIcon;
   danger?: boolean;
+  /** Other words that find this page in the command bar. */
+  keywords?: MessageDescriptor;
 }
 
-/** The entries of the settings nav of the account page, in their order. */
+/** The links of the account section of the sidebar, in their order. */
 export const ACCOUNT_SECTIONS: readonly AccountSection[] = [
   { id: 'profile', title: userMessages.profile, icon: UserIcon },
-  { id: 'appearance', title: userMessages.appearance, icon: SunIcon },
-  { id: 'security', title: userMessages.security, icon: ShieldCheckIcon },
-  { id: 'organizations', title: userMessages.organizations, icon: Building2Icon },
-  { id: 'danger-zone', title: userMessages.dangerZone, icon: TriangleAlertIcon, danger: true },
+  { id: 'appearance', title: userMessages.appearance, icon: SunIcon, keywords: msg`theme look colors` },
+  { id: 'security', title: userMessages.security, icon: ShieldCheckIcon, keywords: msg`password 2fa` },
+  { id: 'tokens', title: personalTokensMessages.navTitle, icon: KeyRoundIcon, keywords: msg`api key personal token` },
+  { id: 'privacy', title: privacyMessages.navTitle, icon: ShieldIcon, keywords: privacyMessages.keywords },
+  { id: 'about', title: userMessages.about, icon: InfoIcon, keywords: msg`version edition server` },
+  {
+    id: 'danger-zone',
+    title: userMessages.dangerZone,
+    icon: TriangleAlertIcon,
+    danger: true,
+    keywords: msg`delete account`,
+  },
 ];
 
 /** `undefined` for a segment that names no section. */

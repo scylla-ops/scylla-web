@@ -11,19 +11,19 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
   It is the bottom of the graph and depends on nobody.
 - Everyone may import it, **through its entry points only** (`package-api-only`, error).
 - **Test before adding anything here:** could this live in another product, unchanged? If it
-  mentions a pipeline, a job, a role or an organization, it is not UI — it belongs to the
+  mentions a pipeline, a job, a role or an workspace, it is not UI — it belongs to the
   feature, or to the `shared/` folder of its extension.
 
 ## Entry points
 
 | Import | What |
 |---|---|
-| `@scylla/ui` | the composites (`DataTable`, `ScyllaDialog`, `FeatureHeader`, `ScyllaForm`, …) and `LucideIcon` |
+| `@scylla/ui` | the composites (`DataTable`, `ScyllaDialog`, `FeatureHeader`, `ScyllaForm`, `Widget`, `Chart*`, …) and `LucideIcon` |
 | `@scylla/ui/primitives` | the primitives on bits-ui, adapted from shadcn/ui |
 | `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
-| `@scylla/ui/i18n` | `t`, `activeLocale`, `setAppLocale`, `registerCatalogs` |
-| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result) |
+| `@scylla/ui/i18n` | `t`, `activeLocale`, `intlLocale` (the locale for `Intl`, `en` before the first activation), `formatNumber` (a decimal, a percent or a large number in the language of the UI), `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
+| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
 | `@scylla/ui/assets/*` | the logos |
@@ -33,13 +33,18 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 ```
 src/
   index.ts                 `@scylla/ui` — re-exports the groups below
-  controls/                IconButton, GatedButton
-  data-display/            DataTable, Pagination, PaginationSlot, StatusIndicator,
+  chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
+                           ChartSlot, ChartRing: the marks of the charts of a widget
+  controls/                IconButton, GatedButton, SearchSelect, SegmentedControl
+  data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
-  layout/                  FeatureHeader, ContextItem, PageTransition, ScyllaLoadingScreen
-  motion/                  page transitions, reduced motion
+  layout/                  FeatureHeader, ContextItem, DangerZone, PageTransition,
+                           ScyllaLoadingScreen, keepFitted (an attachment: fits a view again at
+                           each resize)
+  widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
+  motion/                  page transitions, reduced motion, a spring easing
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -49,11 +54,34 @@ src/
   locales/                 the catalog of these components
 ```
 
+## Design tokens and Figma
+
+The code is the source of truth, and the Figma library "scylla :: ui" follows it. After a change
+of a token in `styles.css` (`:root`, `.dark`, `@theme inline`), run `pnpm tokens:export` and
+commit `tokens/` with it. `pnpm tokens:check`, the CI step "Design tokens" and
+`scripts/__test__/design-tokens.test.mjs` fail when `tokens/` is not the export. The full process
+(the token files, Figma, a new component, the fleet) is in [`DESIGN-SYSTEM.md`](./DESIGN-SYSTEM.md).
+
+## The catalog: `catalog/`
+
+Each component that `@scylla/ui` or `@scylla/ui/primitives` exports has an entry in the visual
+catalog (Storybook, `pnpm ui:catalog`), with its variants, sizes and states.
+`__test__/catalog.test.ts` fails when a component has no story that imports it. A new component,
+a new variant or a new state: add or change its entry in `catalog/src/` in the same change. How:
+`catalog/AGENTS.md`.
+
 ## i18n: `registerCatalogs`
 
 `@scylla/ui/i18n` holds the Lingui runtime of the app. The core registers its own catalog and
 the catalogs of each extension (`@Extension({ catalogs })`) before `initializeAppLocale`. The
 catalogs of this package register themselves.
+
+A date, a time or a number that the user reads follows the language of the UI, also when it
+changes after the first render (the language of the server comes after the load). Read the
+locale with `intlLocale()` and format a number with `formatNumber`: both read the rune of the
+locale, thus a template or a `$derived` that calls them renders again at a switch. Do not read
+`i18n.locale` of Lingui for this, and do not call `toLocaleString()` or `toFixed()` for a text:
+they use the language of the browser or no language.
 
 ## Reuse these — do not reinvent
 
@@ -66,9 +94,17 @@ catalogs of this package register themselves.
 | Pagination | `createPagination(options)` — local page merged with server `totalCount`/`totalPages`; `responsive: true` sizes the page to the container |
 | How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
+| A table that `DataTable` cannot express (rows of groups, a matrix) | `TableFrame` + `Table` + `TableHeader`, `TableBody`, `TableRow`, `TableHead`, `TableCell`. Never a `<table>` by hand. Inside a card that has its own border: no `TableFrame`, a `relative overflow-x-auto p-1.5` box |
+| The pages of a table | `PaginationSlot` under the table, outside its frame: the range on the left, `‹ page / pages ›` on the right |
+| The status of one run | `StatusShape` (`state`, `label`, `size`): the four dots of the logo take the form of the state. See "`StatusShape`" |
+| A row of statuses in time (the last runs) | `StatusTrail`: one dot per item, oldest first, linked by lines; the last dot is a little bigger. Each dot has `data-item-id`; with `onSelect` it is a button |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
-| A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
-| Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue" |
+| A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
+| One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
+| A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
+| Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue". Its button is destructive; `variant="default"` for an action that takes nothing away ("Reactivate") |
+| An action that deletes, removes, revokes, disables or deactivates | The destructive variant, never a red class. See "Destructive actions" |
+| The section of a settings page with the actions that cannot be undone | `DangerZone` (`title`, `description`, `action`: the destructive button, centered on the text or under it in a narrow card, `children`) |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
 | Class names | `cn()` |
@@ -77,7 +113,11 @@ catalogs of this package register themselves.
 | A store | `createStore` from `@scylla/ui/stores`; rune code reads it with `toRune(store)` |
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
+| A dashboard: a grid of widgets | `WidgetGrid` around `Widget`s (`size`: `xs`, `s`, `m`, `l`). See "Widgets" |
+| A widget with no data to draw (loading, error, empty, all clear, locked, missing) | `WidgetState` inside the `Widget`, with the same `size` |
+| A mark of a chart: a bar, a legend, a change, a ring | The `Chart*` parts. See "Charts" |
 | Panels the user can resize | `ResizablePaneGroup`, `ResizablePane`, `ResizableHandle` (`@scylla/ui/primitives`, on paneforge). See "`resizable`" below |
+| A card that opens on hover and holds links | `HoverCard`, `HoverCardTrigger`, `HoverCardContent` (bits-ui `LinkPreview`). A `Tooltip` holds text only: it must not hold a link. See "`hover-card`" below |
 
 ## Forms: the app checks the values, not the browser
 
@@ -97,8 +137,12 @@ language. The checks are the app's, with translated messages:
 
 ## Rune states: `state/`
 
-There are no hooks. Three rules carry over from the migration and still bite:
+Four rules bite here:
 
+- **A measure stays when its element goes away.** `createMeasuredHeight` gives `null` only before
+  the first attach. The page size is part of a query key, and a page can show `ErrorState` in
+  place of the measured element. If the height goes back to `null`, the key changes, the error
+  goes away, the element comes back and the query fetches again. The result is a request loop.
 - **A list that arrives later is passed as a getter, not an array.** `createFeatureSelection`
   takes `() => string[]` and `createFormState` takes `() => items`. Capturing the value once
   freezes the helper on whatever the first, usually empty, render held.
@@ -114,7 +158,11 @@ DOM measurement is an **attachment**, never an effect: `createMeasuredHeight()` 
 
 The theme store keeps the choice of the user (`light`, `dark`, `system`) under the
 `localStorage` key `scylla-theme`, which the inline script of `index.html` reads before the
-first paint: keep the two in step (no value means dark). `system` follows
+first paint: keep the two in step (no value means dark). **No cookie and no storage key without
+a registry entry:** a store, a state or a primitive of `@scylla/ui` that writes a new key adds
+its entry to the tracker registry of scylla-base (`platform/trackers`), in the same change. A
+key that is not exempt also names its consent purpose, and the consent framework of scylla-base
+(`platform/consent`) then asks the user. Its test reads the files of this package too. `system` follows
 `prefers-color-scheme`, also when it changes. `setThemePreference(choice, origin)` with an
 origin spreads the new theme from that point as one circle (View Transitions API, 450 ms); with
 no origin, no API or a reduced motion setting, the swap is instant. The account page of
@@ -123,7 +171,9 @@ scylla-base is the only place that changes the theme.
 `motion/` holds the transitions. `prefersReducedMotion()` is not optional decoration: the
 `@media (prefers-reduced-motion: reduce)` block in `styles.css` neutralises CSS animations, but a
 Svelte transition writes inline styles from JavaScript and that query never sees it — every
-transition here asks and collapses its duration to zero.
+transition here asks and collapses its duration to zero. `springEasing({ bounce, duration })`
+gives a spring as an easing, with the parameters of the design tools: the thumb of
+`SegmentedControl` and the rail tile of the core use it.
 
 ### `primitives/` — the primitives
 
@@ -131,6 +181,10 @@ The primitives, on **`bits-ui`**. They are adapted from the React components of 
 see `primitives/README.md`): the Tailwind class strings were copied, then changed where the design
 needed it. They are our code now, not vendored code: no CLI and no upstream update manage them. Import them from `@scylla/ui/primitives`. A primitive is ported when its
 first consumer needs it — there is no primitive here without a consumer.
+
+**`command`** (`primitives/command/`) is on `Command` of bits-ui. `CommandInput` puts `autofocus` on the
+`<input>` element, because `DialogContent` gives the focus to the `[autofocus]` element, and the bits-ui
+input removes this attribute.
 
 **`resizable`** (`primitives/resizable/`) is on **`paneforge`** (listed in the `vendor-ui` chunk and a
 peer dependency, like bits-ui). `ResizablePaneGroup` and `ResizableHandle` are wrappers;
@@ -154,6 +208,17 @@ peer dependency, like bits-ui). `ResizablePaneGroup` and `ResizableHandle` are w
   (`data-active="pointer"` on the handle, read with `:has()`), so the drag follows the pointer.
   A pane that collapses during a drag still shrinks smoothly. `motion-reduce` removes it.
 
+**`hover-card`** (`primitives/hover-card/`) is on `LinkPreview` of bits-ui, the name that bits-ui
+gives to the hover card of Radix. `HoverCard` and `HoverCardTrigger` are aliased, `HoverCardContent`
+is a wrapper in a portal.
+
+- The trigger is an `<a>`. Give it your element with the `child` snippet, for example a `<button>`.
+  The trigger has `aria-expanded` and `data-state="open"` while the card is open.
+- The card opens on hover and on a focus from the keyboard, after `openDelay` (700 ms by default).
+- As in Radix, the card is for a pointer. It is at the end of `<body>`, so Tab from the trigger
+  does not go into it, and it closes when the trigger loses the focus. A keyboard reads the card,
+  but does not use its links: put each link also on a page that a keyboard can open.
+
 The sidebar (`Sidebar*`, `setSidebar` / `getSidebar`) keeps its open state in a Svelte context
 that `SidebarProvider` creates. `sidebar.state.svelte.ts` holds it; the mobile layout uses the
 `svelte/reactivity` `MediaQuery`.
@@ -173,11 +238,35 @@ What a port has to get right, all of it invisible to the compiler:
   the dialog on click. Every confirmation here keeps the dialog open and disabled while its
   mutation runs; the parent owns `open`. Do not "fix" this.
 - The alert dialog is a **real** `role="alertdialog"` that ignores an outside click.
+- **A modal content (`DialogContent`, `AlertDialogContent`, `SheetContent`) renders its element
+  through the `child` snippet of bits-ui.** With `children`, bits-ui keeps `pointer-events: none`
+  on `<body>` until the exit animation ends, and a click in that time is lost. With `child`, the
+  lock ends when the modal closes. The overlay and the content also get `CLOSING_LAYER_CLASS`
+  (`dialog/dialog-variants.ts`): while they fade out, the pointer goes through them. The test
+  "gives the page back to the pointer when it closes" of each of the three fails without this.
 - **bits-ui drops ARIA roles Radix set, and the wrapper puts them back.** The tooltip content had
   no `role="tooltip"`; the select trigger had every piece of the combobox pattern —
   `aria-haspopup`, `aria-expanded`, `aria-activedescendant` — but no `role="combobox"`. Nothing
   breaks loudly: `aria-describedby` still carries the tooltip text, the button still opens. Check
   the role when you port a primitive, and add it to *our* wrapper when it is missing.
+- **Use `SearchSelect` before the `Combobox` parts.** The people field of `AddMembersDialog` uses
+  the parts, because it holds chips and free text. The parts have these traps:
+  - `Combobox.Input` does not open on a click. Open the list in `onclick`.
+  - The default of `allowDeselect` is `true`. Set it to `false`, or a second pick clears the value.
+  - Enter does not pick an option with an empty value. Give each option a value that is not empty.
+  - bits-ui keeps the typed text after a close, and writes the label after a pick. `ComboboxInput`
+    shows only its `value` prop, so the owner holds the text.
+  - Enter with no highlighted row closes the list. Prevent the default in `onkeydown` to stop this.
+  - bits-ui does not set `aria-controls` or `aria-haspopup`. Set them on the input.
+  - A row of a floating list has no accessible name in jsdom, because the list has no position. A
+    test reads the row with `findFloating`, and a field in the list with its placeholder.
+- **A submenu is in a portal, as its menu.** bits-ui puts `DropdownMenuSubContent` in the menu,
+  `absolute`. The menu is a `relative` scroller, thus it clips the submenu, which is beside it:
+  the submenu opens, but it is not visible. `dropdown-menu.test.ts` fails when the submenu is in
+  the menu.
+- **A menu gives the focus to its field marked `autofocus`.** Without this field, the menu takes the
+  focus. If the field mounts after the menu opens, the field must also take the focus when it
+  mounts (`{@attach}`), because Svelte's `autofocus` does nothing while another element has the focus.
 - **CSS variable names change**: `--radix-*-content-transform-origin` becomes
   `--bits-floating-transform-origin`, and the select's available-height/anchor-width variables
   likewise. Nothing fails loudly if you miss one.
@@ -187,7 +276,11 @@ What a port has to get right, all of it invisible to the compiler:
   `CENTERED_DIALOG_CLASS` (`dialog/dialog-variants.ts`): fade and zoom only.
   `dialog/centered-dialog.test.ts` fails when a source file has a centering translate and a slide.
 - **Radix's `Indicator` parts become an `{#if}` in a children snippet** (checkbox, select item),
-  because bits-ui hands the state to the snippet instead of mounting a separate node.
+  because bits-ui hands the state to the snippet instead of mounting a separate node. The
+  checkbox takes `indeterminate`: it then shows a dash and has `aria-checked="mixed"`.
+- **An item that the user picks shows the pointer, as a button does** (`styles.css`). The shadcn
+  classes give `cursor-default` to the items of a menu, a select and a command list: we use
+  `cursor-pointer`. A disabled item does not show the pointer.
 - **Highlight styles need `data-highlighted:`, not just `focus:`.** bits-ui never moves DOM focus
   into a listbox; it tracks the active option with `aria-activedescendant`.
 - Composed primitives are driven from a `*.fixture.svelte`: their parts are components, so a
@@ -216,6 +309,118 @@ In `vite.config.ts`, `vendor-ui` holds bits-ui and everything it pulls (`@floati
 `vendor-svelte`, because the Svelte runtime imports it too: in `vendor-ui` it made a circular
 chunk.
 
+## The design of a table
+
+The primitives `primitives/table/` hold the one design of a table; `DataTable` is built on them.
+The rows are **inset**: `TableFrame` (`rounded-2xl`, `border`, `bg-card`) keeps a 6 px margin
+around the header and the rows. The header is a grey pill (`bg-muted`, 32 px, the labels in
+`text-xs`, not uppercase). The rows are rounded (10 px) and 2 px apart: there is no line between
+them. A row with `onclick` is `bg-muted/40` on hover; a selected row (`data-state="selected"`) is
+`bg-primary/[0.07]` with an inset 3 px bar of `--primary`, which follows the rounded corner.
+
+- The background goes on the **cells**: a `tr` does not clip it to the rounded corners. A row
+  that has its own color writes `[&>td]:bg-…`.
+- A cell does not wrap (`whitespace-nowrap`). A cell with long text writes `whitespace-normal`.
+- A column that hides at a breakpoint leaves the row without its `last:` corner: the cell before
+  it writes `max-md:rounded-r-[10px]`.
+- The header of `DataTable` sticks. `computePageSize` counts a row as 58 px and the frame as 48 px
+  (`state/responsive-page-size.ts`): keep them in step with these classes.
+
+## `StatusShape`
+
+The four dots of the logo, drawn on a canvas, take a form per state (`StatusState`, in
+`data-display/status-state.ts`): `pending` / `idle` the 2 × 2 grid, breathing; `running` the
+marbles run round a circle (as the old Windows spinner: slow at the top, fast below, so they
+catch up and part); `success` one disc; `failed` and `orphaned` a ×; `skipped` and `cancelled` a
+slash. Its accessible name is `label`; `data-state` gives the state to a test.
+
+- **A change of state is a move, never a jump.** Leaving running, the marbles go on from where
+  they are, at their speed, and the way out depends on the new state (a spiral into the disc, a
+  shot into the cross, a line that shrinks into the slash). Joining running, each form has its
+  own way in. `status-shape.engine.test.ts` fails when a dot moves more than 10 units (of 400)
+  in a frame.
+- **Five files, five roles**: `status-shape.forms.ts` the forms and the colors of each state
+  (theme tokens `--status-*`), `status-shape.raster.ts` the metaballs into pixels,
+  `status-shape.engine.ts` the springs and the moves (plain TypeScript, no DOM),
+  `status-shape.loop.ts` one animation loop for every shape of the page, and
+  `status-shape.attachments.svelte.ts` the canvas, the colors of the theme, and no drawing off
+  screen.
+- **The raster is the hot path**: typed arrays and plain loops, run for each pixel of the box
+  around the dots, each frame. Keep it so.
+- `prefers-reduced-motion`: every change is instant, nothing breathes or runs.
+- jsdom has no canvas: `test/setup.ts` gives no 2D context, and the shape keeps its name only.
+
+## `SegmentedControl`
+
+A toggle group of one choice (`ToggleGroup` of bits-ui: the radios, the arrow keys, Enter and
+Space). The selected background is not on the segment: it is one thumb under the segments
+(`data-part="segmented-thumb"`), which moves to the new segment.
+
+- **The thumb measures the segments** (`thumb.attachments.svelte.ts`, `offsetLeft` and
+  `offsetWidth`, not `getBoundingClientRect`, which a transform of the page changes). A
+  ResizeObserver on the track and the segments makes it follow a new label or count. A new
+  value stretches it: the leading edge goes first, then both edges settle on a spring
+  (`thumb-motion.ts`, plain TypeScript, tested in node). A resize in the middle of a move
+  settles from where the thumb is.
+- **The value is bound with a function binding** on `ToggleGroup`. A click on the selected
+  segment makes bits-ui clear its value; the setter ignores it, thus the segment stays selected.
+  With a plain `value` prop and `onValueChange`, bits-ui keeps the cleared value and shows no
+  selection.
+- **A count rolls** (`count-roll.transition.ts`): the old number leaves and the new one enters,
+  up when the count grows. The chip is `aria-hidden` and an `sr-only` copy gives the current
+  count to the name of the radio: the leaving number stays in the DOM during its transition (and
+  in jsdom, where the animation never ends), and must not go into the name.
+- **A dot with `pulse`** grows a ring when its count grows.
+- `prefers-reduced-motion`: no stretch, no bounce, no roll and no pulse. The thumb slides in
+  150 ms and the colors change in 150 ms.
+
+## Widgets
+
+The design is the page "Dashboard · widget set (proposal)" of the design file (node `1686:339`).
+The Figma copies of `Widget`, `WidgetState` and `Chart/*` are local copies there, until the
+library "scylla :: ui" publishes its page Widget.
+
+- **The grid has 8 columns, or 2 columns below 768 px of its own width.** `WidgetGrid` is a
+  container (`@container`), and the classes use the container variant `@3xl:`, not the viewport.
+  The sidebar takes part of the screen, thus the viewport does not tell the room of the grid.
+- **The numbers are in `widget-size.ts`, in one place.** `WIDGET_GRID` gives the columns, the
+  row height and the gap of each layout: 98 px rows and 16 px gaps (wide), 80 px rows and 12 px
+  gaps (narrow). `WIDGET_SPANS` gives the cells of each size. The components read them through
+  CSS variables (`widgetGridStyle`, `widgetSpanStyle`) and the classes `col-span-(--…)`. Do not
+  write a span or a row height as a literal class.
+- **A widget places itself.** `Widget` sets its own span from its `size`. `grid-flow-row-dense`
+  fills a hole with a later small widget.
+- **A widget has a border and a faint fill**: `bg-muted/30`, no shadow. The fill parts the
+  widget from the page in the two themes. Do not use `bg-card`: in the light theme, `--card` is
+  the color of the page. Only the dashboard uses `Widget`, so the fill changes no other page.
+- **The header is one line of 20 px**: the icon, the title (an `h3`), `meta` and `aside` at the
+  end. `aside` holds a count, a state or actions. In the size `xs` the header is small (12 px
+  text), and the content is centered under it. `bare` keeps the header for the screen readers
+  only, for a content that shows its own title.
+- **The padding is 24 px (16 px on a phone), 12 × 20 px for `xs`.** The corners are 16 px.
+- **The size of a phone is not the size of the design for `l`.** The design draws `l` 370 px
+  high on a phone. Four rows of 80 px and three gaps give 356 px.
+- **`WidgetState` replaces the content, not the widget.** The header stays: the user still sees
+  which widget it is. Each state has a generic title and description; a widget gives its own
+  texts (`title`, `description`). The action (Retry, Choose data) does not show in the size
+  `xs`. `loading` is a `status` with a skeleton for each size.
+
+## Charts
+
+The `Chart*` parts are marks, not charts: the widget draws its chart with them.
+
+- **`ChartTone`** names a color: the states of a run (`passed`, `failed`, `running`, `queued`,
+  `canceled`, `skipped`) and `primary`, `info`, `warning`, `muted`. `chart-tone.ts` maps it to
+  the theme tokens. Do not give a mark a color class of its own.
+- **`ChartSegment` takes its size from the caller** (`class`): a bar, a part of a stacked bar,
+  the fill of a meter, a cell of a strip.
+- **`ChartDelta` does not compute.** The widget gives the text ("+3.4 pts"), the direction and
+  the tone. `deltaTrend(change, better)` gives the direction and the tone from a change.
+- **`ChartRing` holds at most 3 arcs** over a muted track. `ringArcs` (plain TypeScript, tested
+  in node) places them: a gap after each arc when there are several, a minimum length so that a
+  small part stays visible. The value in the middle is HTML over the SVG, not an SVG `text`.
+  `label` is the accessible name of the ring.
+
 ## `DataTable` on a phone
 
 Below `CARD_LAYOUT_WIDTH_PX` (640 px) of its **own** width, `DataTable` renders one card per row
@@ -243,8 +448,56 @@ icon (`newIcon`, `Plus` by default) with its label for screen readers only, and 
 selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of the screen
 (`data-part="feature-header-selection-bar"`). Without a selection there is no bar.
 
+## Destructive actions
+
+An action that deletes, removes, revokes, disables or deactivates something has one look in all
+the app: red, and the red comes from a variant.
+
+| Where | Use |
+|---|---|
+| A menu | `DropdownMenuItem variant="destructive"`. The destructive items are the last items, after a `DropdownMenuSeparator` |
+| A button that stands alone: in a header, a settings section, a `DangerZone`, the footer of a dialog | `Button variant="destructive"` |
+| An action on each row of a table or a list, or in a side panel | `IconButton variant="destructive"`, or `Button variant="ghost-destructive"` |
+| The confirmation | `ConfirmOperationAlertDialog`: its button is destructive |
+
+- Do not make an action red with a class (`text-destructive`, `hover:bg-destructive-subtle`).
+  Use the variant.
+- A control that removes a row or a value of a form that is not saved yet (an argument, a chip)
+  is not destructive.
+- `extensions/scylla-base/src/shell/__test__/destructive-actions.test.ts` reads the labels of the
+  actions of scylla-base. It fails when an action with a destructive label has no destructive
+  variant, when a class makes an action red, or when a destructive menu item is not at the end
+  after a separator.
+
 ## Rules that bite here
 
+- **All titles use one font, and `styles.css` sets it.** Its `@layer base` gives `font-display`
+  and `font-medium` to `h1` to `h6`, to `[role='heading']` and to `[data-slot='card-title']`, and
+  one size to each `h1` that is not in a card title. A utility replaces a rule of `@layer base`.
+  Thus a title has no font class and no weight class, and an `h1` has no size, `leading-*` or
+  `tracking-*` class. `layout/__test__/title-font.test.ts` fails when it has one. Text that is a
+  title is a heading element: a `p` with a large or bold class keeps Funnel Sans.
+- **A color class names a token of the theme** (`text-success`, `bg-info/5`), never a color of
+  the default palette of Tailwind (`text-green-500`, `bg-black`, `text-white`). A palette color
+  does not change with the theme. A new color is a new token in `styles.css`. The dim layer
+  behind a modal, a sheet or the tour is `bg-overlay/<opacity>`, and a line on it is
+  `overlay-foreground`: the two tokens are the same in the two themes.
+  `__test__/theme-colors.test.ts` fails when a class string of `apps`, `packages`, `sdks`,
+  `extensions` or `catalog` names a palette color.
+- **A choice card centers its control.** A radio, a checkbox or a switch in a `Label` (a card
+  with a title and a description, or a row) is centered vertically on the whole label, not on
+  the line of the title: `items-center` on the label, and no `items-start`, `items-baseline`,
+  `self-start` or top margin between the label and the control.
+  `extensions/scylla-base/src/shell/__test__/choice-cards.test.ts` fails when a label of
+  scylla-base or of `@scylla/ui` does not obey this rule. It also reads each class of these two
+  packages that places a control by a selector (`[role=checkbox]`, `data-slot=field-content`),
+  for example the variants of a `Field`, and fails when this class puts the control on the
+  first line.
+- **A card header centers its action.** `CardAction` is centered vertically on the title and
+  the description (`self-center`), not on the line of the title. `DangerZone` and the
+  `SettingsSection` of scylla-base put the action beside the text, or under it when the card is
+  too narrow for both (a phone): the header is `flex flex-wrap items-center`, and the text is a
+  block with `grow basis-64`.
 - **A denied `GatedButton` is `aria-disabled`, not `disabled`.** A `disabled` button cannot
   take the focus. Then a keyboard or screen reader user cannot get the reason, and a dialog
   cannot give the focus back to the button. The denied button stays focusable,
@@ -266,6 +519,25 @@ selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of 
   of that test, with the reason. `dialog-content.svelte` is the only one: it is `fixed` through
   `CENTERED_DIALOG_CLASS`. Do not add `relative` to it: `cn()` keeps the last position class,
   thus `relative` replaces `fixed`.
+- **A page that scrolls with the frame ends with `pb-20` on its root.** The `main` of
+  `PageTransition` is `absolute` and has the height of the view. A page that is taller goes out
+  of this `main`, and the padding of the frame does not go below an absolute box. Thus, without
+  its own padding, the last element of the page touches the bottom edge of the window. An
+  overlay of the shell (`shell.overlays`) can also float in the last 56 px of the view, at the
+  right: the Feedback launcher of the Enterprise build. 80 px holds this zone and a gap. A root
+  with `min-h-full` also gets `shrink-0`: else the flex column of the `main` shrinks it to the
+  height of the view, and the content goes out below its padding. A page that fills the view
+  (`h-full`, with its own scroll area: an editor, the logs, the list of jobs) does not get it,
+  because the padding takes height from its content. The frame cannot add this space for all
+  pages: a page with its own scroll area has the same content height as a page that is taller
+  than the view, thus only the page knows which of the two it is.
+- **The frame keeps the band of the overlays free below a page that fills the view.** A module
+  gives the height of this band in `shell.bottomInset` (the Feedback launcher: 56 px). The frame
+  sets it in `--shell-bottom-inset` on its scroll area (`0px` with no such overlay), and its
+  bottom padding is at least this value. Thus the last row of a page that fills the view (the
+  pagination of the jobs, the buttons of an editor) stays above the launcher. An element of a
+  page that is `fixed` to the bottom of the view adds `var(--shell-bottom-inset,0px)` to its
+  `bottom`, as the selection bar of `FeatureHeader` on a phone.
 - **Between a `sticky` element and its scroller, use `overflow-clip`, not `overflow-hidden`.**
   `overflow-hidden` makes a scroll container. The `sticky` element then sticks in that box,
   which does not scroll, and it moves away with the content. `overflow-clip` clips the same
@@ -280,9 +552,13 @@ selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of 
   that fills a box with `overflow-hidden`, use `focus-visible:ring-inset`.
 - **`selectionStore` is keyed by feature.** `createSelection('jobs')` and
   `createSelection('users')` are independent. Never add a second selection store.
-- It and `contextStore` (scylla-base, `@platform/context`) are the app's **only** two global UI
-  stores (`permissionsStore` in `@platform/authz` holds the permissions). Everything else is TanStack
-  Query (server state) or local `$state`.
+- It, `dialogHoldStore` and `contextStore` (scylla-base, `@platform/context`) are the app's **only**
+  global UI stores (`permissionsStore` in `@platform/authz` holds the permissions). Everything else
+  is TanStack Query (server state) or local `$state`.
+- **`dialogHoldStore`** has one field, `held`. While it is true, every `ScyllaDialog` keeps open on
+  Escape and on a click outside, hides its close button and each control with
+  `data-dialog-dismiss`, and stops its focus trap. A dialog that has a control that closes it (Cancel,
+  Close) marks that control with `data-dialog-dismiss`. The guided tour of scylla-base sets the store.
 - **Never put server state in a shared store.**
 - A component used by ≥ 2 features moves here and gets exported from its group barrel — when
   it passes the test above. A component used by one stays in that feature.
@@ -291,8 +567,9 @@ selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of 
 - Adding to `@scylla/ui` needs a second real usage. One usage stays inline.
 - `data-part` marks the inner parts of a composite that code outside may point at:
   `feature-header-new` and `feature-header-selection-bar` (`FeatureHeader`), `code-snippet-copy` (`CodeSnippet`),
-  `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`). The onboarding
-  tour of scylla-base uses only `feature-header-new`. Keep them; do not use `data-slot` for this, a primitive
+  `secret-reveal-secret` / `-next-step` / `-confirm` (`SecretRevealChecklist`), `data-table-row`
+  (`DataTable`, in a table and in cards). The onboarding tour of scylla-base uses
+  `feature-header-new` and `data-table-row`. Keep them; do not use `data-slot` for this, a primitive
   sets its own.
 
 ## Before done

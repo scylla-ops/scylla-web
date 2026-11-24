@@ -2,10 +2,11 @@
   import type { Snippet } from 'svelte';
   import type { HTMLButtonAttributes } from 'svelte/elements';
   import Button from '../button/button.svelte';
+  import type { ButtonVariant } from '../button/button-variants.ts';
 
-  type Props = HTMLButtonAttributes & { children?: Snippet };
+  type Props = HTMLButtonAttributes & { variant?: ButtonVariant; children?: Snippet };
 
-  let { class: className, children, ...rest }: Props = $props();
+  let { class: className, variant = 'default', children, ...rest }: Props = $props();
 </script>
 
 <!--
@@ -14,6 +15,6 @@
   and disabled while it runs (`ConfirmOperationAlertDialog`'s `isLoading`), so
   closing on click would dismiss the dialog mid-request. The parent owns `open`.
 -->
-<Button class={className} {...rest}>
+<Button {variant} class={className} {...rest}>
   {@render children?.()}
 </Button>

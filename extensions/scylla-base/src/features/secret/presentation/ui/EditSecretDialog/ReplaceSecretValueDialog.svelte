@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ListSkeleton } from '@scylla/ui';
   import { Permission, can } from '@platform/authz';
   import { createQuery } from '@scylla/core-sdk';
   import { secretQueries } from '@base/features/secret/presentation/secret.queries.ts';
@@ -65,7 +66,7 @@
           {/if}
         {/if}
       {:else if usageQuery.isLoading}
-        <p class="text-muted-foreground">{t(messages.loading)}</p>
+        <ListSkeleton rows={2} rowClass="h-5 w-2/3" />
       {/if}
     </div>
     <AlertDialogFooter>

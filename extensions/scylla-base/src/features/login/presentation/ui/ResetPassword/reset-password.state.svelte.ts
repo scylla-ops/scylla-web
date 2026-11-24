@@ -1,22 +1,9 @@
 import { createMutation, getModuleDomain } from '@scylla/core-sdk';
 import { refusalOf, type ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { LoginModule } from '@base/features/login/login.module.ts';
+import { takeFromFragment as takeTokenFromFragment } from '../../mappers/fragment-token.mapper.ts';
 
 export type ResetPasswordStep = 'form' | 'done' | 'invalid-link';
-
-/**
- * The token of the reset link, from the URL fragment (`#token=…`), which the server never
- * receives. The fragment leaves the address bar at once, so the token is not left in the
- * history or on the screen. `undefined` when the URL has no fragment; `null` for a fragment
- * with no token.
- */
-const takeTokenFromFragment = (): string | null | undefined => {
-  const { hash, pathname, search } = window.location;
-  if (!hash) return undefined;
-
-  history.replaceState(history.state, '', pathname + search);
-  return new URLSearchParams(hash.slice(1)).get('token') || null;
-};
 
 /** Construct it during component initialisation: `createMutation` needs an owner. */
 export class ResetPasswordState {

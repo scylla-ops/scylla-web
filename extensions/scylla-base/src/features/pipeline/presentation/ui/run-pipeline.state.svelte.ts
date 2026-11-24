@@ -1,12 +1,14 @@
-import { i18n } from '@lingui/core';
+import { i18n, type MessageDescriptor } from '@lingui/core';
 import { SvelteSet } from 'svelte/reactivity';
 import { Permission, can } from '@platform/authz';
 import { scyllaNavigate, contextStore } from '@platform/context';
 import { createMutation, createQuery } from '@scylla/core-sdk';
-import { agentQueries } from '@base/features/agents';
+import { appQueries } from '@base/features/apps';
 import { toRune } from '@scylla/ui/stores';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
+import type { PipelineRun } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import type { CommitRef } from '@base/features/pipeline/domain/structs/commit-ref.struct.ts';
 import { pipelineMutations } from '../pipeline.queries.ts';
 
 /**
@@ -15,24 +17,32 @@ import { pipelineMutations } from '../pipeline.queries.ts';
  */
 export const createRunPipeline = () => {
   const context = toRune(contextStore);
-  const organizationId = $derived(context().organization.id ?? '');
+  const workspaceId = $derived(context().workspace.id ?? '');
 
-  const canListAgents = $derived(can(Permission.LIST_AGENTS));
-  const agentsQuery = createQuery(() => agentQueries.byOrganization(organizationId));
+  const canListAgents = $derived(can(Permission.LIST_AGENTS, { workspaceId }));
+  const agentsQuery = createQuery(() => appQueries.runners(workspaceId));
   const runPipeline = createMutation(() => pipelineMutations.run());
 
   const inFlight = new SvelteSet<string>();
 
-  const announce = () => {
+  const warn = (message: MessageDescriptor) =>
+    toast.warning(i18n._(message), {
+      action: { label: 'Agents', onClick: () => scyllaNavigate.goToWorkspaceRoute('/agents') },
+    });
+
+  const announce = ({ needsContainer }: PipelineRun) => {
     if (!canListAgents) {
       toast.success(i18n._(ToastMessages.PIPELINE_RUN_CHECK_AGENTS));
       return;
     }
 
-    if (!(agentsQuery.data ?? []).some(agent => agent.connected)) {
-      toast.warning(i18n._(ToastMessages.PIPELINE_JOB_QUEUED_WARNING), {
-        action: { label: 'Agents', onClick: () => scyllaNavigate.goToOrgRoute('/agents') },
-      });
+    const connected = (agentsQuery.data ?? []).filter(agent => agent.connected);
+    if (connected.length === 0) {
+      warn(ToastMessages.PIPELINE_JOB_QUEUED_WARNING);
+      return;
+    }
+    if (needsContainer && !connected.some(agent => agent.host?.containerRuntime)) {
+      warn(ToastMessages.PIPELINE_NO_CONTAINER_RUNTIME);
       return;
     }
 
@@ -42,11 +52,11 @@ export const createRunPipeline = () => {
   return {
     isRunning: (pipelineId: string) => inFlight.has(pipelineId),
 
-    async run(pipelineId: string): Promise<void> {
+    /** No ref: an editor pipeline runs with no commit, a file pipeline at the head of the default branch. */
+    async run(pipelineId: string, ref?: CommitRef): Promise<void> {
       inFlight.add(pipelineId);
       try {
-        await runPipeline.mutateAsync(pipelineId);
-        announce();
+        announce(await runPipeline.mutateAsync({ pipelineId, ...(ref && { ref }) }));
       } catch {
         // The global mutation handler toasts the error.
       } finally {

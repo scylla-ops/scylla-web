@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { QueryClient } from '@tanstack/query-core';
-import { setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
+import { QueryClient, QueryObserver } from '@tanstack/query-core';
+import { getQueryClient, setDependencyRegistry, setQueryClient } from '@scylla/core-sdk';
 import { runMutationFn, runOnSuccess, runQueryFn } from '@test/queries.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
@@ -15,6 +15,7 @@ const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
   id: 'job-1',
   pipelineId: 'pipeline-1',
   status: 'completed',
+  nodes: [],
   nodeExecutions: [],
   createdAt: '2026-01-01T00:00:00.000Z',
   updatedAt: '2026-01-01T00:01:00.000Z',
@@ -33,8 +34,7 @@ const page = (items: JobEntity[], totalCount = items.length): PaginatedList<JobE
   },
 });
 
-const withData = <TData>(data: TData | undefined) =>
-  ({ state: { data } }) as never;
+const withData = <TData>(data: TData | undefined) => ({ state: { data } }) as never;
 
 let repository: JobsRepository;
 let invalidate: ReturnType<typeof vi.fn>;
@@ -42,11 +42,15 @@ let invalidate: ReturnType<typeof vi.fn>;
 beforeEach(() => {
   repository = {
     getByPipelineId: vi.fn().mockResolvedValue(page([job()])),
-    getByOrganizationId: vi.fn().mockResolvedValue(page([job()])),
+    getByWorkspaceId: vi.fn().mockResolvedValue(page([job()])),
+    getNewestByWorkspaceId: vi.fn().mockResolvedValue([job()]),
+    getStats: vi.fn().mockResolvedValue({ totals: {}, buckets: [], groups: [], previous: null }),
     getById: vi.fn().mockResolvedValue(job()),
     deleteById: vi.fn().mockResolvedValue(undefined),
     rerun: vi.fn().mockResolvedValue('job-2'),
-    getLogs: vi.fn(),
+    cancel: vi.fn().mockResolvedValue(undefined),
+    approve: vi.fn().mockResolvedValue(job({ status: 'pending' })),
+    reject: vi.fn().mockResolvedValue(job({ status: 'cancelled' })),
     tailLogs: vi.fn(),
   };
 
@@ -104,7 +108,18 @@ describe('jobQueries.byPipeline', () => {
 
   it('asks the repository for exactly the page it was given', async () => {
     await runQueryFn(jobQueries.byPipeline('pipeline-1', pagination));
-    expect(repository.getByPipelineId).toHaveBeenCalledWith('pipeline-1', pagination);
+    expect(repository.getByPipelineId).toHaveBeenCalledWith('pipeline-1', pagination, undefined);
+  });
+
+  it('asks for the jobs that match the filter, under a key of their own', async () => {
+    const filter = { branch: 'main', pullRequest: 51 };
+    const filtered = jobQueries.byPipeline('pipeline-1', pagination, { filter });
+
+    await runQueryFn(filtered);
+
+    expect(repository.getByPipelineId).toHaveBeenCalledWith('pipeline-1', pagination, filter);
+    expect(filtered.queryKey).not.toEqual(jobQueries.byPipeline('pipeline-1', pagination).queryKey);
+    expect(filtered.queryKey.slice(0, 3)).toEqual([...JOBS_QUERY_KEY('pipeline-1')]);
   });
 
   it('stays idle until the caller says the page size is known', () => {
@@ -125,29 +140,142 @@ describe('jobQueries.byPipeline', () => {
     expect(interval(withData(page([job({ status: 'pending' })])))).toBe(5000);
     expect(interval(withData(page([job({ status: 'completed' })])))).toBe(false);
   });
+
+  describe('while another page of the list loads', () => {
+    const observe = async (pipelineId: string, next: string, filter?: { branch: string }) => {
+      const observer = new QueryObserver<PaginatedList<JobEntity>>(
+        getQueryClient(),
+        jobQueries.byPipeline(pipelineId, { page: 1, pageSize: 8 }),
+      );
+      const stop = observer.subscribe(() => {});
+      await vi.waitFor(() => expect(observer.getCurrentResult().isSuccess).toBe(true));
+
+      vi.mocked(repository.getByPipelineId).mockReturnValue(new Promise(() => {}));
+      observer.setOptions(jobQueries.byPipeline(next, { page: 1, pageSize: 7 }, { filter }));
+      const { data } = observer.getCurrentResult();
+      stop();
+      return data;
+    };
+
+    it('keeps the rows: an empty list hides the banner, which changes the page size again', async () => {
+      expect((await observe('pipeline-1', 'pipeline-1'))?.items).toEqual([job()]);
+    });
+
+    it('does not show the rows of another filter', async () => {
+      expect(await observe('pipeline-1', 'pipeline-1', { branch: 'main' })).toBeUndefined();
+    });
+
+    it('does not show the rows of another pipeline', async () => {
+      expect(await observe('pipeline-1', 'pipeline-2')).toBeUndefined();
+    });
+  });
 });
 
-describe('jobQueries.byOrganization', () => {
+describe('jobQueries.byWorkspace', () => {
   it('reads one fixed window of recent runs', async () => {
-    await runQueryFn(jobQueries.byOrganization('org-1'));
-    expect(repository.getByOrganizationId).toHaveBeenCalledWith('org-1', {
+    await runQueryFn(jobQueries.byWorkspace('org-1'));
+    expect(repository.getByWorkspaceId).toHaveBeenCalledWith('org-1', {
       page: 1,
       pageSize: 100,
     });
   });
 
-  it('stays idle for a null organizationId', () => {
-    expect(jobQueries.byOrganization(null).enabled).toBe(false);
+  it('stays idle for a null workspaceId', () => {
+    expect(jobQueries.byWorkspace(null).enabled).toBe(false);
   });
 
-  it('stays idle when the caller disables it, valid organization or not', () => {
-    expect(jobQueries.byOrganization('org-1', false).enabled).toBe(false);
+  it('stays idle when the caller disables it, valid workspace or not', () => {
+    expect(jobQueries.byWorkspace('org-1', false).enabled).toBe(false);
+  });
+});
+
+describe('jobQueries.stats', () => {
+  const FROM = new Date('2026-11-03T23:00:00Z');
+
+  it('puts the name of the period in the key, and reads its instants when it runs', async () => {
+    const range = vi.fn(() => ({ from: FROM, to: null, bucket: 'day' as const }));
+    const options = jobQueries.stats(
+      'org-1',
+      { scope: ['14d', 'Europe/Paris'], range },
+      {
+        compare: true,
+      },
+    );
+
+    expect(options.queryKey).toEqual([
+      'jobs',
+      'workspace',
+      'org-1',
+      'stats',
+      '14d',
+      'Europe/Paris',
+      { compare: true },
+    ]);
+    expect(range).not.toHaveBeenCalled();
+
+    await runQueryFn(options);
+
+    expect(repository.getStats).toHaveBeenCalledWith({
+      workspaceId: 'org-1',
+      from: FROM,
+      to: null,
+      bucket: 'day',
+      compare: true,
+    });
+  });
+
+  it('sits under the jobs root, so that a run refreshes the figures', () => {
+    const options = jobQueries.stats('org-1', {
+      scope: ['7d'],
+      range: () => ({ from: FROM, to: null }),
+    });
+
+    expect(options.queryKey.slice(0, JOBS_QUERY_ROOT.length)).toEqual([...JOBS_QUERY_ROOT]);
+  });
+
+  it('stays idle with no workspace', () => {
+    expect(
+      jobQueries.stats(null, { scope: [], range: () => ({ from: FROM, to: null }) }).enabled,
+    ).toBe(false);
+  });
+});
+
+describe('jobQueries.newest', () => {
+  it('reads the jobs of the statuses, in the period when it has one', async () => {
+    const to = new Date('2026-11-10T00:00:00Z');
+    await runQueryFn(
+      jobQueries.newest(
+        'org-1',
+        { statuses: ['failed'], limit: 10 },
+        { period: { scope: ['custom'], range: () => ({ from: new Date(0), to }) } },
+      ),
+    );
+
+    expect(repository.getNewestByWorkspaceId).toHaveBeenCalledWith({
+      workspaceId: 'org-1',
+      statuses: ['failed'],
+      limit: 10,
+      createdAfter: new Date(0),
+      createdBefore: to,
+    });
+  });
+
+  it('reads all the jobs with no period', async () => {
+    await runQueryFn(jobQueries.newest('org-1', { statuses: ['running'], limit: 5 }));
+
+    expect(repository.getNewestByWorkspaceId).toHaveBeenCalledWith({
+      workspaceId: 'org-1',
+      statuses: ['running'],
+      limit: 5,
+    });
   });
 });
 
 describe('asJobFeed', () => {
   it('summarizes the window it was handed', () => {
-    const feed = asJobFeed(page([job({ status: 'completed' }), job({ id: 'job-2', status: 'failed' })]));
+    const feed = asJobFeed(
+      page([job({ status: 'completed' }), job({ id: 'job-2', status: 'failed' })]),
+    );
 
     expect(feed.jobs).toHaveLength(2);
     expect(feed.summary.completed).toBe(1);
@@ -205,5 +333,38 @@ describe('jobMutations.rerun', () => {
       '/projects/project-1/pipelines/pipeline-1/jobs/job-2',
     );
     navigator.restore();
+  });
+});
+
+describe('jobMutations.cancel', () => {
+  it("cancels by job id and refreshes the pipeline's list", async () => {
+    await runMutationFn(jobMutations.cancel('pipeline-1'), 'job-1');
+    expect(repository.cancel).toHaveBeenCalledWith('job-1');
+
+    runOnSuccess(jobMutations.cancel('pipeline-1'), undefined, 'job-1');
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: JOBS_QUERY_KEY('pipeline-1') });
+  });
+});
+
+describe('jobMutations.approve and reject', () => {
+  it('decide on the job by its id', async () => {
+    await expect(runMutationFn(jobMutations.approve('pipeline-1'), 'job-1')).resolves.toMatchObject(
+      { status: 'pending' },
+    );
+    await expect(runMutationFn(jobMutations.reject('pipeline-1'), 'job-1')).resolves.toMatchObject({
+      status: 'cancelled',
+    });
+
+    expect(repository.approve).toHaveBeenCalledWith('job-1');
+    expect(repository.reject).toHaveBeenCalledWith('job-1');
+  });
+
+  it("show the job of the answer at once, and refresh the pipeline's list", () => {
+    const approved = job({ status: 'pending' });
+
+    runOnSuccess(jobMutations.approve('pipeline-1'), approved, 'job-1');
+
+    expect(getQueryClient().getQueryData(JOB_QUERY_KEY('job-1'))).toEqual(approved);
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: JOBS_QUERY_KEY('pipeline-1') });
   });
 });

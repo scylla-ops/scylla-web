@@ -14,6 +14,7 @@
   };
 
   let {
+    value = $bindable(),
     class: className,
     variant = 'default',
     size = 'default',
@@ -28,6 +29,7 @@
 </script>
 
 <ToggleGroupPrimitive.Root
+  bind:value={value as never}
   data-slot="toggle-group"
   data-variant={variant}
   data-size={size}

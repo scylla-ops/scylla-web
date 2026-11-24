@@ -20,6 +20,10 @@ export const routeGuard = () => table?.guard;
 export const currentMatch = (): RouteMatch | null =>
   table && matchRoute(table.routes, location.pathname);
 
+/** A page answers this pathname, or a redirect that leads to one. */
+export const routeHasPage = (pathname: string): boolean =>
+  table !== null && matchRoute(table.routes, pathname) !== null;
+
 export const routeParams = (): RouteParams => currentMatch()?.params ?? {};
 
 export const routeTrail = (): TrailCrumb[] => {

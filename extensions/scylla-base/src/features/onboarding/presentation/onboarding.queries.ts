@@ -13,6 +13,8 @@ export const onboardingQueries = {
       queryKey: ONBOARDING_QUERY_KEY(userId),
       queryFn: () => repository().getStatus(userId),
       staleTime: Infinity,
+      retry: false,
+      meta: { showsOwnError: true },
     }),
 };
 

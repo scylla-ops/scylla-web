@@ -1,0 +1,388 @@
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
+import { screen, within } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { contextStore } from '@platform/context';
+import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
+import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
+import WorkspaceMembersPage from './WorkspaceMembers.page.svelte';
+
+const role = (overrides: Partial<MemberRoleEntity>): MemberRoleEntity => ({
+  scopeKind: 'workspace',
+  scopeId: 'org-1',
+  scopeName: 'Acme',
+  role: 'member',
+  roleKey: 'workspace-member',
+  roleName: 'Workspace member',
+  ...overrides,
+});
+
+const member = (id: string, name: string, roles: MemberRoleEntity[]): MemberEntity => ({
+  actorId: id,
+  actorKind: 'user',
+  displayName: name,
+  handle: name.toLowerCase(),
+  runner: false,
+  roles,
+});
+
+const ownerRole = role({
+  role: 'owner',
+  roleKey: 'owner',
+  roleName: 'Workspace owner',
+  grantedAt: new Date('2026-03-03'),
+});
+
+const tester = {
+  key: 'tester',
+  name: 'Tester',
+  description: '',
+  level: 'workspace',
+  holder: 'people',
+  grantName: 'tester',
+  builtin: false,
+  fullControl: false,
+  permissions: [],
+  holderCount: 0,
+};
+
+type RoleChange = (object: unknown, role: string) => Promise<void>;
+
+let listMembers: Mock<() => Promise<MemberEntity[]>>;
+let getAll: ReturnType<typeof vi.fn>;
+let grantRole: Mock<RoleChange>;
+let revokeRole: Mock<RoleChange>;
+let cache: ReturnType<typeof withQueryClient>;
+let restoreRegistry: () => void;
+
+const grant = (permissions: Permission[] | 'all') =>
+  permissionsStore.setState({
+    permissions: {
+      scopes: [
+        {
+          scope: PermissionScope.SYSTEM,
+          scopeId: '',
+          access:
+            permissions === 'all' ? { kind: 'fullControl' } : { kind: 'restricted', permissions },
+        },
+      ],
+    },
+  });
+
+beforeEach(() => {
+  listMembers = vi.fn<() => Promise<MemberEntity[]>>().mockResolvedValue([
+    member('user-1', 'Alice', [
+      ownerRole,
+    ]),
+    member('user-2', 'Bob', [
+      role({}),
+      role({
+        scopeKind: 'project',
+        scopeId: 'p-1',
+        scopeName: 'api',
+        role: 'editor',
+        roleKey: 'project-editor',
+        roleName: 'Project editor',
+      }),
+    ]),
+    {
+      ...member('app-1', 'deploy-bot', [role({ role: 'runner', roleKey: 'agent' })]),
+      actorKind: 'app',
+      runner: true,
+    },
+  ]);
+  getAll = vi.fn().mockResolvedValue({ items: [] });
+  grantRole = vi.fn<RoleChange>().mockResolvedValue(undefined);
+  revokeRole = vi.fn<RoleChange>().mockResolvedValue(undefined);
+
+  cache = withQueryClient();
+  restoreRegistry = withRegistry({
+    user: {
+      userRepository: {
+        getAll,
+        getMe: vi.fn().mockResolvedValue({ id: 'user-1', username: 'alice' }),
+      },
+    },
+    access: {
+      accessRepository: {
+        listMembers,
+        grant: grantRole,
+        revoke: revokeRole,
+        check: vi.fn().mockResolvedValue(new Set()),
+        heldPermissions: vi.fn().mockResolvedValue(new Set()),
+      },
+    },
+    roles: {
+      roleRepository: {
+        catalog: vi.fn().mockResolvedValue([]),
+        list: vi.fn().mockResolvedValue([tester]),
+      },
+    },
+  });
+
+  contextStore.setState({
+    workspace: { id: 'org-1', name: 'Acme', slug: 'acme' },
+    project: { id: null, name: null },
+  });
+  grant('all');
+});
+
+afterEach(() => {
+  cache.restore();
+  restoreRegistry();
+  permissionsStore.setState({ permissions: null });
+});
+
+describe('WorkspaceMembersPage', () => {
+  it('asks for a workspace rather than rendering an empty list', () => {
+    contextStore.setState({
+      workspace: { id: null, name: null, slug: null },
+      project: { id: null, name: null },
+    });
+
+    render(WorkspaceMembersPage);
+
+    expect(screen.getByText('Select a workspace to see its members.')).toBeInTheDocument();
+    expect(listMembers).not.toHaveBeenCalled();
+  });
+
+  it('shows the workspace roles and the project roles of each person', async () => {
+    render(WorkspaceMembersPage);
+
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+    expect(within(bob).getByText('Workspace member')).toBeInTheDocument();
+    expect(within(bob).getByText('api · Project editor')).toBeInTheDocument();
+  });
+
+  it('shows an owner as Project admin of all projects, with the date of the grant', async () => {
+    render(WorkspaceMembersPage);
+
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+    expect(within(alice).getByText('Workspace owner')).toBeInTheDocument();
+    expect(within(alice).getByText('All projects · Project admin')).toBeInTheDocument();
+    expect(within(alice).queryByText('—')).not.toBeInTheDocument();
+  });
+
+  it('shows the apps on their own tab', async () => {
+    render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
+    expect(screen.queryByText('deploy-bot')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Apps 1' }));
+
+    expect(await screen.findByText('deploy-bot')).toBeInTheDocument();
+    expect(screen.queryByText('Alice')).not.toBeInTheDocument();
+  });
+
+  it('names an agent as an agent, and marks the reader with You', async () => {
+    render(WorkspaceMembersPage);
+
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+    expect(await within(alice).findByText('You')).toBeInTheDocument();
+    const bob = screen.getByText('Bob').closest('tr') as HTMLElement;
+    expect(within(bob).queryByText('You')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('radio', { name: 'Apps 1' }));
+
+    const bot = (await screen.findByText('deploy-bot')).closest('td') as HTMLElement;
+    expect(within(bot).getByText('Agent')).toBeInTheDocument();
+  });
+
+  it('filters the list with the search', async () => {
+    render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
+
+    await userEvent.type(screen.getByRole('textbox', { name: 'Search members' }), 'bob');
+
+    expect(screen.getByText('Bob')).toBeInTheDocument();
+    expect(screen.queryByText('Alice')).not.toBeInTheDocument();
+  });
+
+  it('does not enumerate accounts without LIST_USERS', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS, Permission.MANAGE_WORKSPACE_GRANTS]);
+    render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
+
+    expect(getAll).not.toHaveBeenCalled();
+  });
+
+  it('offers to add members with an email also without LIST_USERS', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS, Permission.MANAGE_WORKSPACE_GRANTS]);
+    render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
+
+    expect(screen.getByRole('button', { name: 'Add members' })).toBeEnabled();
+  });
+
+  it('disables adding members without MANAGE_WORKSPACE_GRANTS', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS]);
+    render(WorkspaceMembersPage);
+    await screen.findByText('Alice');
+
+    expect(screen.getByRole('button', { name: 'Add members' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
+    );
+  });
+
+  it('says why the last owner stays, and asks the server nothing', async () => {
+    render(WorkspaceMembersPage);
+    const alice = (await screen.findByText('Alice')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(alice).getByRole('button', { name: 'Member actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Remove from the workspace'));
+
+    expect(await screen.findByText('You cannot remove Alice')).toBeInTheDocument();
+    expect(screen.getByText(/Alice is the last owner of Acme/)).toBeInTheDocument();
+  });
+
+  it('has no card of the owners', async () => {
+    render(WorkspaceMembersPage);
+
+    await screen.findByText('Alice');
+
+    expect(screen.queryByRole('heading', { name: 'Owners' })).not.toBeInTheDocument();
+  });
+
+  it('takes the role owner with the other roles of a person', async () => {
+    listMembers.mockResolvedValue([
+      member('user-1', 'Alice', [ownerRole]),
+      member('user-3', 'Carol', [ownerRole, role({})]),
+    ]);
+    render(WorkspaceMembersPage);
+    const carol = (await screen.findByText('Carol')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(carol).getByRole('button', { name: 'Member actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Remove from the workspace'));
+    await userEvent.click(await screen.findByRole('button', { name: 'Remove from the workspace' }));
+
+    const workspace = { kind: 'workspace', id: 'org-1' };
+    await vi.waitFor(() => expect(revokeRole).toHaveBeenCalledWith(workspace, 'owner', 'user-3'));
+    expect(revokeRole).toHaveBeenCalledWith(workspace, 'member', 'user-3');
+  });
+
+  it('keeps the role owner for a caller with no right on the owners', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS, Permission.MANAGE_WORKSPACE_GRANTS]);
+    listMembers.mockResolvedValue([
+      member('user-1', 'Alice', [ownerRole]),
+      member('user-3', 'Carol', [ownerRole, role({})]),
+    ]);
+    render(WorkspaceMembersPage);
+    const carol = (await screen.findByText('Carol')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(carol).getByRole('button', { name: 'Member actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Remove from the workspace'));
+    expect(await screen.findByText(/This role stays/)).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Remove from the workspace' }));
+
+    const workspace = { kind: 'workspace', id: 'org-1' };
+    await vi.waitFor(() => expect(revokeRole).toHaveBeenCalledWith(workspace, 'member', 'user-3'));
+    expect(revokeRole).not.toHaveBeenCalledWith(workspace, 'owner', 'user-3');
+  });
+
+  it('asks before it removes a person, and names the project roles that go', async () => {
+    render(WorkspaceMembersPage);
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(bob).getByRole('button', { name: 'Member actions' }));
+    await userEvent.click(await findFloating('menuitem', 'Remove from the workspace'));
+
+    expect(await screen.findByText('Remove Bob from Acme?')).toBeInTheDocument();
+    expect(screen.getByText('A project role needs a role in Acme')).toBeInTheDocument();
+  });
+
+  it('hides the actions on the roles from a reader', async () => {
+    grant([Permission.LIST_WORKSPACE_MEMBERS]);
+    render(WorkspaceMembersPage);
+    const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+
+    await userEvent.click(within(bob).getByRole('button', { name: 'Member actions' }));
+
+    expect(await findFloating('menuitem', 'See the access')).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Change roles', hidden: true })).not.toBeInTheDocument();
+  });
+
+  describe('the dialog of the roles', () => {
+    let bobRoles: MemberRoleEntity[];
+
+    const openDialog = async () => {
+      render(WorkspaceMembersPage);
+      const bob = (await screen.findByText('Bob')).closest('tr') as HTMLElement;
+      await userEvent.click(within(bob).getByRole('button', { name: 'Member actions' }));
+      await userEvent.click(await findFloating('menuitem', 'Change roles'));
+      return { bob, dialog: await screen.findByRole('dialog') };
+    };
+
+    beforeEach(() => {
+      bobRoles = [role({})];
+      listMembers.mockImplementation(() =>
+        Promise.resolve(bobRoles.length > 0 ? [member('user-2', 'Bob', bobRoles)] : []),
+      );
+      revokeRole.mockImplementation((_object, name) => {
+        bobRoles = bobRoles.filter(one => one.role !== name);
+        return Promise.resolve();
+      });
+      grantRole.mockImplementation((_object, name) => {
+        bobRoles = [...bobRoles, role({ role: name, roleKey: 'tester', roleName: 'Tester' })];
+        return Promise.resolve();
+      });
+    });
+
+    it('shows a new role at once, in the dialog and in the list', async () => {
+      const { bob, dialog } = await openDialog();
+
+      await userEvent.click(await within(dialog).findByRole('checkbox', { name: 'Tester' }));
+
+      await within(bob).findByText('Tester');
+      expect(within(dialog).getByRole('checkbox', { name: 'Tester' })).toBeChecked();
+    });
+
+    it('shows a removed role at once, when it is not the last one', async () => {
+      bobRoles = [role({}), role({ role: 'tester', roleKey: 'tester', roleName: 'Tester' })];
+      const { bob, dialog } = await openDialog();
+
+      await userEvent.click(await within(dialog).findByRole('checkbox', { name: 'Tester' }));
+
+      await vi.waitFor(() => expect(within(bob).queryByText('Tester')).not.toBeInTheDocument());
+      expect(within(dialog).getByRole('checkbox', { name: 'Tester' })).not.toBeChecked();
+    });
+
+    it('stays open with no role when the last role goes, and the list loses the person', async () => {
+      const { dialog } = await openDialog();
+
+      await userEvent.click(
+        await within(dialog).findByRole('checkbox', { name: 'Workspace member' }),
+      );
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Remove from Acme' }));
+
+      await vi.waitFor(() =>
+        expect(
+          within(dialog).queryByRole('checkbox', { name: 'Workspace member' }),
+        ).not.toBeInTheDocument(),
+      );
+      expect(screen.getByRole('dialog')).toHaveTextContent('Change the roles of Bob');
+      expect(screen.queryByRole('row', { name: /Bob/ })).not.toBeInTheDocument();
+    });
+
+    it('shows the project roles of the member as read only', async () => {
+      bobRoles = [
+        role({}),
+        role({
+          scopeKind: 'project',
+          scopeId: 'p-1',
+          scopeName: 'api',
+          role: 'editor',
+          roleKey: 'project-editor',
+          roleName: 'Project editor',
+        }),
+      ];
+      const { dialog } = await openDialog();
+
+      expect(await within(dialog).findByRole('button', { name: 'Change in api' })).toBeInTheDocument();
+      expect(within(dialog).getByText('Project editor')).toBeInTheDocument();
+      expect(
+        within(dialog).queryByRole('checkbox', { name: 'Project editor' }),
+      ).not.toBeInTheDocument();
+    });
+  });
+});

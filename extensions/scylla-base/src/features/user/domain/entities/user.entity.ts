@@ -1,17 +1,31 @@
-import type { AccessScope } from '@platform/authz';
 import type { PaginatedList } from '@scylla/ui/structs';
 
 export interface UserEntity {
   id: string;
-  /** A handle, unique across accounts, shown as `@username`. Never holds '@'. */
+  /** The handle, unique across accounts, shown as `@username`. Never holds '@'. Can be empty. */
   username: string;
   /** Absent only on an old account made without one. */
   email?: string;
   displayName?: string;
   /** False blocks the sign-in. */
   isActive: boolean;
+  /** An admin of the instance: it manages the users. */
+  instanceAdmin?: boolean;
+  /** On a row of the console of the users. */
+  instanceRoles?: UserInstanceRole[];
+  /** On a row of the console of the users: the names, in name order. */
+  workspaces?: string[];
+  /** On a row of the console of the users. */
+  lastSignInAt?: string;
   createdAt?: string;
+  /** The server gives no time of the last change: the creation time. */
   updatedAt: string;
+}
+
+export interface UserInstanceRole {
+  key: string;
+  name: string;
+  builtin: boolean;
 }
 
 /** What it takes to show a person. The member lists carry no more than this. */
@@ -19,33 +33,13 @@ export type UserSummary = Pick<UserEntity, 'id' | 'username' | 'email' | 'displa
 
 export type UserList = PaginatedList<UserEntity>;
 
-interface Grant {
-  grantId: string;
-  scope: AccessScope;
-  roleId: string;
-  roleName: string;
+/** A copy of the data of the own account, that the server makes at the request of its user. */
+export interface AccountDataExport {
+  /** One JSON document. It holds no secret: no password, no token. */
+  json: string;
+  /** The time of the copy, as an ISO text. */
+  exportedAt: string;
 }
-
-export interface SystemAccess extends Grant {
-  scope: 'system';
-}
-
-export interface OrganizationAccess extends Grant {
-  scope: 'organization';
-  organizationId: string;
-  organizationName: string;
-}
-
-export interface ProjectAccess extends Grant {
-  scope: 'project';
-  organizationId: string;
-  organizationName: string;
-  projectId: string;
-  projectName: string;
-}
-
-/** One grant of a user, with the names to show it. Each scope carries only the names it has. */
-export type UserAccess = SystemAccess | OrganizationAccess | ProjectAccess;
 
 export interface CreateUserInput {
   email: string;

@@ -26,20 +26,30 @@ export function registerCatalogs(loaders: CatalogLoaders): void {
   loadedLocales.clear();
 }
 
-async function loadCatalogs(locale: SupportedLocale): Promise<void> {
-  if (loadedLocales.has(locale)) return;
-
+/** The messages of all catalogs of a locale. It does not activate them. */
+export async function readCatalogs(locale: SupportedLocale): Promise<Messages> {
   const modules = await Promise.all(
     sources
       .flatMap(loaders => Object.entries(loaders))
       .filter(([path]) => LOCALE_FROM_PATH.exec(path)?.[1] === locale)
       .map(([, load]) => load()),
   );
+  return modules.reduce<Messages>((all, module) => Object.assign(all, module.messages), {});
+}
 
-  i18n.load(
-    locale,
-    modules.reduce<Messages>((all, module) => Object.assign(all, module.messages), {}),
-  );
+/** The plain text of a message in a catalog that `readCatalogs` gave. */
+export function plainMessage(catalog: Messages, id: string | undefined): string | undefined {
+  const message = id ? catalog[id] : undefined;
+  if (message === undefined) return undefined;
+  return typeof message === 'string'
+    ? message
+    : message.filter(part => typeof part === 'string').join('');
+}
+
+async function loadCatalogs(locale: SupportedLocale): Promise<void> {
+  if (loadedLocales.has(locale)) return;
+
+  i18n.load(locale, await readCatalogs(locale));
   loadedLocales.add(locale);
 }
 
@@ -47,6 +57,7 @@ function isSupportedLocale(locale: string | null | undefined): locale is Support
   return locale === 'en' || locale === 'fr';
 }
 
+/** The language that the person chose on this browser, else the language of the browser. */
 export function getStoredLocale(): SupportedLocale {
   if (typeof window === 'undefined') {
     return 'en';
@@ -61,13 +72,25 @@ export function getStoredLocale(): SupportedLocale {
   return browserLocale === 'fr' ? 'fr' : 'en';
 }
 
+/**
+ * Shows the page in a language. It writes nothing in the browser: the load of a page is not a
+ * choice of the person.
+ */
 export async function setAppLocale(locale: SupportedLocale): Promise<void> {
   await loadCatalogs(locale);
   i18n.activate(locale);
 
   if (typeof window !== 'undefined') {
-    window.localStorage.setItem(STORAGE_KEY, locale);
     document.documentElement.lang = locale;
+  }
+}
+
+/** The choice of the person: shows the page in this language and keeps it in the browser. */
+export async function chooseAppLocale(locale: SupportedLocale): Promise<void> {
+  await setAppLocale(locale);
+
+  if (typeof window !== 'undefined') {
+    window.localStorage.setItem(STORAGE_KEY, locale);
   }
 }
 
