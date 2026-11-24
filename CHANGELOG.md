@@ -28,6 +28,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   user menu opens What's new again.
 - The cookie page lists the key of the width of the side panel of the pipeline editor. Tables of
   legal pages wrap long text, and the table of contents marks no section at the top of the page.
+- The delete account dialog no longer asks for a password when the account has none.
 
 ## [0.7.0] - 2026-11-24
 

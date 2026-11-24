@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { createMutation } from '@scylla/core-sdk';
-  import { userMutations } from '@base/features/user/presentation/user.queries.ts';
+  import { createMutation, createQuery } from '@scylla/core-sdk';
+  import { myIdentityQueries, userMutations } from '@base/features/user/presentation/user.queries.ts';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
 
   interface Props {
@@ -9,6 +9,8 @@
   }
 
   let { open, onOpenChange }: Props = $props();
+
+  const signInMethods = createQuery(() => myIdentityQueries.signInMethods());
 
   // On success the mutation signs out: see `userMutations.deleteAccount`.
   const deletion = createMutation(() => userMutations.deleteAccount());
@@ -28,4 +30,5 @@
   refusal={deletion.data ?? undefined}
   onConfirm={password => deletion.mutate(password)}
   withExportLink={false}
+  hasPassword={signInMethods.data?.hasPassword ?? true}
 />
