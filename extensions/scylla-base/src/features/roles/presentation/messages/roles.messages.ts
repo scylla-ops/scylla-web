@@ -254,6 +254,8 @@ export const areaLabels: Record<string, { title: MessageDescriptor; hint: Messag
   apps: { title: msg`Apps`, hint: msg`Machine identities and their credentials` },
   agents: { title: msg`Agents`, hint: msg`Agents that run the jobs` },
   projects: { title: msg`Projects`, hint: msg`New projects in the workspace` },
+  dashboards: { title: msg`Dashboards`, hint: msg`Saved layouts of widgets, and the team default` },
+  library: { title: msg`Library`, hint: msg`Reusable pipeline fragments of the workspace` },
   integrations: { title: msg`Integrations`, hint: msg`Connections to GitHub and GitLab` },
   job_execution: { title: msg`Job execution`, hint: msg`Run takes a job. Edit reports its state` },
   project: { title: msg`Project`, hint: msg`Name and settings` },
