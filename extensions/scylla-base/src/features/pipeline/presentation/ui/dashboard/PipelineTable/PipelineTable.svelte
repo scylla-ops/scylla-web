@@ -55,6 +55,7 @@
     history={historyByPipelineId.get(pipeline.id)}
     count={capacity.count}
     note={originNote(pipeline.origin, runRequest.link?.defaultBranch)}
+    onOpen={canListJobs ? () => scyllaNavigate.goToJobs(pipeline.id, pipeline.name) : undefined}
   />
 {/snippet}
 

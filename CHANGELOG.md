@@ -14,6 +14,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 - The Secrets page shows a clear empty state. The Library search and tab texts say "workspace". The
   GitLab self-managed choice no longer wraps. The tour prompt shows the same step count as Help.
+- Pipeline names are links to the jobs. List headers line up with their columns. Job IDs show the
+  end of the ID. Long workspace lists in Admin users end with an ellipsis.
 
 ## [0.7.0] - 2026-11-24
 
