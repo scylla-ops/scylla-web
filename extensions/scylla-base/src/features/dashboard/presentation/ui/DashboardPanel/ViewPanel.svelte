@@ -303,7 +303,9 @@
       </Popover>
       {#if period.timeZone}
         <p class="px-2 pt-1 text-[11px] text-muted-foreground">
-          {t(messages.timesIn(period.timeZone, utcOffsetLabel(period.timeZone, new Date())))}
+          {period.timeZone === 'UTC'
+            ? t(messages.timesInUtc)
+            : t(messages.timesIn(period.timeZone, utcOffsetLabel(period.timeZone, new Date())))}
         </p>
       {/if}
     </div>

@@ -13,7 +13,7 @@ import {
 } from './job-path.presenter.ts';
 
 /** The node of the graph: a row with its state and its id, then a row for each named port. */
-export const JOB_NODE = { width: 176, height: 36, portRow: 16 } as const;
+export const JOB_NODE = { width: 208, height: 36, portRow: 16 } as const;
 const COLUMN_GAP = 56;
 const ROW_GAP = 20;
 
