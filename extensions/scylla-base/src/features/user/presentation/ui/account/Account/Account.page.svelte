@@ -98,6 +98,7 @@
       isPending={page.isDeletingAccount}
       refusal={page.deleteRefusal}
       onConfirm={page.deleteAccount}
+      hasPassword={page.hasPassword}
     />
   </div>
 {/if}

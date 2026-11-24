@@ -86,7 +86,7 @@
           <TableHeader>
             <TableRow>
               {#each block.head as cell, column (column)}
-                <TableHead class={alignClass(block.align[column])}>{@render inline(cell)}</TableHead>
+                <TableHead class={['whitespace-normal [overflow-wrap:anywhere]', alignClass(block.align[column])]}>{@render inline(cell)}</TableHead>
               {/each}
             </TableRow>
           </TableHeader>
@@ -94,7 +94,7 @@
             {#each block.rows as row, rowIndex (rowIndex)}
               <TableRow>
                 {#each row as cell, column (column)}
-                  <TableCell class={['whitespace-normal', alignClass(block.align[column])]}>
+                  <TableCell class={['whitespace-normal [overflow-wrap:anywhere]', alignClass(block.align[column])]}>
                     {@render inline(cell)}
                   </TableCell>
                 {/each}

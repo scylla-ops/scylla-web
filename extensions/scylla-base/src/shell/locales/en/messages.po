@@ -57,11 +57,11 @@ msgstr "A new job starts now."
 msgid "A new look"
 msgstr "A new look"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:6
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:7
 msgid "Access"
 msgstr "Access"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:23
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:24
 msgid "Account"
 msgstr "Account"
 
@@ -93,11 +93,11 @@ msgstr "An inbox"
 msgid "App"
 msgstr "App"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:27
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
 msgid "Back"
 msgstr "Back"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:9
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
 msgid "Back to {name}"
 msgstr "Back to {name}"
 
@@ -121,11 +121,11 @@ msgstr "Connect a repository to a project, run a pipeline from a file of the rep
 msgid "Connect an agent in three steps. An app takes a token, a CI identity or a key pair, and shows its last use."
 msgstr "Connect an agent in three steps. An app takes a token, a CI identity or a key pair, and shows its last use."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:22
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:23
 msgid "Create"
 msgstr "Create"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:11
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:12
 msgid "Create a workspace"
 msgstr "Create a workspace"
 
@@ -197,19 +197,19 @@ msgstr "Go to the role {name}."
 msgid "Go to the secrets page, at {name}. The value stays hidden."
 msgstr "Go to the secrets page, at {name}. The value stays hidden."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:37
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:38
 msgid "Got it"
 msgstr "Got it"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
 msgid "Help"
 msgstr "Help"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:16
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
 msgid "Help & tours"
 msgstr "Help & tours"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:36
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:37
 msgid "Here is what landed in this version."
 msgstr "Here is what landed in this version."
 
@@ -221,15 +221,15 @@ msgstr "In {name}"
 msgid "In this project"
 msgstr "In this project"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:7
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:8
 msgid "Instance"
 msgstr "Instance"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:8
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:9
 msgid "Instance administration"
 msgstr "Instance administration"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:13
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
 msgid "Language"
 msgstr "Language"
 
@@ -241,7 +241,7 @@ msgstr "Machines"
 msgid "Member"
 msgstr "Member"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:34
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:35
 msgid "New"
 msgstr "New"
 
@@ -253,11 +253,11 @@ msgstr "New tab"
 msgid "No exact match. Close results:"
 msgstr "No exact match. Close results:"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
 msgid "Nothing matches this search."
 msgstr "Nothing matches this search."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:24
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:25
 msgid "Notifications"
 msgstr "Notifications"
 
@@ -269,7 +269,7 @@ msgstr "Now using: {name}"
 msgid "On this pipeline"
 msgstr "On this pipeline"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:33
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:34
 msgid "Open Scylla"
 msgstr "Open Scylla"
 
@@ -281,7 +281,7 @@ msgstr "Open the form: {name}. Nothing changes until you submit it."
 msgid "Page"
 msgstr "Page"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:31
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:32
 msgid "Page not found"
 msgstr "Page not found"
 
@@ -314,7 +314,7 @@ msgid "Press Ctrl K to find a page, a project, a pipeline, an agent or a person,
 msgstr "Press Ctrl K to find a page, a project, a pipeline, an agent or a person, even with a typing error. It also runs a pipeline and changes the theme."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:23
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:5
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:6
 msgid "Project"
 msgstr "Project"
 
@@ -366,15 +366,15 @@ msgstr "Run…"
 msgid "Save a group of nodes as a fragment, then use it in each pipeline of the workspace. A new version is proposed, never forced."
 msgstr "Save a group of nodes as a fragment, then use it in each pipeline of the workspace. A new version is proposed, never forced."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:38
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:39
 msgid "Scylla: open the dashboard"
 msgstr "Scylla: open the dashboard"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:14
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:15
 msgid "Search"
 msgstr "Search"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:17
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:18
 msgid "Search pages, actions, projects…"
 msgstr "Search pages, actions, projects…"
 
@@ -386,19 +386,23 @@ msgstr "Secret"
 msgid "Secrets"
 msgstr "Secrets"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:10
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:11
 msgid "Select Workspace"
 msgstr "Select Workspace"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:4
+msgid "Service unavailable, we'll be right back."
+msgstr "Service unavailable, we'll be right back."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:57
 msgid "Show all the results in {group}."
 msgstr "Show all the results in {group}."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:25
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:26
 msgid "Sign out"
 msgstr "Sign out"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:26
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:27
 msgid "Signed in as {name}"
 msgstr "Signed in as {name}"
 
@@ -422,7 +426,7 @@ msgstr "The If, Switch and Merge nodes choose the next nodes from a value or the
 msgid "The marketplace"
 msgstr "The marketplace"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:28
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:29
 msgid "The server does not answer"
 msgstr "The server does not answer"
 
@@ -430,15 +434,15 @@ msgstr "The server does not answer"
 msgid "These lists could not be read: {lists}."
 msgstr "These lists could not be read: {lists}."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:32
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:33
 msgid "This address has no page. The link can be old or wrong."
 msgstr "This address has no page. The link can be old or wrong."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
 msgid "To get started, please create your first workspace."
 msgstr "To get started, please create your first workspace."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:30
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:31
 msgid "Try again"
 msgstr "Try again"
 
@@ -470,29 +474,33 @@ msgstr "Use"
 msgid "Use {name}. Now: {now}. This device only."
 msgstr "Use {name}. Now: {now}. This device only."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:20
 msgid "Welcome to Scylla!"
 msgstr "Welcome to Scylla!"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:36
+msgid "What's new"
+msgstr "What's new"
+
 #. placeholder {0}: String(version)
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:35
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:36
 msgid "What's new in Scylla {0}"
 msgstr "What's new in Scylla {0}"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:30
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:4
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:5
 msgid "Workspace"
 msgstr "Workspace"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:17
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:12
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:13
 msgid "Workspaces"
 msgstr "Workspaces"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:22
 msgid "You are not a member of a workspace yet. Ask an administrator to add you."
 msgstr "You are not a member of a workspace yet. Ask an administrator to add you."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:29
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:30
 msgid "You are still signed in. This page tries again by itself."
 msgstr "You are still signed in. This page tries again by itself."

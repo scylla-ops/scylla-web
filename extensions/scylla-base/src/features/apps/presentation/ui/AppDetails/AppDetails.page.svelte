@@ -7,6 +7,7 @@
   import { Skeleton } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
+  import { setAppCrumbName } from '@base/features/apps/presentation/app-crumb.state.svelte.ts';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import {
     credentialRows,
@@ -39,6 +40,10 @@
   const enable = createMutation(() => appMutations.enable());
 
   const app = $derived(details.data?.app);
+  $effect(() => {
+    setAppCrumbName(app?.name || undefined);
+    return () => setAppCrumbName(undefined);
+  });
   const rows = $derived(
     credentialRows(tokens.data ?? [], identities.data ?? [], details.data?.keys ?? [], new Date()),
   );

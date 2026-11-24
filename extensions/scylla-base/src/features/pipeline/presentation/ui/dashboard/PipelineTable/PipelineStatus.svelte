@@ -32,9 +32,11 @@
     count: number;
     /** The state of the file of a file pipeline, or why the pipeline is read only. */
     note?: RowNote | null;
+    /** Makes the name a link. A click on it opens the pipeline and does not select the row. */
+    onOpen?: () => void;
   }
 
-  let { pipeline, history, count, note }: Props = $props();
+  let { pipeline, history, count, note, onOpen }: Props = $props();
 
   const lastJob = $derived(history?.jobs[0]);
   const isRunning = $derived(lastJob?.status === 'running');
@@ -62,7 +64,20 @@
       {#snippet child({ props })}
         <div {...props} class="flex w-39 min-w-0 flex-col items-start gap-0.5 text-left">
           <div class="flex h-5 max-w-full min-w-0 items-center gap-1.5">
-            <span class="min-w-0 truncate font-semibold text-foreground">{pipeline.name}</span>
+            {#if onOpen}
+              <button
+                type="button"
+                class="min-w-0 cursor-pointer truncate text-left font-semibold text-foreground hover:underline"
+                onclick={event => {
+                  event.stopPropagation();
+                  onOpen();
+                }}
+              >
+                {pipeline.name}
+              </button>
+            {:else}
+              <span class="min-w-0 truncate font-semibold text-foreground">{pipeline.name}</span>
+            {/if}
             {#if note}
               <Tooltip>
                 <TooltipTrigger>

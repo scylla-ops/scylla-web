@@ -141,7 +141,8 @@
   The blueprint mounts with its document: a graph built before would keep the places of an empty one.
 -->
 <Tabs value="blueprint" class="flex h-full flex-col gap-4">
-  <div class="flex w-full items-center justify-between gap-4">
+  <!-- A container: a narrow editor puts the name on a row of its own (`PipelineEditorHeader`). -->
+  <div class="@container flex w-full items-center justify-between gap-4">
     <PipelineEditorHeader
       onSubmit={handleSubmit}
       {submitLabel}

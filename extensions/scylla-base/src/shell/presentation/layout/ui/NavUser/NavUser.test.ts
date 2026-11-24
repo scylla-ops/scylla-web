@@ -180,6 +180,7 @@ describe('NavUser', () => {
     expect(choices.map(choice => choice.textContent.trim())).toEqual([
       'Account',
       'Help & tours',
+      "What's new",
       'Sign out',
       'English',
       'Français',

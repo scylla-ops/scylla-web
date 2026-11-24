@@ -94,7 +94,7 @@ describe('FragmentLibraryPage', () => {
     await screen.findByRole('link', { name: 'rust-ci' });
 
     await userEvent.type(
-      screen.getByRole('searchbox', { name: 'Search the acme library' }),
+      screen.getByRole('searchbox', { name: 'Search the library' }),
       'docker',
     );
     expect(cardNames()).toEqual(['docker-publish']);

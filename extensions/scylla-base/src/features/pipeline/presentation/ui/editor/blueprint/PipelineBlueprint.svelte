@@ -4,6 +4,7 @@
   import { createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { ResizableHandle, ResizablePane, ResizablePaneGroup } from '@scylla/ui/primitives';
+  import { createCompactContainer } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import {
     latestVersion,
@@ -71,6 +72,11 @@
     sidePanel,
   }: Props = $props();
 
+  /** Narrower than this, the side panel goes under the canvas: beside it, its rows do not fit. */
+  const STACK_BELOW_PX = 640;
+  const width = createCompactContainer(STACK_BELOW_PX);
+  const stacked = $derived(width.isCompact);
+
   /** The panes have their sizes: the canvas mounts at its final width, and fits only once. */
   let laidOut = $state(false);
   /** The view is fitted: from now on, a change of the panes is animated. */
@@ -129,65 +135,72 @@
   });
 </script>
 
-<!-- The provider lets the canvas convert screen points to the graph's. -->
+<!--
+  The provider lets the canvas convert screen points to the graph's. The side panel is right of the
+  canvas, or under it in a narrow blueprint (`stacked`, measured on the blueprint, not the viewport).
+-->
+<!-- Paneforge saves the size of the panels in `paneforge:scylla.blueprint.side-panel` (tracker registry). -->
 <SvelteFlowProvider>
-  <ResizablePaneGroup
-    direction="horizontal"
-    autoSaveId="scylla.blueprint.side-panel"
-    onLayoutChange={() => {
-      laidOut = true;
-    }}
-    class={cn('overflow-hidden', !ready && '[&>[data-pane]]:transition-none')}
-  >
-    <!-- A container: a notice sits beside the toolbar of the canvas only when both fit. -->
-    <ResizablePane id="blueprint-canvas" order={1} class="@container relative">
-      {#if laidOut}
-        <BlueprintCanvas
+  <div class="h-full" {@attach width.measure}>
+    <ResizablePaneGroup
+      direction={stacked ? 'vertical' : 'horizontal'}
+      autoSaveId="scylla.blueprint.side-panel"
+      onLayoutChange={() => {
+        laidOut = true;
+      }}
+      class={cn('overflow-hidden', !ready && '[&>[data-pane]]:transition-none')}
+    >
+      <!-- A container: a notice sits beside the toolbar of the canvas only when both fit. -->
+      <ResizablePane id="blueprint-canvas" order={1} class="@container relative">
+        {#if laidOut}
+          <BlueprintCanvas
+            {blueprint}
+            {appearance}
+            {quickAdd}
+            {drag}
+            {entries}
+            {dimmed}
+            fragmentOf={library.fragmentOf}
+            onAddFragment={(fragment, placement) => library.add(fragment, placement)}
+            onReady={() => {
+              ready = true;
+              onReady?.();
+            }}
+          />
+        {/if}
+        {#if notice}
+          {@render notice()}
+        {:else if blueprint.repeated}
+          <p
+            role="alert"
+            class="absolute inset-x-4 top-4 z-10 rounded-md border border-destructive/40 bg-card px-3 py-2 text-sm text-destructive shadow-xs"
+          >
+            {t(pipelineMessages.repeatedHint)}
+          </p>
+        {:else if proposal}
+          {@const { blockId, fragment, version } = proposal}
+          <UpdateNotice {fragment} {version} onReview={() => blueprint.inspect(blockId)} />
+        {/if}
+      </ResizablePane>
+      <ResizableHandle />
+      {#if sidePanel}
+        {@render sidePanel()}
+      {:else}
+        <BlueprintSidePanel
           {blueprint}
-          {appearance}
-          {quickAdd}
-          {drag}
           {entries}
-          {dimmed}
-          fragmentOf={library.fragmentOf}
-          onAddFragment={(fragment, placement) => library.add(fragment, placement)}
-          onReady={() => {
-            ready = true;
-            onReady?.();
-          }}
+          {library}
+          {linkable}
+          {projectId}
+          {drag}
+          {stacked}
+          onSaveSelection={saveSelection}
+          onSaveNode={saveNodes && (node => saveNodes([node]))}
+          onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
         />
       {/if}
-      {#if notice}
-        {@render notice()}
-      {:else if blueprint.repeated}
-        <p
-          role="alert"
-          class="absolute inset-x-4 top-4 z-10 rounded-md border border-destructive/40 bg-card px-3 py-2 text-sm text-destructive shadow-xs"
-        >
-          {t(pipelineMessages.repeatedHint)}
-        </p>
-      {:else if proposal}
-        {@const { blockId, fragment, version } = proposal}
-        <UpdateNotice {fragment} {version} onReview={() => blueprint.inspect(blockId)} />
-      {/if}
-    </ResizablePane>
-    <ResizableHandle />
-    {#if sidePanel}
-      {@render sidePanel()}
-    {:else}
-      <BlueprintSidePanel
-        {blueprint}
-        {entries}
-        {library}
-        {linkable}
-        {projectId}
-        {drag}
-        onSaveSelection={saveSelection}
-        onSaveNode={saveNodes && (node => saveNodes([node]))}
-        onAdd={entry => blueprint.inspect(blueprint.addNode(entry.nodeId, entry.definition))}
-      />
-    {/if}
-  </ResizablePaneGroup>
+    </ResizablePaneGroup>
+  </div>
   <PaletteDragGhost {drag} />
   {#if saving}
     <SaveFragmentDialog

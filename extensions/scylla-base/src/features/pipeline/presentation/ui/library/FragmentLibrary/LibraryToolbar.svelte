@@ -39,7 +39,7 @@
     value={library.query}
     oninput={event => (library.query = event.currentTarget.value)}
     placeholder={t(libraryMessages.searchFragments)}
-    aria-label={t(libraryMessages.searchLibrary(library.workspaceName))}
+    aria-label={t(libraryMessages.searchLibrary)}
     class="w-64 bg-background"
   />
   <Select

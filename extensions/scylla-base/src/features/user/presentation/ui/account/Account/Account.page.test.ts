@@ -77,6 +77,7 @@ const setUp = (
     listSessions: vi.fn().mockResolvedValue(sessions),
     revokeSession: vi.fn().mockResolvedValue(undefined),
     deleteAccount: vi.fn().mockResolvedValue(undefined),
+    listSignInMethods: vi.fn().mockResolvedValue({ identities: [], hasPassword: true }),
     ...overrides,
   };
   const cache = withQueryClient();
@@ -312,6 +313,40 @@ describe('AccountPage', () => {
         'current-password',
       );
       expect(screen.getByLabelText('New password')).toHaveAttribute('autocomplete', 'new-password');
+    });
+
+    it('sets a first password with no current password, for an account made with a provider', async () => {
+      let hasPassword = false;
+      setUp('security', {
+        listSignInMethods: vi.fn(() => Promise.resolve({ identities: [], hasPassword })),
+        changePassword: vi.fn(() => {
+          hasPassword = true;
+          return Promise.resolve();
+        }),
+      });
+      const user = userEvent.setup();
+
+      await user.type(await screen.findByLabelText('New password'), 'new-password');
+      expect(screen.queryByLabelText('Current password')).not.toBeInTheDocument();
+      expect(
+        within(section('Password')).getByText(
+          'You sign in with a provider. Set a password to also sign in with your email. This signs out your other sessions.',
+        ),
+      ).toBeInTheDocument();
+      await user.type(screen.getByLabelText('Confirm password'), 'new-password');
+      await user.click(screen.getByRole('button', { name: 'Set a password' }));
+
+      await waitFor(() =>
+        expect(repository.changePassword).toHaveBeenCalledWith('', 'new-password'),
+      );
+      await waitFor(() =>
+        expect(toast.success).toHaveBeenCalledWith(
+          'Password set. Your other sessions are signed out.',
+        ),
+      );
+      // The account has a password now: a next change needs it.
+      expect(await screen.findByLabelText('Current password')).toHaveValue('');
+      expect(screen.getByRole('button', { name: 'Change the password' })).toBeInTheDocument();
     });
   });
 

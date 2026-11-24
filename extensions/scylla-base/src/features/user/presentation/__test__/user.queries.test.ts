@@ -7,6 +7,7 @@ import type * as Login from '@base/features/login';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import {
   ME_QUERY_KEY,
+  SIGN_IN_METHODS_OF_USER_QUERY_KEY,
   USERS_QUERY_KEY,
   USER_QUERY_KEY,
   USER_SESSIONS_QUERY_KEY,
@@ -234,6 +235,30 @@ describe('userMutations.changePassword', () => {
         newPassword: 'new-password',
       }),
     ).rejects.toBeInstanceOf(ScyllaError);
+  });
+
+  it('refreshes the ways to sign in, since a first password is a new one', async () => {
+    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+
+    runOnSuccess(userMutations.changePassword(), null, {
+      currentPassword: '',
+      newPassword: 'new-password',
+    });
+
+    await vi.waitFor(() =>
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: SIGN_IN_METHODS_OF_USER_QUERY_KEY() }),
+    );
+  });
+
+  it('refreshes nothing after a refusal', () => {
+    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+
+    runOnSuccess(userMutations.changePassword(), 'Current password is incorrect', {
+      currentPassword: 'wrong',
+      newPassword: 'new-password',
+    });
+
+    expect(invalidate).not.toHaveBeenCalled();
   });
 });
 

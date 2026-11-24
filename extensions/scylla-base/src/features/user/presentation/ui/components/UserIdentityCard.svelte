@@ -29,7 +29,9 @@
       {/if}
     </div>
     <div class="flex flex-wrap justify-center gap-2">
-      <Badge variant="outline">@{user.username}</Badge>
+      {#if user.username}
+        <Badge variant="outline">@{user.username}</Badge>
+      {/if}
       {@render badges?.()}
     </div>
     {#if footer}

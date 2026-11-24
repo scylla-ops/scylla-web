@@ -41,7 +41,7 @@
   };
 
   const nodeTypes: NodeTypes = { pipelineNode: PipelineNode };
-  const FIT_VIEW_OPTIONS = { padding: 0.2, maxZoom: 1 };
+  const FIT_VIEW_OPTIONS = { padding: 0.08, maxZoom: 1 };
 
   // The nodes of the editor: nothing is detached, and an edge takes no new node.
   setBlueprintCanvas({

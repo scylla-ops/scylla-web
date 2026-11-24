@@ -28,6 +28,17 @@ describe('DeleteAccountDialog', () => {
     expect(onConfirm).toHaveBeenCalledWith('my-password');
   });
 
+  it('asks for no password when the account has none, and still confirms', async () => {
+    const onConfirm = vi.fn();
+    render(DeleteAccountDialog, { ...base, onConfirm, hasPassword: false });
+    await focusSettled();
+
+    expect(screen.queryByLabelText('Password')).not.toBeInTheDocument();
+    await userEvent.click(await screen.findByRole('button', { name: 'Delete my account' }));
+
+    expect(onConfirm).toHaveBeenCalledWith('');
+  });
+
   it('shows the refusal of the server', async () => {
     render(DeleteAccountDialog, { ...base, refusal: 'Wrong password' });
 

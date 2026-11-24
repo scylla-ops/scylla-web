@@ -11,6 +11,7 @@
   import { appStateOf } from '@base/features/apps/domain/entities/app.entity.ts';
   import { hasNoActiveKey } from '@base/features/apps/domain/structs/agent-list.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
+  import { setAppCrumbName } from '@base/features/apps/presentation/app-crumb.state.svelte.ts';
   import AgentHeader from './AgentHeader.svelte';
   import AgentStatsRow from './AgentStatsRow.svelte';
   import AgentTimeline from './AgentTimeline/AgentTimeline.svelte';
@@ -49,6 +50,10 @@
   const enable = createMutation(() => appMutations.enable());
 
   const agent = $derived(details.data?.app);
+  $effect(() => {
+    setAppCrumbName(agent?.name || undefined);
+    return () => setAppCrumbName(undefined);
+  });
   const never = $derived(!!agent && appStateOf(agent) === 'never' && !agent.disabledAt);
 
   const userId = localStorage.getItem('userId') ?? '';

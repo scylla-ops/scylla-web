@@ -30,7 +30,7 @@ export const jobColumns = (
     cell: ({ row }) => renderSnippet(cells.status, row.original),
     size: 150,
     minSize: 140,
-    meta: { card: 'title' },
+    meta: { card: 'title', align: 'left' },
   },
   {
     accessorKey: 'id',
@@ -38,7 +38,7 @@ export const jobColumns = (
     cell: ({ row }) => renderSnippet(cells.id, row.original),
     size: 180,
     minSize: 160,
-    meta: { card: 'title' },
+    meta: { card: 'title', align: 'left' },
   },
   ...(withSource
     ? [

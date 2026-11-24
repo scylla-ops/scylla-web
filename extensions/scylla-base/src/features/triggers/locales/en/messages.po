@@ -443,8 +443,8 @@ msgid "next"
 msgstr "next"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:21
-msgid "next scheduled run (Local time)"
-msgstr "next scheduled run (Local time)"
+msgid "next scheduled run (local time)"
+msgstr "next scheduled run (local time)"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:74
 msgid "No condition: each delivery starts a run."

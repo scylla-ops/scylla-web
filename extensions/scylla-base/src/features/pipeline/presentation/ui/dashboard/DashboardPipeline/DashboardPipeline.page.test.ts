@@ -349,8 +349,21 @@ describe('DashboardPipelinePage', () => {
   it('selects a pipeline when the user clicks its row', async () => {
     setUp(() => Promise.resolve(page(pipelines)));
 
-    await userEvent.click(await screen.findByText('release'));
+    const name = await screen.findByText('release');
+    await userEvent.click(name.closest('[data-part="data-table-row"]') as HTMLElement);
 
     expect(selectionStore.getState().selectedIds.pipelines).toEqual(['pipeline-2']);
+  });
+
+  it('opens the jobs of a pipeline without selecting it when the user clicks its name', async () => {
+    setUp(() => Promise.resolve(page(pipelines)));
+
+    await userEvent.click(await screen.findByRole('button', { name: 'release' }));
+
+    expect(selectionStore.getState().selectedIds.pipelines ?? []).toEqual([]);
+    expect(navigator.navigate).toHaveBeenCalledWith(
+      '/acme/projects/project-1/pipelines/pipeline-2/jobs',
+      undefined,
+    );
   });
 });

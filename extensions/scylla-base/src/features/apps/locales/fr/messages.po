@@ -271,7 +271,7 @@ msgstr "Ajouté sans accès"
 msgid "Admins of {workspace} can create apps. Ask an admin for the role \"App creator\"."
 msgstr "Les admins de {workspace} peuvent créer des apps. Demandez à un admin le rôle « Créateur d'apps »."
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:31
+#: extensions/scylla-base/src/features/apps/apps.module.ts:32
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:4
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:38
 msgid "Agent"
@@ -285,8 +285,8 @@ msgstr "Agent supprimé"
 msgid "Agent version"
 msgstr "Version de l'agent"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:73
-#: extensions/scylla-base/src/features/apps/apps.module.ts:77
+#: extensions/scylla-base/src/features/apps/apps.module.ts:74
+#: extensions/scylla-base/src/features/apps/apps.module.ts:78
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:5
 msgid "Agents"
 msgstr "Agents"
@@ -340,7 +340,7 @@ msgstr "Token d'API"
 msgid "API tokens expire after 7, 30 or 90 days, or 1 year. A warning shows 14 days before the end. A CI identity and a key pair have no secret to expire."
 msgstr "Les tokens d'API expirent après 7, 30 ou 90 jours, ou 1 an. Un avertissement apparaît 14 jours avant la fin. Une identité CI et une paire de clés n'ont pas de secret qui expire."
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:57
+#: extensions/scylla-base/src/features/apps/apps.module.ts:58
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:4
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:12
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:4
@@ -351,12 +351,12 @@ msgstr "App"
 msgid "App deleted"
 msgstr "App supprimée"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:93
+#: extensions/scylla-base/src/features/apps/apps.module.ts:94
 msgid "application"
 msgstr "application"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:88
-#: extensions/scylla-base/src/features/apps/apps.module.ts:92
+#: extensions/scylla-base/src/features/apps/apps.module.ts:89
+#: extensions/scylla-base/src/features/apps/apps.module.ts:93
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:5
 msgid "Apps"
 msgstr "Apps"
@@ -553,11 +553,6 @@ msgstr "Supprimer cet agent"
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:43
 msgid "Delete this app"
 msgstr "Supprimer cette app"
-
-#: extensions/scylla-base/src/features/apps/apps.module.ts:31
-#: extensions/scylla-base/src/features/apps/apps.module.ts:57
-msgid "Detail"
-msgstr "Détail"
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:12
 msgid "Details"
@@ -916,7 +911,7 @@ msgstr "Machine"
 msgid "Machine identities of your team: a CI, a script or a server that calls the Scylla API."
 msgstr "Les identités machine de votre équipe : une CI, un script ou un serveur qui appelle l'API Scylla."
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:25
+#: extensions/scylla-base/src/features/apps/apps.module.ts:26
 msgid "Machines"
 msgstr "Machines"
 
@@ -985,8 +980,8 @@ msgstr "Jamais connecté"
 msgid "Never used"
 msgstr "Jamais utilisée"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:41
-#: extensions/scylla-base/src/features/apps/apps.module.ts:49
+#: extensions/scylla-base/src/features/apps/apps.module.ts:42
+#: extensions/scylla-base/src/features/apps/apps.module.ts:50
 #: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:20
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:4
 msgid "New agent"
@@ -1275,7 +1270,7 @@ msgstr "Lancez cette commande sur la machine."
 msgid "Run your first agent"
 msgstr "Lancez votre premier agent"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:78
+#: extensions/scylla-base/src/features/apps/apps.module.ts:79
 msgid "runner machine"
 msgstr "runner machine"
 

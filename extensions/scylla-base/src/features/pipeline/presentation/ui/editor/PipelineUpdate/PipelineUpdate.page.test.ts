@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { flushSync } from 'svelte';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { holdsLeave } from '@scylla/core-sdk';
@@ -123,6 +124,43 @@ describe('PipelineUpdatePage', () => {
     expect(isInert(palette)).toBe(true);
     expect(isInert(canvas)).toBe(true);
     expect(document.querySelector('[data-slot="canvas-curtain"]')).toBeInTheDocument();
+  });
+
+  it('puts the side panel under the canvas in a narrow blueprint, and right of it in a wide one', async () => {
+    type Notify = (entries: Array<{ contentRect: { width: number } }>) => void;
+    const observed: Array<{ element: Element; notify: Notify }> = [];
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        readonly #notify: Notify;
+        constructor(notify: Notify) {
+          this.#notify = notify;
+        }
+        observe = (element: Element) => observed.push({ element, notify: this.#notify });
+        unobserve = vi.fn();
+        disconnect = vi.fn();
+      },
+    );
+    renderPage(() => Promise.resolve(loaded));
+    const separator = () => screen.getByRole('separator', { name: 'Resize panel' });
+    /** The blueprint measures the box around its panes, not the viewport. */
+    const resizeBlueprint = (width: number) => {
+      const blueprint = separator().closest('[data-pane-group]')?.parentElement;
+      for (const { element, notify } of observed) {
+        if (element === blueprint) notify([{ contentRect: { width } }]);
+      }
+      flushSync();
+    };
+
+    expect(await screen.findByText('Add a node')).toBeInTheDocument();
+    expect(separator()).toHaveAttribute('data-direction', 'horizontal');
+
+    resizeBlueprint(390);
+    expect(separator()).toHaveAttribute('data-direction', 'vertical');
+    expect(screen.getByText('Add a node')).toBeInTheDocument();
+
+    resizeBlueprint(1280);
+    expect(separator()).toHaveAttribute('data-direction', 'horizontal');
   });
 
   it('keeps Export inert for a saved pipeline with a merge, and says why', async () => {

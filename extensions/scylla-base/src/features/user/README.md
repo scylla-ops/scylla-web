@@ -46,7 +46,8 @@ on the own account with no grant, so this page carries no permission. It exists 
 addresses: `/:org/account` inside the frame of an workspace, and `/account` with a plain
 layout, for a user who has no workspace yet (an account that an administrator made, a new
 sign-up) and must still change the password or delete the account. The two pages look alike
-but are separate on purpose: the own account changes the password with the current one, cannot
+but are separate on purpose: the own account changes the password with the current one (or
+sets a first one, when it signs in with a provider only), cannot
 change its email or deactivate itself, and deletes itself with its password. The page of a user
 sends the own id to the account page.
 

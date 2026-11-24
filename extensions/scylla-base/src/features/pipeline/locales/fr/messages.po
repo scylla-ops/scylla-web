@@ -549,7 +549,7 @@ msgstr "Copier le nœud"
 msgid "Couldn't load the pipeline"
 msgstr "Impossible de charger la pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:74
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:75
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:43
 msgid "Create"
 msgstr "Créer"
@@ -655,10 +655,6 @@ msgstr "Détachés de la bibliothèque : {blocks}. Leurs nœuds ont été modif
 msgid "Detaching breaks the link: future versions will no longer be proposed."
 msgstr "Détacher rompt le lien : les prochaines versions ne seront plus proposées."
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:58
-msgid "Detail"
-msgstr "Détail"
-
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:42
 msgid "Detailed"
 msgstr "Détaillé"
@@ -739,7 +735,7 @@ msgstr "chaque branche"
 msgid "each tag"
 msgstr "chaque tag"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:83
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:84
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:21
 msgid "Edit"
 msgstr "Modifier"
@@ -884,7 +880,7 @@ msgstr "Forké depuis {reference}"
 msgid "Forks"
 msgstr "Forks"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:58
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:59
 msgid "Fragment"
 msgstr "Fragment"
 
@@ -1009,7 +1005,7 @@ msgstr "n'est pas égal à"
 msgid "It is public: other workspaces link it. Deprecate its versions instead."
 msgstr "Il est public : d'autres espaces de travail le lient. Dépréciez plutôt ses versions."
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:102
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:103
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -1061,8 +1057,8 @@ msgstr "Valeur de gauche"
 msgid "LFS"
 msgstr "LFS"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:51
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:53
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:52
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:54
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:5
 msgid "Library"
 msgstr "Bibliothèque"
@@ -1364,12 +1360,6 @@ msgstr "Ouvrir le port de chaque cas qui correspond"
 msgid "Open to the side"
 msgstr "Ouvrir à côté"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:27
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:16
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:81
-msgid "Organization"
-msgstr "Organisation"
-
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:94
 msgid "Organizations"
 msgstr "Organisations"
@@ -1398,8 +1388,8 @@ msgstr "réussis"
 msgid "pins {key}={value}"
 msgstr "fixe {key}={value}"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:81
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:92
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:82
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:93
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:8
 msgid "Pipeline"
 msgstr "Pipeline"
@@ -1416,7 +1406,7 @@ msgstr "Fichier de pipeline"
 msgid "Pipeline name"
 msgstr "Nom de la pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:69
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:70
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:9
 msgid "Pipelines"
 msgstr "Pipelines"
@@ -1691,8 +1681,8 @@ msgid "Search pipelines…"
 msgstr "Rechercher des pipelines…"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:9
-msgid "Search the {workspace} library"
-msgstr "Rechercher dans la bibliothèque {workspace}"
+msgid "Search the library"
+msgstr "Rechercher dans la bibliothèque"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:55
 msgid "secret"
@@ -2206,6 +2196,12 @@ msgstr "Ce qui change pour une pipeline qui bascule."
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:31
 msgid "Working directory"
 msgstr "Répertoire de travail"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:27
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:16
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:81
+msgid "Workspace"
+msgstr "Espace de travail"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:11
 msgid "You don't have permission to create pipelines."

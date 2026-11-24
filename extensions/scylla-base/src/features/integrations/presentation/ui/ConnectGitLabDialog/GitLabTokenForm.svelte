@@ -60,10 +60,10 @@
           <RadioGroupItem value="self-managed" disabled />
           <ProviderTile provider="gitlab" class="opacity-60" />
           <span class="flex min-w-0 grow flex-col">
-            <span class="text-sm font-medium">{t(messages.selfManaged)}</span>
+            <span class="text-sm font-medium whitespace-nowrap">{t(messages.selfManaged)}</span>
             <span class="text-xs">{t(messages.selfManagedHost)}</span>
           </span>
-          <Badge variant="secondary">{t(messages.later)}</Badge>
+          <Badge variant="secondary" class="shrink-0">{t(messages.later)}</Badge>
         </Label>
       </RadioGroup>
     </fieldset>

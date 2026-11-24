@@ -22,11 +22,6 @@
 
   const NEEDS_POLL_MS = 500;
 
-  const steps = $derived.by(() => {
-    const index = tour.steps.findIndex(step => step.id === tour.offer?.step);
-    return tour.steps.length - Math.max(index, 0);
-  });
-
   let found = $state(false);
 
   $effect(() => {
@@ -65,7 +60,7 @@
         <span
           class="shrink-0 rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-semibold tabular-nums text-primary"
         >
-          {t(m.tourLengthShort(steps, tour.minutes))}
+          {t(m.tourLengthShort(tour.steps.length, tour.minutes))}
         </span>
       </div>
     </div>

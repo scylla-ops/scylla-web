@@ -92,19 +92,25 @@
   );
 </script>
 
-<div class="flex w-full items-center justify-between gap-3">
+<!--
+  One row. Narrower than `2xl` (the editor is the container), the name takes a row of its own, and
+  the tabs and the actions go on the row below it.
+-->
+<div class="flex w-full flex-wrap items-center justify-between gap-3">
   <!-- The name comes first, at the very left: a long name grows to the right, the tabs follow it. -->
-  <div class="flex min-w-0 flex-1 items-center gap-3">
+  <div class="flex min-w-0 flex-1 items-center gap-3 @max-2xl:contents">
     <!-- An invalid script has no name to edit: `blueprintDisabled` says so. -->
-    {#key pipelineName}
-      <PipelineNameField
-        name={pipelineName}
-        {onNameChange}
-        onDraftChange={onNameDraft}
-        loading={missing === 'loading'}
-        disabled={blueprintDisabled || missing === 'failed'}
-      />
-    {/key}
+    <div class="min-w-0 @max-2xl:basis-full">
+      {#key pipelineName}
+        <PipelineNameField
+          name={pipelineName}
+          {onNameChange}
+          onDraftChange={onNameDraft}
+          loading={missing === 'loading'}
+          disabled={blueprintDisabled || missing === 'failed'}
+        />
+      {/key}
+    </div>
 
     <TabsList class="shrink-0">
       <TabsTrigger value="scripting" disabled={!!missing}>
@@ -116,7 +122,7 @@
     </TabsList>
   </div>
 
-  <div class="flex shrink-0 items-center gap-3">
+  <div class="flex shrink-0 items-center gap-3 @max-2xl:ml-auto @max-2xl:min-w-0 @max-2xl:shrink">
     {#if missing}
       <!-- No status for a document that is not here. -->
     {:else if issue}

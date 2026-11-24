@@ -2304,6 +2304,10 @@ msgid "Timeline"
 msgstr "Chronologie"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:12
+msgid "Times in UTC"
+msgstr "Heures en UTC"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:12
 msgid "Times in {timeZone} ({offset})"
 msgstr "Heures en {timeZone} ({offset})"
 

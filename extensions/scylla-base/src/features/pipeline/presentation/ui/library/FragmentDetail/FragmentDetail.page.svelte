@@ -18,6 +18,7 @@
   import PublishDialog from './PublishDialog.svelte';
   import SourceNotice from './SourceNotice.svelte';
   import UpstreamUpdateCard from './UpstreamUpdateCard.svelte';
+  import { setFragmentCrumbName } from '@base/features/pipeline/presentation/fragment-crumb.state.svelte.ts';
   import { createFragmentDetail } from './fragment-detail.state.svelte.ts';
   import { createFragmentEdit } from './fragment-edit.state.svelte.ts';
 
@@ -29,6 +30,10 @@
 
   const detail = createFragmentDetail(() => fragmentId ?? '');
   const fragment = $derived(detail.fragment);
+  $effect(() => {
+    setFragmentCrumbName(fragment?.name || undefined);
+    return () => setFragmentCrumbName(undefined);
+  });
   const latest = $derived(fragment && latestVersion(fragment));
   const source = $derived(fragment?.source);
   const edit = createFragmentEdit({
