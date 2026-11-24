@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { ListSkeleton } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { AccountPage } from './account-page.state.svelte.ts';
@@ -34,16 +35,23 @@
 
 <SettingsSection
   title={t(userMessages.password)}
-  description={t(userMessages.passwordDescription)}
+  description={t(
+    page.hasPassword ? userMessages.passwordDescription : userMessages.firstPasswordDescription,
+  )}
   actionBar
 >
-  {#key page.passwordForm}
-    <ChangePasswordForm
-      isPending={page.isChangingPassword}
-      refusal={page.passwordRefusal}
-      onSubmit={page.changePassword}
-    />
-  {/key}
+  {#if !page.passwordKnown}
+    <ListSkeleton rows={2} rowClass="h-16 w-full" class="pb-6" />
+  {:else}
+    {#key page.passwordForm}
+      <ChangePasswordForm
+        hasPassword={page.hasPassword}
+        isPending={page.isChangingPassword}
+        refusal={page.passwordRefusal}
+        onSubmit={page.changePassword}
+      />
+    {/key}
+  {/if}
 </SettingsSection>
 
 <SettingsSection title={t(userMessages.sessions)} description={t(userMessages.sessionsDescription)}>

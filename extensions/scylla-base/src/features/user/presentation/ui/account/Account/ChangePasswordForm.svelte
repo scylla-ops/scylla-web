@@ -9,24 +9,30 @@
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
 
   interface Props {
+    /** False: the account has no password yet, so the form sets a first one. */
+    hasPassword: boolean;
     isPending: boolean;
     /** The message of the server, under the current password. */
     refusal?: string;
     onSubmit: (currentPassword: string, newPassword: string) => void;
   }
 
-  let { isPending, refusal, onSubmit }: Props = $props();
+  let { hasPassword, isPending, refusal, onSubmit }: Props = $props();
 
   type Ids = 'currentPassword' | 'newPassword' | 'confirmPassword';
 
   const items: readonly FormItem<Ids>[] = $derived([
-    {
-      id: 'currentPassword',
-      label: t(userMessages.currentPassword),
-      type: FormItemType.Input,
-      inputType: 'password',
-      autocomplete: 'current-password',
-    },
+    ...(hasPassword
+      ? [
+          {
+            id: 'currentPassword' as const,
+            label: t(userMessages.currentPassword),
+            type: FormItemType.Input as const,
+            inputType: 'password' as const,
+            autocomplete: 'current-password' as const,
+          },
+        ]
+      : []),
     {
       id: 'newPassword',
       label: t(userMessages.newPassword),
@@ -50,13 +56,13 @@
   {items}
   {isPending}
   autofocus={false}
-  errors={{ currentPassword: refusal }}
-  onSubmit={values => onSubmit(values.currentPassword, values.newPassword)}
+  errors={hasPassword ? { currentPassword: refusal } : { newPassword: refusal }}
+  onSubmit={values => onSubmit(values.currentPassword ?? '', values.newPassword)}
 >
   {#snippet footer({ isValid, isPending: pending })}
     <div data-slot="form-actions" class="flex justify-end">
       <Button type="submit" disabled={!isValid || pending}>
-        {t(userMessages.changePassword)}
+        {t(hasPassword ? userMessages.changePassword : userMessages.setPassword)}
       </Button>
     </div>
   {/snippet}

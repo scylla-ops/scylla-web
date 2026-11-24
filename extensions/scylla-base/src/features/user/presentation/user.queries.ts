@@ -129,7 +129,10 @@ export const userMutations = {
       onSuccess: user => Promise.all([invalidateUser(user.id), invalidateSessions(user.id)]),
     }),
 
-  /** The refusal of a wrong current password: the page shows it under the field, as data. */
+  /**
+   * The refusal of a wrong current password: the page shows it under the field, as data. A first
+   * password is a new way to sign in.
+   */
   changePassword: () =>
     mutationOptions({
       mutationFn: async ({
@@ -139,6 +142,10 @@ export const userMutations = {
         currentPassword: string;
         newPassword: string;
       }) => refusalOf(repository().changePassword(currentPassword, newPassword)),
+      onSuccess: refusal =>
+        refusal === null
+          ? getQueryClient().invalidateQueries({ queryKey: SIGN_IN_METHODS_OF_USER_QUERY_KEY() })
+          : undefined,
     }),
 
   sendPasswordReset: () =>

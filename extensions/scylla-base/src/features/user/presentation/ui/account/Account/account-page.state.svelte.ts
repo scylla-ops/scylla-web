@@ -6,7 +6,11 @@ import {
   type ProfileValues,
 } from '@base/features/user/presentation/presenters/profile-form.presenter.ts';
 import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
-import { userMutations, userQueries } from '@base/features/user/presentation/user.queries.ts';
+import {
+  myIdentityQueries,
+  userMutations,
+  userQueries,
+} from '@base/features/user/presentation/user.queries.ts';
 
 /**
  * The account of the session: its own profile, password, sessions, grants and deletion. Every
@@ -16,6 +20,9 @@ export const createAccountPage = () => {
   const meQuery = createQuery(() => userQueries.me());
   const me = $derived(meQuery.data);
   const sessionsQuery = createQuery(() => userQueries.sessions(me?.id));
+  const signInMethods = createQuery(() => myIdentityQueries.signInMethods());
+  // An account made with a provider has no password: its first one needs no current password.
+  const hasPassword = $derived(signInMethods.data?.hasPassword ?? true);
   const systemRole = $derived(me?.instanceAdmin ? i18n._(userMessages.instanceAdmin) : undefined);
 
   const profileUpdate = createMutation(() => userMutations.update());
@@ -52,6 +59,13 @@ export const createAccountPage = () => {
     get passwordForm() {
       return passwordForm;
     },
+    /** False until the server tells if the account has a password. */
+    get passwordKnown() {
+      return !signInMethods.isPending;
+    },
+    get hasPassword() {
+      return hasPassword;
+    },
     get isChangingPassword() {
       return passwordChange.isPending;
     },
@@ -59,17 +73,19 @@ export const createAccountPage = () => {
     get passwordRefusal() {
       return passwordChange.data ?? undefined;
     },
-    changePassword: (currentPassword: string, newPassword: string) =>
+    changePassword: (currentPassword: string, newPassword: string) => {
+      const done = hasPassword ? userMessages.passwordChanged : userMessages.passwordSet;
       passwordChange.mutate(
         { currentPassword, newPassword },
         {
           onSuccess: refusal => {
             if (refusal !== null) return;
-            toast.success(i18n._(userMessages.passwordChanged));
+            toast.success(i18n._(done));
             passwordForm += 1;
           },
         },
-      ),
+      );
+    },
 
     get sessions() {
       return sessionsQuery.data;
