@@ -53,9 +53,11 @@ nodes:
     script: |
       set -eu
       . /usr/local/lib/scylla-ci/env.sh
-      # The coverage thresholds apply to the pushes of main and of the version branches.
+      # The coverage thresholds apply to the pushes of main and of the version branches. The
+      # coverage makes the tests slower, and the whole suite runs on one agent: the CPU-heavy
+      # tests (the command bar on the real labels) need more than the default 5 s.
       if [ "${SCYLLA_EVENT:-}" = pull_request ]; then
         pnpm exec vitest run --maxWorkers=3 --reporter=dot
       else
-        pnpm exec vitest run --maxWorkers=3 --reporter=dot --coverage
+        pnpm exec vitest run --maxWorkers=3 --reporter=dot --coverage --testTimeout=30000
       fi
