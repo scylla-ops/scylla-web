@@ -128,7 +128,10 @@ export const libraryMessages = {
   deleteAction: msg`Delete fragment`,
   deleteUnused: msg`No pipeline uses it. Its versions are lost.`,
   deleteUsed: (count: number) =>
-    msg`${plural(count, { one: '# pipeline uses it', other: '# pipelines use it' })}: they keep its nodes and still run, but they no longer get its versions. Its versions are lost.`,
+    msg`${plural(count, {
+      one: '# pipeline uses it: it keeps its nodes and still runs, but it no longer gets its versions.',
+      other: '# pipelines use it: they keep its nodes and still run, but they no longer get its versions.',
+    })} Its versions are lost.`,
   deletePublic: msg`It is public: other workspaces link it. Deprecate its versions instead.`,
   deleteConfirmTitle: (name: string) => msg`Delete ${name}?`,
   deletedTitle: msg`Fragment deleted`,

@@ -15,7 +15,7 @@ msgstr ""
 msgid "[skip ci] skipped"
 msgstr "[skip ci] ignoré"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:137
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:140
 msgid "{count, plural, =0 {no pipeline} one {# pipeline} other {# pipelines}}"
 msgstr "{count, plural, =0 {aucune pipeline} one {# pipeline} other {# pipelines}}"
 
@@ -48,7 +48,7 @@ msgid "{count, plural, one {# pins {key}={value} and keeps it: {names}.} other {
 msgstr "{count, plural, one {# fixe {key}={value} et le garde : {names}.} other {# fixent {key}={value} et le gardent : {names}.}}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:131
-msgid "{count, plural, one {# pipeline uses it} other {# pipelines use it}}: they keep its nodes and still run, but they no longer get its versions. Its versions are lost."
+msgid "{count, plural, one {# pipeline uses it: it keeps its nodes and still runs, but it no longer gets its versions.} other {# pipelines use it: they keep its nodes and still run, but they no longer get its versions.}} Its versions are lost."
 msgstr "{count, plural, one {# pipeline l'utilise : elle garde ses nœuds et s'exécute toujours, mais ne reçoit plus ses versions.} other {# pipelines l'utilisent : elles gardent ses nœuds et s'exécutent toujours, mais ne reçoivent plus ses versions.}} Ses versions sont perdues."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:35
@@ -63,7 +63,7 @@ msgstr "{count, plural, one {# secret} other {# secrets}}"
 msgid "{count, plural, one {# variable} other {# variables}}"
 msgstr "{count, plural, one {# variable} other {# variables}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:141
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:144
 msgid "{count, plural, one {+ # more} other {+ # more}}"
 msgstr "{count, plural, one {+ # autre} other {+ # autres}}"
 
@@ -570,7 +570,7 @@ msgstr "Créé"
 msgid "default"
 msgstr "par défaut"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:143
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:146
 msgid "Default"
 msgstr "Par défaut"
 
@@ -582,7 +582,7 @@ msgstr "Valeur par défaut"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:133
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:136
 msgid "Delete {name}?"
 msgstr "Supprimer {name} ?"
 
@@ -635,7 +635,7 @@ msgid "Describe {keys}: other organizations only see the description."
 msgstr "Décrivez {keys} : les autres organisations ne voient que la description."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:71
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:144
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:147
 msgid "Description"
 msgstr "Description"
 
@@ -888,7 +888,7 @@ msgstr "Forks"
 msgid "Fragment"
 msgstr "Fragment"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:134
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:137
 msgid "Fragment deleted"
 msgstr "Fragment supprimé"
 
@@ -1005,7 +1005,7 @@ msgstr "n'est pas vide"
 msgid "is not equal to"
 msgstr "n'est pas égal à"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:132
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:135
 msgid "It is public: other workspaces link it. Deprecate its versions instead."
 msgstr "Il est public : d'autres espaces de travail le lient. Dépréciez plutôt ses versions."
 
@@ -1157,7 +1157,7 @@ msgstr "Monter le cas {port}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:29
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:63
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:142
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:145
 msgid "Name"
 msgstr "Nom"
 
@@ -1234,7 +1234,7 @@ msgstr "Aucune organisation ne l'utilise encore."
 msgid "No pipeline found"
 msgstr "Aucune pipeline trouvée"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:140
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:143
 msgid "No pipeline links this fragment yet."
 msgstr "Aucune pipeline n'utilise encore ce fragment."
 
@@ -1328,7 +1328,7 @@ msgstr "Seuls les admins de {workspace} acceptent ou ignorent une version upstre
 msgid "Only the admins of the workspace accept or skip an upstream version."
 msgstr "Seuls les admins de l'espace de travail acceptent ou ignorent une version upstream."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:139
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:142
 msgid "Only the author ({author}) and the admins can publish a new version. Change the nodes in the graph above, or save nodes of a pipeline under the name of this fragment."
 msgstr "Seuls l'auteur ({author}) et les admins peuvent publier une nouvelle version. Modifiez les nœuds dans le graphe ci-dessus, ou enregistrez des nœuds d'une pipeline sous le nom de ce fragment."
 
@@ -1876,7 +1876,7 @@ msgstr "Le fichier contient la version enregistrée. Enregistrez la pipeline pou
 msgid "The fragment stays in the library, and the other pipelines keep it."
 msgstr "Le fragment reste dans la bibliothèque, et les autres pipelines le gardent."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:146
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:149
 msgid "The library could not be loaded."
 msgstr "La bibliothèque n'a pas pu être chargée."
 
@@ -1972,7 +1972,7 @@ msgstr "Ce fragment n'est plus dans la bibliothèque."
 msgid "This fragment is not in the library of this workspace."
 msgstr "Ce fragment n'est pas dans la bibliothèque de ce workspace."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:145
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:148
 msgid "This fragment is not in the library."
 msgstr "Ce fragment n'est pas dans la bibliothèque."
 
@@ -2151,7 +2151,7 @@ msgstr "Éditeur vérifié"
 msgid "Version"
 msgstr "Version"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:135
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:138
 msgid "Versions"
 msgstr "Versions"
 
