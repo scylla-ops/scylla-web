@@ -10,6 +10,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Fixed
+
+- Two flaky tests no longer fail the CI at random.
+
 ## [0.7.1] - 2026-11-24
 
 ### Added
