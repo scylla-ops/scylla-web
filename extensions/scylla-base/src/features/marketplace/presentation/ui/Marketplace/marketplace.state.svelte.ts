@@ -69,6 +69,9 @@ export const createMarketplace = () => {
     get filter() {
       return filter;
     },
+    get hasPackages() {
+      return packages.length > 0;
+    },
     get isFiltered() {
       return isFiltered(filter);
     },

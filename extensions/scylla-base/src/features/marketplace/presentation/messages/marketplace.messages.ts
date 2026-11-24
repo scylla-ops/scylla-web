@@ -30,6 +30,7 @@ export const marketplaceMessages = {
   verifiedPublishers: msg`verified publishers`,
   clearFilters: msg`Clear filters`,
   noMatch: msg`No fragment matches these filters.`,
+  noneYet: msg`No fragment is published in the marketplace yet.`,
   noneAdded: (workspace: string) =>
     msg`${workspace} has not added a fragment yet. Add one linked to receive its new versions, or fork it.`,
   nonePublished: (workspace: string) =>

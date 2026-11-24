@@ -177,6 +177,18 @@ describe('syncWorkspace', () => {
     expect(contextStore.getState().workspace).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
   });
 
+  it('keeps the page of a URL with no workspace, in the active workspace', () => {
+    contextStore.setState({ workspace: { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' } });
+    navigator.restore();
+    navigator = installTestNavigator({ pathname: '/marketplace/dashboard', search: '?q=helm' });
+    navigator.pages.add('/globex-inc/marketplace');
+
+    run('marketplace')();
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/marketplace?q=helm', { replace: true });
+    expect(contextStore.getState().workspace.slug).toBe('globex-inc');
+  });
+
   it('does nothing when the slug matches none and there is no workspace', () => {
     workspacesState.workspaces = [];
     run('no-such-org')();

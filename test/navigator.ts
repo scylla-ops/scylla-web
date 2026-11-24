@@ -17,6 +17,7 @@ export const installTestNavigator = (
     search = index === -1 ? '' : to.slice(index);
   });
   const back = vi.fn();
+  const pages = new Set<string>();
 
   setAppNavigator({
     navigate,
@@ -25,11 +26,14 @@ export const installTestNavigator = (
     search: () => search,
     params: () => options.params ?? {},
     trail: () => [],
+    hasPage: pathname => pages.has(pathname),
   });
 
   return {
     navigate,
     back,
+    /** The pathnames that have a page. */
+    pages,
     restore: () => setAppNavigator(null),
   };
 };

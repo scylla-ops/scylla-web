@@ -2,6 +2,7 @@
 export {
   currentPathname,
   currentSearch,
+  hasPage,
   navigateBack,
   navigateTo,
   setAppNavigator,

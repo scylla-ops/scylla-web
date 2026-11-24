@@ -2,7 +2,7 @@ import { holdsLeave, type AppNavigator, type NavigateOptions } from '@scylla/cor
 import { compileRoutes, type AppRouterConfig } from '../compilation/compile-routes.ts';
 import { changeLocation, location, syncLocation } from './location.state.svelte.ts';
 import { resolveTarget } from './resolve-target.ts';
-import { routeParams, routeTrail, setRouteTable } from './route.state.svelte.ts';
+import { routeHasPage, routeParams, routeTrail, setRouteTable } from './route.state.svelte.ts';
 
 /** Call it once, before `RouterView` mounts. Throws when a route declaration is wrong. */
 export const createAppRouter = (config: AppRouterConfig): AppNavigator => {
@@ -21,5 +21,6 @@ export const createAppRouter = (config: AppRouterConfig): AppNavigator => {
     search: () => location.search,
     params: routeParams,
     trail: routeTrail,
+    hasPage: routeHasPage,
   };
 };
