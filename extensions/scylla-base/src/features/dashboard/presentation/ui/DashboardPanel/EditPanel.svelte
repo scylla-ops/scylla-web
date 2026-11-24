@@ -137,6 +137,7 @@
         short: t(messages.saveShort),
         icon: CheckIcon as LucideIcon,
         onclick: save,
+        disabled: changes === 0,
       },
     ]}
   />

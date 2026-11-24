@@ -57,7 +57,7 @@
           {dashboard.name}{changes > 0 ? ` · ${changes === 1 ? t(messages.oneChangeNotSaved) : t(messages.changesNotSaved(changes))}` : ''}
         </p>
       </div>
-      <Button size="sm" onclick={save}>{t(messages.saveLayout)}</Button>
+      <Button size="sm" disabled={changes === 0} onclick={save}>{t(messages.saveLayout)}</Button>
     </div>
     <div class="fixed inset-x-0 bottom-6 z-30 flex justify-center">
       <Button class="rounded-full shadow-lg" onclick={() => dashboardView.openAdd('sentence')}>
