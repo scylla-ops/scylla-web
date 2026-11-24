@@ -48,6 +48,8 @@ export interface PipelineFile {
   /** Empty when the file has an error. */
   nodes: PipelineNodeEntity[];
   checkout?: CheckoutSettings;
+  /** The labels of the key `agent`: the agent of a job must have each of them. Absent: any agent. */
+  agentLabels?: string[];
   rules: FileRules;
   errors: FileError[];
 }

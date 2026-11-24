@@ -263,6 +263,17 @@ export const appMutations = {
       },
     }),
 
+  /** Replaces the labels that an admin gives to an agent. */
+  setLabels: () =>
+    mutationOptions({
+      mutationFn: ({ appId, labels }: { appId: string; labels: readonly string[] }) =>
+        repository().setLabels(appId, labels),
+      onSuccess: () => {
+        toast.success(i18n._(appsMessages.labelsChanged));
+        return invalidateApps();
+      },
+    }),
+
   revokeKey: () =>
     mutationOptions({
       mutationFn: ({ appId, keyId }: { appId: string; keyId: string }) =>

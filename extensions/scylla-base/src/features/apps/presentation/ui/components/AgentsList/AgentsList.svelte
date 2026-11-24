@@ -25,6 +25,7 @@
   } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
+  import { AgentLabels } from '@shared/presentation/ui';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import {
     AGENT_FILTERS,
@@ -211,6 +212,7 @@
           <TableRow>
             <TableHead>{t(messages.columnAgent)}</TableHead>
             <TableHead>{t(messages.columnStatus)}</TableHead>
+            <TableHead>{t(messages.columnLabels)}</TableHead>
             {#if canReadAccess}
               <TableHead>{t(messages.columnAccess)}</TableHead>
             {/if}
@@ -241,6 +243,17 @@
                   onFinishSetup={canCreate ? () => connect(agent) : undefined}
                 />
               </TableCell>
+              <TableCell>
+                {#if agent.labels.length || agent.automaticLabels.length}
+                  <AgentLabels
+                    labels={agent.labels}
+                    automatic={agent.automaticLabels}
+                    label={t(messages.columnLabels)}
+                  />
+                {:else}
+                  <span class="text-muted-foreground">–</span>
+                {/if}
+              </TableCell>
               {#if canReadAccess}
                 <TableCell>{accessLabel(access.data?.get(agent.id))}</TableCell>
               {/if}
@@ -268,7 +281,7 @@
             </TableRow>
           {:else}
             <TableRow>
-              <TableCell colspan={canReadAccess ? 5 : 4} class="px-6 py-8 text-center text-muted-foreground">
+              <TableCell colspan={canReadAccess ? 6 : 5} class="px-6 py-8 text-center text-muted-foreground">
                 {t(messages.noMatch)}
               </TableCell>
             </TableRow>

@@ -26,6 +26,8 @@ const wireApp = (overrides: Partial<App> = {}): App => ({
   runningJobs: 0,
   compatibility: AgentCompatibility.UNSPECIFIED,
   missingFeatures: [],
+  labels: [],
+  automaticLabels: [],
   ...overrides,
 });
 
@@ -58,6 +60,9 @@ const clients = () => {
     createJoinCode: vi.fn(() => unaryCall({ joinCode: 'JOIN-2', expiresAt: TS })),
     revokeAppKey: vi.fn(() => unaryCall({})),
     deleteApp: vi.fn(() => unaryCall({})),
+    setAppLabels: vi.fn(({ labels }: { labels: string[] }) =>
+      unaryCall({ app: wireApp({ labels }) }),
+    ),
     createAppToken: vi.fn(() =>
       unaryCall({
         token: {
@@ -181,6 +186,8 @@ describe('grpcApp.toDomain', () => {
       disabledAt: '',
       compatibility: 'unknown',
       missingFeatures: [],
+      labels: [],
+      automaticLabels: [],
     });
   });
 
@@ -233,7 +240,28 @@ describe('grpcApp.toDomain', () => {
   });
 });
 
+describe('grpcApp.toDomain labels', () => {
+  it('keeps the labels of an admin apart from the labels of the machine', () => {
+    const app = toDomain(wireApp({ labels: ['deploy'], automaticLabels: ['linux', 'x64'] }));
+
+    expect(app.labels).toEqual(['deploy']);
+    expect(app.automaticLabels).toEqual(['linux', 'x64']);
+  });
+});
+
 describe('DefaultAppsRepository', () => {
+  it('replaces the labels of an app, and gives the app back', async () => {
+    const { apps, repository } = clients();
+
+    const app = await repository.setLabels('app-1', ['deploy', 'gpu']);
+
+    expect(apps.setAppLabels).toHaveBeenCalledWith({
+      appId: { value: 'app-1' },
+      labels: ['deploy', 'gpu'],
+    });
+    expect(app.labels).toEqual(['deploy', 'gpu']);
+  });
+
   it('reads every page, with the filter on the agents', async () => {
     const { apps, repository } = clients();
 

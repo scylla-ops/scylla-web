@@ -7,6 +7,7 @@
   import { appQueries } from '@base/features/apps';
   import { Badge, Button } from '@scylla/ui/primitives';
   import { CopyableText } from '@scylla/ui';
+  import { AgentLabels } from '@shared/presentation/ui';
   import { createNow } from '@scylla/ui/state';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
@@ -132,6 +133,15 @@
         {:else}
           <span class="font-mono text-xs text-foreground">{job.agentId}</span>
         {/if}
+      </span>
+    {/if}
+    {#if job.agentLabels?.length}
+      <span class="text-muted-foreground/50">·</span>
+      <span class="flex items-center gap-1.5">
+        <span class="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+          {t(jobsMessages.agentLabels)}
+        </span>
+        <AgentLabels labels={job.agentLabels} label={t(jobsMessages.agentLabels)} />
       </span>
     {/if}
   </div>

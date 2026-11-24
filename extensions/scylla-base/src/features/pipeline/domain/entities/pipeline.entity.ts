@@ -73,6 +73,11 @@ export interface PipelineMetadata extends PipelineIdentity {
  */
 export interface PipelineEntity extends PipelineIdentity {
   nodes: PipelineNodeEntity[];
+  /**
+   * The labels that the agent of a job must have, each of them. A job keeps them at its
+   * creation. Unset: any agent of the project.
+   */
+  agentLabels?: string[];
 }
 
 export const DEFAULT_PIPELINE_NAME = 'my-pipeline';

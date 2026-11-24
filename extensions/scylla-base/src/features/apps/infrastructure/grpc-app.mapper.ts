@@ -84,6 +84,8 @@ export function toDomain(app: App): AppEntity {
     disabledAt: timestampToIso(app.disabledAt),
     compatibility: COMPATIBILITY[app.compatibility] ?? 'unknown',
     missingFeatures: [...app.missingFeatures],
+    labels: [...app.labels],
+    automaticLabels: [...app.automaticLabels],
   };
 }
 

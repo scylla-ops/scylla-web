@@ -41,6 +41,10 @@ msgstr "Acceptez la version actuelle des conditions générales d'utilisation"
 msgid "Access"
 msgstr "Accès"
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:6
+msgid "Add"
+msgstr "Ajouter"
+
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
 msgid "Add another sign-in method before you remove this one"
 msgstr "Ajoutez une autre méthode de connexion avant de retirer celle-ci"
@@ -158,6 +162,10 @@ msgstr "Supprimez d'abord les projets et les agents de l'espace de travail"
 msgid "Deleted user"
 msgstr "Utilisateur supprimé"
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:8
+msgid "deploy"
+msgstr "deploy"
+
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:13
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:5
 msgid "Deploy"
@@ -194,6 +202,10 @@ msgstr "Trouver un projet"
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:6
 msgid "Finished {time}"
 msgstr "Terminé {time}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:4
+msgid "From the machine"
+msgstr "De la machine"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:15
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:6
@@ -235,6 +247,10 @@ msgstr "Limites"
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:31
 msgid "Manage"
 msgstr "Gérer"
+
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:7
+msgid "New label"
+msgstr "Nouvelle étiquette"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:20
 msgid "No account is linked to this identity"
@@ -341,6 +357,10 @@ msgstr "Lecture seule"
 msgid "Reads projects, pipelines, jobs and logs."
 msgstr "Lit les projets, pipelines, jobs et logs."
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:9
+msgid "Remove {label}"
+msgstr "Retirer {label}"
+
 #: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:11
 msgid "Remove {name}"
 msgstr "Retirer {name}"
@@ -437,6 +457,14 @@ msgstr "La limite est atteinte"
 msgid "The limit is reached ({used} of {limit})"
 msgstr "La limite est atteinte ({used} sur {limit})"
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:12
+msgid "The list has 16 labels, the maximum."
+msgstr "La liste a 16 étiquettes, le maximum."
+
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:5
+msgid "The machine of the agent gives this label at each connection."
+msgstr "La machine de l'agent donne cette étiquette à chaque connexion."
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:6
 msgid "The password cannot be only spaces."
 msgstr "Le mot de passe ne peut pas contenir que des espaces."
@@ -481,6 +509,10 @@ msgstr "Cette identité est déjà liée à un autre compte"
 msgid "This invitation is for another email address"
 msgstr "Cette invitation est pour une autre adresse e-mail"
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:11
+msgid "This label is already in the list."
+msgstr "Cette étiquette est déjà dans la liste."
+
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:10
 msgid "This password is not valid"
 msgstr "Ce mot de passe n'est pas valide"
@@ -524,6 +556,10 @@ msgstr "Inconnu"
 #: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:5
 msgid "Unknown user"
 msgstr "Utilisateur inconnu"
+
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:10
+msgid "Use 1 to 32 lower case letters, digits, dots, dashes or underscores. Start with a letter or a digit."
+msgstr "Utilisez 1 à 32 lettres minuscules, chiffres, points, tirets ou tirets bas. Commencez par une lettre ou un chiffre."
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:6
 msgid "User created"

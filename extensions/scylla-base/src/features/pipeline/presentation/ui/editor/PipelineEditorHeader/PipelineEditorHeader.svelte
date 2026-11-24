@@ -13,6 +13,7 @@
   import { exportMessages } from '@base/features/pipeline/presentation/messages/export.messages.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import type { MissingDocument } from '../pipeline-document.state.svelte.ts';
+  import PipelineLabelsButton from './PipelineLabelsButton.svelte';
   import PipelineNameField from './PipelineNameField.svelte';
 
   interface Props {
@@ -39,6 +40,10 @@
     onExport?: () => void;
     /** Why the saved pipeline cannot be exported: Export shows it and opens nothing. */
     exportIssue?: string;
+    /** A saved pipeline: the header shows its agent labels, which save at once. */
+    pipelineId?: string;
+    /** The saved agent labels of the pipeline. */
+    agentLabels?: readonly string[];
   }
 
   let {
@@ -57,6 +62,8 @@
     onNameDraft,
     onExport,
     exportIssue,
+    pipelineId,
+    agentLabels,
   }: Props = $props();
 
   type SaveStatus = 'draft' | 'saving' | 'error' | 'dirty' | 'saved';
@@ -154,6 +161,10 @@
         {/key}
         <span class="sr-only">{statusText}</span>
       </span>
+    {/if}
+
+    {#if pipelineId && agentLabels}
+      <PipelineLabelsButton {pipelineId} labels={agentLabels} disabled={!!missing} />
     {/if}
 
     {#if onExport}

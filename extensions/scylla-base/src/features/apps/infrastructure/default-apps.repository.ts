@@ -101,6 +101,12 @@ export class DefaultAppsRepository implements AppsRepository {
     return requireApp(response.app);
   }
 
+  public async setLabels(appId: string, labels: readonly string[]): Promise<AppEntity> {
+    const response = await this.client.setAppLabels({ appId: wrapId(appId), labels: [...labels] })
+      .response;
+    return requireApp(response.app);
+  }
+
   public async createToken(appId: string, input: CreateTokenInput): Promise<CreatedToken> {
     const response = await this.client.createAppToken({
       appId: wrapId(appId),

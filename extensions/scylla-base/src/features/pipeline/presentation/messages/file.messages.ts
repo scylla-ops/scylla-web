@@ -32,6 +32,8 @@ export const fileMessages = {
   draftsSkipped: msg`drafts skipped`,
   skipCi: msg`[skip ci] skipped`,
   checkout: msg`Checkout`,
+  agent: msg`Agent`,
+  agentLabelsTitle: msg`An agent with these labels`,
   checkoutBuiltIn: msg`Built in`,
   checkoutOff: msg`Off`,
   checkoutOffDetail: msg`the nodes start in an empty folder`,

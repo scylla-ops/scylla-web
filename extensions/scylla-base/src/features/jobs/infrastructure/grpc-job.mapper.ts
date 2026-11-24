@@ -274,6 +274,7 @@ export function toDomain(job: Job): JobEntity {
     pipelineFile: pipelineFileToDomain(job.pipelineFile),
     fileErrors: job.fileErrors.length > 0 ? job.fileErrors.map(fileErrorToDomain) : undefined,
     checkout: checkoutToDomain(job.checkout),
+    agentLabels: job.agentLabels.length > 0 ? [...job.agentLabels] : undefined,
     waitingReason: job.waitingReason || undefined,
     unfitAgents: job.unfitAgents.length > 0 ? job.unfitAgents.map(unfitAgentToDomain) : undefined,
   };

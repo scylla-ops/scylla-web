@@ -83,6 +83,8 @@ export enum Permission {
   MANAGE_REPOSITORY_LINK = 76,
   APPROVE_JOB = 77,
   MANAGE_GIT_PROVIDERS = 78,
+  /** Give the labels of an agent: the admins of the workspace, not the creator of the agent. */
+  SET_APP_LABELS = 79,
 }
 
 const SYSTEM_LEVEL = new Set<Permission>([
@@ -125,6 +127,7 @@ const WORKSPACE_LEVEL = new Set<Permission>([
   Permission.CREATE_JOIN_CODE,
   Permission.RENAME_APP_KEY,
   Permission.REVOKE_APP_KEY,
+  Permission.SET_APP_LABELS,
   Permission.LIST_APPS_BY_WORKSPACE,
   Permission.CREATE_AGENT,
   Permission.LIST_AGENTS,

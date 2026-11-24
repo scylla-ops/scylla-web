@@ -13,11 +13,11 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:44
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:46
 msgid "{count} {status} nodes"
 msgstr "{count} {status} nodes"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:46
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:48
 msgid "{count} / {total} nodes ({percent}%)"
 msgstr "{count} / {total} nodes ({percent}%)"
 
@@ -33,11 +33,11 @@ msgstr "{state} sent at {time}"
 msgid "Actions"
 msgstr "Actions"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:76
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:78
 msgid "Agent"
 msgstr "Agent"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:25
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:27
 msgid "agent disconnected mid-run"
 msgstr "agent disconnected mid-run"
 
@@ -61,11 +61,11 @@ msgstr "Approved at {time}"
 msgid "Approved by {name} at {time}"
 msgstr "Approved by {name} at {time}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:34
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:36
 msgid "Are you sure you want to delete job {jobId}? This action cannot be undone."
 msgstr "Are you sure you want to delete job {jobId}? This action cannot be undone."
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:43
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:45
 msgid "Attempt {attempt}/{maxAttempts}"
 msgstr "Attempt {attempt}/{maxAttempts}"
 
@@ -81,7 +81,7 @@ msgstr "Branch"
 msgid "built in"
 msgstr "built in"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:27
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:29
 msgid "Cancel the job"
 msgstr "Cancel the job"
 
@@ -101,11 +101,11 @@ msgstr "Check run on {sha}."
 msgid "checkout"
 msgstr "checkout"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:62
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:64
 msgid "Close the logs for {label}"
 msgstr "Close the logs for {label}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:63
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:65
 msgid "Collapse the logs for {label}"
 msgstr "Collapse the logs for {label}"
 
@@ -121,7 +121,7 @@ msgstr "Commit status on {sha}."
 msgid "Copy ID"
 msgstr "Copy ID"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:51
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:53
 msgid "Copy job id"
 msgstr "Copy job id"
 
@@ -133,16 +133,16 @@ msgstr "Copy the SHA"
 msgid "Created"
 msgstr "Created"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:55
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:57
 msgctxt "date-prefix"
 msgid "Created"
 msgstr "Created"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:29
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:31
 msgid "Delete"
 msgstr "Delete"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:32
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:34
 msgid "Delete Job"
 msgstr "Delete Job"
 
@@ -150,7 +150,7 @@ msgstr "Delete Job"
 msgid "Duration"
 msgstr "Duration"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:41
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:43
 msgid "Duration: {duration}"
 msgstr "Duration: {duration}"
 
@@ -158,7 +158,7 @@ msgstr "Duration: {duration}"
 msgid "Error"
 msgstr "Error"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:66
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:68
 msgid "Error loading logs..."
 msgstr "Error loading logs..."
 
@@ -166,7 +166,7 @@ msgstr "Error loading logs..."
 msgid "Event"
 msgstr "Event"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:64
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:66
 msgid "Expand the logs for {label}"
 msgstr "Expand the logs for {label}"
 
@@ -174,12 +174,12 @@ msgstr "Expand the logs for {label}"
 msgid "Failure"
 msgstr "Failure"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:54
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:56
 msgctxt "date-prefix"
 msgid "Finished"
 msgstr "Finished"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:40
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:42
 msgid "Finished: {time}"
 msgstr "Finished: {time}"
 
@@ -203,7 +203,7 @@ msgstr "GitHub status {context}"
 msgid "GitLab status {context}"
 msgstr "GitLab status {context}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:74
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:76
 msgid "Graph of the job"
 msgstr "Graph of the job"
 
@@ -219,7 +219,7 @@ msgstr "Install Git on its machine"
 msgid "Invalid pipeline file"
 msgstr "Invalid pipeline file"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:68
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:70
 msgid "It did not run, because another node of the job failed first."
 msgstr "It did not run, because another node of the job failed first."
 
@@ -228,7 +228,7 @@ msgstr "It did not run, because another node of the job failed first."
 msgid "Job"
 msgstr "Job"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:30
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:32
 msgid "Job actions"
 msgstr "Job actions"
 
@@ -236,11 +236,11 @@ msgstr "Job actions"
 msgid "Job ID"
 msgstr "Job ID"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:48
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:50
 msgid "Job ID is missing"
 msgstr "Job ID is missing"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:49
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:51
 msgid "Job not found"
 msgstr "Job not found"
 
@@ -248,7 +248,11 @@ msgstr "Job not found"
 msgid "Jobs"
 msgstr "Jobs"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:58
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:26
+msgid "Labels"
+msgstr "Labels"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:60
 msgid "Logs"
 msgstr "Logs"
 
@@ -272,7 +276,7 @@ msgstr "MR"
 msgid "no agent with Git and checkout support is online"
 msgstr "no agent with Git and checkout support is online"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:72
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:74
 msgid "No case matched: the switch opened no port."
 msgstr "No case matched: the switch opened no port."
 
@@ -280,11 +284,11 @@ msgstr "No case matched: the switch opened no port."
 msgid "No jobs found"
 msgstr "No jobs found"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:67
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:69
 msgid "No log was written."
 msgstr "No log was written."
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:36
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:38
 msgid "No nodes"
 msgstr "No nodes"
 
@@ -292,11 +296,11 @@ msgstr "No nodes"
 msgid "No repository linked."
 msgstr "No repository linked."
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:37
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:39
 msgid "Node {nodeId}"
 msgstr "Node {nodeId}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:60
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:62
 msgid "Node executions"
 msgstr "Node executions"
 
@@ -308,11 +312,11 @@ msgstr "Not reported"
 msgid "Not sent"
 msgstr "Not sent"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:70
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:72
 msgid "Not taken"
 msgstr "Not taken"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:69
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:71
 msgid "Not taken: the path did not reach it."
 msgstr "Not taken: the path did not reach it."
 
@@ -320,7 +324,7 @@ msgstr "Not taken: the path did not reach it."
 msgid "Only an editor of the project can approve this run."
 msgstr "Only an editor of the project can approve this run."
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:75
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:77
 msgid "Open the logs of {id}"
 msgstr "Open the logs of {id}"
 
@@ -340,7 +344,7 @@ msgstr "Pipeline ID is missing"
 msgid "Pipeline ID:"
 msgstr "Pipeline ID:"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:71
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:73
 msgid "Ports chosen: {ports}"
 msgstr "Ports chosen: {ports}"
 
@@ -368,7 +372,11 @@ msgstr "Push of the tag {tag}"
 msgid "queued: waiting for an agent"
 msgstr "queued: waiting for an agent"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:28
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:25
+msgid "queued: waiting for an agent with the labels {labels}"
+msgstr "queued: waiting for an agent with the labels {labels}"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:30
 msgid "Re-run"
 msgstr "Re-run"
 
@@ -456,16 +464,16 @@ msgstr "Sending..."
 msgid "Source"
 msgstr "Source"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:53
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:55
 msgctxt "date-prefix"
 msgid "Started"
 msgstr "Started"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:39
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:41
 msgid "Started: {time}"
 msgstr "Started: {time}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:38
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:40
 msgid "State: {state}"
 msgstr "State: {state}"
 
@@ -473,7 +481,7 @@ msgstr "State: {state}"
 msgid "Status"
 msgstr "Status"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:59
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:61
 msgid "Streaming live output"
 msgstr "Streaming live output"
 
@@ -485,15 +493,15 @@ msgstr "Success"
 msgid "Tag"
 msgstr "Tag"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:73
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:75
 msgid "The failure went to the error output: {nodes}."
 msgstr "The failure went to the error output: {nodes}."
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:42
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:44
 msgid "The job failed"
 msgstr "The job failed"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:77
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:79
 msgid "The live tail stopped. The lines above were read before it broke."
 msgstr "The live tail stopped. The lines above were read before it broke."
 
@@ -533,7 +541,7 @@ msgstr "Trigger of Scylla"
 msgid "Unable to load jobs"
 msgstr "Unable to load jobs"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:50
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:52
 msgid "Unable to load this job"
 msgstr "Unable to load this job"
 
@@ -541,7 +549,7 @@ msgstr "Unable to load this job"
 msgid "Update the agent"
 msgstr "Update the agent"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:26
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:28
 msgid "View"
 msgstr "View"
 
@@ -573,7 +581,7 @@ msgstr "waiting for a project editor"
 msgid "warning"
 msgstr "warning"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:61
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:63
 msgid "Whole job"
 msgstr "Whole job"
 
@@ -589,6 +597,6 @@ msgstr "You don't have permission to delete jobs."
 msgid "You don't have permission to run this pipeline."
 msgstr "You don't have permission to run this pipeline."
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:57
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:59
 msgid "You don't have permission to view this job's logs"
 msgstr "You don't have permission to view this job's logs"

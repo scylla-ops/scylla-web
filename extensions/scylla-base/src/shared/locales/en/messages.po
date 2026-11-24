@@ -41,6 +41,10 @@ msgstr "Accept the current version of the terms of service"
 msgid "Access"
 msgstr "Access"
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:6
+msgid "Add"
+msgstr "Add"
+
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:22
 msgid "Add another sign-in method before you remove this one"
 msgstr "Add another sign-in method before you remove this one"
@@ -158,6 +162,10 @@ msgstr "Delete the projects and the agents of the workspace first"
 msgid "Deleted user"
 msgstr "Deleted user"
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:8
+msgid "deploy"
+msgstr "deploy"
+
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:13
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:5
 msgid "Deploy"
@@ -194,6 +202,10 @@ msgstr "Find a project"
 #: extensions/scylla-base/src/shared/presentation/messages/job-run.messages.ts:6
 msgid "Finished {time}"
 msgstr "Finished {time}"
+
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:4
+msgid "From the machine"
+msgstr "From the machine"
 
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:15
 #: extensions/scylla-base/src/shared/presentation/messages/token-labels.messages.ts:6
@@ -235,6 +247,10 @@ msgstr "Limits"
 #: extensions/scylla-base/src/shared/presentation/messages/token-form.messages.ts:31
 msgid "Manage"
 msgstr "Manage"
+
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:7
+msgid "New label"
+msgstr "New label"
 
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:20
 msgid "No account is linked to this identity"
@@ -341,6 +357,10 @@ msgstr "Read-only"
 msgid "Reads projects, pipelines, jobs and logs."
 msgstr "Reads projects, pipelines, jobs and logs."
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:9
+msgid "Remove {label}"
+msgstr "Remove {label}"
+
 #: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:11
 msgid "Remove {name}"
 msgstr "Remove {name}"
@@ -437,6 +457,14 @@ msgstr "The limit is reached"
 msgid "The limit is reached ({used} of {limit})"
 msgstr "The limit is reached ({used} of {limit})"
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:12
+msgid "The list has 16 labels, the maximum."
+msgstr "The list has 16 labels, the maximum."
+
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:5
+msgid "The machine of the agent gives this label at each connection."
+msgstr "The machine of the agent gives this label at each connection."
+
 #: extensions/scylla-base/src/shared/utils/account-validation.messages.ts:6
 msgid "The password cannot be only spaces."
 msgstr "The password cannot be only spaces."
@@ -481,6 +509,10 @@ msgstr "This identity is already linked to another account"
 msgid "This invitation is for another email address"
 msgstr "This invitation is for another email address"
 
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:11
+msgid "This label is already in the list."
+msgstr "This label is already in the list."
+
 #: extensions/scylla-base/src/shared/utils/error-reasons.ts:10
 msgid "This password is not valid"
 msgstr "This password is not valid"
@@ -524,6 +556,10 @@ msgstr "Unknown"
 #: extensions/scylla-base/src/shared/presentation/messages/user-identity.messages.ts:5
 msgid "Unknown user"
 msgstr "Unknown user"
+
+#: extensions/scylla-base/src/shared/presentation/messages/agent-labels.messages.ts:10
+msgid "Use 1 to 32 lower case letters, digits, dots, dashes or underscores. Start with a letter or a digit."
+msgstr "Use 1 to 32 lower case letters, digits, dots, dashes or underscores. Start with a letter or a digit."
 
 #: extensions/scylla-base/src/shared/utils/toast-messages.ts:6
 msgid "User created"

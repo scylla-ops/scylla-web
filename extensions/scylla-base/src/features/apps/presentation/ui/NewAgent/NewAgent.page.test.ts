@@ -42,6 +42,8 @@ const app = (connected: boolean, patch: Partial<AppEntity> = {}): AppEntity => (
   disabledAt: '',
   compatibility: connected ? 'compatible' : 'unknown',
   missingFeatures: [],
+  labels: [],
+  automaticLabels: [],
   ...patch,
 });
 

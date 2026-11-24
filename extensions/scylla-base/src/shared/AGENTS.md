@@ -27,6 +27,9 @@ domain/structs/job-status.struct.ts  JobStatus, isActiveStatus, isFinishedStatus
                                      job, which `jobs` and `agents` both read (`jobs` re-exports it)
 domain/structs/api-token.struct.ts   ApiToken, TokenLimits, TokenPreset, TokenExpiry, expiryStateOf:
                                      the API tokens of the apps and the personal tokens
+domain/structs/agent-label.struct.ts AGENT_LABEL_PATTERN, MAX_AGENT_LABELS, agentLabelIssue,
+                                     sameAgentLabels: the rule of a label of an agent, as the
+                                     server checks it (`apps` and `pipeline` both use it)
 infrastructure/grpc/wrappers.ts      proto helpers, and `required`: the entity a response must carry
                                      (MALFORMED_RESPONSE when the server left it out)
 infrastructure/grpc/api-token.mapper.ts  apiTokenToDomain, limitsToProto, expiryToProto
@@ -35,7 +38,14 @@ presentation/ui/index.ts             `@shared/presentation/ui`
                                      Identity, IdentityAvatar, identityKindOf, userName,
                                      userSecondaryLine, IdentityKind, UserIdentityProfile,
                                      ProviderMark, JobRunMark, FragmentIcon, VersionBadge (the
-                                     library: pipeline and marketplace)
+                                     library: pipeline and marketplace), AgentLabels (the labels
+                                     of an agent, a pipeline or a job; the labels of the machine
+                                     in outline, after the others)
+  forms/                             TokenForm, ApiAccessCard, AgentLabelsField (a list of labels
+                                     to change: add with Enter or Add, remove with the x of a
+                                     label, the issue of `agentLabelIssue` under the field;
+                                     `autofocus` in a dialog or a popover puts the caret in the
+                                     field, not on the x of the first label)
 presentation/presenters/job-run.presenter.ts  JobRun, jobShortId: the job of a JobRunMark
 presentation/ui/layout/AuthLayout.svelte  the frame of the public pages; import it by path
 presentation/ui/layout/LogoMark/     LogoMark: the four dots of the mark, with a state (idle, waiting, lit)

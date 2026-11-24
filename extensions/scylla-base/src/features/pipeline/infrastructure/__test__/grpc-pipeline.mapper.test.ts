@@ -58,6 +58,15 @@ describe('grpcPipeline.toDomain', () => {
     });
   });
 
+  it('gives the agent labels, and none for a pipeline of any agent', () => {
+    const labelled = grpcPipeline.toDomain(basePipeline({ agent: { labels: ['deploy', 'linux'] } }));
+
+    expect(labelled.agentLabels).toEqual(['deploy', 'linux']);
+    expect(grpcPipeline.toDomain(basePipeline({ agent: { labels: [] } }))).not.toHaveProperty(
+      'agentLabels',
+    );
+  });
+
   it('splits argv into the command and its arguments', () => {
     expect(nodeOf(execNode())).toEqual({
       id: 'node-1',
