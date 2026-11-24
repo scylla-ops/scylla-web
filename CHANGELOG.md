@@ -26,6 +26,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - Breadcrumbs of agents, apps and fragments show their name, and the pipeline crumb has no hash. The
   unknown page of a workspace keeps the shell. The account header hides an empty username badge. The
   user menu opens What's new again.
+- The cookie page lists the key of the width of the side panel of the pipeline editor. Tables of
+  legal pages wrap long text, and the table of contents marks no section at the top of the page.
 
 ## [0.7.0] - 2026-11-24
 

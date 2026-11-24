@@ -139,6 +139,7 @@
   The provider lets the canvas convert screen points to the graph's. The side panel is right of the
   canvas, or under it in a narrow blueprint (`stacked`, measured on the blueprint, not the viewport).
 -->
+<!-- Paneforge saves the size of the panels in `paneforge:scylla.blueprint.side-panel` (tracker registry). -->
 <SvelteFlowProvider>
   <div class="h-full" {@attach width.measure}>
     <ResizablePaneGroup

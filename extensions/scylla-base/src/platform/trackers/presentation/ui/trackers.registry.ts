@@ -126,6 +126,15 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     exempt: true,
   },
   {
+    name: 'paneforge:scylla.blueprint.side-panel',
+    type: 'local-storage',
+    provider: 'Scylla',
+    owner: `${BASE}/features/pipeline/presentation/ui/editor/blueprint/PipelineBlueprint.svelte`,
+    purpose: msg`Keeps the width of the side panel of the pipeline editor.`,
+    lifetime: lifetimes.untilCleared,
+    exempt: true,
+  },
+  {
     name: 'scylla.shell.second-sidebar-width',
     type: 'local-storage',
     provider: 'Scylla',

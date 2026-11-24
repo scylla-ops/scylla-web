@@ -19,5 +19,14 @@ export const followSections =
       { rootMargin: '0px 0px -60% 0px' },
     );
     node.querySelectorAll('[data-section]').forEach(section => observer.observe(section));
-    return () => observer.disconnect();
+
+    // At the top of the page no section is read yet: the table of contents marks none.
+    const onScroll = () => {
+      if (window.scrollY <= 0) onActive('');
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('scroll', onScroll);
+    };
   };
