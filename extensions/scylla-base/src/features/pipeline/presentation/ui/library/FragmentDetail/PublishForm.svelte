@@ -69,6 +69,7 @@
       <Select
         type="single"
         value={String(form.version)}
+        items={form.choices.map(number => ({ value: String(number), label: t(libraryMessages.version(number)) }))}
         onValueChange={value => (form.version = Number(value))}
       >
         <SelectTrigger aria-label={t(communityMessages.version)} class="w-full"><SelectValue /></SelectTrigger>
@@ -97,7 +98,11 @@
     </div>
     <div class="flex flex-col gap-1.5">
       <Label>{t(communityMessages.category)}</Label>
-      <Select type="single" value={form.category} onValueChange={value => (form.category = value as MarketplaceCategory)}>
+      <Select
+        type="single"
+        value={form.category}
+        items={MARKETPLACE_CATEGORIES.map(category => ({ value: category, label: t(categoryName(category)) }))}
+        onValueChange={value => (form.category = value as MarketplaceCategory)}>
         <SelectTrigger aria-label={t(communityMessages.category)} class="w-full"><SelectValue /></SelectTrigger>
         <SelectContent>
           {#each MARKETPLACE_CATEGORIES as category (category)}

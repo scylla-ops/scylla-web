@@ -60,6 +60,10 @@
       <Select
         type="single"
         value={row.kind}
+        items={[
+          { value: 'literal', label: t(nodeMessages.envKindLiteral) },
+          { value: 'secret', label: t(nodeMessages.envKindSecret) },
+        ]}
         onValueChange={value => draft.setEnv(index, { kind: value as EnvRow['kind'] })}
       >
         <SelectTrigger aria-label={t(nodeMessages.envKindLabel)} class="w-26 shrink-0">

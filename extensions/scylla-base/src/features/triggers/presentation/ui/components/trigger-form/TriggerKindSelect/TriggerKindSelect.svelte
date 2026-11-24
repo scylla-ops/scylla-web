@@ -36,6 +36,12 @@
     { kind: 'cron', label: triggersMessages.kindSchedule },
     { kind: 'webhook', label: triggersMessages.kindWebhook },
   ] as const;
+
+  // The labels for the closed trigger: the items are not mounted until it opens.
+  const items = $derived([
+    ...OTHER_KINDS.map(other => ({ value: other.kind, label: t(other.label) })),
+    ...GIT_KINDS.map(kind => ({ value: kind, label: gitKindLabel(kind, provider) })),
+  ]);
 </script>
 
 {#snippet option(kind: TriggerDraftKind, label: string, itemDisabled: boolean)}
@@ -51,6 +57,7 @@
   <Select
     type="single"
     {value}
+    {items}
     {disabled}
     onValueChange={next => onChange(next as TriggerDraftKind)}
   >

@@ -60,7 +60,11 @@
 </script>
 
 {#snippet numberSelect(label: string, value: number, options: number[], onPick: (n: number) => void, format: (n: number) => string)}
-  <Select type="single" value={String(value)} onValueChange={picked => onPick(Number(picked))}>
+  <Select
+    type="single"
+    value={String(value)}
+    items={options.map(option => ({ value: String(option), label: format(option) }))}
+    onValueChange={picked => onPick(Number(picked))}>
     <SelectTrigger class="w-[72px]" aria-label={label}>
       <SelectValue />
     </SelectTrigger>
