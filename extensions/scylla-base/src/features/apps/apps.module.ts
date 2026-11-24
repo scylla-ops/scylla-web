@@ -9,6 +9,7 @@ import { JobServiceClient } from '@base/generated/scylla/pipelines/v1/job_servic
 import { AccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import { AgentServiceClient } from '@base/generated/scylla/agents/v1/agent_service.client.ts';
 import { CapabilityServiceClient } from '@base/generated/scylla/capabilities/v1/capability_service.client.ts';
+import { appCrumbName } from './presentation/app-crumb.state.svelte.ts';
 import { DefaultAppsRepository } from './infrastructure/default-apps.repository.ts';
 import { appsCommands } from './presentation/apps.commands.ts';
 
@@ -28,7 +29,7 @@ const MACHINES: NavGroup = { id: 'machines', title: msg`Machines`, icon: ServerI
 const agentDetails = {
   path: ':appId',
   permission: Permission.READ_APP,
-  breadcrumb: () => ({ label: msg`Agent`, detail: msg`Detail` }),
+  breadcrumb: () => ({ label: appCrumbName() ?? msg`Agent` }),
   page: () => import('./presentation/ui/AgentDetails/AgentDetails.page.svelte'),
 };
 
@@ -54,7 +55,7 @@ const connectAgent = {
 const appDetails = {
   path: ':appId',
   permission: Permission.READ_APP,
-  breadcrumb: () => ({ label: msg`App`, detail: msg`Detail` }),
+  breadcrumb: () => ({ label: appCrumbName() ?? msg`App` }),
   page: () => import('./presentation/ui/AppDetails/AppDetails.page.svelte'),
 };
 

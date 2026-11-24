@@ -20,7 +20,9 @@
       {#if user.email}
         <span class="truncate">{user.email}</span>
       {/if}
-      <Badge variant="outline">@{user.username}</Badge>
+      {#if user.username}
+        <Badge variant="outline">@{user.username}</Badge>
+      {/if}
       {#if systemRole}
         <Badge variant="secondary">{systemRole}</Badge>
       {/if}

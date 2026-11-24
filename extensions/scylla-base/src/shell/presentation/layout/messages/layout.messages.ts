@@ -34,6 +34,7 @@ export const layoutMessages = {
   openScylla: msg`Open Scylla`,
   newBadge: msg`New`,
   whatsNew: (version: string) => msg`What's new in Scylla ${String(version)}`,
+  whatsNewMenu: msg`What's new`,
   whatsNewDescription: msg`Here is what landed in this version.`,
   gotIt: msg`Got it`,
   openDashboard: msg`Scylla: open the dashboard`,

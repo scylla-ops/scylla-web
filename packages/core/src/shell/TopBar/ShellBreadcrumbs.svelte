@@ -41,7 +41,7 @@
         'text-primary',
         current ? 'line-clamp-1 min-w-5 grow basis-0 break-all' : 'max-w-40 truncate',
       )}
-      title={crumb.highlight}>#{crumb.highlight}</span
+      title={crumb.highlight}>{crumb.highlight}</span
     >
   {/if}
   {#if crumb.detail}

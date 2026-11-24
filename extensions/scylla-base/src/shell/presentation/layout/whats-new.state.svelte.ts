@@ -66,7 +66,18 @@ export const markNavSeen = (navUrl: string): void => {
   if (id) markSeen(id);
 };
 
-/** Reactive. */
-export const unseenRelease = (): Release | null => (isUnseen(RELEASE_ID) ? WHATS_NEW : null);
+/** The user asked for the announcement again, from the menu. */
+let reopened = $state(false);
 
-export const dismissRelease = (): void => markSeen(RELEASE_ID);
+export const reopenRelease = (): void => {
+  reopened = true;
+};
+
+/** Reactive. */
+export const unseenRelease = (): Release | null =>
+  reopened || isUnseen(RELEASE_ID) ? WHATS_NEW : null;
+
+export const dismissRelease = (): void => {
+  reopened = false;
+  markSeen(RELEASE_ID);
+};

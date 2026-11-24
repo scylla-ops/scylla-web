@@ -478,6 +478,10 @@ msgstr "Utiliser {name}. Actuellement : {now}. Cet appareil seulement."
 msgid "Welcome to Scylla!"
 msgstr "Bienvenue sur Scylla !"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:36
+msgid "What's new"
+msgstr "Nouveautés"
+
 #. placeholder {0}: String(version)
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:36
 msgid "What's new in Scylla {0}"

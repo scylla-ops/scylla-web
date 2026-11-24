@@ -23,6 +23,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   breadcrumb of the current page no longer goes under the menu icon.
 - Show one "Service unavailable" banner, and reload the page when the API answers again, when the
   server is in maintenance or down.
+- Breadcrumbs of agents, apps and fragments show their name, and the pipeline crumb has no hash. The
+  unknown page of a workspace keeps the shell. The account header hides an empty username badge. The
+  user menu opens What's new again.
 
 ## [0.7.0] - 2026-11-24
 

@@ -6,6 +6,7 @@
   import LogOutIcon from '@lucide/svelte/icons/log-out';
   import ScaleIcon from '@lucide/svelte/icons/scale';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
+  import SparklesIcon from '@lucide/svelte/icons/sparkles';
   import UserRoundIcon from '@lucide/svelte/icons/user-round';
   import { consentFrame, consentMessages, cookieSettings } from '@platform/consent';
   import { navigateTo, scyllaNavigate, workspaceUrl } from '@platform/context';
@@ -37,6 +38,7 @@
   import IdentityAvatar from '@shared/presentation/ui/data-display/IdentityAvatar/IdentityAvatar.svelte';
   import { adminHome, isAdminPath } from '@base/shell/presentation/admin-space.ts';
   import { createAdminExit } from '@base/shell/presentation/layout/admin-exit.state.svelte.ts';
+  import { reopenRelease } from '@base/shell/presentation/layout/whats-new.state.svelte.ts';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import { chooseLocale } from '@base/shell/presentation/layout/user-preferences.ts';
   import { linkParams } from '@base/shell/presentation/shell-params.ts';
@@ -134,6 +136,10 @@
       >
         <LifeBuoyIcon />
         {t(layoutMessages.helpAndTours)}
+      </DropdownMenuItem>
+      <DropdownMenuItem class="text-foreground hover:bg-accent" onSelect={reopenRelease}>
+        <SparklesIcon />
+        {t(layoutMessages.whatsNewMenu)}
       </DropdownMenuItem>
       <!-- The documents that the operator turned on, in a new tab: the app stays open. -->
       {#if legal.length > 0}
