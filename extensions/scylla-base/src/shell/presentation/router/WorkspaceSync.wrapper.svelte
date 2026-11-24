@@ -8,9 +8,11 @@
   let { params, children }: { params: RouteParams; children: Snippet } = $props();
 
   const slug = untrack(() => params.workspaceSlug);
-  syncWorkspace(slug);
+  const workspace = syncWorkspace(slug);
   // The way back from the administration of the server.
   if (slug) rememberWorkspacePage(slug, `${currentPathname()}${currentSearch()}`);
 </script>
 
-{@render children()}
+{#if workspace.matched}
+  {@render children()}
+{/if}

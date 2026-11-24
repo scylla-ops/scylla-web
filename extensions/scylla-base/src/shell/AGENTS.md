@@ -165,6 +165,14 @@ Rules:
   the mount. A new name goes to the store with no navigation. A new slug of the active workspace
   opens the same page under the new slug. This starts from the list of the server, so it is not a
   store → URL sync.
+- **`WorkspaceSyncWrapper` renders its page only after the slug names a workspace of the person**
+  (`matched` of `syncWorkspace`). A URL with no workspace, like `/marketplace`, reads its page as
+  the slug. No page and no redirect of the mount runs for it, so `syncWorkspace` reads the URL that
+  the person opened and opens the same page in the active workspace (`/<slug>/marketplace`). If
+  the redirect of the root of the workspace ran first, it would add `/dashboard`, and
+  `/<slug>/marketplace/dashboard` is the page of a package. A URL with no workspace that no route
+  matches (`/marketplace/helm`) gets the not-found page. `matched` stays `true` after a new slug,
+  so the old page stays on screen during its exit animation.
 - `ContextCleanerWrapper` also handles a project id that no longer exists: it redirects out, and it
   does not render the page of a project that `cleanContext` knows is gone.
 - `cleanContext` reads the project of the URL with `projectQueries.byId`, and keeps the project of

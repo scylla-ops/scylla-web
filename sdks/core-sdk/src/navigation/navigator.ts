@@ -18,7 +18,7 @@ export interface AppNavigator {
   params: () => RouteParams;
   /** Reactive. The crumbs of the current route, from the root. */
   trail: () => TrailCrumb[];
-  /** Whether a page (not a redirect) answers this pathname. Absent in a fake navigator: no page. */
+  /** Whether a page, or a redirect to one, answers this pathname. Absent: no page. */
   hasPage?: (pathname: string) => boolean;
 }
 

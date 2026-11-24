@@ -15,15 +15,12 @@ const samePageAt = (oldSlug: string, newSlug: string): string =>
   `/${newSlug}${currentPathname().slice(oldSlug.length + 1)}${currentSearch()}`;
 
 /**
- * A URL with no workspace, like `/marketplace`, reads its page as the slug. The redirect of the
- * mount may have added `/dashboard` already. Returns the same page under the slug `target`, or
- * `null` when the first segment is not a page.
+ * A URL with no workspace, like `/marketplace`, reads its page as the slug. Returns the same URL
+ * under the slug `target`, or `null` when the router has no page there.
  */
 const pageUnder = (target: string): string | null => {
-  const pathname = currentPathname();
-  const candidates = [pathname, pathname.replace(/\/dashboard$/, '')];
-  const found = candidates.find(candidate => hasPage(`/${target}${candidate}`));
-  return found === undefined ? null : `/${target}${found}${currentSearch()}`;
+  const pathname = `/${target}${currentPathname()}`;
+  return hasPage(pathname) ? `${pathname}${currentSearch()}` : null;
 };
 
 /**
@@ -31,9 +28,14 @@ const pageUnder = (target: string): string | null => {
  * rename reaches each reader of the store here. When no workspace matches the slug, goes to the
  * same page under the new slug of the active workspace, else to the first workspace. A URL with no
  * workspace keeps its page in the active workspace.
+ *
+ * `matched` stays `false` until the slug names a workspace of the person: until then the wrapper
+ * renders no page and no redirect. Thus the redirect of the root of a workspace does not add
+ * `/dashboard` to `/marketplace` before this effect reads the URL.
  */
-export const syncWorkspace = (workspaceSlug: string | undefined): void => {
+export const syncWorkspace = (workspaceSlug: string | undefined): { readonly matched: boolean } => {
   const workspaces = createQuery(() => workspaceQueries.mine());
+  let matched = $state(false);
 
   $effect(() => {
     const list = workspaces.data;
@@ -49,6 +51,7 @@ export const syncWorkspace = (workspaceSlug: string | undefined): void => {
         if (match.id !== workspace.id) store.setWorkspace(match.id, match.name, match.slug);
         else if (match.name !== workspace.name || match.slug !== workspace.slug)
           store.renameWorkspace(match.name, match.slug);
+        matched = true;
         return;
       }
 
@@ -71,4 +74,10 @@ export const syncWorkspace = (workspaceSlug: string | undefined): void => {
       store.setWorkspace(target.id, target.name, target.slug);
     });
   });
+
+  return {
+    get matched() {
+      return matched;
+    },
+  };
 };
