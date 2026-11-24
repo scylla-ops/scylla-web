@@ -8,7 +8,7 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    target-branch: v0.6.1
+    target-branch: v0.8.0
     open-pull-requests-limit: 5
     commit-message:
       prefix: chore
@@ -40,7 +40,7 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    target-branch: v0.6.1
+    target-branch: v0.8.0
     commit-message:
       prefix: chore
       include: scope
