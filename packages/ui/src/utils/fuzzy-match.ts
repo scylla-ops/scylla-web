@@ -121,6 +121,9 @@ const errorBudget = (length: number): number => {
 /** A word that the user is still typing, a keyword or a place: more errors would find any row. */
 const LOOSE_BUDGET = 1;
 
+/** The shortest word that can have an error and still match only the start of a word. */
+const MIN_START_TYPO = 5;
+
 const letterCost = (a: string, b: string): number => {
   if (a === b) return 0;
   return NEIGHBOURS.get(a)?.has(b) ? NEIGHBOUR_COST : 1;
@@ -197,7 +200,9 @@ const typoHit = (token: string, field: FuzzyText, cap: number): WordHit | null =
     const budget = Math.min(errorBudget(Math.max(token.length, target.length)), cap);
     const found = editCost(token, target, budget);
     if (!found) return;
-    const fromStart = found.start < found.whole && found.start <= LOOSE_BUDGET;
+    // A short word matches the start of a longer word only as it is: with one error, `job` finds `jour`.
+    const fromStart =
+      token.length >= MIN_START_TYPO && found.start < found.whole && found.start <= LOOSE_BUDGET;
     const errors = fromStart ? found.start : found.whole;
     if (errors > budget) return;
     const sameStart =
