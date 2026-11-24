@@ -170,7 +170,7 @@
         ? t(pipelineMessages.createDenied)
         : t(pipelineMessages.editDenied)}
       onclick={onSubmit}
-      disabled={submitDisabled || !!missing || !!issue || isSaving}
+      disabled={submitDisabled || !!missing || !!issue || isSaving || (mode === 'edit' && !isDirty)}
       data-tour="pipeline-submit"
     >
       {#if isSaving}<Loader2Icon class="mr-2 size-4 animate-spin" />{/if}

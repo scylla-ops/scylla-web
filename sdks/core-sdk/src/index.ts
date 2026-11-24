@@ -50,6 +50,7 @@ export { default as Redirect } from './routing/Redirect.svelte';
 export {
   currentPathname,
   currentSearch,
+  hasPage,
   navigateBack,
   navigateTo,
   routeParams,

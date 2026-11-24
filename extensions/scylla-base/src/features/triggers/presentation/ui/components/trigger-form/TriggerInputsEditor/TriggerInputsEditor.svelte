@@ -55,6 +55,10 @@
           <Select
             type="single"
             value={input.valueKind}
+            items={[
+              { value: 'literal', label: t(triggersMessages.literal) },
+              { value: 'jsonPointer', label: t(triggersMessages.jsonPointer) },
+            ]}
             onValueChange={value =>
               update(index, { valueKind: value as DraftInput['valueKind'] })}
           >

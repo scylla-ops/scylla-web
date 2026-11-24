@@ -10,7 +10,7 @@
   import { untrack } from 'svelte';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import type { RoleEntity, RoleLevel } from '../../../domain/entities/role.entity.ts';
-  import { permissionsFor } from '../../../domain/structs/catalog.struct.ts';
+  import { permissionsFor, withoutImplicit } from '../../../domain/structs/catalog.struct.ts';
   import {
     copiedFrom,
     holderHints,
@@ -97,7 +97,6 @@
         : null,
   );
   const pending = $derived(createRole.isPending || updateRole.isPending);
-  const canSave = $derived(name.trim().length > 0 && !pending && !nameError);
 
   /** A role name is unique for each owner, in any case. */
   const nameUsed = (text: string) =>
@@ -173,6 +172,23 @@
       onFailed(thrown);
     }
   };
+
+  /** An edit with nothing changed has nothing to save. The implicit permissions do not count. */
+  const edited = $derived.by(() => {
+    if (!role) return true;
+    if (areas.length === 0) return false;
+    const before = withoutImplicit(new Set(role.permissions), areas);
+    const after = withoutImplicit(draft.selected, areas);
+    return (
+      name !== role.name ||
+      description !== role.description ||
+      draft.level !== role.level ||
+      draft.holder !== role.holder ||
+      before.size !== after.size ||
+      [...before].some(id => !after.has(id))
+    );
+  });
+  const canSave = $derived(name.trim().length > 0 && !pending && !nameError && edited);
 
   const changed = $derived(
     role !== undefined &&

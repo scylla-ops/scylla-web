@@ -276,6 +276,14 @@ describe('the start', () => {
     ]);
   });
 
+  it('never preselects a preference with no text', () => {
+    const results = commandResults(rows, '', null, { recent: ['light'] });
+
+    expect(firstActionable(results)).not.toMatch(/^(light|dark)$/);
+    expect(firstActionable(results)).toBe('here');
+    expect(firstActionable(commandResults([rows[0], ...rows.slice(2)], '', null, { recent: [] }))).toBe('page');
+  });
+
   it('names a pipeline page', () => {
     const results = commandResults(rows, '', null, { recent: [], here: 'pipeline' });
 
@@ -285,7 +293,7 @@ describe('the start', () => {
   it('shows a row once', () => {
     const results = commandResults(rows, '', null, { recent: ['here', 'light'] });
 
-    expect(ids(results)).toEqual(['here', 'light', 'dark']);
+    expect(ids(results)).toEqual(['here', 'page', 'light', 'dark']);
   });
 
   it('keeps 5 recent rows, and skips a row that left', () => {

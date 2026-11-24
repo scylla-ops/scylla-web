@@ -88,6 +88,7 @@ const GROUP_LIMIT = 4;
 const FILTER_LIMIT = 200;
 const RECENT_LIMIT = 5;
 const HERE_LIMIT = 6;
+const PAGES_LIMIT = 4;
 
 export const groupTitle = (group: CommandGroupId): string => t(GROUP_TITLES[group]);
 
@@ -314,10 +315,12 @@ export const startCommandRows = (
   const recent = take(
     order.recent
       .flatMap(id => byId.get(id) ?? [])
-      .filter(row => row.verb !== undefined)
+      .filter(row => row.verb !== undefined && row.group !== 'preferences')
       .slice(0, RECENT_LIMIT),
   );
   const here = take(rows.filter(row => row.here).slice(0, HERE_LIMIT));
+  // Enter on the first row must never change a setting: a page comes before the preferences.
+  const pages = take(rows.filter(row => row.group === 'pages' && row.verb !== undefined).slice(0, PAGES_LIMIT));
   const preferences = take(
     rows
       .filter(row => row.group === 'preferences')
@@ -331,12 +334,13 @@ export const startCommandRows = (
       heading: t(order.here === 'pipeline' ? messages.groupHerePipeline : messages.groupHereProject),
       items: here,
     },
+    { id: 'pages', heading: groupTitle('pages'), items: pages },
     { id: 'preferences', heading: groupTitle('preferences'), items: preferences },
   ].filter(section => section.items.length > 0);
 
   return {
     sections,
-    total: recent.length + here.length + preferences.length,
+    total: recent.length + here.length + pages.length + preferences.length,
     closeOnly: false,
   };
 };

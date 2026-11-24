@@ -17,6 +17,18 @@ const match = (query: string, name: string, keywords: string[] = [], place = '')
 
 const score = (query: string, name: string): number => match(query, name)?.score ?? -1;
 
+describe('a short word with an error', () => {
+  it('does not match the start of a longer word', () => {
+    expect(match('job', 'Light theme', ['jour clair'])).toBeNull();
+    expect(match('set', 'Sign out', ['session'])).toBeNull();
+  });
+
+  it('keeps the typo of a long word', () => {
+    expect(match('tokesn', 'Tokens')?.typo).toBe(true);
+    expect(match('worksp', 'Workspaces')).not.toBeNull();
+  });
+});
+
 describe('normalizeText', () => {
   it('removes the case and the accents', () => {
     expect(normalizeText('Thème Déjà ÉTÉ')).toBe('theme deja ete');

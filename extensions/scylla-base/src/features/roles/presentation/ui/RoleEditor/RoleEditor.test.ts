@@ -103,8 +103,22 @@ describe('RoleEditor', () => {
     });
   });
 
+  it('enables Save only while the role differs from the saved one', async () => {
+    await open(role({}));
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(save).toBeDisabled();
+
+    const edit = screen.getByRole('checkbox', { name: 'Workspace · Edit' });
+    await userEvent.click(edit);
+    expect(save).toBeEnabled();
+
+    await userEvent.click(edit);
+    expect(save).toBeDisabled();
+  });
+
   it('sends no level when the level stays', async () => {
     await open(role({}));
+    await userEvent.type(screen.getByLabelText('Description'), 'x');
 
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 

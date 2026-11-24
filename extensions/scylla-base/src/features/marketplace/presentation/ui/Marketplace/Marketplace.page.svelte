@@ -15,7 +15,9 @@
       ? marketplaceMessages.noneAdded(marketplace.workspaceName)
       : marketplace.tab === 'published'
         ? marketplaceMessages.nonePublished(marketplace.workspaceName)
-        : marketplaceMessages.noMatch,
+        : marketplace.hasPackages
+          ? marketplaceMessages.noMatch
+          : marketplaceMessages.noneYet,
   );
 </script>
 

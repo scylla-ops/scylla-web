@@ -2,6 +2,7 @@ import { untrack } from 'svelte';
 import {
   currentPathname,
   currentSearch,
+  hasPage,
   navigateTo,
   contextStore,
   workspaceUrl,
@@ -14,9 +15,22 @@ const samePageAt = (oldSlug: string, newSlug: string): string =>
   `/${newSlug}${currentPathname().slice(oldSlug.length + 1)}${currentSearch()}`;
 
 /**
+ * A URL with no workspace, like `/marketplace`, reads its page as the slug. The redirect of the
+ * mount may have added `/dashboard` already. Returns the same page under the slug `target`, or
+ * `null` when the first segment is not a page.
+ */
+const pageUnder = (target: string): string | null => {
+  const pathname = currentPathname();
+  const candidates = [pathname, pathname.replace(/\/dashboard$/, '')];
+  const found = candidates.find(candidate => hasPage(`/${target}${candidate}`));
+  return found === undefined ? null : `/${target}${found}${currentSearch()}`;
+};
+
+/**
  * Keeps the store equal to the list of the server, also when the list changes after the mount: a
  * rename reaches each reader of the store here. When no workspace matches the slug, goes to the
- * same page under the new slug of the active workspace, else to the first workspace.
+ * same page under the new slug of the active workspace, else to the first workspace. A URL with no
+ * workspace keeps its page in the active workspace.
  */
 export const syncWorkspace = (workspaceSlug: string | undefined): void => {
   const workspaces = createQuery(() => workspaceQueries.mine());
@@ -49,8 +63,12 @@ export const syncWorkspace = (workspaceSlug: string | undefined): void => {
       const fallback = list[0];
       if (!fallback) return;
 
-      navigateTo(workspaceUrl(fallback.slug), { replace: true });
-      store.setWorkspace(fallback.id, fallback.name, fallback.slug);
+      // No workspace in the URL: the page stays, in the workspace that the person uses now.
+      const current = list.find(item => item.id === workspace.id) ?? fallback;
+      const samePage = pageUnder(current.slug);
+      navigateTo(samePage ?? workspaceUrl(fallback.slug), { replace: true });
+      const target = samePage ? current : fallback;
+      store.setWorkspace(target.id, target.name, target.slug);
     });
   });
 };

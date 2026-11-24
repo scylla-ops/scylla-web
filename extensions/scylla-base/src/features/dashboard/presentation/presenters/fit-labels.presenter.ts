@@ -20,6 +20,8 @@ export interface FitAction {
   variant?: 'default' | 'outline' | 'ghost';
   /** The icon also shows beside a label. */
   labeledIcon?: boolean;
+  /** The action cannot run now. */
+  disabled?: boolean;
   onclick: () => void;
 }
 

@@ -71,6 +71,7 @@
           class={cn('min-w-0', stretch ? 'w-full' : 'shrink-0')}
           aria-label={level === 'full' ? undefined : action.label}
           data-level={level}
+          disabled={action.disabled}
           onclick={action.onclick}
         >
           {#if level === 'icon' || action.labeledIcon}<action.icon aria-hidden="true" />{/if}

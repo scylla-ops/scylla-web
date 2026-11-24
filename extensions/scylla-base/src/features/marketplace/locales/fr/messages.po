@@ -183,6 +183,10 @@ msgstr "Les nouvelles versions de l'éditeur attendent un admin dans la biblioth
 msgid "No fragment matches these filters."
 msgstr "Aucun fragment ne correspond à ces filtres."
 
+#: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:33
+msgid "No fragment is published in the marketplace yet."
+msgstr "Aucun fragment n'est encore publié dans la marketplace."
+
 #: extensions/scylla-base/src/features/marketplace/presentation/messages/marketplace.messages.ts:80
 msgid "No secret, no tool beyond the shell of the agent."
 msgstr "Aucun secret, aucun outil au-delà du shell de l'agent."

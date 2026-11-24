@@ -73,6 +73,23 @@ describe('MarketplacePage', () => {
     expect(cardNames()).toEqual(['node-ci', 'helm-deploy']);
   });
 
+  it('tells that no fragment is published when the marketplace is empty', async () => {
+    renderPage([]);
+
+    expect(await screen.findByText('No fragment is published in the marketplace yet.')).toBeInTheDocument();
+    expect(screen.queryByText('No fragment matches these filters.')).not.toBeInTheDocument();
+  });
+
+  it('tells that the filters hide the packages only when a filter is set', async () => {
+    renderPage(PACKAGES);
+    await screen.findByRole('link', { name: 'helm-deploy' });
+
+    await userEvent.click(screen.getByRole('checkbox', { name: /Deploy/ }));
+    await userEvent.click(screen.getByRole('switch', { name: /Verified only/ }));
+
+    expect(screen.getByText('No fragment matches these filters.')).toBeInTheDocument();
+  });
+
   it('keeps the packages of the library in their tab', async () => {
     renderPage(PACKAGES, [LINKED]);
     await screen.findByRole('link', { name: 'helm-deploy' });

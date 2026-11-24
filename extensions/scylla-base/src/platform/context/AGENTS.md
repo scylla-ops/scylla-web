@@ -19,6 +19,7 @@ scyllaNavigate, type ScyllaNavigate       context-aware navigation (goToUser, go
 workspaceUrl(name, path = 'dashboard') the URL of a page of any workspace, for a link
 navigateTo, navigateBack                  plain navigation
 currentPathname, currentSearch            the current URL
+hasPage                                  whether the router has a page for a pathname
 setAppNavigator, type AppNavigator, type NavigateOptions
 createResourceError                       NOT_FOUND on a detail page → toast + redirect
 ```

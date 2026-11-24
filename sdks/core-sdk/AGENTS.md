@@ -22,7 +22,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `SecondSidebarLink`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
-| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink`, `guardLeave`, `holdsLeave`, `LeaveGuard` |
+| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `hasPage`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink`, `guardLeave`, `holdsLeave`, `LeaveGuard` |
 | Commands of the bar | `CommandDefinition`, `GoCommand`, `CreateCommand`, `ChoiceCommand`, `ToggleCommand`, `ConfirmCommand`, `CommandBase`, `CommandForm`, `CommandFormProps`, `commandForm` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |
