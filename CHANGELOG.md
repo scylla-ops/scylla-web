@@ -18,6 +18,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   end of the ID. Long workspace lists in Admin users end with an ellipsis.
 - Dashboard shows "Times in UTC" once, the trigger form text uses "local time", the mobile dashboard
   name ends with an ellipsis, and the job and fragment graphs are easier to read.
+- The pipeline editor is usable on a phone and a tablet. In a narrow blueprint, the side panel goes
+  under the canvas, the pipeline name has its own row, and the canvas toolbar shows icons only. The
+  breadcrumb of the current page no longer goes under the menu icon.
 
 ## [0.7.0] - 2026-11-24
 

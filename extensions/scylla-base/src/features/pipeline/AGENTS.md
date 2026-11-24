@@ -478,6 +478,14 @@ the page.
   keyed by the mode (`{#key mode}`) and each mode has its own `SIDE_PANEL_SIZES` (percent), so
   the group saves one width per mode: the layout is keyed by the constraints of the panes. The
   inspector holds code, so it is wider than the palette.
+- **A narrow blueprint puts the side panel under the canvas.** `PipelineBlueprint` measures its
+  own box (`createCompactContainer`, not the viewport): narrower than `STACK_BELOW_PX` (640), the
+  group is `vertical` and the pane takes `STACKED_SIDE_PANEL_SIZES` (percent of the height). These
+  constraints differ from those beside the canvas, so paneforge saves the two places apart; the
+  pane is keyed by `mode:stacked`. A panel too low for the code of a node scrolls the Code tab.
+  The other parts of a narrow editor use container queries: the header puts the name on a row of
+  its own below `@2xl` of the editor, and `CanvasToolbar` shows Select and Arrange as icons only
+  below `@md` of the canvas pane (the label stays for a screen reader, and in a `title`).
 - **The user never sees the first fit.** The edit page shows the editor at once: the header has
   a skeleton in the name field, no status, and Save and the Scripting tab are disabled until the
   pipeline comes (`missing`, `MissingDocument`). `PipelineBlueprint` mounts with the document

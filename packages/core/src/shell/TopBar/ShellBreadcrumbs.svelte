@@ -26,12 +26,21 @@
   );
 </script>
 
-<!-- One line. Only the highlight of the current crumb shrinks, down to one character. -->
+<!--
+  One line. The highlight of the current crumb shrinks first, down to one character: it takes the
+  room that the label and the detail leave. Only a bar narrower than the current crumb shrinks its
+  label too.
+-->
 {#snippet content(crumb: BreadcrumbItem, current: boolean)}
-  <span class="max-w-48 shrink-0 truncate" title={crumb.label}>{crumb.label}</span>
+  <span class={cn('max-w-48 truncate', current ? 'min-w-0' : 'shrink-0')} title={crumb.label}
+    >{crumb.label}</span
+  >
   {#if crumb.highlight}
     <span
-      class={cn('text-primary', current ? 'line-clamp-1 min-w-5 break-all' : 'max-w-40 truncate')}
+      class={cn(
+        'text-primary',
+        current ? 'line-clamp-1 min-w-5 grow basis-0 break-all' : 'max-w-40 truncate',
+      )}
       title={crumb.highlight}>#{crumb.highlight}</span
     >
   {/if}
@@ -41,11 +50,14 @@
 {/snippet}
 
 {#if crumbs.length > 0}
-  <!-- Too narrow for the crumbs before the current one: they go out at the left edge, in a fade. -->
+  <!--
+    Too narrow for the crumbs before the current one: they go out at the left edge, in a fade. The
+    current crumb is at most as wide as the bar (`100cqw` of the `nav`), so it never goes out.
+  -->
   <nav
     aria-label="breadcrumb"
     data-slot="breadcrumb"
-    class="-my-1 -ml-3 flex justify-end overflow-x-clip py-1 pl-3 mask-l-from-[calc(100%-0.75rem)]"
+    class="@container -my-1 -ml-3 flex justify-end overflow-x-clip py-1 pl-3 mask-l-from-[calc(100%-0.75rem)]"
   >
     <ol
       data-slot="breadcrumb-list"
@@ -53,14 +65,17 @@
     >
       {#each crumbs as crumb, index (index)}
         {@const current = index === crumbs.length - 1}
-        <li data-slot="breadcrumb-item" class={cn('flex items-center', !current && 'shrink-0')}>
+        <li
+          data-slot="breadcrumb-item"
+          class={cn('flex items-center', current ? 'max-w-[100cqw] min-w-0' : 'shrink-0')}
+        >
           {#if current}
             <span
               data-slot="breadcrumb-page"
               role="link"
               aria-disabled="true"
               aria-current="page"
-              class="flex items-center gap-1 text-sm text-foreground"
+              class="flex min-w-0 items-center gap-1 text-sm text-foreground"
             >
               {@render content(crumb, true)}
             </span>
