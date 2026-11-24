@@ -10,6 +10,20 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-11-24
+
+### Added
+
+- Agent labels. The agent page has a Labels card, where the admins of the workspace add and
+  remove labels, the agent list has a Labels column, the pipeline editor has an "Agent labels"
+  button, and the job page shows the labels of the job and why a job waits for an agent. In
+  English and French.
+
+### Changed
+
+- The checks of a pull request run in Scylla, on a Scylla agent (`.scylla/pipelines/ci.yaml`), not
+  in GitHub Actions.
+
 ### Fixed
 
 - The Secrets page shows a clear empty state. The Library search and tab texts say "workspace". The
