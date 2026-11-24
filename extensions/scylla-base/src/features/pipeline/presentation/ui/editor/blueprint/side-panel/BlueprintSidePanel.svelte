@@ -13,13 +13,24 @@
 
   type Mode = 'palette' | 'inspector' | 'block' | 'selection';
 
-  // In percent of the blueprint. The inspector holds code: it is wider than the palette.
+  type Sizes = Record<Mode, { default: number; min: number; max: number }>;
+
+  // In percent of the blueprint's width. The inspector holds code: it is wider than the palette.
   const SIDE_PANEL_SIZES = {
     palette: { default: 24, min: 18, max: 40 },
     inspector: { default: 40, min: 28, max: 70 },
     block: { default: 26, min: 20, max: 45 },
     selection: { default: 24, min: 18, max: 41 },
-  } as const satisfies Record<Mode, { default: number; min: number; max: number }>;
+  } as const satisfies Sizes;
+
+  // Under the canvas, in percent of the blueprint's height. Not the constraints of the panel beside
+  // the canvas: paneforge saves one layout per set of constraints.
+  const STACKED_SIDE_PANEL_SIZES = {
+    palette: { default: 50, min: 25, max: 70 },
+    inspector: { default: 65, min: 35, max: 80 },
+    block: { default: 50, min: 25, max: 72 },
+    selection: { default: 50, min: 25, max: 71 },
+  } as const satisfies Sizes;
 
   interface Props {
     blueprint: Blueprint;
@@ -29,6 +40,8 @@
     linkable: boolean;
     projectId?: string;
     drag: PaletteDrag;
+    /** The panel is under the canvas, not right of it. */
+    stacked: boolean;
     onAdd: (entry: CatalogEntry) => void;
     onSaveSelection?: () => void;
     /** Makes a fragment of one node. */
@@ -42,6 +55,7 @@
     linkable,
     projectId,
     drag,
+    stacked,
     onAdd,
     onSaveSelection,
     onSaveNode,
@@ -53,22 +67,24 @@
   const mode = $derived<Mode>(
     blueprint.selecting ? 'selection' : node ? 'inspector' : block ? 'block' : 'palette',
   );
+  const sizes = $derived((stacked ? STACKED_SIDE_PANEL_SIZES : SIDE_PANEL_SIZES)[mode]);
   const close = () => blueprint.inspect(null);
 </script>
 
 <!--
   One panel, four modes: the palette, the inspector of the node or of the block a click opened, or
   the nodes that a box selected. paneforge saves a layout per set of panes, keyed by their order
-  and constraints (not their ids): each mode keeps its own width only while their constraints
-  differ (SIDE_PANEL_SIZES).
+  and constraints (not their ids): each mode keeps its own size only while their constraints
+  differ (SIDE_PANEL_SIZES, STACKED_SIDE_PANEL_SIZES). The pane is built again when the panel goes
+  under the canvas or back beside it, with the constraints of that place.
 -->
-{#key mode}
+{#key `${mode}:${stacked}`}
   <ResizablePane
     id="blueprint-{mode}"
     order={2}
-    defaultSize={SIDE_PANEL_SIZES[mode].default}
-    minSize={SIDE_PANEL_SIZES[mode].min}
-    maxSize={SIDE_PANEL_SIZES[mode].max}
+    defaultSize={sizes.default}
+    minSize={sizes.min}
+    maxSize={sizes.max}
   >
     <aside class="flex h-full flex-col bg-card">
       {#if mode === 'inspector' && node}

@@ -92,10 +92,13 @@ export const userMessages = {
   themeSystem: msg({ context: 'theme', message: 'System' }),
 
   passwordDescription: msg`A new password signs out your other sessions.`,
+  firstPasswordDescription: msg`You sign in with a provider. Set a password to also sign in with your email. This signs out your other sessions.`,
   currentPassword: msg`Current password`,
   newPassword: msg`New password`,
   changePassword: msg`Change the password`,
+  setPassword: msg`Set a password`,
   passwordChanged: msg`Password changed. Your other sessions are signed out.`,
+  passwordSet: msg`Password set. Your other sessions are signed out.`,
 
   sessions: msg`Sessions`,
   sessionsDescription: msg`The devices and apps where your account is signed in.`,

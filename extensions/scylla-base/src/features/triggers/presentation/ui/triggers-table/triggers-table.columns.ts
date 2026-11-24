@@ -21,7 +21,7 @@ export const triggerColumns = (cells: TriggerCells): DataTableColumn<TriggerEnti
     // Sized, so it does not absorb the free width: the source is what is worth reading.
     size: 220,
     minSize: 220,
-    meta: { card: 'title' },
+    meta: { card: 'title', align: 'left' },
   },
   {
     id: 'source',

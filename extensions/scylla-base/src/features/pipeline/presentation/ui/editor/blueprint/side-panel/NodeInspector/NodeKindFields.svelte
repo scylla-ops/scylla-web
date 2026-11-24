@@ -57,7 +57,8 @@
         {/if}
       </TabsTrigger>
     </TabsList>
-    <TabsContent value="code" class="flex min-h-0 flex-1 flex-col">
+    <!-- A panel too low for the code and its fields scrolls them: the code keeps its height. -->
+    <TabsContent value="code" class="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
       <NodeCodeTab {draft} {readOnly} />
       <div class="px-4 pb-4">
         <NodeErrorOutputField checked={errorOutput} onCheckedChange={onErrorOutputChange} />

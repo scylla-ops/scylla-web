@@ -33,6 +33,7 @@
   );
 </script>
 
+<!-- A canvas pane narrower than `md` (it is the container) shows Select and Arrange as icons only. -->
 <Panel
   position="top-right"
   class="m-3! flex items-center gap-1 rounded-[10px] border bg-card p-1 shadow-xs"
@@ -55,11 +56,17 @@
       onclick={() => onSelectModeChange?.(!selectMode)}
     >
       <SquareDashedMousePointerIcon class="size-4" />
-      {t(blueprintMessages.selectMode)}
+      <span class="@max-md:sr-only">{t(blueprintMessages.selectMode)}</span>
     </Button>
   {/if}
-  <Button variant="ghost" size="sm" class="h-7" onclick={onArrange}>
+  <Button
+    variant="ghost"
+    size="sm"
+    class="h-7"
+    title={t(blueprintMessages.arrange)}
+    onclick={onArrange}
+  >
     <LayoutGridIcon class="size-4" />
-    {t(blueprintMessages.arrange)}
+    <span class="@max-md:sr-only">{t(blueprintMessages.arrange)}</span>
   </Button>
 </Panel>

@@ -110,7 +110,8 @@ describe('reportQueryError', () => {
     expect(close).not.toHaveBeenCalled();
     expect(window.location.href).toBe('/acme/members');
     expect(localStorage.getItem('userId')).toBe('user-1');
-    expect(toastError).toHaveBeenCalledOnce();
+    // The banner of the shell tells the user: no toast for each failed query.
+    expect(toastError).not.toHaveBeenCalled();
   });
 
   it('keeps the user signed in when a mutation cannot reach it, so that they can retry', () => {

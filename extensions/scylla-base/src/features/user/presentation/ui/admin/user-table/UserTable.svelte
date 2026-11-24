@@ -56,11 +56,11 @@
 {/snippet}
 
 {#snippet workspacesCell(user: UserEntity)}
-  <span class="truncate">{user.workspaces?.join(', ')}</span>
+  <span class="block truncate">{user.workspaces?.join(', ')}</span>
 {/snippet}
 
 {#snippet lastSignInCell(user: UserEntity)}
-  <span class="truncate text-xs text-muted-foreground">
+  <span class="block truncate text-xs text-muted-foreground">
     {user.lastSignInAt ? getRelativeTime(user.lastSignInAt) : t(userMessages.neverSignedIn)}
   </span>
 {/snippet}

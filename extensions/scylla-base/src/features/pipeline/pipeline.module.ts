@@ -7,6 +7,7 @@ import { grpcTransport, marketplaceIsLocal, marketplaceTransport, marketplaceUrl
 import { PipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
 import { FragmentServiceClient } from '@base/generated/scylla/library/v1/fragment_service.client.ts';
 import { MarketplaceServiceClient } from '@base/generated/scylla/marketplace/v1/marketplace_service.client.ts';
+import { fragmentCrumbName } from './presentation/fragment-crumb.state.svelte.ts';
 import { DefaultPipelineRepository } from './infrastructure/default-pipeline.repository.ts';
 import { DefaultNodeTemplateRepository } from './infrastructure/default-node-template.repository.ts';
 import { DefaultFragmentRepository } from './infrastructure/default-fragment.repository.ts';
@@ -55,7 +56,7 @@ export const PipelineModule = {
           {
             path: ':fragmentId',
             permission: Permission.LIST_PIPELINES_BY_WORKSPACE,
-            breadcrumb: () => ({ label: msg`Fragment`, detail: msg`Detail` }),
+            breadcrumb: () => ({ label: fragmentCrumbName() ?? msg`Fragment` }),
             page: () => import('./presentation/ui/library/FragmentDetail/FragmentDetail.page.svelte'),
           },
         ],

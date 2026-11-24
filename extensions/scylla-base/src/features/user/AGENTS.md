@@ -194,6 +194,10 @@ user who has no workspace.
   skips the callbacks of a `mutate` call when the component is gone. `remove` drops the queries
   of the deleted user (`removeQueries`), it does not only refresh them. On the page of another user, a FAILED_PRECONDITION goes to the global toast, as
   the server wrote it.
+- **An account made with a provider has no password** (`hasPassword` of
+  `myIdentityQueries.signInMethods`). The Password card then sets a first password, with no
+  current password, as the server allows. `changePassword` refreshes the ways to sign in, so the
+  next change asks for the current password.
 - **Every form checks its values in the app** (`@shared/utils/account-validation.ts`): email
   format, password 8 to 255 characters and not spaces only, confirmation equal to the new
   password, username with no '@' and 255 bytes at most, display name 100 characters at most. Every form with a

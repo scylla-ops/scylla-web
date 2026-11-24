@@ -9,6 +9,7 @@ import {
   restoreSession,
 } from './session.ts';
 
+export { apiAnswers, serviceStatus } from './service-status.svelte.ts';
 export { ScyllaGrpcTransport } from './scylla-grpc-transport.ts';
 export type { IssuedToken } from '@base/generated/scylla/auth/v1/token_service.ts';
 

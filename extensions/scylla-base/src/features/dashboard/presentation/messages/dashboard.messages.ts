@@ -9,6 +9,7 @@ export const dashboardMessages = {
   last30DaysLong: msg`Last 30 days`,
   scope: msg`Scope`,
   allProjects: msg`All projects`,
+  timesInUtc: msg`Times in UTC`,
   timesIn: (timeZone: string, offset: string) => msg`Times in ${timeZone} (${offset})`,
   period: msg`Period`,
   last24Hours: msg`24 h`,

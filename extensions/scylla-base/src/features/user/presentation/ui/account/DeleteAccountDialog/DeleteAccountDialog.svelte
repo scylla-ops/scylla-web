@@ -19,20 +19,33 @@
     onConfirm: (password: string) => void;
     /** The link to the export. Off where the account page cannot open, as the terms step. */
     withExportLink?: boolean;
+    /** Off for an account made with a provider: it has no password to type. */
+    hasPassword?: boolean;
   }
 
-  let { open, onOpenChange, isPending, refusal, onConfirm, withExportLink = true }: Props =
-    $props();
+  let {
+    open,
+    onOpenChange,
+    isPending,
+    refusal,
+    onConfirm,
+    withExportLink = true,
+    hasPassword = true,
+  }: Props = $props();
 
-  const items: readonly FormItem<'password'>[] = $derived([
-    {
-      id: 'password',
-      label: t(userMessages.password),
-      type: FormItemType.Input,
-      inputType: 'password',
-      autocomplete: 'current-password',
-    },
-  ]);
+  const items: readonly FormItem<'password'>[] = $derived(
+    hasPassword
+      ? [
+          {
+            id: 'password',
+            label: t(userMessages.password),
+            type: FormItemType.Input,
+            inputType: 'password',
+            autocomplete: 'current-password',
+          },
+        ]
+      : [],
+  );
 
   /** What the server deletes with the account (`delete_user` of the core), and what it keeps. */
   const DELETED = [m.deletedProfile, m.deletedSignIn, m.deletedTokens, m.deletedWorkspaces];
@@ -76,7 +89,7 @@
       {t(m.downloadFirst)}
     </a>
   {/if}
-  <ScyllaForm {items} {isPending} onSubmit={values => onConfirm(values.password)}>
+  <ScyllaForm {items} {isPending} onSubmit={values => onConfirm(values.password ?? '')}>
     {#snippet footer({ isValid, isPending: pending })}
       {#if refusal}
         <p role="alert" class="text-sm text-destructive">{refusal}</p>

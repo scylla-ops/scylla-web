@@ -42,7 +42,7 @@
 
 <div class="flex h-full flex-col">
   <div class="p-3 pb-2">
-    <SearchField bind:value={query} label={t(libraryMessages.searchLibrary(workspaceName))} />
+    <SearchField bind:value={query} label={t(libraryMessages.searchLibrary)} />
   </div>
 
   <div class="relative min-h-0 flex-1 overflow-y-auto px-2 pb-2">

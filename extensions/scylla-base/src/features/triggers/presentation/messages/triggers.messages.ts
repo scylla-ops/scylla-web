@@ -18,7 +18,7 @@ export const triggersMessages = {
   idOf: (id: string) => msg`ID: ${id}`,
 
   enabled: msg`enabled`,
-  nextScheduledRun: msg`next scheduled run (Local time)`,
+  nextScheduledRun: msg`next scheduled run (local time)`,
   webhookEndpoints: msg`webhook endpoints`,
 
   name: msg`Name`,

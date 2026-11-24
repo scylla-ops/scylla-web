@@ -10,6 +10,26 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Fixed
+
+- The Secrets page shows a clear empty state. The Library search and tab texts say "workspace". The
+  GitLab self-managed choice no longer wraps. The tour prompt shows the same step count as Help.
+- Pipeline names are links to the jobs. List headers line up with their columns. Job IDs show the
+  end of the ID. Long workspace lists in Admin users end with an ellipsis.
+- Dashboard shows "Times in UTC" once, the trigger form text uses "local time", the mobile dashboard
+  name ends with an ellipsis, and the job and fragment graphs are easier to read.
+- The pipeline editor is usable on a phone and a tablet. In a narrow blueprint, the side panel goes
+  under the canvas, the pipeline name has its own row, and the canvas toolbar shows icons only. The
+  breadcrumb of the current page no longer goes under the menu icon.
+- Show one "Service unavailable" banner, and reload the page when the API answers again, when the
+  server is in maintenance or down.
+- Breadcrumbs of agents, apps and fragments show their name, and the pipeline crumb has no hash. The
+  unknown page of a workspace keeps the shell. The account header hides an empty username badge. The
+  user menu opens What's new again.
+- The cookie page lists the key of the width of the side panel of the pipeline editor. Tables of
+  legal pages wrap long text, and the table of contents marks no section at the top of the page.
+- The delete account dialog no longer asks for a password when the account has none.
+
 ## [0.7.0] - 2026-11-24
 
 The web app of the new backend. A host repo or an extension must read the **Breaking** entries of

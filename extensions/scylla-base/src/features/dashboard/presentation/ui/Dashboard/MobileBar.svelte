@@ -73,7 +73,7 @@
         onValueChange={id => scyllaNavigate.goToWorkspaceRoute(`/${dashboardPath(id, dashboards.isDefault(id))}`)}
       >
         <SelectTrigger class="h-8 max-w-40 min-w-0" aria-label={t(dashboardMessages.dashboards)}>
-          <SelectValue>{dashboard.name}</SelectValue>
+          <SelectValue class="min-w-0 truncate">{dashboard.name}</SelectValue>
         </SelectTrigger>
         <SelectContent>
           {#each dashboards.set.dashboards as item (item.id)}

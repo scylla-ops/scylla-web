@@ -24,7 +24,7 @@ export const communityMessages = {
   upstreamReleased: (number: number) => msg`Upstream v${number} released`,
   compare: msg`Compare`,
 
-  organizationBadge: msg`Organization`,
+  organizationBadge: msg`Workspace`,
   publicBadge: (name: string) => msg`Public · ${name}`,
   linkedBadge: (publisher: string) => msg`Linked · @${publisher}`,
   forkBadge: (reference: string, number: number) => msg`Fork of ${reference} v${number}`,

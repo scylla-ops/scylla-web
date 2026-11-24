@@ -85,7 +85,7 @@
 {/snippet}
 
 {#snippet idCell(job: JobEntity)}
-  <CopyableText value={job.id} truncate={12} copyLabel={t(jobsMessages.copyId)} />
+  <CopyableText value={job.id} display={job.id.slice(-8)} copyLabel={t(jobsMessages.copyId)} />
 {/snippet}
 
 {#snippet sourceCell(job: JobEntity)}

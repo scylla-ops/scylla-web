@@ -8,6 +8,7 @@ import {
 import type { MethodInfo, RpcInterceptor } from '@protobuf-ts/runtime-rpc';
 import { ScyllaError, type ScyllaErrorCode } from '@shared/utils/scylla-error.ts';
 import { fetchOrUnavailable } from './fetch-or-unavailable.ts';
+import { markServiceUnavailable } from './service-status.svelte.ts';
 import { accessToken, apiUrl, isPublicCall, refreshSession } from './session.ts';
 import { statusDetailsOf } from './status-details.ts';
 
@@ -30,8 +31,10 @@ const requestIdOf = (meta: RpcError['meta']): { requestId?: string } => {
   return requestId ? { requestId } : {};
 };
 
-const toScyllaError = (error: unknown, method: MethodInfo): ScyllaError =>
-  error instanceof RpcError
+const toScyllaError = (error: unknown, method: MethodInfo): ScyllaError => {
+  // The banner of the shell tells the user once: it is not one toast for each failed call.
+  if (error instanceof RpcError && error.code === 'UNAVAILABLE') markServiceUnavailable();
+  return error instanceof RpcError
     ? new ScyllaError(decode(error.message), {
         // A cast: the value comes from the wire. An unknown code matches no branch.
         code: error.code as ScyllaErrorCode,
@@ -42,6 +45,7 @@ const toScyllaError = (error: unknown, method: MethodInfo): ScyllaError =>
         ...statusDetailsOf(error.meta),
       })
     : ScyllaError.from(error);
+};
 
 /** The rejection stays handled: a caller reads `response` only, not the headers or the status. */
 const rejectingWith = <T>(promise: Promise<T>, method: MethodInfo): Promise<T> => {
