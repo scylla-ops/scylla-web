@@ -55,6 +55,12 @@ export const pipelineMessages = {
   leaveStay: msg`Stay`,
   leaveAnyway: msg`Leave without saving`,
   editDenied: msg`You don't have permission to edit this pipeline.`,
+  agentLabels: msg`Agent labels`,
+  agentLabelsHint: msg`Only an agent with each of these labels runs the jobs of this pipeline. With no label, any agent of the project runs them.`,
+  agentLabelsCount: (count: number) =>
+    msg`${plural(count, { one: '# agent label', other: '# agent labels' })}`,
+  saveLabels: msg`Save labels`,
+  agentLabelsSaved: msg`Agent labels saved`,
 
   deleteEdge: msg`Delete edge`,
   unnamedPipeline: msg`Unnamed`,

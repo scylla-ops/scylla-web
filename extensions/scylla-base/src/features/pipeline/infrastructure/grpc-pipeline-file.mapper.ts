@@ -90,6 +90,7 @@ export function fileToDomain(file: GrpcPipelineFile): PipelineFile {
     name: file.name || file.key,
     nodes: file.nodes.map(nodeToDomain),
     ...(file.checkout && { checkout: checkoutToDomain(file.checkout) }),
+    ...(file.agent?.labels.length && { agentLabels: [...file.agent.labels] }),
     rules: rulesToDomain(file),
     errors: file.errors.map(errorToDomain),
   };

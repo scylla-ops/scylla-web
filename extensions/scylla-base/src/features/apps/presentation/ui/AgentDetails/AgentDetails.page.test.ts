@@ -45,6 +45,8 @@ const agent = (patch: Record<string, unknown> = {}) => ({
   disabledAt: '',
   compatibility: 'compatible',
   missingFeatures: [],
+  labels: [],
+  automaticLabels: [],
   ...patch,
 });
 
@@ -144,6 +146,7 @@ const setUp = (
     enableApp: vi.fn().mockResolvedValue({ ...details, disabledAt: '' }),
     disableApp: vi.fn().mockResolvedValue({ ...details, disabledAt: '2026-11-04T00:00:00.000Z' }),
     changeRunner: vi.fn().mockResolvedValue(undefined),
+    setLabels: vi.fn().mockResolvedValue(details),
     renameKey: vi.fn().mockResolvedValue(key('k-active-01JBX9QF7T', 'gpu-box')),
     revokeKey: vi.fn().mockResolvedValue(undefined),
     deleteApp: vi.fn().mockResolvedValue(undefined),
@@ -511,6 +514,46 @@ describe('AgentDetails', () => {
         { kind: 'revoke', projectId: null },
       ]),
     );
+  });
+
+  it('shows the labels of an admin apart from the labels of the machine, and changes them', async () => {
+    setUp(agent({ labels: ['deploy'], automaticLabels: ['linux', 'x64'] }), [
+      ...ALL,
+      Permission.SET_APP_LABELS,
+    ]);
+    const user = userEvent.setup();
+
+    const admin = await screen.findByRole('list', { name: 'From an admin' });
+    const machine = screen.getByRole('list', { name: 'From the machine' });
+    expect(within(admin).getAllByRole('listitem').map(item => item.textContent?.trim())).toEqual([
+      'deploy',
+    ]);
+    expect(within(machine).getAllByRole('listitem').map(item => item.textContent?.trim())).toEqual(
+      ['linux', 'x64'],
+    );
+    await user.click(screen.getByRole('button', { name: 'Change the labels' }));
+    const dialog = await screen.findByRole('dialog');
+    await focusSettled();
+    const field = within(dialog).getByRole('textbox', { name: 'New label' });
+    expect(field).toHaveFocus();
+    await user.type(field, 'Prod Host{Enter}');
+    expect(within(dialog).getByRole('alert')).toHaveTextContent('Use 1 to 32 lower case letters');
+    await user.clear(field);
+    await user.type(field, 'gpu{Enter}');
+    await user.click(within(dialog).getByRole('button', { name: 'Remove deploy' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(apps.setLabels).toHaveBeenCalledWith('01JBX7AAAAAAAAAAAAAAAAK2M', ['gpu']),
+    );
+  });
+
+  it('gives the change of the labels only to an admin of the workspace', async () => {
+    setUp(agent({ labels: ['deploy'] }));
+
+    expect(await screen.findByRole('list', { name: 'From an admin' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Change the labels' })).not.toBeInTheDocument();
+    expect(screen.getByText('After the first connection')).toBeInTheDocument();
   });
 
   it('renames a key', async () => {

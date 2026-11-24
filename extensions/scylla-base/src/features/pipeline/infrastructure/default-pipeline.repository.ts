@@ -160,6 +160,17 @@ export class DefaultPipelineRepository implements PipelineRepository {
     return { content, path };
   }
 
+  public async setAgentLabels(id: string, labels: readonly string[]): Promise<PipelineEntity> {
+    // A pipeline that this client never read: read it first, for its version.
+    if (!this.versions.has(id)) await this.getById(id);
+    const response = await this.client.updatePipeline({
+      pipelineId: wrapId(id),
+      version: this.versions.get(id) ?? 0n,
+      agent: { labels: [...labels] },
+    }).response;
+    return this.keep(response.pipeline);
+  }
+
   public async edit(
     id: string,
     nodes: PipelineNodeEntity[],

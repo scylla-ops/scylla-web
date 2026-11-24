@@ -82,6 +82,7 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'revoke_invitation',
     'run_jobs',
     'run_pipeline',
+    'set_app_labels',
     'set_trigger_enabled',
     'tail_job_logs',
     'update_pipeline',

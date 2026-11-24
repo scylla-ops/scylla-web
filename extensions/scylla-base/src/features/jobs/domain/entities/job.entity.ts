@@ -26,7 +26,15 @@ export interface JobEntity {
   fileErrors?: PipelineFileError[];
   /** The checkout of the code before the first node. Unset for a job with no checkout. */
   checkout?: JobCheckout;
-  /** Why a pending job waits, as a stable code: `NO_AGENT_WITH_CHECKOUT`. */
+  /**
+   * The labels that the agent of the job must have, each of them: the labels of its pipeline at
+   * the creation of the job. Unset: any agent.
+   */
+  agentLabels?: string[];
+  /**
+   * Why a pending job waits, as a stable code: `NO_AGENT_WITH_CHECKOUT`, or
+   * `NO_AGENT_WITH_LABELS` when no online agent has each label of `agentLabels`.
+   */
   waitingReason?: string;
   /** With `NO_AGENT_WITH_CHECKOUT`: the online agents that cannot get the code. Unset if none. */
   unfitAgents?: UnfitAgent[];

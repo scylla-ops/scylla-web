@@ -266,6 +266,10 @@ paths.
   replaces the job in the cache.
 - **A failed job with `fileErrors` is an invalid pipeline file**: its own status label, and the
   errors with their place replace the reason of the failure.
+- **A job keeps the labels of its pipeline** (`agentLabels`, from the server at its creation).
+  The facts row of `JobSummary` shows them (`AgentLabels` of `@shared/presentation/ui`). A
+  pending job with `NO_AGENT_WITH_LABELS` names them in its status hint: no online agent has
+  each of them.
 - **The reports come from `integrations`** (`vcsReportQueries.byJobs`), only for the jobs with a
   commit: no call for a job or a page with none. "Retry now" needs `UPDATE_JOB` (`retry_job_report`
   is in `jobs.edit`); "Fix the connection" opens the Integrations page with `VIEW_INTEGRATIONS`.

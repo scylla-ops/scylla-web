@@ -96,6 +96,12 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   agent needs an update, or when the releases of the two versions differ (`releaseOf`: a build
   that is not a release adds its commit as build metadata, `0.7.0-rc.1+240da00` or
   `0.7.0-rc.1+dev`, and downloads the same release).
+  The labels card (`AgentLabelsCard`, under the access card) shows the labels of an admin
+  (`labels`) apart from the labels of the machine (`automaticLabels`: the system, the
+  architecture and `container`, from the last hello). Only `SET_APP_LABELS` (`set_app_labels`,
+  the admins of the workspace, not the creator of the agent) changes the labels of an admin, in
+  a dialog (`AgentLabelsField` of `@shared/presentation/ui`). The agent never chooses its labels.
+  The list shows both kinds in a Labels column, the labels of an admin first.
   `AgentCompatibilityBadge` shows "Update needed" or "Incompatible" in the list and in the header.
   The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
   `linux`, so Linux also shows the Docker command. The success rate and the memory follow the
@@ -145,7 +151,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 - Server: `getServerInfo` (the edition, the version and the image of the agent). Anyone can read
   it.
 - Apps: `listApps`, `getApp`, `createApp` (an agent gets `runner` on the workspace, or on each of
-  `projectIds`), `deleteApp`, `disableApp`, `enableApp`. The key of a query on one app must end
+  `projectIds`), `deleteApp`, `disableApp`, `enableApp`, `setLabels` (the labels of an admin; an
+  empty list removes them). The key of a query on one app must end
   with its id: `appMutations.remove` removes these queries, because the server refuses each read
   on a deleted app and the refusal shows a toast.
 - Keys and join codes: `createJoinCode`, `revokeKey`, `renameKey` (the agent names its key after

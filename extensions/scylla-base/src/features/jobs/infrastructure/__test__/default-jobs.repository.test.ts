@@ -47,6 +47,7 @@ const job = (id: string, seconds: number): Job => ({
   fileErrors: [],
   waitingReason: '',
   unfitAgents: [],
+  agentLabels: [],
   origin: JobOrigin.UNSPECIFIED,
 });
 

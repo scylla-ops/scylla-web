@@ -56,6 +56,7 @@
       ? t(exportMessages.conditionalNodes)
       : undefined}
     {initialScript}
+    agentLabels={pipeline ? (pipeline.agentLabels ?? []) : undefined}
     initialLinks={linksQuery.data}
     {missing}
     onRetry={() => void pipelineQuery.refetch()}

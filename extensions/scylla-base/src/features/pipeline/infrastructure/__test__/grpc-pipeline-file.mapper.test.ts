@@ -49,6 +49,13 @@ describe('grpcPipelineFile.fileToDomain', () => {
     });
   });
 
+  it('reads the labels of the key agent, and none for a file with no key agent', () => {
+    expect(
+      grpcPipelineFile.fileToDomain(file({ agent: { labels: ['deploy', 'linux'] } })).agentLabels,
+    ).toEqual(['deploy', 'linux']);
+    expect(grpcPipelineFile.fileToDomain(file())).not.toHaveProperty('agentLabels');
+  });
+
   it('names the pipeline after its key when the file has no name', () => {
     expect(grpcPipelineFile.fileToDomain(file({ name: '' })).name).toBe('build');
   });

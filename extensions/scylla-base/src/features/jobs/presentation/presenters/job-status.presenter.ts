@@ -18,9 +18,10 @@ export const statusConfigOf = (job: JobEntity): StatusConfig => {
 export const statusHintOf = (job: JobEntity): MessageDescriptor | null => {
   switch (job.status) {
     case 'pending':
-      return job.waitingReason === 'NO_AGENT_WITH_CHECKOUT'
-        ? jobGitMessages.noAgentWithCheckout
-        : jobsMessages.queuedHint;
+      if (job.waitingReason === 'NO_AGENT_WITH_CHECKOUT') return jobGitMessages.noAgentWithCheckout;
+      if (job.waitingReason === 'NO_AGENT_WITH_LABELS' && job.agentLabels?.length)
+        return jobsMessages.noAgentWithLabels(job.agentLabels.join(', '));
+      return jobsMessages.queuedHint;
     case 'awaiting_approval':
       return jobGitMessages.waitingForEditor;
     case 'orphaned':

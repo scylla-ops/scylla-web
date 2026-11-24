@@ -67,6 +67,20 @@ describe('JobStatus', () => {
     expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
   });
 
+  it('names the labels of a job that no online agent has', () => {
+    render(JobStatus, {
+      job: job('pending', {
+        waitingReason: 'NO_AGENT_WITH_LABELS',
+        agentLabels: ['deploy', 'linux'],
+      }),
+    });
+
+    expect(
+      screen.getByText('queued: waiting for an agent with the labels deploy, linux'),
+    ).toBeInTheDocument();
+    expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
+  });
+
   it('shows a job that failed on its pipeline file as an invalid pipeline file', () => {
     const fileError = {
       path: '.scylla/pipelines/build.toml',

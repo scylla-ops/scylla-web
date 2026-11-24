@@ -23,6 +23,10 @@ msgstr "{count, plural, =0 {no pipeline} one {# pipeline} other {# pipelines}}"
 msgid "{count, plural, =0 {Not used yet} one {Used in # pipeline} other {Used in # pipelines}}"
 msgstr "{count, plural, =0 {Not used yet} one {Used in # pipeline} other {Used in # pipelines}}"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:61
+msgid "{count, plural, one {# agent label} other {# agent labels}}"
+msgstr "{count, plural, one {# agent label} other {# agent labels}}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:42
 msgid "{count, plural, one {# behind} other {# behind}}"
 msgstr "{count, plural, one {# behind} other {# behind}}"
@@ -31,7 +35,7 @@ msgstr "{count, plural, one {# behind} other {# behind}}"
 msgid "{count, plural, one {# block} other {# blocks}}"
 msgstr "{count, plural, one {# block} other {# blocks}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:54
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:56
 msgid "{count, plural, one {# error} other {# errors}}"
 msgstr "{count, plural, one {# error} other {# errors}}"
 
@@ -95,7 +99,7 @@ msgstr "{count, plural, one {v{number} · # organization} other {v{number} · # 
 msgid "{count} of {total} pipelines can switch as is."
 msgstr "{count} of {total} pipelines can switch as is."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:50
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:52
 msgid "{file} has {count, plural, one {# error} other {# errors}} on {branch}"
 msgstr "{file} has {count, plural, one {# error} other {# errors}} on {branch}"
 
@@ -147,7 +151,7 @@ msgstr "{name} v{number} is available"
 msgid "{name} v{number} is now available in the library."
 msgstr "{name} v{number} is now available in the library."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:74
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:80
 msgid "{name}-copy"
 msgstr "{name}-copy"
 
@@ -308,6 +312,18 @@ msgstr "Added to the library"
 msgid "After"
 msgstr "After"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:35
+msgid "Agent"
+msgstr "Agent"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:58
+msgid "Agent labels"
+msgstr "Agent labels"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:63
+msgid "Agent labels saved"
+msgstr "Agent labels saved"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:12
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:19
 msgid "All"
@@ -322,6 +338,10 @@ msgstr "All"
 msgid "All changes saved"
 msgstr "All changes saved"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:36
+msgid "An agent with these labels"
+msgstr "An agent with these labels"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:77
 msgctxt "rules"
 msgid "Any"
@@ -335,11 +355,11 @@ msgstr "Any Scylla organization will be able to add it. {workspace} stays the ow
 msgid "Applied to the draft"
 msgstr "Applied to the draft"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:56
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:58
 msgid "Archived"
 msgstr "Archived"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:53
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:55
 msgid "Archived: the project uses the repository files"
 msgstr "Archived: the project uses the repository files"
 
@@ -363,11 +383,11 @@ msgstr "Bash script"
 msgid "Before publishing"
 msgstr "Before publishing"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:38
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:40
 msgid "before the first node, depth {depth}"
 msgstr "before the first node, depth {depth}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:39
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:41
 msgid "before the first node, full history"
 msgstr "before the first node, full history"
 
@@ -400,7 +420,7 @@ msgstr "Browse the whole library"
 msgid "Build"
 msgstr "Build"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:35
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:37
 msgid "Built in"
 msgstr "Built in"
 
@@ -586,7 +606,7 @@ msgstr "Delete"
 msgid "Delete {name}?"
 msgstr "Delete {name}?"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:59
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:65
 msgid "Delete edge"
 msgstr "Delete edge"
 
@@ -723,7 +743,7 @@ msgstr "e.g., ./services/api or /workspace"
 msgid "e.g., cargo build && cargo test"
 msgstr "e.g., cargo build && cargo test"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:63
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:69
 msgid "e.g., my-pipeline"
 msgstr "e.g., my-pipeline"
 
@@ -848,11 +868,11 @@ msgstr "File format"
 msgid "Filter the jobs"
 msgstr "Filter the jobs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:66
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:72
 msgid "Fix the ID of these nodes before you save: {ids}"
 msgstr "Fix the ID of these nodes before you save: {ids}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:70
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:76
 msgid "Fix these nodes before you save: {ids}"
 msgstr "Fix these nodes before you save: {ids}"
 
@@ -1053,7 +1073,7 @@ msgstr "Leave without saving?"
 msgid "Left value"
 msgstr "Left value"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:41
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:43
 msgid "LFS"
 msgstr "LFS"
 
@@ -1067,11 +1087,11 @@ msgstr "Library"
 msgid "License"
 msgstr "License"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:43
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:45
 msgid "Line {line}"
 msgstr "Line {line}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:42
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:44
 msgid "Line {line}:{column}"
 msgstr "Line {line}:{column}"
 
@@ -1190,7 +1210,7 @@ msgstr "New parameter: {key}"
 msgid "New pipeline"
 msgstr "New pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:45
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:47
 msgid "New runs fail with \"Invalid pipeline file\" until the file is valid."
 msgstr "New runs fail with \"Invalid pipeline file\" until the file is valid."
 
@@ -1296,7 +1316,7 @@ msgstr "not in library yet"
 msgid "Number"
 msgstr "Number"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:36
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:38
 msgid "Off"
 msgstr "Off"
 
@@ -1319,6 +1339,10 @@ msgstr "One way for each case"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:84
 msgid "Only {workspace} admins accept or skip an upstream version."
 msgstr "Only {workspace} admins accept or skip an upstream version."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:59
+msgid "Only an agent with each of these labels runs the jobs of this pipeline. With no label, any agent of the project runs them."
+msgstr "Only an agent with each of these labels runs the jobs of this pipeline. With no label, any agent of the project runs them."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:52
 msgid "Only the admins of the workspace accept or skip an upstream version."
@@ -1402,7 +1426,7 @@ msgstr "Pipeline actions"
 msgid "Pipeline file"
 msgstr "Pipeline file"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:62
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:68
 msgid "Pipeline name"
 msgstr "Pipeline name"
 
@@ -1490,7 +1514,7 @@ msgstr "Re-run on the provider"
 msgid "Read only"
 msgstr "Read only"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:44
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:46
 msgid "Read only. Schedules and webhooks stay in Scylla. With no on section, the pipeline starts only on manual runs."
 msgstr "Read only. Schedules and webhooks stay in Scylla. With no on section, the pipeline starts only on manual runs."
 
@@ -1538,11 +1562,11 @@ msgstr "Remove the tag {tag}"
 msgid "Remove variable"
 msgstr "Remove variable"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:55
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:57
 msgid "Removed"
 msgstr "Removed"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:51
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:53
 msgid "Removed from {branch}"
 msgstr "Removed from {branch}"
 
@@ -1603,7 +1627,7 @@ msgstr "Runs first"
 msgid "runs history logs"
 msgstr "runs history logs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:69
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:75
 msgid "Same ID as another node"
 msgstr "Same ID as another node"
 
@@ -1614,6 +1638,10 @@ msgstr "Save"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:50
 msgid "Save failed"
 msgstr "Save failed"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:62
+msgid "Save labels"
+msgstr "Save labels"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:24
 msgid "Save the pipeline first: a new pipeline cannot link a fragment yet."
@@ -1796,7 +1824,7 @@ msgstr "Stay on v{number}"
 msgid "Stays the same across versions."
 msgstr "Stays the same across versions."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:40
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:42
 msgid "submodules"
 msgstr "submodules"
 
@@ -1846,7 +1874,7 @@ msgstr "Text"
 msgid "The case {port} needs 1 to 32 rules."
 msgstr "The case {port} needs 1 to 32 rules."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:52
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:54
 msgid "the default branch"
 msgstr "the default branch"
 
@@ -1882,7 +1910,7 @@ msgstr "The line that runs"
 msgid "The link {need} comes two times."
 msgstr "The link {need} comes two times."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:64
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:70
 msgid "The name cannot contain spaces."
 msgstr "The name cannot contain spaces."
 
@@ -1902,7 +1930,7 @@ msgstr "The node ID has {length} characters. The maximum is 128."
 msgid "The nodes read no variable."
 msgstr "The nodes read no variable."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:37
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:39
 msgid "the nodes start in an empty folder"
 msgstr "the nodes start in an empty folder"
 
@@ -1910,7 +1938,7 @@ msgstr "the nodes start in an empty folder"
 msgid "The pipeline as a file for the repository: put it at this path, then use the repository files as the source of the project."
 msgstr "The pipeline as a file for the repository: put it at this path, then use the repository files as the source of the project."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:65
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:71
 msgid "The pipeline needs a name."
 msgstr "The pipeline needs a name."
 
@@ -2011,11 +2039,11 @@ msgstr "Triggers · from on"
 msgid "Try again"
 msgstr "Try again"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:68
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:74
 msgid "Two nodes or more have the ID {ids}. Give each node its own ID before you save."
 msgstr "Two nodes or more have the ID {ids}. Give each node its own ID before you save."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:71
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:77
 msgid "Two nodes or more have the same ID. Give each node its own ID in the Scripting tab: the blueprint shows them, but cannot change them."
 msgstr "Two nodes or more have the same ID. Give each node its own ID in the Scripting tab: the blueprint shows them, but cannot change them."
 
@@ -2039,7 +2067,7 @@ msgstr "Unable to load pipelines"
 msgid "Undo"
 msgstr "Undo"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:60
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:66
 msgid "Unnamed"
 msgstr "Unnamed"
 
@@ -2149,7 +2177,7 @@ msgstr "Versions"
 msgid "Versions in use by other organizations"
 msgstr "Versions in use by other organizations"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:47
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:49
 msgid "View"
 msgstr "View"
 
@@ -2169,7 +2197,7 @@ msgstr "View Jobs"
 msgid "View on marketplace"
 msgstr "View on marketplace"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:48
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/file.messages.ts:50
 msgid "View pipeline"
 msgstr "View pipeline"
 

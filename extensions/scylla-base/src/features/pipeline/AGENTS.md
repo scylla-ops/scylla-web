@@ -43,9 +43,10 @@ not through the barrel.
 | `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
 | `create(pipeline, layout?)` | `void` |
 | `edit(id, nodes, name?, layout?)` | `PipelineEntity` |
+| `setAgentLabels(id, labels)` | `PipelineEntity`: the agent labels only, with a new version. The nodes stay |
 | `deleteById(id)` | `void` |
 | `run(id, ref?)` | `PipelineRun`. A `CommitRef` (branch, tag or SHA) of the linked repository; none: an editor pipeline runs with no commit, a file pipeline at the head of the default branch |
-| `getFile(id, ref?)` | `PipelineFile`: the file of a file pipeline at the ref (none: the default branch), its nodes, its rules of `on`, its checkout and its errors |
+| `getFile(id, ref?)` | `PipelineFile`: the file of a file pipeline at the ref (none: the default branch), its nodes, its rules of `on`, its checkout, the labels of its key `agent` and its errors |
 | `exportFile(id, format)` | `PipelineFileExport`: the saved version as a file of the repository, and its path |
 
 `NodeTemplateRepository` — `domain/repository/node-template.repository.ts`:
@@ -207,7 +208,8 @@ presentation/
       unsaved-changes.state.svelte.ts        createUnsavedChanges: the document, the links and a typed
                                              name; the version that a save sends
       fragment-links.state.svelte.ts         the links of the edited pipeline, and their dirty check
-      PipelineEditorHeader/                  the header, with the name field and Export
+      PipelineEditorHeader/                  the header, with the name field, the agent labels
+                                             (PipelineLabelsButton) and Export
       ExportPipelineDialog/                  the export as a file: one tab per format, copy, download
                                              (export-pipeline.state.svelte.ts)
       controls/                              what the tabs share: SearchField and
@@ -612,6 +614,13 @@ the page.
   saved nodes have one (`hasConditionalNodes`), Export is inert and says why (`exportIssue`), and
   nothing is sent. The draft does not count: the file has the saved version.
 
+- **The agent labels of an editor pipeline save at once, apart from the nodes**
+  (`PipelineLabelsButton`, a popover of the header of the edit page, `UPDATE_PIPELINE`).
+  `pipelineMutations.setAgentLabels` sends only `agent` with the version of the repository, and
+  sets the labels in the cached pipeline with `setQueryData`: an invalidation would read the
+  document again. The repository keeps the new version, so the next save of the nodes is not a
+  conflict. Only an agent with each label runs the jobs; a job keeps the labels of its creation.
+  A file pipeline asks its labels with the key `agent` of its file: `FilePanel` shows them.
 - **A file pipeline is read only, on a page of its own** (`pipelines/:pipelineId`, `READ_PIPELINE`:
   the route `get_file_pipeline` is in the catalog cell of `get_pipeline`). The list opens it
   with View (`goToFilePipeline`), and the edit page of a file pipeline redirects to it. For an

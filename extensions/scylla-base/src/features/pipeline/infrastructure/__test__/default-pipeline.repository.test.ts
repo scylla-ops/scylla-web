@@ -63,6 +63,30 @@ describe('DefaultPipelineRepository', () => {
     expect(updatePipeline.mock.calls[1][0]).not.toHaveProperty('name');
   });
 
+  it('saves the agent labels with the version that it read and no nodes, and keeps the new one', async () => {
+    const updatePipeline = vi.fn((input: { version: bigint; agent?: { labels: string[] } }) =>
+      unaryCall({
+        pipeline: { ...pipeline('p', input.version + 1n), agent: input.agent ?? { labels: [] } },
+      }),
+    );
+    const client = {
+      getPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 4n) })),
+      updatePipeline,
+    } as unknown as IPipelineServiceClient;
+    const repository = new DefaultPipelineRepository(client);
+
+    const saved = await repository.setAgentLabels('p', ['deploy']);
+    await repository.edit('p', []);
+
+    expect(updatePipeline).toHaveBeenNthCalledWith(1, {
+      pipelineId: { value: 'p' },
+      version: 4n,
+      agent: { labels: ['deploy'] },
+    });
+    expect(saved.agentLabels).toEqual(['deploy']);
+    expect(updatePipeline.mock.calls[1][0]).toMatchObject({ version: 5n });
+  });
+
   it('reads a pipeline that it never read before it edits it', async () => {
     const client = {
       getPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 7n) })),

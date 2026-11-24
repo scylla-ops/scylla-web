@@ -18,3 +18,5 @@ export { default as ApiAccessCard } from './forms/ApiAccessCard/ApiAccessCard.sv
 export { default as TokenForm } from './forms/TokenForm/TokenForm.svelte';
 export { default as FragmentIcon } from './data-display/FragmentIcon.svelte';
 export { default as VersionBadge } from './data-display/VersionBadge.svelte';
+export { default as AgentLabels } from './data-display/AgentLabels/AgentLabels.svelte';
+export { default as AgentLabelsField } from './forms/AgentLabelsField/AgentLabelsField.svelte';

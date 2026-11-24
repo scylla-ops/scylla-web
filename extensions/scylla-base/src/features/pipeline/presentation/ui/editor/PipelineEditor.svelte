@@ -55,6 +55,8 @@
     pipelineId?: string;
     /** Why the saved pipeline cannot be exported. */
     exportIssue?: string;
+    /** The saved agent labels of a saved pipeline. */
+    agentLabels?: readonly string[];
     isSubmitPending?: boolean;
     /** The last save failed: the header shows it until the next edit or save. */
     submitError?: Error | null;
@@ -76,6 +78,7 @@
     projectId,
     pipelineId,
     exportIssue,
+    agentLabels,
     isSubmitPending = false,
     submitError,
     missing,
@@ -159,6 +162,8 @@
       onNameDraft={name => changes.typeName(name)}
       onExport={pipelineId ? () => (exporting = true) : undefined}
       {exportIssue}
+      {pipelineId}
+      {agentLabels}
     />
   </div>
 

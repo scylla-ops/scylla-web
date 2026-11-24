@@ -29,6 +29,7 @@ const NOT_DESTRUCTIVE: Readonly<Record<string, string>> = {
   removeDependency: 'Removes a value from a field of the pipeline draft.',
   removeRole: 'The cross of a chip of a role picker: the same card adds the role back.',
   removeInstanceAdmin: 'A change of role: the same button gives the role back.',
+  removeLabel: 'The cross of a chip of an agent label: removes it from a list that is not saved yet.',
 };
 
 const walkDir = (dir: string): string[] =>

@@ -14,6 +14,7 @@ export const appsMessages = {
   namedDeleted: (name: string) => msg`${name} is deleted.`,
   keyRenamed: msg`Key renamed`,
   accessChanged: msg`Access changed`,
+  labelsChanged: msg`Labels changed`,
   disabledToast: (name: string) => msg`${name} is disabled`,
   enabledToast: (name: string) => msg`${name} is enabled`,
   noAgentConnected: msg`Jobs are waiting and no agent is connected.`,
