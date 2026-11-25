@@ -19,4 +19,8 @@ export type {
 } from './domain/entities/vcs-report.entity.ts';
 export { integrationsUrl } from './presentation/presenters/integrations-url.presenter.ts';
 export { repositoryLinkQueries } from './presentation/repository-link.queries.ts';
-export { vcsReportMutations, vcsReportQueries } from './presentation/vcs-report.queries.ts';
+export {
+  MAX_JOBS_PER_REPORT_CALL,
+  vcsReportMutations,
+  vcsReportQueries,
+} from './presentation/vcs-report.queries.ts';

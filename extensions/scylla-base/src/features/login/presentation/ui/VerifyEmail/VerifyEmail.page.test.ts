@@ -78,6 +78,22 @@ describe('VerifyEmailPage', () => {
     expect(screen.getByRole('link', { name: 'Back to sign in' })).toHaveAttribute('href', '/login');
   });
 
+  it('shows no error at load, and shows it when the empty form is sent', async () => {
+    openAt(
+      '/verify-email#token=bad',
+      new ScyllaError('the link expired', { code: 'FAILED_PRECONDITION' }),
+    );
+    const user = userEvent.setup();
+
+    await screen.findByLabelText('Email');
+    expect(screen.queryByText('Enter a valid email address.')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Send the link again' }));
+
+    expect(await screen.findByText('Enter a valid email address.')).toBeInTheDocument();
+    expect(resendVerificationEmail).not.toHaveBeenCalled();
+  });
+
   it('says in the page when the server refuses too many requests', async () => {
     openAt('/verify-email');
     resendVerificationEmail.mockRejectedValue(
