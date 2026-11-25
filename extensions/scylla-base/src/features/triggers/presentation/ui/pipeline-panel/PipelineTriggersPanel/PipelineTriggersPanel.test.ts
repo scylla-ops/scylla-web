@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
@@ -40,7 +40,11 @@ let navigator: ReturnType<typeof installTestNavigator>;
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 
-const setUp = (source: 'editor' | 'file', triggers: TriggerEntity[]) => {
+const setUp = (
+  source: 'editor' | 'file',
+  triggers: TriggerEntity[],
+  options: { pipelineSource?: 'file' | 'editor'; gitEventsAllowedAt?: string } = {},
+) => {
   listByPipelineId = vi.fn().mockResolvedValue(triggers);
   restoreRegistry = withRegistry({
     triggers: {
@@ -54,7 +58,12 @@ const setUp = (source: 'editor' | 'file', triggers: TriggerEntity[]) => {
     integrations: {
       repositoryLinkRepository: {
         getByProject: () =>
-          Promise.resolve({ projectId: 'project-1', provider: 'github', fullName: 'acme/api' }),
+          Promise.resolve({
+            projectId: 'project-1',
+            provider: 'github',
+            fullName: 'acme/api',
+            pipelineSource: options.pipelineSource,
+          }),
       },
     },
     pipeline: {
@@ -63,7 +72,12 @@ const setUp = (source: 'editor' | 'file', triggers: TriggerEntity[]) => {
           Promise.resolve({
             pipeline: { id: 'pipeline-1', name: 'build', nodes: [] },
             layout: null,
-            origin: { source, filePath: '.scylla/pipelines/build.yaml', fileErrorCount: 0 },
+            origin: {
+              source,
+              filePath: '.scylla/pipelines/build.yaml',
+              fileErrorCount: 0,
+              gitEventsAllowedAt: options.gitEventsAllowedAt,
+            },
           }),
       },
     },
@@ -207,5 +221,81 @@ describe('PipelineTriggersPanel', () => {
       'Pull request',
       'Tag',
     ]);
+  });
+
+  describe('Git events opt-in of a Scylla pipeline in a project of files', () => {
+    const openMenu = async () => {
+      await userEvent.click(await screen.findByRole('button', { name: 'Add trigger' }));
+      return findFloating('menuitem', 'Push');
+    };
+
+    it('disables the Git kinds with the reason, and lets an admin allow them', async () => {
+      setUp('editor', [], { pipelineSource: 'file' });
+
+      const item = await openMenu();
+      await vi.waitFor(() => expect(item).toHaveAttribute('aria-disabled', 'true'));
+      expect(await findFloating('menuitem', 'Tag')).toHaveAttribute('aria-disabled', 'true');
+      expect(await findFloating('menuitem', 'Schedule')).not.toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
+      expect(screen.getByText(/need the opt-in of a workspace admin/)).toBeInTheDocument();
+      expect(screen.getByText('Allow Git events')).toBeInTheDocument();
+    });
+
+    it('gives a member the reason with no link', async () => {
+      permissionsStore.setState({
+        permissions: {
+          scopes: [
+            {
+              scope: PermissionScope.SYSTEM,
+              scopeId: '',
+              access: {
+                kind: 'restricted',
+                permissions: [
+                  Permission.READ_PIPELINE,
+                  Permission.READ_REPOSITORY_LINK,
+                  Permission.MANAGE_TRIGGERS,
+                ],
+              },
+            },
+          ],
+        },
+      });
+      setUp('editor', [], { pipelineSource: 'file' });
+
+      const item = await openMenu();
+      await vi.waitFor(() => expect(item).toHaveAttribute('aria-disabled', 'true'));
+      expect(screen.getByText(/need the opt-in of a workspace admin/)).toBeInTheDocument();
+      expect(screen.queryByText('Allow Git events')).not.toBeInTheDocument();
+    });
+
+    it('enables the Git kinds when an admin allowed them', async () => {
+      setUp('editor', [], { pipelineSource: 'file', gitEventsAllowedAt: '2026-01-01T00:00:00Z' });
+
+      expect(await openMenu()).not.toHaveAttribute('aria-disabled', 'true');
+      expect(screen.queryByText(/need the opt-in of a workspace admin/)).not.toBeInTheDocument();
+    });
+
+    it('shows the note with Revoke while the opt-in is on, even with no Git row', async () => {
+      setUp('editor', [], { pipelineSource: 'file', gitEventsAllowedAt: '2026-01-01T00:00:00Z' });
+
+      expect(await screen.findByRole('note')).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Revoke' })).toBeInTheDocument();
+    });
+
+    it('shows the note with Allow when a Git row waits for the opt-in', async () => {
+      setUp('editor', [{ ...push, fromFile: false }], { pipelineSource: 'file' });
+
+      const note = await screen.findByRole('note');
+      expect(within(note).getByRole('button', { name: 'Allow Git events' })).toBeInTheDocument();
+    });
+
+    it('shows no note on a file pipeline', async () => {
+      setUp('file', [push], { pipelineSource: 'file' });
+      await screen.findByRole('heading', { name: 'From the file' });
+
+      expect(screen.queryByRole('note')).not.toBeInTheDocument();
+    });
   });
 });

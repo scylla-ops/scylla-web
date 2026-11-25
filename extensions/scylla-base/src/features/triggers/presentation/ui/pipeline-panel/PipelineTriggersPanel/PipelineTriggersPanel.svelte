@@ -13,7 +13,11 @@
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { PipelineStartPanelContext } from '@base/features/pipeline';
+  import {
+    GitEventsDialog,
+    GitEventsNote,
+    type PipelineStartPanelContext,
+  } from '@base/features/pipeline';
   import type { TriggerEntity } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerPanelMessages } from '@base/features/triggers/presentation/messages/trigger-panel.messages.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
@@ -64,6 +68,11 @@
     {:else if panel.loadError}
       <p role="alert" class="px-2 py-3 text-sm text-destructive">{panel.loadError}</p>
     {:else}
+      {#if panel.showGitNote}
+        <div class="px-2 pt-2">
+          <GitEventsNote gitEvents={panel.gitEvents} />
+        </div>
+      {/if}
       {#if panel.fromFile.length > 0}
         {@render group(t(triggerPanelMessages.fromFile))}
         {@render rows(panel.fromFile)}
@@ -100,14 +109,33 @@
         <PlusIcon aria-hidden="true" />
         {t(triggerPanelMessages.addTrigger)}
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" class="w-48">
+      <DropdownMenuContent align="start" class="w-56">
         {#each panel.kinds as kind (kind)}
           {@const Icon = KIND_ICONS[kind]}
-          <DropdownMenuItem onSelect={() => panel.add(kind)}>
+          <DropdownMenuItem
+            disabled={panel.gitOff && panel.isGitKind(kind)}
+            onSelect={() => panel.add(kind)}
+          >
             <Icon class="mr-2 size-4" aria-hidden="true" />
             {triggerKindLabel(kind, panel.provider)}
           </DropdownMenuItem>
         {/each}
+        {#if panel.gitOff}
+          <div class="flex flex-col items-start gap-1 px-2 pt-1 pb-1.5">
+            <p class="text-xs text-muted-foreground">{t(triggersMessages.gitNotAllowed)}</p>
+            {#if panel.gitEvents.canManage}
+              <Button
+                variant="link"
+                size="xs"
+                class="px-0"
+                onclick={() => panel.gitEvents.ask('allow')}
+              >
+                {t(triggersMessages.allowGitEvents)}
+                <ArrowRightIcon aria-hidden="true" />
+              </Button>
+            {/if}
+          </div>
+        {/if}
       </DropdownMenuContent>
     </DropdownMenu>
     <Button variant="ghost" size="sm" class="ml-auto" onclick={() => panel.toList()}>
@@ -116,6 +144,8 @@
     </Button>
   </footer>
 </div>
+
+<GitEventsDialog gitEvents={panel.gitEvents} />
 
 <ConfirmOperationAlertDialog
   open={panel.deleting !== null}

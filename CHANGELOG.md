@@ -40,6 +40,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   The log shows the terminal colors, has a search with a counter, goes from error to error with E
   and Shift+E, and opens in full screen with F. Display settings stay in the browser. A link keeps
   the node, the full screen and the line (#L150). In English and French.
+- The Triggers panel of a Scylla pipeline in a GitHub project shows the Git events opt-in: Push,
+  Pull request and Tag stay off until an admin allows them.
 
 ### Fixed
 

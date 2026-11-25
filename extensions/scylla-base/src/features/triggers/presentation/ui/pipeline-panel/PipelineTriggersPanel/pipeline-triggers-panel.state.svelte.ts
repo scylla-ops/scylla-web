@@ -2,10 +2,12 @@ import { createMutation, createQuery } from '@scylla/core-sdk';
 import { t } from '@scylla/ui/i18n';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { repositoryLinkQueries } from '@base/features/integrations';
-import type { PipelineStartPanelContext } from '@base/features/pipeline';
-import type {
-  TriggerDraftKind,
-  TriggerEntity,
+import { createGitEvents, type PipelineStartPanelContext } from '@base/features/pipeline';
+import {
+  GIT_KINDS,
+  isGitSource,
+  type TriggerDraftKind,
+  type TriggerEntity,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
 import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
@@ -31,6 +33,8 @@ export const createPipelineTriggersPanel = (context: () => PipelineStartPanelCon
   const query = createQuery(() => triggerQueries.byPipeline(pipelineId()));
   const linkQuery = createQuery(() => repositoryLinkQueries.byProject(context().projectId));
   const origin = createPipelineOrigin(pipelineId);
+  // The opt-in lives in the cache of the pipeline: the triggers page and the type picker read the same.
+  const gitEvents = createGitEvents({ projectId: () => context().projectId, pipelineId });
   const setEnabled = createMutation(() => triggerMutations.setEnabled(pipelineId()));
   const remove = createMutation(() => triggerMutations.remove(pipelineId()));
 
@@ -69,6 +73,22 @@ export const createPipelineTriggersPanel = (context: () => PipelineStartPanelCon
     },
     get kinds() {
       return addableKinds(origin.isFile, linkQuery.data);
+    },
+    get gitEvents() {
+      return gitEvents;
+    },
+    /** The Git kinds wait for the opt-in of an admin: the menu disables them. */
+    get gitOff(): boolean {
+      return gitEvents.needed && !gitEvents.allowed;
+    },
+    isGitKind(kind: TriggerDraftKind) {
+      return (GIT_KINDS as readonly string[]).includes(kind);
+    },
+    /** The note shows while the opt-in is on, so that an admin can revoke it, or a Git row waits for it. */
+    get showGitNote(): boolean {
+      return (
+        gitEvents.needed && (gitEvents.allowed || triggers.some(row => isGitSource(row.source)))
+      );
     },
     /** The short form of a new schedule is open. */
     get adding() {
