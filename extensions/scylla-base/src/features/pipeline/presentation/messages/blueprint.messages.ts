@@ -5,7 +5,10 @@ export const blueprintMessages = {
   nodes: msg`Nodes`,
   templates: msg`Templates`,
   noMatch: msg`No node matches this search.`,
-  paletteHint: msg`Drag a node onto the canvas, or drop a link on empty space to add one.`,
+  paletteHint: msg`Drag a node onto the canvas: it joins the closest node before it, or the link under it. Hold Alt to drop it with no link.`,
+  dropHint: msg`Hold Alt to drop with no link`,
+  dropHintDetached: msg`Alt: dropped with no link`,
+  nodeAdded: msg`Node added`,
 
   bashScript: msg`Bash script`,
   bashScriptDetail: msg`A multi-line shell script`,

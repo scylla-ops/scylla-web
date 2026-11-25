@@ -68,7 +68,8 @@ export interface BlueprintParams {
 /** How a new node joins the graph: after a node (by default the start node) or one of its ports, or inside an edge. */
 export type NodeLink = { after?: string; port?: string } | { replacing: string };
 
-export type NodePlacement = NodeLink & { position?: XYPosition };
+/** `detached`: no edge, the node waits where it is dropped. */
+export type NodePlacement = (NodeLink | { detached: true }) & { position?: XYPosition };
 
 /** What a block links: the version of a fragment, and the values of its parameters. */
 export interface BlockContent {
@@ -425,12 +426,32 @@ export const createBlueprint = (params: BlueprintParams) => {
       flowNodes = [...flowNodes, flowNode];
       edges = [
         ...edges.filter(edge => edge !== replaced),
-        edgeBetween(source, id, port),
+        ...('detached' in placement ? [] : [edgeBetween(source, id, port)]),
         ...(replaced ? [edgeBetween(id, replaced.target)] : []),
       ];
 
       emit();
       return id;
+    },
+
+    /**
+     * Takes back an `addNode` or `addBlock`: the node goes with its edges, and the edge that it
+     * replaced comes back when both its ends are still there. One step, whatever the placement.
+     */
+    undoAdd(id: string, replaced?: FlowEdge) {
+      if (readOnly || !flowNodes.some(flowNode => flowNode.id === id)) return;
+      if (inspectedId === id) inspectedId = null;
+      flowNodes = flowNodes.filter(flowNode => flowNode.id !== id);
+      edges = edges.filter(edge => edge.source !== id && edge.target !== id);
+      if (
+        replaced &&
+        flowNodes.some(flowNode => flowNode.id === replaced.source) &&
+        flowNodes.some(flowNode => flowNode.id === replaced.target) &&
+        !edges.some(edge => edge.id === replaced.id)
+      ) {
+        edges = [...edges, replaced];
+      }
+      emit();
     },
 
     /** Adds a block that links the fragment, like `addNode`. Returns its id. */
@@ -445,7 +466,9 @@ export const createBlueprint = (params: BlueprintParams) => {
       flowNodes = [...flowNodes, blockNode(blockId, content, position)];
       edges = [
         ...edges.filter(edge => edge !== replaced),
-        edgeBetween(replaced?.source ?? after ?? START_NODE_ID, blockId),
+        ...('detached' in placement
+          ? []
+          : [edgeBetween(replaced?.source ?? after ?? START_NODE_ID, blockId)]),
         ...(replaced ? [edgeBetween(blockId, replaced.target)] : []),
       ];
 

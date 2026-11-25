@@ -14,6 +14,7 @@ const [bash] = catalogEntries([]);
 const canvas = (drop: DropTarget['drop'] = vi.fn()): DropTarget => ({
   contains: ({ x }) => x >= 500,
   positionAt: ({ x, y }: XYPosition) => ({ x: x - 500, y }),
+  linkAt: () => ({ after: 'build' }),
   drop,
 });
 
@@ -56,10 +57,30 @@ describe('createPaletteDrag', () => {
       drag.finish();
       flushSync();
 
-      expect(drop).toHaveBeenCalledWith(bash, { x: 400, y: 120 }, { x: 900, y: 120 });
+      expect(drop).toHaveBeenCalledWith(bash, { x: 400, y: 120 }, { after: 'build' });
       expect(drag.entry).toBeNull();
       expect(drag.pointer).toBeNull();
       expect(drag.spot).toBeNull();
+    });
+  });
+
+  it('shows the link that the drop makes, and drops with none while the modifier key is held', () => {
+    withDrag(drag => {
+      const drop = vi.fn();
+      drag.setTarget(canvas(drop));
+      drag.start(bash, { x: 100, y: 40 });
+      drag.move({ x: 900, y: 120 });
+      expect(drag.link).toEqual({ after: 'build' });
+
+      drag.setDetached(true);
+      expect(drag.link).toBeNull();
+      drag.finish();
+      expect(drop).toHaveBeenCalledWith(bash, { x: 400, y: 120 }, null);
+
+      // The next drag starts with the key up.
+      drag.start(bash, { x: 900, y: 120 });
+      expect(drag.detached).toBe(false);
+      expect(drag.link).toEqual({ after: 'build' });
     });
   });
 

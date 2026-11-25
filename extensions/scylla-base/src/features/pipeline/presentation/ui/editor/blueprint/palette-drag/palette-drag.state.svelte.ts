@@ -1,5 +1,6 @@
 import type { XYPosition } from '@xyflow/svelte';
 import type { CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
+import type { DropLink } from '@base/features/pipeline/presentation/presenters/smart-drop.presenter.ts';
 import type { FragmentEntity } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
 
 /** A row of the palette: a node of the catalog, or a fragment of the library. */
@@ -12,7 +13,9 @@ export interface DropTarget {
   contains: (client: XYPosition) => boolean;
   /** The position a node dropped at this point takes in the graph. */
   positionAt: (client: XYPosition) => XYPosition;
-  drop: (entry: PaletteEntry, position: XYPosition, client: XYPosition) => void;
+  /** What a node dropped at this point connects to: the preview and the drop read the same. */
+  linkAt: (client: XYPosition, position: XYPosition) => DropLink;
+  drop: (entry: PaletteEntry, position: XYPosition, link: DropLink) => void;
 }
 
 /**
@@ -24,18 +27,30 @@ export const createPaletteDrag = () => {
   let pointer = $state.raw<XYPosition | null>(null);
   // `null` while the pointer is outside the canvas.
   let spot = $state.raw<XYPosition | null>(null);
+  // What the drop connects to; `null`: nothing (the modifier key is held, or no canvas).
+  let link = $state.raw<DropLink>(null);
+  let detached = $state(false);
   let target: DropTarget | null = null;
+
+  const refresh = () => {
+    if (!entry || !pointer) return;
+    const inside = target?.contains(pointer) ? target : null;
+    spot = inside ? inside.positionAt(pointer) : null;
+    link = inside && spot && !detached ? inside.linkAt(pointer, spot) : null;
+  };
 
   const move = (at: XYPosition) => {
     if (!entry) return;
     pointer = at;
-    spot = target?.contains(at) ? target.positionAt(at) : null;
+    refresh();
   };
 
   const end = () => {
     entry = null;
     pointer = null;
     spot = null;
+    link = null;
+    detached = false;
   };
 
   return {
@@ -49,6 +64,20 @@ export const createPaletteDrag = () => {
     /** The position of the node that a drop creates, in the graph. */
     get spot() {
       return spot;
+    },
+
+    /** The connection that a drop makes now: the canvas draws it. `null`: none. */
+    get link() {
+      return link;
+    },
+    /** The modifier key is held: the drop connects to nothing. */
+    get detached() {
+      return detached;
+    },
+    setDetached(next: boolean) {
+      if (detached === next) return;
+      detached = next;
+      refresh();
     },
 
     /** The canvas registers itself; the returned function unregisters it. */
@@ -66,7 +95,7 @@ export const createPaletteDrag = () => {
     move,
     /** Drops on the canvas; released anywhere else, the drag adds nothing. */
     finish() {
-      if (entry && spot && pointer) target?.drop(entry, spot, pointer);
+      if (entry && spot && pointer) target?.drop(entry, spot, link);
       end();
     },
     cancel: end,

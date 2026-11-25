@@ -200,6 +200,38 @@ describe('createBlueprint', () => {
     });
   });
 
+  it('joins a dropped node after the node it is given, not the start node', () => {
+    withState([execNode('build')], (state, onNodesChange) => {
+      state.addNode('lint', definition, { after: 'build' });
+
+      const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
+      expect(textsOf(published.find(node => node.id === 'lint')?.deps)).toEqual(['build']);
+    });
+  });
+
+  it('adds a dropped node with no edge when it is detached', () => {
+    withState([execNode('build')], state => {
+      state.addNode('lint', definition, { detached: true, position: { x: 5, y: 6 } });
+
+      expect(state.edges.some(edge => edge.target === 'lint' || edge.source === 'lint')).toBe(false);
+      expect(state.isDetached('lint')).toBe(true);
+    });
+  });
+
+  it('undoes one drop on an edge: the node goes, the edge comes back', () => {
+    withState([execNode('build'), execNode('test', ['build'])], (state, onNodesChange) => {
+      const replaced = state.edges.find(edge => edge.id === 'build->test');
+      state.addNode('lint', definition, { replacing: 'build->test' });
+      state.undoAdd('lint', replaced);
+
+      expect(state.flowNodes.some(flowNode => flowNode.id === 'lint')).toBe(false);
+      expect(state.edges.some(edge => edge.id === 'build->test')).toBe(true);
+      const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
+      expect(published.map(node => node.id)).toEqual(['build', 'test']);
+      expect(textsOf(published.find(node => node.id === 'test')?.deps)).toEqual(['build']);
+    });
+  });
+
   it('removes a node with its edges, but never the start node', () => {
     withState([execNode('build'), execNode('test', ['build'])], (state, onNodesChange) => {
       state.removeNode(START_NODE_ID);

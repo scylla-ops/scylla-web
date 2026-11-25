@@ -64,6 +64,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   labels with the pipeline, so its first job goes only to an agent with each label. In English and
   French.
 - The command bar (Ctrl K) has a What's new entry. It opens What's new like the user menu item.
+- A node dropped on the pipeline canvas joins the closest node before it, shows a dashed preview of
+  its link, and Alt drops it with no link.
 
 ## [0.7.1] - 2026-11-24
 
