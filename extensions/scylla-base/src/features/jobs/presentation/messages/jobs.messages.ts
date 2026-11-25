@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 export const jobsMessages = {
   pipelineIdMissing: msg`Pipeline ID is missing`,
@@ -22,8 +22,11 @@ export const jobsMessages = {
   actions: msg`Actions`,
   copyId: msg`Copy ID`,
   queuedHint: msg`queued: waiting for an agent`,
-  noAgentWithLabels: (labels: string) =>
-    msg`queued: waiting for an agent with the labels ${labels}`,
+  noAgentWithLabels: (count: number, labels: string) =>
+    msg`${plural(count, {
+      one: `Waiting for an agent with the label ${labels}`,
+      other: `Waiting for an agent with the labels ${labels}`,
+    })}`,
   agentLabels: msg`Labels`,
   orphanedHint: msg`agent disconnected mid-run`,
   view: msg`View`,

@@ -47,6 +47,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   keeps their places, and the file and the version do not change.
 - The fragment page no longer shows a separator dot at the start of the line under the title when
   the fragment has no description.
+- The reason of a pending job that waits for agent labels starts with a capital letter and says
+  "label" for one label.
 
 ## [0.7.1] - 2026-11-24
 

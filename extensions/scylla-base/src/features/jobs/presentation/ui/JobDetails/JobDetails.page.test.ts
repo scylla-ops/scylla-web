@@ -262,7 +262,7 @@ describe('JobDetailsPage', () => {
     );
 
     expect(
-      screen.getByText('queued: waiting for an agent with the labels deploy, linux'),
+      screen.getByText('Waiting for an agent with the labels deploy, linux'),
     ).toBeInTheDocument();
 
     await userEvent.click(screen.getByRole('button', { name: 'Details' }));

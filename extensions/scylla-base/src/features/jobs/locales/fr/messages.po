@@ -481,8 +481,8 @@ msgid "queued: waiting for an agent"
 msgstr "en file : en attente d'un agent"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:25
-msgid "queued: waiting for an agent with the labels {labels}"
-msgstr "en file : en attente d'un agent avec les étiquettes {labels}"
+msgid "{count, plural, one {Waiting for an agent with the label {labels}} other {Waiting for an agent with the labels {labels}}}"
+msgstr "{count, plural, one {En attente d'un agent avec l'étiquette {labels}} other {En attente d'un agent avec les étiquettes {labels}}}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:38
 msgid "Raw, with the ANSI codes"
