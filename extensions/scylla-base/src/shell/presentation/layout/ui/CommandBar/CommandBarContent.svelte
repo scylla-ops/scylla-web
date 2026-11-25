@@ -37,6 +37,7 @@
     type CommandFilter,
   } from './command-results.presenter.ts';
   import { buildCommandRows, type CommandRow } from './command-rows.presenter.ts';
+  import { HINT_EXAMPLES, showCommandHints } from './command-hints.ts';
   import { createCommandSources } from './command-sources.state.svelte.ts';
   import RunPipelineConfirm from './RunPipelineConfirm.svelte';
 
@@ -95,6 +96,7 @@
   const items = $derived(resultItems(results));
   const selected = $derived(items.find(item => item.id === highlighted));
   const searching = $derived(!!parsed.search.trim() || !!filter);
+  const hinting = $derived(showCommandHints(recent.length, searching));
   const canOpenInTab = $derived(selected?.kind === 'row' && selected.row.effect.kind === 'go');
 
   $effect(() => {
@@ -316,6 +318,28 @@
         <p class="px-2 py-2 text-sm text-muted-foreground">
           {t(messages.failed(sources.failed.map(groupTitle).join(', ')))}
         </p>
+      {/if}
+      {#if hinting}
+        <div class="flex flex-col gap-2 px-2 py-3 text-xs text-muted-foreground" data-tour="command-hints">
+          <p>{t(messages.hintsTitle)}</p>
+          <div class="flex flex-wrap items-center gap-1.5">
+            {#each HINT_EXAMPLES as example (example)}
+              <button
+                type="button"
+                tabindex="-1"
+                class="rounded-md border border-border px-2 py-0.5 font-mono text-foreground outline-hidden transition-colors hover:bg-accent motion-reduce:transition-none"
+                onclick={() => {
+                  text = example;
+                  input?.focus();
+                }}
+              >
+                {example}
+              </button>
+            {/each}
+          </div>
+          <p>{t(messages.hintsPrefixes)}</p>
+          <p>{t(messages.hintsKeys)}</p>
+        </div>
       {/if}
       {#if searching && results.total === 0 && !sources.loading && sources.failed.length === 0}
         <p class="px-2 py-6 text-center text-sm text-muted-foreground">

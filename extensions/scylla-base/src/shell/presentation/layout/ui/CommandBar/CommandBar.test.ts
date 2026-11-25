@@ -722,6 +722,27 @@ describe('CommandBar', () => {
       ]);
     });
 
+    it('shows examples to try, and a click on one fills the field', async () => {
+      const input = await open();
+
+      expect(await screen.findByText('Try a search')).toBeInTheDocument();
+      await user().click(screen.getByRole('button', { name: 'agnts' }));
+
+      expect(input).toHaveValue('agnts');
+      expect(screen.queryByText('Try a search')).not.toBeInTheDocument();
+    });
+
+    it('stops the examples after three picks in this workspace', async () => {
+      localStorage.setItem(
+        'scylla-command-bar-recent:w1',
+        JSON.stringify(['page:workspace/agents', 'page:workspace/apps', 'page:account/appearance']),
+      );
+      await open();
+
+      expect(await screen.findByText('Recent')).toBeInTheDocument();
+      expect(screen.queryByText('Try a search')).not.toBeInTheDocument();
+    });
+
     it('reads a recent row from the list of this workspace', async () => {
       localStorage.setItem('scylla-command-bar-recent:w1', JSON.stringify(['page:workspace/agents']));
       await open();

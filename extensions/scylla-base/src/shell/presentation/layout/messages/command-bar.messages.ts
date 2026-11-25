@@ -76,6 +76,9 @@ export const commandBarMessages = {
   turnedOn: (name: string) => msg`${name}: on`,
   turnedOff: (name: string) => msg`${name}: off`,
 
+  hintsTitle: msg`Try a search`,
+  hintsPrefixes: msg`> actions · / pages · # projects and pipelines · @ people`,
+  hintsKeys: msg`↑ ↓ move · Enter open · Tab filter · Esc close`,
   hintFilter: msg`Filter`,
   hintNewTab: msg`New tab`,
 };

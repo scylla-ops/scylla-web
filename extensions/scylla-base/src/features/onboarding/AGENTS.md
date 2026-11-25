@@ -135,7 +135,9 @@ Anchors are attributes on the real elements, never CSS classes:
   `pipeline-submit`, `pipeline-triggers`, `pipeline-history` / `pipeline-actions` (+ `data-pipeline-id`,
   `data-pipeline-name`, `data-last-status`), `pipeline-run`, `job-details`, `triggers`,
   `trigger-general`, `trigger-when`, `trigger-submit`, `secrets`, `roles-list`, `role-new`,
-  `role-details`, `role-permissions`, `role-submit`, `members`, `members-add`. A wrapper with
+  `role-details`, `role-permissions`, `role-submit`, `members`, `members-add`, `command-bar-trigger` (the
+  search button of the top bar; the `search` tour shows the command bar and needs no permission,
+  and its page offer shows on `/dashboard`). A wrapper with
   `class="contents"` has no box: `measure` takes the union of its children.
 - `data-part="…"` in `@scylla/ui` (generic parts): `feature-header-new`, `data-table-row` (a row in
   a table and a card below the width of a table).

@@ -17,6 +17,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the link and tells who can open it. On a phone, it opens the share sheet. The filters of the jobs,
   the branch and tab of a file pipeline and the tab of a package are in the link. A private
   dashboard has no button. In English and French.
+- The command bar has a short tour and shows examples to try when it is empty. Start the tour again
+  from Help & tours.
 
 ### Changed
 

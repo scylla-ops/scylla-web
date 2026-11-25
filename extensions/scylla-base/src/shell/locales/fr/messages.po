@@ -37,6 +37,14 @@ msgstr "{name} : activé"
 msgid "{name}: you confirm in the next step."
 msgstr "{name} : vous confirmez à l'étape suivante."
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:81
+msgid "↑ ↓ move · Enter open · Tab filter · Esc close"
+msgstr "↑ ↓ déplacer · Entrée ouvrir · Tab filtrer · Échap fermer"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:80
+msgid "> actions · / pages · # projects and pipelines · @ people"
+msgstr "> actions · / pages · # projets et pipelines · @ personnes"
+
 #: extensions/scylla-base/src/shell/whats-new.ts:55
 msgid "A command bar"
 msgstr "Une barre de commandes"
@@ -145,7 +153,7 @@ msgstr "English"
 msgid "english language"
 msgstr "anglais langue"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:79
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:82
 msgid "Filter"
 msgstr "Filtre"
 
@@ -245,7 +253,7 @@ msgstr "Membre"
 msgid "New"
 msgstr "Nouveau"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:80
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:83
 msgid "New tab"
 msgstr "Nouvel onglet"
 
@@ -445,6 +453,10 @@ msgstr "Cette adresse ne mène à aucune page. Le lien est peut-être ancien ou 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:21
 msgid "To get started, please create your first workspace."
 msgstr "Pour commencer, veuillez créer votre premier espace de travail."
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:79
+msgid "Try a search"
+msgstr "Essayez une recherche"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:31
 msgid "Try again"
