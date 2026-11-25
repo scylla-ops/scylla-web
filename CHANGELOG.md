@@ -11,6 +11,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Fixed
+
+- Job page: the job title row now wraps on narrow screens, so the page does not scroll sideways.
+
 ## [0.7.2] - 2026-11-25
 
 ### Added
