@@ -5,6 +5,7 @@
   import { createQuery } from '@scylla/core-sdk';
   import { CopyableText } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { ProviderMark, userName } from '@shared/presentation/ui';
   import { formatTime } from '@shared/utils/date-utils.ts';
   import { userQueries } from '@base/features/user';
@@ -16,6 +17,8 @@
     refOf,
     shortSha,
   } from '@base/features/jobs/presentation/presenters/job-source.presenter.ts';
+  import JobDetailsFact from './JobDetailsFact.svelte';
+  import JobDetailsGroup from './JobDetailsGroup.svelte';
 
   interface Props {
     job: JobEntity;
@@ -41,142 +44,125 @@
   });
 </script>
 
-{#snippet label(text: string)}
-  <dt class="w-24 shrink-0 font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
-    {text}
-  </dt>
+<!-- A value on one line: cut when it is too long, whole in its tooltip. -->
+{#snippet text(value: string, className = '')}
+  <span title={value} class={cn('min-w-0 truncate', className)}>{value}</span>
 {/snippet}
 
-{#snippet link(href: string, text: string, mono = true)}
+{#snippet link(href: string, value: string, className = '')}
   {#if href}
     <a
       {href}
       target="_blank"
       rel="noopener noreferrer"
-      class="truncate text-xs text-foreground underline-offset-4 hover:underline {mono ? 'font-mono' : ''}"
+      title={value}
+      class={cn('min-w-0 truncate underline-offset-4 hover:underline', className)}
     >
-      {text}
+      {value}
     </a>
   {:else}
-    <span class="truncate text-xs text-foreground {mono ? 'font-mono' : ''}">{text}</span>
+    {@render text(value, className)}
   {/if}
 {/snippet}
 
-<!-- The commit of the job, one fact for each row. Each item links to the provider. -->
-<section aria-label={t(messages.source)}>
-  <dl class="flex flex-col gap-1.5">
-    <div class="flex min-w-0 items-center gap-3">
-      {@render label(t(messages.repository))}
-      <dd class="flex min-w-0 items-center gap-1.5">
-        <ProviderMark kind={source.provider} class="size-3.5 shrink-0 text-foreground" />
-        {#if source.repositoryUrl}
-          <a
-            href={source.repositoryUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex min-w-0 items-center gap-1 font-mono text-xs text-foreground underline-offset-4 hover:underline"
-          >
-            <span class="truncate">{source.repository}</span>
-            <ExternalLinkIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
-          </a>
-        {:else}
-          <span class="truncate font-mono text-xs text-foreground">{source.repository}</span>
-        {/if}
-      </dd>
-    </div>
-
-    {#if ref}
-      <div class="flex min-w-0 items-center gap-3">
-        {@render label(t(ref.kind === 'tag' ? messages.tag : messages.branch))}
-        <dd class="min-w-0 truncate font-mono text-xs text-foreground">{ref.name}</dd>
-      </div>
+<!-- The commit of the job, one fact after the other. Each item links to the provider. -->
+<JobDetailsGroup title={t(messages.source)}>
+  <JobDetailsFact label={t(messages.repository)}>
+    <ProviderMark kind={source.provider} class="size-3.5 shrink-0 text-foreground" />
+    {#if source.repositoryUrl}
+      <a
+        href={source.repositoryUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        title={source.repository}
+        class="inline-flex min-w-0 items-center gap-1 font-mono underline-offset-4 hover:underline"
+      >
+        <span class="truncate">{source.repository}</span>
+        <ExternalLinkIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+      </a>
+    {:else}
+      {@render text(source.repository, 'font-mono')}
     {/if}
+  </JobDetailsFact>
 
-    <div class="flex min-w-0 items-center gap-3">
-      {@render label(t(messages.commit))}
-      <dd class="flex min-w-0 items-center gap-1.5">
-        <CopyableText
-          value={source.sha}
-          display={shortSha(source.sha)}
-          copyLabel={t(messages.copySha)}
-          class="font-mono text-xs"
+  {#if ref}
+    <JobDetailsFact label={t(ref.kind === 'tag' ? messages.tag : messages.branch)}>
+      {@render text(ref.name, 'max-w-60 font-mono')}
+    </JobDetailsFact>
+  {/if}
+
+  <JobDetailsFact label={t(messages.commit)}>
+    <CopyableText
+      value={source.sha}
+      display={shortSha(source.sha)}
+      copyLabel={t(messages.copySha)}
+      class="shrink-0 gap-0.5"
+      copyButtonClass="size-5"
+    />
+    {#if source.title}
+      {@render link(source.commitUrl, source.title, 'max-w-64')}
+    {/if}
+  </JobDetailsFact>
+
+  {#each source.pullRequests as pullRequest (pullRequest.number)}
+    <JobDetailsFact
+      label={t(source.provider === 'gitlab' ? messages.mergeRequest : messages.pullRequest)}
+    >
+      {@render link(
+        pullRequest.url,
+        pullRequestLabel(source.provider, pullRequest.number),
+        'shrink-0 font-mono',
+      )}
+      {#if pullRequest.title}
+        {@render text(pullRequest.title, 'max-w-48')}
+      {/if}
+    </JobDetailsFact>
+  {/each}
+
+  {#if source.authorLogin}
+    <JobDetailsFact label={t(messages.author)}>
+      {#if source.authorAvatarUrl}
+        <img
+          src={source.authorAvatarUrl}
+          alt=""
+          class="size-4 shrink-0 rounded-full"
+          referrerpolicy="no-referrer"
         />
-        {#if source.title}
-          {@render link(source.commitUrl, source.title, false)}
-        {/if}
-      </dd>
-    </div>
+      {/if}
+      {@render text(source.authorLogin, 'font-mono')}
+    </JobDetailsFact>
+  {/if}
 
-    {#each source.pullRequests as pullRequest (pullRequest.number)}
-      <div class="flex min-w-0 items-center gap-3">
-        {@render label(t(source.provider === 'gitlab' ? messages.mergeRequest : messages.pullRequest))}
-        <dd class="flex min-w-0 items-center gap-1.5">
-          {@render link(pullRequest.url, pullRequestLabel(source.provider, pullRequest.number))}
-          {#if pullRequest.title}
-            <span class="truncate text-xs text-foreground">{pullRequest.title}</span>
-          {/if}
-        </dd>
-      </div>
-    {/each}
+  {#if source.fromFork}
+    <JobDetailsFact label={t(messages.fork)}>
+      <GitForkIcon class="size-3.5 shrink-0 text-warning" aria-hidden="true" />
+      {@render text(source.forkRepository, 'font-mono')}
+    </JobDetailsFact>
+    <JobDetailsFact label={t(messages.secrets)}>
+      <EyeOffIcon class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+      <span class="truncate">{t(messages.secretsWithheld)}</span>
+    </JobDetailsFact>
+  {/if}
 
-    {#if source.authorLogin}
-      <div class="flex min-w-0 items-center gap-3">
-        {@render label(t(messages.author))}
-        <dd class="flex min-w-0 items-center gap-1.5">
-          {#if source.authorAvatarUrl}
-            <img
-              src={source.authorAvatarUrl}
-              alt=""
-              class="size-4 shrink-0 rounded-full"
-              referrerpolicy="no-referrer"
-            />
-          {/if}
-          <span class="truncate font-mono text-xs text-foreground">{source.authorLogin}</span>
-        </dd>
-      </div>
-    {/if}
+  {#if event}
+    <JobDetailsFact label={t(messages.event)}>
+      {@render text(event)}
+    </JobDetailsFact>
+  {/if}
 
-    {#if source.fromFork}
-      <div class="flex min-w-0 items-center gap-3">
-        {@render label(t(messages.fork))}
-        <dd class="flex min-w-0 items-center gap-1.5">
-          <GitForkIcon class="size-3.5 shrink-0 text-warning" aria-hidden="true" />
-          <span class="truncate font-mono text-xs text-foreground">{source.forkRepository}</span>
-        </dd>
-      </div>
-      <div class="flex min-w-0 items-center gap-3">
-        {@render label(t(messages.secrets))}
-        <dd class="flex min-w-0 items-center gap-1.5">
-          <EyeOffIcon class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-          <span class="font-mono text-xs text-foreground">{t(messages.secretsWithheld)}</span>
-        </dd>
-      </div>
-    {/if}
+  {#if job.pipelineFile}
+    <JobDetailsFact label={t(messages.pipeline)}>
+      {@render link(
+        job.pipelineFile.url,
+        t(messages.fileAtCommit(job.pipelineFile.path, shortSha(job.pipelineFile.commitSha))),
+        'max-w-72 font-mono',
+      )}
+    </JobDetailsFact>
+  {/if}
 
-    {#if event}
-      <div class="flex min-w-0 items-center gap-3">
-        {@render label(t(messages.event))}
-        <dd class="min-w-0 truncate text-xs text-foreground">{event}</dd>
-      </div>
-    {/if}
-
-    {#if job.pipelineFile}
-      <div class="flex min-w-0 items-center gap-3">
-        {@render label(t(messages.pipeline))}
-        <dd class="flex min-w-0 items-center">
-          {@render link(
-            job.pipelineFile.url,
-            t(messages.fileAtCommit(job.pipelineFile.path, shortSha(job.pipelineFile.commitSha))),
-          )}
-        </dd>
-      </div>
-    {/if}
-
-    {#if decision}
-      <div class="flex min-w-0 items-center gap-3">
-        {@render label(t(messages.approval))}
-        <dd class="min-w-0 text-xs text-foreground">{decisionText}</dd>
-      </div>
-    {/if}
-  </dl>
-</section>
+  {#if decision}
+    <JobDetailsFact label={t(messages.approval)}>
+      {@render text(decisionText)}
+    </JobDetailsFact>
+  {/if}
+</JobDetailsGroup>

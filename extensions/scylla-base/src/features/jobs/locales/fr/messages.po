@@ -153,10 +153,25 @@ msgstr "Copier le SHA"
 msgid "Created"
 msgstr "Créé"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:65
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:64
 msgctxt "date-prefix"
 msgid "Created"
 msgstr "Créé le"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:66
+msgctxt "run-time"
+msgid "Created"
+msgstr "Création"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:67
+msgctxt "run-time"
+msgid "Started"
+msgstr "Début"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:68
+msgctxt "run-time"
+msgid "Finished"
+msgstr "Fin"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:37
 msgid "Decrease the text size"
@@ -225,11 +240,6 @@ msgstr "Faits du job"
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:85
 msgid "Failure"
 msgstr "Échec"
-
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:64
-msgctxt "date-prefix"
-msgid "Finished"
-msgstr "Terminé le"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:46
 msgid "Finished: {time}"

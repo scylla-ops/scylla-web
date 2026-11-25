@@ -70,6 +70,11 @@ const shownNode = () => screen.queryByTestId('job-log-node')?.textContent?.trim(
 const nodeList = () => screen.getByRole('navigation', { name: 'Node executions' });
 const nodeRow = (name: RegExp) => within(nodeList()).getByRole('button', { name });
 const lastUrl = () => navigator.navigate.mock.calls.at(-1)?.[0];
+/** The facts of a group of the details: each label with its value. */
+const factsOf = (group: HTMLElement) =>
+  within(group)
+    .getAllByRole('term')
+    .map(term => [term.textContent?.trim(), term.nextElementSibling?.textContent?.trim()]);
 
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: (() => void) | null = null;
@@ -148,7 +153,33 @@ describe('JobDetailsPage', () => {
     await userEvent.click(details);
 
     expect(details).toHaveAttribute('aria-expanded', 'true');
-    expect(screen.getByRole('heading', { name: 'Run' })).toBeInTheDocument();
+    const panel = document.getElementById(details.getAttribute('aria-controls') ?? '');
+    expect(panel).toContainElement(screen.getByRole('heading', { name: 'Run' }));
+    const run = within(panel!).getByRole('region', { name: 'Run' });
+    expect(factsOf(run)).toEqual([
+      ['Status', 'Success'],
+      ['Duration', expect.any(String)],
+      ['Created', expect.stringContaining('2026')],
+      ['Started', expect.not.stringContaining('2026')],
+      ['Finished', expect.not.stringContaining('2026')],
+      ['Agent', 'agent-1'],
+    ]);
+
+    await userEvent.click(details);
+
+    expect(details).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('region', { name: 'Run' })).not.toBeInTheDocument();
+  });
+
+  it('shows in its details only the facts that a waiting job already has', async () => {
+    await renderPage(job({ status: 'pending', startedAt: undefined, finishedAt: undefined }));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Details' }));
+
+    expect(factsOf(screen.getByRole('region', { name: 'Run' })).map(([label]) => label)).toEqual([
+      'Status',
+      'Created',
+    ]);
   });
 
   it('says that the log is live only while the job runs', async () => {

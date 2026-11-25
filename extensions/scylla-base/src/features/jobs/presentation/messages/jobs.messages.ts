@@ -61,8 +61,11 @@ export const jobsMessages = {
   runGroup: msg({ context: 'group', message: 'Run' }),
   // `context` separates it from the column header: "Créé le" vs "Créé".
   startedPrefix: msg({ context: 'date-prefix', message: 'Started' }),
-  finishedPrefix: msg({ context: 'date-prefix', message: 'Finished' }),
   createdPrefix: msg({ context: 'date-prefix', message: 'Created' }),
+  // `context`: the label of a time of the run in the details, before a date or only an hour.
+  createdTime: msg({ context: 'run-time', message: 'Created' }),
+  startedTime: msg({ context: 'run-time', message: 'Started' }),
+  finishedTime: msg({ context: 'run-time', message: 'Finished' }),
 
   logsDenied: msg`You don't have permission to view this job's logs`,
   streamingLive: msg`Streaming live output`,
