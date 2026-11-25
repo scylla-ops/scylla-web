@@ -264,12 +264,12 @@ describe('CommandBar', () => {
       expect(within(row).getByText('Go to')).toBeInTheDocument();
     });
 
-    it('shows in bold the letters that matched', async () => {
+    it('underlines the letters that matched', async () => {
       const input = await open();
       await user().type(input, 'age');
 
       const row = await option('Go to the page Agents (Machines).');
-      expect(row.querySelector('strong')).toHaveTextContent('Age');
+      expect(row.querySelector('.underline')).toHaveTextContent('Age');
     });
 
     it('gives the full sentence of the highlighted row in the footer', async () => {

@@ -280,7 +280,7 @@
                 <span class="flex min-w-0 flex-1 flex-col">
                   <span class="truncate">
                     {#each nameParts(row.name, item.ranges) as part, index (index)}
-                      {#if part.hit}<strong class="font-semibold">{part.text}</strong>{:else}{part.text}{/if}
+                      {#if part.hit}<span class="underline decoration-primary decoration-2 underline-offset-2">{part.text}</span>{:else}{part.text}{/if}
                     {/each}
                   </span>
                   <span class="truncate text-xs text-muted-foreground">

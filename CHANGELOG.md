@@ -18,6 +18,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the branch and tab of a file pipeline and the tab of a package are in the link. A private
   dashboard has no button. In English and French.
 
+### Changed
+
+- The command bar underlines the letters of each result that match the text that you typed, also
+  with a typing error.
+
 ### Fixed
 
 - Two flaky tests no longer fail the CI at random.
