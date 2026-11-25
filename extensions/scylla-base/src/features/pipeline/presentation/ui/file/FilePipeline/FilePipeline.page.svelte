@@ -59,6 +59,7 @@
               {projectId}
               onNodesChange={() => {}}
               savedLayout={view.savedLayout}
+              places={view.places}
               locked
               dimmed={view.stale}
               onReady={() => (canvasReady = true)}
@@ -66,8 +67,8 @@
               {#snippet notice()}
                 <FileNotice {view} />
               {/snippet}
-              {#snippet sidePanel()}
-                <FilePanel {view} />
+              {#snippet sidePanel(blueprint)}
+                <FilePanel {view} {blueprint} />
               {/snippet}
             </PipelineBlueprint>
           </div>

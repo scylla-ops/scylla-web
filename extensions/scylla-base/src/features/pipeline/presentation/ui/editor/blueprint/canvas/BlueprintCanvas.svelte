@@ -31,6 +31,7 @@
   import DeletableEdge from './DeletableEdge.svelte';
   import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import DropSpot from './DropSpot.svelte';
+  import { openNodeOnKey } from './node-keys.attachments.ts';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
   import { isFragment, type PaletteDrag, type PaletteEntry } from '../palette-drag/palette-drag.state.svelte.ts';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
@@ -72,7 +73,9 @@
   };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
 
-  const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.25, maxZoom: 1 };
+  /** A long pipeline zooms out until each node is in the view. */
+  const MIN_ZOOM = 0.1;
+  const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.25, maxZoom: 1, minZoom: MIN_ZOOM };
 
   const { screenToFlowPosition, fitView } = useSvelteFlow();
 
@@ -136,6 +139,7 @@
   aria-label={t(pipelineMessages.blueprint)}
   class="canvas relative h-full min-w-0 flex-1"
   class:dimmed
+  {@attach openNodeOnKey(nodeId => blueprint.inspect(nodeId))}
   {@attach acceptPaletteDrop(() => ({
     drag,
     // The middle of the node lands on the pointer: the dragged icon is in the middle of the outline.
@@ -155,6 +159,7 @@
     {edgeTypes}
     fitView
     fitViewOptions={FIT_VIEW_OPTIONS}
+    minZoom={MIN_ZOOM}
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
     clickConnect={false}
@@ -218,6 +223,13 @@
   .canvas :global(.svelte-flow__node.draggable),
   .canvas :global(.svelte-flow__nodesselection-rect) {
     cursor: pointer;
+  }
+
+  /* A node that the keyboard reaches shows it, also on a read-only canvas. */
+  .canvas :global(.svelte-flow__node:focus-visible) {
+    outline: 2px solid var(--ring);
+    outline-offset: 4px;
+    border-radius: 12px;
   }
 
   .canvas :global(.svelte-flow__pane.dragging),

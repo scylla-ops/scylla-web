@@ -15,7 +15,7 @@
   import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
   import type { PipelineLayout } from '@base/features/pipeline/domain/structs/pipeline-layout.struct.ts';
   import type { NodePlaces } from './node-places.state.svelte.ts';
-  import { createBlueprint } from './blueprint.state.svelte.ts';
+  import { createBlueprint, type Blueprint } from './blueprint.state.svelte.ts';
   import { createNodeAppearancePreference } from './canvas/node-appearance-preference.state.svelte.ts';
   import { nodeTemplateQueries } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { createQuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
@@ -45,14 +45,14 @@
     places?: NodePlaces;
     /** Called once: the graph is fitted in the canvas at its final size. */
     onReady?: () => void;
-    /** The graph only shows the pipeline: no edit, no place saved. */
+    /** The graph only shows the pipeline: no edit. A click opens a node, a move saves its place. */
     locked?: boolean;
     /** The nodes are an older version than the one the page talks about: they are faded. */
     dimmed?: boolean;
     /** Over the canvas, in place of the notice of the repeated ids. */
     notice?: Snippet;
-    /** A `ResizablePane` of order 2, in place of the palette and the inspector. */
-    sidePanel?: Snippet;
+    /** A `ResizablePane` of order 2, in place of the palette and the inspector. It reads what is inspected. */
+    sidePanel?: Snippet<[Blueprint]>;
   }
 
   let {
@@ -184,7 +184,7 @@
       </ResizablePane>
       <ResizableHandle />
       {#if sidePanel}
-        {@render sidePanel()}
+        {@render sidePanel(blueprint)}
       {:else}
         <BlueprintSidePanel
           {blueprint}

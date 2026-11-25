@@ -171,6 +171,8 @@ presentation/
                                              the place of an error, the note of a row of the list
                                              (originNote: a badge, its full text in a tooltip),
                                              the notice of its page (fileNotice)
+    node-details.presenter.ts                each field of a node as text, for a read-only node
+                                             (the code, the rows, the env, the cases of a switch)
     pipeline-history.presenter.ts            the bars of a row of the list (historyBars, barCapacity),
                                              the figures of its stats card (historyStats)
     ref-options.presenter.ts                 the rows of a branch or tag picker, and of the Run dialog
@@ -192,7 +194,9 @@ presentation/
     JobFilters/                              branch, event, author, PR (job-filters.state.svelte.ts)
     file/FilePipeline/                       the page of a file pipeline: the editor page, read only
                                              (file-pipeline.state.svelte.ts, the header with the
-                                             branch picker, the notice, the locked panel, the text)
+                                             branch picker, the notice, the locked panel, the text).
+                                             FilePanel: FileSettings (the file) or FileNodePanel
+                                             (one node, with FileNodeConditions)
     dashboard/
       DashboardPipeline/                     the page, its header, pipeline-dashboard.state.svelte.ts
       PipelineTable/                         the table, pipeline-table.columns.ts, bar-capacity.state.svelte.ts,
@@ -244,6 +248,7 @@ presentation/
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
           UpdateNotice.svelte                a newer version of a block
+          node-keys.attachments.ts           Enter or Space on a focused node opens it, as a click
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
           flow-theme.css                     the colours of the app on every Svelte Flow canvas
           CanvasCurtain/                     what covers the blueprint until it is ready: the animated
@@ -391,8 +396,8 @@ the page.
   reads the dirty state at each navigation, not at the last run of its effect. A failed save marks
   nothing: the guard stays. A name that is typed and not applied yet is an unsaved change too.
 - **The blueprint has one side panel, on the right.** It shows `blueprint.inspected`, which only
-  a click sets (`blueprint.inspect(id)`): a click on a node, a click on a palette entry, a pick in
-  `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
+  a click sets (`blueprint.inspect(id)`): a click on a node (or Enter or Space on a focused node,
+  `openNodeOnKey`), a click on a palette entry, a pick in `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
   a click on the empty canvas closes it. Nothing inspected: the palette. A node: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state. `blueprint.selecting` tells when the selection panel
@@ -483,7 +488,9 @@ the page.
   with each of its ports (`<switch>:<port>`, `<node>:error`); a drop in the list sets a need
   with no port.
 - **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
-  the name of the whole document. The start node opens nothing.
+  the name of the whole document. The start node opens nothing in the editor. In a `locked`
+  graph, a click opens each node and the start node too (`inspectedStart`): the file page shows
+  the settings of the file for it, and a new panel of the start node uses the same state.
 - **The side panel of the blueprint is a paneforge pane** (`ResizablePane`), right of the
   canvas in one `ResizablePaneGroup` with `autoSaveId="scylla.blueprint.side-panel"`. The pane is
   keyed by the mode (`{#key mode}`) and each mode has its own `SIDE_PANEL_SIZES` (percent), so
@@ -504,6 +511,7 @@ the page.
   first layout of the panes (`onLayoutChange`), and the panes have no transition until the canvas
   is ready, so the first fit is at the final width. The canvas is ready when Svelte Flow is
   initialised and the `fitView` promise resolves (the nodes are measured, the view is fitted).
+  The fit zooms out to `MIN_ZOOM` (0.1) at most, so no node of a long pipeline is cut at the edge.
   Until then, `CanvasCurtain` covers the canvas and the side panel with the look of an empty
   canvas, and the blueprint is `inert`: the user does not see the side panel or the view move.
   The times are in `CURTAIN_TIMES`: nothing for 300 ms, then the logo for 400 ms at least, a
@@ -601,7 +609,9 @@ the page.
   editor. The places do not change the version of the pipeline.
 - **Limits of the server:** 256 places in a request (a longer request is refused whole), 1,000,000
   at most on each axis, whole numbers. `withinLimit` and `toNodePlace` apply them. A node with no
-  place gets an automatic place. A read-only canvas saves nothing.
+  place gets an automatic place. A graph with repeated ids saves nothing. A `locked` graph (a
+  file pipeline) saves its places: they are not in the file and do not change the version. A
+  reader without `UPDATE_PIPELINE` moves the nodes for the visit only.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in
   the folder of `ui/editor/blueprint/` that has its responsibility (`canvas/`, `catalog/`,
   `palette-drag/`, `side-panel/`), new list UI in `ui/dashboard/PipelineTable/`. A field of a
@@ -637,9 +647,11 @@ the page.
   under `pipelines/:pipelineId` (jobs, a job, triggers) links here for each source. It is the
   only crumb that names the pipeline there: the crumb of the jobs is "Jobs" only. The page
   is the editor page with no edit: `PipelineBlueprint` gets `locked` (the blueprint is
-  `readOnly` and saves no place), a `notice` in place of the notice of the repeated ids, and a
-  `sidePanel` in place of the palette (`FilePanel`: the rules of `on` and the checkout, or the
-  errors of the file). The Scripting tab shows the text of the file with the colors of its
+  `readOnly`: a click opens a node, a drag or Arrange saves the places), a `notice` in place of
+  the notice of the repeated ids, and a `sidePanel(blueprint)` in place of the palette
+  (`FilePanel`: `FileSettings` with the rules of `on`, the checkout, the agent, the list of the
+  nodes, or the errors of the file; `FileNodePanel` for an inspected node, each field from
+  `nodeDetails`, with a Copy of its script and a way back). The Scripting tab shows the text of the file with the colors of its
   format, read only. The branch picker reads the file at another ref
   (`pipelineQueries.file`, keyed under `PIPELINE_QUERY_KEY`). When the file has errors (not
   warnings) or cannot be read (none on the branch: `NOT_FOUND`), the graph shows the saved

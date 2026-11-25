@@ -1,18 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { PipelineNodeEntity } from '@base/features/pipeline/domain/entities/pipeline-node.entity.ts';
 import type { PipelineFile } from '@base/features/pipeline/domain/structs/pipeline-file.struct.ts';
 import FilePipelinePage from './FilePipeline.page.svelte';
 
 const PATH = '.scylla/pipelines/build.toml';
 const PAGE = '/acme/projects/project-1/pipelines/pipeline-1';
 
-const node = {
+const node: PipelineNodeEntity = {
   id: 'build',
   deps: [],
   env: [],
@@ -21,8 +22,10 @@ const node = {
   args: ['build'],
 };
 
+const savedNodes: PipelineNodeEntity[] = [node];
+
 const saved = {
-  pipeline: { id: 'pipeline-1', projectId: 'project-1', name: 'build', nodes: [node] },
+  pipeline: { id: 'pipeline-1', projectId: 'project-1', name: 'build', nodes: savedNodes },
   layout: null,
   origin: { source: 'file', filePath: PATH, fileErrorCount: 0 },
 };
@@ -53,8 +56,25 @@ const refs = [
   { name: 'feature/bench', kind: 'branch', sha: 'd4e5f6a7b8c9', defaultBranch: false, webUrl: '' },
 ];
 
+const test: PipelineNodeEntity = {
+  id: 'test',
+  deps: [{ node: 'build' }],
+  kind: 'script',
+  shell: 'bash',
+  script: ['set -eu', 'pnpm test'].join('\n'),
+  env: [
+    { key: 'CI', kind: 'literal', value: 'true' },
+    { key: 'NPM_TOKEN', kind: 'secret', secretRef: 'npm-token' },
+  ],
+  workingDir: 'web',
+  timeoutSeconds: 1200,
+  retries: 2,
+  image: 'node:24',
+};
+
 let teardown: Array<() => void> = [];
 let getFile: ReturnType<typeof vi.fn>;
+let saveLayout: ReturnType<typeof vi.fn>;
 
 const setUp = (
   read: (id: string, ref?: unknown) => Promise<PipelineFile>,
@@ -62,6 +82,7 @@ const setUp = (
   search = '',
 ) => {
   getFile = vi.fn(read);
+  saveLayout = vi.fn(() => Promise.resolve());
   const cache = withQueryClient();
   const navigator = installTestNavigator({ pathname: PAGE, search });
   teardown = [
@@ -69,7 +90,7 @@ const setUp = (
     navigator.restore,
     withRegistry({
       pipeline: {
-        pipelineRepository: { getWithLayout: () => Promise.resolve(pipeline), getFile },
+        pipelineRepository: { getWithLayout: () => Promise.resolve(pipeline), getFile, saveLayout },
         nodeTemplateRepository: { list: () => Promise.resolve([]) },
       },
       integrations: {
@@ -96,7 +117,18 @@ beforeEach(() => {
   });
 });
 
-afterEach(() => teardown.forEach(restore => restore()));
+afterEach(() => {
+  vi.useRealTimers();
+  teardown.forEach(restore => restore());
+});
+
+/** A place goes to the server 500 ms after the last move. */
+const arrange = async () => {
+  await screen.findByRole('heading', { name: 'Pipeline file' });
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  await userEvent.click(await screen.findByRole('button', { name: 'Arrange' }));
+  await vi.advanceTimersByTimeAsync(600);
+};
 
 describe('FilePipelinePage', () => {
   it('shows the pipeline of the file read only, with the file, the branch and the commit', async () => {
@@ -122,6 +154,67 @@ describe('FilePipelinePage', () => {
     expect(screen.getByText('main')).toBeInTheDocument();
     expect(screen.getByText('Built in')).toBeInTheDocument();
     expect(screen.queryByText('Add a node')).not.toBeInTheDocument();
+  });
+
+  it('opens a node of the file read only, with each of its fields, and goes back to the file', async () => {
+    const withTest = { ...saved, pipeline: { ...saved.pipeline, nodes: [node, test] } };
+    setUp(() => Promise.resolve(file({ nodes: [node, test] })), withTest);
+
+    await userEvent.click(await screen.findByRole('button', { name: /^test/ }));
+
+    expect(await screen.findByRole('heading', { name: 'test' })).toBeInTheDocument();
+    expect(screen.getByText('After')).toBeInTheDocument();
+    expect(screen.getByText('Script · bash').closest('section')).toHaveTextContent(
+      'set -eu pnpm test',
+    );
+    expect(screen.getByRole('button', { name: 'Copy' })).toBeInTheDocument();
+    expect(screen.getByText('Working directory').nextElementSibling).toHaveTextContent('web');
+    expect(screen.getByText('Container image').nextElementSibling).toHaveTextContent('node:24');
+    expect(screen.getByText('Timeout').nextElementSibling).toHaveTextContent('20m 0s');
+    expect(screen.getByText('Retries').nextElementSibling).toHaveTextContent('2');
+    expect(screen.getByText('NPM_TOKEN').nextElementSibling).toHaveTextContent('npm-token');
+    expect(screen.getByText('Read only. Change this node in the file of the repository.')).toBeInTheDocument();
+    // Nothing edits the node.
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Delete the node' })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Pipeline file' }));
+
+    expect(await screen.findByRole('heading', { name: 'Pipeline file' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'View file on GitHub' })).toBeInTheDocument();
+  });
+
+  it('saves the places of an arrange, and leaves the file and the pipeline as they are', async () => {
+    setUp(() => Promise.resolve(file()));
+
+    await arrange();
+
+    expect(saveLayout).toHaveBeenCalledWith(
+      'pipeline-1',
+      expect.objectContaining({ nodes: { build: expect.any(Object) } }),
+    );
+    expect(screen.getByText(/Scylla keeps their places/)).toBeInTheDocument();
+    expect(getFile).toHaveBeenCalledTimes(1);
+  });
+
+  it('moves the nodes for the visit only when the reader cannot change the pipeline', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.SYSTEM,
+            scopeId: '',
+            access: { kind: 'restricted', permissions: [Permission.READ_PIPELINE] },
+          },
+        ],
+      },
+    });
+    setUp(() => Promise.resolve(file()));
+
+    await arrange();
+
+    expect(saveLayout).not.toHaveBeenCalled();
+    expect(screen.queryByText(/Scylla keeps their places/)).not.toBeInTheDocument();
   });
 
   it('says that a file with no on section starts on manual runs only', async () => {

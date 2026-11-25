@@ -40,6 +40,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   trigger, a project and an activity event are links, so a middle click opens a new tab, and a
   tooltip tells what a click opens. A bar of one day or one week shows that period on the dashboard.
 - Each widget kind in the widget picker has its own preview icon that looks like the widget.
+- The read-only page of a file pipeline lets you look at the pipeline. A click on a node, or Enter
+  on a focused node, shows each field of the node in the side panel, with the script, a Copy button
+  and a way back. The view fits the full graph, and you can drag the nodes or click Arrange: Scylla
+  keeps their places, and the file and the version do not change.
 
 ## [0.7.1] - 2026-11-24
 

@@ -14,7 +14,7 @@
 <div class="flex flex-col items-center gap-2" style="width: {MINIMAL_NODE.width}px;">
   <div
     class={cn(
-      'flex items-center justify-center rounded-[18px] border border-primary/45 bg-card shadow-xs',
+      'flex items-center justify-center rounded-[18px] border border-primary/45 bg-card shadow-xs transition-[border-color,box-shadow] duration-150 hover:border-primary',
       selected && 'ring-[3px] ring-primary/20',
     )}
     style="width: {MINIMAL_NODE.tile}px; height: {MINIMAL_NODE.tile}px;"

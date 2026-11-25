@@ -45,6 +45,8 @@ export const fileMessages = {
   line: (line: number) => msg`Line ${line}`,
   readOnlyHint: msg`Read only. Schedules and webhooks stay in Scylla. With no on section, the pipeline starts only on manual runs.`,
   invalidHint: msg`New runs fail with "Invalid pipeline file" until the file is valid.`,
+  placesHint: msg`Drag the nodes to arrange the view. Scylla keeps their places, and the file does not change.`,
+  nodeReadOnlyHint: msg`Read only. Change this node in the file of the repository.`,
 
   view: msg`View`,
   viewPipeline: msg`View pipeline`,

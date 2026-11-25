@@ -224,11 +224,41 @@ describe('createBlueprint', () => {
     });
   });
 
+  it('opens a node and the start node of a locked graph, and edits nothing', () => {
+    const onNodesChange = vi.fn();
+    const cleanup = $effect.root(() => {
+      const state = createBlueprint({
+        nodes: () => [execNode('build'), execNode('test', ['build'])],
+        pipelineName: () => 'nightly',
+        onNodesChange,
+        locked: () => true,
+      });
+      flushSync();
+
+      state.inspect('test');
+      expect(state.inspected?.id).toBe('test');
+      expect(state.inspectedStart).toBe(false);
+      expect(state.flowNodes.filter(flowNode => flowNode.selected).map(({ id }) => id)).toEqual(['test']);
+
+      state.inspect(START_NODE_ID);
+      expect(state.inspected).toBeUndefined();
+      expect(state.inspectedStart).toBe(true);
+
+      state.updateNode('test', definition);
+      state.removeNode('build');
+      state.addNode('lint', definition);
+      expect(onNodesChange).not.toHaveBeenCalled();
+      expect(state.selecting).toBe(false);
+    });
+    cleanup();
+  });
+
   it('never opens the side panel on the start node: the header edits the name', () => {
     withState([execNode('build')], state => {
       state.inspect('build');
       state.inspect(START_NODE_ID);
       expect(state.inspected).toBeUndefined();
+      expect(state.inspectedStart).toBe(false);
     });
   });
 
@@ -456,6 +486,7 @@ describe('the places of the canvas', () => {
       places: { connect: ReturnType<typeof vi.fn>; moved: ReturnType<typeof vi.fn> },
     ) => void,
     savedLayout: PipelineLayout | null = null,
+    locked = false,
   ) => {
     const places = { connect: vi.fn(), moved: vi.fn(), waiting: vi.fn() };
     const cleanup = $effect.root(() => {
@@ -465,6 +496,7 @@ describe('the places of the canvas', () => {
         onNodesChange: vi.fn(),
         savedLayout: () => savedLayout,
         places,
+        locked: () => locked,
       });
       flushSync();
       run(state, places);
@@ -500,7 +532,24 @@ describe('the places of the canvas', () => {
     });
   });
 
-  it('saves nothing on a read-only canvas', () => {
+  it('saves the places of a locked graph: a place is not part of the pipeline', () => {
+    withPlaces(
+      [execNode('build')],
+      (state, places) => {
+        const dragged = state.flowNodes.filter(({ id }) => id === 'build');
+        state.placesMoved(dragged);
+        state.arrange();
+
+        expect(state.readOnly).toBe(true);
+        expect(places.moved).toHaveBeenCalledWith(dragged);
+        expect(places.moved).toHaveBeenLastCalledWith(state.flowNodes);
+      },
+      null,
+      true,
+    );
+  });
+
+  it('saves nothing for two nodes with one id: they would share one place', () => {
     withPlaces([execNode('build'), execNode('build')], (state, places) => {
       expect(state.readOnly).toBe(true);
       state.placesMoved(state.flowNodes);

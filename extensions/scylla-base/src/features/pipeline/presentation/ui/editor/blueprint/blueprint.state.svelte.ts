@@ -56,7 +56,10 @@ export interface BlueprintParams {
   /** Read at each build of the graph: a later save of a place does not move a node. */
   savedLayout?: () => PipelineLayout | null | undefined;
   places?: NodePlaces;
-  /** A pipeline that the server does not let change, such as a file pipeline: the graph only shows it. */
+  /**
+   * A pipeline that the server does not let change, such as a file pipeline: the graph only shows
+   * it. A click still opens a node or the start node, and a move still saves its place.
+   */
   locked?: () => boolean;
 }
 
@@ -144,7 +147,8 @@ export const createBlueprint = (params: BlueprintParams) => {
    * through the ids. The document is never rewritten to remove the repeat.
    */
   const repeated = $derived(pipeline.repeatedNodeIds(params.nodes()).length > 0);
-  const readOnly = $derived(repeated || (params.locked?.() ?? false));
+  const locked = $derived(params.locked?.() ?? false);
+  const readOnly = $derived(repeated || locked);
 
   const inspected = $derived(
     flowNodes.find(
@@ -313,6 +317,10 @@ export const createBlueprint = (params: BlueprintParams) => {
     /** The block the side panel shows. */
     get inspectedBlock() {
       return inspectedBlock;
+    },
+    /** A locked graph only: a click on the start node opens the settings of the pipeline. */
+    get inspectedStart() {
+      return inspectedId === START_NODE_ID;
     },
     get selectedNodes() {
       return selectedNodes;
@@ -547,10 +555,11 @@ export const createBlueprint = (params: BlueprintParams) => {
 
     /**
      * Opens the side panel on a node, selected on the canvas; `null` closes it. The start node
-     * is the pipeline: its name is edited in the header, so it closes the panel too.
+     * is the pipeline: its name is edited in the header, so it closes the panel too. A locked
+     * graph opens each node, the start node too, to show it: nothing in it edits a node.
      */
     inspect(id: string | null) {
-      const next = id === START_NODE_ID || readOnly ? null : id;
+      const next = locked ? id : id === START_NODE_ID || readOnly ? null : id;
       inspectedId = next;
       flowNodes = flowNodes.map(flowNode =>
         Boolean(flowNode.selected) === (flowNode.id === next)
@@ -559,9 +568,12 @@ export const createBlueprint = (params: BlueprintParams) => {
       );
     },
 
-    /** The end of a drag. A read-only canvas saves nothing. */
+    /**
+     * The end of a drag. A place is not part of the pipeline, so a locked graph saves it too. Two
+     * nodes with one id share one place: that graph saves nothing.
+     */
     placesMoved(moved: readonly Pick<FlowNode, 'id' | 'position'>[]) {
-      if (!readOnly) params.places?.moved(moved);
+      if (!repeated) params.places?.moved(moved);
     },
 
     /** Lays the graph out again by depth: the same layout as a freshly opened pipeline. */
@@ -573,7 +585,7 @@ export const createBlueprint = (params: BlueprintParams) => {
         ...flowNode,
         position: positions.get(flowNode.id) ?? flowNode.position,
       }));
-      if (!readOnly) params.places?.moved(flowNodes);
+      if (!repeated) params.places?.moved(flowNodes);
     },
   };
 };
