@@ -6,6 +6,8 @@
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { LegalFooter } from '@platform/legal';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
+  import { passwordResetMessages } from '@base/features/login/presentation/messages/password-reset.messages.ts';
+  import ResendVerification from '../ResendVerification/ResendVerification.svelte';
 
   // Built during initialisation: it reads the token of the link, and its mutation needs an owner.
   const state = new VerifyEmailState();
@@ -25,7 +27,13 @@
     <p role="alert" class="mb-6 text-center text-sm text-destructive">
       {t(signUpMessages.invalidLink)}
     </p>
-    <Button href="/sign-up" variant="outline" class="w-full">{t(signUpMessages.title)}</Button>
+    <ResendVerification />
+    <a
+      href="/login"
+      class="mt-6 block text-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+    >
+      {t(passwordResetMessages.backToSignIn)}
+    </a>
   {:else}
     <p role="status" class="text-center text-sm text-muted-foreground">
       {t(signUpMessages.verifying)}

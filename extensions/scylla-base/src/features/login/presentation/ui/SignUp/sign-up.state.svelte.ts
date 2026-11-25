@@ -71,6 +71,16 @@ export class SignUpState {
     return this.mutation.isSuccess && this.mutation.data === null;
   }
 
+  /** The email of the sign-up that the server took: empty before. */
+  get sentEmail(): string {
+    return this.isSent ? (this.mutation.variables?.email ?? '') : '';
+  }
+
+  /** The sign-up came from an invitation link: the email needs no link. */
+  get invited(): boolean {
+    return this.invitationToken !== '';
+  }
+
   submit = (input: Omit<SignUpInput, 'invitationToken' | 'acceptedTermsVersion'>): void => {
     const terms = this.terms;
     this.mutation.mutate({

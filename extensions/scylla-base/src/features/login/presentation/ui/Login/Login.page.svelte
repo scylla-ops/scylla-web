@@ -8,9 +8,11 @@
   import AuthLayout from '@shared/presentation/ui/layout/AuthLayout.svelte';
   import { LegalFooter } from '@platform/legal';
   import LoginForm from '../LoginForm/LoginForm.svelte';
+  import ResendVerification from '../ResendVerification/ResendVerification.svelte';
   import SignInProviders from '../SignInProviders/SignInProviders.svelte';
   import { loginMessages } from '@base/features/login/presentation/messages/login.messages.ts';
   import { signUpMessages } from '@base/features/login/presentation/messages/sign-up.messages.ts';
+  import { verificationMessages } from '@base/features/login/presentation/messages/verification.messages.ts';
 
   // Built during initialisation: its mutation needs an owner.
   const state = new LoginState();
@@ -31,6 +33,13 @@
   mark={state.mark}
   leaving={state.isLeaving}
 >
+  <!-- A right password of an account that waits for the check of its email: no toast, a new link. -->
+  {#if state.emailNotVerified}
+    <div class="mb-6 flex flex-col items-center gap-3 rounded-md border p-4 text-center">
+      <p role="alert" class="text-sm font-medium">{t(verificationMessages.notVerified)}</p>
+      <ResendVerification email={state.unverifiedEmail} />
+    </div>
+  {/if}
   <LoginForm handleSubmit={state.submit} isPending={state.isPending} />
   <SignInProviders providers={methods.data?.providers ?? []} {returnPath} />
 

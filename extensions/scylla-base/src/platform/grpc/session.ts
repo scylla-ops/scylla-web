@@ -39,6 +39,7 @@ const PUBLIC_METHODS = new Set([
   'scylla.accounts.v1.AccountService/SignIn',
   'scylla.accounts.v1.AccountService/SignUp',
   'scylla.accounts.v1.AccountService/VerifyEmail',
+  'scylla.accounts.v1.AccountService/ResendVerificationEmail',
   'scylla.accounts.v1.AccountService/ListSignInMethods',
   'scylla.accounts.v1.AccountService/RequestPasswordReset',
   'scylla.accounts.v1.AccountService/ResetPassword',
