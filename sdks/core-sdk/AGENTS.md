@@ -18,11 +18,11 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 | Group | Exports |
 |---|---|
 | Extension | `Extension` (the class decorator), `extensionOf`, `ExtensionManifest`, `ExtensionClass`, `installedExtensions`, `setInstalledExtensions` |
-| Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `NavGroup`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteSource` |
+| Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `NavGroup`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteShare` (the share button of the top bar), `RouteSource` |
 | Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `SecondSidebarLink`, `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
-| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `hasPage`, `routePathname`, `routeParams`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink`, `guardLeave`, `holdsLeave`, `LeaveGuard` |
+| Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `hasPage`, `routePathname`, `routeParams`, `routeShare`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink`, `guardLeave`, `holdsLeave`, `LeaveGuard` |
 | Commands of the bar | `CommandDefinition`, `GoCommand`, `CreateCommand`, `ChoiceCommand`, `ToggleCommand`, `ConfirmCommand`, `CommandBase`, `CommandForm`, `CommandFormProps`, `commandForm` |
 | DI | `getModuleDomain`, `setDependencyRegistry`, `DomainRegistry` |
 | Query | `createQuery`, `createMutation`, `createQueries`, `queryOptions`, `mutationOptions`, `getQueryClient`, `setQueryClient` |

@@ -17,6 +17,10 @@ msgstr ""
 msgid "{count, plural, one {# condition} other {# conditions}}"
 msgstr "{count, plural, one {# condition} other {# conditions}}"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:20
+msgid "{count, plural, one {# trigger} other {# triggers}}"
+msgstr "{count, plural, one {# trigger} other {# triggers}}"
+
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:30
 msgid "{days} at {time}"
 msgstr "{days} at {time}"
@@ -128,6 +132,18 @@ msgstr "Add input"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:11
 msgid "Add this signing secret to your webhook sender's HMAC configuration."
 msgstr "Add this signing secret to your webhook sender's HMAC configuration."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:14
+msgid "Add trigger"
+msgstr "Add trigger"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:18
+msgid "All triggers"
+msgstr "All triggers"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:186
+msgid "Allow Git events"
+msgstr "Allow Git events"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:76
 msgid "and"
@@ -312,6 +328,10 @@ msgstr "Every hour at :{0}"
 msgid "Fire now"
 msgstr "Fire now"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:16
+msgid "For inputs, open the full editor."
+msgstr "For inputs, open the full editor."
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:118
 msgid "Frequency"
 msgstr "Frequency"
@@ -319,6 +339,14 @@ msgstr "Frequency"
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:12
 msgid "Fri"
 msgstr "Fri"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:5
+msgid "From the file"
+msgstr "From the file"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:17
+msgid "Full editor"
+msgstr "Full editor"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:166
 msgid "Full ref, refs/heads/main"
@@ -356,6 +384,10 @@ msgstr "Hourly"
 msgid "ID: {id}"
 msgstr "ID: {id}"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:185
+msgid "In a project of files, push, pull request and tag of a Scylla pipeline need the opt-in of a workspace admin."
+msgstr "In a project of files, push, pull request and tag of a Scylla pipeline need the opt-in of a workspace admin."
+
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:35
 msgid "Incomplete schedule"
 msgstr "Incomplete schedule"
@@ -383,6 +415,10 @@ msgstr "JSON pointer"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:41
 msgid "last"
 msgstr "last"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:7
+msgid "Last run {time}"
+msgstr "Last run {time}"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:128
 msgid "Link a repository first"
@@ -432,6 +468,10 @@ msgstr "Never fired"
 msgid "New commits"
 msgstr "New commits"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:15
+msgid "New schedule"
+msgstr "New schedule"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:15
 #: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:35
 #: extensions/scylla-base/src/features/triggers/triggers.module.ts:33
@@ -442,6 +482,10 @@ msgstr "New trigger"
 msgid "next"
 msgstr "next"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:8
+msgid "Next run {time}"
+msgstr "Next run {time}"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:21
 msgid "next scheduled run (local time)"
 msgstr "next scheduled run (local time)"
@@ -449,6 +493,14 @@ msgstr "next scheduled run (local time)"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:74
 msgid "No condition: each delivery starts a run."
 msgstr "No condition: each delivery starts a run."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:12
+msgid "No schedule or webhook in Scylla yet."
+msgstr "No schedule or webhook in Scylla yet."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:11
+msgid "No trigger yet. Only a manual run starts this pipeline."
+msgstr "No trigger yet. Only a manual run starts this pipeline."
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:7
 msgid "No triggers yet"
@@ -586,6 +638,18 @@ msgstr "Source"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:26
 msgid "Status"
 msgstr "Status"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:9
+msgid "Stopped: it starts no run"
+msgstr "Stopped: it starts no run"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:10
+msgid "Stopped: its URL returns 404"
+msgstr "Stopped: its URL returns 404"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:6
+msgid "Stored in Scylla"
+msgstr "Stored in Scylla"
 
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:14
 msgid "Sun"

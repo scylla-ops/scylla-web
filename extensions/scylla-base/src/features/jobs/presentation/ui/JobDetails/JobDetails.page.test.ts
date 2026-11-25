@@ -6,37 +6,39 @@ import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
-import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
+import type { JobEntity, JobLog } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import JobDetailsPage from './JobDetails.page.svelte';
 
-/** The viewer (CodeMirror, live stream) reduced to what this page decides: which panels, and how tall. */
-vi.mock('../jobs-log/JobLogDisplay/JobLogDisplay.svelte', async () => ({
-  default: (await import('./JobLogDisplay.stub.svelte')).default,
+/** The viewer (CodeMirror) reduced to what this page decides: which node, live, full screen. */
+vi.mock('../jobs-log/JobLogViewer/JobLogViewer.svelte', async () => ({
+  default: (await import('./JobLogViewer.stub.svelte')).default,
 }));
 
-/** jsdom lays nothing out: an observer a test can report a height through. */
+/** jsdom lays nothing out: an observer a test can report a width through. */
 class ResizeObserverMock {
   static instances: ResizeObserverMock[] = [];
-  callback: (entries: Array<{ contentRect: { height: number } }>) => void;
+  callback: (entries: Array<{ contentRect: { width: number; height: number } }>) => void;
   observe = vi.fn();
   unobserve = vi.fn();
   disconnect = vi.fn();
 
-  constructor(callback: (entries: Array<{ contentRect: { height: number } }>) => void) {
+  constructor(
+    callback: (entries: Array<{ contentRect: { width: number; height: number } }>) => void,
+  ) {
     this.callback = callback;
     ResizeObserverMock.instances.push(this);
   }
-
-  fire(height: number) {
-    this.callback([{ contentRect: { height } }]);
-  }
 }
 
-const giveTheLogColumn = (height: number) => {
-  ResizeObserverMock.instances.forEach(observer => observer.fire(height));
+const giveThePageWidth = (width: number) => {
+  ResizeObserverMock.instances.forEach(observer =>
+    observer.callback([{ contentRect: { width, height: 800 } }]),
+  );
   flushSync();
 };
+
+const PATHNAME = '/acme/projects/p1/pipelines/pipeline-1/jobs/job-1';
 
 const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
   id: 'job-1',
@@ -54,16 +56,26 @@ const job = (overrides: Partial<JobEntity> = {}): JobEntity => ({
   ...overrides,
 });
 
-const openPanels = () =>
-  screen.queryAllByTestId('job-log-display').map(panel => panel.textContent?.trim());
+const logLine = (line: string, nodeId: string): JobLog => ({
+  id: line,
+  jobId: 'job-1',
+  nodeId,
+  stream: 'stdout',
+  line,
+  timestamp: '2026-01-01T00:00:00.000Z',
+});
 
-const logHeights = () =>
-  screen.queryAllByTestId('job-log-display').map(panel => panel.getAttribute('data-max-height'));
+/** The node of the log that the page shows. */
+const shownNode = () => screen.queryByTestId('job-log-node')?.textContent?.trim();
+const nodeList = () => screen.getByRole('navigation', { name: 'Node executions' });
+const nodeRow = (name: RegExp) => within(nodeList()).getByRole('button', { name });
+const lastUrl = () => navigator.navigate.mock.calls.at(-1)?.[0];
 
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: (() => void) | null = null;
 let navigator: ReturnType<typeof installTestNavigator>;
 let rerun: ReturnType<typeof vi.fn>;
+let tailLogs: ReturnType<typeof vi.fn>;
 
 const grantAll = () =>
   permissionsStore.setState({
@@ -72,20 +84,25 @@ const grantAll = () =>
     },
   });
 
-const renderPage = async (result: unknown, search = '') => {
+const renderPage = async (result: unknown, search = '', logs: JobLog[] = []) => {
   rerun = vi.fn().mockResolvedValue('job-2');
+  tailLogs = vi.fn(() => ({
+    // eslint-disable-next-line @typescript-eslint/require-await
+    logs: (async function* () {
+      for (const log of logs) yield log;
+    })(),
+    cancel: vi.fn(),
+  }));
   restoreRegistry = withRegistry({
     jobs: {
       jobsRepository: {
         getById: vi.fn().mockResolvedValue(result),
         rerun,
+        tailLogs,
       } as unknown as JobsRepository,
     },
   });
-  navigator = installTestNavigator({
-    pathname: '/acme/projects/p1/pipelines/pipeline-1/jobs/job-1',
-    search,
-  });
+  navigator = installTestNavigator({ pathname: PATHNAME, search });
 
   const rendered = render(JobDetailsPage, { jobId: 'job-1' });
   await screen.findByRole('heading', { name: 'Job' });
@@ -95,6 +112,7 @@ const renderPage = async (result: unknown, search = '') => {
 beforeEach(() => {
   ResizeObserverMock.instances = [];
   vi.stubGlobal('ResizeObserver', ResizeObserverMock);
+  localStorage.clear();
   cache = withQueryClient();
   grantAll();
 });
@@ -104,6 +122,7 @@ afterEach(() => {
   restoreRegistry?.();
   restoreRegistry = null;
   navigator?.restore();
+  localStorage.clear();
   permissionsStore.setState({ permissions: null });
 });
 
@@ -115,22 +134,43 @@ describe('JobDetailsPage', () => {
     expect(screen.getByText('job-1')).toBeInTheDocument();
   });
 
-  it('says that the logs are live only while the job runs', async () => {
-    await renderPage(job({ status: 'running' }));
-    expect(screen.getByText('Streaming live output')).toBeInTheDocument();
+  it('shows the facts of the job on one line, and its details on demand', async () => {
+    await renderPage(job({ agentId: 'agent-1' }));
+
+    const facts = screen.getByRole('list', { name: 'Facts of the job' });
+    expect(within(facts).getByText('Duration')).toHaveClass('sr-only');
+    expect(within(facts).getByRole('link', { name: 'agent-1' })).toBeInTheDocument();
+
+    const details = screen.getByRole('button', { name: 'Details' });
+    expect(details).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('heading', { name: 'Run' })).not.toBeInTheDocument();
+
+    await userEvent.click(details);
+
+    expect(details).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByRole('heading', { name: 'Run' })).toBeInTheDocument();
   });
 
-  it('does not call the logs of a finished job live', async () => {
+  it('says that the log is live only while the job runs', async () => {
+    await renderPage(job({ status: 'running', finishedAt: undefined }));
+    expect(screen.getByTestId('job-log-viewer')).toHaveAttribute('data-live', 'true');
+  });
+
+  it('does not call the log of a finished job live', async () => {
     await renderPage(job());
-    expect(screen.queryByText('Streaming live output')).not.toBeInTheDocument();
+    expect(screen.getByTestId('job-log-viewer')).toHaveAttribute('data-live', 'false');
   });
 
-  it('says why the job failed', async () => {
+  it('says why the job failed, above the log', async () => {
     await renderPage(job({ status: 'failed', error: 'the node test failed: exit code 2' }));
 
     const alert = screen.getByRole('alert');
     expect(alert).toHaveTextContent('The job failed');
     expect(alert).toHaveTextContent('the node test failed: exit code 2');
+    expect(
+      alert.compareDocumentPosition(screen.getByTestId('job-log-viewer')) &
+        Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
   it('shows no reason for a job that did not fail', async () => {
@@ -139,19 +179,22 @@ describe('JobDetailsPage', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
   });
 
-  it('says why a node did not run, and opens no log for it', async () => {
+  it('says why a node did not run in place of its log', async () => {
     await renderPage(
       job({
         status: 'failed',
-        nodeExecutions: [{ id: 'deploy', state: 'skipped', attempts: 0, maxAttempts: 1, ports: [] }],
+        nodeExecutions: [
+          { id: 'deploy', state: 'skipped', attempts: 0, maxAttempts: 1, ports: [] },
+        ],
       }),
-      '?nodes=deploy',
+      '?node=deploy',
     );
 
     expect(
-      screen.getByText('It did not run, because another node of the job failed first.'),
+      within(screen.getByTestId('job-log-viewer')).getByText(
+        'It did not run, because another node of the job failed first.',
+      ),
     ).toBeInTheDocument();
-    expect(openPanels()).toEqual([]);
   });
 
   it('links to the agent of the job, by its id until its name arrives', async () => {
@@ -196,7 +239,9 @@ describe('JobDetailsPage', () => {
       }),
     );
 
-    expect(screen.getByText('These online agents cannot get the code of this job')).toBeInTheDocument();
+    expect(
+      screen.getByText('These online agents cannot get the code of this job'),
+    ).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'build-old' })).toHaveAttribute(
       'href',
       expect.stringContaining('/agents/a-old'),
@@ -205,7 +250,7 @@ describe('JobDetailsPage', () => {
     expect(screen.getByText('Install Git on its machine')).toBeInTheDocument();
   });
 
-  it('shows the labels that a waiting job asks, and why it waits', async () => {
+  it('shows the labels that a waiting job asks in its details, and why it waits', async () => {
     await renderPage(
       job({
         status: 'pending',
@@ -216,141 +261,136 @@ describe('JobDetailsPage', () => {
       }),
     );
 
-    const labels = screen.getByRole('list', { name: 'Labels' });
-    expect(within(labels).getAllByRole('listitem').map(item => item.textContent?.trim())).toEqual([
-      'deploy',
-      'linux',
-    ]);
     expect(
-      screen.getByText('queued: waiting for an agent with the labels deploy, linux'),
+      screen.getByText('Waiting for an agent with the labels deploy, linux'),
     ).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Details' }));
+
+    const labels = screen.getByRole('list', { name: 'Labels' });
+    expect(
+      within(labels)
+        .getAllByRole('listitem')
+        .map(item => item.textContent?.trim()),
+    ).toEqual(['deploy', 'linux']);
   });
 
-  it('defaults to the whole job when the URL names no node', async () => {
-    await renderPage(job());
-    expect(openPanels()).toEqual(['logs for job-1/whole job']);
+  describe('the node of the log', () => {
+    it('shows the whole job when the URL names no node', async () => {
+      await renderPage(job());
+
+      expect(shownNode()).toBe('whole job');
+      expect(nodeRow(/Whole job/)).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('opens the node that the URL names', async () => {
+      await renderPage(job(), '?node=test');
+
+      expect(shownNode()).toBe('test');
+      expect(nodeRow(/test/)).toHaveAttribute('aria-pressed', 'true');
+      expect(nodeRow(/Whole job/)).toHaveAttribute('aria-pressed', 'false');
+    });
+
+    it('opens the first node of an old link that named several', async () => {
+      await renderPage(job(), '?nodes=test,build');
+
+      expect(shownNode()).toBe('build');
+    });
+
+    it('shows the whole job for a node that the job does not have', async () => {
+      await renderPage(job(), '?node=ghost');
+
+      expect(shownNode()).toBe('whole job');
+    });
+
+    it('shows the log of the node picked in the list, and writes it in the URL', async () => {
+      await renderPage(job());
+
+      await userEvent.click(nodeRow(/build/));
+
+      await waitFor(() => expect(shownNode()).toBe('build'));
+      expect(lastUrl()).toBe(`${PATHNAME}?node=build`);
+      expect(nodeRow(/build/)).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('comes back to the whole job from its row', async () => {
+      await renderPage(job(), '?node=build');
+
+      await userEvent.click(nodeRow(/Whole job/));
+
+      await waitFor(() => expect(shownNode()).toBe('whole job'));
+      expect(lastUrl()).toBe(`${PATHNAME}?node=all`);
+    });
+
+    it('reads one stream for the whole job, whatever the node', async () => {
+      await renderPage(job(), '?node=build');
+
+      await userEvent.click(nodeRow(/test/));
+
+      expect(tailLogs).toHaveBeenCalledTimes(1);
+      expect(tailLogs).toHaveBeenCalledWith('job-1', undefined);
+    });
+
+    it('shows the number of errors of each node in the list', async () => {
+      await renderPage(job(), '', [
+        logLine('compile', 'build'),
+        logLine('error: 2 tests failed', 'test'),
+        logLine('FAILED tests::login', 'test'),
+      ]);
+
+      expect(await within(nodeRow(/test/)).findByText('2 errors')).toBeInTheDocument();
+      expect(within(nodeRow(/Whole job/)).getByText('2 errors')).toBeInTheDocument();
+      expect(within(nodeRow(/build/)).queryByText(/errors?$/)).not.toBeInTheDocument();
+    });
+
+    it('shows the attempt of a node that can retry in its row', async () => {
+      await renderPage(job());
+
+      expect(within(nodeRow(/test/)).getByText('Attempt 3/3')).toBeInTheDocument();
+      expect(screen.queryByText(/Attempt \d+\/1/)).not.toBeInTheDocument();
+    });
+
+    it('shows a skipped node as skipped, with no attempt when it did not start', async () => {
+      await renderPage(
+        job({
+          nodeExecutions: [
+            { id: 'test', state: 'skipped', attempts: 0, maxAttempts: 3, ports: [] },
+          ],
+        }),
+      );
+
+      expect(within(nodeRow(/test/)).getByRole('img', { name: 'Skipped' })).toBeInTheDocument();
+      expect(screen.queryByText(/^Attempt/)).not.toBeInTheDocument();
+    });
+
+    it('shows the list as a select above the log on a narrow screen', async () => {
+      await renderPage(job(), '?node=test');
+
+      giveThePageWidth(500);
+
+      expect(screen.getByRole('combobox', { name: 'Node of the log' })).toHaveTextContent('test');
+      expect(screen.queryByRole('navigation', { name: 'Node executions' })).not.toBeInTheDocument();
+      expect(shownNode()).toBe('test');
+    });
   });
 
-  it("opens straight on a node's logs when the URL names one", async () => {
-    await renderPage(job(), '?nodes=test');
-    expect(openPanels()).toEqual(['logs for job-1/test']);
-  });
+  describe('the full screen', () => {
+    it('opens from the URL, so a shared link opens the same view', async () => {
+      await renderPage(job(), '?node=test&fullscreen=1');
 
-  it('falls back to the whole job for a node id no execution matches', async () => {
-    await renderPage(job(), '?nodes=ghost');
-    expect(openPanels()).toEqual(['logs for job-1/whole job']);
-  });
+      expect(screen.getByRole('button', { name: 'Exit full screen' })).toBeInTheDocument();
+      expect(shownNode()).toBe('test');
+    });
 
-  it('streams several nodes at once when the URL names them', async () => {
-    await renderPage(job(), '?nodes=build,test');
-    expect(openPanels()).toEqual(['logs for job-1/build', 'logs for job-1/test']);
-  });
+    it('keeps the node in the URL when it opens, and drops only itself when it closes', async () => {
+      await renderPage(job(), '?node=test');
 
-  it('replaces the whole job with the first node picked, rather than adding to it', async () => {
-    await renderPage(job());
+      await userEvent.click(screen.getByRole('button', { name: 'Full screen' }));
+      expect(lastUrl()).toBe(`${PATHNAME}?node=test&fullscreen=1`);
 
-    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ build/ }));
-
-    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/build']));
-  });
-
-  it('opens a second node without closing the first', async () => {
-    await renderPage(job(), '?nodes=build');
-
-    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ test/ }));
-
-    await waitFor(() =>
-      expect(openPanels()).toEqual(['logs for job-1/build', 'logs for job-1/test']),
-    );
-  });
-
-  it("closes a node's logs when its entry is picked again, unmounting that view", async () => {
-    await renderPage(job(), '?nodes=build,test');
-
-    await userEvent.click(screen.getByRole('button', { name: /^(?!Node )\w+ build/ }));
-
-    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/test']));
-  });
-
-  it('comes back to the whole job when the last node panel is closed', async () => {
-    await renderPage(job(), '?nodes=build');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Close the logs for build' }));
-
-    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/whole job']));
-  });
-
-  it('brings the whole job back from its own entry, dropping the node panels', async () => {
-    await renderPage(job(), '?nodes=build,test');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Whole job' }));
-
-    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/whole job']));
-  });
-
-  it('gives the whole job no way to be closed, being what the page falls back to', async () => {
-    await renderPage(job());
-
-    expect(screen.queryByRole('button', { name: /^Close the logs/ })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: /^Collapse the logs/ })).not.toBeInTheDocument();
-  });
-
-  it('collapses a node panel without unmounting its log, so the stream keeps running', async () => {
-    await renderPage(job(), '?nodes=build');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Collapse the logs for build' }));
-
-    expect(openPanels()).toEqual(['logs for job-1/build']);
-    expect(screen.getByRole('button', { name: 'Expand the logs for build' })).toBeInTheDocument();
-  });
-
-  it('collapses each node panel independently', async () => {
-    await renderPage(job(), '?nodes=build,test');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Collapse the logs for build' }));
-
-    expect(screen.getByRole('button', { name: 'Expand the logs for build' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Collapse the logs for test' })).toBeInTheDocument();
-  });
-
-  it('marks the entries of the panels that are open', async () => {
-    await renderPage(job(), '?nodes=build');
-
-    expect(screen.getByRole('button', { name: /^(?!Node )\w+ build/ })).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByRole('button', { name: /^(?!Node )\w+ test/ })).toHaveAttribute('aria-pressed', 'false');
-  });
-
-  it('opens the node picked in the timeline alone, dropping the panels open beside it', async () => {
-    await renderPage(job(), '?nodes=build,test');
-
-    await userEvent.click(screen.getByRole('button', { name: 'Node build' }));
-
-    await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/build']));
-  });
-
-  it('gives the whole job every pixel the column has', async () => {
-    await renderPage(job());
-
-    giveTheLogColumn(900);
-
-    // 900 less the panel's own 36px header and its 2px of border.
-    await waitFor(() => expect(logHeights()).toEqual(['862']));
-  });
-
-  it('stops shrinking the whole job at a readable height on a short window', async () => {
-    await renderPage(job());
-
-    giveTheLogColumn(100);
-
-    await waitFor(() => expect(logHeights()).toEqual(['192']));
-  });
-
-  it('keeps every node panel at the same readable height, scrolling the column instead', async () => {
-    await renderPage(job(), '?nodes=build,test');
-
-    giveTheLogColumn(300);
-
-    await waitFor(() => expect(logHeights()).toEqual(['448', '448']));
+      await userEvent.click(await screen.findByRole('button', { name: 'Exit full screen' }));
+      expect(lastUrl()).toBe(`${PATHNAME}?node=test`);
+    });
   });
 
   it('hides the logs, keeping the job itself, without READ_JOB_LOGS', async () => {
@@ -371,26 +411,10 @@ describe('JobDetailsPage', () => {
     expect(
       screen.getByText("You don't have permission to view this job's logs"),
     ).toBeInTheDocument();
-    expect(openPanels()).toEqual([]);
-    // The job itself is still there — only its output is withheld.
+    expect(screen.queryByTestId('job-log-viewer')).not.toBeInTheDocument();
+    expect(tailLogs).not.toHaveBeenCalled();
+    // The job itself is still there: only its output is withheld.
     expect(screen.getByText('Success')).toBeInTheDocument();
-  });
-
-  it('shows the attempt of a node that can retry, in its entry and in its panel header', async () => {
-    await renderPage(job(), '?nodes=build,test');
-
-    expect(screen.getAllByText('Attempt 3/3')).toHaveLength(2);
-    expect(screen.queryByText(/Attempt \d+\/1/)).not.toBeInTheDocument();
-  });
-
-  it('shows a skipped node as skipped, with no attempt when it did not start', async () => {
-    await renderPage(
-      job({ nodeExecutions: [{ id: 'test', state: 'skipped', attempts: 0, maxAttempts: 3, ports: [] }] }),
-      '?nodes=test',
-    );
-
-    expect(screen.getByRole('region', { name: 'test' })).toHaveTextContent('Skipped');
-    expect(screen.queryByText(/^Attempt/)).not.toBeInTheDocument();
   });
 
   it('re-runs an ended job and opens the new one', async () => {
@@ -488,13 +512,27 @@ describe('JobDetailsPage', () => {
         ...overrides,
       });
 
+    const graph = () => screen.queryByRole('region', { name: 'Graph of the job' });
     const graphNode = (id: string) =>
-      within(screen.getByRole('region', { name: 'Graph of the job' })).getByRole('button', {
-        name: `Open the logs of ${id}`,
-      });
+      within(graph()!).getByRole('button', { name: `Open the logs of ${id}` });
+    const showGraph = () => userEvent.click(screen.getByRole('radio', { name: 'Graph' }));
 
-    it('draws the nodes above the list, and a node not taken grey and dashed', async () => {
+    it('shows the list first, and the graph in its place on demand, as a saved choice', async () => {
       await renderPage(conditional());
+
+      expect(graph()).not.toBeInTheDocument();
+      await showGraph();
+
+      expect(graph()).toBeInTheDocument();
+      expect(screen.queryByRole('navigation', { name: 'Node executions' })).not.toBeInTheDocument();
+      expect(JSON.parse(localStorage.getItem('scylla.job-log.display') ?? '{}')).toMatchObject({
+        nodeView: 'graph',
+      });
+    });
+
+    it('draws a node not taken grey and dashed', async () => {
+      await renderPage(conditional());
+      await showGraph();
 
       // The button is the content of the node: the frame around it is dashed.
       expect(graphNode('deploy').parentElement).toHaveClass('border-dashed');
@@ -502,37 +540,40 @@ describe('JobDetailsPage', () => {
       expect(graphNode('build').parentElement).not.toHaveClass('border-dashed');
     });
 
-    it('says in the list that a node was not taken, and names the error branch of a failure', async () => {
-      await renderPage(conditional(), '?nodes=deploy,test,is-main');
-
-      expect(screen.getByRole('region', { name: 'deploy' })).toHaveTextContent(
-        'Not taken: the path did not reach it.',
-      );
-      expect(screen.getByRole('region', { name: 'test' })).toHaveTextContent(
-        'The failure went to the error output: notify.',
-      );
-      expect(screen.getByRole('region', { name: 'is-main' })).toHaveTextContent(
-        'Ports chosen: false',
-      );
-    });
-
-    it('opens the logs of a node clicked in the graph, and scrolls to them', async () => {
+    it('opens the log of a node clicked in the graph, and marks it', async () => {
       await renderPage(conditional());
+      await showGraph();
 
       await userEvent.click(graphNode('test'));
 
-      await waitFor(() => expect(openPanels()).toEqual(['logs for job-1/test']));
-      await waitFor(() =>
-        expect(Element.prototype.scrollIntoView).toHaveBeenCalledWith(
-          expect.objectContaining({ block: 'nearest' }),
-        ),
+      await waitFor(() => expect(shownNode()).toBe('test'));
+      expect(lastUrl()).toBe(`${PATHNAME}?node=test`);
+      expect(graphNode('test')).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('says above the log that a node was not taken, or where its failure went', async () => {
+      const rendered = await renderPage(conditional(), '?node=deploy');
+      expect(screen.getByTestId('job-log-viewer')).toHaveTextContent(
+        'Not taken: the path did not reach it.',
+      );
+      rendered.unmount();
+
+      await renderPage(conditional(), '?node=test');
+      expect(screen.getByTestId('job-log-viewer')).toHaveTextContent(
+        'The failure went to the error output: notify.',
       );
     });
 
-    it('draws no graph for a job from before the snapshot of the nodes', async () => {
+    it('names the ports that a switch chose, above its log', async () => {
+      await renderPage(conditional(), '?node=is-main');
+
+      expect(screen.getByTestId('job-log-viewer')).toHaveTextContent('Ports chosen: false');
+    });
+
+    it('offers no graph for a job from before the snapshot of the nodes', async () => {
       await renderPage(job());
 
-      expect(screen.queryByRole('region', { name: 'Graph of the job' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('radio', { name: 'Graph' })).not.toBeInTheDocument();
     });
   });
 });

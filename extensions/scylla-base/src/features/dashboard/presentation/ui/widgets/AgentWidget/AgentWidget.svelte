@@ -13,8 +13,10 @@
   import { loadText } from '@base/features/dashboard/presentation/presenters/agent-widget.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { openAgent, openJob } from '../widget-navigation.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { agentLink, jobLink, jobMarkLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
   import { createAgentWidget } from './agent-widget.state.svelte.ts';
   import LoadBars from './LoadBars.svelte';
 
@@ -64,16 +66,20 @@
 {#snippet header(meta: string, aside: Snippet)}
   <div class="flex h-5 min-w-0 shrink-0 items-center gap-2">
     {@render dot()}
-    <span class="shrink-0 font-display text-[15px] font-medium">{agent?.name}</span>
+    <WidgetLink link={agent ? agentLink(agent.id) : null} title={t(linkMessages.openAgent)} class="shrink-0 font-display text-[15px] font-medium">
+      {agent?.name}
+    </WidgetLink>
     {#if meta}<span class="truncate text-xs text-muted-foreground">{meta}</span>{/if}
     <span class="ml-auto shrink-0">{@render aside()}</span>
   </div>
 {/snippet}
 
 {#snippet open()}
-  <Button variant="ghost" size="xs" class="text-primary" onclick={() => agent && openAgent(agent.id)}>
-    {t(messages.openAgent)}<ArrowRightIcon aria-hidden="true" />
-  </Button>
+  {#if agent}
+    <Button variant="ghost" size="xs" class="text-primary" href={agentLink(agent.id).href}>
+      {t(messages.openAgent)}<ArrowRightIcon aria-hidden="true" />
+    </Button>
+  {/if}
 {/snippet}
 
 {#snippet meter(label: string, value: number | null, warn: boolean)}
@@ -99,7 +105,7 @@
     <span class="shrink-0 text-xs text-muted-foreground">{label}</span>
     <span class="flex h-4 gap-0.5" role="group" aria-label={label}>
       {#each view.recent as mark (mark.jobId)}
-        <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[7px] rounded-[2px]" onSelect={() => openJob(mark)}>
+        <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[7px] rounded-[2px]" {...jobMarkLink(mark)}>
           <ChartSegment tone={mark.tone} class="size-full rounded-[2px]" />
         </JobRunMark>
       {/each}
@@ -128,7 +134,10 @@
     {#if agent}
       {#if size === 'xs'}
         <div data-part="agent" class="flex min-w-0 flex-col gap-0.5">
-          <span class="flex min-w-0 items-center gap-2">{@render dot()}<span class="truncate font-mono text-[13px]">{agent.name}</span></span>
+          <span class="flex min-w-0 items-center gap-2">
+            {@render dot()}
+            <WidgetLink link={agentLink(agent.id)} title={t(linkMessages.openAgent)} class="truncate font-mono text-[13px]">{agent.name}</WidgetLink>
+          </span>
           <span class="truncate pl-4 text-xs text-muted-foreground">{t(messages.jobsOf(view.busy, view.slots.length))} · {seen}</span>
         </div>
       {:else if size === 's'}
@@ -142,7 +151,11 @@
           <p class="flex min-w-0 items-center gap-2 text-xs">
             {@render slots()}
             <span class="shrink-0 text-muted-foreground">{t(messages.jobsOf(view.busy, view.slots.length))}</span>
-            {#if view.running[0]}<span class="ml-auto truncate font-medium">{view.running[0].pipelineName}</span>{/if}
+            {#if view.running[0]}
+              <WidgetLink link={jobLink(view.running[0])} title={t(linkMessages.openJob)} class="ml-auto truncate font-medium">
+                {view.running[0].pipelineName}
+              </WidgetLink>
+            {/if}
           </p>
         </div>
       {:else if size === 'm'}
@@ -152,7 +165,7 @@
             <div class="flex w-[148px] shrink-0 flex-col gap-1.5">
               <span class="text-xs text-muted-foreground">{t(messages.running)}</span>
               {#each view.running.slice(0, 2) as job (job.jobId)}
-                <button type="button" class="truncate text-left text-sm font-medium hover:underline" onclick={() => openJob(job)}>{job.pipelineName}</button>
+                <WidgetLink link={jobLink(job)} title={t(linkMessages.openJob)} class="truncate text-sm font-medium">{job.pipelineName}</WidgetLink>
               {:else}
                 <span class="text-sm text-muted-foreground">{t(messages.nothingRuns)}</span>
               {/each}
@@ -179,7 +192,7 @@
             {#each view.running.slice(0, 2) as job (job.jobId)}
               <div class="flex h-9 min-w-0 items-center gap-3">
                 <span class="flex min-w-0 flex-1 flex-col">
-                  <button type="button" class="truncate text-left text-sm font-medium hover:underline" onclick={() => openJob(job)}>{job.pipelineName}</button>
+                  <WidgetLink link={jobLink(job)} title={t(linkMessages.openJob)} class="truncate text-sm font-medium">{job.pipelineName}</WidgetLink>
                   {#if job.step}
                     <span class="truncate font-mono text-xs text-muted-foreground">{t(messages.attempt(job.step, job.attempt ?? 1, job.maxAttempts ?? 1))}</span>
                   {/if}

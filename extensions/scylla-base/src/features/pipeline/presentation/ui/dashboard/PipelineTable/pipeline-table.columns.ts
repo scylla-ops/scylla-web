@@ -17,9 +17,9 @@ export const pipelineColumns = (cells: PipelineCells): DataTableColumn<PipelineM
     id: 'status',
     header: t(pipelineMessages.status),
     cell: ({ row }) => renderSnippet(cells.status, row.original),
-    // The icon (64), the gap (12) and the text (156), in pl-2 pr-3.
-    size: 252,
-    minSize: 252,
+    // The icon (64), the gap (12) and the text (208), in pl-2 pr-3.
+    size: 304,
+    minSize: 304,
     meta: { card: 'title', align: 'left', class: 'py-2 pr-3 pl-2' },
   },
   {

@@ -42,11 +42,9 @@
 </script>
 
 {#snippet label(text: string)}
-  <span class="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">{text}</span>
-{/snippet}
-
-{#snippet separator()}
-  <span class="text-muted-foreground/50" aria-hidden="true">·</span>
+  <dt class="w-24 shrink-0 font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
+    {text}
+  </dt>
 {/snippet}
 
 {#snippet link(href: string, text: string, mono = true)}
@@ -55,126 +53,130 @@
       {href}
       target="_blank"
       rel="noopener noreferrer"
-      class="text-xs text-foreground underline-offset-4 hover:underline {mono ? 'font-mono' : ''}"
+      class="truncate text-xs text-foreground underline-offset-4 hover:underline {mono ? 'font-mono' : ''}"
     >
       {text}
     </a>
   {:else}
-    <span class="text-xs text-foreground {mono ? 'font-mono' : ''}">{text}</span>
+    <span class="truncate text-xs text-foreground {mono ? 'font-mono' : ''}">{text}</span>
   {/if}
 {/snippet}
 
-<!-- The commit of the job, in the style of the facts above it. Each item links to the provider. -->
-<section
-  aria-label={t(messages.source)}
-  class="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md border border-border bg-card px-3.5 py-2"
->
-  <span class="flex items-center gap-1.5">
-    {@render label(t(messages.repository))}
-    <ProviderMark kind={source.provider} class="size-3.5 shrink-0 text-foreground" />
-    {#if source.repositoryUrl}
-      <a
-        href={source.repositoryUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="inline-flex items-center gap-1 font-mono text-xs text-foreground underline-offset-4 hover:underline"
-      >
-        {source.repository}
-        <ExternalLinkIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
-      </a>
-    {:else}
-      <span class="font-mono text-xs text-foreground">{source.repository}</span>
+<!-- The commit of the job, one fact for each row. Each item links to the provider. -->
+<section aria-label={t(messages.source)}>
+  <dl class="flex flex-col gap-1.5">
+    <div class="flex min-w-0 items-center gap-3">
+      {@render label(t(messages.repository))}
+      <dd class="flex min-w-0 items-center gap-1.5">
+        <ProviderMark kind={source.provider} class="size-3.5 shrink-0 text-foreground" />
+        {#if source.repositoryUrl}
+          <a
+            href={source.repositoryUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex min-w-0 items-center gap-1 font-mono text-xs text-foreground underline-offset-4 hover:underline"
+          >
+            <span class="truncate">{source.repository}</span>
+            <ExternalLinkIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
+          </a>
+        {:else}
+          <span class="truncate font-mono text-xs text-foreground">{source.repository}</span>
+        {/if}
+      </dd>
+    </div>
+
+    {#if ref}
+      <div class="flex min-w-0 items-center gap-3">
+        {@render label(t(ref.kind === 'tag' ? messages.tag : messages.branch))}
+        <dd class="min-w-0 truncate font-mono text-xs text-foreground">{ref.name}</dd>
+      </div>
     {/if}
-  </span>
 
-  {#if ref}
-    {@render separator()}
-    <span class="flex items-center gap-1.5">
-      {@render label(t(ref.kind === 'tag' ? messages.tag : messages.branch))}
-      <span class="font-mono text-xs text-foreground">{ref.name}</span>
-    </span>
-  {/if}
-
-  {@render separator()}
-  <span class="flex min-w-0 items-center gap-1.5">
-    {@render label(t(messages.commit))}
-    <CopyableText
-      value={source.sha}
-      display={shortSha(source.sha)}
-      copyLabel={t(messages.copySha)}
-      class="font-mono text-xs"
-    />
-    {#if source.title}
-      {@render link(source.commitUrl, source.title, false)}
-    {/if}
-  </span>
-
-  {#each source.pullRequests as pullRequest (pullRequest.number)}
-    {@render separator()}
-    <span class="flex min-w-0 items-center gap-1.5">
-      {@render label(t(source.provider === 'gitlab' ? messages.mergeRequest : messages.pullRequest))}
-      {@render link(pullRequest.url, pullRequestLabel(source.provider, pullRequest.number))}
-      {#if pullRequest.title}
-        <span class="truncate text-xs text-foreground">{pullRequest.title}</span>
-      {/if}
-    </span>
-  {/each}
-
-  {#if source.authorLogin}
-    {@render separator()}
-    <span class="flex items-center gap-1.5">
-      {@render label(t(messages.author))}
-      {#if source.authorAvatarUrl}
-        <img
-          src={source.authorAvatarUrl}
-          alt=""
-          class="size-4 shrink-0 rounded-full"
-          referrerpolicy="no-referrer"
+    <div class="flex min-w-0 items-center gap-3">
+      {@render label(t(messages.commit))}
+      <dd class="flex min-w-0 items-center gap-1.5">
+        <CopyableText
+          value={source.sha}
+          display={shortSha(source.sha)}
+          copyLabel={t(messages.copySha)}
+          class="font-mono text-xs"
         />
-      {/if}
-      <span class="font-mono text-xs text-foreground">{source.authorLogin}</span>
-    </span>
-  {/if}
+        {#if source.title}
+          {@render link(source.commitUrl, source.title, false)}
+        {/if}
+      </dd>
+    </div>
 
-  {#if source.fromFork}
-    {@render separator()}
-    <span class="flex items-center gap-1.5">
-      {@render label(t(messages.fork))}
-      <GitForkIcon class="size-3.5 shrink-0 text-warning" aria-hidden="true" />
-      <span class="font-mono text-xs text-foreground">{source.forkRepository}</span>
-    </span>
-    {@render separator()}
-    <span class="flex items-center gap-1.5">
-      {@render label(t(messages.secrets))}
-      <EyeOffIcon class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
-      <span class="font-mono text-xs text-foreground">{t(messages.secretsWithheld)}</span>
-    </span>
-  {/if}
+    {#each source.pullRequests as pullRequest (pullRequest.number)}
+      <div class="flex min-w-0 items-center gap-3">
+        {@render label(t(source.provider === 'gitlab' ? messages.mergeRequest : messages.pullRequest))}
+        <dd class="flex min-w-0 items-center gap-1.5">
+          {@render link(pullRequest.url, pullRequestLabel(source.provider, pullRequest.number))}
+          {#if pullRequest.title}
+            <span class="truncate text-xs text-foreground">{pullRequest.title}</span>
+          {/if}
+        </dd>
+      </div>
+    {/each}
 
-  {#if event}
-    {@render separator()}
-    <span class="flex items-center gap-1.5">
-      {@render label(t(messages.event))}
-      <span class="text-xs text-foreground">{event}</span>
-    </span>
-  {/if}
+    {#if source.authorLogin}
+      <div class="flex min-w-0 items-center gap-3">
+        {@render label(t(messages.author))}
+        <dd class="flex min-w-0 items-center gap-1.5">
+          {#if source.authorAvatarUrl}
+            <img
+              src={source.authorAvatarUrl}
+              alt=""
+              class="size-4 shrink-0 rounded-full"
+              referrerpolicy="no-referrer"
+            />
+          {/if}
+          <span class="truncate font-mono text-xs text-foreground">{source.authorLogin}</span>
+        </dd>
+      </div>
+    {/if}
 
-  {#if job.pipelineFile}
-    {@render separator()}
-    <span class="flex min-w-0 items-center gap-1.5">
-      {@render label(t(messages.pipeline))}
-      {@render link(
-        job.pipelineFile.url,
-        t(messages.fileAtCommit(job.pipelineFile.path, shortSha(job.pipelineFile.commitSha))),
-      )}
-    </span>
-  {/if}
+    {#if source.fromFork}
+      <div class="flex min-w-0 items-center gap-3">
+        {@render label(t(messages.fork))}
+        <dd class="flex min-w-0 items-center gap-1.5">
+          <GitForkIcon class="size-3.5 shrink-0 text-warning" aria-hidden="true" />
+          <span class="truncate font-mono text-xs text-foreground">{source.forkRepository}</span>
+        </dd>
+      </div>
+      <div class="flex min-w-0 items-center gap-3">
+        {@render label(t(messages.secrets))}
+        <dd class="flex min-w-0 items-center gap-1.5">
+          <EyeOffIcon class="size-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+          <span class="font-mono text-xs text-foreground">{t(messages.secretsWithheld)}</span>
+        </dd>
+      </div>
+    {/if}
 
-  {#if decision}
-    {@render separator()}
-    <span class="flex items-center gap-1.5">
-      {@render label(t(messages.approval))}
-      <span class="text-xs text-foreground">{decisionText}</span>
-    </span>
-  {/if}
+    {#if event}
+      <div class="flex min-w-0 items-center gap-3">
+        {@render label(t(messages.event))}
+        <dd class="min-w-0 truncate text-xs text-foreground">{event}</dd>
+      </div>
+    {/if}
+
+    {#if job.pipelineFile}
+      <div class="flex min-w-0 items-center gap-3">
+        {@render label(t(messages.pipeline))}
+        <dd class="flex min-w-0 items-center">
+          {@render link(
+            job.pipelineFile.url,
+            t(messages.fileAtCommit(job.pipelineFile.path, shortSha(job.pipelineFile.commitSha))),
+          )}
+        </dd>
+      </div>
+    {/if}
+
+    {#if decision}
+      <div class="flex min-w-0 items-center gap-3">
+        {@render label(t(messages.approval))}
+        <dd class="min-w-0 text-xs text-foreground">{decisionText}</dd>
+      </div>
+    {/if}
+  </dl>
 </section>

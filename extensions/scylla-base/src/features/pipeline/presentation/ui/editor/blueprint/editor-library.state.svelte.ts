@@ -51,11 +51,12 @@ export const createEditorLibrary = (blueprint: Blueprint) => {
      * Adds a block of the latest version. A block that still needs a value opens in the side
      * panel: the user fills it at once, else the pipeline cannot run.
      */
-    add(fragment: FragmentEntity, placement?: NodePlacement) {
+    add(fragment: FragmentEntity, placement?: NodePlacement): string {
       const version = latestVersion(fragment);
       const values = defaultValues(version.parameters);
       const blockId = blueprint.addBlock({ fragment, version, values }, placement);
       if (missingParameters(version.parameters, values).length) blueprint.inspect(blockId);
+      return blockId;
     },
   };
 };

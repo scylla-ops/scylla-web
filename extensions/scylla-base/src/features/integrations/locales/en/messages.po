@@ -92,19 +92,19 @@ msgstr "{page} · App ID {appId}"
 msgid "{provider} cannot reach this Scylla server."
 msgstr "{provider} cannot reach this Scylla server."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:54
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:58
 msgid "{provider} did not answer."
 msgstr "{provider} did not answer."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:44
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:48
 msgid "{provider} does not allow this rule on this repository."
 msgstr "{provider} does not allow this rule on this repository."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:51
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:55
 msgid "{provider} limit reached. Try again in some minutes."
 msgstr "{provider} limit reached. Try again in some minutes."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:53
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:57
 msgid "{provider} refused the change. Check the connection in Integrations."
 msgstr "{provider} refused the change. Check the connection in Integrations."
 
@@ -203,7 +203,7 @@ msgstr "An organization owner must approve the request on GitHub."
 msgid "An owner suspended the Scylla App on {account}."
 msgstr "An owner suspended the Scylla App on {account}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:48
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:52
 msgid "Apply again"
 msgstr "Apply again"
 
@@ -410,6 +410,10 @@ msgstr "Events: push, pull request, check run, check suite, installation. Scylla
 msgid "Expires"
 msgstr "Expires"
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:45
+msgid "Export to file"
+msgstr "Export to file"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/repository.messages.ts:70
 msgid "Find a repository"
 msgstr "Find a repository"
@@ -447,7 +451,7 @@ msgstr "GitHub did not answer. Try again."
 msgid "GitHub Enterprise Server"
 msgstr "GitHub Enterprise Server"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:43
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:47
 msgid "GitHub Free does not allow rules on private repositories."
 msgstr "GitHub Free does not allow rules on private repositories."
 
@@ -653,7 +657,7 @@ msgstr "No repository matches."
 msgid "No webhook yet"
 msgstr "No webhook yet"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:50
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:54
 msgid "Not applied"
 msgstr "Not applied"
 
@@ -709,6 +713,10 @@ msgstr "One report per pipeline:"
 msgid "One run per commit: a push and a pull request on the same commit share one run and one report."
 msgstr "One run per commit: a push and a pull request on the same commit share one run and one report."
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:44
+msgid "Only a file pipeline can block the merge: a pull request reviews its file. Export this pipeline to a file of the repository first."
+msgstr "Only a file pipeline can block the merge: a pull request reviews its file. Export this pipeline to a file of the repository first."
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/git-providers.messages.ts:18
 msgid "Only an instance admin can change the GitHub App."
 msgstr "Only an instance admin can change the GitHub App."
@@ -752,7 +760,7 @@ msgstr "Open the project settings"
 msgid "Organization"
 msgstr "Organization"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:46
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:50
 msgid "Out of sync"
 msgstr "Out of sync"
 
@@ -936,9 +944,13 @@ msgstr "Scylla installs its GitHub App on one account or organization. You choos
 msgid "Scylla keeps one ruleset \"Scylla required checks\" on the default branch of {repository}."
 msgstr "Scylla keeps one ruleset \"Scylla required checks\" on the default branch of {repository}."
 
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:43
+msgid "Scylla pipeline"
+msgstr "Scylla pipeline"
+
 #: extensions/scylla-base/src/features/integrations/presentation/messages/pipeline-source.messages.ts:24
-msgid "Scylla reads the pipeline files on {branch}. The editor pipelines become archived: they are read only, their triggers stop, and their runs stay."
-msgstr "Scylla reads the pipeline files on {branch}. The editor pipelines become archived: they are read only, their triggers stop, and their runs stay."
+msgid "Scylla reads the pipeline files on {branch}. The Scylla pipelines stay: their push, pull request and tag triggers start runs only with the opt-in of a workspace admin, and a file with the key of a Scylla pipeline takes its check."
+msgstr "Scylla reads the pipeline files on {branch}. The Scylla pipelines stay: their push, pull request and tag triggers start runs only with the opt-in of a workspace admin, and a file with the key of a Scylla pipeline takes its check."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:8
 msgid "Scylla turns on \"Pipelines must succeed\" in {repository}. One rule for all the Scylla pipelines of the project."
@@ -971,7 +983,7 @@ msgstr "Settings"
 msgid "Settings of the project {project}."
 msgstr "Settings of the project {project}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:47
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:51
 msgid "Someone changed the rule on {provider}."
 msgstr "Someone changed the rule on {provider}."
 
@@ -1088,7 +1100,7 @@ msgstr "The push, pull request and tag triggers of the pipelines."
 msgid "The reports to {provider}."
 msgstr "The reports to {provider}."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:55
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:59
 msgid "The repository cannot be used now. Repair the link first."
 msgstr "The repository cannot be used now. Repair the link first."
 
@@ -1096,7 +1108,7 @@ msgstr "The repository cannot be used now. Repair the link first."
 msgid "The rule \"Pipelines must succeed\" of the project."
 msgstr "The rule \"Pipelines must succeed\" of the project."
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:56
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:60
 msgid "The rule did not change on {provider}."
 msgstr "The rule did not change on {provider}."
 
@@ -1194,7 +1206,7 @@ msgstr "Token"
 msgid "TOML · YAML · JSON"
 msgstr "TOML · YAML · JSON"
 
-#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:57
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:61
 #: extensions/scylla-base/src/features/integrations/presentation/messages/new-project.messages.ts:25
 msgid "Try again"
 msgstr "Try again"
@@ -1270,8 +1282,8 @@ msgid "Webhooks · no event yet"
 msgstr "Webhooks · no event yet"
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/pipeline-source.messages.ts:5
-msgid "Where the pipelines of this project live. One source per project."
-msgstr "Where the pipelines of this project live. One source per project."
+msgid "Where the pipelines of this project come from. With the repository files, the Scylla pipelines stay next to the file pipelines."
+msgstr "Where the pipelines of this project come from. With the repository files, the Scylla pipelines stay next to the file pipelines."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/pipeline-source.messages.ts:25
 msgid "With no file, the project has no pipeline until you add one to the repository."
@@ -1288,6 +1300,10 @@ msgstr "You cannot link a repository in this workspace."
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:18
 msgid "You cannot see this installation on GitHub."
 msgstr "You cannot see this installation on GitHub."
+
+#: extensions/scylla-base/src/features/integrations/presentation/messages/merge-block.messages.ts:46
+msgid "You don't have permission to edit this pipeline."
+msgstr "You don't have permission to edit this pipeline."
 
 #: extensions/scylla-base/src/features/integrations/presentation/messages/connect-github.messages.ts:29
 msgid "Your changes on GitHub are saved"

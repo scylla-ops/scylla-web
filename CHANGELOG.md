@@ -3,12 +3,71 @@
 All notable changes to Scylla Web are in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
-follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Before 1.0.0, a new minor
-version (0.6.0) can change what an extension imports; a patch version (0.5.1) only fixes bugs.
+follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Before 1.0.0, a minor version
+(0.8.0) can change what an extension imports, the API or the data in a way that is not
+compatible. A patch version (0.7.1, 0.7.2) adds features and fixes that stay compatible.
 An entry marked **Breaking** changes what a host repo or an extension imports
 (`@scylla/ui/*`, `@scylla/core-sdk`, `@scylla/base-sdk`).
 
 ## [Unreleased]
+
+### Added
+
+- A "Copy link" button in the top bar of the pages that a member opens again from a link: a job, a
+  pipeline, its jobs, a project, a fragment, an agent, an app, a package and a dashboard. It copies
+  the link and tells who can open it. On a phone, it opens the share sheet. The filters of the jobs,
+  the branch and tab of a file pipeline and the tab of a package are in the link. A private
+  dashboard has no button. In English and French.
+- The command bar has a short tour and shows examples to try when it is empty. Start the tour again
+  from Help & tours.
+- A click on the start node of a saved pipeline or a file pipeline opens its triggers in the side
+  panel. The panel shows the triggers of the file as read only, and the schedules and webhooks of
+  Scylla with a switch, an edit and a delete. Each trigger shows its last run and its next run. You
+  can add a schedule in the panel. The start node shows the number of triggers. In English and
+  French.
+- A project that takes its pipelines from the repository files keeps its Scylla pipelines in the
+  same list, with a source badge on each row. The editor refuses a name whose key a pipeline file
+  already has, and tells which file. A workspace admin allows the push, pull request and tag
+  triggers of a Scylla pipeline in such a project, after a warning, and can revoke them. In the
+  merge rules, a Scylla pipeline stays off, tells why, and opens its export to a file. In English
+  and French.
+
+### Changed
+
+- The command bar underlines the letters of each result that match the text that you typed, also
+  with a typing error.
+- The job page shows the nodes beside the log, in a list or as the graph, and only the log scrolls.
+  The log shows the terminal colors, has a search with a counter, goes from error to error with E
+  and Shift+E, and opens in full screen with F. Display settings stay in the browser. A link keeps
+  the node, the full screen and the line (#L150). In English and French.
+- The Triggers panel of a Scylla pipeline in a GitHub project shows the Git events opt-in: Push,
+  Pull request and Tag stay off until an admin allows them.
+
+### Fixed
+
+- Two flaky tests no longer fail the CI at random.
+- The pipeline editor accepts a name with spaces, like the server. It now refuses only an empty
+  name, a name longer than 100 characters and a name on more than one line.
+- The Save button of the pipeline editor no longer leaves the page. The editor stays open after a
+  save.
+- The dashboard widgets open their pages. A pipeline name, a job, a mark of a run, an agent, a
+  trigger, a project and an activity event are links, so a middle click opens a new tab, and a
+  tooltip tells what a click opens. A bar of one day or one week shows that period on the dashboard.
+- Each widget kind in the widget picker has its own preview icon that looks like the widget.
+- The read-only page of a file pipeline lets you look at the pipeline. A click on a node, or Enter
+  on a focused node, shows each field of the node in the side panel, with the script, a Copy button
+  and a way back. The view fits the full graph, and you can drag the nodes or click Arrange: Scylla
+  keeps their places, and the file and the version do not change.
+- The fragment page no longer shows a separator dot at the start of the line under the title when
+  the fragment has no description.
+- The reason of a pending job that waits for agent labels starts with a capital letter and says
+  "label" for one label.
+- The page that creates a pipeline has the "Agent labels" button of the editor. Create saves the
+  labels with the pipeline, so its first job goes only to an agent with each label. In English and
+  French.
+- The command bar (Ctrl K) has a What's new entry. It opens What's new like the user menu item.
+- A node dropped on the pipeline canvas joins the closest node before it, shows a dashed preview of
+  its link, and Alt drops it with no link.
 
 ## [0.7.1] - 2026-11-24
 

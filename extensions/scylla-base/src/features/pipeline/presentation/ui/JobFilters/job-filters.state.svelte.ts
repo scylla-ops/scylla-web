@@ -1,4 +1,6 @@
+import { createSearchParams } from '@platform/context';
 import type { JobEvent, JobFilter } from '@base/features/jobs';
+import { JOB_EVENTS } from '@base/features/pipeline/presentation/presenters/job-filter.presenter.ts';
 
 /** A whole number from 1: the server reads 0 as each pull request. */
 const pullRequestOf = (text: string): number | undefined => {
@@ -8,12 +10,17 @@ const pullRequestOf = (text: string): number | undefined => {
   return number > 0 ? number : undefined;
 };
 
-/** The filters of the jobs of a pipeline. A text field applies its value on change, not per key. */
+/**
+ * The filters of the jobs of a pipeline. They are in the URL (`?branch=&event=&author=&pr=`), so
+ * that a copied link opens the same list. A text field applies its value on change, not per key.
+ */
 export const createJobFilters = () => {
-  let branch = $state('');
-  let event = $state<JobEvent | null>(null);
-  let author = $state('');
-  let pullRequest = $state('');
+  const search = createSearchParams(['branch', 'event', 'author', 'pr']);
+
+  const branch = $derived(search.values.branch);
+  const event = $derived(JOB_EVENTS.find(known => known === search.values.event) ?? null);
+  const author = $derived(search.values.author);
+  const pullRequest = $derived(search.values.pr);
 
   const filter = $derived.by<JobFilter>(() => {
     const login = author.trim();
@@ -31,25 +38,25 @@ export const createJobFilters = () => {
       return branch;
     },
     setBranch(next: string) {
-      branch = next;
+      search.write({ branch: next });
     },
     get event() {
       return event;
     },
     setEvent(next: JobEvent | null) {
-      event = next;
+      search.write({ event: next ?? '' });
     },
     get author() {
       return author;
     },
     setAuthor(next: string) {
-      author = next;
+      search.write({ author: next });
     },
     get pullRequest() {
       return pullRequest;
     },
     setPullRequest(next: string) {
-      pullRequest = next;
+      search.write({ pr: next });
     },
     /** Only the fields that are set. */
     get filter() {
@@ -59,10 +66,7 @@ export const createJobFilters = () => {
       return Object.keys(filter).length > 0;
     },
     clear() {
-      branch = '';
-      event = null;
-      author = '';
-      pullRequest = '';
+      search.write({ branch: '', event: '', author: '', pr: '' });
     },
   };
 };

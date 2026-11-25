@@ -16,7 +16,13 @@ lifecycle — authoring a pipeline and watching it run.
 - **The editor** — creating and updating a pipeline, in two coordinated views.
 - **File pipelines** — a pipeline that comes from a file of the linked repository. Its page is
   the editor page, read only: the change goes in the repository, so Scylla shows the file and
-  its errors, at the branch or the tag that the user picks.
+  its errors, at the branch or the tag that the user picks. A project of files keeps its Scylla
+  pipelines in the same list, each row with its source. A file and a Scylla pipeline never share
+  a key, which names their check: the editor refuses a name whose key a file has, and a file that
+  comes later takes the key. Nobody reviews a Scylla pipeline in a pull request, so its push,
+  pull request and tag triggers wait for the opt-in of a workspace admin (the state, the dialog
+  and the note are here, for each page that shows these triggers), and only an export to a file
+  makes it a required check.
 - **Running** — the Run action, and the jobs page that follows it. With a linked repository,
   Run asks for the commit to run, and the jobs page can filter the jobs by branch, event, author
   and pull request.
@@ -246,7 +252,8 @@ One sidebar entry, Library. Pipelines *are* the project, reached by entering one
 ## Related modules
 
 - [jobs](../jobs/README.md) — what a run produces.
-- [triggers](../triggers/README.md) — what starts a run without a human.
+- [triggers](../triggers/README.md) — what starts a run without a human. It fills the zones of
+  the start node (`pipelinePoints`): a count, and the panel of the triggers.
 - [secret](../secret/README.md) — values injected into a run.
 - [project](../project/README.md) — the owning scope.
 - [marketplace](../marketplace/README.md) — templates to start from.

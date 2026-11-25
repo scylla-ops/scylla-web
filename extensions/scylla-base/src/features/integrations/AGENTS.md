@@ -207,12 +207,19 @@ which links to it by its path: that module cannot import this one.
 - **The pipeline source changes only after the dialog.** The radio keeps the current source; a
   choice opens the move dialog, which lists the files of the default branch with their errors
   before a move to the files. A refusal shows in the dialog (`meta.showsOwnError`). The files
-  are read only for a project on files, or while that dialog is open.
+  are read only for a project on files, or while that dialog is open. A move to the files keeps
+  the Scylla pipelines: the dialog says that their Git triggers wait for an admin, and that a
+  file with the key of a Scylla pipeline takes its check.
 - **The switch of a merge rule is the rule on the provider, not the wanted value.** A rule that
   needs a permission or is not possible shows off; a failed change keeps the value before it
   (decision 110 of the core: a refusal changes nothing on the provider). A click sends the
   value again, so it is also the retry after a grant. One change at a time: the other switches
   wait, and the answer replaces its row before the list reads the provider again.
+- **Only a file pipeline becomes a required check in a project of files.** A pull request
+  reviews its file, not a Scylla pipeline. The row of a Scylla pipeline (`pipelineSource` of the
+  `MergeBlock`) stays with its switch off, the reason, and "Export to file" (the edit page with
+  `?export=file`, `UPDATE_PIPELINE`): `mergeRuleView` gives `fileOnly`. A rule that is on still
+  turns off (`MERGE_BLOCK_FILE_ONLY` refuses only a new rule).
 - **GitHub has one rule for each pipeline, GitLab one for the project** (no `pipelineId`).
   "Needs permission" gives the page of the grant (GitHub installation, GitLab members) and the
   steps by hand, with the check to copy on GitHub.

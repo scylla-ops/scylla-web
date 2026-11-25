@@ -17,8 +17,11 @@ from it.
 contextStore
 scyllaNavigate, type ScyllaNavigate       context-aware navigation (goToUser, goToAccount, …)
 workspaceUrl(name, path = 'dashboard') the URL of a page of any workspace, for a link
+scyllaHref                                the URL of a page of the active workspace, for a link:
+                                          project, jobs, job (with a node), triggers, agents, agent
 navigateTo, navigateBack                  plain navigation
 currentPathname, currentSearch            the current URL
+createSearchParams(names)                 parameters of the query string as state of a page
 hasPage                                  whether the router has a page for a pathname, also through a redirect
 setAppNavigator, type AppNavigator, type NavigateOptions
 createResourceError                       NOT_FOUND on a detail page → toast + redirect
@@ -77,6 +80,7 @@ index.ts                             public API
 context.store.ts                     the store (persisted)
 scylla-navigate.ts                   context-aware navigation
 resource-error.state.svelte.ts             createResourceError
+search-params.state.svelte.ts              createSearchParams
 ```
 
 ## The navigator
@@ -90,6 +94,11 @@ The navigator of the app is in `@scylla/core-sdk`; `index.ts` re-exports `naviga
 - `navigateTo` accepts a relative target: `'..'` is the parent page, `'members'` is a child
   page.
 - `currentPathname()` and `currentSearch()` are reactive while the router is installed.
+- **The view of a page that a link must open again goes in the URL**: a filter, a tab, a ref.
+  `createSearchParams(['tab'])` gives `values` (`''` for a missing parameter) and `write`, which
+  replaces the current history entry and keeps the other parameters. A blank value removes its
+  parameter, thus a default value writes nothing. The caller checks a value of the URL, because
+  a person can type anything there.
 
 ## Rules that bite here
 
@@ -97,6 +106,9 @@ The navigator of the app is in `@scylla/core-sdk`; `index.ts` re-exports `naviga
   URLs from the current context so callers do not hand-assemble
   `/${workspaceSlug}/projects/${projectId}/…`. A template string passed to `navigateTo` is how a route
   change becomes fourteen broken links.
+- **A link takes its URL from `scyllaHref`**, for the same reason. It reads the workspace of the
+  store when it runs, but the caller gives the project: a link of the dashboard opens a job of any
+  project. The router follows a click on it in the tab; a middle click opens a new tab.
 - **The URL is the source of truth, the store is the mirror.** The shell's
   `WorkspaceSync.wrapper.svelte` syncs the store *from* route params. Do not add a second sync
   in the other direction — that is the effect cascade this design exists to avoid.

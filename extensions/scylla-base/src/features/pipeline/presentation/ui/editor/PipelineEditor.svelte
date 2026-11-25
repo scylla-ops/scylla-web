@@ -1,5 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
+  import { createSearchParams } from '@platform/context';
   import { Card, Tabs, TabsContent } from '@scylla/ui/primitives';
   import UnsavedChangesDialog from './UnsavedChangesDialog.svelte';
   import type { FragmentLink } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
@@ -15,6 +16,7 @@
   import { createFragmentLinks } from './fragment-links.state.svelte.ts';
   import { warnBeforeUnload } from './unsaved-changes.effect.svelte.ts';
   import { createUnsavedChanges } from './unsaved-changes.state.svelte.ts';
+  import { createPipelineKeyCheck } from './pipeline-key-check.state.svelte.ts';
   import { createCanvasCurtain } from './blueprint/canvas/CanvasCurtain/canvas-curtain.state.svelte.ts';
   import CanvasCurtain from './blueprint/canvas/CanvasCurtain/CanvasCurtain.svelte';
   import PipelineBlueprint from './blueprint/PipelineBlueprint.svelte';
@@ -53,10 +55,14 @@
     projectId?: string;
     /** A saved pipeline: the header can export it as a file. */
     pipelineId?: string;
+    /** The saved name of a saved pipeline: a name with its key stays free. */
+    savedName?: string;
     /** Why the saved pipeline cannot be exported. */
     exportIssue?: string;
-    /** The saved agent labels of a saved pipeline. */
+    /** The saved agent labels of a saved pipeline, or the labels of a new pipeline. */
     agentLabels?: readonly string[];
+    /** A new pipeline: the labels change in the page, and Create sends them. */
+    onAgentLabelsChange?: (labels: string[]) => void;
     isSubmitPending?: boolean;
     /** The last save failed: the header shows it until the next edit or save. */
     submitError?: Error | null;
@@ -77,8 +83,10 @@
     initialLinks,
     projectId,
     pipelineId,
+    savedName,
     exportIssue,
     agentLabels,
+    onAgentLabelsChange,
     isSubmitPending = false,
     submitError,
     missing,
@@ -91,6 +99,12 @@
   });
   const links = createFragmentLinks({ initial: () => initialLinks });
   const changes = createUnsavedChanges(doc, links);
+  const keyCheck = createPipelineKeyCheck({
+    projectId: () => projectId ?? '',
+    savedName: () => savedName,
+  });
+  // A pipeline file has the key of the name: the server refuses it.
+  const keyIssue = $derived(keyCheck.issueOf(doc.pipelineName));
   const isDirty = $derived(changes.isDirty);
   // A failed save leaves the changes unsaved; the next edit hides the failure.
   const editSignature = $derived(doc.script + JSON.stringify(links.current));
@@ -112,14 +126,17 @@
   });
 
   let canvasReady = $state(false);
-  let exporting = $state(false);
+  // In the URL: the merge rules of the repository open the export (`?export=file`).
+  const search = createSearchParams(['export']);
+  const exporting = $derived(!!pipelineId && !exportIssue && search.values.export !== '');
+  const setExporting = (open: boolean) => search.write({ export: open ? 'file' : '' });
   const curtain = createCanvasCurtain({
     ready: () => !missing && canvasReady,
     failed: () => missing === 'failed',
   });
 
   const handleSubmit = () => {
-    if (doc.isValid) {
+    if (doc.isValid && !keyIssue) {
       const layout = places.waiting();
       const saved = changes.send();
       onSubmit(
@@ -151,7 +168,7 @@
       {submitLabel}
       {mode}
       {missing}
-      submitDisabled={!doc.isValid}
+      submitDisabled={!doc.isValid || !!keyIssue}
       issue={doc.issue ? pipelineIssueText(doc.issue) : undefined}
       blueprintDisabled={!missing && !doc.isValid}
       {isDirty}
@@ -160,10 +177,12 @@
       pipelineName={doc.pipelineName}
       onNameChange={name => doc.setName(name)}
       onNameDraft={name => changes.typeName(name)}
-      onExport={pipelineId ? () => (exporting = true) : undefined}
+      keyIssueOf={name => keyCheck.issueOf(name)}
+      onExport={pipelineId ? () => setExporting(true) : undefined}
       {exportIssue}
       {pipelineId}
       {agentLabels}
+      {onAgentLabelsChange}
     />
   </div>
 
@@ -182,6 +201,7 @@
             nodes={doc.nodes}
             pipelineName={doc.pipelineName}
             {projectId}
+            {pipelineId}
             onNodesChange={nodes => doc.setNodes(nodes)}
             links={links.current}
             onLinksChange={next => links.set(next)}
@@ -200,7 +220,7 @@
 {#if pipelineId}
   <ExportPipelineDialog
     open={exporting}
-    onOpenChange={open => (exporting = open)}
+    onOpenChange={setExporting}
     {pipelineId}
     pipelineName={doc.pipelineName}
     dirty={isDirty}

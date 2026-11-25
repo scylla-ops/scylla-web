@@ -5,7 +5,9 @@
   import { pipelinesMessages as messages } from '@base/features/dashboard/presentation/messages/pipelines.messages.ts';
   import type { PipelineRow } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS } from '../dashboard-widgets.state.svelte.ts';
-  import { openJob, openPipelineJobs } from '../widget-navigation.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { jobMarkLink, pipelineJobsLink } from '../widget-navigation.ts';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     rows: readonly PipelineRow[];
@@ -31,15 +33,15 @@
       <tr class="h-[26px]">
         <td><ChartDot tone={dotTone(row)} /></td>
         <td class="pr-2">
-          <button type="button" class="flex w-full min-w-0 items-baseline gap-1.5 text-left hover:underline" onclick={() => openPipelineJobs(row)}>
+          <WidgetLink link={pipelineJobsLink(row)} title={t(linkMessages.openJobs)} class="flex w-full min-w-0 items-baseline gap-1.5">
             <span class="truncate text-sm font-medium">{row.name}</span>
             <span class="truncate text-muted-foreground">{row.projectName} · {row.trigger}</span>
-          </button>
+          </WidgetLink>
         </td>
         <td>
           <span class="flex h-3 gap-0.5" role="group" aria-label={t(messages.lastRuns(PIPELINE_RUNS))}>
             {#each row.runs as mark (mark.jobId)}
-              <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[5px] rounded-[1px]" onSelect={() => openJob(mark)}>
+              <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[5px] rounded-[1px]" {...jobMarkLink(mark)}>
                 <ChartSegment tone={mark.tone} class="size-full rounded-[1px]" />
               </JobRunMark>
             {/each}

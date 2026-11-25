@@ -17,6 +17,7 @@ import { GrpcActivityRepository } from './infrastructure/grpc-activity.repositor
 import { GrpcDeliveryStatsRepository } from './infrastructure/grpc-delivery-stats.repository.ts';
 import { LocalDashboardPreferences } from './infrastructure/local-dashboard-preferences.ts';
 import DashboardPanel from './presentation/ui/DashboardPanel/DashboardPanel.svelte';
+import { dashboardView } from './presentation/ui/dashboard-view.state.svelte.ts';
 
 const dashboardClient = new DashboardServiceClient(grpcTransport.getTransport());
 const dashboardLayoutRepository = new GrpcDashboardLayoutRepository(dashboardClient);
@@ -34,6 +35,9 @@ const slotUsageRepository = new GrpcSlotUsageRepository(agentClient);
 const agentMetricsRepository = new GrpcAgentMetricsRepository(agentClient);
 
 const page = () => import('./presentation/ui/Dashboard/Dashboard.page.svelte');
+
+/** A link to the dashboard of the page, never to `dashboard`: it opens the default of each person. */
+const share = { url: () => dashboardView.shareUrl };
 
 export const DashboardModule = {
   id: 'dashboard',
@@ -55,6 +59,7 @@ export const DashboardModule = {
         permission: Permission.READ_WORKSPACE,
         breadcrumb: () => ({ label: msg`Dashboard` }),
         page,
+        share,
         nav: {
           section: 'workspace',
           title: msg`Overview`,
@@ -69,6 +74,7 @@ export const DashboardModule = {
         permission: Permission.READ_WORKSPACE,
         breadcrumb: () => ({ label: msg`Dashboard` }),
         page,
+        share,
       },
     ],
   },

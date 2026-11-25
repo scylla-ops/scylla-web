@@ -238,6 +238,35 @@ describe('compileRoutes', () => {
     expect(routeAt('/:workspaceSlug/users/:userId', routes)?.permission).toBeUndefined();
   });
 
+  it('gives the share button to the page that asks for it, and never lends it to a child', () => {
+    const link = { url: () => null };
+    const routes = {
+      workspace: [
+        {
+          path: 'agents',
+          page,
+          share: true as const,
+          children: [{ path: ':agentId', page }],
+        },
+        { path: 'dashboard', page, share: link },
+      ],
+    };
+
+    expect(routeAt('/:workspaceSlug/agents', routes)?.share).toBe(true);
+    expect(routeAt('/:workspaceSlug/agents/:agentId', routes)?.share).toBeUndefined();
+    expect(routeAt('/:workspaceSlug/dashboard', routes)?.share).toBe(link);
+  });
+
+  it('takes the share button of a path from the module that declares it, beside the page of another', () => {
+    const route = routeAt(
+      '/:workspaceSlug/users/:id',
+      { workspace: [{ path: 'users/:id', share: true as const }] },
+      { workspace: [{ path: 'users/:userId', page }] },
+    );
+
+    expect(route?.share).toBe(true);
+  });
+
   describe('the trail of a page', () => {
     it('holds the crumb of every path it starts with, from the root, with the depth of each', () => {
       const route = routeAt(

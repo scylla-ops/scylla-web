@@ -1,7 +1,9 @@
 import {
   MergeBlockState as GrpcMergeBlockState,
+  PipelineSource as GrpcPipelineSource,
   type MergeBlock as GrpcMergeBlock,
 } from '@base/generated/scylla/integrations/v1/vcs.ts';
+import type { PipelineSource } from '@base/features/integrations/domain/entities/repository-link.entity.ts';
 import type {
   MergeBlock,
   MergeBlockState,
@@ -18,8 +20,14 @@ const STATES: Partial<Record<GrpcMergeBlockState, MergeBlockState>> = {
   [GrpcMergeBlockState.FAILED]: 'failed',
 };
 
+const SOURCES: Partial<Record<GrpcPipelineSource, PipelineSource>> = {
+  [GrpcPipelineSource.EDITOR]: 'editor',
+  [GrpcPipelineSource.FILE]: 'file',
+};
+
 export function toDomain(block: GrpcMergeBlock): MergeBlock {
   const pipelineId = idValue(block.pipelineId);
+  const pipelineSource = SOURCES[block.pipelineSource];
   return {
     projectId: idValue(block.projectId),
     ...(pipelineId ? { pipelineId } : {}),
@@ -31,5 +39,6 @@ export function toDomain(block: GrpcMergeBlock): MergeBlock {
     branch: block.branch,
     actionUrl: block.actionUrl,
     updatedAt: timestampToIso(block.updatedAt),
+    ...(pipelineSource && { pipelineSource }),
   };
 }

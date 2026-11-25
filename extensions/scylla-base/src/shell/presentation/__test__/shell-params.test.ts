@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { setAppNavigator } from '@scylla/core-sdk';
 import { contextStore } from '@platform/context';
-import { breadcrumbParams, linkParams } from '../shell-params.ts';
+import { breadcrumbParams, linkParams, shareHint } from '../shell-params.ts';
 
 const inRoute = (params: Record<string, string>) =>
   setAppNavigator({
@@ -50,5 +50,17 @@ describe('linkParams', () => {
     contextStore.setState({ workspace: { id: null, name: null, slug: null } });
 
     expect(linkParams()).toEqual({ workspaceSlug: undefined });
+  });
+});
+
+describe('shareHint', () => {
+  it('tells that only the members of the active workspace with access open a shared link', () => {
+    expect(shareHint()).toBe('Only members of Acme Corp with access can open it.');
+  });
+
+  it('tells nothing when no workspace is active', () => {
+    contextStore.setState({ workspace: { id: null, name: null, slug: null } });
+
+    expect(shareHint()).toBeUndefined();
   });
 });

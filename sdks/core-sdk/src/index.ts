@@ -29,10 +29,12 @@ export type {
   PageLoader,
   RouteMount,
   RouteParams,
+  RouteShare,
   RouteSource,
 } from './routing/scylla-module.struct.ts';
 export { commandForm } from './extension/command.struct.ts';
 export type {
+  ActionCommand,
   ChoiceCommand,
   CommandDefinition,
   CommandForm,
@@ -55,6 +57,7 @@ export {
   navigateTo,
   routeParams,
   routePathname,
+  routeShare,
   routeTrail,
   setAppNavigator,
   type AppNavigator,

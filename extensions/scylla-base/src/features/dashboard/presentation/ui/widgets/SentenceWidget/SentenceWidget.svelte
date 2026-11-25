@@ -13,7 +13,10 @@
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { agentsLink, jobLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -34,8 +37,12 @@
   const count = $derived(widgets.attention.data?.openCount ?? 0);
   const waitingForAgent = $derived(live.waiting.filter(row => row.reason === 'agent'));
   const large = $derived(size === 'l');
-  const names = (rows: readonly { pipelineName: string }[]) =>
-    [...new Set(rows.map(row => row.pipelineName))].join(' · ');
+  /** The first running job of each pipeline: its name opens it. */
+  const firstOfEach = $derived(
+    live.running.filter(
+      (row, index) => live.running.findIndex(other => other.pipelineName === row.pipelineName) === index,
+    ),
+  );
 </script>
 
 <Widget {size} {editing} bare title={t(messages.summary)} icon={InboxIcon as LucideIcon}>
@@ -81,23 +88,25 @@
           <li class="flex min-w-0 items-center gap-3">
             <ChartDot tone="running" />
             <span class="shrink-0 font-medium">{t(messages.running(live.running.length))}</span>
-            <span class="truncate text-xs text-muted-foreground">{names(live.running)}</span>
+            <span class="truncate text-xs text-muted-foreground">
+              {#each firstOfEach as row, index (row.jobId)}{#if index > 0}<span class="px-1" aria-hidden="true">·</span>{/if}<WidgetLink link={jobLink(row)} title={t(linkMessages.openJob)}>{row.pipelineName}</WidgetLink>{/each}
+            </span>
           </li>
           <li class="flex min-w-0 items-center gap-3">
             <span class="size-2 shrink-0 rounded-full border border-foreground/60"></span>
             <span class="shrink-0 font-medium">{t(messages.waiting(live.waiting.length))}</span>
             {#if live.waiting[0]}
-              <span class="truncate text-xs text-muted-foreground">
+              <WidgetLink link={jobLink(live.waiting[0])} title={t(linkMessages.openJob)} class="truncate text-xs text-muted-foreground">
                 {t(messages.longest(live.waiting[0].waited))}
-              </span>
+              </WidgetLink>
             {/if}
           </li>
           {#if capacity.total > 0}
             <li class="flex min-w-0 items-center gap-3">
               <ChartDot tone={capacity.online === capacity.total ? 'passed' : 'warning'} />
-              <span class="shrink-0 font-medium">
+              <WidgetLink link={agentsLink()} title={t(linkMessages.openAgents)} class="shrink-0 font-medium">
                 {t(messages.agentsOnline(capacity.online, capacity.total))}
-              </span>
+              </WidgetLink>
               <span class="truncate text-xs text-muted-foreground">
                 {capacity.offline ? t(messages.offline(capacity.offline)) : t(messages.allOnline)}
               </span>

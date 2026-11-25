@@ -83,6 +83,7 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'run_jobs',
     'run_pipeline',
     'set_app_labels',
+    'set_pipeline_git_events',
     'set_trigger_enabled',
     'tail_job_logs',
     'update_pipeline',
@@ -177,6 +178,13 @@ describe('the permission map', () => {
     const allowed = new Set(['create_project']);
 
     expect(permissionsFrom('workspace', allowed)).toEqual([Permission.CREATE_PROJECT]);
+    expect(permissionsFrom('project', allowed)).toEqual([]);
+  });
+
+  it('gives the opt-in of the Git events on a workspace only', () => {
+    const allowed = new Set(['set_pipeline_git_events']);
+
+    expect(permissionsFrom('workspace', allowed)).toEqual([Permission.SET_PIPELINE_GIT_EVENTS]);
     expect(permissionsFrom('project', allowed)).toEqual([]);
   });
 

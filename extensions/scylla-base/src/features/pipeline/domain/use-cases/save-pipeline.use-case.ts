@@ -19,6 +19,8 @@ export interface SavePipelineInput {
   links?: FragmentLink[];
   /** The workspace of the linked fragments: without it, each link is sent as it is. */
   workspaceId?: string;
+  /** The agent labels of a new pipeline, sent with its creation. An edit saves them apart. */
+  agentLabels?: readonly string[];
 }
 
 /** The pipeline breaks a rule of the domain: nothing was sent to the server. */
@@ -48,12 +50,14 @@ export class SavePipelineUseCase {
     layout,
     links,
     workspaceId,
+    agentLabels,
   }: SavePipelineInput): Promise<string[]> {
     const issue = pipelineIssue({ name, nodes });
     if (issue) throw new InvalidPipelineError(issue);
 
     if (!id) {
-      await this._repository.create({ projectId, name, nodes }, layout);
+      const labels = agentLabels?.length ? { agentLabels: [...agentLabels] } : {};
+      await this._repository.create({ projectId, name, nodes, ...labels }, layout);
       return [];
     }
     const kept = links && workspaceId ? await this.heldLinks(links, nodes, workspaceId) : links;

@@ -85,6 +85,8 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.APPROVE_JOB]: { workspace: 'approve_job', project: 'approve_job' },
   // The triggers of a pipeline.
   [Permission.MANAGE_TRIGGERS]: { workspace: 'create_trigger', project: 'create_trigger' },
+  // The Git events of an editor pipeline in a project of files: no role of a project has it.
+  [Permission.SET_PIPELINE_GIT_EVENTS]: { workspace: 'set_pipeline_git_events' },
   // The apps of a workspace; an agent is an app that runs jobs.
   [Permission.CREATE_APP]: { workspace: 'create_app' },
   [Permission.READ_APP]: { workspace: 'get_app' },

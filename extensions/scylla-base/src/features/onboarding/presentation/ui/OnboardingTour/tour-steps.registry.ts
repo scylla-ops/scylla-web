@@ -75,7 +75,7 @@ export interface TourSpotStep {
   noPrevious?: boolean;
 }
 
-export type TourIcon = 'agent' | 'pipeline' | 'run' | 'trigger' | 'secret' | 'role' | 'users';
+export type TourIcon = 'agent' | 'pipeline' | 'run' | 'trigger' | 'secret' | 'role' | 'users' | 'search';
 
 /** The page that offers the tour on a first visit, and the step where the tour starts there. */
 export interface TourOffer {
@@ -729,6 +729,56 @@ const usersTour: TourDefinition = {
   ],
 };
 
+const searchTour: TourDefinition = {
+  id: 'search',
+  icon: 'search',
+  title: m.searchTour,
+  summary: m.searchTourSummary,
+  minutes: 1,
+  permissions: [],
+  finish: { title: m.otherFinishTitle, body: m.otherFinishBody },
+  offer: { path: /^\/dashboard\/?$/, step: 'open-search', needs: select('[data-tour="command-bar-trigger"]') },
+  steps: [
+    {
+      id: 'open-search',
+      title: m.openSearchTitle,
+      body: [m.openSearchBody],
+      targets: [select('[data-tour="command-bar-trigger"]')],
+      advance: { on: 'appear', anchor: lastDialog },
+    },
+    {
+      id: 'search-find',
+      title: m.searchFindTitle,
+      body: [m.searchFindBody],
+      targets: [lastDialog],
+      advance: { on: 'next' },
+      fallback: 'open-search',
+      holdsDialog: true,
+      form: true,
+    },
+    {
+      id: 'search-prefix',
+      title: m.searchPrefixTitle,
+      body: [m.searchPrefixBody],
+      targets: [lastDialog],
+      advance: { on: 'next' },
+      fallback: 'open-search',
+      holdsDialog: true,
+      form: true,
+    },
+    {
+      id: 'search-keys',
+      title: m.searchKeysTitle,
+      body: [m.searchKeysBody],
+      targets: [lastDialog],
+      advance: { on: 'next' },
+      fallback: 'open-search',
+      holdsDialog: true,
+      form: true,
+    },
+  ],
+};
+
 export const TOURS: readonly TourDefinition[] = [
   agentTour,
   pipelineTour,
@@ -737,6 +787,7 @@ export const TOURS: readonly TourDefinition[] = [
   secretsTour,
   rolesTour,
   usersTour,
+  searchTour,
 ];
 
 /** The tours that the welcome dialog offers, in their order: the first one is recommended. */

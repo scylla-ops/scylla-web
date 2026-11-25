@@ -33,7 +33,11 @@
   <Redirect to="../../edit/{pipelineId}" />
 {:else}
   <!-- The page of the editor, read only: the graph and the text come from the file of the repository. -->
-  <Tabs value="blueprint" class="flex h-full flex-col gap-4">
+  <Tabs
+    value={view.tab}
+    onValueChange={tab => view.selectTab(tab)}
+    class="flex h-full flex-col gap-4"
+  >
     <FilePipelineHeader {view} />
 
     <TabsContent value="scripting" class="min-h-0 flex-1 overflow-hidden">
@@ -53,8 +57,10 @@
               nodes={view.nodes}
               pipelineName={view.name}
               {projectId}
+              {pipelineId}
               onNodesChange={() => {}}
               savedLayout={view.savedLayout}
+              places={view.places}
               locked
               dimmed={view.stale}
               onReady={() => (canvasReady = true)}
@@ -62,8 +68,13 @@
               {#snippet notice()}
                 <FileNotice {view} />
               {/snippet}
-              {#snippet sidePanel()}
-                <FilePanel {view} />
+              {#snippet sidePanel(blueprint)}
+                <FilePanel
+                  {view}
+                  {blueprint}
+                  pipelineId={pipelineId ?? ''}
+                  projectId={projectId ?? ''}
+                />
               {/snippet}
             </PipelineBlueprint>
           </div>

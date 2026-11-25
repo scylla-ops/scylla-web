@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { routePathname } from '@scylla/core-sdk';
+  import { routePathname, routeShare } from '@scylla/core-sdk';
+  import { ShareLinkButton } from '@scylla/ui';
   import { getSidebar } from '@scylla/ui/primitives';
   import { railFor, selectedRailItem } from '../AppSidebar/nav-rail.ts';
   import { reactiveNavSections } from '../AppSidebar/nav-sections.svelte.ts';
@@ -11,6 +12,10 @@
 
   const sidebar = getSidebar();
   const ends = $derived(config.contributions.flatMap(shell => shell.topBarEnd ?? []));
+  const share = $derived(routeShare());
+  const shareHint = $derived(
+    config.contributions.flatMap(shell => (shell.shareHint ? [shell.shareHint] : [])).at(-1),
+  );
 
   const navSections = reactiveNavSections(() => config);
   const section = $derived(selectedRailItem(railFor(navSections()), routePathname()));
@@ -28,6 +33,9 @@
   <div class="min-w-0 flex-1">
     <ShellBreadcrumbs contributions={config.contributions} {leading} />
   </div>
+  {#if share}
+    <ShareLinkButton url={share === true ? undefined : share.url} hint={shareHint?.()} />
+  {/if}
   {#each ends as End, index (index)}
     <End />
   {/each}

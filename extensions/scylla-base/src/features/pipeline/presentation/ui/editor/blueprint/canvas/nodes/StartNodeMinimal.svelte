@@ -8,18 +8,24 @@
   import { START_HANDLE_CLASS } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
   import type { StartNodeViewProps } from './node-appearances.registry.ts';
 
-  let { name, selected }: StartNodeViewProps = $props();
+  let { name, selected, badge }: StartNodeViewProps = $props();
 </script>
 
 <div class="flex flex-col items-center gap-2" style="width: {MINIMAL_NODE.width}px;">
   <div
     class={cn(
-      'flex items-center justify-center rounded-[18px] border border-primary/45 bg-card shadow-xs',
+      'relative flex items-center justify-center rounded-[18px] border border-primary/45 bg-card shadow-xs transition-[border-color,box-shadow] duration-150 hover:border-primary',
       selected && 'ring-[3px] ring-primary/20',
     )}
     style="width: {MINIMAL_NODE.tile}px; height: {MINIMAL_NODE.tile}px;"
   >
     <PlayIcon class="size-6 fill-primary text-primary" />
+    {#if badge}
+      <!-- On the top right corner of the tile, out of the flow: the tile keeps its size. -->
+      <span class="absolute -top-2 -right-2 flex items-center justify-center">
+        {@render badge()}
+      </span>
+    {/if}
   </div>
   <div class="w-full text-center">
     <p class="truncate text-[12.5px] font-semibold">{name}</p>

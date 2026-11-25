@@ -36,14 +36,18 @@
     onNameChange: (name: string) => void;
     /** The text of the name field at each key, before it is applied. */
     onNameDraft?: (name: string) => void;
+    /** Why a name cannot be saved: a pipeline file has its key. `null`: the key is free. */
+    keyIssueOf?: (name: string) => string | null;
     /** A saved pipeline: the header shows Export, which writes it as a file of the repository. */
     onExport?: () => void;
     /** Why the saved pipeline cannot be exported: Export shows it and opens nothing. */
     exportIssue?: string;
     /** A saved pipeline: the header shows its agent labels, which save at once. */
     pipelineId?: string;
-    /** The saved agent labels of the pipeline. */
+    /** The saved agent labels of the pipeline, or the labels of a new pipeline. */
     agentLabels?: readonly string[];
+    /** A new pipeline: the header shows its agent labels, which Create sends. */
+    onAgentLabelsChange?: (labels: string[]) => void;
   }
 
   let {
@@ -60,10 +64,12 @@
     pipelineName,
     onNameChange,
     onNameDraft,
+    keyIssueOf,
     onExport,
     exportIssue,
     pipelineId,
     agentLabels,
+    onAgentLabelsChange,
   }: Props = $props();
 
   type SaveStatus = 'draft' | 'saving' | 'error' | 'dirty' | 'saved';
@@ -113,6 +119,7 @@
           name={pipelineName}
           {onNameChange}
           onDraftChange={onNameDraft}
+          {keyIssueOf}
           loading={missing === 'loading'}
           disabled={blueprintDisabled || missing === 'failed'}
         />
@@ -163,8 +170,13 @@
       </span>
     {/if}
 
-    {#if pipelineId && agentLabels}
-      <PipelineLabelsButton {pipelineId} labels={agentLabels} disabled={!!missing} />
+    {#if agentLabels && (pipelineId || onAgentLabelsChange)}
+      <PipelineLabelsButton
+        {pipelineId}
+        labels={agentLabels}
+        onChange={onAgentLabelsChange}
+        disabled={!!missing}
+      />
     {/if}
 
     {#if onExport}

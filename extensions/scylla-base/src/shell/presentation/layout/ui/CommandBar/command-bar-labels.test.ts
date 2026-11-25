@@ -281,6 +281,9 @@ const measure = (locale: SupportedLocale, errors: number): number => {
   return found / total;
 };
 
+// The generated tests scan every real label: a busy CI agent can pass the default 5 s.
+const GENERATED_TIMEOUT = 60_000;
+
 describe('the command bar on the real labels', () => {
   beforeAll(() => {
     i18n.load({ en: catalogs.en, fr: catalogs.fr });
@@ -325,11 +328,11 @@ describe('the command bar on the real labels', () => {
   describe('generated errors', () => {
     it.each(['en', 'fr'] as const)('finds a word with 1 error: %s', locale => {
       expect(measure(locale, 1)).toBeGreaterThanOrEqual(0.995);
-    });
+    }, GENERATED_TIMEOUT);
 
     it.each(['en', 'fr'] as const)('finds a word with 2 errors: %s', locale => {
       expect(measure(locale, 2)).toBeGreaterThanOrEqual(0.98);
-    });
+    }, GENERATED_TIMEOUT);
   });
 
   it('gives few rows for words with no link to the app', () => {

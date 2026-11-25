@@ -134,7 +134,7 @@ describe('createOnboardingTour', () => {
   });
 
   it('keeps every tour short', async () => {
-    for (const id of ['agent', 'pipeline', 'run', 'triggers', 'secrets', 'roles', 'users']) {
+    for (const id of ['agent', 'pipeline', 'run', 'triggers', 'secrets', 'roles', 'users', 'search']) {
       const { tour } = setUp({ kind: 'in-progress', tour: id, step: 'none' });
       await vi.waitFor(() => expect(tour.tour?.id).toBe(id));
       expect(tour.tour?.steps.length).toBeLessThanOrEqual(6);

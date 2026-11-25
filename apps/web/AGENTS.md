@@ -14,6 +14,7 @@ src/
   extensions.ts                   THE list of extension classes of this build
   __test__/module-permissions.test.ts   every page in the shell declares a permission
   __test__/breadcrumb-trail.test.ts     the crumbs that the modules compose
+  __test__/share-pages.test.ts          the pages with the share button of the top bar
 ```
 
 ## Rules that bite here

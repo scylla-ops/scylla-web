@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 export const jobsMessages = {
   pipelineIdMissing: msg`Pipeline ID is missing`,
@@ -22,7 +22,11 @@ export const jobsMessages = {
   actions: msg`Actions`,
   copyId: msg`Copy ID`,
   queuedHint: msg`queued: waiting for an agent`,
-  noAgentWithLabels: (labels: string) => msg`queued: waiting for an agent with the labels ${labels}`,
+  noAgentWithLabels: (count: number, labels: string) =>
+    msg`${plural(count, {
+      one: `Waiting for an agent with the label ${labels}`,
+      other: `Waiting for an agent with the labels ${labels}`,
+    })}`,
   agentLabels: msg`Labels`,
   orphanedHint: msg`agent disconnected mid-run`,
   view: msg`View`,
@@ -51,19 +55,19 @@ export const jobsMessages = {
   jobNotFound: msg`Job not found`,
   jobLoadError: msg`Unable to load this job`,
   copyJobId: msg`Copy job id`,
+  details: msg`Details`,
+  facts: msg`Facts of the job`,
+  // `context` separates the group of the details from the action that runs a pipeline.
+  runGroup: msg({ context: 'group', message: 'Run' }),
   // `context` separates it from the column header: "Créé le" vs "Créé".
   startedPrefix: msg({ context: 'date-prefix', message: 'Started' }),
   finishedPrefix: msg({ context: 'date-prefix', message: 'Finished' }),
   createdPrefix: msg({ context: 'date-prefix', message: 'Created' }),
 
   logsDenied: msg`You don't have permission to view this job's logs`,
-  logs: msg`Logs`,
   streamingLive: msg`Streaming live output`,
   nodeExecutions: msg`Node executions`,
   wholeJob: msg`Whole job`,
-  closeLogsFor: (label: string) => msg`Close the logs for ${label}`,
-  collapseLogsFor: (label: string) => msg`Collapse the logs for ${label}`,
-  expandLogsFor: (label: string) => msg`Expand the logs for ${label}`,
 
   logsError: msg`Error loading logs...`,
   noLogs: msg`No log was written.`,

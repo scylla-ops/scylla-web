@@ -1,121 +1,59 @@
 <script lang="ts">
-  import type { Component } from 'svelte';
-  import CircleAlertIcon from '@lucide/svelte/icons/circle-alert';
-  import GitBranchIcon from '@lucide/svelte/icons/git-branch';
-  import GitCommitHorizontalIcon from '@lucide/svelte/icons/git-commit-horizontal';
-  import GitPullRequestIcon from '@lucide/svelte/icons/git-pull-request';
-  import LockIcon from '@lucide/svelte/icons/lock';
-  import PlayIcon from '@lucide/svelte/icons/play';
-  import TagIcon from '@lucide/svelte/icons/tag';
-  import TagsIcon from '@lucide/svelte/icons/tags';
   import { ResizablePane } from '@scylla/ui/primitives';
-  import { t } from '@scylla/ui/i18n';
-  import { cn } from '@scylla/ui/utils';
-  import { fileMessages } from '@base/features/pipeline/presentation/messages/file.messages.ts';
-  import {
-    branchLabel,
-    checkoutRow,
-    errorPlace,
-    errorText,
-    ruleRows,
-    type RuleKind,
-  } from '@base/features/pipeline/presentation/presenters/pipeline-file.presenter.ts';
+  import { nodeOf } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
+  import type { Blueprint } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
+  import StartPanel from '@base/features/pipeline/presentation/ui/editor/blueprint/side-panel/StartPanel/StartPanel.svelte';
   import type { FilePipeline } from './file-pipeline.state.svelte.ts';
+  import FileNodePanel from './FileNodePanel.svelte';
+  import FileSettings from './FileSettings.svelte';
 
   interface Props {
     view: FilePipeline;
+    blueprint: Blueprint;
+    pipelineId: string;
+    projectId: string;
   }
 
-  let { view }: Props = $props();
+  let { view, blueprint, pipelineId, projectId }: Props = $props();
 
-  // In percent of the blueprint, as the palette.
-  const SIZES = { default: 24, min: 18, max: 40 } as const;
+  type Mode = 'pipeline' | 'node' | 'triggers';
 
-  const RULE_ICONS: Record<RuleKind, Component> = {
-    push: GitCommitHorizontalIcon,
-    pull_request: GitPullRequestIcon,
-    tag: TagIcon,
-  };
+  // In percent of the blueprint, as the palette and the inspector of the editor: a node holds code.
+  const SIZES = {
+    pipeline: { default: 24, min: 18, max: 40 },
+    node: { default: 34, min: 24, max: 60 },
+    triggers: { default: 28, min: 20, max: 46 },
+  } as const satisfies Record<Mode, { default: number; min: number; max: number }>;
 
-  const invalid = $derived(view.errors.length > 0);
-  const rules = $derived(view.file ? ruleRows(view.file.rules) : []);
-  const checkout = $derived(view.file ? checkoutRow(view.file.checkout) : undefined);
+  const node = $derived(blueprint.inspected ? nodeOf(blueprint.inspected) : undefined);
+  // The start node is the pipeline: a click on it shows what starts it. Nothing open: the file.
+  const mode = $derived<Mode>(node ? 'node' : blueprint.inspectedStart ? 'triggers' : 'pipeline');
+  const sizes = $derived(SIZES[mode]);
+  const close = () => blueprint.inspect(null);
 </script>
 
-{#snippet row(Icon: Component, title: string, detail: string, error = false)}
-  <li class="flex items-center gap-2.5 rounded-lg p-2">
-    <span
-      class={cn(
-        'flex size-8 shrink-0 items-center justify-center rounded-lg border border-foreground/10 bg-card',
-        error ? 'text-destructive' : 'text-muted-foreground',
-      )}
-    >
-      <Icon class="size-4" aria-hidden="true" />
-    </span>
-    <span class="flex min-w-0 flex-1 flex-col text-left">
-      <span class="truncate text-[13px] font-medium">{title}</span>
-      <span class="truncate text-[11.5px] text-muted-foreground" title={detail}>{detail}</span>
-    </span>
-  </li>
-{/snippet}
-
-{#snippet group(title: string)}
-  <h3 class="px-2 pt-3 pb-1 text-[11px] tracking-wider text-muted-foreground uppercase">
-    {title}
-  </h3>
-{/snippet}
-
-<ResizablePane
-  id="blueprint-file"
-  order={2}
-  defaultSize={SIZES.default}
-  minSize={SIZES.min}
-  maxSize={SIZES.max}
->
-  <aside class="flex h-full flex-col bg-card">
-    <h2 class="flex items-center gap-1.5 p-3 pb-1 px-4 text-sm">
-      {invalid ? t(fileMessages.errorsOn(branchLabel(view.branch))) : t(fileMessages.panelTitle)}
-      <LockIcon class="size-3.5 text-muted-foreground" aria-hidden="true" />
-    </h2>
-
-    <div class="relative min-h-0 flex-1 overflow-y-auto px-2 pb-2">
-      {#if invalid}
-        {@render group(view.path)}
-        <ul>
-          {#each view.errors as error, index (index)}
-            {@render row(CircleAlertIcon, errorPlace(error), errorText(error), true)}
-          {/each}
-        </ul>
-      {:else if view.file}
-        {@render group(t(fileMessages.triggersFromOn))}
-        <ul>
-          {#each rules as rule (rule.kind)}
-            {@render row(RULE_ICONS[rule.kind], rule.title, rule.detail)}
-          {:else}
-            {@render row(PlayIcon, t(fileMessages.manualOnlyTitle), t(fileMessages.manualOnly))}
-          {/each}
-        </ul>
-        {#if checkout}
-          {@render group(t(fileMessages.checkout))}
-          <ul>
-            {@render row(GitBranchIcon, checkout.title, checkout.detail)}
-          </ul>
-        {/if}
-        {#if view.file.agentLabels?.length}
-          {@render group(t(fileMessages.agent))}
-          <ul>
-            {@render row(
-              TagsIcon,
-              t(fileMessages.agentLabelsTitle),
-              view.file.agentLabels.join(', '),
-            )}
-          </ul>
-        {/if}
+<!--
+  The side panel of a file pipeline, read only: the settings of the file, the node a click opened,
+  or the triggers of the start node.
+-->
+{#key mode}
+  <ResizablePane
+    id="blueprint-file-{mode}"
+    order={2}
+    defaultSize={sizes.default}
+    minSize={sizes.min}
+    maxSize={sizes.max}
+  >
+    <aside class="flex h-full flex-col bg-card">
+      {#if node}
+        {#key node.id}
+          <FileNodePanel {node} onBack={close} />
+        {/key}
+      {:else if mode === 'triggers'}
+        <StartPanel {pipelineId} {projectId} onClose={close} />
+      {:else}
+        <FileSettings {view} onOpen={id => blueprint.inspect(id)} />
       {/if}
-    </div>
-
-    <p class="border-t px-4 py-3 text-[11.5px] leading-relaxed text-muted-foreground">
-      {invalid ? t(fileMessages.invalidHint) : t(fileMessages.readOnlyHint)}
-    </p>
-  </aside>
-</ResizablePane>
+    </aside>
+  </ResizablePane>
+{/key}

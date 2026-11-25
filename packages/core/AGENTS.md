@@ -59,7 +59,8 @@ src/
                                                second-sidebar-handle.attachments.ts: the drag and the keys)
                                                Below `md`, the sheet: NavMain, where a NavGroup folds its links
                                                (nav-groups.state.svelte.ts keeps which groups are open)
-    TopBar/                                    the crumbs of the route trail, after the name of the section, and `topBarEnd`
+    TopBar/                                    the crumbs of the route trail, after the name of the section, the share
+                                               button of a page with `share`, and `topBarEnd`
                                                (ShellBreadcrumbs, breadcrumbs.ts; SidebarTrigger on a phone only)
     nav-links.ts                               the sidebar links for `navLinks` of the SDK
     shell-config.ts                            ShellConfig, set once by startCore
@@ -183,6 +184,11 @@ module gives an access policy.
   `shell.bottomInset` in `--shell-bottom-inset` on its scroll area, and the bottom padding of
   this area is at least that value. With no such overlay, it stays 8 px (32 px from `md`). The
   rule for the pages is in `packages/ui/AGENTS.md`.
+- **A page with `share` has the share button in the top bar**, between the crumbs and the parts
+  of `topBarEnd` (`ShareLinkButton` of `@scylla/ui`). `share` is on that page only: a child
+  route declares its own. `share: true` gives the address of the page, with its query and its
+  hash; `share: { url }` gives another link, or `null` to hide the button. The second line of the
+  toast is `shareHint` of the last module that gives it. A space has no button.
 - **The crumbs stay on one line in the top bar.** The top bar has a fixed height, so a second
   line goes out of the window. Only the current crumb shrinks: first its highlight (`line-clamp-1`
   and `break-all`), down to one character and the ellipsis. The crumbs before it do not shrink:

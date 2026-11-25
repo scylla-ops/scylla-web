@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
@@ -231,6 +231,109 @@ describe('TriggersPage', () => {
     await screen.findByText('nightly');
 
     expect(screen.queryByText(/wait for approval/)).not.toBeInTheDocument();
+  });
+
+  describe('the Git events of a Scylla pipeline in a project of files', () => {
+    const push = trigger({
+      name: 'on-push',
+      source: { kind: 'push', branches: ['main'], excludeBranches: [], skipCi: true },
+    });
+    const allowedAt = (at: string) => ({
+      ...withOrigin('editor'),
+      origin: { ...withOrigin('editor').origin, gitEventsAllowedAt: at },
+    });
+    let setGitEvents: ReturnType<typeof vi.fn>;
+
+    beforeEach(() => {
+      getByProject.mockResolvedValue({
+        projectId: 'project-1',
+        provider: 'github',
+        pipelineSource: 'file',
+      });
+      listByPipelineId.mockResolvedValue([push]);
+      setGitEvents = vi.fn().mockResolvedValue(allowedAt('2026-11-25T10:00:00Z').origin);
+      restoreRegistry();
+      restoreRegistry = withRegistry({
+        triggers: {
+          triggersRepository: {
+            listByPipelineId,
+            setEnabled: vi.fn(),
+            fireNow: vi.fn(),
+          } as unknown as TriggersRepository,
+        },
+        integrations: { repositoryLinkRepository: { getByProject } },
+        pipeline: { pipelineRepository: { getWithLayout, setGitEvents } },
+      });
+    });
+
+    it('says that a Git trigger starts no run, and lets an admin allow it after a warning', async () => {
+      render(TriggersPage, props);
+
+      const note = await screen.findByRole('note');
+      expect(note).toHaveTextContent(
+        'The push, pull request and tag triggers of this Scylla pipeline start no run: in a project of files, a workspace admin must allow them first.',
+      );
+      await userEvent.click(within(note).getByRole('button', { name: 'Allow Git events' }));
+      const dialog = await screen.findByRole('alertdialog');
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Allow Git events' }));
+
+      expect(setGitEvents).toHaveBeenCalledWith('pipeline-1', true);
+      expect(await screen.findByText('Git events allowed by an admin')).toBeInTheDocument();
+    });
+
+    it('lets an admin revoke the opt-in, after a confirm', async () => {
+      getWithLayout.mockResolvedValue(allowedAt('2026-11-24T10:00:00Z'));
+      setGitEvents.mockResolvedValue(withOrigin('editor').origin);
+      render(TriggersPage, props);
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Revoke' }));
+      const dialog = await screen.findByRole('alertdialog');
+      expect(within(dialog).getByText('Stop the Git events of this pipeline?')).toBeInTheDocument();
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Revoke' }));
+
+      expect(setGitEvents).toHaveBeenCalledWith('pipeline-1', false);
+      expect(
+        await within(await screen.findByRole('note')).findByRole('button', {
+          name: 'Allow Git events',
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it('keeps the opt-in inert for a member, and says who can give it', async () => {
+      permissionsStore.setState({
+        permissions: {
+          scopes: [
+            {
+              scope: PermissionScope.SYSTEM,
+              scopeId: '',
+              access: {
+                kind: 'restricted',
+                permissions: [
+                  Permission.READ_PIPELINE,
+                  Permission.READ_REPOSITORY_LINK,
+                  Permission.MANAGE_TRIGGERS,
+                ],
+              },
+            },
+          ],
+        },
+      });
+      render(TriggersPage, props);
+
+      const allow = await within(await screen.findByRole('note')).findByRole('button', {
+        name: 'Allow Git events',
+      });
+      expect(allow).toHaveAttribute('aria-disabled', 'true');
+      expect(allow).toHaveAccessibleDescription('Only a workspace admin can allow the Git events.');
+    });
+
+    it('shows no note for a pipeline with no Git trigger and no opt-in', async () => {
+      listByPipelineId.mockResolvedValue([trigger()]);
+      render(TriggersPage, props);
+      await screen.findByText('nightly');
+
+      expect(screen.queryByRole('note')).not.toBeInTheDocument();
+    });
   });
 
   it('shows a trigger of a pipeline file as read only: no action, a switch that does not move', async () => {

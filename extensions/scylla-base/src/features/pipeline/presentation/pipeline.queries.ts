@@ -12,6 +12,7 @@ import type {
   PipelineMetadata,
   PipelineWithLayout,
 } from '../domain/entities/pipeline.entity.ts';
+import type { PipelineFileKey } from '../domain/structs/pipeline-key.struct.ts';
 import type { CommitRef } from '../domain/structs/commit-ref.struct.ts';
 import type { PipelineFile } from '../domain/structs/pipeline-file.struct.ts';
 import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
@@ -31,6 +32,7 @@ import {
   PIPELINES_QUERY_KEY,
   PIPELINES_QUERY_ROOT,
   PIPELINE_EXPORT_QUERY_KEY,
+  PIPELINE_FILE_KEYS_QUERY_KEY,
   PIPELINE_FILE_QUERY_KEY,
   PIPELINE_QUERY_KEY,
   PROJECT_PIPELINES_QUERY_ROOT,
@@ -150,6 +152,19 @@ export const pipelineQueries = {
       // Another branch keeps the graph of the last one until its file comes.
       placeholderData: (previous: PipelineFile | undefined) => previous,
     }),
+
+  /**
+   * The keys of the pipeline files of a project of files, for the name of an editor pipeline.
+   * The server stays the judge: a failed read shows nothing, and a save gives `PIPELINE_KEY_TAKEN`.
+   */
+  fileKeys: (projectId: string, enabled = true) =>
+    queryOptions<PipelineFileKey[]>({
+      queryKey: PIPELINE_FILE_KEYS_QUERY_KEY(projectId),
+      enabled: enabled && !!projectId,
+      queryFn: () => repository().listFileKeys(projectId),
+      staleTime: 30_000,
+      meta: { showsOwnError: true },
+    }),
 };
 
 export interface UpdatePipelineInput extends SavePipelineInput {
@@ -161,6 +176,30 @@ export interface RunPipelineInput {
   pipelineId: string;
   ref?: CommitRef;
 }
+
+/**
+ * The opt-in of a workspace admin: the push, pull request and tag triggers of an editor pipeline
+ * start runs in a project of files. The pipeline in the cache takes the new origin: its document
+ * stays.
+ */
+export const gitEventsMutations = {
+  set: (pipelineId: string) =>
+    mutationOptions({
+      mutationFn: (allowed: boolean) => repository().setGitEvents(pipelineId, allowed),
+      onSuccess: (origin, allowed) => {
+        const client = getQueryClient();
+        client.setQueryData<PipelineWithLayout>(
+          PIPELINE_QUERY_KEY(pipelineId),
+          saved => saved && { ...saved, origin },
+        );
+        // The summaries give the Git kinds of an editor pipeline only with the opt-in.
+        void client.invalidateQueries({ queryKey: PIPELINES_QUERY_ROOT });
+        toast.success(
+          i18n._(allowed ? pipelineMessages.gitEventsAllowed : pipelineMessages.gitEventsStopped),
+        );
+      },
+    }),
+};
 
 /** Read by the editor only, behind its own route guard: nothing to gate here. */
 export const nodeTemplateQueries = {

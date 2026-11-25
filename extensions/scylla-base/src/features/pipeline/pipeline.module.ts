@@ -13,6 +13,7 @@ import { DefaultNodeTemplateRepository } from './infrastructure/default-node-tem
 import { DefaultFragmentRepository } from './infrastructure/default-fragment.repository.ts';
 import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
 import { pipelineCommands } from './presentation/pipeline.commands.ts';
+import { pipelinePoints } from './presentation/pipeline.points.ts';
 import {
   fragmentLinks,
   fragmentSearch,
@@ -43,6 +44,7 @@ export const PipelineModule = {
     savePipeline: new SavePipelineUseCase(pipelineRepository, fragmentRepository),
   },
   commands: pipelineCommands,
+  points: pipelinePoints,
   routes: {
     // The library of the workspace: the fragments that its pipelines share.
     workspace: [
@@ -58,6 +60,7 @@ export const PipelineModule = {
             permission: Permission.LIST_PIPELINES_BY_WORKSPACE,
             breadcrumb: () => ({ label: fragmentCrumbName() ?? msg`Fragment` }),
             page: () => import('./presentation/ui/library/FragmentDetail/FragmentDetail.page.svelte'),
+            share: true,
           },
         ],
       },
@@ -68,6 +71,7 @@ export const PipelineModule = {
         page: () =>
           import('./presentation/ui/dashboard/DashboardPipeline/DashboardPipeline.page.svelte'),
         nav: { section: 'project', title: msg`Pipelines`, icon: WorkflowIcon, order: 10 },
+        share: true,
       },
       {
         path: 'create',
@@ -84,6 +88,7 @@ export const PipelineModule = {
           detail: msg`Edit`,
         }),
         page: () => import('./presentation/ui/editor/PipelineUpdate/PipelineUpdate.page.svelte'),
+        share: true,
       },
       {
         // A file pipeline: the editor page, read only. An editor pipeline redirects to `edit/:pipelineId`.
@@ -94,6 +99,7 @@ export const PipelineModule = {
           highlight: pipelineName,
         }),
         page: () => import('./presentation/ui/file/FilePipeline/FilePipeline.page.svelte'),
+        share: true,
       },
       {
         // Here, not in `jobs`: the page has a Run action. The job page from `jobs` shows this crumb too.
@@ -102,6 +108,7 @@ export const PipelineModule = {
         permission: Permission.LIST_JOBS_BY_PIPELINE,
         breadcrumb: () => ({ label: msg`Jobs` }),
         page: () => import('./presentation/ui/PipelineJobs/PipelineJobs.page.svelte'),
+        share: true,
       },
     ],
   },

@@ -20,7 +20,7 @@ export const statusHintOf = (job: JobEntity): MessageDescriptor | null => {
     case 'pending':
       if (job.waitingReason === 'NO_AGENT_WITH_CHECKOUT') return jobGitMessages.noAgentWithCheckout;
       if (job.waitingReason === 'NO_AGENT_WITH_LABELS' && job.agentLabels?.length)
-        return jobsMessages.noAgentWithLabels(job.agentLabels.join(', '));
+        return jobsMessages.noAgentWithLabels(job.agentLabels.length, job.agentLabels.join(', '));
       return jobsMessages.queuedHint;
     case 'awaiting_approval':
       return jobGitMessages.waitingForEditor;

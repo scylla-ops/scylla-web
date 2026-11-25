@@ -72,7 +72,7 @@ describe('NodePalette', () => {
       cleanup = $effect.root(() => {
         drag = createPaletteDrag();
         // The canvas: everything right of x = 500.
-        drag.setTarget({ contains: ({ x }) => x >= 500, positionAt: at => at, drop });
+        drag.setTarget({ contains: ({ x }) => x >= 500, positionAt: at => at, linkAt: () => ({ after: 'build' }), drop });
       });
     });
     afterEach(() => cleanup());
@@ -102,7 +102,7 @@ describe('NodePalette', () => {
       expect(drop).toHaveBeenCalledWith(
         expect.objectContaining({ id: 'kind:bash' }),
         { x: 800, y: 0 },
-        { x: 800, y: 0 },
+        { after: 'build' },
       );
       expect(onAdd).not.toHaveBeenCalled();
     });

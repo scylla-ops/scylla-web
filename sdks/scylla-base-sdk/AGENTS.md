@@ -41,6 +41,7 @@ module lists is in it.
 | `loginPoints` | `LoginModule` | `login.footer` (zone), `login.texts` (text scope), `login.fields` (value) | [`login`](../../extensions/scylla-base/src/features/login/AGENTS.md) |
 | `membershipPoints` | `MembershipModule` | `membership.workspaceActions` (zone), `membership.workspaceSection` (zone), `membership.workspaceAddMember` (value), `membership.projectActions` (zone), `membership.projectSection` (zone) | [`membership`](../../extensions/scylla-base/src/features/membership/AGENTS.md) |
 | `notificationsPoints` | `NotificationsModule` | `notifications.kinds` (value) | [`notifications`](../../extensions/scylla-base/src/features/notifications/AGENTS.md) |
+| `pipelinePoints` | `PipelineModule` | `pipeline.startBadge` (zone): a badge on the start node of a saved pipeline, `pipeline.startPanel` (zone): the body of the panel of the start node (`triggers` fills both) | [`pipeline`](../../extensions/scylla-base/src/features/pipeline/AGENTS.md) |
 | `trackersPoints` | `LegalModule` | `legal.trackers` (value): the tracker registry, see the rule "no cookie or storage key without a registry entry" | [`platform/trackers`](../../extensions/scylla-base/src/platform/trackers/AGENTS.md) |
 
 Add a row here in the same change that adds `points` to a feature's module.

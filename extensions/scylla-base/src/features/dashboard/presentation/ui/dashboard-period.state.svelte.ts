@@ -4,10 +4,12 @@ import { toRune } from '@scylla/ui/stores';
 import { workspaceQueries } from '@base/features/workspace';
 import {
   DEFAULT_PERIOD,
+  bucketPeriod,
   customPeriodFrom,
   customPeriodIssue,
   periodRange,
   type DashboardPeriod,
+  type PeriodBucket,
   type PeriodKind,
   type PeriodRange,
 } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
@@ -72,6 +74,14 @@ export const createDashboardPeriod = (now: () => Date = currentInstant) => {
     },
     applyCustom: (from: Day, to: Day) => {
       write({ kind: 'custom', from, to });
+    },
+    /**
+     * The URL of this page on the day or the week of a bar of a chart. `null` for a bar of one
+     * hour: a custom period has whole days.
+     */
+    bucketHref: (start: string, bucket: PeriodBucket): string | null => {
+      const next = bucketPeriod(start, bucket, timeZone ?? 'UTC', today());
+      return next && `${currentPathname()}${writePeriodSearch(currentSearch(), next)}`;
     },
     /** The instants of the period at `at`: a query reads them when it runs, not in its key. */
     rangeAt: (at: Date = now()): PeriodRange => periodRange(period, at, timeZone ?? 'UTC'),

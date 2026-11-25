@@ -7,6 +7,7 @@ import type {
   AttentionKind,
 } from '@base/features/dashboard/domain/structs/attention.struct.ts';
 import { attentionMessages as m } from '@base/features/dashboard/presentation/messages/attention.messages.ts';
+import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
 import { viewMessages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
 import { shortJobId } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
 import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
@@ -44,6 +45,10 @@ export const attentionLabel = (kind: AttentionKind): string => t(LABELS[kind]);
 
 /** The name of the row: the agent for an agent, else the pipeline. */
 export const attentionTitle = (item: AttentionItem): string => item.agent?.name || item.pipelineName;
+
+/** What a click on the name of an item opens: its job, the triggers, or the agent. */
+export const attentionOpens = (item: AttentionItem): string =>
+  t(item.job ? linkMessages.openJob : item.fire ? linkMessages.openTriggers : linkMessages.openAgent);
 
 /** The last 8 characters of the job id, or nothing. */
 export const attentionJob = (item: AttentionItem): string => (item.job ? shortJobId(item.job.id) : '');

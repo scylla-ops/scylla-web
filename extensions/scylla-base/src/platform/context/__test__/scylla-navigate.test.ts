@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '../context.store.ts';
-import { workspaceUrl, scyllaNavigate } from '../scylla-navigate.ts';
+import { workspaceUrl, scyllaHref, scyllaNavigate } from '../scylla-navigate.ts';
 
 let navigator: ReturnType<typeof installTestNavigator>;
 
@@ -42,5 +42,37 @@ describe('the prefix of the URLs', () => {
     scyllaNavigate.goToAccount();
 
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/account', undefined);
+  });
+});
+
+describe('scyllaHref', () => {
+  beforeEach(() => {
+    contextStore.setState({ workspace: { id: 'org-1', name: 'Acme Corp', slug: 'acme' } });
+  });
+
+  it('gives the pages of a project that the link names, not of the active one', () => {
+    contextStore.getState().setProject('project-9', 'web');
+
+    expect(scyllaHref.project('project-1')).toBe('/acme/projects/project-1');
+    expect(scyllaHref.jobs('project-1', 'pipeline-1')).toBe(
+      '/acme/projects/project-1/pipelines/pipeline-1/jobs',
+    );
+    expect(scyllaHref.triggers('project-1', 'pipeline-1')).toBe(
+      '/acme/projects/project-1/pipelines/pipeline-1/triggers',
+    );
+  });
+
+  it('opens a job on the logs of one node on request', () => {
+    expect(scyllaHref.job('project-1', 'pipeline-1', 'job-1')).toBe(
+      '/acme/projects/project-1/pipelines/pipeline-1/jobs/job-1',
+    );
+    expect(scyllaHref.job('project-1', 'pipeline-1', 'job-1', 'build app')).toBe(
+      '/acme/projects/project-1/pipelines/pipeline-1/jobs/job-1?nodes=build%20app',
+    );
+  });
+
+  it('gives the agents of the workspace', () => {
+    expect(scyllaHref.agents()).toBe('/acme/agents');
+    expect(scyllaHref.agent('agent-1')).toBe('/acme/agents/agent-1');
   });
 });

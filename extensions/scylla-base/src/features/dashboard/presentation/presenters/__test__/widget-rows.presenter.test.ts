@@ -6,6 +6,7 @@ import {
   activityRows,
   attentionCounts,
   attentionItems,
+  jobMarks,
   liveJobs,
   pipelineRows,
   pipelinesById,
@@ -291,5 +292,24 @@ describe('pipelineRows', () => {
     const [row] = pipelineRows([summary({ active: true, health: 'green' })], 20);
 
     expect(row).toMatchObject({ tone: 'running', trigger: 'manual', rate: '—', median: '—' });
+  });
+});
+
+describe('jobMarks', () => {
+  it('gives a mark to each job of a known pipeline, by job id', () => {
+    const marks = jobMarks(
+      [job({ id: 'job-0000abcdef12' }), job({ id: 'job-00001234abcd', pipelineId: 'pipeline-9' })],
+      pipelinesById([summary()]),
+    );
+
+    expect([...marks.keys()]).toEqual(['job-0000abcdef12']);
+    expect(marks.get('job-0000abcdef12')).toMatchObject({
+      jobId: 'job-0000abcdef12',
+      pipelineId: 'pipeline-1',
+      pipelineName: 'build-api',
+      projectId: 'project-1',
+      projectName: 'backend',
+      run: { id: 'job-0000abcdef12', status: 'running', ref: undefined },
+    });
   });
 });

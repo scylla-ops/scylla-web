@@ -11,6 +11,7 @@ import { shortJobId } from '@base/features/dashboard/presentation/presenters/job
 import { pipelineRows } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
 import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
 import { PIPELINE_RUNS, type DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+import { jobLink, type LinkTarget } from '../widget-navigation.ts';
 
 export const createPipelineWidget = (
   widgets: () => DashboardWidgets,
@@ -64,6 +65,23 @@ export const createPipelineWidget = (
       const job = newest.data?.items[0];
       return job ? shortJobId(job.id) : null;
     },
+    get newestId(): string | null {
+      return newest.data?.items[0]?.id ?? null;
+    },
+    /** The page of a job of this pipeline; with a node, on the logs of that node. */
+    jobLink: (jobId: string, nodeId?: string): LinkTarget | null =>
+      summary
+        ? jobLink(
+            {
+              jobId,
+              pipelineId: summary.id,
+              pipelineName: summary.name,
+              projectId: summary.projectId,
+              projectName: summary.projectName,
+            },
+            nodeId,
+          )
+        : null,
     get canRun() {
       return can(Permission.RUN_PIPELINE);
     },

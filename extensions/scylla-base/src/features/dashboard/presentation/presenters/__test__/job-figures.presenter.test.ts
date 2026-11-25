@@ -3,6 +3,7 @@ import { formatUtcDay } from '@shared/utils/date-utils.ts';
 import type { JobBucket, JobFigures } from '@base/features/jobs';
 import {
   bucketAxis,
+  bucketHint,
   dayBars,
   durationBars,
   durationChange,
@@ -177,5 +178,19 @@ describe('dayBars', () => {
       { start: 'b', empty: false, completed: 0, failed: 50, other: 0, top: 50 },
       { start: 'c', empty: true, completed: 0, failed: 0, other: 0, top: 0 },
     ]);
+  });
+});
+
+describe('bucketHint', () => {
+  it('names the day of a bar of one day, in the zone of the workspace', () => {
+    expect(bucketHint('2026-11-11T23:00:00Z', 'day', 'Europe/Paris')).toBe(
+      `Show ${formatUtcDay('2026-11-12')} on the dashboard`,
+    );
+  });
+
+  it('names the week of a bar of one week', () => {
+    expect(bucketHint('2026-11-01T23:00:00Z', 'week', 'Europe/Paris')).toBe(
+      `Show the week of ${formatUtcDay('2026-11-02')} on the dashboard`,
+    );
   });
 });

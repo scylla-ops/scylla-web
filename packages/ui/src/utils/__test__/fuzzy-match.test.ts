@@ -184,8 +184,29 @@ describe('the letters that matched', () => {
     expect(match('bui', 'Build web')?.ranges).toEqual([[0, 3]]);
   });
 
-  it('gives the word that a typo found', () => {
-    expect(match('wbe', 'Build web')?.ranges).toEqual([[6, 9]]);
+  it('gives the letters that a typo shares with the word, not the wrong one', () => {
+    // `wbe` for `web`: the swap leaves two letters, not the wrong one.
+    expect(match('wbe', 'Build web')?.ranges).toEqual([[6, 8]]);
+    // `deplyo` for `Deploy`: the letters in order.
+    expect(match('depkoy', 'Deploy now')?.ranges).toEqual([[0, 3], [4, 6]]);
+    // A missing letter.
+    expect(match('tken', 'Open tokens')?.ranges).toEqual([[5, 6], [7, 10]]);
+  });
+
+  it('gives all the letters of an exact match', () => {
+    expect(match('build web', 'Build web')?.ranges).toEqual([[0, 9]]);
+  });
+
+  it('gives the letters in the middle of a word', () => {
+    expect(match('ploy', 'Deploy')?.ranges).toEqual([[2, 6]]);
+  });
+
+  it('gives the place of an accented letter in the text', () => {
+    const name = 'Thème sombre';
+    const [[start, end]] = match('theme', name)!.ranges;
+    expect(name.slice(start, end)).toBe('Thème');
+    const typo = match('thene', name)!.ranges;
+    expect(typo.map(([a, b]) => name.slice(a, b)).join('')).toBe('Thèe');
   });
 
   it('keeps the place in the text with accents', () => {

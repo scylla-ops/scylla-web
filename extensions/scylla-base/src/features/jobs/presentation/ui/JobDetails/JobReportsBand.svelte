@@ -89,30 +89,18 @@
   {/if}
 {/snippet}
 
-{#snippet label()}
-  <span class="font-mono text-[10px] uppercase tracking-wide text-muted-foreground">
-    {t(messages.report)}
-  </span>
-{/snippet}
-
-<!-- The reports of the job to the provider, under its commit. A job with no commit shows none. -->
+<!-- The reports of the job to the provider, in the details. A job with no commit shows none. -->
 {#if entry && job.source}
-  <section aria-label={t(messages.report)} class="flex flex-col gap-1.5">
+  <section aria-label={t(messages.report)} class="flex flex-col gap-2.5">
     {#if entry.reports.length === 0}
-      <div
-        class="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md border border-border bg-card px-3.5 py-2"
-      >
-        {@render label()}
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span class="text-xs font-medium text-foreground">{t(messages.notReported)}</span>
         <span class="text-xs text-muted-foreground">{noReportText(entry)}</span>
       </div>
     {/if}
     {#each entry.reports as report (report.context)}
       {@const line = lineOf(report)}
-      <div
-        class="flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md border border-border bg-card px-3.5 py-2"
-      >
-        {@render label()}
+      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
         <span class="flex items-center gap-1.5">
           <ProviderMark kind={report.provider} class="size-3.5 shrink-0 text-foreground" />
           <span class="font-mono text-xs text-foreground">{reportTitle(report)}</span>
@@ -125,7 +113,7 @@
         {#if line.detail}
           <span class="min-w-0 text-xs break-words text-muted-foreground">{line.detail}</span>
         {/if}
-        <span class="ml-auto flex items-center gap-2">
+        <span class="flex flex-wrap items-center gap-2">
           {#if (report.state === 'retrying' || report.state === 'not_sent') && canRetry}
             <Button
               variant="outline"

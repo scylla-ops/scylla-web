@@ -1,14 +1,24 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { flushSync } from 'svelte';
+import { installTestNavigator } from '@test/navigator.ts';
 import { createJobFilters, type JobFilters } from './job-filters.state.svelte.ts';
 
-const withFilters = (run: (filters: JobFilters) => void) => {
+const PATH = '/acme/projects/project-1/pipelines/pipeline-1/jobs';
+
+let restore = () => {};
+
+afterEach(() => restore());
+
+const withFilters = (run: (filters: JobFilters) => void, search = '') => {
+  const navigator = installTestNavigator({ pathname: PATH, search });
+  restore = navigator.restore;
   const cleanup = $effect.root(() => {
     const filters = createJobFilters();
     flushSync();
     run(filters);
   });
   cleanup();
+  return navigator;
 };
 
 describe('createJobFilters', () => {
@@ -54,5 +64,38 @@ describe('createJobFilters', () => {
       expect(filters.author).toBe('');
       expect(filters.event).toBeNull();
     });
+  });
+
+  it('reads the filters of a link, so that a copied link opens the same list', () => {
+    withFilters(filters => {
+      expect(filters.branch).toBe('feature/login');
+      expect(filters.event).toBe('pull_request');
+      expect(filters.author).toBe('lea-martin');
+      expect(filters.filter).toEqual({
+        branch: 'feature/login',
+        event: 'pull_request',
+        authorLogin: 'lea-martin',
+        pullRequest: 51,
+      });
+    }, '?branch=feature%2Flogin&event=pull_request&author=lea-martin&pr=51');
+  });
+
+  it('ignores an event of a link that no job has', () => {
+    withFilters(filters => expect(filters.event).toBeNull(), '?event=deploy');
+  });
+
+  it('writes each change in the URL, in place of the current entry', () => {
+    const navigator = withFilters(filters => {
+      filters.setBranch('main');
+      filters.setEvent('push');
+      filters.clear();
+    }, '?branch=dev');
+
+    expect(navigator.navigate.mock.calls.map(([to]) => to)).toEqual([
+      `${PATH}?branch=main`,
+      `${PATH}?branch=main&event=push`,
+      PATH,
+    ]);
+    expect(navigator.navigate).toHaveBeenCalledWith(PATH, { replace: true });
   });
 });

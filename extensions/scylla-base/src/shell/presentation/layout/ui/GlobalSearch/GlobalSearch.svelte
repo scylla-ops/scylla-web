@@ -38,6 +38,7 @@
   type="button"
   class="flex h-8 shrink-0 items-center gap-2 rounded-lg border border-border px-2 text-sm text-muted-foreground transition-colors outline-hidden hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none lg:w-75 lg:px-2.5"
   aria-label={t(layoutMessages.search)}
+  data-tour="command-bar-trigger"
   onclick={() => setOpen(true)}
 >
   <SearchIcon class="size-4 shrink-0" aria-hidden="true" />

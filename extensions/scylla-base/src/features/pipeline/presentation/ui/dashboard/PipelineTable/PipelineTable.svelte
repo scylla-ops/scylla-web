@@ -44,6 +44,9 @@
 
   const jobsOf = (pipelineId: string) => historyByPipelineId.get(pipelineId)?.jobs ?? [];
 
+  // A project of files also has editor pipelines: each row names its source.
+  const mixed = $derived(runRequest.link?.pipelineSource === 'file');
+
   const columns = $derived(
     pipelineColumns({ status: statusCell, history: historyCell, actions: actionsCell }),
   );
@@ -55,6 +58,7 @@
     history={historyByPipelineId.get(pipeline.id)}
     count={capacity.count}
     note={originNote(pipeline.origin, runRequest.link?.defaultBranch)}
+    source={mixed || pipeline.origin.source === 'file' ? pipeline.origin.source : null}
     onOpen={canListJobs ? () => scyllaNavigate.goToJobs(pipeline.id, pipeline.name) : undefined}
   />
 {/snippet}

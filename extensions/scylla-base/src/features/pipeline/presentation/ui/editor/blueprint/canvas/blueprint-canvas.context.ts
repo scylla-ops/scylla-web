@@ -20,6 +20,8 @@ export interface BlueprintCanvasContext {
   insertOnEdge: (edgeId: string, at: { flow: XYPosition; client: XYPosition }) => void;
   /** The fragment that a block links, once the library is loaded. */
   fragmentOf: (fragmentId: string) => FragmentEntity | undefined;
+  /** The saved pipeline that the graph shows. None for a new pipeline. */
+  pipelineId: () => string | undefined;
 }
 
 export const [getBlueprintCanvas, setBlueprintCanvas] = createContext<BlueprintCanvasContext>();

@@ -2,7 +2,7 @@ import { msg, plural } from '@lingui/core/macro';
 
 export const pipelineSourceMessages = {
   title: msg`Pipeline source`,
-  description: msg`Where the pipelines of this project live. One source per project.`,
+  description: msg`Where the pipelines of this project come from. With the repository files, the Scylla pipelines stay next to the file pipelines.`,
   editor: msg`Scylla editor`,
   editorBody: msg`Draw the pipelines in Scylla. Triggers are set in Scylla.`,
   files: msg`Repository files`,
@@ -21,7 +21,7 @@ export const pipelineSourceMessages = {
 
   toFilesTitle: msg`Use the repository files?`,
   toFilesBody: (branch: string) =>
-    msg`Scylla reads the pipeline files on ${branch}. The editor pipelines become archived: they are read only, their triggers stop, and their runs stay.`,
+    msg`Scylla reads the pipeline files on ${branch}. The Scylla pipelines stay: their push, pull request and tag triggers start runs only with the opt-in of a workspace admin, and a file with the key of a Scylla pipeline takes its check.`,
   toFilesEmpty: msg`With no file, the project has no pipeline until you add one to the repository.`,
   toFilesErrors: msg`A file with errors gives a pipeline whose runs fail with "Invalid pipeline file" until you correct the file.`,
   useFiles: msg`Use the files`,

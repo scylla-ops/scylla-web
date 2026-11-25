@@ -44,6 +44,8 @@
 
   const routeId = $derived(routeParams().dashboardId ?? null);
   const dashboard = $derived(dashboards.dashboardOf(routeId));
+  // The share button of the top bar links to this dashboard.
+  onDestroy(dashboardView.show(() => dashboard));
   const editing = $derived(dashboardEditor.active && dashboardEditor.dashboardId === dashboard?.id);
   const items = $derived<readonly LayoutWidget[]>(editing ? dashboardEditor.widgets : (dashboard?.widgets ?? []));
   const drag = $derived(dashboardEditor.drag);

@@ -187,15 +187,66 @@ const wordRange = (word: FuzzyWord, length: number): FuzzyRange => [
   Math.min(word.start + length, word.end),
 ];
 
+/**
+ * The letters of the words that the query shares with them, in order: a wrong, missing or extra
+ * letter is not in the ranges. It falls back to the whole words when a letter of the source has
+ * not one letter in the normal form (`œ`, `ß`), because the places would not match.
+ */
+const letterRanges = (
+  token: string,
+  words: readonly FuzzyWord[],
+  startOnly: boolean,
+): readonly FuzzyRange[] => {
+  const whole = words.map((word): FuzzyRange => [word.start, word.end]);
+  const places: number[] = [];
+  let letters = '';
+  for (const word of words) {
+    if (word.text.length !== word.end - word.start) return whole;
+    for (let k = 0; k < word.text.length; k++) places.push(word.start + k);
+    letters += word.text;
+  }
+  if (startOnly) letters = letters.slice(0, token.length + 1);
+
+  const m = token.length;
+  const n = letters.length;
+  // Longest common subsequence, read from the end of the table: the first letters win a tie.
+  const table: number[][] = Array.from({ length: m + 1 }, () => new Array<number>(n + 1).fill(0));
+  for (let i = m - 1; i >= 0; i--) {
+    for (let j = n - 1; j >= 0; j--) {
+      table[i][j] =
+        token[i] === letters[j]
+          ? table[i + 1][j + 1] + 1
+          : Math.max(table[i + 1][j], table[i][j + 1]);
+    }
+  }
+  const ranges: [number, number][] = [];
+  let i = 0;
+  let j = 0;
+  while (i < m && j < n) {
+    if (token[i] === letters[j]) {
+      const at = places[j];
+      const last = ranges.at(-1);
+      if (last && last[1] === at) last[1] = at + 1;
+      else ranges.push([at, at + 1]);
+      i++;
+      j++;
+    } else if (table[i + 1][j] >= table[i][j + 1]) i++;
+    else j++;
+  }
+  return ranges.length > 0 ? ranges : whole;
+};
+
+interface TypoPick {
+  score: number;
+  words: readonly FuzzyWord[];
+  startOnly: boolean;
+}
+
 const typoHit = (token: string, field: FuzzyText, cap: number): WordHit | null => {
   if (errorBudget(token.length) === 0) return null;
 
-  let best: WordHit | null = null;
-  const consider = (
-    target: string,
-    place: number,
-    ranges: readonly FuzzyRange[],
-  ) => {
+  let best: TypoPick | null = null;
+  const consider = (target: string, place: number, words: readonly FuzzyWord[]) => {
     // By the longer word: a missing letter must not take away a part of the budget.
     const budget = Math.min(errorBudget(Math.max(token.length, target.length)), cap);
     const found = editCost(token, target, budget);
@@ -214,22 +265,19 @@ const typoHit = (token: string, field: FuzzyText, cap: number): WordHit | null =
       (sameStart ? 0 : 60) -
       place +
       (token.length / Math.max(target.length, 1)) * 10;
-    if (!best || score > best.score) best = { score, typo: true, ranges };
+    if (!best || score > best.score) best = { score, words, startOnly: fromStart };
   };
 
   field.words.forEach((word, index) => {
     if (word.text.length >= 3 && !STOP_WORDS.has(word.text)) {
-      consider(word.text, index * 30, [[word.start, word.end]]);
+      consider(word.text, index * 30, [word]);
     }
   });
   if (field.words.length > 1) {
-    consider(
-      field.compact,
-      15,
-      field.words.map(word => [word.start, word.end]),
-    );
+    consider(field.compact, 15, field.words);
   }
-  return best;
+  const pick = best as TypoPick | null;
+  return pick && { score: pick.score, typo: true, ranges: letterRanges(token, pick.words, pick.startOnly) };
 };
 
 /** The best match of one word of the query in one field. */

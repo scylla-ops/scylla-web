@@ -1,5 +1,5 @@
 import type { MessageDescriptor } from '@lingui/core';
-import type { Component } from 'svelte';
+import type { Component, Snippet } from 'svelte';
 import type { XYPosition } from '@xyflow/svelte';
 import LayoutListIcon from '@lucide/svelte/icons/layout-list';
 import SquareIcon from '@lucide/svelte/icons/square';
@@ -43,6 +43,8 @@ export interface FragmentNodeViewProps {
 export interface StartNodeViewProps {
   name: string;
   selected: boolean;
+  /** A short fact about the saved pipeline, such as the count of its triggers. */
+  badge?: Snippet;
 }
 
 interface NodeAppearanceView {

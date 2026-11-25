@@ -31,8 +31,12 @@ const goToCreatePipeline = () => {
   navigateTo(`${getWorkspacePrefix()}/projects/${contextStore.getState().project.id}/create`);
 };
 
-const goToEditPipeline = (id: string, name: string) => {
-  navigateTo(`${getWorkspacePrefix()}/projects/${contextStore.getState().project.id}/edit/${id}`);
+/** `exportFile`: the editor opens with the export of the pipeline as a file (`?export=file`). */
+const goToEditPipeline = (id: string, name: string, options: { exportFile?: boolean } = {}) => {
+  const query = options.exportFile ? '?export=file' : '';
+  navigateTo(
+    `${getWorkspacePrefix()}/projects/${contextStore.getState().project.id}/edit/${id}${query}`,
+  );
   contextStore.getState().setPipeline(id, name);
 };
 
@@ -56,12 +60,11 @@ const goToJobDetails = (
   options: { nodeId?: string; pipelineName?: string } = {},
 ) => {
   const projectId = contextStore.getState().project.id;
-  const query = options.nodeId ? `?nodes=${encodeURIComponent(options.nodeId)}` : '';
+  const query = options.nodeId ? `?node=${encodeURIComponent(options.nodeId)}` : '';
   navigateTo(
     `${getWorkspacePrefix()}/projects/${projectId}/pipelines/${pipelineId}/jobs/${jobId}${query}`,
   );
-  if (options.pipelineName)
-    contextStore.getState().setPipeline(pipelineId, options.pipelineName);
+  if (options.pipelineName) contextStore.getState().setPipeline(pipelineId, options.pipelineName);
 };
 
 const goToTriggers = (id: string, name: string) => {
@@ -90,6 +93,27 @@ const goToAgentDetails = (agentId: string) => {
 const goToWorkspaceRoute = (path: string, options?: NavigateOptions) => {
   navigateTo(`${getWorkspacePrefix()}${path.startsWith('/') ? path : `/${path}`}`, options);
 };
+
+const projectPrefix = (projectId: string) => `${getWorkspacePrefix()}/projects/${projectId}`;
+
+/**
+ * The URLs of the pages of the active workspace, for an `<a href>`: a middle click opens them in
+ * a new tab. The caller names the project: a link can go out of the active project.
+ */
+export const scyllaHref = {
+  project: (projectId: string): string => projectPrefix(projectId),
+  jobs: (projectId: string, pipelineId: string): string =>
+    `${projectPrefix(projectId)}/pipelines/${pipelineId}/jobs`,
+  /** With a node, the page opens on the logs of that node. */
+  job: (projectId: string, pipelineId: string, jobId: string, nodeId?: string): string =>
+    `${projectPrefix(projectId)}/pipelines/${pipelineId}/jobs/${jobId}${
+      nodeId ? `?nodes=${encodeURIComponent(nodeId)}` : ''
+    }`,
+  triggers: (projectId: string, pipelineId: string): string =>
+    `${projectPrefix(projectId)}/pipelines/${pipelineId}/triggers`,
+  agents: (): string => `${getWorkspacePrefix()}/agents`,
+  agent: (agentId: string): string => `${getWorkspacePrefix()}/agents/${agentId}`,
+} as const;
 
 export const scyllaNavigate = {
   navigate: navigateTo,

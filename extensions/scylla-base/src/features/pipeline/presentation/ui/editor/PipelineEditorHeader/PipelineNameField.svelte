@@ -4,6 +4,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { pipelineNameIssueText } from '@base/features/pipeline/presentation/presenters/pipeline-issue.presenter.ts';
   import { pipelineNameIssue } from '@base/features/pipeline/domain/structs/pipeline-name.struct.ts';
 
   interface Props {
@@ -12,12 +13,24 @@
     onNameChange: (name: string) => void;
     /** The draft at each change: the editor shows a typed name as unsaved before it is applied. */
     onDraftChange?: (draft: string) => void;
+    /**
+     * Why a name cannot be saved: a pipeline file has its key. Such a name is applied, and the
+     * editor keeps Save off while it stays.
+     */
+    keyIssueOf?: (name: string) => string | null;
     disabled?: boolean;
     /** The name is on its way: a placeholder takes its place, with no shift when it comes. */
     loading?: boolean;
   }
 
-  let { name, onNameChange, onDraftChange, disabled = false, loading = false }: Props = $props();
+  let {
+    name,
+    onNameChange,
+    onDraftChange,
+    keyIssueOf,
+    disabled = false,
+    loading = false,
+  }: Props = $props();
 
   const uid = $props.id();
 
@@ -25,6 +38,9 @@
   // svelte-ignore state_referenced_locally
   let draft = $state(name);
   const issue = $derived(pipelineNameIssue(draft));
+  const issueText = $derived(
+    issue ? pipelineNameIssueText(issue) : (keyIssueOf?.(draft.trim()) ?? null),
+  );
 
   const setDraft = (next: string) => {
     draft = next;
@@ -44,7 +60,7 @@
     class={cn(
       'flex h-8 max-w-full min-w-0 items-center overflow-hidden rounded-md border border-input bg-transparent shadow-xs transition-[color,box-shadow] dark:bg-input/30',
       'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
-      issue === 'spaces' &&
+      issueText &&
         'border-destructive ring-destructive/20 focus-within:border-destructive focus-within:ring-destructive/20 dark:ring-destructive/40',
       disabled && 'pointer-events-none opacity-50',
     )}
@@ -63,8 +79,8 @@
         bind:value={() => draft, setDraft}
         {disabled}
         placeholder={t(pipelineMessages.namePlaceholder)}
-        aria-invalid={issue === 'spaces'}
-        aria-describedby={issue === 'spaces' ? `${uid}-issue` : undefined}
+        aria-invalid={issueText !== null}
+        aria-describedby={issueText ? `${uid}-issue` : undefined}
         onblur={apply}
         onkeydown={event => {
           if (event.key === 'Enter') event.currentTarget.blur();
@@ -76,12 +92,12 @@
       />
     {/if}
   </label>
-  {#if issue === 'spaces'}
+  {#if issueText}
     <p
       id="{uid}-issue"
-      class="absolute top-full left-0 z-10 mt-1 rounded-md border bg-popover px-2 py-1 text-xs whitespace-nowrap text-destructive shadow-md"
+      class="absolute top-full left-0 z-10 mt-1 w-max max-w-[min(28rem,calc(100vw-2rem))] rounded-md border bg-popover px-2 py-1 text-xs text-destructive shadow-md"
     >
-      {t(pipelineMessages.noSpaces)}
+      {issueText}
     </p>
   {/if}
 </div>

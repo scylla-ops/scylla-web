@@ -6,7 +6,7 @@
   import { jobMutations } from '@base/features/jobs';
   import { liveMessages as messages } from '@base/features/dashboard/presentation/messages/live.messages.ts';
   import type { WaitingRow } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
-  import { openJob } from '../widget-navigation.ts';
+  import { jobLink, enterPlace } from '../widget-navigation.ts';
 
   interface Props {
     row: WaitingRow;
@@ -15,10 +15,15 @@
   let { row }: Props = $props();
 
   const cancel = createMutation(() => jobMutations.cancel(row.pipelineId));
+  const review = $derived(jobLink(row));
 </script>
 
 {#if row.reason === 'approval'}
-  <Button variant="outline" size="xs" onclick={() => openJob(row)}>{t(messages.review)}</Button>
+  {#if review}
+    <Button variant="outline" size="xs" href={review.href} onclick={review.place && enterPlace(review.place)}>
+      {t(messages.review)}
+    </Button>
+  {/if}
 {:else if can(Permission.UPDATE_JOB)}
   <Button variant="outline" size="xs" disabled={cancel.isPending} onclick={() => cancel.mutate(row.jobId)}>
     {t(messages.cancel)}

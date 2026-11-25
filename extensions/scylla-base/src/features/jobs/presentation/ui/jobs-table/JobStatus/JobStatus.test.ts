@@ -76,9 +76,17 @@ describe('JobStatus', () => {
     });
 
     expect(
-      screen.getByText('queued: waiting for an agent with the labels deploy, linux'),
+      screen.getByText('Waiting for an agent with the labels deploy, linux'),
     ).toBeInTheDocument();
     expect(screen.queryByText('queued: waiting for an agent')).not.toBeInTheDocument();
+  });
+
+  it('says "label" for a single label', () => {
+    render(JobStatus, {
+      job: job('pending', { waitingReason: 'NO_AGENT_WITH_LABELS', agentLabels: ['gpu'] }),
+    });
+
+    expect(screen.getByText('Waiting for an agent with the label gpu')).toBeInTheDocument();
   });
 
   it('shows a job that failed on its pipeline file as an invalid pipeline file', () => {

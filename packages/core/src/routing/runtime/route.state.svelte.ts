@@ -1,4 +1,4 @@
-import type { RouteParams, TrailCrumb } from '@scylla/core-sdk';
+import type { RouteParams, RouteShare, TrailCrumb } from '@scylla/core-sdk';
 import type { RouteTable } from '../compilation/compile-routes.ts';
 import { joinPath, splitPath } from '../compilation/route-path.ts';
 import { location } from './location.state.svelte.ts';
@@ -25,6 +25,8 @@ export const routeHasPage = (pathname: string): boolean =>
   table !== null && matchRoute(table.routes, pathname) !== null;
 
 export const routeParams = (): RouteParams => currentMatch()?.params ?? {};
+
+export const routeShare = (): RouteShare | undefined => currentMatch()?.route.share;
 
 export const routeTrail = (): TrailCrumb[] => {
   const segments = splitPath(location.pathname);

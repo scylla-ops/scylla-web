@@ -17,7 +17,10 @@
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { jobLink, triggersLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -78,6 +81,12 @@
         ? t(widgetMessages.oneFailed)
         : fire.jobStatus;
   const fireTone = (fire: ScheduleFire): ChartTone => (fire.state === 'ok' ? 'passed' : TONES[fire.state]);
+  const firePlace = (fire: ScheduleFire) => ({
+    pipelineId: fire.pipelineId,
+    pipelineName: fireName(fire),
+    projectId: fire.projectId,
+    projectName: widgets.pipelines.get(fire.pipelineId)?.projectName ?? '',
+  });
 
   const onFire = (trigger: ScheduleTrigger) => {
     contextStore.getState().setProject(trigger.projectId, trigger.projectName);
@@ -109,7 +118,9 @@
     {#each triggers.slice(0, ROWS) as trigger (trigger.id)}
       <span class="flex min-w-0 items-center gap-2 pr-2">
         <ChartDot tone={TONES[trigger.lastState]} />
-        <span class="truncate text-sm font-medium">{trigger.pipelineName}</span>
+        <WidgetLink link={triggersLink(trigger)} title={t(linkMessages.openTriggers)} class="truncate text-sm font-medium">
+          {trigger.pipelineName}
+        </WidgetLink>
       </span>
       <span class="relative h-5" aria-hidden="true">
         <span class="absolute inset-x-0 top-1/2 h-px bg-border"></span>
@@ -146,7 +157,9 @@
       <p data-part="schedules" class="flex h-7 min-w-0 items-center gap-2">
         {#if next}
           <span class="font-display text-xl font-medium tabular-nums">{until(next.at)}</span>
-          <span class="truncate text-xs text-muted-foreground">{next.trigger.pipelineName}</span>
+          <WidgetLink link={triggersLink(next.trigger)} title={t(linkMessages.openTriggers)} class="truncate text-xs text-muted-foreground">
+            {next.trigger.pipelineName}
+          </WidgetLink>
         {/if}
       </p>
     {:else if size === 's'}
@@ -155,7 +168,9 @@
           {#each nextByTrigger.slice(0, ROWS) as fire (fire.trigger.id)}
             <li class="flex h-5 min-w-0 items-center gap-3">
               <span class="shrink-0 font-mono text-xs tabular-nums">{clockIn(new Date(fire.at), timeZone)}</span>
-              <span class="truncate text-sm font-medium">{fire.trigger.pipelineName}</span>
+              <WidgetLink link={triggersLink(fire.trigger)} title={t(linkMessages.openTriggers)} class="truncate text-sm font-medium">
+                {fire.trigger.pipelineName}
+              </WidgetLink>
               <span class="ml-auto shrink-0 text-xs text-muted-foreground">{t(messages.inTime(until(fire.at)))}</span>
             </li>
           {/each}
@@ -178,10 +193,14 @@
                 <li class="flex h-6 min-w-0 items-center gap-2 text-xs">
                   <span class="w-10 shrink-0 font-mono tabular-nums text-muted-foreground">{clockIn(new Date(fire.at), timeZone)}</span>
                   <ChartDot tone={fireTone(fire)} />
-                  <span class="shrink-0 text-sm font-medium">{fireName(fire)}</span>
+                  <WidgetLink link={triggersLink(firePlace(fire))} title={t(linkMessages.openTriggers)} class="shrink-0 text-sm font-medium">
+                    {fireName(fire)}
+                  </WidgetLink>
                   <span class="shrink-0 font-medium">{verb(fire)}</span>
                   {#if fire.jobId}
-                    <span class="shrink-0 font-mono text-muted-foreground">{shortJobId(fire.jobId)}</span>
+                    <WidgetLink link={jobLink({ ...firePlace(fire), jobId: fire.jobId })} title={t(linkMessages.openJob)} class="shrink-0 font-mono text-muted-foreground">
+                      {shortJobId(fire.jobId)}
+                    </WidgetLink>
                     <span class={statusTone(fire.jobStatus) === 'failed' ? 'truncate text-status-failed' : 'truncate text-muted-foreground'}>
                       {jobStatusText(fire)}
                     </span>
