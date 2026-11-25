@@ -46,9 +46,16 @@
   {:else}
     <!-- A form of the full width, with its label on the left as in the other forms. -->
     <div class="w-full text-left">
-      <ScyllaForm {items} onSubmit={values => state.send(values.email)} isPending={state.isPending}>
-        {#snippet footer({ isValid, isPending })}
-          <Button type="submit" class="mt-2 w-full" disabled={!isValid || isPending}>
+      <!-- No autofocus: a page that opens on a message must not show an error before the person types. -->
+      <ScyllaForm
+        {items}
+        autofocus={false}
+        onSubmit={values => state.send(values.email)}
+        isPending={state.isPending}
+      >
+        {#snippet footer({ isPending })}
+          <!-- Not disabled when empty: pressing it shows the error of the field. -->
+          <Button type="submit" class="mt-2 w-full" disabled={isPending}>
             {t(verificationMessages.resend)}
           </Button>
         {/snippet}
