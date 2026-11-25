@@ -74,6 +74,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   example searches show right below the field.
 - The descriptions of the widgets in the widget picker all start with a capital letter, and the
   statuses in the Runs per day tooltip use one case.
+- The What's new row now shows in the command bar when the field is empty.
 
 ## [0.7.1] - 2026-11-24
 

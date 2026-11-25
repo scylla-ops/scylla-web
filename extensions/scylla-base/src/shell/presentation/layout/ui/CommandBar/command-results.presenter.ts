@@ -89,6 +89,8 @@ const FILTER_LIMIT = 200;
 const RECENT_LIMIT = 5;
 const HERE_LIMIT = 6;
 const PAGES_LIMIT = 4;
+/** The row of the release notes: it shows with no text, so that a user finds it. */
+const WHATS_NEW_ID = 'command:shell.whats-new';
 
 export const groupTitle = (group: CommandGroupId): string => t(GROUP_TITLES[group]);
 
@@ -298,7 +300,7 @@ export const browseCommandRows = (
   return { sections: sectionsOf(scored, filter), total: scored.length, closeOnly: false };
 };
 
-/** The bar with no text: what the user took last, what acts on this page, the preferences. */
+/** The bar with no text: what the user took last, what acts on this page, the preferences, the help. */
 export const startCommandRows = (
   rows: readonly CommandRow[],
   order: ResultOrder,
@@ -326,6 +328,7 @@ export const startCommandRows = (
       .filter(row => row.group === 'preferences')
       .sort((a, b) => Number(a.verb === undefined) - Number(b.verb === undefined)),
   );
+  const help = take(rows.filter(row => row.id === WHATS_NEW_ID && row.verb !== undefined));
 
   const sections: ResultSection[] = [
     { id: 'recent', heading: t(messages.groupRecent), items: recent },
@@ -336,11 +339,12 @@ export const startCommandRows = (
     },
     { id: 'pages', heading: groupTitle('pages'), items: pages },
     { id: 'preferences', heading: groupTitle('preferences'), items: preferences },
+    { id: 'help', heading: t(messages.groupHelp), items: help },
   ].filter(section => section.items.length > 0);
 
   return {
     sections,
-    total: recent.length + here.length + pages.length + preferences.length,
+    total: recent.length + here.length + pages.length + preferences.length + help.length,
     closeOnly: false,
   };
 };

@@ -7,6 +7,7 @@ export const commandBarMessages = {
   groupHerePipeline: msg`On this pipeline`,
   groupPages: msg`Pages`,
   groupPreferences: msg`Preferences`,
+  groupHelp: msg`Help`,
   groupActions: msg`Actions`,
   groupProjects: msg`Projects`,
   groupPipelines: msg`Pipelines`,
