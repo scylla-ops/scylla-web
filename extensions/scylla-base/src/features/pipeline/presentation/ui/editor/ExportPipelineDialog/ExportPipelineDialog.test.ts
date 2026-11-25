@@ -50,6 +50,16 @@ describe('ExportPipelineDialog', () => {
     expect(exportFile).toHaveBeenCalledWith('pipeline-1', 'toml');
   });
 
+  it('names the key that the file takes, and the check that moves to the file pipeline', async () => {
+    renderDialog();
+
+    expect(
+      await screen.findByText(
+        'On the default branch, this file takes the key nightly: the file pipeline then sends the check scylla/nightly, and this Scylla pipeline stops sending it.',
+      ),
+    ).toBeInTheDocument();
+  });
+
   it('reads the file again in the format of the tab', async () => {
     renderDialog();
     await screen.findByText(/name = "nightly"/);

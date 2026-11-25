@@ -2,6 +2,7 @@ import { t } from '@scylla/ui/i18n';
 import { PIPELINE_NAME_MAX_LENGTH } from '@base/features/pipeline/domain/structs/pipeline-name.struct.ts';
 import type { PipelineNameIssue } from '@base/features/pipeline/domain/structs/pipeline-name.struct.ts';
 import type { PipelineIssue } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+import type { PipelineFileKey } from '@base/features/pipeline/domain/structs/pipeline-key.struct.ts';
 import { pipelineMessages } from '../messages/pipeline.messages.ts';
 
 /** Says why the name is refused. */
@@ -19,3 +20,7 @@ export const pipelineIssueText = (issue: PipelineIssue): string => {
     return t(pipelineMessages.repeatedNodeIds(issue.ids.join(', ')));
   return pipelineNameIssueText(issue.issue);
 };
+
+/** Says that a pipeline file has the key of the name: the file wins. */
+export const pipelineKeyTakenText = (file: PipelineFileKey): string =>
+  t(pipelineMessages.keyTaken(file.path || file.key, file.key));

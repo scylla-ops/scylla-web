@@ -25,6 +25,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   Scylla with a switch, an edit and a delete. Each trigger shows its last run and its next run. You
   can add a schedule in the panel. The start node shows the number of triggers. In English and
   French.
+- A project that takes its pipelines from the repository files keeps its Scylla pipelines in the
+  same list, with a source badge on each row. The editor refuses a name whose key a pipeline file
+  already has, and tells which file. A workspace admin allows the push, pull request and tag
+  triggers of a Scylla pipeline in such a project, after a warning, and can revoke them. In the
+  merge rules, a Scylla pipeline stays off, tells why, and opens its export to a file. In English
+  and French.
 
 ### Changed
 

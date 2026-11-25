@@ -348,7 +348,7 @@ describe('grpcPipeline.toMetadataPage', () => {
         nodeCount: 2,
         createdAt: ISO,
         updatedAt: ISO,
-        origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
+        origin: { source: 'editor', filePath: '', fileErrorCount: 0, key: 'ci' },
       },
     ]);
     expect(page.pagination).toEqual({
@@ -378,6 +378,7 @@ describe('grpcPipeline.originOf', () => {
       source: 'file',
       filePath: '.scylla/pipelines/build.toml',
       fileErrorCount: 3,
+      key: 'ci',
       removedAt: ISO,
     });
   });
@@ -387,7 +388,23 @@ describe('grpcPipeline.originOf', () => {
       source: 'editor',
       filePath: '',
       fileErrorCount: 0,
+      key: 'ci',
       archivedAt: ISO,
+    });
+  });
+
+  it('reads the key of an editor pipeline, the time a file took it and the opt-in of the Git events', () => {
+    expect(
+      grpcPipeline.originOf(
+        basePipeline({ key: 'build', keyTakenAt: TS, gitEventsAllowedAt: TS }),
+      ),
+    ).toEqual({
+      source: 'editor',
+      filePath: '',
+      fileErrorCount: 0,
+      key: 'build',
+      keyTakenAt: ISO,
+      gitEventsAllowedAt: ISO,
     });
   });
 

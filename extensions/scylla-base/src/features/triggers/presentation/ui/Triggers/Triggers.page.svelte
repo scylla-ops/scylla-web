@@ -6,6 +6,7 @@
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { t } from '@scylla/ui/i18n';
   import { repositoryLinkQueries } from '@base/features/integrations';
+  import { createGitEvents, GitEventsDialog, GitEventsNote } from '@base/features/pipeline';
   import { isGitSource } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';
   import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
@@ -37,6 +38,10 @@
   const linkQuery = createQuery(() => repositoryLinkQueries.byProject(projectId ?? ''));
   const provider = $derived(linkQuery.data?.provider);
   const origin = createPipelineOrigin(() => pipelineId ?? '');
+  const gitEvents = createGitEvents({
+    projectId: () => projectId ?? '',
+    pipelineId: () => pipelineId ?? '',
+  });
 
   const errorMessage = $derived(
     triggersQuery.error instanceof ScyllaError
@@ -60,6 +65,11 @@
       {pipelineId}
       onNew={() => triggersNavigation.toCreate(pipelineId)}
     />
+
+    <!-- An opt-in that is on stays visible, so that an admin can revoke it. -->
+    {#if gitEvents.needed && (gitEvents.allowed || hasGitTrigger)}
+      <GitEventsNote {gitEvents} />
+    {/if}
 
     {#if triggers.length > 0}
       <TriggersOverview {triggers} />
@@ -89,3 +99,5 @@
     {/if}
   </div>
 {/if}
+
+<GitEventsDialog {gitEvents} />

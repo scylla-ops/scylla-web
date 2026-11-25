@@ -46,10 +46,22 @@ export interface PipelineOrigin {
   filePath: string;
   /** The errors of the file on the default branch. */
   fileErrorCount: number;
-  /** The project moved to the repository files: the editor pipeline is read only. */
+  /** An older server archived the editor pipeline when the project moved to the files: it is read only. */
   archivedAt?: string;
   /** The file left the default branch. Its jobs stay. */
   removedAt?: string;
+  /**
+   * The key of the pipeline in the name of its check, `scylla/<key>`. A file pipeline and an editor
+   * pipeline of one project share the keys. Absent from a server that does not send it.
+   */
+  key?: string;
+  /** A file of the default branch took the key of this editor pipeline: it sends no check. */
+  keyTakenAt?: string;
+  /**
+   * A workspace admin let the push, pull request and tag triggers of this editor pipeline start
+   * runs in a project of files.
+   */
+  gitEventsAllowedAt?: string;
 }
 
 /** What the editor opens. The layout stays apart: the document and the jobs never see it. */

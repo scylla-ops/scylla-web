@@ -338,7 +338,49 @@ describe('DefaultPipelineRepository', () => {
       source: 'file',
       filePath: '.scylla/pipeline.toml',
       fileErrorCount: 2,
+      key: 'p',
     });
+  });
+
+  it('gives the key and the path of each file of the default branch', async () => {
+    const listPipelineFiles = vi.fn(() =>
+      unaryCall({
+        files: [{ key: 'build', file: { path: '.scylla/pipelines/build.yaml' } }],
+        errors: [],
+        commitSha: 'abc',
+      }),
+    );
+    const repository = new DefaultPipelineRepository({
+      listPipelineFiles,
+    } as unknown as IPipelineServiceClient);
+
+    await expect(repository.listFileKeys('project-1')).resolves.toEqual([
+      { key: 'build', path: '.scylla/pipelines/build.yaml' },
+    ]);
+    expect(listPipelineFiles).toHaveBeenCalledWith({ projectId: { value: 'project-1' } });
+  });
+
+  it('allows the Git events of a pipeline and gives its new origin', async () => {
+    const setPipelineGitEvents = vi.fn(() =>
+      unaryCall({
+        pipeline: {
+          ...pipeline('p', 2n),
+          gitEventsAllowedAt: { seconds: 1_790_000_000n, nanos: 0 },
+        },
+      }),
+    );
+    const repository = new DefaultPipelineRepository({
+      setPipelineGitEvents,
+    } as unknown as IPipelineServiceClient);
+
+    const origin = await repository.setGitEvents('p', true);
+
+    expect(setPipelineGitEvents).toHaveBeenCalledWith({
+      pipelineId: { value: 'p' },
+      allowed: true,
+    });
+    expect(origin.gitEventsAllowedAt).toBe(new Date(1_790_000_000_000).toISOString());
+    expect(origin.key).toBe('p');
   });
 
   it('reads the summaries of the pipelines that a query names only', async () => {

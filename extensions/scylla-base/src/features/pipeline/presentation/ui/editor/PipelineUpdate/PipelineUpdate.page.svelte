@@ -51,6 +51,7 @@
     submitLabel={t(pipelineMessages.save)}
     projectId={pipeline?.projectId}
     {pipelineId}
+    savedName={pipeline?.name}
     exportIssue={pipeline && hasConditionalNodes(pipeline.nodes)
       ? t(exportMessages.conditionalNodes)
       : undefined}

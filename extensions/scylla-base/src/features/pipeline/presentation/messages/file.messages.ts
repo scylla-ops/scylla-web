@@ -3,6 +3,8 @@ import { msg, plural } from '@lingui/core/macro';
 /** The page of a file pipeline, and the state of a file in the list. */
 export const fileMessages = {
   fromFile: msg`From file`,
+  /** The brand: the pipeline is made in the editor of Scylla. */
+  scylla: msg`Scylla`,
   readOnly: msg`Read only`,
   branch: msg`Branch`,
   file: msg`File`,
@@ -54,8 +56,11 @@ export const fileMessages = {
     msg`${file} has ${plural(count, { one: '# error', other: '# errors' })} on ${branch}`,
   removedFrom: (branch: string) => msg`Removed from ${branch}`,
   defaultBranch: msg`the default branch`,
-  archived: msg`Archived: the project uses the repository files`,
+  archived: msg`Archived when the project moved to the repository files. To bring it back, set the source of the project to the editor, then to the files again.`,
   errorsBadge: (count: number) => msg`${plural(count, { one: '# error', other: '# errors' })}`,
   removedBadge: msg`Removed`,
   archivedBadge: msg`Archived`,
+  keyTakenBadge: msg`Key taken`,
+  keyTaken: (key: string) =>
+    msg`A pipeline file took the key ${key}. This pipeline still runs, but it sends no check to the repository. Rename it to free the key.`,
 };

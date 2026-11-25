@@ -17,7 +17,7 @@ msgstr ""
 msgid "{count, plural, one {# condition} other {# conditions}}"
 msgstr "{count, plural, one {# condition} other {# conditions}}"
 
-#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:21
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:20
 msgid "{count, plural, one {# trigger} other {# triggers}}"
 msgstr "{count, plural, one {# déclencheur} other {# déclencheurs}}"
 
@@ -140,6 +140,10 @@ msgstr "Ajouter un déclencheur"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:18
 msgid "All triggers"
 msgstr "Tous les déclencheurs"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:186
+msgid "Allow Git events"
+msgstr "Autoriser les événements Git"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:76
 msgid "and"
@@ -379,6 +383,10 @@ msgstr "Horaire"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:18
 msgid "ID: {id}"
 msgstr "ID : {id}"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:185
+msgid "In a project of files, push, pull request and tag of a Scylla pipeline need the opt-in of a workspace admin."
+msgstr "Dans un projet de fichiers, push, pull request et tag d'une pipeline Scylla demandent l'accord d'un admin de l'espace de travail."
 
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:35
 msgid "Incomplete schedule"

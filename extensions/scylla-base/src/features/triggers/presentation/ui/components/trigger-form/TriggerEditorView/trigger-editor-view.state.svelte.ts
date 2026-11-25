@@ -1,6 +1,7 @@
 import { createQuery } from '@scylla/core-sdk';
 import { createSearchParams } from '@platform/context';
 import { repositoryLinkQueries, type RepositoryLink } from '@base/features/integrations';
+import { createGitEvents } from '@base/features/pipeline';
 import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';
 import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
 import { createPipelineOrigin } from '../../../pipeline-origin.state.svelte.ts';
@@ -26,6 +27,7 @@ export const createTriggerEditorView = (
   const linkQuery = createQuery(() => repositoryLinkQueries.byProject(projectId()));
   const origin = createPipelineOrigin(pipelineId);
   const search = createSearchParams(['kind']);
+  const gitEvents = createGitEvents({ projectId, pipelineId });
 
   const trigger = $derived.by(() => {
     const id = triggerId();
@@ -63,6 +65,8 @@ export const createTriggerEditorView = (
     get initialKind() {
       return triggersNavigation.kindFromSearch(search.values.kind);
     },
+    /** The opt-in of an admin for the Git kinds of an editor pipeline in a project of files. */
+    gitEvents,
     leave: () => triggersNavigation.toList(pipelineId()),
     toRepository: () => triggersNavigation.toRepository(projectId()),
   };

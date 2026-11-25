@@ -37,9 +37,11 @@ const renderPage = (
   getWithLayout: () => Promise<unknown>,
   edit: () => Promise<unknown> = () => new Promise(() => {}),
   setAgentLabels: (id: string, labels: string[]) => Promise<unknown> = () => new Promise(() => {}),
+  /** The link of the project, and more methods of the pipeline repository. */
+  more: { link?: unknown; repository?: Record<string, unknown> } = {},
 ) => {
   const cache = withQueryClient();
-  const pipelineRepository = { getWithLayout, edit, setAgentLabels };
+  const pipelineRepository = { getWithLayout, edit, setAgentLabels, ...more.repository };
   teardown = [
     cache.restore,
     withRegistry({
@@ -48,6 +50,9 @@ const renderPage = (
         savePipeline: new SavePipelineUseCase(pipelineRepository as unknown as PipelineRepository),
         nodeTemplateRepository: { list: () => Promise.resolve([]) },
         fragmentRepository: { list: () => Promise.resolve([]), linksOf: () => Promise.resolve([]) },
+      },
+      integrations: {
+        repositoryLinkRepository: { getByProject: () => Promise.resolve(more.link ?? null) },
       },
     }),
   ];
@@ -183,6 +188,74 @@ describe('PipelineUpdatePage', () => {
     expect(exportButton).toHaveAccessibleDescription(
       'The saved pipeline has a switch, a merge or a node linked to an error output. A file cannot hold them yet.',
     );
+  });
+
+  it('opens the export of the file from a link of the merge rules, and names the key of the file', async () => {
+    const exportFile = vi.fn(() =>
+      Promise.resolve({ content: 'version = 1\n', path: '.scylla/pipelines/nightly.toml' }),
+    );
+    // The router gives the query string before the page reads it.
+    const navigator = installTestNavigator({
+      pathname: '/acme/projects/project-1/edit/pipeline-1',
+      search: '?export=file',
+    });
+    renderPage(() => Promise.resolve(loaded), undefined, undefined, {
+      repository: { exportFile },
+    });
+    teardown.push(navigator.restore);
+
+    expect(await screen.findByRole('heading', { name: 'Export nightly' })).toBeInTheDocument();
+    expect(
+      await screen.findByText(
+        'On the default branch, this file takes the key nightly: the file pipeline then sends the check scylla/nightly, and this Scylla pipeline stops sending it.',
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it('refuses a name whose key a file of the repository has, in a project of files', async () => {
+    const listFileKeys = vi.fn(() =>
+      Promise.resolve([{ key: 'build', path: '.scylla/pipelines/build.yaml' }]),
+    );
+    renderPage(() => Promise.resolve(loaded), undefined, undefined, {
+      link: { projectId: 'project-1', provider: 'github', pipelineSource: 'file' },
+      repository: { listFileKeys },
+    });
+    await screen.findByDisplayValue('nightly');
+    await waitFor(() => expect(listFileKeys).toHaveBeenCalledWith('project-1'));
+    // The header builds the field again when the name of the document changes.
+    const name = () => screen.getByRole<HTMLInputElement>('textbox', { name: 'Pipeline name' });
+    /** Types `text` over the whole name. */
+    const retype = (text: string) =>
+      userEvent.type(name(), text, {
+        initialSelectionStart: 0,
+        initialSelectionEnd: name().value.length,
+      });
+
+    await retype('Build');
+
+    expect(name()).toHaveAccessibleDescription(
+      'The file .scylla/pipelines/build.yaml already uses the key build. Choose another name.',
+    );
+    await userEvent.keyboard('{Enter}');
+    expect(name()).toHaveValue('Build');
+    expect(name()).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+
+    await retype('Build 2{Enter}');
+    expect(name()).toHaveValue('Build 2');
+    expect(name()).not.toHaveAccessibleDescription();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+  });
+
+  it('reads no key of a file in a project with no link', async () => {
+    const listFileKeys = vi.fn(() => Promise.resolve([]));
+    renderPage(() => Promise.resolve(loaded), undefined, undefined, {
+      repository: { listFileKeys },
+    });
+
+    await screen.findByDisplayValue('nightly');
+
+    expect(listFileKeys).not.toHaveBeenCalled();
   });
 
   it('shows a name as unsaved while it is typed', async () => {

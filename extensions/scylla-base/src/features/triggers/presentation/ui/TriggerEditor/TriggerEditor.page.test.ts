@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
@@ -406,6 +406,98 @@ describe('TriggerEditorPage — Git triggers', () => {
     expect(screen.getByLabelText('Skip draft merge requests')).toBeChecked();
     expect(screen.getByText('Choose at least one event.')).toBeInTheDocument();
     expect(submitButton('Create')).toBeDisabled();
+  });
+
+  describe('a Scylla pipeline in a project of files', () => {
+    const filesLink = { ...linkOn('github'), pipelineSource: 'file' };
+
+    it('lets an admin allow the Git events after a warning, then offers the Git kinds', async () => {
+      allowEverything();
+      getByProject.mockResolvedValue(filesLink);
+      const setGitEvents = vi.fn().mockResolvedValue({
+        ...withOrigin('editor').origin,
+        gitEventsAllowedAt: '2026-11-25T10:00:00Z',
+      });
+      restoreRegistry();
+      restoreRegistry = withRegistry({
+        triggers: {
+          triggersRepository: { listByPipelineId, create, update } as unknown as TriggersRepository,
+        },
+        integrations: { repositoryLinkRepository: { getByProject } },
+        pipeline: { pipelineRepository: { getWithLayout, setGitEvents } },
+      });
+      render(TriggerEditorPage, props());
+      await vi.waitFor(() => expect(getWithLayout).toHaveBeenCalledWith('pipeline-1'));
+      await vi.waitFor(() => expect(getByProject).toHaveBeenCalled());
+
+      await userEvent.click(screen.getByLabelText('Type'));
+      expect(await findFloating('option', 'Push')).toHaveAttribute('data-disabled');
+      expect(
+        screen.getByText(
+          'In a project of files, push, pull request and tag of a Scylla pipeline need the opt-in of a workspace admin.',
+        ),
+      ).toBeInTheDocument();
+      await userEvent.click(await findFloating('button', 'Allow Git events'));
+
+      const dialog = await screen.findByRole('alertdialog');
+      expect(
+        within(dialog).getByText('Allow the Git events of this pipeline?'),
+      ).toBeInTheDocument();
+      expect(within(dialog).getByText(/^The pushes, pull requests and tags/)).toBeInTheDocument();
+      await userEvent.click(within(dialog).getByRole('button', { name: 'Allow Git events' }));
+
+      expect(setGitEvents).toHaveBeenCalledWith('pipeline-1', true);
+      await vi.waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
+      await userEvent.click(screen.getByLabelText('Type'));
+      expect(await findFloating('option', 'Push')).not.toHaveAttribute('data-disabled');
+    });
+
+    it('tells a member why the Git kinds are off, with no way to allow them', async () => {
+      permissionsStore.setState({
+        permissions: {
+          scopes: [
+            {
+              scope: PermissionScope.SYSTEM,
+              scopeId: '',
+              access: {
+                kind: 'restricted',
+                permissions: Object.values(Permission).filter(
+                  (permission): permission is Permission =>
+                    typeof permission === 'number' &&
+                    permission !== Permission.SET_PIPELINE_GIT_EVENTS,
+                ),
+              },
+            },
+          ],
+        },
+      });
+      getByProject.mockResolvedValue(filesLink);
+      render(TriggerEditorPage, props());
+      await vi.waitFor(() => expect(getWithLayout).toHaveBeenCalledWith('pipeline-1'));
+      await vi.waitFor(() => expect(getByProject).toHaveBeenCalled());
+
+      await userEvent.click(screen.getByLabelText('Type'));
+
+      expect(await findFloating('option', 'Tag')).toHaveAttribute('data-disabled');
+      expect(screen.getByText(/^In a project of files, push, pull request/)).toBeInTheDocument();
+      expect(screen.queryByText('Allow Git events')).not.toBeInTheDocument();
+    });
+
+    it('offers the Git kinds once an admin allowed them', async () => {
+      allowEverything();
+      getByProject.mockResolvedValue(filesLink);
+      getWithLayout.mockResolvedValue({
+        ...withOrigin('editor'),
+        origin: { ...withOrigin('editor').origin, gitEventsAllowedAt: '2026-11-25T10:00:00Z' },
+      });
+      render(TriggerEditorPage, props());
+      await vi.waitFor(() => expect(getWithLayout).toHaveBeenCalledWith('pipeline-1'));
+      await vi.waitFor(() => expect(getByProject).toHaveBeenCalled());
+
+      await userEvent.click(screen.getByLabelText('Type'));
+
+      expect(await findFloating('option', 'Push')).not.toHaveAttribute('data-disabled');
+    });
   });
 
   it('sends the new rules of a Git trigger on save', async () => {

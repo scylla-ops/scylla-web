@@ -3,12 +3,14 @@ import type {
   PipelineEntity,
   PipelineFileExport,
   PipelineMetadata,
+  PipelineOrigin,
   PipelineRun,
   PipelineWithLayout,
 } from '../domain/entities/pipeline.entity.ts';
 import type { CommitRef } from '../domain/structs/commit-ref.struct.ts';
 import type { PipelineFile } from '../domain/structs/pipeline-file.struct.ts';
 import type { PipelineFileFormat } from '../domain/structs/pipeline-file-format.struct.ts';
+import type { PipelineFileKey } from '../domain/structs/pipeline-key.struct.ts';
 import type { PipelineLayout } from '../domain/structs/pipeline-layout.struct.ts';
 import type { PipelineNodeEntity } from '../domain/entities/pipeline-node.entity.ts';
 import type { IPipelineServiceClient } from '@base/generated/scylla/pipelines/v1/pipeline_service.client.ts';
@@ -159,6 +161,18 @@ export class DefaultPipelineRepository implements PipelineRepository {
       format: grpcPipeline.fileFormatToProto(format),
     }).response;
     return { content, path };
+  }
+
+  public async listFileKeys(projectId: string): Promise<PipelineFileKey[]> {
+    const { files } = await this.client.listPipelineFiles({ projectId: wrapId(projectId) })
+      .response;
+    return files.map(file => ({ key: file.key, path: file.file?.path ?? '' }));
+  }
+
+  public async setGitEvents(id: string, allowed: boolean): Promise<PipelineOrigin> {
+    const response = await this.client.setPipelineGitEvents({ pipelineId: wrapId(id), allowed })
+      .response;
+    return grpcPipeline.originOf(required(response.pipeline, 'pipeline'));
   }
 
   public async setAgentLabels(id: string, labels: readonly string[]): Promise<PipelineEntity> {

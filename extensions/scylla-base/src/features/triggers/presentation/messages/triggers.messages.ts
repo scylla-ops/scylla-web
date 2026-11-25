@@ -181,4 +181,7 @@ export const triggersMessages = {
   definedIn: (path: string) => msg`Defined in ${path}`,
   gitFromFile: msg`The on table of the pipeline file gives its push, pull request and tag triggers.`,
   fileTriggerReadOnly: msg`This trigger comes from the pipeline file. Change the file to change it.`,
+
+  gitNotAllowed: msg`In a project of files, push, pull request and tag of a Scylla pipeline need the opt-in of a workspace admin.`,
+  allowGitEvents: msg`Allow Git events`,
 };

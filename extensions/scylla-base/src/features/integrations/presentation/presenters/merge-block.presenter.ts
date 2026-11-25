@@ -28,6 +28,11 @@ export interface MergeRuleView {
   steps: string[];
   /** The name of the check that a person copies in the last step. Empty: nothing to copy. */
   copy: string;
+  /**
+   * A Scylla pipeline of a project of files, with its rule off: only a file pipeline can be a
+   * required check. The switch stays off, and the row offers the export to a file.
+   */
+  fileOnly: boolean;
 }
 
 /** The value of the rule on the provider, as far as Scylla knows. */
@@ -100,7 +105,22 @@ export const mergeRuleView = (
     retry: null,
     steps: [],
     copy: '',
+    fileOnly: false,
   };
+  // A rule that is on still turns off: the server refuses only a new rule.
+  if (
+    link.pipelineSource === 'file' &&
+    block.pipelineSource === 'editor' &&
+    !view.checked &&
+    view.state !== 'applying'
+  ) {
+    return {
+      ...view,
+      badge: { text: t(messages.scyllaPipeline), tone: 'muted' },
+      detail: t(messages.fileOnly),
+      fileOnly: true,
+    };
+  }
   const page = (text: string) => (block.actionUrl ? { url: block.actionUrl, text } : null);
 
   switch (view.state) {

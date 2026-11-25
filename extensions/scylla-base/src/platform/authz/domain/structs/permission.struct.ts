@@ -85,6 +85,11 @@ export enum Permission {
   MANAGE_GIT_PROVIDERS = 78,
   /** Give the labels of an agent: the admins of the workspace, not the creator of the agent. */
   SET_APP_LABELS = 79,
+  /**
+   * Let the Git events start an editor pipeline in a project of files: the admins of the
+   * workspace only.
+   */
+  SET_PIPELINE_GIT_EVENTS = 80,
 }
 
 const SYSTEM_LEVEL = new Set<Permission>([
@@ -136,6 +141,7 @@ const WORKSPACE_LEVEL = new Set<Permission>([
   Permission.LIST_WORKSPACE_ROLES,
   Permission.VIEW_INTEGRATIONS,
   Permission.MANAGE_VCS_CONNECTIONS,
+  Permission.SET_PIPELINE_GIT_EVENTS,
 ]);
 
 /**

@@ -295,6 +295,37 @@ describe('DashboardPipelinePage', () => {
     );
   });
 
+  it('shows the source of each pipeline in a project of files, and warns that a file took a key', async () => {
+    setUp(
+      () =>
+        Promise.resolve(
+          page([
+            {
+              ...pipelines[0],
+              origin: { ...EDITOR, key: 'nightly', keyTakenAt: '2026-11-24T10:00:00Z' },
+            },
+            { ...filePipelines[0], id: 'pipeline-3' },
+          ]),
+        ),
+      { ...link, pipelineSource: 'file' },
+    );
+    await screen.findByText('nightly');
+
+    expect(document.querySelector('[data-source="editor"]')).toHaveTextContent('Scylla');
+    expect(document.querySelector('[data-source="file"]')).toHaveTextContent('From file');
+    await userEvent.hover(screen.getByText('Key taken'));
+    expect(await findTooltip()).toHaveTextContent(
+      'A pipeline file took the key nightly. This pipeline still runs, but it sends no check to the repository. Rename it to free the key.',
+    );
+  });
+
+  it('shows no source in a project of the editor', async () => {
+    setUp(() => Promise.resolve(page(pipelines)), link);
+    await screen.findByText('nightly');
+
+    expect(document.querySelector('[data-source]')).toBeNull();
+  });
+
   it('opens the editor, the jobs and the triggers of a pipeline', async () => {
     setUp(() => Promise.resolve(page(pipelines)));
     await screen.findByText('nightly');

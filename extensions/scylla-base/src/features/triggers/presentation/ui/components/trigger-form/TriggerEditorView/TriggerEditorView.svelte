@@ -5,6 +5,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { CreatedTrigger } from '@base/features/triggers/domain/entities/trigger.entity.ts';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
+  import { GitEventsDialog } from '@base/features/pipeline';
   import TriggerForm from '../TriggerForm.svelte';
   import { createTriggerEditorView } from './trigger-editor-view.state.svelte.ts';
 
@@ -67,11 +68,14 @@
       link={editor.link}
       isFilePipeline={editor.isFilePipeline}
       initialKind={editor.initialKind}
+      gitEvents={editor.gitEvents}
       onCancel={editor.leave}
       onSaved={handleSaved}
       onLinkRepository={editor.toRepository}
     />
   {/if}
+
+  <GitEventsDialog gitEvents={editor.gitEvents} />
 
   {#if revealed}
     <SecretRevealDialog

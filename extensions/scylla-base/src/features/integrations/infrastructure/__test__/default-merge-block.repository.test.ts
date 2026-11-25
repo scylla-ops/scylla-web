@@ -53,11 +53,31 @@ describe('DefaultMergeBlockRepository', () => {
       stateReason: '',
       branch: 'main',
       actionUrl: 'https://github.com/acme/api/rules',
+      pipelineSource: 'file',
       updatedAt: '2025-01-01T00:00:00.000Z',
     });
     expect(blocks[1]).not.toHaveProperty('pipelineId');
     expect(blocks[1]).toMatchObject({ state: 'needs_permission', stateReason: 'ROLE_TOO_LOW' });
     expect(blocks[2].state).toBe('failed');
+  });
+
+  it('says where the pipeline of a rule comes from, and nothing for the rule of the project', async () => {
+    const listMergeBlocks = vi.fn(() =>
+      unaryCall({
+        blocks: [
+          wire({ pipelineSource: PipelineSource.EDITOR }),
+          wire({ pipelineId: undefined, pipelineSource: PipelineSource.UNSPECIFIED }),
+        ],
+      }),
+    );
+    const repository = new DefaultMergeBlockRepository({
+      listMergeBlocks,
+    } as unknown as IMergeBlockServiceClient);
+
+    const blocks = await repository.listByProject('p-1');
+
+    expect(blocks[0].pipelineSource).toBe('editor');
+    expect(blocks[1]).not.toHaveProperty('pipelineSource');
   });
 
   it('sends no pipeline for the rule of the project', async () => {

@@ -49,8 +49,9 @@ export interface UpdateRepositoryLinkInput {
 }
 
 /**
- * To the files, the editor pipelines become archived and the files of the default branch become
- * pipelines. To the editor, the archived pipelines come back and the file pipelines are hidden.
+ * To the files, the files of the default branch become pipelines, and the editor pipelines stay.
+ * To the editor, the pipelines that an older server archived come back and the file pipelines are
+ * hidden.
  */
 export interface SetPipelineSourceInput {
   projectId: string;

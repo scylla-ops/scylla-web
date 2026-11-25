@@ -36,6 +36,8 @@
     onNameChange: (name: string) => void;
     /** The text of the name field at each key, before it is applied. */
     onNameDraft?: (name: string) => void;
+    /** Why a name cannot be saved: a pipeline file has its key. `null`: the key is free. */
+    keyIssueOf?: (name: string) => string | null;
     /** A saved pipeline: the header shows Export, which writes it as a file of the repository. */
     onExport?: () => void;
     /** Why the saved pipeline cannot be exported: Export shows it and opens nothing. */
@@ -62,6 +64,7 @@
     pipelineName,
     onNameChange,
     onNameDraft,
+    keyIssueOf,
     onExport,
     exportIssue,
     pipelineId,
@@ -116,6 +119,7 @@
           name={pipelineName}
           {onNameChange}
           onDraftChange={onNameDraft}
+          {keyIssueOf}
           loading={missing === 'loading'}
           disabled={blueprintDisabled || missing === 'failed'}
         />

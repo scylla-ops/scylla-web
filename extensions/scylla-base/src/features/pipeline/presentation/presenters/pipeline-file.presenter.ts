@@ -102,7 +102,7 @@ export const errorText = ({ field, message }: Pick<FileError, 'field' | 'message
   field ? `${field}: ${message}` : message;
 
 export interface OriginNote {
-  tone: 'error' | 'muted';
+  tone: 'error' | 'warning' | 'muted';
   text: string;
 }
 
@@ -132,8 +132,15 @@ export const originNote = (origin: PipelineOrigin, defaultBranch?: string): RowN
     }
     return null;
   }
-  return origin.archivedAt
-    ? { tone: 'muted', badge: t(fileMessages.archivedBadge), text: t(fileMessages.archived) }
+  if (origin.archivedAt) {
+    return { tone: 'muted', badge: t(fileMessages.archivedBadge), text: t(fileMessages.archived) };
+  }
+  return origin.keyTakenAt
+    ? {
+        tone: 'warning',
+        badge: t(fileMessages.keyTakenBadge),
+        text: t(fileMessages.keyTaken(origin.key ?? '')),
+      }
     : null;
 };
 

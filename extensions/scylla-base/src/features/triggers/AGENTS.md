@@ -9,7 +9,8 @@ events of the linked repository.
 
 - May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts` (it reads
   `repositoryLinkQueries` and the `RepositoryLink` type of `integrations`, and
-  `pipelineQueries.byId` of `pipeline` for the origin of the pipeline).
+  `pipelineQueries.byId` of `pipeline` for the origin of the pipeline, and the Git events of
+  `pipeline`: `createGitEvents`, `GitEventsDialog`, `GitEventsNote`).
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
@@ -202,6 +203,12 @@ holding it that they are not split.
   and a webhook only on a file pipeline or with no linked repository; a schedule opens an inline
   form, each other kind the full editor. A Git row of an editor pipeline shows no opt-in state
   of the admin yet.
+- **A Scylla pipeline of a project of files needs the opt-in of an admin for its Git kinds.** The
+  state, the dialog and the note are in `pipeline` (`createGitEvents`), so each page that shows
+  the Git triggers reads the same state. The type picker turns the Git kinds off with the reason
+  (`gitOff: 'notAllowed'`) and, for an admin, "Allow Git events", which opens the dialog once the
+  menu is closed. The list shows `GitEventsNote` above the triggers when a Git trigger waits, or
+  while the opt-in is on (an admin revokes it there).
 - **The notes about the forks and one run per commit are fixed rules, not options.** They show in
   the Git form and under a list with a Git trigger.
 - **New strings go in `messages/triggers.messages.ts`, never inside a `.svelte`.** Extraction does not

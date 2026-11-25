@@ -23,7 +23,9 @@ The domain models trigger sources as a discriminated union on `kind`:
   need a linked repository, so the type picker turns them off when the project has none and
   offers to link one. GitLab calls a pull request a merge request, and the labels follow the
   provider of the link. A pipeline file can also declare these triggers in its `on` table: they
-  show in the list, read only, and only the file changes them.
+  show in the list, read only, and only the file changes them. In a project of files, a Scylla
+  pipeline keeps these triggers, but they start runs only after a workspace admin allows them:
+  nobody reviews such a pipeline in a pull request.
 - **Unknown** — the forward-compatibility branch.
 
 That third case is worth explaining. When the backend adds a trigger type this frontend has

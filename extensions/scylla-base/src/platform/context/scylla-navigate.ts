@@ -31,8 +31,12 @@ const goToCreatePipeline = () => {
   navigateTo(`${getWorkspacePrefix()}/projects/${contextStore.getState().project.id}/create`);
 };
 
-const goToEditPipeline = (id: string, name: string) => {
-  navigateTo(`${getWorkspacePrefix()}/projects/${contextStore.getState().project.id}/edit/${id}`);
+/** `exportFile`: the editor opens with the export of the pipeline as a file (`?export=file`). */
+const goToEditPipeline = (id: string, name: string, options: { exportFile?: boolean } = {}) => {
+  const query = options.exportFile ? '?export=file' : '';
+  navigateTo(
+    `${getWorkspacePrefix()}/projects/${contextStore.getState().project.id}/edit/${id}${query}`,
+  );
   contextStore.getState().setPipeline(id, name);
 };
 

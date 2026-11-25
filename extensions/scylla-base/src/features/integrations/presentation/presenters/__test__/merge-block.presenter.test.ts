@@ -112,6 +112,33 @@ describe('mergeRuleView', () => {
     });
   });
 
+  it('keeps the rule of a Scylla pipeline off in a project of files, and says to export it', () => {
+    const files = { ...github, pipelineSource: 'file' } as RepositoryLink;
+
+    const view = mergeRuleView(block({ pipelineSource: 'editor' }), files);
+
+    expect(view).toMatchObject({
+      fileOnly: true,
+      checked: false,
+      badge: { text: 'Scylla pipeline', tone: 'muted' },
+      link: null,
+    });
+    expect(view.detail).toBe(
+      'Only a file pipeline can block the merge: a pull request reviews its file. Export this pipeline to a file of the repository first.',
+    );
+  });
+
+  it('lets a rule of a Scylla pipeline that is on turn off, and lets the file pipelines be', () => {
+    const files = { ...github, pipelineSource: 'file' } as RepositoryLink;
+
+    expect(
+      mergeRuleView(block({ pipelineSource: 'editor', enabled: true, state: 'on' }), files)
+        .fileOnly,
+    ).toBe(false);
+    expect(mergeRuleView(block({ pipelineSource: 'file' }), files).fileOnly).toBe(false);
+    expect(mergeRuleView(block({ pipelineSource: 'editor' }), github).fileOnly).toBe(false);
+  });
+
   it('says what a GitLab rule that is off does', () => {
     const view = mergeRuleView(block({ pipelineId: undefined, context: '' }), gitlab);
 

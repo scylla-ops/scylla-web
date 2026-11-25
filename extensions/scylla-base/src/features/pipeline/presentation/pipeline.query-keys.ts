@@ -20,6 +20,10 @@ export const PROJECT_PIPELINES_QUERY_ROOT = (projectId: string) =>
 
 export const PIPELINES_QUERY_ROOT = ['pipelines'] as const;
 
+/** Under the pipelines of the project: a write of a pipeline refreshes the keys too. */
+export const PIPELINE_FILE_KEYS_QUERY_KEY = (projectId: string) =>
+  ['pipelines', projectId, 'file-keys'] as const;
+
 export const PIPELINE_QUERY_KEY = (pipelineId: string) => ['pipeline', pipelineId] as const;
 
 /** Under the key of the pipeline: a save refreshes the files too. */

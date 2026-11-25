@@ -27,6 +27,18 @@ export {
   type PipelineStartContext,
   type PipelineStartPanelContext,
 } from './presentation/pipeline.points.ts';
+// The Git events of a Scylla pipeline in a project of files: the opt-in of an admin, its dialog,
+// and the note of the triggers. One state for each page that shows the Git triggers.
+export {
+  gitEventsState,
+  type GitEventsState,
+} from './presentation/presenters/git-events.presenter.ts';
+export {
+  createGitEvents,
+  type GitEvents,
+} from './presentation/ui/GitEvents/git-events.state.svelte.ts';
+export { default as GitEventsDialog } from './presentation/ui/GitEvents/GitEventsDialog.svelte';
+export { default as GitEventsNote } from './presentation/ui/GitEvents/GitEventsNote.svelte';
 export { createRunPipeline } from './presentation/ui/run-pipeline.state.svelte.ts';
 export { asPipelineFeed } from './presentation/presenters/pipeline-feed.presenter.ts';
 

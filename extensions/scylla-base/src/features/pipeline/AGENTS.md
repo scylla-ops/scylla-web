@@ -26,6 +26,9 @@ fragmentQueries, fragmentMutations, versionFromContent, pendingUpstream, ...  //
 loadFragmentNodes, loadFragmentParameters  // loaders: the graph brings the editor and Svelte Flow
 pipelinePoints, type PipelineStartContext, type PipelineStartPanelContext
                                // the zones of the start node: its badge and the body of its panel
+gitEventsState, createGitEvents, type GitEvents, GitEventsDialog, GitEventsNote
+                               // the opt-in of an admin for the Git events of a Scylla pipeline
+                               // in a project of files: every page that shows the Git triggers
 ```
 
 Never add: `pipeline.module.ts`, pages — the module registry imports `.module.ts` by path,
@@ -50,6 +53,8 @@ not through the barrel.
 | `run(id, ref?)` | `PipelineRun`. A `CommitRef` (branch, tag or SHA) of the linked repository; none: an editor pipeline runs with no commit, a file pipeline at the head of the default branch |
 | `getFile(id, ref?)` | `PipelineFile`: the file of a file pipeline at the ref (none: the default branch), its nodes, its rules of `on`, its checkout, the labels of its key `agent` and its errors |
 | `exportFile(id, format)` | `PipelineFileExport`: the saved version as a file of the repository, and its path |
+| `listFileKeys(projectId)` | `PipelineFileKey[]`: the key and the path of each pipeline file of the default branch (`ListPipelineFiles`, in the cell of `pipelines.view`) |
+| `setGitEvents(id, allowed)` | `PipelineOrigin`: the new origin of an editor pipeline, with `gitEventsAllowedAt` (`SetPipelineGitEvents`, a workspace admin) |
 
 `NodeTemplateRepository` — `domain/repository/node-template.repository.ts`:
 
@@ -138,6 +143,9 @@ domain/
   structs/pipeline-file.struct.ts            PipelineFile, FileError, FileRules, CheckoutSettings,
                                              blockingErrors (a warning keeps a file valid)
   structs/commit-ref.struct.ts               CommitRef (branch, tag, SHA), commitShaIssue (7 to 40 hex)
+  structs/pipeline-key.struct.ts             PipelineFileKey, pipelineKey (the key rule of the server),
+                                             fileWithKeyOf (the file that has the key of a name),
+                                             fileKeyOf (the key of a path)
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/node-template.repository.ts
@@ -157,8 +165,8 @@ presentation/
   fragment.queries.ts                        the library: fragmentQueries, fragmentMutations,
                                              (the links go with pipelineMutations.update)
   pipeline.query-keys.ts                     Query key factories (exported publicly)
-  messages/                                  pipeline, blueprint, scripting, node, export, file, run
-                                             (.messages.ts)
+  messages/                                  pipeline, blueprint, scripting, node, export, file, run,
+                                             git-events (.messages.ts)
   presenters/                                domain data → what a view shows (plain TS, tested)
     node-summary.presenter.ts                summarize (what a node shows), nodePreview, envCounts
     node-kind.presenter.ts                   icon and colours of each kind of node
@@ -169,7 +177,9 @@ presentation/
     blueprint-layout.presenter.ts            the position of each node: one column per stage (the
                                              targets of a switch in the order of its ports), positionAfter
     blueprint-geometry.presenter.ts          the sizes, anchors and footprints of the nodes, linkDropPoint
-    pipeline-issue.presenter.ts              the text of what stops a save (pipelineIssueText)
+    pipeline-issue.presenter.ts              the text of what stops a save (pipelineIssueText,
+                                             pipelineKeyTakenText)
+    git-events.presenter.ts                  gitEventsState: does the pipeline need the opt-in, and has it
     pipeline-feed.presenter.ts               asPipelineFeed
     pipeline-file.presenter.ts               a file pipeline: the rows of `on` and of the checkout,
                                              the place of an error, the note of a row of the list
@@ -190,6 +200,9 @@ presentation/
     commit-ref.mapper.ts                     a CommitRef ↔ the value of a row of a picker
   ui/                                        Svelte only
     run-pipeline.state.svelte.ts             the Run action, shared by the dashboard and the jobs page
+    GitEvents/                               the opt-in of the Git events: git-events.state.svelte.ts
+                                             (createGitEvents), GitEventsDialog (the warning, or the
+                                             confirm of a revoke), GitEventsNote (the state, Allow or Revoke)
     RunPipelineDialog/                       the commit to run, for a project with a linked repository
                                              (run-request.state: dialog or direct run; run-target.state:
                                              the picked ref or the typed SHA)
@@ -210,6 +223,8 @@ presentation/
     editor/
       PipelineCreation.page.svelte, PipelineEditor.svelte
       PipelineUpdate/                        the edit page (and its test)
+      pipeline-key-check.state.svelte.ts     createPipelineKeyCheck: the file that has the key of a name,
+                                             in a project of files
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
                                              check, the issue that stops the save; MissingDocument
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
@@ -676,9 +691,33 @@ the page.
   ones of `on` read only, and the schedules and webhooks of Scylla.
 - **The list says the state of a file** under the name of a row (`originNote`): the number of
   errors on the default branch, a file that left the default branch, an archived editor
-  pipeline. The default branch comes from the link of the project (`repositoryLinkQueries` of
+  pipeline, an editor pipeline whose key a file took (`keyTakenAt`: it runs, and sends no check).
+  The default branch comes from the link of the project (`repositoryLinkQueries` of
   `integrations`, which checks `READ_REPOSITORY_LINK`); without it, the text says "the default
   branch".
+- **A project of files keeps its Scylla pipelines** next to the file pipelines, in one list. Each
+  row has a source badge (`PipelineStatus`, "From file" or "Scylla"; the icon only on a phone)
+  when the project takes its pipelines from the files, and a file row has it in each project.
+  An editor pipeline that an older server archived comes back when the source of the project goes
+  to the editor, then to the files again: the archived note says it.
+- **A file and a Scylla pipeline never share a key** (`scylla/<key>`, the name of their check).
+  The server refuses a new name whose key a file has (`PIPELINE_KEY_TAKEN`); a file that comes
+  later takes the key (`keyTakenAt`). The editor checks it first in a project of files:
+  `createPipelineKeyCheck` reads `pipelineQueries.fileKeys` (only then), and the name field shows
+  the file in its popover. Such a name is applied, and Create or Save stays off while it stays. A
+  rename keeps its own key (`savedName`). `pipelineKey` copies the rule of the server; the server
+  stays the judge of the letters out of ASCII.
+- **The export opens from a link**: `?export=file` on the edit page (`goToEditPipeline(id, name,
+  { exportFile: true })`, the "Export to file" button of a merge rule). Closing it removes the
+  parameter. The dialog says which key the file takes and that its check moves to the file
+  pipeline.
+- **The Git events of a Scylla pipeline in a project of files wait for an admin.** Its push, pull
+  request and tag triggers start runs only after `SetPipelineGitEvents` (`SET_PIPELINE_GIT_EVENTS`,
+  a workspace admin; the area `git_events` of the roles). `createGitEvents` reads the link and
+  the pipeline from their cache entries, and asks before each change (`GitEventsDialog`: the
+  warning that nobody reviews the pipeline in a pull request, or the confirm of a revoke).
+  `gitEventsMutations.set` writes the new origin into the cached pipeline. The triggers pages
+  read them through the barrel; a member sees the reason and no action.
 - **Run asks for a commit only with a linked repository** (`createRunRequest`). Without a link, or
   while the link loads, Run runs at once, as before. The dialog offers the branches and the tags
   (`ListRefs`, the default branch first and chosen) and a row to type a SHA (7 to 40 hex). The

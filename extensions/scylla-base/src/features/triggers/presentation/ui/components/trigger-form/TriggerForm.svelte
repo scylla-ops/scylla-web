@@ -34,6 +34,7 @@
   import TriggerInputsEditor from './TriggerInputsEditor/TriggerInputsEditor.svelte';
   import TriggerKindSelect from './TriggerKindSelect/TriggerKindSelect.svelte';
   import { triggersMessages } from '@base/features/triggers/presentation/messages/triggers.messages.ts';
+  import type { GitEvents } from '@base/features/pipeline';
 
   interface Props {
     pipelineId: string;
@@ -44,6 +45,8 @@
     isFilePipeline?: boolean;
     /** The kind of a new trigger. None: a schedule. */
     initialKind?: TriggerDraftKind;
+    /** An editor pipeline of a project of files: the Git kinds wait for the opt-in of an admin. */
+    gitEvents?: GitEvents;
     onCancel: () => void;
     onSaved: (created?: CreatedTrigger) => void;
     onLinkRepository: () => void;
@@ -55,6 +58,7 @@
     link,
     isFilePipeline = false,
     initialKind = 'cron',
+    gitEvents,
     onCancel,
     onSaved,
     onLinkRepository,
@@ -66,6 +70,16 @@
   // svelte-ignore state_referenced_locally
   const isEdit = !!trigger;
   const isPending = $derived(createTrigger.isPending || updateTrigger.isPending);
+
+  const gitOff = $derived(
+    isFilePipeline
+      ? 'fromFile'
+      : link === null
+        ? 'noLink'
+        : gitEvents && !gitEvents.allowed
+          ? 'notAllowed'
+          : undefined,
+  );
 
   // Seeded once: the page mounts the form again for another trigger.
   const DEFAULT_CRON = '0 9 * * *';
@@ -175,11 +189,12 @@
           {:else}
             <TriggerKindSelect
               value={kind}
-              gitOff={isFilePipeline ? 'fromFile' : link === null ? 'noLink' : undefined}
+              {gitOff}
               provider={link?.provider}
               disabled={isPending}
               onChange={next => (kind = next)}
               {onLinkRepository}
+              onAllowGitEvents={gitEvents?.canManage ? () => gitEvents.ask('allow') : undefined}
             />
           {/if}
         </TriggerFormSection>
