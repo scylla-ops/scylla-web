@@ -126,6 +126,7 @@ export class DefaultPipelineRepository implements PipelineRepository {
       nodes: pipeline.nodes.map(grpcPipeline.nodeFromDomain),
       fragmentLinks: [],
       ...(layout && { layout: grpcPipeline.layoutFromDomain(layout) }),
+      ...(pipeline.agentLabels?.length && { agent: { labels: [...pipeline.agentLabels] } }),
     }).response;
     this.keep(response.pipeline);
   }

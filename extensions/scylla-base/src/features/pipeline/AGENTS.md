@@ -41,7 +41,7 @@ not through the barrel.
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
 | `getWithLayout(id)` | `PipelineWithLayout`: the entity, the places of its nodes and its `origin` |
 | `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
-| `create(pipeline, layout?)` | `void` |
+| `create(pipeline, layout?)` | `void`. The agent labels of the pipeline go with it (`agent`) |
 | `edit(id, nodes, name?, layout?)` | `PipelineEntity` |
 | `setAgentLabels(id, labels)` | `PipelineEntity`: the agent labels only, with a new version. The nodes stay |
 | `deleteById(id)` | `void` |
@@ -640,6 +640,10 @@ the page.
   document again. The repository keeps the new version, so the next save of the nodes is not a
   conflict. Only an agent with each label runs the jobs; a job keeps the labels of its creation.
   A file pipeline asks its labels with the key `agent` of its file: `FilePanel` shows them.
+  The create page has the same popover (`CREATE_PIPELINE`), with no Save labels: the page keeps
+  the labels, and Create sends them with the nodes (`SavePipelineInput.agentLabels`). Thus the
+  pipeline has its labels before its first job. The JSON document of the editor holds the name
+  and the nodes only; Export writes the labels in the key `agent` of the file.
 - **A file pipeline is read only, on a page of its own** (`pipelines/:pipelineId`, `READ_PIPELINE`:
   the route `get_file_pipeline` is in the catalog cell of `get_pipeline`). The list opens it
   with View (`goToFilePipeline`), and the edit page of a file pipeline redirects to it. For an

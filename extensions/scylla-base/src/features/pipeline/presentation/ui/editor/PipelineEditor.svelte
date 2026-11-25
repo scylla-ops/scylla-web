@@ -55,8 +55,10 @@
     pipelineId?: string;
     /** Why the saved pipeline cannot be exported. */
     exportIssue?: string;
-    /** The saved agent labels of a saved pipeline. */
+    /** The saved agent labels of a saved pipeline, or the labels of a new pipeline. */
     agentLabels?: readonly string[];
+    /** A new pipeline: the labels change in the page, and Create sends them. */
+    onAgentLabelsChange?: (labels: string[]) => void;
     isSubmitPending?: boolean;
     /** The last save failed: the header shows it until the next edit or save. */
     submitError?: Error | null;
@@ -79,6 +81,7 @@
     pipelineId,
     exportIssue,
     agentLabels,
+    onAgentLabelsChange,
     isSubmitPending = false,
     submitError,
     missing,
@@ -164,6 +167,7 @@
       {exportIssue}
       {pipelineId}
       {agentLabels}
+      {onAgentLabelsChange}
     />
   </div>
 

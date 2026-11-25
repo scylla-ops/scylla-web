@@ -18,6 +18,9 @@
 
   const createPipeline = createMutation(() => pipelineMutations.create());
 
+  /** Sent with the creation: the first job of the pipeline already asks them. */
+  let agentLabels = $state<string[]>([]);
+
   const initialScript = $derived(projectId ? toDocument(newPipeline(projectId)) : undefined);
 </script>
 
@@ -30,8 +33,10 @@
       submitLabel={t(pipelineMessages.create)}
       {projectId}
       {initialScript}
+      {agentLabels}
+      onAgentLabelsChange={labels => (agentLabels = labels)}
       onSubmit={(values, done) =>
-        createPipeline.mutate({ projectId, ...values }, { onSuccess: done })}
+        createPipeline.mutate({ projectId, ...values, agentLabels }, { onSuccess: done })}
       onSaved={returnToProject}
       isSubmitPending={createPipeline.isPending}
       submitError={createPipeline.error}

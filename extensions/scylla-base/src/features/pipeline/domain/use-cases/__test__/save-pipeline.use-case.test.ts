@@ -49,6 +49,22 @@ describe('SavePipelineUseCase', () => {
     expect(issue).toBeNull();
   });
 
+  it('creates a pipeline with its agent labels, so its first job asks them', async () => {
+    const { create, repository } = repositoryWith();
+
+    await new SavePipelineUseCase(repository).execute({
+      projectId: 'proj',
+      name: 'nightly',
+      nodes: [node('build')],
+      agentLabels: ['deploy', 'linux'],
+    });
+
+    expect(create).toHaveBeenCalledWith(
+      { projectId: 'proj', name: 'nightly', nodes: [node('build')], agentLabels: ['deploy', 'linux'] },
+      undefined,
+    );
+  });
+
   it('edits a pipeline that has an id', async () => {
     const { create, edit, repository } = repositoryWith();
 

@@ -161,6 +161,25 @@ describe('DefaultPipelineRepository', () => {
     );
   });
 
+  it('sends the agent labels with the create, and no agent settings with no label', async () => {
+    const client = {
+      createPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),
+    } as unknown as IPipelineServiceClient;
+    const repository = new DefaultPipelineRepository(client);
+
+    await repository.create({
+      projectId: 'project-1',
+      name: 'p',
+      nodes: [],
+      agentLabels: ['deploy', 'linux'],
+    });
+    await repository.create({ projectId: 'project-1', name: 'p', nodes: [], agentLabels: [] });
+
+    const [labelled, plain] = vi.mocked(client.createPipeline).mock.calls.map(call => call[0]);
+    expect(labelled).toEqual(expect.objectContaining({ agent: { labels: ['deploy', 'linux'] } }));
+    expect(plain).not.toHaveProperty('agent');
+  });
+
   it('sends the needs with their ports and the places in the same update', async () => {
     const client = {
       getPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),

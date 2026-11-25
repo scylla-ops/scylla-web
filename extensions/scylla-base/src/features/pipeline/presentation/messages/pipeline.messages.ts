@@ -61,6 +61,7 @@ export const pipelineMessages = {
     msg`${plural(count, { one: '# agent label', other: '# agent labels' })}`,
   saveLabels: msg`Save labels`,
   agentLabelsSaved: msg`Agent labels saved`,
+  agentLabelsWithCreate: msg`Create saves these labels with the pipeline.`,
 
   deleteEdge: msg`Delete edge`,
   unnamedPipeline: msg`Unnamed`,

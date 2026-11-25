@@ -42,8 +42,10 @@
     exportIssue?: string;
     /** A saved pipeline: the header shows its agent labels, which save at once. */
     pipelineId?: string;
-    /** The saved agent labels of the pipeline. */
+    /** The saved agent labels of the pipeline, or the labels of a new pipeline. */
     agentLabels?: readonly string[];
+    /** A new pipeline: the header shows its agent labels, which Create sends. */
+    onAgentLabelsChange?: (labels: string[]) => void;
   }
 
   let {
@@ -64,6 +66,7 @@
     exportIssue,
     pipelineId,
     agentLabels,
+    onAgentLabelsChange,
   }: Props = $props();
 
   type SaveStatus = 'draft' | 'saving' | 'error' | 'dirty' | 'saved';
@@ -163,8 +166,13 @@
       </span>
     {/if}
 
-    {#if pipelineId && agentLabels}
-      <PipelineLabelsButton {pipelineId} labels={agentLabels} disabled={!!missing} />
+    {#if agentLabels && (pipelineId || onAgentLabelsChange)}
+      <PipelineLabelsButton
+        {pipelineId}
+        labels={agentLabels}
+        onChange={onAgentLabelsChange}
+        disabled={!!missing}
+      />
     {/if}
 
     {#if onExport}

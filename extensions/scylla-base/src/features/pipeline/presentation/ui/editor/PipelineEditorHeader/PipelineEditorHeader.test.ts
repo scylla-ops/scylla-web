@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { render } from '@test/render.ts';
@@ -36,6 +36,35 @@ describe('PipelineEditorHeader', () => {
     renderHeader({ mode: 'create', submitLabel: 'Create' });
 
     expect(screen.getByText('Draft: not created yet')).toBeInTheDocument();
+  });
+
+  it('gives the agent labels of a new pipeline to the page, which sends them with Create', async () => {
+    const onAgentLabelsChange = vi.fn();
+    grantOnly(Permission.CREATE_PIPELINE);
+    renderHeader({ mode: 'create', submitLabel: 'Create', agentLabels: [], onAgentLabelsChange });
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: 'Agent labels' }));
+    // jsdom leaves the floating layer `visibility: hidden`, and a hidden field has no name.
+    const field = await screen.findByPlaceholderText('deploy');
+    await waitFor(() => expect(field).toHaveFocus());
+    await user.type(field, 'linux{Enter}');
+
+    expect(onAgentLabelsChange).toHaveBeenCalledExactlyOnceWith(['linux']);
+    expect(screen.getByText('Create saves these labels with the pipeline.')).toBeInTheDocument();
+    expect(screen.queryByText('Save labels')).not.toBeInTheDocument();
+  });
+
+  it('shows the count of the agent labels of a new pipeline on its button', () => {
+    grantOnly(Permission.CREATE_PIPELINE);
+    renderHeader({
+      mode: 'create',
+      submitLabel: 'Create',
+      agentLabels: ['deploy', 'linux'],
+      onAgentLabelsChange: vi.fn(),
+    });
+
+    expect(screen.getByRole('button', { name: 'Agent labels 2' })).toBeInTheDocument();
   });
 
   it('says why the pipeline cannot be saved, and disables Save', () => {

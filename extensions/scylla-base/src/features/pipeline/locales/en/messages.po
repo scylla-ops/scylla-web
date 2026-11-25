@@ -582,6 +582,10 @@ msgstr "Create"
 msgid "create add workflow"
 msgstr "create add workflow"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:64
+msgid "Create saves these labels with the pipeline."
+msgstr "Create saves these labels with the pipeline."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:6
 msgid "Create your first pipeline to get started"
 msgstr "Create your first pipeline to get started"

@@ -49,6 +49,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the fragment has no description.
 - The reason of a pending job that waits for agent labels starts with a capital letter and says
   "label" for one label.
+- The page that creates a pipeline has the "Agent labels" button of the editor. Create saves the
+  labels with the pipeline, so its first job goes only to an agent with each label. In English and
+  French.
 
 ## [0.7.1] - 2026-11-24
 
