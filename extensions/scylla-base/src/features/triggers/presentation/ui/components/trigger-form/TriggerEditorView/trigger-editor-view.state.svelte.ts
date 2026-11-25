@@ -1,4 +1,5 @@
 import { createQuery } from '@scylla/core-sdk';
+import { createSearchParams } from '@platform/context';
 import { repositoryLinkQueries, type RepositoryLink } from '@base/features/integrations';
 import { triggerQueries } from '@base/features/triggers/presentation/triggers.queries.ts';
 import * as triggersNavigation from '@base/features/triggers/presentation/mappers/triggers-navigation.mapper.ts';
@@ -7,7 +8,8 @@ import { createPipelineOrigin } from '../../../pipeline-origin.state.svelte.ts';
 /**
  * The page that creates a trigger of a pipeline, or edits one of them (`triggerId`). The trigger
  * comes from the list the triggers page reads: the same query, the same cache entry. The link of
- * the project tells if the Git kinds are possible, and on which provider.
+ * the project tells if the Git kinds are possible, and on which provider. `?kind=webhook` picks the
+ * kind of a new trigger in advance.
  */
 export const createTriggerEditorView = (
   projectId: () => string,
@@ -23,6 +25,7 @@ export const createTriggerEditorView = (
 
   const linkQuery = createQuery(() => repositoryLinkQueries.byProject(projectId()));
   const origin = createPipelineOrigin(pipelineId);
+  const search = createSearchParams(['kind']);
 
   const trigger = $derived.by(() => {
     const id = triggerId();
@@ -55,6 +58,10 @@ export const createTriggerEditorView = (
     },
     get isFilePipeline() {
       return origin.isFile;
+    },
+    /** The kind of a new trigger, from the URL. None: the form picks a schedule. */
+    get initialKind() {
+      return triggersNavigation.kindFromSearch(search.values.kind);
     },
     leave: () => triggersNavigation.toList(pipelineId()),
     toRepository: () => triggersNavigation.toRepository(projectId()),

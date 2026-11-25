@@ -246,7 +246,8 @@ One sidebar entry, Library. Pipelines *are* the project, reached by entering one
 ## Related modules
 
 - [jobs](../jobs/README.md) — what a run produces.
-- [triggers](../triggers/README.md) — what starts a run without a human.
+- [triggers](../triggers/README.md) — what starts a run without a human. It fills the zones of
+  the start node (`pipelinePoints`): a count, and the panel of the triggers.
 - [secret](../secret/README.md) — values injected into a run.
 - [project](../project/README.md) — the owning scope.
 - [marketplace](../marketplace/README.md) — templates to start from.

@@ -61,6 +61,8 @@ export interface BlueprintParams {
    * it. A click still opens a node or the start node, and a move still saves its place.
    */
   locked?: () => boolean;
+  /** The pipeline is saved: a click on its start node opens the panel of what starts it. */
+  startPanel?: () => boolean;
 }
 
 /** How a new node joins the graph: after a node (by default the start node) or one of its ports, or inside an edge. */
@@ -318,7 +320,7 @@ export const createBlueprint = (params: BlueprintParams) => {
     get inspectedBlock() {
       return inspectedBlock;
     },
-    /** A locked graph only: a click on the start node opens the settings of the pipeline. */
+    /** A click on the start node opened its panel: in a locked graph, or for a saved pipeline. */
     get inspectedStart() {
       return inspectedId === START_NODE_ID;
     },
@@ -555,11 +557,14 @@ export const createBlueprint = (params: BlueprintParams) => {
 
     /**
      * Opens the side panel on a node, selected on the canvas; `null` closes it. The start node
-     * is the pipeline: its name is edited in the header, so it closes the panel too. A locked
-     * graph opens each node, the start node too, to show it: nothing in it edits a node.
+     * is the pipeline: its name is edited in the header, and its panel shows what starts it,
+     * which only a saved pipeline has (`startPanel`). A locked graph opens each node, the start
+     * node too, to show it: nothing in it edits a node.
      */
     inspect(id: string | null) {
-      const next = locked ? id : id === START_NODE_ID || readOnly ? null : id;
+      const opensStart = locked || (params.startPanel?.() ?? false);
+      const next =
+        id === START_NODE_ID ? (opensStart ? id : null) : locked || !readOnly ? id : null;
       inspectedId = next;
       flowNodes = flowNodes.map(flowNode =>
         Boolean(flowNode.selected) === (flowNode.id === next)

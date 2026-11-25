@@ -20,6 +20,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   dashboard has no button. In English and French.
 - The command bar has a short tour and shows examples to try when it is empty. Start the tour again
   from Help & tours.
+- A click on the start node of a saved pipeline or a file pipeline opens its triggers in the side
+  panel. The panel shows the triggers of the file as read only, and the schedules and webhooks of
+  Scylla with a switch, an edit and a delete. Each trigger shows its last run and its next run. You
+  can add a schedule in the panel. The start node shows the number of triggers. In English and
+  French.
 
 ### Changed
 

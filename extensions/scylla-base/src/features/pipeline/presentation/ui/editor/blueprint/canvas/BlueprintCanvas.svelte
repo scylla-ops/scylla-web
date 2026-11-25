@@ -52,6 +52,8 @@
     onReady?: () => void;
     fragmentOf: (fragmentId: string) => FragmentEntity | undefined;
     onAddFragment: (fragment: FragmentEntity, placement: NodePlacement) => void;
+    /** The saved pipeline. None for a new pipeline. */
+    pipelineId?: string;
   }
 
   let {
@@ -64,6 +66,7 @@
     onReady,
     fragmentOf,
     onAddFragment,
+    pipelineId,
   }: Props = $props();
 
   const nodeTypes: NodeTypes = {
@@ -99,6 +102,7 @@
     iconHintOf: definition => templateFor(entries, definition)?.icon,
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
     fragmentOf: fragmentId => fragmentOf(fragmentId),
+    pipelineId: () => pipelineId,
   });
 
   /** Dropped on an edge, the entry goes inside it; anywhere else, it waits for the start node. */

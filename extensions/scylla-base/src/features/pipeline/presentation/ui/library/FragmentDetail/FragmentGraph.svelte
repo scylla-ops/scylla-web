@@ -52,6 +52,7 @@
     iconHintOf: () => undefined,
     insertOnEdge: () => {},
     fragmentOf: () => undefined,
+    pipelineId: () => undefined,
   });
 
   // A fragment has no start node: its first nodes have no edge in.

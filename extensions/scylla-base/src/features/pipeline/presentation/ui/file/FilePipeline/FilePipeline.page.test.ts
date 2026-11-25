@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { fireEvent, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
@@ -182,6 +182,27 @@ describe('FilePipelinePage', () => {
 
     expect(await screen.findByRole('heading', { name: 'Pipeline file' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'View file on GitHub' })).toBeInTheDocument();
+  });
+
+  it('opens the triggers of the pipeline from its start node, and goes back to the file', async () => {
+    setUp(() => Promise.resolve(file()));
+    await screen.findByRole('heading', { name: 'Pipeline file' });
+
+    // The canvas gives no role to its nodes, and its drag of a click needs a real window: Enter
+    // on the start node opens it as a click does.
+    const start = document.querySelector<HTMLElement>('.svelte-flow__node[data-id="__start__"]');
+    await fireEvent.keyDown(start!, { key: 'Enter' });
+
+    expect(await screen.findByRole('heading', { name: 'Triggers' })).toBeInTheDocument();
+    // The triggers module fills the panel: with no part of it, the panel says who sees them.
+    expect(
+      screen.getByText('Only the members who can manage the triggers see them here.'),
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Pipeline file' })).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Close the panel' }));
+
+    expect(await screen.findByRole('heading', { name: 'Pipeline file' })).toBeInTheDocument();
   });
 
   it('saves the places of an arrange, and leaves the file and the pipeline as they are', async () => {

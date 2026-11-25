@@ -8,7 +8,7 @@
   import { START_HANDLE_CLASS } from '@base/features/pipeline/presentation/presenters/node-summary.presenter.ts';
   import type { StartNodeViewProps } from './node-appearances.registry.ts';
 
-  let { name, selected }: StartNodeViewProps = $props();
+  let { name, selected, badge }: StartNodeViewProps = $props();
 </script>
 
 <div
@@ -21,11 +21,12 @@
   <span class="flex size-7 shrink-0 items-center justify-center rounded-lg bg-primary">
     <PlayIcon class="size-3.5 fill-primary-foreground text-primary-foreground" />
   </span>
-  <div class="min-w-0">
+  <div class="min-w-0 flex-1">
     <p class="text-[10px] font-semibold tracking-wider text-muted-foreground uppercase">
       {t(pipelineMessages.pipeline)}
     </p>
     <p class="truncate text-[13px] font-semibold">{name}</p>
   </div>
+  {@render badge?.()}
   <Handle type="source" position={Position.Right} class={START_HANDLE_CLASS} />
 </div>

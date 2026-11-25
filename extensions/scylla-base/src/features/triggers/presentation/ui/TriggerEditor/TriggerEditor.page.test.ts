@@ -177,6 +177,23 @@ describe('TriggerEditorPage — create mode', () => {
     expect(screen.getByLabelText('Name')).toHaveValue('hook');
   });
 
+  it('starts on the kind that the link names, as the panel of the start node opens it', async () => {
+    navigator.restore();
+    navigator = installTestNavigator({ pathname: `${LIST_PATH}/new`, search: '?kind=webhook' });
+    render(TriggerEditorPage, props());
+
+    expect(await screen.findByRole('region', { name: 'Webhook' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Schedule' })).not.toBeInTheDocument();
+  });
+
+  it('starts on a schedule when the link names no known kind', async () => {
+    navigator.restore();
+    navigator = installTestNavigator({ pathname: `${LIST_PATH}/new`, search: '?kind=ftp' });
+    render(TriggerEditorPage, props());
+
+    expect(await screen.findByRole('region', { name: 'Schedule' })).toBeInTheDocument();
+  });
+
   it('swaps the schedule builder for the signature hint when the kind is webhook', async () => {
     render(TriggerEditorPage, props());
     await focusSettled();

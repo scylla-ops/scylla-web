@@ -68,10 +68,13 @@ responsible for turning an unrecognised proto kind into `Unknown` rather than th
 **Presentation** splits into the table (`triggers-table/`, with cells for source and status), the
 editor page (`triggers/new`, `triggers/:triggerId/edit`, composing the cron builder and the inputs
 editor in titled sections), and an overview
-card summarising what is scheduled.
+card summarising what is scheduled. The **panel of the start node** (`ui/pipeline-panel/`) shows
+the triggers of one pipeline in its blueprint, with their last and next run: a widget injection
+fills the zones that `pipeline` owns, because `pipeline` cannot import this module.
 
 ## Related modules
 
-- [pipeline](../pipeline/README.md) — what a trigger starts.
+- [pipeline](../pipeline/README.md) — what a trigger starts, and the start node that shows the
+  triggers (`pipelinePoints`).
 - [jobs](../jobs/README.md) — the runs it produces.
 - [shell](../../shell/README.md) — the shell, and `whats-new.ts` where a release is announced.

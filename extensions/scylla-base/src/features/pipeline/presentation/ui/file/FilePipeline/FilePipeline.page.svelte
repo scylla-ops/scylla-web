@@ -57,6 +57,7 @@
               nodes={view.nodes}
               pipelineName={view.name}
               {projectId}
+              {pipelineId}
               onNodesChange={() => {}}
               savedLayout={view.savedLayout}
               places={view.places}
@@ -68,7 +69,12 @@
                 <FileNotice {view} />
               {/snippet}
               {#snippet sidePanel(blueprint)}
-                <FilePanel {view} {blueprint} />
+                <FilePanel
+                  {view}
+                  {blueprint}
+                  pipelineId={pipelineId ?? ''}
+                  projectId={projectId ?? ''}
+                />
               {/snippet}
             </PipelineBlueprint>
           </div>

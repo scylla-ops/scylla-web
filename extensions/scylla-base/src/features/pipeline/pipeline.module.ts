@@ -13,6 +13,7 @@ import { DefaultNodeTemplateRepository } from './infrastructure/default-node-tem
 import { DefaultFragmentRepository } from './infrastructure/default-fragment.repository.ts';
 import { SavePipelineUseCase } from './domain/use-cases/save-pipeline.use-case.ts';
 import { pipelineCommands } from './presentation/pipeline.commands.ts';
+import { pipelinePoints } from './presentation/pipeline.points.ts';
 import {
   fragmentLinks,
   fragmentSearch,
@@ -43,6 +44,7 @@ export const PipelineModule = {
     savePipeline: new SavePipelineUseCase(pipelineRepository, fragmentRepository),
   },
   commands: pipelineCommands,
+  points: pipelinePoints,
   routes: {
     // The library of the workspace: the fragments that its pipelines share.
     workspace: [

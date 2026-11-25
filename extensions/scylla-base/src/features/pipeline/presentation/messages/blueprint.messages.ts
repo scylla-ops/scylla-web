@@ -46,6 +46,8 @@ export const blueprintMessages = {
   after: msg`After`,
   closePanel: msg`Close the panel`,
   close: msg`Close`,
+  triggers: msg`Triggers`,
+  triggersHidden: msg`Only the members who can manage the triggers see them here.`,
   appliedToDraft: msg`Applied to the draft`,
   detached: msg`No input link`,
   detachedHint: msg`This node has no input link. On save, it is linked to the start of the pipeline.`,

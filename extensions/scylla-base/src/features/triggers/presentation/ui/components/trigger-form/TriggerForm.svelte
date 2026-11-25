@@ -42,6 +42,8 @@
     link?: RepositoryLink | null;
     /** A file pipeline: the `on` table of its file gives its Git triggers. */
     isFilePipeline?: boolean;
+    /** The kind of a new trigger. None: a schedule. */
+    initialKind?: TriggerDraftKind;
     onCancel: () => void;
     onSaved: (created?: CreatedTrigger) => void;
     onLinkRepository: () => void;
@@ -52,6 +54,7 @@
     trigger,
     link,
     isFilePipeline = false,
+    initialKind = 'cron',
     onCancel,
     onSaved,
     onLinkRepository,
@@ -71,7 +74,7 @@
   let name = $state(trigger?.name ?? '');
   // svelte-ignore state_referenced_locally
   let kind = $state<TriggerDraftKind>(
-    !trigger || trigger.source.kind === 'unknown' ? 'cron' : trigger.source.kind,
+    !trigger ? initialKind : trigger.source.kind === 'unknown' ? 'cron' : trigger.source.kind,
   );
   // svelte-ignore state_referenced_locally
   let cronExpression = $state(

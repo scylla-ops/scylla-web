@@ -59,11 +59,11 @@ msgstr "{count, plural, one {# pipeline uses it: it keeps its nodes and still ru
 msgid "{count, plural, one {# run in total} other {# runs in total}}"
 msgstr "{count, plural, one {# run in total} other {# runs in total}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:53
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:55
 msgid "{count, plural, one {# secret} other {# secrets}}"
 msgstr "{count, plural, one {# secret} other {# secrets}}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:52
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:54
 msgid "{count, plural, one {# variable} other {# variables}}"
 msgstr "{count, plural, one {# variable} other {# variables}}"
 
@@ -351,7 +351,7 @@ msgstr "Any"
 msgid "Any Scylla organization will be able to add it. {workspace} stays the owner and the only one who can publish versions."
 msgstr "Any Scylla organization will be able to add it. {workspace} stays the owner and the only one who can publish versions."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:49
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:51
 msgid "Applied to the draft"
 msgstr "Applied to the draft"
 
@@ -573,7 +573,7 @@ msgstr "Copy the node"
 msgid "Couldn't load the pipeline"
 msgstr "Couldn't load the pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:75
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:79
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:43
 msgid "Create"
 msgstr "Create"
@@ -767,7 +767,7 @@ msgstr "each branch"
 msgid "each tag"
 msgstr "each tag"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:84
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:88
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:21
 msgid "Edit"
 msgstr "Edit"
@@ -912,7 +912,7 @@ msgstr "Forked from {reference}"
 msgid "Forks"
 msgstr "Forks"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:59
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:61
 msgid "Fragment"
 msgstr "Fragment"
 
@@ -1037,7 +1037,7 @@ msgstr "is not equal to"
 msgid "It is public: other workspaces link it. Deprecate its versions instead."
 msgstr "It is public: other workspaces link it. Deprecate its versions instead."
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:103
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:109
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -1089,8 +1089,8 @@ msgstr "Left value"
 msgid "LFS"
 msgstr "LFS"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:52
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:54
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:56
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:5
 msgid "Library"
 msgstr "Library"
@@ -1246,7 +1246,7 @@ msgstr "No fragment matches this search."
 msgid "No fragment of the marketplace yet. Browse the marketplace to add one, linked or as a fork."
 msgstr "No fragment of the marketplace yet. Browse the marketplace to add one, linked or as a fork."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:50
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:52
 msgid "No input link"
 msgstr "No input link"
 
@@ -1368,6 +1368,10 @@ msgstr "Only the admins of the workspace accept or skip an upstream version."
 msgid "Only the author ({author}) and the admins can publish a new version. Change the nodes in the graph above, or save nodes of a pipeline under the name of this fragment."
 msgstr "Only the author ({author}) and the admins can publish a new version. Change the nodes in the graph above, or save nodes of a pipeline under the name of this fragment."
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:50
+msgid "Only the members who can manage the triggers see them here."
+msgstr "Only the members who can manage the triggers see them here."
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:30
 msgid "Open a node from the list."
 msgstr "Open a node from the list."
@@ -1428,8 +1432,8 @@ msgstr "passed"
 msgid "pins {key}={value}"
 msgstr "pins {key}={value}"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:82
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:93
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:86
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:98
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:8
 msgid "Pipeline"
 msgstr "Pipeline"
@@ -1446,7 +1450,7 @@ msgstr "Pipeline file"
 msgid "Pipeline name"
 msgstr "Pipeline name"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:70
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:73
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:9
 msgid "Pipelines"
 msgstr "Pipelines"
@@ -2022,7 +2026,7 @@ msgstr "This fragment is not in the library."
 msgid "This node cannot run as it is."
 msgstr "This node cannot run as it is."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:51
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:53
 msgid "This node has no input link. On save, it is linked to the start of the pipeline."
 msgstr "This node has no input link. On save, it is linked to the start of the pipeline."
 
@@ -2054,6 +2058,7 @@ msgstr "Timeout (seconds)"
 msgid "Trigger"
 msgstr "Trigger"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:49
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:25
 msgid "Triggers"
 msgstr "Triggers"

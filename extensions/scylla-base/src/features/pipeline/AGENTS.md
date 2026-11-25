@@ -24,6 +24,8 @@ recentSuccessRate              // completed / (completed + failed) of the recent
 asPipelineFeed                 // a page of metadata → the list, and whether it is partial
 fragmentQueries, fragmentMutations, versionFromContent, pendingUpstream, ...  // the library
 loadFragmentNodes, loadFragmentParameters  // loaders: the graph brings the editor and Svelte Flow
+pipelinePoints, type PipelineStartContext, type PipelineStartPanelContext
+                               // the zones of the start node: its badge and the body of its panel
 ```
 
 Never add: `pipeline.module.ts`, pages — the module registry imports `.module.ts` by path,
@@ -101,6 +103,8 @@ Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline
 ```
 pipeline.module.ts                           the routes + DI wiring (private; registry only)
 index.ts                                     public API
+presentation/pipeline.points.ts              pipelinePoints: the zones of the start node (startBadge,
+                                             startPanel) that another module fills
 domain/
   entities/pipeline.entity.ts                PipelineEntity, PipelineIdentity, PipelineMetadata, the
                                              root of its nodes: newPipeline,
@@ -195,8 +199,8 @@ presentation/
     file/FilePipeline/                       the page of a file pipeline: the editor page, read only
                                              (file-pipeline.state.svelte.ts, the header with the
                                              branch picker, the notice, the locked panel, the text).
-                                             FilePanel: FileSettings (the file) or FileNodePanel
-                                             (one node, with FileNodeConditions)
+                                             FilePanel: FileSettings (the file), FileNodePanel
+                                             (one node, with FileNodeConditions) or StartPanel
     dashboard/
       DashboardPipeline/                     the page, its header, pipeline-dashboard.state.svelte.ts
       PipelineTable/                         the table, pipeline-table.columns.ts, bar-capacity.state.svelte.ts,
@@ -264,7 +268,9 @@ presentation/
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
           PaletteDragGhost.svelte            the dragged icon, in place of the pointer
         side-panel/                          palette (nothing inspected) / inspector of the inspected node
-                                             or block / the box selection
+                                             or block / the box selection / the start node
+          StartPanel/                        the panel of the start node: its title, and the zone
+                                             pipelinePoints.startPanel for its body
           PalettePanel.svelte                the tabs Nodes and Library (LibraryPalette/)
           FragmentInspector/                 a block: version, parameters, update, detach, remove
                                              (block-inspector.state.svelte.ts)
@@ -488,9 +494,15 @@ the page.
   with each of its ports (`<switch>:<port>`, `<node>:error`); a drop in the list sets a need
   with no port.
 - **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
-  the name of the whole document. The start node opens nothing in the editor. In a `locked`
-  graph, a click opens each node and the start node too (`inspectedStart`): the file page shows
-  the settings of the file for it, and a new panel of the start node uses the same state.
+  the name of the whole document. The start node of a new pipeline opens nothing in the editor.
+  The start node of a saved pipeline (`startPanel` of `createBlueprint`) and of a `locked` graph
+  opens `StartPanel` (`inspectedStart`): what starts the pipeline. The file page shows the
+  settings of the file when nothing is inspected.
+- **The start node shows what starts the pipeline through two zones** (`pipelinePoints`):
+  `startBadge` in the node (a count) and `startPanel` in the body of `StartPanel`. The module
+  `triggers` fills them with a widget injection: it imports `pipeline`, so `pipeline` cannot
+  import it (a module cycle). With no injection (no `MANAGE_TRIGGERS`), the panel says that only
+  the members who manage the triggers see them.
 - **The side panel of the blueprint is a paneforge pane** (`ResizablePane`), right of the
   canvas in one `ResizablePaneGroup` with `autoSaveId="scylla.blueprint.side-panel"`. The pane is
   keyed by the mode (`{#key mode}`) and each mode has its own `SIDE_PANEL_SIZES` (percent), so
@@ -660,8 +672,8 @@ the page.
   (`pipelineQueries.file`, keyed under `PIPELINE_QUERY_KEY`). When the file has errors (not
   warnings) or cannot be read (none on the branch: `NOT_FOUND`), the graph shows the saved
   pipeline, faded (`dimmed`): the server keeps the last valid version of the default branch. The
-  file query shows its own error (`showsOwnError`). A Schedule or a webhook of Scylla stays in
-  the triggers page.
+  file query shows its own error (`showsOwnError`). The start node opens the triggers: the
+  ones of `on` read only, and the schedules and webhooks of Scylla.
 - **The list says the state of a file** under the name of a row (`originNote`): the number of
   errors on the default branch, a file that left the default branch, an archived editor
   pipeline. The default branch comes from the link of the project (`repositoryLinkQueries` of

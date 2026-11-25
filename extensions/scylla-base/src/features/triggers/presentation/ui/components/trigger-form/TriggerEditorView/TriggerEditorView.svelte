@@ -66,6 +66,7 @@
       trigger={editor.trigger ?? undefined}
       link={editor.link}
       isFilePipeline={editor.isFilePipeline}
+      initialKind={editor.initialKind}
       onCancel={editor.leave}
       onSaved={handleSaved}
       onLinkRepository={editor.toRepository}

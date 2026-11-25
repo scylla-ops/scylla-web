@@ -253,13 +253,39 @@ describe('createBlueprint', () => {
     cleanup();
   });
 
-  it('never opens the side panel on the start node: the header edits the name', () => {
+  it('opens no panel on the start node of a new pipeline: the header edits the name', () => {
     withState([execNode('build')], state => {
       state.inspect('build');
       state.inspect(START_NODE_ID);
       expect(state.inspected).toBeUndefined();
       expect(state.inspectedStart).toBe(false);
     });
+  });
+
+  it('opens the panel of the start node of a saved pipeline, also with repeated ids', () => {
+    const cleanup = $effect.root(() => {
+      const state = createBlueprint({
+        nodes: () => [execNode('build'), execNode('build')],
+        pipelineName: () => 'nightly',
+        onNodesChange: vi.fn(),
+        startPanel: () => true,
+      });
+      flushSync();
+
+      expect(state.readOnly).toBe(true);
+      state.inspect(START_NODE_ID);
+      expect(state.inspectedStart).toBe(true);
+      expect(state.inspected).toBeUndefined();
+      expect(state.flowNodes.filter(flowNode => flowNode.selected).map(({ id }) => id)).toEqual([
+        START_NODE_ID,
+      ]);
+
+      // A read-only graph that is not locked still opens no node.
+      state.inspect('build');
+      expect(state.inspectedStart).toBe(false);
+      expect(state.inspected).toBeUndefined();
+    });
+    cleanup();
   });
 
   it('never opens the side panel for a selection made on the canvas', () => {

@@ -35,6 +35,8 @@
     nodes: PipelineNodeEntity[];
     pipelineName: string;
     projectId?: string;
+    /** The saved pipeline: its start node opens the panel of what starts it. None for a new pipeline. */
+    pipelineId?: string;
     onNodesChange: (nodes: PipelineNodeEntity[]) => void;
     /** The fragments that the pipeline links. None: the nodes are drawn one by one. */
     links?: FragmentLink[];
@@ -59,6 +61,7 @@
     nodes,
     pipelineName,
     projectId,
+    pipelineId,
     onNodesChange,
     links = [],
     onLinksChange,
@@ -94,6 +97,7 @@
       return places;
     },
     locked: () => locked,
+    startPanel: () => !!pipelineId,
   });
 
   const appearance = createNodeAppearancePreference();
@@ -160,6 +164,7 @@
             {drag}
             {entries}
             {dimmed}
+            {pipelineId}
             fragmentOf={library.fragmentOf}
             onAddFragment={(fragment, placement) => library.add(fragment, placement)}
             onReady={() => {
@@ -192,6 +197,7 @@
           {library}
           {linkable}
           {projectId}
+          {pipelineId}
           {drag}
           {stacked}
           onSaveSelection={saveSelection}

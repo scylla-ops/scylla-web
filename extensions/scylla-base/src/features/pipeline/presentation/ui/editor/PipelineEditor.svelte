@@ -186,6 +186,7 @@
             nodes={doc.nodes}
             pipelineName={doc.pipelineName}
             {projectId}
+            {pipelineId}
             onNodesChange={nodes => doc.setNodes(nodes)}
             links={links.current}
             onLinksChange={next => links.set(next)}
