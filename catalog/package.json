@@ -1,7 +1,7 @@
 {
   "name": "@scylla/catalog",
   "private": true,
-  "version": "0.7.1",
+  "version": "0.7.2",
   "type": "module",
   "scripts": {
     "dev": "storybook dev --port 6006",

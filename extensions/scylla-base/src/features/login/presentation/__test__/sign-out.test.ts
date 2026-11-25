@@ -16,7 +16,7 @@ const ACCOUNT_KEYS = [
   'dashboards-default:org-1',
   'dashboards-visit:org-1',
   'scylla-command-bar-recent:org-1',
-  'whats-new-seen:0.7.0:release',
+  'whats-new-seen:0.7.2:release',
   'scylla.blueprint.node-appearance',
 ];
 

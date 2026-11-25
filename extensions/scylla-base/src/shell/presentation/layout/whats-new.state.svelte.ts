@@ -8,7 +8,11 @@ const SEEN_IDS: readonly string[] = [
   ...WHATS_NEW.highlights.map(highlight => highlight.id),
 ];
 
-const seenKey = (id: string) => `whats-new-seen:${WHATS_NEW.version}:${id}`;
+/** The version of a flag: a highlight keeps the version that announced it. */
+const versionOf = (id: string): string =>
+  WHATS_NEW.highlights.find(highlight => highlight.id === id)?.since ?? WHATS_NEW.version;
+
+const seenKey = (id: string) => `whats-new-seen:${versionOf(id)}:${id}`;
 
 interface SeenFlags {
   version: string;
@@ -26,11 +30,13 @@ const flags = (seen: (id: string) => boolean): SeenFlags => ({
 
 const seenFlags = userState.define<SeenFlags>({
   key: 'whats-new-seen',
-  // An entry of another version says nothing about this one.
+  // An entry of the current version has every flag. An older entry has only the flags that
+  // its version announced: the 0.7.0 flags stay, and the dialog shows again.
   decode: value => {
     const { version, seen } = (value ?? {}) as Partial<SeenFlags>;
-    if (version !== WHATS_NEW.version || !Array.isArray(seen)) return null;
-    return flags(id => seen.includes(id));
+    if (typeof version !== 'string' || !Array.isArray(seen)) return null;
+    const current = version === WHATS_NEW.version;
+    return flags(id => seen.includes(id) && (current || versionOf(id) === version));
   },
   readLocal: () => {
     const local = flags(hasFlag);

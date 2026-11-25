@@ -11,6 +11,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-11-25
+
 ### Added
 
 - A "Copy link" button in the top bar of the pages that a member opens again from a link: a job, a
@@ -33,6 +35,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   and French.
 - The log viewer has a text size field with - and + buttons, from 10 to 32 px, next to the S, M and
   L sizes.
+- A "Send the link again" button for an email that is not verified: on the sign-in page, on the
+  page after sign-up, and on the page of an expired or used verify link. In English and French.
 
 ### Changed
 
@@ -44,6 +48,14 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the node, the full screen and the line (#L150). In English and French.
 - The Triggers panel of a Scylla pipeline in a GitHub project shows the Git events opt-in: Push,
   Pull request and Tag stay off until an admin allows them.
+- What's new shows the 0.7.1 and 0.7.2 highlights first, then the 0.7.0 highlights. The dialog opens
+  again one time for each user, and each highlight keeps the seen flag of its version. In English
+  and French.
+- A sign-up with an email that is not verified sends a new verify link. The page after sign-up
+  shows the typed email and the address that the mails come from, and tells you to look in the spam
+  folder. In English and French.
+- The Details panel of the job page is shorter: one row for each of Run, Source and Report, with
+  each fact on one line.
 
 ### Fixed
 
@@ -476,7 +488,9 @@ Changed.
 - The tab title shows the version of the app. It said 0.4: the title now comes from the
   version of `apps/web/package.json`.
 
-[Unreleased]: https://github.com/scylla-ops/scylla-web/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/scylla-ops/scylla-web/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/scylla-ops/scylla-web/compare/v0.7.1...v0.7.2
+[0.7.1]: https://github.com/scylla-ops/scylla-web/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/scylla-ops/scylla-web/compare/v0.6.0...v0.7.0
 [0.6.0]: https://github.com/scylla-ops/scylla-web/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/scylla-ops/scylla-web/releases/tag/v0.5.0

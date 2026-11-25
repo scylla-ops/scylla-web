@@ -105,6 +105,45 @@ describe('the release announcement', () => {
   });
 });
 
+describe('the flags of 0.7.0', () => {
+  it('keep their key, so the people who saw them are not asked again', () => {
+    localStorage.setItem('whats-new-seen:0.7.0:library', '1');
+    expect(isUnseen('library')).toBe(false);
+    expect(isUnseen('agent-labels')).toBe(true);
+  });
+
+  it('give the new highlights the key of 0.7.2', () => {
+    markSeen('agent-labels');
+    expect(localStorage.getItem('whats-new-seen:0.7.2:agent-labels')).toBe('1');
+  });
+
+  it('do not hide the dialog: its flag has the version of the release', () => {
+    localStorage.setItem('whats-new-seen:0.7.0:release', '1');
+    expect(unseenRelease()).toBe(WHATS_NEW);
+  });
+
+  it('are kept from a server entry of 0.7.0', async () => {
+    server.getUserState.mockReturnValue({
+      response: Promise.resolve({
+        entries: [
+          {
+            key: 'whats-new-seen',
+            valueJson: JSON.stringify({ version: '0.7.0', seen: ['release', 'library'] }),
+            version: 1n,
+          },
+        ],
+      }),
+    });
+
+    userState.load('grace');
+    await userState.whenLoaded();
+    await flush();
+
+    expect(isUnseen('library')).toBe(false);
+    expect(isUnseen('release')).toBe(true);
+  });
+});
+
 describe('the flags on the server', () => {
   const known = WHATS_NEW.highlights[0]?.id ?? '';
   const other = WHATS_NEW.highlights[1]?.id ?? '';

@@ -9,7 +9,7 @@ import Tour from './Tour.fixture.svelte';
 const loadOnboardingTour = vi.hoisted(() => vi.fn());
 vi.mock('@base/features/onboarding', () => ({ loadOnboardingTour }));
 
-const whatsNew = `What's new in Scylla ${WHATS_NEW.version}`;
+const whatsNew = `What's new in Scylla ${WHATS_NEW.line}`;
 
 beforeEach(() => {
   localStorage.clear();
