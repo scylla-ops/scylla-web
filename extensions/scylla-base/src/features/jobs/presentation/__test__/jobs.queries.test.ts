@@ -141,6 +141,14 @@ describe('jobQueries.byPipeline', () => {
     expect(interval(withData(page([job({ status: 'completed' })])))).toBe(false);
   });
 
+  it('polls the first page always, so a job that starts elsewhere shows with no click', () => {
+    const interval = jobQueries.byPipeline('pipeline-1', { page: 1, pageSize: 25 })
+      .refetchInterval as (query: never) => number | false;
+
+    expect(interval(withData(page([job({ status: 'completed' })])))).toBe(5000);
+    expect(interval(withData(page([])))).toBe(5000);
+  });
+
   describe('while another page of the list loads', () => {
     const observe = async (pipelineId: string, next: string, filter?: { branch: string }) => {
       const observer = new QueryObserver<PaginatedList<JobEntity>>(
