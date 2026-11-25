@@ -70,6 +70,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   its link, and Alt drops it with no link.
 - Full editor and Cancel in the new schedule form of the Triggers panel no longer create the
   schedule.
+- The command bar tour keeps the focus in the search field, so Tab still changes the filter. The
+  example searches show right below the field.
 
 ## [0.7.1] - 2026-11-24
 

@@ -63,6 +63,8 @@ export interface TourSpotStep {
   wide?: boolean;
   /** The user types in the targets before Next: they stay usable, only the rest is dimmed. */
   form?: boolean;
+  /** The target uses Tab itself (the command bar cycles its filters): the card does not take it. */
+  ownsTab?: boolean;
   /** The page that Previous opens when it differs from `page`, e.g. the list to pick from again. */
   back?: (subject: OnboardingSubject) => string;
   /** A step that asks for a click in the menu: the card also has Go, which opens this page. */
@@ -755,6 +757,7 @@ const searchTour: TourDefinition = {
       fallback: 'open-search',
       holdsDialog: true,
       form: true,
+      ownsTab: true,
     },
     {
       id: 'search-prefix',
@@ -765,6 +768,7 @@ const searchTour: TourDefinition = {
       fallback: 'open-search',
       holdsDialog: true,
       form: true,
+      ownsTab: true,
     },
     {
       id: 'search-keys',
@@ -775,6 +779,7 @@ const searchTour: TourDefinition = {
       fallback: 'open-search',
       holdsDialog: true,
       form: true,
+      ownsTab: true,
     },
   ],
 };
