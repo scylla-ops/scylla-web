@@ -43,6 +43,9 @@ guard of this module, so `byProject` and `refs` check `READ_REPOSITORY_LINK` on 
 `can(...)` (`shell/__test__/feature-permissions.test.ts`). The pages of `jobs` read
 `vcsReportQueries` (the reports of the jobs it shows, under its `READ_JOB` routes) and retry a
 report with `vcsReportMutations` (`UPDATE_JOB`: `retry_job_report` is in the cell `jobs.edit`).
+`vcsReportQueries.byJobs` puts a `version` in its key: the server changes a report in the
+transaction that changes its job, thus a caller gives the status of the job, and a new status
+reads the reports again at once.
 
 Never add: `integrations.module.ts`, pages, components.
 

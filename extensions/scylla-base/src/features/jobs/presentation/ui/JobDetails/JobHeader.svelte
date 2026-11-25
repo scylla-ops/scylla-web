@@ -27,7 +27,7 @@
 <!-- The job in one block: who it is, its status, its facts on one line, and its details on demand. -->
 <header class="flex shrink-0 flex-col gap-2">
   <div class="flex flex-wrap items-center justify-between gap-3">
-    <div class="flex min-w-0 items-center gap-3">
+    <div class="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-2">
       <h1 class="text-foreground">{t(jobsMessages.job)}</h1>
       <Badge variant="outline" class="gap-1 pr-1 font-mono text-xs">
         <CopyableText value={job.id} copyLabel={t(jobsMessages.copyJobId)} />

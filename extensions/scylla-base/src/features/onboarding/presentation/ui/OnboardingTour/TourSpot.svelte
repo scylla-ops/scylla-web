@@ -173,6 +173,7 @@
 
   const keyboard = $derived({
     holdSearch: !lost,
+    onEscape: lost || tour.confirmingSkip ? undefined : () => tour.requestSkip(),
     loopTab: !!card && !tour.confirmingSkip && !step.ownsTab,
     targets: () => step.targets.map(anchor => anchor(document, tour.subject)),
   });
@@ -214,7 +215,14 @@
   style:visibility={tour.confirmingSkip ? 'hidden' : undefined}
 >
   {#if card}
-    <TourSpotlight {viewport} {holes} {connectors} {blocking} allowed={layout.allowed} />
+    <TourSpotlight
+      {viewport}
+      {holes}
+      {connectors}
+      {blocking}
+      allowed={layout.allowed}
+      onOutside={() => tour.requestSkip()}
+    />
     {@render stepCard(card.x, card.y)}
   {:else if lost}
     {@render stepCard(

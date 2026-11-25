@@ -314,6 +314,10 @@ paths.
 - **The reports come from `integrations`** (`vcsReportQueries.byJobs`), only for the jobs with a
   commit: no call for a job or a page with none. "Retry now" needs `UPDATE_JOB` (`retry_job_report`
   is in `jobs.edit`); "Fix the connection" opens the Integrations page with `VIEW_INTEGRATIONS`.
+- **The group Report of Details follows the job.** It gives the status of the job as the
+  `version` of the reports: at the end of the job, it reads them again at once, and keeps the old
+  reports on the screen until the new read. Without the version, the poll stops at the end on a
+  read from before the end, and the row stays "In progress" until a reload.
 - **The Source column shows only when a job of the page has a commit.**
 - **Every column of the jobs table has a size**: the free width goes to the columns in proportion
   to it, and Source and Timeline get the most. The sum of the `minSize` values is the width under

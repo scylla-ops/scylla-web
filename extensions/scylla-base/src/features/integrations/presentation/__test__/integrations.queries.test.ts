@@ -209,6 +209,12 @@ describe('integrations queries', () => {
     await runQueryFn(vcsReportQueries.byJobs(ids));
     expect(listByJobs.mock.calls[0][0]).toHaveLength(MAX_JOBS_PER_REPORT_CALL);
   });
+
+  it('gives a new entry to a new version of the jobs: the reports change with their job', () => {
+    expect(vcsReportQueries.byJobs(['j-1'], true, 'running').queryKey).not.toEqual(
+      vcsReportQueries.byJobs(['j-1'], true, 'completed').queryKey,
+    );
+  });
 });
 
 describe('the link queries that the pipeline pages read', () => {

@@ -49,6 +49,16 @@ describe('VerifyEmailPage', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('This link is not valid any more');
   });
 
+  it('says that a bad link is not valid, with no raw server text', async () => {
+    openAt(
+      '/verify-email#token=bad',
+      new ScyllaError('token is not a valid link', { code: 'INVALID_ARGUMENT' }),
+    );
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('This link is not valid any more');
+    expect(screen.queryByText('token is not a valid link')).not.toBeInTheDocument();
+  });
+
   it('sends a new link to the email that the person types, with the same answer for each email', async () => {
     openAt(
       '/verify-email#token=old',

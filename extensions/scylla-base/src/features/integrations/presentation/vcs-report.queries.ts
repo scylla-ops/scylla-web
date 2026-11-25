@@ -16,11 +16,13 @@ export const vcsReportQueries = {
   /**
    * The ids are sorted in the key: the same jobs in another order share one entry. The pages of
    * `jobs` read it: `list_job_reports` is in the cell `jobs.view` of the current project.
+   * `version` is in the key, for example the status of the job: the server changes a report in
+   * the transaction that changes its job, thus a new version reads the reports again at once.
    */
-  byJobs: (jobIds: readonly string[], enabled = true) => {
+  byJobs: (jobIds: readonly string[], enabled = true, version = '') => {
     const ids = [...jobIds].sort().slice(0, MAX_JOBS_PER_REPORT_CALL);
     return queryOptions({
-      queryKey: [...VCS_REPORTS_QUERY_KEY, ids] as const,
+      queryKey: [...VCS_REPORTS_QUERY_KEY, ids, version] as const,
       queryFn: () => repository().listByJobs(ids),
       enabled: enabled && ids.length > 0 && can(Permission.READ_JOB),
       staleTime: 10 * 1000,
