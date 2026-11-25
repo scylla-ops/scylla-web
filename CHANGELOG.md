@@ -31,6 +31,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   triggers of a Scylla pipeline in such a project, after a warning, and can revoke them. In the
   merge rules, a Scylla pipeline stays off, tells why, and opens its export to a file. In English
   and French.
+- The log viewer has a text size field with - and + buttons, from 10 to 32 px, next to the S, M and
+  L sizes.
 
 ### Changed
 
@@ -83,6 +85,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   button.
 - The legends of the Runs per day, Timeline and Webhooks widgets now use capitalized labels, like
   the tooltips, and the Run duration widget text writes p50 and p95 in lower case.
+- The Follow button of the job log viewer now turns on again after you turn it off. A finished job
+  shows a "Go to the end of the log" button in its place.
+- The "Find anything fast" tour now goes to its end: opening a result continues the tour on the new
+  page, and Escape or a click outside the bar asks to continue or leave.
+- The French job page shows the no-break space before a colon in two texts, with no broken
+  character.
 
 ## [0.7.1] - 2026-11-24
 

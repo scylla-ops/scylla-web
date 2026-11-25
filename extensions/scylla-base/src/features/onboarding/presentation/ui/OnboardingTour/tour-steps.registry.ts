@@ -71,6 +71,8 @@ export interface TourSpotStep {
   go?: (subject: OnboardingSubject) => string;
   /** The part of the target that the user must reach: the card stays off it. */
   keepClear?: TourAnchor;
+  /** The user opens a result and the dialog closes: the tour goes on at this step. */
+  picked?: string;
   /** The step lives in a dialog: only Skip leaves it, and Previous lands on its fallback. */
   holdsDialog?: boolean;
   /** What the previous step showed cannot come back, e.g. a join code. */
@@ -738,7 +740,7 @@ const searchTour: TourDefinition = {
   summary: m.searchTourSummary,
   minutes: 1,
   permissions: [],
-  finish: { title: m.otherFinishTitle, body: m.otherFinishBody },
+  finish: { title: m.searchFinishTitle, body: m.searchFinishBody },
   offer: { path: /^\/dashboard\/?$/, step: 'open-search', needs: select('[data-tour="command-bar-trigger"]') },
   steps: [
     {
@@ -758,6 +760,7 @@ const searchTour: TourDefinition = {
       holdsDialog: true,
       form: true,
       ownsTab: true,
+      picked: 'search-keys',
     },
     {
       id: 'search-prefix',
@@ -769,17 +772,26 @@ const searchTour: TourDefinition = {
       holdsDialog: true,
       form: true,
       ownsTab: true,
+      picked: 'search-keys',
     },
     {
-      id: 'search-keys',
-      title: m.searchKeysTitle,
-      body: [m.searchKeysBody],
+      id: 'search-open',
+      title: m.searchOpenTitle,
+      body: [m.searchOpenBody],
       targets: [lastDialog],
       advance: { on: 'next' },
       fallback: 'open-search',
       holdsDialog: true,
       form: true,
       ownsTab: true,
+      picked: 'search-keys',
+    },
+    {
+      id: 'search-keys',
+      title: m.searchKeysTitle,
+      body: [m.searchKeysBody],
+      targets: [select('[data-tour="command-bar-trigger"]')],
+      advance: { on: 'next' },
     },
   ],
 };

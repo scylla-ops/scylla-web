@@ -163,6 +163,10 @@ msgstr "Si un compte utilise cette adresse e-mail, le serveur a écrit un lien d
 msgid "If an account uses this email, we sent it a link to reset the password. The link expires in one hour."
 msgstr "Si un compte utilise cette adresse e-mail, nous lui avons envoyé un lien pour réinitialiser le mot de passe. Le lien expire dans une heure."
 
+#: extensions/scylla-base/src/features/login/presentation/messages/verification.messages.ts:11
+msgid "If an account with this email waits for its check, we sent it a new link."
+msgstr "Si un compte avec cette adresse e-mail attend sa vérification, nous lui avons envoyé un nouveau lien."
+
 #: extensions/scylla-base/src/features/login/infrastructure/default-login.repository.ts:27
 msgid "Incorrect credentials"
 msgstr "Identifiants incorrects"
@@ -211,6 +215,10 @@ msgstr "Pas encore de compte ? Créez-en un"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:13
 msgid "No verified email from {provider}"
 msgstr "Aucun email vérifié de {provider}"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/verification.messages.ts:8
+msgid "Not in your inbox? Look in your spam or junk folder."
+msgstr "Pas dans votre boîte de réception ? Regardez dans le dossier des spams ou des courriers indésirables."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:40
 msgid "Nothing changed. Try again in a few minutes."
@@ -264,6 +272,10 @@ msgstr "Scylla ne répond pas"
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:8
 msgid "Send the link"
 msgstr "Envoyer le lien"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/verification.messages.ts:9
+msgid "Send the link again"
+msgstr "Renvoyer le lien"
 
 #: extensions/scylla-base/src/features/login/presentation/login.commands.ts:13
 msgid "Session"
@@ -322,6 +334,10 @@ msgstr "Conditions générales d'utilisation"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:41
 msgid "The answer from {provider} is not valid"
 msgstr "La réponse de {provider} n’est pas valide"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/verification.messages.ts:7
+msgid "The mail comes from {sender}. Not in your inbox? Look in your spam or junk folder."
+msgstr "Le mail vient de {sender}. Pas dans votre boîte de réception ? Regardez dans le dossier des spams ou des courriers indésirables."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:4
 msgid "the provider"
@@ -382,8 +398,8 @@ msgid "This is not my account"
 msgstr "Ce n'est pas mon compte"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:21
-msgid "This link is not valid any more. Sign up again to get a new one."
-msgstr "Ce lien n'est plus valide. Inscrivez-vous de nouveau pour en recevoir un autre."
+msgid "This link is not valid any more. If your account is not active yet, enter your email to get a new link."
+msgstr "Ce lien n'est plus valide. Si votre compte n'est pas encore actif, saisissez votre adresse e-mail pour recevoir un nouveau lien."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/password-reset.messages.ts:21
 msgid "This link is not valid or has expired."
@@ -396,6 +412,10 @@ msgstr "Ce fournisseur n’est pas disponible"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:34
 msgid "To connect {provider}, you must be signed in. Sign in, then start again from your account."
 msgstr "Pour associer {provider}, vous devez être connecté. Connectez-vous, puis recommencez depuis votre compte."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/verification.messages.ts:12
+msgid "Too many requests. Wait some minutes, then try again."
+msgstr "Trop de demandes. Attendez quelques minutes, puis réessayez."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/pending-link.messages.ts:18
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:5
@@ -423,8 +443,12 @@ msgid "Version {version}"
 msgstr "Version {version}"
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:13
-msgid "We sent a link to this address. Open it to activate your account."
-msgstr "Nous avons envoyé un lien à cette adresse. Ouvrez-le pour activer votre compte."
+msgid "We sent a link to {email}. Open it to activate your account."
+msgstr "Nous avons envoyé un lien à {email}. Ouvrez-le pour activer votre compte."
+
+#: extensions/scylla-base/src/features/login/presentation/messages/verification.messages.ts:10
+msgid "We sent a new link to {email}."
+msgstr "Nous avons envoyé un nouveau lien à {email}."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/terms.messages.ts:14
 msgid "We use your data to create and run your account. See the {privacy}."
@@ -454,6 +478,10 @@ msgstr "Votre compte se connecte déjà avec {provider}"
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-in-error.messages.ts:27
 msgid "Your account is turned off"
 msgstr "Votre compte est désactivé"
+
+#: extensions/scylla-base/src/features/login/presentation/messages/verification.messages.ts:5
+msgid "Your email address is not verified yet. Open the link in the mail that we sent you to activate your account."
+msgstr "Votre adresse e-mail n'est pas encore vérifiée. Ouvrez le lien du mail que nous vous avons envoyé pour activer votre compte."
 
 #: extensions/scylla-base/src/features/login/presentation/messages/sign-up.messages.ts:20
 msgid "Your email address is verified. You can sign in."

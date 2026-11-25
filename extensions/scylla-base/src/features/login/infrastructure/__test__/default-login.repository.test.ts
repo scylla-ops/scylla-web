@@ -18,8 +18,10 @@ const accounts = (overrides: Partial<Record<keyof IAccountServiceClient, unknown
       unaryCall({
         providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
         signUpMode: 'invite_only',
+        mailSender: 'no-reply@scylla.example',
       }),
     ),
+    resendVerificationEmail: vi.fn(() => unaryCall({})),
     requestPasswordReset: vi.fn(() => unaryCall({})),
     resetPassword: vi.fn(() => unaryCall({})),
     ...overrides,
@@ -74,7 +76,16 @@ describe('DefaultLoginRepository', () => {
     ).resolves.toEqual({
       providers: [{ slug: 'github', displayName: 'GitHub', kind: 'github' }],
       signUpMode: 'invite_only',
+      mailSender: 'no-reply@scylla.example',
     });
+  });
+
+  it('asks for a new link to verify an email', async () => {
+    const client = accounts();
+
+    await new DefaultLoginRepository(client, profiles()).resendVerificationEmail('ada@example.com');
+
+    expect(client.resendVerificationEmail).toHaveBeenCalledWith({ email: 'ada@example.com' });
   });
 
   it('sends the sign-up with an empty invitation by default', async () => {

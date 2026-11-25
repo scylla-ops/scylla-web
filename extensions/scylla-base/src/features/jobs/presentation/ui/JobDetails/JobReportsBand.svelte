@@ -9,7 +9,7 @@
   import { Permission, can } from '@platform/authz';
   import { activeWorkspaceSlug, contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { Button, buttonVariants } from '@scylla/ui/primitives';
+  import { Badge, Button, buttonVariants } from '@scylla/ui/primitives';
   import { createNow } from '@scylla/ui/state';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
@@ -30,6 +30,7 @@
     reportTitle,
     type ReportTone,
   } from '@base/features/jobs/presentation/presenters/job-report.presenter.ts';
+  import JobDetailsGroup from './JobDetailsGroup.svelte';
 
   interface Props {
     job: JobEntity;
@@ -89,64 +90,70 @@
   {/if}
 {/snippet}
 
-<!-- The reports of the job to the provider, in the details. A job with no commit shows none. -->
+<!--
+  The reports of the job to the provider, in the details: a chip for each report, then its
+  state, its detail and its actions on the same line. A job with no commit shows none.
+-->
 {#if entry && job.source}
-  <section aria-label={t(messages.report)} class="flex flex-col gap-2.5">
+  <JobDetailsGroup title={t(messages.report)} as="ul">
     {#if entry.reports.length === 0}
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span class="text-xs font-medium text-foreground">{t(messages.notReported)}</span>
-        <span class="text-xs text-muted-foreground">{noReportText(entry)}</span>
-      </div>
+      <li class="flex min-h-5 max-w-full min-w-0 items-center gap-2 text-xs">
+        <span class="shrink-0 font-medium text-foreground">{t(messages.notReported)}</span>
+        <span class="truncate text-muted-foreground" title={noReportText(entry)}>
+          {noReportText(entry)}
+        </span>
+      </li>
     {/if}
     {#each entry.reports as report (report.context)}
       {@const line = lineOf(report)}
-      <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span class="flex items-center gap-1.5">
-          <ProviderMark kind={report.provider} class="size-3.5 shrink-0 text-foreground" />
-          <span class="font-mono text-xs text-foreground">{reportTitle(report)}</span>
-        </span>
-        <span class="text-muted-foreground/50" aria-hidden="true">·</span>
-        <span class="flex items-center gap-1.5">
+      <li class="flex max-w-full min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+        <Badge variant="outline" class="h-5 max-w-full min-w-0 shrink gap-1.5 font-normal">
+          <ProviderMark kind={report.provider} class="size-3 shrink-0 text-foreground" />
+          <span class="truncate font-mono">{reportTitle(report)}</span>
+        </Badge>
+        <span class="flex h-5 max-w-full min-w-0 items-center gap-1.5">
           {@render toneIcon(line.tone)}
-          <span class="text-xs font-medium text-foreground">{line.text}</span>
+          <span class="truncate font-medium text-foreground">{line.text}</span>
         </span>
         {#if line.detail}
-          <span class="min-w-0 text-xs break-words text-muted-foreground">{line.detail}</span>
+          <span class="max-w-full min-w-0 truncate text-muted-foreground" title={line.detail}>
+            {line.detail}
+          </span>
         {/if}
-        <span class="flex flex-wrap items-center gap-2">
-          {#if (report.state === 'retrying' || report.state === 'not_sent') && canRetry}
-            <Button
-              variant="outline"
-              size="xs"
-              disabled={retry.isPending}
-              onclick={() => retry.mutate({ jobId: job.id, context: report.context })}
-            >
-              <RotateCcwIcon aria-hidden="true" />
-              {t(messages.retryNow)}
-            </Button>
-          {/if}
-          {#if report.state === 'not_sent' && canFixConnection}
-            <Button
-              variant="link"
-              size="xs"
-              href={integrationsUrl(activeWorkspaceSlug() ?? '')}
-            >
-              {t(messages.fixConnection)}
-            </Button>
-          {/if}
-          {#if report.externalUrl}
-            <a
-              href={report.externalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              class={cn(buttonVariants({ variant: 'link', size: 'xs' }))}
-            >
-              {t(report.provider === 'gitlab' ? messages.viewOnGitLab : messages.viewOnGitHub)}
-              <ExternalLinkIcon aria-hidden="true" />
-            </a>
-          {/if}
-        </span>
-      </div>
+        {#if (report.state === 'retrying' || report.state === 'not_sent') && canRetry}
+          <Button
+            variant="outline"
+            size="xs"
+            class="h-5"
+            disabled={retry.isPending}
+            onclick={() => retry.mutate({ jobId: job.id, context: report.context })}
+          >
+            <RotateCcwIcon aria-hidden="true" />
+            {t(messages.retryNow)}
+          </Button>
+        {/if}
+        {#if report.state === 'not_sent' && canFixConnection}
+          <Button
+            variant="link"
+            size="xs"
+            class="h-5 px-0"
+            href={integrationsUrl(activeWorkspaceSlug() ?? '')}
+          >
+            {t(messages.fixConnection)}
+          </Button>
+        {/if}
+        {#if report.externalUrl}
+          <a
+            href={report.externalUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            class={cn(buttonVariants({ variant: 'link', size: 'xs' }), 'h-5 px-0')}
+          >
+            {t(report.provider === 'gitlab' ? messages.viewOnGitLab : messages.viewOnGitHub)}
+            <ExternalLinkIcon aria-hidden="true" />
+          </a>
+        {/if}
+      </li>
     {/each}
-  </section>
+  </JobDetailsGroup>
 {/if}

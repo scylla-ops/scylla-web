@@ -26,6 +26,7 @@ const makeFakeRepository = (overrides: Partial<LoginRepository> = {}) => {
     pendingLink: vi.fn(),
     linkPendingIdentity: vi.fn(),
     verifyEmail: vi.fn(),
+    resendVerificationEmail: vi.fn().mockResolvedValue(undefined),
     termsStatus: vi.fn(),
     acceptTerms: vi.fn(),
     ...overrides,
@@ -87,6 +88,56 @@ describe('LoginPage', () => {
     await waitFor(() => expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled());
     expect(testNavigator.navigate).not.toHaveBeenCalled();
     expect(screen.getByLabelText('Email or username')).toBeInTheDocument();
+  });
+
+  describe('an account that waits for the check of its email', () => {
+    const notVerified = new ScyllaError('verify your email first', {
+      code: 'FAILED_PRECONDITION',
+      reason: 'EMAIL_NOT_VERIFIED',
+    });
+    const withSender = {
+      login: vi.fn().mockRejectedValue(notVerified),
+      listSignInMethods: vi.fn().mockResolvedValue({
+        providers: [],
+        signUpMode: 'closed',
+        mailSender: 'no-reply@scylla.example',
+      }),
+    };
+
+    it('says that the email is not verified, names the sender, and stays on the page', async () => {
+      setUp(makeFakeRepository(withSender).repository);
+      render(LoginPage);
+
+      await signIn('ada@example.com', 'hunter22');
+
+      expect(await screen.findByRole('alert')).toHaveTextContent(
+        'Your email address is not verified yet.',
+      );
+      expect(
+        await screen.findByText(
+          'The mail comes from no-reply@scylla.example. Not in your inbox? Look in your spam or junk folder.',
+        ),
+      ).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Sign in' })).toBeEnabled();
+      expect(testNavigator.navigate).not.toHaveBeenCalled();
+      expect(arrival.phase).toBe('idle');
+    });
+
+    it('sends the link again to the email of the sign-in', async () => {
+      const { repository } = makeFakeRepository(withSender);
+      setUp(repository);
+      render(LoginPage);
+      await signIn(' ada@example.com', 'hunter22');
+
+      await userEvent.click(await screen.findByRole('button', { name: 'Send the link again' }));
+
+      await waitFor(() =>
+        expect(repository.resendVerificationEmail).toHaveBeenCalledWith('ada@example.com'),
+      );
+      expect(await screen.findByRole('status')).toHaveTextContent(
+        'We sent a new link to ada@example.com.',
+      );
+    });
   });
 
   it('keeps the form disabled under the arrival once sign-in succeeds', async () => {

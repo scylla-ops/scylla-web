@@ -91,6 +91,10 @@ export class DefaultLoginRepository implements LoginRepository {
     await this.accounts.verifyEmail({ token }).response;
   }
 
+  public async resendVerificationEmail(email: string): Promise<void> {
+    await this.accounts.resendVerificationEmail({ email }).response;
+  }
+
   /** The server sends a mail; with no mail server, it writes the link in its log. */
   public async requestPasswordReset(email: string): Promise<PasswordResetDelivery> {
     await this.accounts.requestPasswordReset({ email }).response;

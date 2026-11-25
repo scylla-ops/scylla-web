@@ -6,6 +6,7 @@ import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import type { OnboardingStatus } from '@base/features/onboarding/domain/structs/onboarding-status.struct.ts';
+import { dialogHoldStore } from '@scylla/ui/stores';
 import OnboardingTour from './OnboardingTour.svelte';
 
 let teardown: Array<() => void> = [];
@@ -156,6 +157,48 @@ describe('OnboardingTour', () => {
     expect(saveStatus).not.toHaveBeenCalled();
   });
 
+  it('asks before it leaves a tour when Escape or an outside click hits the bar, and Leave skips it', async () => {
+    const { saveStatus } = setUp({ kind: 'in-progress', tour: 'search', step: 'search-find' });
+    pageElement('<div data-slot="dialog-content"></div>', '[data-slot="dialog-content"]');
+    await screen.findByText('Type a name');
+    await waitFor(() => expect(dialogHoldStore.getState().held).toBe(true));
+
+    dialogHoldStore.getState().onBlocked?.();
+
+    expect(await screen.findByText('Skip the tour?')).toBeInTheDocument();
+    expect(saveStatus).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Skip the tour' }));
+    await waitFor(() => expect(saveStatus).toHaveBeenCalledWith('anonymous', { kind: 'skipped' }));
+  });
+
+  it('keeps the bar and the step when the user continues', async () => {
+    const { saveStatus } = setUp({ kind: 'in-progress', tour: 'search', step: 'search-prefix' });
+    pageElement('<div data-slot="dialog-content"></div>', '[data-slot="dialog-content"]');
+    await screen.findByText('Narrow the search');
+    await waitFor(() => expect(dialogHoldStore.getState().onBlocked).toBeDefined());
+
+    dialogHoldStore.getState().onBlocked?.();
+    await userEvent.click(await screen.findByRole('button', { name: 'Continue the tour' }));
+
+    expect(await screen.findByText('Narrow the search')).toBeInTheDocument();
+    expect(saveStatus).not.toHaveBeenCalled();
+  });
+
+  it('shows the last card of the search tour on the page that a result opened', async () => {
+    const { saveStatus } = setUp({ kind: 'in-progress', tour: 'search', step: 'search-keys' });
+    pageElement('<button data-tour="command-bar-trigger"></button>', '[data-tour="command-bar-trigger"]');
+
+    expect(await screen.findByText('Search from any page')).toBeInTheDocument();
+    await userEvent.click(await screen.findByText('Finish'));
+    await waitFor(() =>
+      expect(saveStatus).toHaveBeenCalledWith('anonymous', {
+        kind: 'finished',
+        tour: 'search',
+        done: ['search'],
+      }),
+    );
+  });
+
   it('ends a tour on its own screen, which offers the next tour and completes', async () => {
     const { saveStatus } = setUp({ kind: 'finished', tour: 'agent', done: ['agent'] });
 
@@ -165,7 +208,7 @@ describe('OnboardingTour', () => {
     expect(docs).toHaveAttribute('target', '_blank');
     expect(screen.getByText('Done')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: 'Start ›' })).toHaveLength(2);
-    await userEvent.click(screen.getByRole('button', { name: 'Finish' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Finish' }));
 
     await waitFor(() =>
       expect(saveStatus).toHaveBeenCalledWith('anonymous', { kind: 'completed', done: ['agent'] }),

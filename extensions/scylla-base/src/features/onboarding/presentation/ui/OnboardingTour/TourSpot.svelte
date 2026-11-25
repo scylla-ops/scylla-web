@@ -150,6 +150,7 @@
     onAdvance: (found?: OnboardingSubject) => tour.advance(step.id, found),
     onUnlock: () => tour.unlock(step.id),
     onLock: () => tour.lock(step.id),
+    onPicked: () => tour.pick(step.id),
     onLost: () => {
       lostAt = { stepId: step.id, onPage: tour.onStepPage };
       tour.recover(step.id);
@@ -205,7 +206,7 @@
   {@attach portalToBody}
   {@attach blockPage(() => blockingOptions)}
   {@attach trackTourStep(() => tracking)}
-  {@attach holdDialogs(() => holdingDialogs)}
+  {@attach holdDialogs(() => holdingDialogs, () => tour.requestSkip())}
   {@attach holdKeyboard(() => keyboard)}
   {@attach markTourActive}
   data-onboarding-tour

@@ -28,6 +28,8 @@
     viewer: JobLogViewerState;
     display: LogDisplay;
     title: string;
+    /** The job runs: new lines can come. */
+    isLive: boolean;
     searchField: Attachment<HTMLInputElement>;
     fullscreen: boolean;
     onToggleFullscreen: () => void;
@@ -38,6 +40,7 @@
     viewer,
     display,
     title,
+    isLive,
     searchField,
     fullscreen,
     onToggleFullscreen,
@@ -80,12 +83,17 @@
   {/if}
 
   <div class="ml-auto flex items-center gap-0.5">
-    <ToolbarButton
-      icon={ArrowDownToLineIcon}
-      label={t(messages.follow)}
-      pressed={viewer.isFollowing}
-      onclick={viewer.toggleFollow}
-    />
+    {#if isLive}
+      <ToolbarButton
+        icon={ArrowDownToLineIcon}
+        label={t(messages.follow)}
+        pressed={viewer.isFollowing}
+        onclick={viewer.toggleFollow}
+      />
+    {:else}
+      <!-- A finished job has no new line: an action, not a toggle. -->
+      <ToolbarButton icon={ArrowDownToLineIcon} label={t(messages.goToEnd)} onclick={viewer.follow} />
+    {/if}
     <ToolbarButton
       icon={WrapTextIcon}
       label={t(messages.wrap)}

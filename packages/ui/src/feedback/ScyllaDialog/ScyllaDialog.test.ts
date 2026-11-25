@@ -1,4 +1,4 @@
-import { afterEach, describe, it, expect } from 'vitest';
+import { afterEach, describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { dialogHoldStore } from '../../stores/index.ts';
@@ -22,6 +22,18 @@ describe('ScyllaDialog', () => {
     const dialog = screen.getByRole('dialog');
     await waitFor(() => expect(dialog.className).toContain('[&>button]:hidden'));
     expect(dialog.className).toContain('[&_[data-dialog-dismiss]]:hidden');
+  });
+
+  it('tells the holder when an Escape is refused', async () => {
+    const onBlocked = vi.fn();
+    render(ScyllaDialog);
+    dialogHoldStore.setState({ held: true, onBlocked });
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(onBlocked).toHaveBeenCalled();
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    dialogHoldStore.setState({ held: false, onBlocked: undefined });
   });
 
   it('closes on Escape again once the hold ends', async () => {

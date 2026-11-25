@@ -50,7 +50,9 @@
   const held = $derived(hold().held);
 
   const keepOpen = (event: Event) => {
-    if (dialogHoldStore.getState().held || dismissible !== true) event.preventDefault();
+    const { held: holding, onBlocked } = dialogHoldStore.getState();
+    if (holding || dismissible !== true) event.preventDefault();
+    if (holding) onBlocked?.();
   };
 </script>
 

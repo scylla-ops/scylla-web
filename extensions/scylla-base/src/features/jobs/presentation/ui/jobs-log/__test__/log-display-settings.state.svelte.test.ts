@@ -22,6 +22,17 @@ describe('decodeLogDisplay', () => {
   });
 });
 
+describe('decodeLogDisplay size', () => {
+  it('reads the old presets and a size in px, clamped', () => {
+    expect(decodeLogDisplay({ size: 's' }).size).toBe(11);
+    expect(decodeLogDisplay({ size: 'l' }).size).toBe(14);
+    expect(decodeLogDisplay({ size: 24 }).size).toBe(24);
+    expect(decodeLogDisplay({ size: 99 }).size).toBe(32);
+    expect(decodeLogDisplay({ size: 2 }).size).toBe(10);
+    expect(decodeLogDisplay({ size: Number.NaN }).size).toBe(12);
+  });
+});
+
 describe('createLogDisplay', () => {
   it('starts with the colors, the wrap and the line numbers, in the medium size, with the list', () => {
     const cleanup = $effect.root(() => {
@@ -30,7 +41,7 @@ describe('createLogDisplay', () => {
         wrap: true,
         timestamps: false,
         lineNumbers: true,
-        size: 'm',
+        size: 12,
         nodeView: 'list',
       });
     });
@@ -40,18 +51,18 @@ describe('createLogDisplay', () => {
   it('saves a change, and the next page reads it back', () => {
     const cleanup = $effect.root(() => {
       const display = createLogDisplay();
-      display.set({ timestamps: true, size: 'l', nodeView: 'graph' });
+      display.set({ timestamps: true, size: 14, nodeView: 'graph' });
 
       expect(display.current.timestamps).toBe(true);
       expect(JSON.parse(localStorage.getItem(LOG_DISPLAY_KEY) ?? '{}')).toMatchObject({
         timestamps: true,
-        size: 'l',
+        size: 14,
         nodeView: 'graph',
       });
       expect(createLogDisplay().current).toEqual({
         ...DEFAULT_LOG_DISPLAY,
         timestamps: true,
-        size: 'l',
+        size: 14,
         nodeView: 'graph',
       });
     });

@@ -116,7 +116,7 @@ the step to go back to when the first target stays absent (a dialog the user clo
 function of the subject. Without a fallback, the card waits in a corner and the page stays usable:
 the tour never blocks.
 
-Three flags change the card and the page:
+Three flags change the card and the page (`picked` is a fourth field, see **Hold**):
 
 | Flag | Effect |
 |---|---|
@@ -185,7 +185,10 @@ the run is `{ pipelineId, ref? }`: the step reads `pipelineId` from it.
   `ScyllaDialog` then keeps open on Escape and on a click outside, hides its close button and each
   control with `data-dialog-dismiss` (Cancel, Close), and stops its focus trap. `holdKeyboard` loops
   Tab over the targets and the card, so that the keyboard reaches Skip, and stops the search
-  shortcut (Cmd or Ctrl + K) for the whole tour. The tour clears the hold at its end and before
+  shortcut (Cmd or Ctrl + K) for the whole tour. A refused Escape or outside click calls `dialogHoldStore.onBlocked`, which opens the
+  Skip confirmation (Continue keeps the dialog, Skip marks the tour skipped). `step.picked` names the step
+  that follows when the dialog closes because the user opened a result (the search tour: the bar
+  closes, the app goes to the page, the tour goes on there). The tour clears the hold at its end and before
   Previous closes the dialog. The Skip confirmation is not a `ScyllaDialog`, so Escape closes only
   the confirmation. `markTourActive` sets `data-tour-active` on `<html>`: a corner widget of a host
   build hides with it.

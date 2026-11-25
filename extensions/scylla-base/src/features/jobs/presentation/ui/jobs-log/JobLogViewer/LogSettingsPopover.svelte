@@ -1,8 +1,11 @@
 <script lang="ts">
   import Settings2Icon from '@lucide/svelte/icons/settings-2';
+  import MinusIcon from '@lucide/svelte/icons/minus';
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { SegmentedControl } from '@scylla/ui';
   import {
     buttonVariants,
+    Input,
     Label,
     Popover,
     PopoverContent,
@@ -15,7 +18,13 @@
   import type {
     LogDisplay,
     LogDisplaySettings,
-    LogTextSize,
+    LogTextSizePreset,
+  } from '../log-display-settings.state.svelte.ts';
+  import {
+    LOG_TEXT_SIZE_MAX,
+    LOG_TEXT_SIZE_MIN,
+    LOG_TEXT_SIZE_PRESETS,
+    clampLogTextSize,
   } from '../log-display-settings.state.svelte.ts';
 
   interface Props {
@@ -37,7 +46,28 @@
     { value: 's', label: t(messages.sizeSmall) },
     { value: 'm', label: t(messages.sizeMedium) },
     { value: 'l', label: t(messages.sizeLarge) },
-  ] satisfies { value: LogTextSize; label: string }[]);
+  ] satisfies { value: LogTextSizePreset | ''; label: string }[]);
+
+  // No preset is selected for a custom size.
+  const preset = $derived(
+    (Object.keys(LOG_TEXT_SIZE_PRESETS) as LogTextSizePreset[]).find(
+      key => LOG_TEXT_SIZE_PRESETS[key] === display.current.size,
+    ) ?? '',
+  );
+
+  let draft = $state<string | null>(null);
+
+  const setSize = (size: number) => {
+    draft = null;
+    display.set({ size: clampLogTextSize(size) });
+  };
+
+  // An empty or invalid text goes back to the saved size.
+  const commit = (text: string) => {
+    const size = Number.parseFloat(text);
+    if (Number.isFinite(size)) setSize(size);
+    else draft = null;
+  };
 </script>
 
 <!-- The settings of the viewer, kept in the browser for the next job. -->
@@ -70,15 +100,55 @@
         />
       </Label>
     {/each}
-    <div class="flex items-center justify-between gap-3">
-      <span id="{id}-size" class="text-sm">{t(messages.textSize)}</span>
-      <SegmentedControl
-        size="sm"
-        aria-labelledby="{id}-size"
-        value={display.current.size}
-        options={sizes}
-        onChange={size => display.set({ size })}
-      />
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between gap-3">
+        <span id="{id}-size" class="text-sm">{t(messages.textSize)}</span>
+        <SegmentedControl
+          size="sm"
+          aria-labelledby="{id}-size"
+          value={preset}
+          options={sizes}
+          onChange={size => size && setSize(LOG_TEXT_SIZE_PRESETS[size])}
+        />
+      </div>
+      <div class="flex items-center justify-between gap-3">
+        <Label for="{id}-custom-size" class="text-sm font-normal">{t(messages.customSize)}</Label>
+        <div class="flex items-center gap-1" role="group" aria-labelledby="{id}-size">
+          <button
+            type="button"
+            class={cn(buttonVariants({ variant: 'outline', size: 'icon' }), 'size-8')}
+            disabled={display.current.size <= LOG_TEXT_SIZE_MIN}
+            onclick={() => setSize(display.current.size - 1)}
+          >
+            <MinusIcon class="size-4" aria-hidden="true" />
+            <span class="sr-only">{t(messages.decreaseSize)}</span>
+          </button>
+          <Input
+            id="{id}-custom-size"
+            aria-label={t(messages.customSize)}
+            type="number"
+            inputmode="numeric"
+            min={LOG_TEXT_SIZE_MIN}
+            max={LOG_TEXT_SIZE_MAX}
+            step={1}
+            class="w-16 [appearance:textfield] px-1 text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            value={draft ?? display.current.size}
+            oninput={event => (draft = event.currentTarget.value)}
+            onchange={event => commit(event.currentTarget.value)}
+            onblur={event => commit(event.currentTarget.value)}
+          />
+          <button
+            type="button"
+            class={cn(buttonVariants({ variant: 'outline', size: 'icon' }), 'size-8')}
+            disabled={display.current.size >= LOG_TEXT_SIZE_MAX}
+            onclick={() => setSize(display.current.size + 1)}
+          >
+            <PlusIcon class="size-4" aria-hidden="true" />
+            <span class="sr-only">{t(messages.increaseSize)}</span>
+          </button>
+          <span class="text-xs text-muted-foreground" aria-hidden="true">px</span>
+        </div>
+      </div>
     </div>
   </PopoverContent>
 </Popover>

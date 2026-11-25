@@ -64,6 +64,7 @@ const track = (overrides: Partial<TourSpotStep>, rewound = false, isLoading = ()
     onUnlock: vi.fn(),
     onLock: vi.fn(),
     onLost: vi.fn(),
+    onPicked: vi.fn(),
     onFound: vi.fn(),
     onHint: vi.fn(),
     isLoading,
@@ -190,6 +191,21 @@ describe('trackTourStep', () => {
     document.body.innerHTML = '';
     frames(100);
     expect(tracking.onAdvance).toHaveBeenCalledTimes(1);
+    destroy();
+  });
+
+  it('tells when the dialog of a picked step closes after it showed, once', () => {
+    const { tracking, destroy } = track({ targets: [byId('dialog')], picked: 'next-step' });
+    frames(100);
+    expect(tracking.onPicked).not.toHaveBeenCalled();
+
+    document.body.innerHTML = '<div id="dialog"></div>';
+    frames(100);
+    expect(tracking.onPicked).not.toHaveBeenCalled();
+
+    document.body.innerHTML = '';
+    frames(100);
+    expect(tracking.onPicked).toHaveBeenCalledTimes(1);
     destroy();
   });
 
@@ -559,6 +575,20 @@ describe('holdDialogs', () => {
 
     handle.destroy();
     expect(dialogHoldStore.getState().held).toBe(false);
+  });
+
+  it('gives the callback for a refused dismiss only while it holds', () => {
+    const onBlocked = vi.fn();
+    const node = document.createElement('div');
+    const stop = $effect.root(() => {
+      $effect(() => untrack(() => holdDialogs(() => true, onBlocked)(node)));
+    });
+    flushSync();
+    expect(dialogHoldStore.getState().onBlocked).toBe(onBlocked);
+
+    stop();
+    expect(dialogHoldStore.getState().held).toBe(false);
+    expect(dialogHoldStore.getState().onBlocked).toBeUndefined();
   });
 });
 

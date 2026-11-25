@@ -12,4 +12,6 @@ export type SignUpMode = 'open' | 'invite_only' | 'closed';
 export interface SignInMethods {
   providers: SignInProvider[];
   signUpMode: SignUpMode;
+  /** The email address that the mails of the server come from: empty when the server gives none. */
+  mailSender: string;
 }

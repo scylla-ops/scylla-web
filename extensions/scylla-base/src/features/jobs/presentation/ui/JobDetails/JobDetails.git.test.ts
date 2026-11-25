@@ -195,6 +195,24 @@ describe('JobDetailsPage, the Git context', () => {
     ).toBeInTheDocument();
   });
 
+  it('puts each fact of the commit on one line, a long value whole in its tooltip', async () => {
+    const title = 'Add login form validation, with the messages of each field and their tests';
+    await renderPage(job({ source: source({ title }) }));
+    await openDetails();
+
+    const band = sourceBand();
+    expect(
+      within(band)
+        .getAllByRole('term')
+        .map(term => term.textContent?.trim()),
+    ).toEqual(['Repo', 'Branch', 'Commit', 'PR', 'Author', 'Event']);
+    const message = within(band).getByRole('link', { name: title });
+    expect(message).toHaveClass('truncate');
+    expect(message).toHaveAttribute('title', title);
+    expect(within(band).getByText('Add login form')).toHaveAttribute('title', 'Add login form');
+    expect(within(band).getByRole('button', { name: 'Copy the SHA' })).toBeInTheDocument();
+  });
+
   it('shows no Git context for a job with no commit, and reads no report', async () => {
     await renderPage(job({ source: undefined }));
     await openDetails();

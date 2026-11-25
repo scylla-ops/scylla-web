@@ -36,6 +36,7 @@ const setUp = () => {
     listSignInMethods: vi.fn().mockResolvedValue({ providers: [], signUpMode: 'closed' }),
     signUp: vi.fn(),
     verifyEmail: vi.fn(),
+    resendVerificationEmail: vi.fn(),
     pendingLink: vi.fn(),
     linkPendingIdentity: vi.fn(),
     termsStatus: vi.fn(),
