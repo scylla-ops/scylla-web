@@ -18,5 +18,5 @@ export const webhookMessages = {
   manage: msg({ context: 'webhooks', message: 'Manage' }),
   nothing: msg({ context: 'webhooks', message: 'No connection' }),
   nothingText: msg({ context: 'webhooks', message: 'Connect GitHub or GitLab, or add a webhook trigger, to see the deliveries here.' }),
-  catalogHint: msg({ context: 'webhooks', message: 'the deliveries of 24 h and the failures' }),
+  catalogHint: msg({ context: 'webhooks', message: 'The deliveries of 24 h and the failures' }),
 };

@@ -72,6 +72,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   schedule.
 - The command bar tour keeps the focus in the search field, so Tab still changes the filter. The
   example searches show right below the field.
+- The descriptions of the widgets in the widget picker all start with a capital letter, and the
+  statuses in the Runs per day tooltip use one case.
 
 ## [0.7.1] - 2026-11-24
 

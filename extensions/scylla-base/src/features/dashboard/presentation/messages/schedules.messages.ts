@@ -17,5 +17,5 @@ export const scheduleMessages = {
   fireNow: (name: string) => msg({ context: 'schedules', message: `Fire ${name} now` }),
   noSchedule: msg({ context: 'schedules', message: 'No cron trigger' }),
   noScheduleText: msg({ context: 'schedules', message: 'Add a cron trigger to a pipeline to see its next fires here.' }),
-  catalogHint: msg({ context: 'schedules', message: 'the next fires and the failed ones' }),
+  catalogHint: msg({ context: 'schedules', message: 'The next fires and the failed ones' }),
 };
