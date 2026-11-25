@@ -15,6 +15,7 @@ const pipeline = (id: string, version: bigint): Pipeline => ({
   version,
   source: PipelineSource.EDITOR,
   fileKey: '',
+  key: id,
   filePath: '',
   fileErrorCount: 0,
   fragmentLinks: [],

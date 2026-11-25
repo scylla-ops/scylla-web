@@ -28,6 +28,7 @@ const pipeline = (id: string, secret?: string): Pipeline => ({
   ],
   source: PipelineSource.EDITOR,
   fileKey: '',
+  key: `pipeline-${id}`,
   filePath: '',
   fileErrorCount: 0,
 });

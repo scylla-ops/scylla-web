@@ -41,6 +41,7 @@ const basePipeline = (overrides: Partial<Pipeline> = {}): Pipeline => ({
   updatedAt: TS,
   source: PipelineSource.EDITOR,
   fileKey: '',
+  key: 'ci',
   filePath: '',
   fileErrorCount: 0,
   ...overrides,

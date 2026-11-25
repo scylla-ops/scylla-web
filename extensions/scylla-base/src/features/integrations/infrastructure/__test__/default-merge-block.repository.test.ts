@@ -1,7 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect, vi } from 'vitest';
 import type { IMergeBlockServiceClient } from '@base/generated/scylla/integrations/v1/merge_block_service.client.ts';
-import { MergeBlockState, type MergeBlock } from '@base/generated/scylla/integrations/v1/vcs.ts';
+import { MergeBlockState, PipelineSource, type MergeBlock } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultMergeBlockRepository } from '../default-merge-block.repository.ts';
 
@@ -16,6 +16,7 @@ const wire = (patch: Partial<MergeBlock> = {}): MergeBlock => ({
   stateReason: '',
   branch: 'main',
   actionUrl: 'https://github.com/acme/api/rules',
+  pipelineSource: PipelineSource.FILE,
   updatedAt: TS,
   ...patch,
 });
