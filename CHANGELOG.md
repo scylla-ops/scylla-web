@@ -19,6 +19,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - On the job page, the Report row of Details shows the last state of the report when the job ends.
   Before, it showed "In progress" until a reload.
 - Escape and a click outside now ask to skip the tour at the first step of a tour.
+- The form to send the verification link again no longer shows an email error before the user types.
+- The report icon in the jobs list now updates when a job ends, with no reload.
 
 ## [0.7.2] - 2026-11-25
 
