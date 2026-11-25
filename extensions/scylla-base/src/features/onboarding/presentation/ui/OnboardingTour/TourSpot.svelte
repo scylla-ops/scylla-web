@@ -172,7 +172,7 @@
 
   const keyboard = $derived({
     holdSearch: !lost,
-    loopTab: !!card && !tour.confirmingSkip,
+    loopTab: !!card && !tour.confirmingSkip && !step.ownsTab,
     targets: () => step.targets.map(anchor => anchor(document, tour.subject)),
   });
 </script>

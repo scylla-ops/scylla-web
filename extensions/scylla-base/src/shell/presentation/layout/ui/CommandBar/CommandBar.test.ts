@@ -755,6 +755,26 @@ describe('CommandBar', () => {
       expect(screen.queryByText('Try a search')).not.toBeInTheDocument();
     });
 
+    it('shows the examples right below the field, before the results', async () => {
+      await open();
+
+      const title = await screen.findByText('Try a search');
+      const first = screen.getAllByRole('option')[0];
+
+      expect(title.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('keeps the focus in the field while Tab cycles the filters', async () => {
+      const input = await open();
+      const typing = user();
+
+      await typing.keyboard('>');
+      for (let press = 0; press < 3; press++) {
+        await typing.tab();
+        expect(input).toHaveFocus();
+      }
+    });
+
     it('stops the examples after three picks in this workspace', async () => {
       localStorage.setItem(
         'scylla-command-bar-recent:w1',

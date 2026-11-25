@@ -493,7 +493,7 @@ describe('the search tour', () => {
 
   it('keeps the bar usable while it explains it', () => {
     for (const id of ['search-find', 'search-prefix', 'search-keys']) {
-      expect(spot(id)).toMatchObject({ holdsDialog: true, form: true, fallback: 'open-search' });
+      expect(spot(id)).toMatchObject({ holdsDialog: true, form: true, ownsTab: true, fallback: 'open-search' });
     }
   });
 });

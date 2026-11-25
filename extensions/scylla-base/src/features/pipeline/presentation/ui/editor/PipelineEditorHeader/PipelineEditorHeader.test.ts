@@ -193,6 +193,25 @@ describe('PipelineEditorHeader', () => {
     expect(onNameChange).toHaveBeenCalledExactlyOnceWith('build');
   });
 
+  it('turns Save off with the reason while the typed name is a file key, before the name is applied', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    const keyIssueOf = (name: string) =>
+      name === 'build' ? 'The file .scylla/pipelines/build.yaml already uses the key build.' : null;
+    renderHeader({ keyIssueOf, isDirty: true });
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.clear(name);
+    await userEvent.type(name, 'build');
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(save).toHaveAttribute('aria-disabled', 'true');
+    expect(save).toHaveAccessibleDescription(
+      'The file .scylla/pipelines/build.yaml already uses the key build.',
+    );
+
+    await userEvent.type(name, ' 2');
+    expect(screen.getByRole('button', { name: 'Save' })).not.toHaveAttribute('aria-disabled');
+  });
+
   it('gives the saved name back on Escape', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     renderHeader();

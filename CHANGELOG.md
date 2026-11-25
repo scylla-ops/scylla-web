@@ -68,6 +68,15 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The command bar (Ctrl K) has a What's new entry. It opens What's new like the user menu item.
 - A node dropped on the pipeline canvas joins the closest node before it, shows a dashed preview of
   its link, and Alt drops it with no link.
+- Full editor and Cancel in the new schedule form of the Triggers panel no longer create the
+  schedule.
+- The command bar tour keeps the focus in the search field, so Tab still changes the filter. The
+  example searches show right below the field.
+- The descriptions of the widgets in the widget picker all start with a capital letter, and the
+  statuses in the Runs per day tooltip use one case.
+- The What's new row now shows in the command bar when the field is empty.
+- Create and Save are now off, with the reason, while the typed pipeline name is the key of a
+  pipeline file.
 
 ## [0.7.1] - 2026-11-24
 
