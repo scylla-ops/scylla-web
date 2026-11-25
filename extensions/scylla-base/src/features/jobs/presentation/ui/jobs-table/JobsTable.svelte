@@ -15,7 +15,7 @@
   } from '@shared/utils/date-utils.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
   import { isActiveStatus, isFinishedStatus } from '@shared/domain/structs/job-status.struct.ts';
-  import { vcsReportQueries } from '@base/features/integrations';
+  import { MAX_JOBS_PER_REPORT_CALL, vcsReportQueries } from '@base/features/integrations';
   import { jobMutations } from '@base/features/jobs/presentation/jobs.queries.ts';
   import { worstTone } from '@base/features/jobs/presentation/presenters/job-report.presenter.ts';
   import JobActions from './JobActions/JobActions.svelte';
@@ -51,8 +51,18 @@
 
   // One call for the reports of the jobs with a commit on this page.
   const sourceJobIds = $derived(jobs.filter(job => job.source).map(job => job.id));
+  // Changes when a job that the call covers changes status: the reports are read again at once.
+  // The ids are sorted and cut like the ones of the query.
+  const reportsVersion = $derived(
+    jobs
+      .filter(job => job.source)
+      .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+      .slice(0, MAX_JOBS_PER_REPORT_CALL)
+      .map(job => `${job.id}:${job.status}`)
+      .join(','),
+  );
   const reports = createQuery(() => ({
-    ...vcsReportQueries.byJobs(sourceJobIds),
+    ...vcsReportQueries.byJobs(sourceJobIds, true, reportsVersion),
     refetchInterval: query =>
       jobs.some(job => job.source && isActiveStatus(job.status)) ||
       query.state.data?.some(entry =>

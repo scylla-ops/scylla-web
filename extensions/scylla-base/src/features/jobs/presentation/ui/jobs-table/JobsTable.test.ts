@@ -53,8 +53,11 @@ const notSent = (jobId: string): VcsReport => ({
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: () => void;
 let listByJobs: ReturnType<typeof vi.fn>;
+// True once the server has the last state of the reports.
+let ended = false;
 
 beforeEach(() => {
+  ended = false;
   cache = withQueryClient();
   permissionsStore.setState({
     permissions: {
@@ -63,7 +66,11 @@ beforeEach(() => {
   });
   listByJobs = vi.fn((ids: string[]) =>
     Promise.resolve(
-      ids.map((jobId): JobReports => ({ jobId, reports: [notSent(jobId)], noReportReason: '' })),
+      ids.map((jobId): JobReports => ({
+        jobId,
+        reports: [ended ? { ...notSent(jobId), state: 'sent' } : notSent(jobId)],
+        noReportReason: '',
+      })),
     ),
   );
   restoreRegistry = withRegistry({
@@ -95,10 +102,29 @@ describe('JobsTable', () => {
     expect(listByJobs).toHaveBeenCalledWith(['job-1']);
   });
 
+  it('updates the report icon when a job of the list ends, with no reload', async () => {
+    const { rerender } = render(JobsTable, {
+      jobs: [job('job-1', { source: source(), status: 'running' })],
+      pipelineId: 'pipeline-1',
+    });
+    expect(await screen.findByRole('img', { name: 'Report not sent' })).toBeInTheDocument();
+
+    ended = true;
+    await rerender({
+      jobs: [job('job-1', { source: source(), status: 'completed' })],
+      pipelineId: 'pipeline-1',
+    });
+
+    expect(await screen.findByRole('img', { name: 'Report sent' })).toBeInTheDocument();
+  });
+
   it('puts the commit on two lines: the title, then the SHA with the state of its report, the ref and the PRs', async () => {
     render(JobsTable, { jobs: [job('job-1', { source: source() })], pipelineId: 'pipeline-1' });
 
-    expect(screen.getByText('Refactor session store')).toHaveAttribute('title', 'Refactor session store');
+    expect(screen.getByText('Refactor session store')).toHaveAttribute(
+      'title',
+      'Refactor session store',
+    );
     const sha = screen.getByText('9f8e7d6');
     expect(await within(sha).findByRole('img', { name: 'Report not sent' })).toBeInTheDocument();
     const line = sha.parentElement as HTMLElement;
