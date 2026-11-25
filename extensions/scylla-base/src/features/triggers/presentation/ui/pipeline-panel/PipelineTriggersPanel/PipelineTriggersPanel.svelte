@@ -125,6 +125,7 @@
             <p class="text-xs text-muted-foreground">{t(triggersMessages.gitNotAllowed)}</p>
             {#if panel.gitEvents.canManage}
               <Button
+                type="button"
                 variant="link"
                 size="xs"
                 class="px-0"
@@ -138,7 +139,7 @@
         {/if}
       </DropdownMenuContent>
     </DropdownMenu>
-    <Button variant="ghost" size="sm" class="ml-auto" onclick={() => panel.toList()}>
+    <Button type="button" variant="ghost" size="sm" class="ml-auto" onclick={() => panel.toList()}>
       {t(triggerPanelMessages.triggersPage)}
       <ArrowRightIcon aria-hidden="true" />
     </Button>

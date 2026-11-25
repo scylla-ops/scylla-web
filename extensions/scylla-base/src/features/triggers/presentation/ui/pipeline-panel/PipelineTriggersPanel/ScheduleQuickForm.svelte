@@ -54,12 +54,18 @@
   <CronScheduleBuilder initialValue={DEFAULT_CRON} onChange={value => (expression = value)} />
   <p class="flex flex-wrap items-center gap-x-1 text-xs text-muted-foreground">
     {t(triggerPanelMessages.fullEditorHint)}
-    <Button variant="link" size="xs" class="h-auto p-0 text-xs" onclick={onFullEditor}>
+    <Button
+      type="button"
+      variant="link"
+      size="xs"
+      class="h-auto p-0 text-xs"
+      onclick={onFullEditor}
+    >
       {t(triggerPanelMessages.openFullEditor)}
     </Button>
   </p>
   <div class="flex items-center justify-end gap-2">
-    <Button variant="ghost" size="sm" onclick={onClose}>{t(triggersMessages.cancel)}</Button>
+    <Button type="button" variant="ghost" size="sm" onclick={onClose}>{t(triggersMessages.cancel)}</Button>
     <Button type="submit" size="sm" disabled={!valid || create.isPending}>
       {t(triggersMessages.create)}
     </Button>

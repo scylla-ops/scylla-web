@@ -195,6 +195,34 @@ describe('PipelineTriggersPanel', () => {
     );
   });
 
+  it('opens the full editor from the schedule form with no trigger created', async () => {
+    setUp('editor', [trigger()]);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add trigger' }));
+    await userEvent.click(await findFloating('menuitem', 'Schedule'));
+    const form = await screen.findByRole('form', { name: 'New schedule' });
+    await focusSettled();
+    await userEvent.click(within(form).getByRole('button', { name: 'Full editor' }));
+
+    expect(navigator.navigate).toHaveBeenCalled();
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('closes the schedule form on Cancel with no trigger created', async () => {
+    setUp('editor', [trigger()]);
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Add trigger' }));
+    await userEvent.click(await findFloating('menuitem', 'Schedule'));
+    const form = await screen.findByRole('form', { name: 'New schedule' });
+    await focusSettled();
+    await userEvent.click(within(form).getByRole('button', { name: 'Cancel' }));
+
+    await vi.waitFor(() =>
+      expect(screen.queryByRole('form', { name: 'New schedule' })).not.toBeInTheDocument(),
+    );
+    expect(create).not.toHaveBeenCalled();
+  });
+
   it('offers only a schedule and a webhook on a file pipeline, and opens the full editor for a webhook', async () => {
     setUp('file', [push]);
     await screen.findByRole('heading', { name: 'From the file' });
