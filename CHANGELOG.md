@@ -87,6 +87,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the tooltips, and the Run duration widget text writes p50 and p95 in lower case.
 - The Follow button of the job log viewer now turns on again after you turn it off. A finished job
   shows a "Go to the end of the log" button in its place.
+- The "Find anything fast" tour now goes to its end: opening a result continues the tour on the new
+  page, and Escape or a click outside the bar asks to continue or leave.
 
 ## [0.7.1] - 2026-11-24
 
