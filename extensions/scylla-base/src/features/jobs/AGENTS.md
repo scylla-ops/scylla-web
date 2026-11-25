@@ -100,20 +100,28 @@ presentation/
   jobs.queries.ts                    every read and write, as query/mutation options
   jobs-by-pipelines.queries.ts       the fan-out across pipelines, avoids N+1
   ui/Jobs.page.svelte, JobsHeader.svelte
-  ui/JobDetails/                     one job: info, its graph, per-node logs (JobSummary,
-                                     JobGraph/, JobNodeLogs, NodePathNote)
+  ui/JobDetails/                     one job: its header, its alerts, and its log beside its nodes
+    JobHeader.svelte                       the id, the status, Details and Re-run, then JobFacts
+    JobFacts.svelte                        the facts on one line, each with its icon
+    JobDetailsPanel.svelte                 the three groups of Details: Run, Source, Report
+    JobRunFacts.svelte                     the group Run: status, times, agent, labels
+    JobAlerts.svelte                       the approval, the unfit agents, the invalid file or the error
+    job-agent.state.svelte.ts              the name and the link of the agent of a job
+    job-log-place.state.svelte.ts          the node of the log and the full screen, in the URL
+    JobLogWorkspace/                       the split view: the list of the nodes (or its select under
+                                           768 px), the handle, the viewer; the full screen
+    NodePathNote.svelte                    the ports of a switch, where a failure went
     JobSourceFacts.svelte                  the commit band: repo, ref, SHA, PRs, author, fork,
                                            event, pipeline file, approval decision
     JobReportsBand.svelte                  one row for each report to the provider, its retry
     JobApprovalBlock.svelte                Approve and run / Reject of a job from a fork
     InvalidFileAlert.svelte                the errors of an invalid pipeline file
     UnfitAgentsAlert.svelte                the online agents that cannot get the code of a waiting job
-    open-log-panels.state.svelte.ts        which node panels are open, mirrored in the URL
-    reveal.attachments.ts                  revealOn: scrolls a node panel into view
     JobGraph/                              the read-only xyflow graph, its node view, its context
   ui/jobs-table/JobSource/           the Source cell, two lines: author and title, then SHA with
                                      the report icon, ref, PRs
   messages/jobs.messages.ts                every string — `lingui extract` cannot read `.svelte`
+  messages/job-log.messages.ts             the strings of the log viewer and of the list of nodes
   messages/job-git.messages.ts             the strings of the Git context of a job
   presenters/job-source.presenter.ts     the ref, the event and the PR numbers of a commit
   presenters/job-report.presenter.ts     the row and the tone of a report, the no-report reason
@@ -128,10 +136,19 @@ presentation/
                                          the error branches (the run rule of the agent)
   presenters/job-graph.presenter.ts      jobGraph: the nodes and edges of the graph, in the
                                          column layout of the editor
+  presenters/ansi.presenter.ts           parseAnsiLine: the clean text and the styles of a line
+  presenters/log-lines.presenter.ts      readLogLine, the error patterns, the search, `#L<line>`
+  presenters/job-log-place.presenter.ts  the `node` and `fullscreen` parameters, old `nodes` links
+  presenters/job-node-rows.presenter.ts  the duration and the timeline bar of each node
   ui/jobs-table/                     JobsTable + jobs-table.columns.ts + cells
-  ui/jobs-log/JobLogDisplay/         the streamed viewer, shared by both pages
-    streamed-log-view.state.svelte.ts      owns the editor document + tail-follow
-    tail-job-logs.state.svelte.ts          the live stream subscription (opens and closes it)
+  ui/jobs-log/
+    tail-job-logs.state.svelte.ts          the stream of the whole job: lines by node, error counts
+    log-display-settings.state.svelte.ts   the display settings, in `localStorage`
+    JobLogViewer/                          the viewer: toolbar, CodeMirror, footer
+      job-log-viewer.state.svelte.ts         the source, the search, the errors, the line link
+      streamed-log-view.state.svelte.ts      owns the editor document + tail-follow
+      log-editor.ts                          the CodeMirror theme, marks and gutters
+      log-shortcuts.attachments.ts           `/`, `E`, `Shift+E`, `F`, `Escape`
 ```
 
 ## Routes & nav
@@ -159,7 +176,7 @@ paths.
 
 - **The reason of a failure has two places.** The page shows `job.error` in a box. The agent writes
   each failed attempt in the logs of its node (`scylla-agent: attempt <n> failed: <reason>`), so
-  `run.error` is not mapped. A skipped node has no log: its panel says why, and opens no stream.
+  `run.error` is not mapped. A skipped node has no log: the viewer says why in place of the log.
 - **Query keys come from `jobs.query-keys.ts`.** Four exist; three (`JOBS_QUERY_KEY`,
   `WORKSPACE_JOBS_QUERY_KEY`, `JOBS_QUERY_ROOT`) are exported publicly so other modules
   invalidate the *same* key this module queries, and `JOB_QUERY_KEY` (one job, read by the
@@ -174,6 +191,11 @@ paths.
   action / `*.state.svelte.ts` owner — `tail-job-logs.state.svelte.ts` — and never reactivity. It opens the
   stream and **closes it on teardown**; the same holds for `streamed-log-view.state.svelte.ts`, which
   drives a CodeMirror instance through `renderCodeMirror` (`@scylla/ui`).
+- **The page reads one stream for the whole job.** `tailLogs(jobId)` with no node gives each line
+  with its node. The tail reads each line once (`readLogLine`: the escape codes, the error
+  patterns), files it under its node and counts the errors of each node. The list shows these
+  counts, and a change of node is a filter, not a new stream. A flush reads 5000 lines at most
+  each 150 ms, so a long finished log does not block the page.
 - **Never re-seed the editor with the whole live log string.** Replacing the document
   (`changes: { from: 0, to: doc.length }`) resets the scroll offset and collapses the selection;
   at one flush per 150 ms the log appears to jump back to the top and nothing can be selected.
@@ -183,11 +205,8 @@ paths.
 - **Never scroll that viewer to the bottom on every log change** either — same flush rate, and it
   steals the viewport from a user who scrolled up or is dragging a selection. The same file owns
   that decision.
-- **The log viewer is sized by its caller, never by itself.** `JobLogDisplay` takes a `maxHeight`
-  in pixels and grows with the log up to it; the details page gives the whole job's panel the
-  column it measured, and every node panel one fixed readable height whatever the count — the
-  column scrolls rather than shrink them. A fixed height on the editor itself is what this
-  replaced — do not put one back.
+- **The page fills the viewport, and only the log scrolls.** The viewer takes the height of its
+  pane (`h-full`, the editor `absolute inset-0`). Do not give the editor a fixed height.
 - Lists go through `DataTable` + pagination. Row keys are job ids, never indices.
 - **`jobQueries.byPipeline` keeps the rows while another page of the same pipeline loads**
   (`placeholderData`; not across a change of `filter`). The page size comes from the height of the table area, and
@@ -199,27 +218,36 @@ paths.
   The new job runs the nodes and the inputs of the old job, not the pipeline as it is now. `jobMutations.rerun` refreshes the list and opens the
   new job. The action is disabled while the mutation is pending, so a double click makes one job.
 - **A node shows `Attempt N/M` only when it can retry and it started** (`attemptOf`: `M > 1` and
-  `N > 0`), in the node list and in the node panel header.
+  `N > 0`), in its row of the list.
 - **The details page is the one place a job's logs are read.** Everywhere a job is displayed —
   the jobs table's view action and timeline, the bars of the pipeline dashboard's history —
   links there through `scyllaNavigate.goToJobDetails(...)` from `@platform/context`, which is an
-  object. Which log panels are open is the `nodes` search param, not component
-  state (`open-log-panels.state.svelte.ts` owns it), so those links can open straight onto one node's
-  logs.
-- **The whole job and the nodes are exclusive.** The details page opens a `JobLogDisplay` per node
-  the URL names, and the job as a whole only when it names none — the whole job is the page at
-  rest, never a panel standing alongside the nodes, which is why its panel has no close button.
-  Closing the last node panel is what comes back to it.
-- **The timeline picks one node, the log nav builds a set.** A click on a timeline segment shows
-  that node alone (`selectNode`) — the same jump the links from the jobs list and the pipeline
-  dashboard make, landing on the page rather than moving inside it. The nav under the summary
-  adds and removes panels instead (`toggleNode`), which is what lets two nodes' output be read
-  side by side.
-- **Log panels are independent, and each one is a live stream.** Every open panel holds its own
-  tail subscription. Closing a panel unmounts it, which is what cancels that stream — never hide
-  one with CSS instead.
-- **New strings go in `messages/jobs.messages.ts`, never inside a `.svelte`.** Extraction does not read
-  components, so a message declared there vanishes from the catalogs without failing a gate.
+  object. The view of the log is in the URL, not in component state
+  (`job-log-place.state.svelte.ts`), so a link or a shared URL opens the same view:
+  `?node=<id>` (or `node=all` for the whole job), `?fullscreen=1`, and `#L<line>` for a line. An
+  old link with `?nodes=a,b` opens the first of its nodes in the order of the list. A change of
+  node drops the `#L` hash (it is a line of the other log); the full screen keeps it. Keep these
+  parameters when you change the page: the share button of the top bar copies the URL as it is.
+- **One node at a time.** The list (or the graph, as the display settings say) selects one node,
+  or the whole job; the viewer shows its lines. The checkout and a skipped node are entries too:
+  a skipped node shows why it did not run in place of its log.
+- **The viewer writes the clean text in CodeMirror, and the styles as marks.** `parseAnsiLine`
+  keeps the color codes (8 colors; 256 and true colors take the nearest of the 8), bold, dim,
+  inverse and OSC 8 links, and removes the other codes. `\r` keeps the last state of a line, `\b`
+  removes a character. The marks (colors, errors, search, the line of the link) are built for the
+  visible lines only. With the ANSI colors off, the search and the errors still show.
+- **An error line** matches an error pattern (`log-lines.presenter.ts`), or is red on `stderr`.
+  `E` and `Shift+E` go from one to the next, as the buttons of the toolbar do.
+- **The shortcuts** (`/`, `E`, `Shift+E`, `F`, `Escape`) do nothing while the focus is in a field,
+  a menu or a dialog, or with Ctrl, Cmd or Alt. Each one also has a labeled button.
+- **The display settings** (ANSI, wrap, timestamps, line numbers, size, list or graph) are in
+  `localStorage` under `scylla.job-log.display`, and the width of the list under
+  `paneforge:scylla.job.log-split`. Both are in the tracker registry.
+- **The line numbers are links**, out of the tab order: CodeMirror hides its gutters from
+  assistive technology. A plain click writes `#L<line>` in the URL and marks the line.
+- **New strings go in `messages/jobs.messages.ts` (or `job-log.messages.ts` for the viewer), never
+  inside a `.svelte`.** Extraction does not read components, so a message declared there vanishes
+  from the catalogs without failing a gate.
 - **This module never imports `pipeline`.** `pipeline` imports `jobs` (the keys, `loadJobsPage`,
   `jobsByPipelinesQueries`), and `pnpm depcruise:cycles` refuses the module cycle, also for a
   type. So the graph of a job has its own snapshot type (`JobNode`: id, kind, needs, the ports of
@@ -234,11 +262,11 @@ paths.
   list says "Not taken: the path did not reach it." or the text of a failure. There is no
   `NodeStatus` for it: the server says `SKIPPED` for both.
 - **The graph is read-only and follows the same query as the list** (`jobQueries.byId`, the
-  3-second poll). No drag, no link, no delete, no selection. Its nodes carry their size
+  3-second poll). No drag, no link, no delete. Its nodes carry their size
   (`initialWidth`, `initialHeight`), so the view fits at the load, before xyflow measures them, and
   `keepFitted` (`@scylla/ui`) fits again at a resize until the user moves the view. A node is a
-  button: a click opens its panel alone (`selectNode`, as the timeline does) and scrolls to it
-  (`revealOn`). A job with no snapshot node shows no graph.
+  button: a click shows its log, and the node of the log has a ring. A job with no snapshot node
+  shows no graph, and the list has no List / Graph switch.
 - **`data-tour` attributes are anchors of the onboarding tour** (`job-details` on the job page). Keep them on the same
   element when you move markup. See [`features/onboarding`](../onboarding/AGENTS.md#anchors).
 
@@ -258,11 +286,12 @@ paths.
 
 ## The Git context of a job
 
-- **The page stays as it was; the Git context only adds blocks** (decision 19 of the Git integration): under the
-  facts, the Source band (only for a job with a commit), the Report band, then the approval
-  block or the invalid-file block at the place of the error box.
+- **The Git context only adds parts** (decision 19 of the Git integration): the branch, the commit
+  and its author in the facts, the groups Source and Report in Details (only for a job with a
+  commit), then the approval block or the invalid-file block at the place of the error box,
+  between the header and the log.
 - **The checkout is a step, not a node.** `stepsOf` puts it first in the timeline and the log
-  nav, with "built in". Its log lines have the node id `.checkout`, so `?nodes=.checkout` opens
+  list, with "built in". Its log lines have the node id `.checkout`, so `?node=.checkout` opens
   it. `job.nodeExecutions` stays the nodes of the pipeline: the lists and the dashboard read it.
 - **`awaiting_approval` is a status of `@shared`**: neither active nor finished. "Approve and
   run" and "Reject" need `APPROVE_JOB`; a reader sees who can decide. The answer of the server
@@ -270,7 +299,7 @@ paths.
 - **A failed job with `fileErrors` is an invalid pipeline file**: its own status label, and the
   errors with their place replace the reason of the failure.
 - **A job keeps the labels of its pipeline** (`agentLabels`, from the server at its creation).
-  The facts row of `JobSummary` shows them (`AgentLabels` of `@shared/presentation/ui`). A
+  The group Run of Details shows them (`AgentLabels` of `@shared/presentation/ui`). A
   pending job with `NO_AGENT_WITH_LABELS` names them in its status hint: no online agent has
   each of them.
 - **The reports come from `integrations`** (`vcsReportQueries.byJobs`), only for the jobs with a

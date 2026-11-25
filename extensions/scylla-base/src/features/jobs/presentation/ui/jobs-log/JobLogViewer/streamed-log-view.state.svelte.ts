@@ -1,44 +1,84 @@
+import { untrack } from 'svelte';
 import { EditorView } from '@codemirror/view';
+import type { LogLine } from '@base/features/jobs/presentation/presenters/log-lines.presenter.ts';
 
 const TAIL_THRESHOLD_PX = 24;
 
+/** The lines that the viewer shows. Another `key` (another node) replaces the document. */
+export interface LogSource {
+  key: string;
+  lines: readonly Pick<LogLine, 'text'>[];
+  /** The lines to show: the array can grow in place before a new source is read. */
+  count: number;
+}
+
 export interface StreamedLogView {
   attach: (view: EditorView | null) => void;
+  readonly view: EditorView | null;
+  /** The view goes down with each new line until the reader scrolls up or selects. */
+  readonly isFollowing: boolean;
+  /** The lines written since the reader stopped following. */
+  readonly newLines: number;
+  /** Goes to the end of the log and follows it again. */
+  follow: () => void;
+  /** Stops following: the view moved to a line that the reader asked for. */
+  unfollow: () => void;
 }
+
+const textOf = (lines: LogSource['lines'], from: number, to: number) =>
+  lines
+    .slice(from, to)
+    .map(line => line.text)
+    .join('\n');
 
 /**
  * Feeds a growing log into CodeMirror and follows the tail like an IDE console,
  * until the reader scrolls up or selects; following resumes at the end.
  * The document is only appended to: replacing it would lose the scroll and the
- * selection. `logs` only grows, or restarts.
+ * selection. It is replaced only for another node, or when the stream restarts.
  */
-export const createStreamedLogView = (logs: () => string): StreamedLogView => {
-  let view = $state<EditorView | null>(null);
-  let isFollowing = true;
+export const createStreamedLogView = (source: () => LogSource): StreamedLogView => {
+  let view = $state.raw<EditorView | null>(null);
+  let isFollowing = $state(true);
+  /** The number of lines when the reader stopped following. */
+  let seen = $state(0);
+  let written = 0;
+  let writtenKey: string | null = null;
   let hasAnchored = false;
 
   $effect(() => {
-    const text = logs();
+    const { key, lines, count } = source();
     if (!view) return;
 
-    const written = view.state.doc.length;
-    if (text.length === written) return;
+    if (key !== writtenKey || count < written) {
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: textOf(lines, 0, count) },
+      });
+      if (key !== writtenKey) {
+        // Another node opens on its end, like the page.
+        writtenKey = key;
+        hasAnchored = false;
+        isFollowing = true;
+      }
+      written = count;
+      return;
+    }
+    if (count === written) return;
 
-    // Shorter than on screen: the stream restarted.
     view.dispatch({
-      changes:
-        text.length > written
-          ? { from: written, insert: text.slice(written) }
-          : { from: 0, to: written, insert: text },
+      changes: {
+        from: view.state.doc.length,
+        insert: `${written > 0 ? '\n' : ''}${textOf(lines, written, count)}`,
+      },
     });
+    written = count;
   });
 
   $effect(() => {
-    const text = logs();
-    if (!view || !isFollowing || text.length === 0) return;
+    const { count } = source();
+    if (!view || !isFollowing || count === 0) return;
 
     const end = view.state.doc.length;
-    if (end === 0) return;
 
     // A finished job arrives whole: jump to the end (CodeMirror only renders the viewport).
     // The end of the text, not the start of the last line: a wrapped line has several rows.
@@ -56,6 +96,14 @@ export const createStreamedLogView = (logs: () => string): StreamedLogView => {
 
     return () => cancelAnimationFrame(frame);
   });
+
+  // Also called from an effect of the viewer: it must not follow `isFollowing`.
+  const stopFollowing = () =>
+    untrack(() => {
+      if (!isFollowing) return;
+      isFollowing = false;
+      seen = written;
+    });
 
   $effect(() => {
     if (!view) return;
@@ -77,7 +125,8 @@ export const createStreamedLogView = (logs: () => string): StreamedLogView => {
     };
 
     const resync = () => {
-      isFollowing = isAtTail() && !hasSelection();
+      if (isAtTail() && !hasSelection()) isFollowing = true;
+      else stopFollowing();
     };
 
     // Wheel and keys fire before the scroll: read the position a frame later.
@@ -86,8 +135,10 @@ export const createStreamedLogView = (logs: () => string): StreamedLogView => {
       frame = requestAnimationFrame(resync);
     };
 
-    const handlePointerDown = () => {
-      isFollowing = false;
+    const handlePointerDown = (event: PointerEvent) => {
+      // A link of a line number is not a scroll.
+      if ((event.target as Element | null)?.closest('a')) return;
+      stopFollowing();
       // Abort the smooth scroll under a drag, or the selection slides away.
       scroller.scrollTo({ top: scroller.scrollTop, behavior: 'instant' });
     };
@@ -97,7 +148,7 @@ export const createStreamedLogView = (logs: () => string): StreamedLogView => {
 
     scroller.addEventListener('wheel', handleUserScroll, { passive: true });
     scroller.addEventListener('pointerdown', handlePointerDown);
-    ownerDocument.addEventListener('keydown', handleUserScroll);
+    scroller.addEventListener('keydown', handleUserScroll);
     ownerDocument.addEventListener('pointerup', handleGestureEnd);
     ownerDocument.addEventListener('pointercancel', handleGestureEnd);
     ownerDocument.addEventListener('touchend', handleGestureEnd);
@@ -106,7 +157,7 @@ export const createStreamedLogView = (logs: () => string): StreamedLogView => {
       cancelAnimationFrame(frame);
       scroller.removeEventListener('wheel', handleUserScroll);
       scroller.removeEventListener('pointerdown', handlePointerDown);
-      ownerDocument.removeEventListener('keydown', handleUserScroll);
+      scroller.removeEventListener('keydown', handleUserScroll);
       ownerDocument.removeEventListener('pointerup', handleGestureEnd);
       ownerDocument.removeEventListener('pointercancel', handleGestureEnd);
       ownerDocument.removeEventListener('touchend', handleGestureEnd);
@@ -116,7 +167,23 @@ export const createStreamedLogView = (logs: () => string): StreamedLogView => {
   return {
     attach: (created: EditorView | null) => {
       view = created;
+      written = 0;
+      writtenKey = null;
       if (!created) hasAnchored = false;
     },
+    get view() {
+      return view;
+    },
+    get isFollowing() {
+      return isFollowing;
+    },
+    get newLines() {
+      return isFollowing ? 0 : Math.max(0, source().count - seen);
+    },
+    follow: () => {
+      hasAnchored = false;
+      isFollowing = true;
+    },
+    unfollow: stopFollowing,
   };
 };

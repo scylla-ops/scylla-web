@@ -56,12 +56,11 @@ const goToJobDetails = (
   options: { nodeId?: string; pipelineName?: string } = {},
 ) => {
   const projectId = contextStore.getState().project.id;
-  const query = options.nodeId ? `?nodes=${encodeURIComponent(options.nodeId)}` : '';
+  const query = options.nodeId ? `?node=${encodeURIComponent(options.nodeId)}` : '';
   navigateTo(
     `${getWorkspacePrefix()}/projects/${projectId}/pipelines/${pipelineId}/jobs/${jobId}${query}`,
   );
-  if (options.pipelineName)
-    contextStore.getState().setPipeline(pipelineId, options.pipelineName);
+  if (options.pipelineName) contextStore.getState().setPipeline(pipelineId, options.pipelineName);
 };
 
 const goToTriggers = (id: string, name: string) => {

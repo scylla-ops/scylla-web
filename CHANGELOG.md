@@ -22,6 +22,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 - The command bar underlines the letters of each result that match the text that you typed, also
   with a typing error.
+- The job page shows the nodes beside the log, in a list or as the graph, and only the log scrolls.
+  The log shows the terminal colors, has a search with a counter, goes from error to error with E
+  and Shift+E, and opens in full screen with F. Display settings stay in the browser. A link keeps
+  the node, the full screen and the line (#L150). In English and French.
 
 ### Fixed
 

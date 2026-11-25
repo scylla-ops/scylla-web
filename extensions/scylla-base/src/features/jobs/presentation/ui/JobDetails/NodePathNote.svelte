@@ -22,13 +22,13 @@
 
 <!-- What the path of the job says about the node: the ports of a switch, where a failure went. -->
 {#if node?.kind === 'switch' && execution.state === 'completed'}
-  <p class="border-b border-border px-3 py-2 text-sm text-muted-foreground">
+  <p class="shrink-0 border-b border-border bg-card px-3 py-1.5 text-xs text-muted-foreground">
     {execution.ports.length
       ? t(jobsMessages.portsChosen(listOf(execution.ports)))
       : t(jobsMessages.noPortChosen)}
   </p>
 {:else if execution.state === 'failed' && branch.length}
-  <p class="border-b border-border px-3 py-2 text-sm text-muted-foreground">
+  <p class="shrink-0 border-b border-border bg-card px-3 py-1.5 text-xs text-muted-foreground">
     {t(jobsMessages.errorBranch(listOf(branch)))}
   </p>
 {/if}
