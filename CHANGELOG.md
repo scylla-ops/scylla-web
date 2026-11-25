@@ -44,6 +44,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the node, the full screen and the line (#L150). In English and French.
 - The Triggers panel of a Scylla pipeline in a GitHub project shows the Git events opt-in: Push,
   Pull request and Tag stay off until an admin allows them.
+- What's new shows the 0.7.1 and 0.7.2 highlights first, then the 0.7.0 highlights. The dialog opens
+  again one time for each user, and each highlight keeps the seen flag of its version. In English
+  and French.
 
 ### Fixed
 
