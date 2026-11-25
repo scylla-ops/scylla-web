@@ -28,6 +28,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The dashboard widgets open their pages. A pipeline name, a job, a mark of a run, an agent, a
   trigger, a project and an activity event are links, so a middle click opens a new tab, and a
   tooltip tells what a click opens. A bar of one day or one week shows that period on the dashboard.
+- Each widget kind in the widget picker has its own preview icon that looks like the widget.
 
 ## [0.7.1] - 2026-11-24
 
