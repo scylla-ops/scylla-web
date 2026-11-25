@@ -239,7 +239,7 @@ describe('PipelineUpdatePage', () => {
     await userEvent.keyboard('{Enter}');
     expect(name()).toHaveValue('Build');
     expect(name()).toHaveAttribute('aria-invalid', 'true');
-    expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-disabled', 'true');
 
     await retype('Build 2{Enter}');
     expect(name()).toHaveValue('Build 2');

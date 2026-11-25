@@ -75,6 +75,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The descriptions of the widgets in the widget picker all start with a capital letter, and the
   statuses in the Runs per day tooltip use one case.
 - The What's new row now shows in the command bar when the field is empty.
+- Create and Save are now off, with the reason, while the typed pipeline name is the key of a
+  pipeline file.
 
 ## [0.7.1] - 2026-11-24
 
