@@ -23,7 +23,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/state` | rune states: `createSelection`, `createPagination`, `createFeatureSelection`, `createMeasuredHeight`, `createCompactContainer`, `createNow` |
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `intlLocale` (the locale for `Intl`, `en` before the first activation), `formatNumber` (a decimal, a percent or a large number in the language of the UI), `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
-| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
+| `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result, with an optional second line), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
 | `@scylla/ui/assets/*` | the logos |
@@ -35,7 +35,7 @@ src/
   index.ts                 `@scylla/ui` — re-exports the groups below
   chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
                            ChartSlot, ChartRing: the marks of the charts of a widget
-  controls/                IconButton, GatedButton, SearchSelect, SegmentedControl
+  controls/                IconButton, GatedButton, SearchSelect, SegmentedControl, ShareLinkButton
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
@@ -99,6 +99,7 @@ they use the language of the browser or no language.
 | The status of one run | `StatusShape` (`state`, `label`, `size`): the four dots of the logo take the form of the state. See "`StatusShape`" |
 | A row of statuses in time (the last runs) | `StatusTrail`: one dot per item, oldest first, linked by lines; the last dot is a little bigger. Each dot has `data-item-id`; with `onSelect` it is a button |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
+| Give the link of a page to another person | `ShareLinkButton` (`url`, `hint`). The top bar of the core renders it for a route with `share`: a page does not render it |
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
 | One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
@@ -349,6 +350,21 @@ slash. Its accessible name is `label`; `data-state` gives the state to a test.
   around the dots, each frame. Keep it so.
 - `prefers-reduced-motion`: every change is instant, nothing breathes or runs.
 - jsdom has no canvas: `test/setup.ts` gives no 2D context, and the shape keeps its name only.
+
+## `ShareLinkButton`
+
+The button of the top bar that gives the link of the page: outline, 32 px, a `Link` icon, a
+tooltip below it. `url` gives the link (default: the address of the page at the click); `null`
+hides the button. `hint` is the second line of the toast, e.g. who can open the link.
+
+- **A computer copies, a phone shares.** With a coarse pointer and `navigator.share`, the label is
+  "Share link" and a click opens the share sheet of the system. Else the label is "Copy link" and
+  a click writes the clipboard. A computer can have `navigator.share`: it still copies.
+- A copy or a share shows the check (`text-status-passed`) for 2 s and a toast ("Link copied",
+  "Link shared") with `hint`. A refused copy shows the error of `copyToClipboard` and tells to
+  copy the address from the address bar. A cancelled share sheet (`AbortError`) tells nothing;
+  a share that fails for another reason copies.
+- The focus stays on the button. The toaster (`aria-live="polite"`) announces the result.
 
 ## `SegmentedControl`
 

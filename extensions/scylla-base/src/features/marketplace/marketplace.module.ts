@@ -39,6 +39,7 @@ export const MarketplaceModule = {
             permission: Permission.LIST_PIPELINES_BY_WORKSPACE,
             breadcrumb: () => ({ label: msg`Package`, detail: msg`Detail` }),
             page: () => import('./presentation/ui/Package/Package.page.svelte'),
+            share: true,
           },
         ],
       },

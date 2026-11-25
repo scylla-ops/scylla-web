@@ -137,6 +137,12 @@ Sidebar: section `workspace`, order `10`, icon `LayoutDashboard`. The rail item 
 shows `DashboardPanel` (`shell.secondSidebarPanels`), not links. An unknown id opens
 `/dashboard`.
 
+The two routes have the share button of the top bar. Its link is `dashboardView.shareUrl`:
+`/<workspace>/dashboards/<id>` and the query string (the period), never `/dashboard`, which
+opens the default dashboard of each person. The page gives its dashboard with
+`dashboardView.show`. A private dashboard, or one that the server does not have, gives `null`:
+no other person can open it, thus the button hides.
+
 `READ_WORKSPACE` is intentionally the same gate as the projects list: the overview is a read
 of the workspace, and it is where every org-level redirect lands. Do not tighten it to a
 narrower permission without moving that redirect target too.

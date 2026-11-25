@@ -28,7 +28,7 @@ __test__/destructive-actions.test.ts    conformance: an action that deletes, rem
 __test__/choice-cards.test.ts           conformance: a radio, a checkbox or a switch in a label is centered
                                         on the label, here and in `@scylla/ui` (`@scylla/ui`, "Rules that bite here")
 presentation/
-  shell-params.ts                       breadcrumbParams, linkParams (from the context store)
+  shell-params.ts                       breadcrumbParams, linkParams, shareHint (from the context store)
   admin-space.ts                        ADMIN_SECTION, ADMIN_PATH, isAdminPath, adminHome (the first admin link)
   report-query-error.ts                 the one error toast; on UNAUTHENTICATED `closeSession`, `loginPathBackTo` (login);
                                         on a conflict of a mutation, a warning toast and `invalidateQueries()`
@@ -108,7 +108,8 @@ navSections      workspace, project (within projects, title: projectName), insta
                  opens it)
 access           can / authorizationReady / RequirePermission, from @platform/authz
 shell            brand ShellBrand · topBarEnd GlobalSearch, NotificationsMenu, WorkspaceSelector · sidebarFooter NavUser · overlays LaunchOverlays · navBadge NewBadge ·
-                 onNavOpen markNavSeen · secondSidebarLinks projectLinks · breadcrumbParams · linkParams
+                 onNavOpen markNavSeen · secondSidebarLinks projectLinks · breadcrumbParams · linkParams ·
+                 shareHint (who can open a shared link)
 onQueryError     reportQueryError
 onQueryRetry     retryQueryError
 fallback         NotFoundPage

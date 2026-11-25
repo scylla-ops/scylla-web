@@ -1,5 +1,5 @@
 import { vi } from 'vitest';
-import { setAppNavigator } from '@scylla/core-sdk';
+import { setAppNavigator, type RouteShare } from '@scylla/core-sdk';
 
 /**
  * A fake navigator, installed in place of the router. `navigate(to)` without
@@ -7,7 +7,13 @@ import { setAppNavigator } from '@scylla/core-sdk';
  * pathname does not: a path navigation unmounts the caller in the app.
  */
 export const installTestNavigator = (
-  options: { pathname?: string; search?: string; params?: Record<string, string> } = {},
+  options: {
+    pathname?: string;
+    search?: string;
+    params?: Record<string, string>;
+    /** The `share` of the current page. */
+    share?: RouteShare;
+  } = {},
 ) => {
   const pathname = options.pathname ?? '/';
   let search = options.search ?? '';
@@ -27,6 +33,7 @@ export const installTestNavigator = (
     params: () => options.params ?? {},
     trail: () => [],
     hasPage: pathname => pages.has(pathname),
+    share: () => options.share,
   });
 
   return {

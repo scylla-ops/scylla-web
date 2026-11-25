@@ -6,6 +6,7 @@ import {
   navigateBack,
   navigateTo,
   routeParams,
+  routeShare,
   routeTrail,
   setAppNavigator,
   type AppNavigator,
@@ -75,5 +76,13 @@ describe('the app navigator', () => {
 
     expect(hasPage('/acme/agents')).toBe(true);
     expect(hasPage('/acme/nothing')).toBe(false);
+  });
+
+  it('asks the router for the share button of the page, and has none without a router', () => {
+    expect(routeShare()).toBeUndefined();
+
+    setAppNavigator({ ...fake(), share: () => true });
+
+    expect(routeShare()).toBe(true);
   });
 });

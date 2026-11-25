@@ -551,3 +551,34 @@ describe('The edit mode', () => {
     expect(server.dashboards[0].version).toBe(7);
   });
 });
+
+describe('The share link', () => {
+  const widgets = [{ id: 'w1', data: 'success-rate' as const, size: 's' as const }];
+  const openOn = (visibility: 'private' | 'workspace') => {
+    server.dashboards = [
+      { id: 'dash-7', name: 'Release day', widgets, version: 3, visibility, teamDefault: false },
+    ];
+    installTestNavigator({
+      pathname: '/acme/dashboard',
+      search: '?period=7d',
+      params: { workspaceSlug: 'acme' },
+    });
+    render(DashboardPage);
+  };
+
+  it('links to the dashboard by its id, not to the default of each person, and keeps the period', async () => {
+    openOn('workspace');
+
+    await vi.waitFor(() =>
+      expect(dashboardView.shareUrl).toBe(`${window.location.origin}/acme/dashboards/dash-7?period=7d`),
+    );
+  });
+
+  it('gives no link to a private dashboard: no other person can open it', async () => {
+    openOn('private');
+
+    // The one widget of the dashboard of the server, not the twelve of the first layout.
+    await vi.waitFor(() => expect(screen.getAllByRole('region')).toHaveLength(1));
+    expect(dashboardView.shareUrl).toBeNull();
+  });
+});

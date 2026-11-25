@@ -108,6 +108,11 @@ export interface ShellContributions {
   breadcrumbParams?: () => BreadcrumbParams;
   /** Reactive. Parameters of the mount paths in sidebar links, in addition to the route's. */
   linkParams?: () => RouteParams;
+  /**
+   * Reactive. The second line of the toast of the share button, e.g. who can open the link. The
+   * last module that gives it wins.
+   */
+  shareHint?: () => string | undefined;
 }
 
 /** Every query and mutation error goes here. Do not add an `onError` toast in a query. */

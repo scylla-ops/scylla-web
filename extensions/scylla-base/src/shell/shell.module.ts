@@ -24,7 +24,7 @@ import ContextCleanerWrapper from './presentation/router/ContextCleaner.wrapper.
 import NotFoundPage from './presentation/router/NotFound/NotFound.page.svelte';
 import WorkspaceSyncWrapper from './presentation/router/WorkspaceSync.wrapper.svelte';
 import PersonalLayout from './presentation/router/PersonalLayout/PersonalLayout.svelte';
-import { breadcrumbParams, linkParams } from './presentation/shell-params.ts';
+import { breadcrumbParams, linkParams, shareHint } from './presentation/shell-params.ts';
 
 /**
  * The frame around the Scylla pages: the mounts that the feature modules graft
@@ -119,6 +119,7 @@ export const ShellModule = {
     secondSidebarLinks: projectLinks,
     breadcrumbParams,
     linkParams,
+    shareHint,
   },
   commands: languageCommands,
   onQueryError: reportQueryError,

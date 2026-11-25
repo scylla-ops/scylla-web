@@ -38,4 +38,5 @@ export const layoutMessages = {
   whatsNewDescription: msg`Here is what landed in this version.`,
   gotIt: msg`Got it`,
   openDashboard: msg`Scylla: open the dashboard`,
+  shareHint: (workspace: string) => msg`Only members of ${workspace} with access can open it.`,
 };

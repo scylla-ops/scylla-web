@@ -34,12 +34,13 @@ let teardown: Array<() => void> = [];
 let getByPipelineId: ReturnType<typeof vi.fn>;
 let run: ReturnType<typeof vi.fn>;
 
-const setUp = (linked: unknown) => {
+const setUp = (linked: unknown, search = '') => {
   getByPipelineId = vi.fn().mockResolvedValue(empty);
   run = vi.fn().mockResolvedValue({ needsContainer: false });
   const cache = withQueryClient();
   const navigator = installTestNavigator({
     pathname: '/acme/projects/project-1/pipelines/pipeline-1/jobs',
+    search,
   });
   teardown = [
     cache.restore,
@@ -133,6 +134,21 @@ describe('PipelineJobsPage', () => {
 
     await waitFor(() => expect(lastFilter()).toEqual({}));
     expect(screen.getByRole('textbox', { name: 'Author login' })).toHaveValue('');
+  });
+
+  it('opens with the filters of the link, so that a copied link shows the same jobs', async () => {
+    setUp(link, '?event=pull_request&author=lea-martin&pr=51');
+    await screen.findByRole('group', { name: 'Filter the jobs' });
+
+    await waitFor(() =>
+      expect(lastFilter()).toEqual({
+        event: 'pull_request',
+        authorLogin: 'lea-martin',
+        pullRequest: 51,
+      }),
+    );
+    expect(screen.getByRole('textbox', { name: 'Author login' })).toHaveValue('lea-martin');
+    expect(screen.getByRole('spinbutton', { name: 'PR number' })).toHaveValue(51);
   });
 
   it('asks which commit to run, and says that the reports of the repository are off', async () => {

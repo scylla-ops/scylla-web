@@ -21,6 +21,7 @@ scyllaHref                                the URL of a page of the active worksp
                                           project, jobs, job (with a node), triggers, agents, agent
 navigateTo, navigateBack                  plain navigation
 currentPathname, currentSearch            the current URL
+createSearchParams(names)                 parameters of the query string as state of a page
 hasPage                                  whether the router has a page for a pathname, also through a redirect
 setAppNavigator, type AppNavigator, type NavigateOptions
 createResourceError                       NOT_FOUND on a detail page → toast + redirect
@@ -79,6 +80,7 @@ index.ts                             public API
 context.store.ts                     the store (persisted)
 scylla-navigate.ts                   context-aware navigation
 resource-error.state.svelte.ts             createResourceError
+search-params.state.svelte.ts              createSearchParams
 ```
 
 ## The navigator
@@ -92,6 +94,11 @@ The navigator of the app is in `@scylla/core-sdk`; `index.ts` re-exports `naviga
 - `navigateTo` accepts a relative target: `'..'` is the parent page, `'members'` is a child
   page.
 - `currentPathname()` and `currentSearch()` are reactive while the router is installed.
+- **The view of a page that a link must open again goes in the URL**: a filter, a tab, a ref.
+  `createSearchParams(['tab'])` gives `values` (`''` for a missing parameter) and `write`, which
+  replaces the current history entry and keeps the other parameters. A blank value removes its
+  parameter, thus a default value writes nothing. The caller checks a value of the URL, because
+  a person can type anything there.
 
 ## Rules that bite here
 

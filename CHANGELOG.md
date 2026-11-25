@@ -10,6 +10,14 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Added
+
+- A "Copy link" button in the top bar of the pages that a member opens again from a link: a job, a
+  pipeline, its jobs, a project, a fragment, an agent, an app, a package and a dashboard. It copies
+  the link and tells who can open it. On a phone, it opens the share sheet. The filters of the jobs,
+  the branch and tab of a file pipeline and the tab of a package are in the link. A private
+  dashboard has no button. In English and French.
+
 ### Fixed
 
 - Two flaky tests no longer fail the CI at random.

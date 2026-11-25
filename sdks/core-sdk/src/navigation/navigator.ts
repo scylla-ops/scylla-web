@@ -1,5 +1,5 @@
 import type { TrailCrumb } from '../routing/crumb.struct.ts';
-import type { RouteParams } from '../routing/route.struct.ts';
+import type { RouteParams, RouteShare } from '../routing/route.struct.ts';
 
 /** The only way to change the URL. The core installs the router with `setAppNavigator`. */
 
@@ -20,6 +20,8 @@ export interface AppNavigator {
   trail: () => TrailCrumb[];
   /** Whether a page, or a redirect to one, answers this pathname. Absent: no page. */
   hasPage?: (pathname: string) => boolean;
+  /** Reactive. The `share` of the current page. Absent: no page shares. */
+  share?: () => RouteShare | undefined;
 }
 
 let current: AppNavigator | null = null;
@@ -60,3 +62,6 @@ export const routeParams = (): RouteParams => current?.params() ?? {};
 
 /** Reactive. Empty when no router is installed. */
 export const routeTrail = (): TrailCrumb[] => current?.trail() ?? [];
+
+/** Reactive. The `share` of the current page; `undefined` when it has none or no router is installed. */
+export const routeShare = (): RouteShare | undefined => current?.share?.();

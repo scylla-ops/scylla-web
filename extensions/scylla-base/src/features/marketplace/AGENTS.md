@@ -84,6 +84,9 @@ presentation/
 | `workspace` | `marketplace` | `LIST_PIPELINES_BY_WORKSPACE` | `MarketplacePage` |
 | `workspace` | `marketplace/:packageId` | `LIST_PIPELINES_BY_WORKSPACE` | `PackagePage` |
 
+The page of a package has the share button of the top bar (`share: true`). Its tab is in the URL
+(`?tab=versions`, `?tab=readme`; the overview writes no parameter), so a shared link opens it.
+
 Sidebar: section `workspace`, title Browse in the group Marketplace, order `50`. The command bar
 test finds it as `page:workspace/marketplace`.
 

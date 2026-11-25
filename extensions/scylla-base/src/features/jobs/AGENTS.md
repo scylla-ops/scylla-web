@@ -140,6 +140,9 @@ presentation/
 |---|---|---|---|
 | `project` | `pipelines/:pipelineId/jobs/:jobId` | `READ_JOB` | `JobDetailsPage` |
 
+The job page has the share button of the top bar (`share: true`): it copies the URL with its
+query and its hash.
+
 No nav entry. The jobs **list** is not declared here: it is mounted by
 [`pipeline`](../pipeline/AGENTS.md) at `project` → `pipelines/:pipelineId/jobs`, gated on
 `LIST_JOBS_BY_PIPELINE`, via `PipelineJobsRoute`, because that page needs a Run action. If you

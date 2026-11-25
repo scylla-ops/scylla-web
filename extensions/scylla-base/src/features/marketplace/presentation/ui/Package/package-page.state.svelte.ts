@@ -1,7 +1,7 @@
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
 import { Permission, can } from '@platform/authz';
-import { contextStore, scyllaNavigate } from '@platform/context';
+import { contextStore, createSearchParams, scyllaNavigate } from '@platform/context';
 import { fragmentQueries } from '@base/features/pipeline';
 import {
   marketplaceMutations,
@@ -14,9 +14,14 @@ const context = toRune(contextStore);
 /** How the add dialog opens: on the linked choice, or on the fork. */
 export type AddMode = 'linked' | 'forked';
 
+/** The tabs of the page. The first one is the default, which the URL does not name. */
+const PACKAGE_TABS = ['overview', 'versions', 'readme'] as const;
+export type PackageTab = (typeof PACKAGE_TABS)[number];
+
 /**
  * The page of a package: the package, where it stands in the library, the star of the reader,
- * and the add dialog.
+ * the add dialog, and the open tab, which is in the URL (`?tab=readme`) so that a copied link
+ * opens it.
  */
 export const createPackagePage = (packageId: () => string) => {
   const workspace = $derived(context().workspace);
@@ -33,6 +38,11 @@ export const createPackagePage = (packageId: () => string) => {
   const status = $derived(pkg ? libraryStatus(pkg, fragments) : { kind: 'none' as const });
 
   let adding = $state<AddMode | null>(null);
+
+  const search = createSearchParams(['tab']);
+  const tab = $derived<PackageTab>(
+    PACKAGE_TABS.find(known => known === search.values.tab) ?? 'overview',
+  );
 
   return {
     get isLoading() {
@@ -63,6 +73,12 @@ export const createPackagePage = (packageId: () => string) => {
     },
     set adding(next: AddMode | null) {
       adding = next;
+    },
+    get tab() {
+      return tab;
+    },
+    selectTab(next: string) {
+      search.write({ tab: next === PACKAGE_TABS[0] ? '' : next });
     },
 
     toggleStar() {

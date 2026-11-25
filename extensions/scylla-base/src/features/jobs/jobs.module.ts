@@ -22,6 +22,7 @@ export const JobsModule = {
         permission: Permission.READ_JOB,
         breadcrumb: ({ jobId }) => ({ label: msg`Job`, highlight: `#${jobId}` }),
         page: () => import('./presentation/ui/JobDetails/JobDetails.page.svelte'),
+        share: true,
       },
     ],
   },

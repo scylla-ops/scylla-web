@@ -10,6 +10,7 @@ import type { PipelineFile } from '@base/features/pipeline/domain/structs/pipeli
 import FilePipelinePage from './FilePipeline.page.svelte';
 
 const PATH = '.scylla/pipelines/build.toml';
+const PAGE = '/acme/projects/project-1/pipelines/pipeline-1';
 
 const node = {
   id: 'build',
@@ -58,11 +59,14 @@ let getFile: ReturnType<typeof vi.fn>;
 const setUp = (
   read: (id: string, ref?: unknown) => Promise<PipelineFile>,
   pipeline: typeof saved = saved,
+  search = '',
 ) => {
   getFile = vi.fn(read);
   const cache = withQueryClient();
+  const navigator = installTestNavigator({ pathname: PAGE, search });
   teardown = [
     cache.restore,
+    navigator.restore,
     withRegistry({
       pipeline: {
         pipelineRepository: { getWithLayout: () => Promise.resolve(pipeline), getFile },
@@ -77,6 +81,7 @@ const setUp = (
     }),
   ];
   render(FilePipelinePage, { projectId: 'project-1', pipelineId: 'pipeline-1' });
+  return navigator;
 };
 
 beforeEach(() => {
@@ -126,7 +131,7 @@ describe('FilePipelinePage', () => {
   });
 
   it('reads the file of another branch, and lists its errors with their line', async () => {
-    setUp((_id, ref) =>
+    const navigator = setUp((_id, ref) =>
       Promise.resolve(
         ref
           ? file({
@@ -164,6 +169,10 @@ describe('FilePipelinePage', () => {
     await waitFor(() =>
       expect(getFile).toHaveBeenCalledWith('pipeline-1', { kind: 'branch', name: 'feature/bench' }),
     );
+    // In the URL, so that a copied link opens the same branch.
+    expect(navigator.navigate).toHaveBeenCalledWith(`${PAGE}?ref=branch%3Afeature%2Fbench`, {
+      replace: true,
+    });
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'build.toml has 2 errors on feature/bench at d4e5f6a. The graph shows the last valid version.',
     );
@@ -183,15 +192,37 @@ describe('FilePipelinePage', () => {
     expect(screen.getByRole('tab', { name: 'Scripting' })).toBeDisabled();
   });
 
+  it('opens the branch and the tab of a link, so that a copied link shows the same view', async () => {
+    setUp(() => Promise.resolve(file()), saved, '?ref=branch%3Afeature%2Fbench&tab=scripting');
+
+    await waitFor(() =>
+      expect(getFile).toHaveBeenCalledWith('pipeline-1', { kind: 'branch', name: 'feature/bench' }),
+    );
+    expect(
+      await screen.findByRole('tab', { name: 'Scripting', selected: true }),
+    ).toBeInTheDocument();
+  });
+
+  it('writes the open tab in the URL, and names no tab for the graph, the default one', async () => {
+    const navigator = setUp(() => Promise.resolve(file()));
+    await screen.findByRole('note');
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Scripting' }));
+    expect(navigator.navigate).toHaveBeenLastCalledWith(`${PAGE}?tab=scripting`, { replace: true });
+    expect(screen.getByRole('tab', { name: 'Scripting', selected: true })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Blueprint' }));
+    expect(navigator.navigate).toHaveBeenLastCalledWith(PAGE, { replace: true });
+  });
+
   it('sends an editor pipeline to its editor: it has no file to show', async () => {
-    const navigator = installTestNavigator({
-      pathname: '/acme/projects/project-1/pipelines/pipeline-1',
-    });
-    teardown.push(navigator.restore);
-    setUp(() => Promise.reject(new ScyllaError('no file', { code: 'FAILED_PRECONDITION' })), {
-      ...saved,
-      origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
-    });
+    const navigator = setUp(
+      () => Promise.reject(new ScyllaError('no file', { code: 'FAILED_PRECONDITION' })),
+      {
+        ...saved,
+        origin: { source: 'editor', filePath: '', fileErrorCount: 0 },
+      },
+    );
 
     await vi.waitFor(() =>
       expect(navigator.navigate).toHaveBeenCalledWith('../../edit/pipeline-1', { replace: true }),

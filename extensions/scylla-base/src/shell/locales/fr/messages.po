@@ -197,7 +197,7 @@ msgstr "Aller au rôle {name}."
 msgid "Go to the secrets page, at {name}. The value stays hidden."
 msgstr "Aller à la page des secrets, à {name}. La valeur reste masquée."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:38
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:39
 msgid "Got it"
 msgstr "C'est noté"
 
@@ -209,7 +209,7 @@ msgstr "Aide"
 msgid "Help & tours"
 msgstr "Aide et visites"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:37
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:38
 msgid "Here is what landed in this version."
 msgstr "Voici ce qui arrive dans cette version."
 
@@ -268,6 +268,10 @@ msgstr "Maintenant : {name}"
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:7
 msgid "On this pipeline"
 msgstr "Sur cette pipeline"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:41
+msgid "Only members of {workspace} with access can open it."
+msgstr "Seuls les membres de {workspace} qui y ont accès peuvent l'ouvrir."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:34
 msgid "Open Scylla"
@@ -366,7 +370,7 @@ msgstr "Lancer…"
 msgid "Save a group of nodes as a fragment, then use it in each pipeline of the workspace. A new version is proposed, never forced."
 msgstr "Enregistrez un groupe de nœuds comme fragment, puis utilisez-le dans chaque pipeline de l'espace de travail. Une nouvelle version est proposée, jamais imposée."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:39
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:40
 msgid "Scylla: open the dashboard"
 msgstr "Scylla : ouvrir le tableau de bord"
 
@@ -478,7 +482,7 @@ msgstr "Utiliser {name}. Actuellement : {now}. Cet appareil seulement."
 msgid "Welcome to Scylla!"
 msgstr "Bienvenue sur Scylla !"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:36
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:37
 msgid "What's new"
 msgstr "Nouveautés"
 

@@ -294,6 +294,15 @@ presentation/
 | `workspace` | `library` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentLibraryPage` |
 | `workspace` | `library/:fragmentId` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentDetailPage` |
 
+The project page, `edit/:pipelineId`, `pipelines/:pipelineId`, `pipelines/:pipelineId/jobs` and
+`library/:fragmentId` have the share button of the top bar (`share: true`). The others are forms
+or a list that the sidebar opens. A shared link opens the same view, because the view is in the
+URL: the filters of the jobs (`?branch=&event=&author=&pr=`, `createJobFilters`), and the ref and
+the tab of a file pipeline (`?ref=branch:dev&tab=scripting`, `createFilePipeline`, the ref with
+`toValue` / `fromValue` of `commit-ref.mapper.ts`). `createSearchParams` of `@platform/context`
+reads them and writes them in place of the current history entry. A default value writes no
+parameter.
+
 **One nav entry**, Library, in the workspace section. Pipelines are the project index, reached
 by entering a project. While it shows, the second sidebar lists the fragments of the library
 (`shell.secondSidebarLinks: fragmentLinks`), under a search field that filters them by name

@@ -1,4 +1,5 @@
 import { createQuery } from '@scylla/core-sdk';
+import { createSearchParams } from '@platform/context';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { repositoryLinkQueries } from '@base/features/integrations';
 import type { CommitRef } from '@base/features/pipeline/domain/structs/commit-ref.struct.ts';
@@ -14,10 +15,15 @@ export interface FilePipelineParams {
   projectId: () => string;
 }
 
+/** The tabs of the page. The first one is the default, which the URL does not name. */
+const FILE_TABS = ['blueprint', 'scripting'] as const;
+export type FileTab = (typeof FILE_TABS)[number];
+
 /**
  * The page of a file pipeline: its file at a branch or a tag, and the saved pipeline, which is the
  * last valid version of the file on the default branch. The graph shows the file; when the file
- * has errors or cannot be read, it shows the saved pipeline, faded.
+ * has errors or cannot be read, it shows the saved pipeline, faded. The ref and the tab are in the
+ * URL (`?ref=branch:dev&tab=scripting`), so that a copied link opens the same view.
  */
 export const createFilePipeline = (params: FilePipelineParams) => {
   const pipelineQuery = createQuery(() => pipelineQueries.byId(params.pipelineId()));
@@ -26,8 +32,13 @@ export const createFilePipeline = (params: FilePipelineParams) => {
     repositoryLinkQueries.refs({ projectId: params.projectId() }),
   );
 
+  const search = createSearchParams(['ref', 'tab']);
+
   /** `undefined`: the head of the default branch. */
-  let ref = $state<CommitRef | undefined>(undefined);
+  const ref = $derived<CommitRef | undefined>(commitRef.fromValue(search.values.ref));
+  const tab = $derived<FileTab>(
+    FILE_TABS.find(known => known === search.values.tab) ?? 'blueprint',
+  );
   const fileQuery = createQuery(() => pipelineQueries.file(params.pipelineId(), ref));
 
   const link = $derived(linkQuery.data ?? null);
@@ -126,7 +137,13 @@ export const createFilePipeline = (params: FilePipelineParams) => {
       const next = commitRef.fromValue(value);
       if (!next) return;
       const isDefault = next.kind === 'branch' && next.name === defaultBranch;
-      ref = isDefault ? undefined : next;
+      search.write({ ref: isDefault ? '' : commitRef.toValue(next) });
+    },
+    get tab() {
+      return tab;
+    },
+    selectTab(next: string) {
+      search.write({ tab: next === FILE_TABS[0] ? '' : next });
     },
   };
 };

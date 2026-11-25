@@ -33,7 +33,7 @@
 {:else}
   <div class="flex min-h-full w-full flex-col gap-6 pb-20">
     <PackageHeader {page} />
-    <Tabs value="overview" class="gap-4">
+    <Tabs value={page.tab} onValueChange={tab => page.selectTab(tab)} class="gap-4">
       <TabsList>
         <TabsTrigger value="overview">{t(marketplaceMessages.overview)}</TabsTrigger>
         <TabsTrigger value="versions">{t(marketplaceMessages.versionsTab(pkg.versions.length))}</TabsTrigger>

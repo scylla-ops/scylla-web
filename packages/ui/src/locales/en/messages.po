@@ -75,6 +75,14 @@ msgstr "Copied!"
 msgid "Copy"
 msgstr "Copy"
 
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:4
+msgid "Copy link"
+msgstr "Copy link"
+
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:8
+msgid "Copy the address from the address bar."
+msgstr "Copy the address from the address bar."
+
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:4
 msgid "Copy your secret"
 msgstr "Copy your secret"
@@ -122,6 +130,14 @@ msgstr "It needs {permission}. Ask a workspace admin."
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:16
 msgid "It was deleted, or you cannot see it any more."
 msgstr "It was deleted, or you cannot see it any more."
+
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:6
+msgid "Link copied"
+msgstr "Link copied"
+
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:7
+msgid "Link shared"
+msgstr "Link shared"
 
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:4
 msgid "Loading"
@@ -182,6 +198,10 @@ msgstr "Secret copied"
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:5
 msgid "Select all"
 msgstr "Select all"
+
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:5
+msgid "Share link"
+msgstr "Share link"
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:6
 msgid "Show the options"
