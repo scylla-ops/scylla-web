@@ -88,9 +88,10 @@
 </script>
 
 {#snippet aside()}
-  <span class="flex items-center gap-1.5"><ChartDot tone="passed" />{t(widgetMessages.completedLower)}</span>
-  <span class="flex items-center gap-1.5"><ChartDot tone="failed" />{t(widgetMessages.failedLower)}</span>
-  <span class="flex items-center gap-1.5"><ChartDot tone="canceled" />{t(widgetMessages.cancelled)}</span>
+  <span class="flex items-center gap-1.5"><ChartDot tone="passed" />{t(widgetMessages.completed)}</span>
+  <span class="flex items-center gap-1.5"><ChartDot tone="failed" />{t(widgetMessages.failed)}</span>
+  <span class="flex items-center gap-1.5"><ChartDot tone="canceled" />{t(widgetMessages.orphaned)}</span>
+  <span class="flex items-center gap-1.5"><ChartDot tone="canceled" />{t(widgetMessages.cancelledLegend)}</span>
 {/snippet}
 
 {#snippet barChart(className: string)}

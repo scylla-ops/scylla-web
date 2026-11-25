@@ -13,6 +13,7 @@ import {
   type AppNavLink,
   type CommandDefinition,
 } from '@scylla/core-sdk';
+import { dialogHoldStore } from '@scylla/ui/stores';
 import { toast } from '@scylla/ui/utils';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import Fixture from './CommandBar.fixture.svelte';
@@ -784,6 +785,20 @@ describe('CommandBar', () => {
 
       expect(await screen.findByText('Recent')).toBeInTheDocument();
       expect(screen.queryByText('Try a search')).not.toBeInTheDocument();
+    });
+
+    it('shows the examples during a tour, even with many picks', async () => {
+      localStorage.setItem(
+        'scylla-command-bar-recent:w1',
+        JSON.stringify(['page:workspace/agents', 'page:workspace/apps', 'page:account/appearance', 'page:workspace/agents']),
+      );
+      dialogHoldStore.setState({ held: true });
+      onTestFinished(() => dialogHoldStore.setState({ held: false }));
+      const input = await open();
+
+      await user().click(await screen.findByRole('button', { name: 'agnts' }));
+
+      expect(input).toHaveValue('agnts');
     });
 
     it('reads a recent row from the list of this workspace', async () => {

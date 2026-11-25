@@ -17,7 +17,7 @@
     CommandItem,
     CommandList,
   } from '@scylla/ui/primitives';
-  import { toRune } from '@scylla/ui/stores';
+  import { dialogHoldStore, toRune } from '@scylla/ui/stores';
   import { cn, toast } from '@scylla/ui/utils';
   import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
@@ -96,7 +96,8 @@
   const items = $derived(resultItems(results));
   const selected = $derived(items.find(item => item.id === highlighted));
   const searching = $derived(!!parsed.search.trim() || !!filter);
-  const hinting = $derived(showCommandHints(recent.length, searching));
+  const tourHold = toRune(dialogHoldStore);
+  const hinting = $derived(showCommandHints(recent.length, searching, tourHold().held));
   const canOpenInTab = $derived(selected?.kind === 'row' && selected.row.effect.kind === 'go');
 
   $effect(() => {

@@ -8,6 +8,8 @@ export const webhookMessages = {
   delivered: msg({ context: 'webhooks', message: 'delivered' }),
   deliveredIn24h: msg({ context: 'webhooks', message: 'delivered in 24 h' }),
   failed: msg({ context: 'webhooks', message: 'failed' }),
+  deliveredLegend: msg({ context: 'webhooks legend', message: 'Delivered' }),
+  failedLegend: msg({ context: 'webhooks legend', message: 'Failed' }),
   repositories: (account: string, count: number) =>
     msg({ context: 'webhooks', message: `${account} · ${count} repositories` }),
   webhookTrigger: (pipeline: string) => msg({ context: 'webhooks', message: `webhook trigger · ${pipeline}` }),

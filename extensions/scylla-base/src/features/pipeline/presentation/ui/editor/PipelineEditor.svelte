@@ -168,7 +168,7 @@
       {submitLabel}
       {mode}
       {missing}
-      submitDisabled={!doc.isValid || !!keyIssue}
+      submitDisabled={!doc.isValid}
       issue={doc.issue ? pipelineIssueText(doc.issue) : undefined}
       blueprintDisabled={!missing && !doc.isValid}
       {isDirty}
