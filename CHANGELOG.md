@@ -83,6 +83,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   button.
 - The legends of the Runs per day, Timeline and Webhooks widgets now use capitalized labels, like
   the tooltips, and the Run duration widget text writes p50 and p95 in lower case.
+- The Follow button of the job log viewer now turns on again after you turn it off. A finished job
+  shows a "Go to the end of the log" button in its place.
 
 ## [0.7.1] - 2026-11-24
 

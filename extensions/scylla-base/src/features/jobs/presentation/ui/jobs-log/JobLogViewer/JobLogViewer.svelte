@@ -83,6 +83,7 @@
     {viewer}
     {display}
     {title}
+    {isLive}
     {searchField}
     {fullscreen}
     onToggleFullscreen={() => onFullscreenChange(!fullscreen)}

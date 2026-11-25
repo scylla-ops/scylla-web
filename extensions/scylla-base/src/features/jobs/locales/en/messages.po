@@ -239,6 +239,14 @@ msgstr "Fix the connection"
 msgid "Follow the end of the log"
 msgstr "Follow the end of the log"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:26
+msgid "Go to the end of the log"
+msgstr "Go to the end of the log"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:26
+msgid "Go to the end of the log"
+msgstr "Go to the end of the log"
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:14
 msgid "Fork"
 msgstr "Fork"

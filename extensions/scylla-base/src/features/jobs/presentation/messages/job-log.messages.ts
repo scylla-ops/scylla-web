@@ -23,6 +23,7 @@ export const jobLogMessages = {
   nextError: msg`Next error`,
   errorOf: (index: number, count: number) => msg`Error ${index} of ${count}`,
   follow: msg`Follow the end of the log`,
+  goToEnd: msg`Go to the end of the log`,
   wrap: msg`Wrap the lines`,
   settings: msg`Display settings`,
   ansiColors: msg`ANSI colors`,

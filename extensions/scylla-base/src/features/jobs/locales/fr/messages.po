@@ -235,6 +235,10 @@ msgstr "Réparer la connexion"
 msgid "Follow the end of the log"
 msgstr "Suivre la fin du journal"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:26
+msgid "Go to the end of the log"
+msgstr "Aller à la fin du journal"
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:14
 msgid "Fork"
 msgstr "Fork"
