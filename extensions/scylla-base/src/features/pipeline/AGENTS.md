@@ -376,8 +376,8 @@ the page.
   links follow the same rule (`fragment-links.state.svelte.ts`).
 - **A save that succeeds makes the sent version the saved one at once** (`createUnsavedChanges`:
   `send()`, then `markSaved` on the document and the links), before the server sends it back. The
-  page calls `done` in the `onSuccess` of `mutate`, and the editor then calls `onSaved`, which goes
-  back to the project (`returnToProject`). `pipelineMutations.create` and `update` do not navigate:
+  page calls `done` in the `onSuccess` of `mutate`, and the editor then calls `onSaved`. The create
+  page goes back to the project (`returnToProject`); the update page stays on the editor. `pipelineMutations.create` and `update` do not navigate:
   their `onSuccess` runs before `done`, and the leave guard would hold the navigation. The guard
   reads the dirty state at each navigation, not at the last run of its effect. A failed save marks
   nothing: the guard stays. A name that is typed and not applied yet is an unsaved change too.

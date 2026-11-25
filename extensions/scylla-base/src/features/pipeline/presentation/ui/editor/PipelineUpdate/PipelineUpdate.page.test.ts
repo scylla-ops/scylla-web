@@ -195,7 +195,7 @@ describe('PipelineUpdatePage', () => {
     expect(screen.getByText('Unsaved changes')).toBeInTheDocument();
   });
 
-  it('goes back to the project after a save, with no leave dialog and no unsaved status', async () => {
+  it('stays on the editor after a save, with no leave dialog and no unsaved status', async () => {
     contextStore.setState({ project: { id: 'project-1', name: 'web' } });
     const { navigator, held } = recordLeaves();
     let succeed: (pipeline: unknown) => void = () => {};
@@ -210,9 +210,9 @@ describe('PipelineUpdatePage', () => {
     expect(screen.getByText('Saving…')).toBeInTheDocument();
     succeed(loaded.pipeline);
 
-    await vi.waitFor(() => expect(navigator.navigate).toHaveBeenCalledOnce());
-    expect(held).toEqual([false]);
-    expect(screen.getByText('All changes saved')).toBeInTheDocument();
+    expect(await screen.findByText('All changes saved')).toBeInTheDocument();
+    expect(navigator.navigate).not.toHaveBeenCalled();
+    expect(held).toEqual([]);
     expect(screen.queryByText('Unsaved changes')).not.toBeInTheDocument();
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });

@@ -4,7 +4,6 @@
   import {
     pipelineMutations,
     pipelineQueries,
-    returnToProject,
   } from '@base/features/pipeline/presentation/pipeline.queries.ts';
   import { fragmentQueries } from '@base/features/pipeline/presentation/fragment.queries.ts';
   import { toDocument } from '@base/features/pipeline/presentation/mappers/pipeline-document.mapper.ts';
@@ -70,7 +69,6 @@
           { onSuccess: done },
         );
     }}
-    onSaved={returnToProject}
     isSubmitPending={updatePipeline.isPending}
     submitError={updatePipeline.error}
   />

@@ -15,6 +15,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - Two flaky tests no longer fail the CI at random.
 - The pipeline editor accepts a name with spaces, like the server. It now refuses only an empty
   name, a name longer than 100 characters and a name on more than one line.
+- The Save button of the pipeline editor no longer leaves the page. The editor stays open after a
+  save.
 
 ## [0.7.1] - 2026-11-24
 
