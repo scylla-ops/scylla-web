@@ -587,8 +587,8 @@ msgid "Busiest: {day} {hour} h · {runs} runs"
 msgstr "Pic : {day} {hour} h · {runs, plural, one {{runs} exécution} other {{runs} exécutions}}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:57
-msgid "busy job slots on all agents"
-msgstr "créneaux occupés sur tous les agents"
+msgid "Busy job slots on all agents"
+msgstr "Créneaux occupés sur tous les agents"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/capacity.messages.ts:20
 msgctxt "capacity"
@@ -837,8 +837,8 @@ msgid "Duplicate"
 msgstr "Dupliquer"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:45
-msgid "each job on the time axis"
-msgstr "chaque job sur l'axe du temps"
+msgid "Each job on the time axis"
+msgstr "Chaque job sur l'axe du temps"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/activity.messages.ts:15
 msgctxt "activity"
@@ -948,8 +948,8 @@ msgid "failing first"
 msgstr "en échec d’abord"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:47
-msgid "finished runs that completed"
-msgstr "exécutions terminées avec succès"
+msgid "Finished runs that completed"
+msgstr "Exécutions terminées avec succès"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:17
 msgctxt "schedules"
@@ -1053,12 +1053,12 @@ msgid "Items with actions"
 msgstr "Des éléments avec des actions"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:70
-msgid "its load, its jobs and its figures"
-msgstr "sa charge, ses jobs et ses chiffres"
+msgid "Its load, its jobs and its figures"
+msgstr "Sa charge, ses jobs et ses chiffres"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:71
-msgid "its runs, its stages and its rate"
-msgstr "ses exécutions, ses étapes et son taux"
+msgid "Its runs, its stages and its rate"
+msgstr "Ses exécutions, ses étapes et son taux"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:48
 msgid "Job {id}"
@@ -1078,8 +1078,8 @@ msgid "jobs · {period}"
 msgstr "jobs · {period}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:49
-msgid "jobs per bucket, by end"
-msgstr "jobs par période, par issue"
+msgid "Jobs per bucket, by end"
+msgstr "Jobs par période, par issue"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/activity.messages.ts:30
 msgctxt "activity"
@@ -1709,8 +1709,8 @@ msgid "p50 and p95 · {period}"
 msgstr "p50 et p95 · {period}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:53
-msgid "p50 and p95 of the jobs"
-msgstr "p50 et p95 des jobs"
+msgid "P50 and p95 of the jobs"
+msgstr "P50 et p95 des jobs"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:43
 msgid "p50 run duration"
@@ -1839,8 +1839,8 @@ msgid "red"
 msgstr "en échec"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:43
-msgid "red pipelines and approvals"
-msgstr "pipelines en rouge et validations"
+msgid "Red pipelines and approvals"
+msgstr "Pipelines en rouge et validations"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:58
 msgid "Remove"
@@ -1919,8 +1919,8 @@ msgid "Run the pipeline now"
 msgstr "Lancer la pipeline maintenant"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:63
-msgid "run, add an agent, invite"
-msgstr "lancer, ajouter un agent, inviter"
+msgid "Run, add an agent, invite"
+msgstr "Lancer, ajouter un agent, inviter"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/live.messages.ts:6
 msgctxt "live"
@@ -1951,8 +1951,8 @@ msgid "running now"
 msgstr "en cours"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:55
-msgid "running, waiting, agents online"
-msgstr "en cours, en attente, agents en ligne"
+msgid "Running, waiting, agents online"
+msgstr "En cours, en attente, agents en ligne"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:68
 msgctxt "bars"
@@ -2235,20 +2235,20 @@ msgstr "Les changements des jobs, déclencheurs, secrets, membres, connexions et
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:21
 msgctxt "webhooks"
-msgid "the deliveries of 24 h and the failures"
-msgstr "les livraisons de 24 h et les échecs"
+msgid "The deliveries of 24 h and the failures"
+msgstr "Les livraisons de 24 h et les échecs"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:67
-msgid "the failed jobs of each pipeline"
-msgstr "les jobs en échec de chaque pipeline"
+msgid "The failed jobs of each pipeline"
+msgstr "Les jobs en échec de chaque pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:24
 msgid "The first day is after the last day."
 msgstr "Le premier jour est après le dernier jour."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:69
-msgid "the jobs of each weekday and hour"
-msgstr "les jobs de chaque jour et de chaque heure"
+msgid "The jobs of each weekday and hour"
+msgstr "Les jobs de chaque jour et de chaque heure"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:25
 msgid "The last day is in the future."
@@ -2259,20 +2259,20 @@ msgid "The last events"
 msgstr "Les derniers événements"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:59
-msgid "the last result of each pipeline"
-msgstr "le dernier résultat de chaque pipeline"
+msgid "The last result of each pipeline"
+msgstr "Le dernier résultat de chaque pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:88
 msgid "The layout has {count} changes that are not saved. They go away when you leave."
 msgstr "{count, plural, one {La disposition a {count} modification non enregistrée. Elle sera perdue si vous quittez.} other {La disposition a {count} modifications non enregistrées. Elles seront perdues si vous quittez.}}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:65
-msgid "the median duration of each pipeline"
-msgstr "la durée médiane de chaque pipeline"
+msgid "The median duration of each pipeline"
+msgstr "La durée médiane de chaque pipeline"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:61
-msgid "the newest ends of the period"
-msgstr "les fins les plus récentes de la période"
+msgid "The newest ends of the period"
+msgstr "Les fins les plus récentes de la période"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:36
 msgid "The next fires"
@@ -2280,20 +2280,20 @@ msgstr "Les prochains déclenchements"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:20
 msgctxt "schedules"
-msgid "the next fires and the failed ones"
-msgstr "les prochains déclenchements et les échecs"
+msgid "The next fires and the failed ones"
+msgstr "Les prochains déclenchements et les échecs"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:41
-msgid "the open items, then the rest"
-msgstr "les points ouverts, puis le reste"
+msgid "The open items, then the rest"
+msgstr "Les points ouverts, puis le reste"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:17
 msgid "The rest is fine: {running} jobs run now, {waiting} wait for an agent, and {green} of {total} pipelines are green."
 msgstr "Le reste va bien : {running, plural, one {{running} job tourne} other {{running} jobs tournent}}, {waiting, plural, one {{waiting} attend un agent} other {{waiting} attendent un agent}}, et {green, plural, one {{green} pipeline sur {total} est au vert} other {{green} pipelines sur {total} sont au vert}}."
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:51
-msgid "the run time of the period"
-msgstr "le temps d'exécution de la période"
+msgid "The run time of the period"
+msgstr "Le temps d'exécution de la période"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:24
 msgid "The top items with a bar"

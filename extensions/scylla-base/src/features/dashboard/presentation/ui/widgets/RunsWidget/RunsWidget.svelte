@@ -110,7 +110,7 @@
               <ChartLegendItem tone="passed" label={t(widgetMessages.completed)} value={bar.outcomes.completed} />
               <ChartLegendItem tone="failed" label={t(widgetMessages.failed)} value={bar.outcomes.failed} />
               <ChartLegendItem tone="canceled" label={t(widgetMessages.orphaned)} value={bar.outcomes.orphaned} />
-              <ChartLegendItem tone="canceled" label={t(widgetMessages.cancelled)} value={bar.outcomes.cancelled} />
+              <ChartLegendItem tone="canceled" label={t(widgetMessages.cancelledLegend)} value={bar.outcomes.cancelled} />
             {/snippet}
           </BarTip>
         {/each}

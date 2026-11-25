@@ -92,7 +92,7 @@
       {#if gitOff === 'noLink'}
         <div class="flex flex-col items-start gap-1 px-2 pt-1 pb-1.5">
           <p class="text-xs text-muted-foreground">{t(triggersMessages.needRepository)}</p>
-          <Button variant="link" size="xs" class="px-0" onclick={onLinkRepository}>
+          <Button type="button" variant="link" size="xs" class="px-0" onclick={onLinkRepository}>
             {t(triggersMessages.linkRepositoryFirst)}
             <ArrowRightIcon />
           </Button>
@@ -102,6 +102,7 @@
           <p class="text-xs text-muted-foreground">{t(triggersMessages.gitNotAllowed)}</p>
           {#if onAllowGitEvents}
             <Button
+              type="button"
               variant="link"
               size="xs"
               class="px-0"

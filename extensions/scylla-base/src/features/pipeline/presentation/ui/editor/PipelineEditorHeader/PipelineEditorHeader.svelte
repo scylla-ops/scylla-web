@@ -100,6 +100,11 @@
 
   const canExport = $derived(can(Permission.READ_PIPELINE));
 
+  // The name as typed: a key a file has blocks the save at once, before the name is applied.
+  let typed = $state<{ saved: string; text: string } | null>(null);
+  const shownName = $derived(typed?.saved === pipelineName ? typed.text : pipelineName);
+  const keyBlock = $derived(keyIssueOf?.(shownName.trim()) ?? null);
+
   const canSubmit = $derived(
     can(mode === 'create' ? Permission.CREATE_PIPELINE : Permission.UPDATE_PIPELINE),
   );
@@ -118,7 +123,10 @@
         <PipelineNameField
           name={pipelineName}
           {onNameChange}
-          onDraftChange={onNameDraft}
+          onDraftChange={text => {
+            typed = { saved: pipelineName, text };
+            onNameDraft?.(text);
+          }}
           {keyIssueOf}
           loading={missing === 'loading'}
           disabled={blueprintDisabled || missing === 'failed'}
@@ -194,10 +202,12 @@
     {/if}
 
     <GatedButton
-      allowed={canSubmit}
-      deniedReason={mode === 'create'
-        ? t(pipelineMessages.createDenied)
-        : t(pipelineMessages.editDenied)}
+      allowed={canSubmit && !keyBlock}
+      deniedReason={!canSubmit
+        ? mode === 'create'
+          ? t(pipelineMessages.createDenied)
+          : t(pipelineMessages.editDenied)
+        : (keyBlock ?? undefined)}
       onclick={onSubmit}
       disabled={submitDisabled || !!missing || !!issue || isSaving || (mode === 'edit' && !isDirty)}
       data-tour="pipeline-submit"

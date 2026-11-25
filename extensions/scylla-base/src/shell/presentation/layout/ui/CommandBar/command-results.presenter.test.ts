@@ -215,10 +215,13 @@ describe('the order in a group', () => {
 describe('the rows that need a word', () => {
   const rows = [
     row('go', 'pipelines', 'Build web'),
-    row('run', 'actions', 'Run Build web', { gate: 'run', fields: {
-      name: prepareFuzzyText('Run Build web'),
-      keywords: [prepareFuzzyText('run start')],
-    } }),
+    row('run', 'actions', 'Run Build web', {
+      gate: 'run',
+      fields: {
+        name: prepareFuzzyText('Run Build web'),
+        keywords: [prepareFuzzyText('run start')],
+      },
+    }),
   ];
 
   it('hides the run without a word that means to run', () => {
@@ -276,12 +279,31 @@ describe('the start', () => {
     ]);
   });
 
+  it("shows the What's new row with no text, in a Help group", () => {
+    const results = commandResults(
+      [...rows, row('command:shell.whats-new', 'actions', "What's new")],
+      '',
+      null,
+      { recent: [] },
+    );
+
+    expect(results.sections.map(section => section.heading)).toEqual([
+      'In this project',
+      'Pages',
+      'Preferences',
+      'Help',
+    ]);
+    expect(ids(results)).toContain('command:shell.whats-new');
+  });
+
   it('never preselects a preference with no text', () => {
     const results = commandResults(rows, '', null, { recent: ['light'] });
 
     expect(firstActionable(results)).not.toMatch(/^(light|dark)$/);
     expect(firstActionable(results)).toBe('here');
-    expect(firstActionable(commandResults([rows[0], ...rows.slice(2)], '', null, { recent: [] }))).toBe('page');
+    expect(
+      firstActionable(commandResults([rows[0], ...rows.slice(2)], '', null, { recent: [] })),
+    ).toBe('page');
   });
 
   it('names a pipeline page', () => {
@@ -297,7 +319,9 @@ describe('the start', () => {
   });
 
   it('keeps 5 recent rows, and skips a row that left', () => {
-    const many = Array.from({ length: 7 }, (_, index) => row(`r${index}`, 'pages', `Page ${index}`));
+    const many = Array.from({ length: 7 }, (_, index) =>
+      row(`r${index}`, 'pages', `Page ${index}`),
+    );
     const recent = ['gone', ...many.map(item => item.id)];
 
     const [section] = commandResults(many, '', null, { recent }).sections;
@@ -315,7 +339,10 @@ describe('the start', () => {
 describe('firstActionable', () => {
   it('skips the active choice', () => {
     const results = search(
-      [row('dark', 'preferences', 'Dark', { verb: undefined }), row('next', 'actions', 'Dark blue')],
+      [
+        row('dark', 'preferences', 'Dark', { verb: undefined }),
+        row('next', 'actions', 'Dark blue'),
+      ],
       'dark',
     );
 
@@ -329,7 +356,12 @@ describe('firstActionable', () => {
 
 describe('nameParts', () => {
   it('splits a name on the letters that matched', () => {
-    expect(nameParts('Build web', [[0, 3], [6, 9]])).toEqual([
+    expect(
+      nameParts('Build web', [
+        [0, 3],
+        [6, 9],
+      ]),
+    ).toEqual([
       { text: 'Bui', hit: true },
       { text: 'ld ', hit: false },
       { text: 'web', hit: true },
