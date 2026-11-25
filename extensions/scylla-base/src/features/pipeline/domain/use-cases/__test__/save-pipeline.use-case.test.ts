@@ -141,13 +141,13 @@ describe('SavePipelineUseCase', () => {
     const issue = await issueOf(
       new SavePipelineUseCase(repository).execute({
         projectId: 'proj',
-        name: 'my pipeline',
+        name: 'a\nb',
         nodes: [node('build')],
       }),
     );
 
     expect(create).not.toHaveBeenCalled();
-    expect(issue).toEqual({ kind: 'name', issue: 'spaces' });
+    expect(issue).toEqual({ kind: 'name', issue: 'not-one-line' });
   });
 
   it('gives back the error of the server', async () => {

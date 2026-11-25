@@ -67,7 +67,8 @@ export const pipelineMessages = {
 
   pipelineName: msg`Pipeline name`,
   namePlaceholder: msg`e.g., my-pipeline`,
-  noSpaces: msg`The name cannot contain spaces.`,
+  nameTooLong: (max: number) => msg`The name cannot be longer than ${max} characters.`,
+  nameOneLine: msg`The name must be on one line.`,
   nameRequired: msg`The pipeline needs a name.`,
   invalidNodeIds: (ids: string) => msg`Fix the ID of these nodes before you save: ${ids}`,
   repeatedNodeIds: (ids: string) =>

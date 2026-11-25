@@ -4,6 +4,7 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { pipelineNameIssueText } from '@base/features/pipeline/presentation/presenters/pipeline-issue.presenter.ts';
   import { pipelineNameIssue } from '@base/features/pipeline/domain/structs/pipeline-name.struct.ts';
 
   interface Props {
@@ -44,7 +45,7 @@
     class={cn(
       'flex h-8 max-w-full min-w-0 items-center overflow-hidden rounded-md border border-input bg-transparent shadow-xs transition-[color,box-shadow] dark:bg-input/30',
       'focus-within:border-ring focus-within:ring-[3px] focus-within:ring-ring/50',
-      issue === 'spaces' &&
+      issue &&
         'border-destructive ring-destructive/20 focus-within:border-destructive focus-within:ring-destructive/20 dark:ring-destructive/40',
       disabled && 'pointer-events-none opacity-50',
     )}
@@ -63,8 +64,8 @@
         bind:value={() => draft, setDraft}
         {disabled}
         placeholder={t(pipelineMessages.namePlaceholder)}
-        aria-invalid={issue === 'spaces'}
-        aria-describedby={issue === 'spaces' ? `${uid}-issue` : undefined}
+        aria-invalid={issue !== null}
+        aria-describedby={issue ? `${uid}-issue` : undefined}
         onblur={apply}
         onkeydown={event => {
           if (event.key === 'Enter') event.currentTarget.blur();
@@ -76,12 +77,12 @@
       />
     {/if}
   </label>
-  {#if issue === 'spaces'}
+  {#if issue}
     <p
       id="{uid}-issue"
       class="absolute top-full left-0 z-10 mt-1 rounded-md border bg-popover px-2 py-1 text-xs whitespace-nowrap text-destructive shadow-md"
     >
-      {t(pipelineMessages.noSpaces)}
+      {pipelineNameIssueText(issue)}
     </p>
   {/if}
 </div>

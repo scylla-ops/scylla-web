@@ -122,14 +122,25 @@ describe('PipelineEditorHeader', () => {
     expect(onNameChange).toHaveBeenCalledExactlyOnceWith('release');
   });
 
-  it('says why a name with spaces is refused, and gives the saved one back on blur', async () => {
+  it('saves a name with spaces', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     renderHeader();
 
     const name = screen.getByRole('textbox', { name: 'Pipeline name' });
-    await userEvent.type(name, ' run');
+    await userEvent.clear(name);
+    await userEvent.type(name, 'Branch Policy{Enter}');
 
-    expect(name).toHaveAccessibleDescription('The name cannot contain spaces.');
+    expect(onNameChange).toHaveBeenCalledExactlyOnceWith('Branch Policy');
+  });
+
+  it('says why a name the server refuses is refused, and gives the saved one back on blur', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader();
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.type(name, 'a'.repeat(100));
+
+    expect(name).toHaveAccessibleDescription('The name cannot be longer than 100 characters.');
     await userEvent.tab();
     expect(onNameChange).not.toHaveBeenCalled();
     expect(name).toHaveValue('nightly');

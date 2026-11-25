@@ -151,7 +151,7 @@ msgstr "{name} v{number} est disponible"
 msgid "{name} v{number} is now available in the library."
 msgstr "{name} v{number} est maintenant disponible dans la bibliothèque."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:80
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:81
 msgid "{name}-copy"
 msgstr "{name}-copie"
 
@@ -868,11 +868,11 @@ msgstr "Format du fichier"
 msgid "Filter the jobs"
 msgstr "Filtrer les jobs"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:72
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:73
 msgid "Fix the ID of these nodes before you save: {ids}"
 msgstr "Corrigez l'ID de ces nœuds avant d'enregistrer : {ids}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:76
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:77
 msgid "Fix these nodes before you save: {ids}"
 msgstr "Corrigez ces nœuds avant d'enregistrer : {ids}"
 
@@ -1627,7 +1627,7 @@ msgstr "S'exécute en premier"
 msgid "runs history logs"
 msgstr "exécutions historique journaux"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:75
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:76
 msgid "Same ID as another node"
 msgstr "Même ID qu'un autre nœud"
 
@@ -1911,8 +1911,12 @@ msgid "The link {need} comes two times."
 msgstr "Le lien {need} figure deux fois."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:70
-msgid "The name cannot contain spaces."
-msgstr "Le nom ne peut pas contenir d'espaces."
+msgid "The name cannot be longer than {max} characters."
+msgstr "Le nom ne peut pas dépasser {max} caractères."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:71
+msgid "The name must be on one line."
+msgstr "Le nom doit tenir sur une seule ligne."
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/node.messages.ts:15
 msgid "The node ID cannot be empty."
@@ -1938,7 +1942,7 @@ msgstr "les nœuds démarrent dans un dossier vide"
 msgid "The pipeline as a file for the repository: put it at this path, then use the repository files as the source of the project."
 msgstr "La pipeline sous forme de fichier pour le dépôt : placez-la à cet emplacement, puis utilisez les fichiers du dépôt comme source du projet."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:71
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:72
 msgid "The pipeline needs a name."
 msgstr "La pipeline doit avoir un nom."
 
@@ -2039,11 +2043,11 @@ msgstr "Déclencheurs · depuis on"
 msgid "Try again"
 msgstr "Réessayer"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:74
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:75
 msgid "Two nodes or more have the ID {ids}. Give each node its own ID before you save."
 msgstr "Plusieurs nœuds ont l'ID {ids}. Donnez à chaque nœud son propre ID avant d'enregistrer."
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:77
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:78
 msgid "Two nodes or more have the same ID. Give each node its own ID in the Scripting tab: the blueprint shows them, but cannot change them."
 msgstr "Plusieurs nœuds ont le même ID. Donnez à chaque nœud son propre ID dans l'onglet Scripting : le blueprint les affiche, mais ne peut pas les modifier."
 
