@@ -296,7 +296,7 @@ page-level rule (every page in the shell declares a `permission`) is in
   `rememberWorkspace` send them.
 - **Announcing a new feature is editing `whats-new.ts`, nothing else.** Add a highlight (`id`,
   `title`, `description`, `icon`, and `navUrl` when it is a page); the dialog and the sidebar
-  badge follow. Bump `WHATS_NEW.version` at each release: the seen flags are keyed by it.
+  badge follow. Give it a `since` (its version, never changed after) and keep the older highlights: a flag is keyed by the `since` of its highlight, and `WHATS_NEW.version` keys the flag of the dialog: bump it to show the dialog again.
 - The shell may read a feature's queries, but must not own business logic.
 - After moving a component in or out of `shell/`, run `node scripts/restore-translations.mjs`.
 
