@@ -45,6 +45,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   on a focused node, shows each field of the node in the side panel, with the script, a Copy button
   and a way back. The view fits the full graph, and you can drag the nodes or click Arrange: Scylla
   keeps their places, and the file and the version do not change.
+- The fragment page no longer shows a separator dot at the start of the line under the title when
+  the fragment has no description.
 
 ## [0.7.1] - 2026-11-24
 
