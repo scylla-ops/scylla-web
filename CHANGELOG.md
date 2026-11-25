@@ -89,6 +89,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   shows a "Go to the end of the log" button in its place.
 - The "Find anything fast" tour now goes to its end: opening a result continues the tour on the new
   page, and Escape or a click outside the bar asks to continue or leave.
+- The French job page shows the no-break space before a colon in two texts, with no broken
+  character.
 
 ## [0.7.1] - 2026-11-24
 

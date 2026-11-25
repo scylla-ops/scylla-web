@@ -607,7 +607,7 @@ msgstr "Envoi..."
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:44
 msgid "Shortcut: {key}"
-msgstr "Raccourci�: {key}"
+msgstr "Raccourci : {key}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:7
 msgid "Show the nodes as"
@@ -656,7 +656,7 @@ msgstr "Taille du texte"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:29
 msgid "The colors of the tools. Off: plain text."
-msgstr "Les couleurs des outils. Désactivé�: texte brut."
+msgstr "Les couleurs des outils. Désactivé : texte brut."
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:79
 msgid "The failure went to the error output: {nodes}."
