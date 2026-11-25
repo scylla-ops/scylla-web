@@ -22,6 +22,7 @@ export class GrpcActivityRepository implements ActivityRepository {
         kind: activity.kind,
         area: activity.area,
         actorName: activity.actorName,
+        projectId: idValue(activity.projectId),
         projectName: activity.projectName,
         subjectKind: activity.subjectKind,
         subjectId: idValue(activity.subjectId),

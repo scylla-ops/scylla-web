@@ -78,3 +78,20 @@ export const customPeriodIssue = (from: Day, to: Day, today: Day): CustomPeriodI
   if (daysBetween(from, to) > MAX_CUSTOM_DAYS) return 'too-long';
   return null;
 };
+
+/**
+ * The custom period of one bar of a chart: its day, or its week until today. A bar of one hour,
+ * or a bar after today, has no period of whole days: `null`.
+ */
+export const bucketPeriod = (
+  start: string,
+  bucket: PeriodBucket,
+  timeZone: string,
+  today: Day,
+): DashboardPeriod | null => {
+  if (bucket === 'hour') return null;
+  const from = dayIn(new Date(start), timeZone);
+  if (from > today) return null;
+  const end = bucket === 'week' ? addDays(from, 6) : from;
+  return { kind: 'custom', from, to: end > today ? today : end };
+};

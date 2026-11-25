@@ -238,6 +238,31 @@ describe('DashboardPage', () => {
     expect(await within(pipelines).findByText('0 of 1 green')).toBeInTheDocument();
   });
 
+  it('opens the page of a pipeline, a job or an item with a real link, and names its project first', async () => {
+    const user = userEvent.setup();
+    render(DashboardPage);
+
+    const job = '/acme/projects/project-1/pipelines/pipeline-1/jobs/job-0000failed';
+    const pipelines = await screen.findByRole('region', { name: 'Pipelines' });
+    const name = await within(pipelines).findByRole('link', { name: /^deploy-web/ });
+    expect(name).toHaveAttribute('href', '/acme/projects/project-1/pipelines/pipeline-1/jobs');
+    expect(name).toHaveAttribute('title', 'Open the jobs of this pipeline');
+    expect(within(pipelines).getByRole('link', { name: /^Job 00failed/ })).toHaveAttribute('href', job);
+
+    const needsYou = screen.getByRole('region', { name: 'Needs you' });
+    expect(await within(needsYou).findByRole('link', { name: /^deploy-web/ })).toHaveAttribute('href', job);
+
+    const followed = (event: MouseEvent) => event.preventDefault();
+    window.addEventListener('click', followed);
+    try {
+      await user.click(name);
+    } finally {
+      window.removeEventListener('click', followed);
+    }
+    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'Acme project' });
+    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'deploy-web' });
+  });
+
   it('asks the live jobs with no period, and the job ends of the period', async () => {
     render(DashboardPage);
 

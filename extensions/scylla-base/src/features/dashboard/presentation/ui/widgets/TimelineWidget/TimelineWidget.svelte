@@ -11,6 +11,9 @@
   } from '@base/features/dashboard/presentation/presenters/view-figures.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { jobMarks } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
+  import { JobRunMark } from '@shared/presentation/ui';
+  import { jobMarkLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
 
   interface Props {
@@ -27,6 +30,7 @@
 
   const ended = $derived(widgets.dayJobs.filter(job => job.finishedAt));
   const ticks = $derived(timelineTicks(ended, now()));
+  const marks = $derived(jobMarks(ended, widgets.pipelines));
   const failed = $derived(ended.filter(job => job.status === 'failed').length);
   const running = $derived(widgets.liveJobs.filter(job => job.status === 'running').length);
   const waiting = $derived(widgets.liveJobs.length - running);
@@ -63,11 +67,24 @@
       <div class="flex min-h-0 flex-1 items-end gap-3">
         <div data-part="timeline" class="relative h-full min-w-0 flex-1 border-b border-border">
           {#each ticks as tick (tick.id)}
-            <ChartSegment
-              tone={tick.tone === 'canceled' ? 'running' : tick.tone}
-              class="absolute bottom-0 w-[3px] -translate-x-1/2 rounded-t-[1px]"
-              style="left: {tick.left}%; height: {tick.height}%"
-            />
+            {@const mark = marks.get(tick.id)}
+            {#if mark}
+              <JobRunMark
+                run={mark.run}
+                duration={mark.seconds}
+                {...jobMarkLink(mark)}
+                class="absolute bottom-0 w-[3px] -translate-x-1/2 origin-bottom rounded-t-[1px]"
+                style="left: {tick.left}%; height: {tick.height}%"
+              >
+                <ChartSegment tone={tick.tone === 'canceled' ? 'running' : tick.tone} class="size-full rounded-t-[1px]" />
+              </JobRunMark>
+            {:else}
+              <ChartSegment
+                tone={tick.tone === 'canceled' ? 'running' : tick.tone}
+                class="absolute bottom-0 w-[3px] -translate-x-1/2 rounded-t-[1px]"
+                style="left: {tick.left}%; height: {tick.height}%"
+              />
+            {/if}
           {/each}
         </div>
         {#if runningDots + waitingDots > 0}

@@ -118,8 +118,10 @@ presentation/
   presenters/agent-widget.presenter.ts  the slots, the load and the strip of one agent — pure, tested
   presenters/pipeline-widget.presenter.ts   the last run, the state and the nodes of one pipeline — pure, tested
   ui/DashboardEditor/TargetPicker.svelte    the agent or the pipeline of a dedicated widget
-  ui/widgets/parts/                     WidgetBody (the states), BucketAxis, ChangeBadge
-  ui/widgets/widget-navigation.ts       opens a job or the jobs of a pipeline from a widget
+  ui/widgets/parts/                     WidgetBody (the states), BucketAxis, ChangeBadge, WidgetLink
+                                        (a link, or plain text when it has no page), BarTip
+  ui/widgets/widget-navigation.ts       the links of the widgets: a job, the jobs or the triggers of
+                                        a pipeline, an agent, a project, the subject of an event
 ```
 
 No `domain/`, no `infrastructure/` — correct for this module, do not add them.
@@ -221,10 +223,30 @@ narrower permission without moving that redirect target too.
   the jobs, in the plural ("Completed", "completed"; "Terminés", "terminés"). The context `legend`
   separates them from the outcome of one job (context `one job`).
 - **A mark of a strip of runs opens its job**, as on the pipelines list: Pipelines (`s`, `m`,
-  `l` and the sheet), Pipeline (each size) and the recent jobs of Agent. Each mark is a
-  `JobRunMark` of `@shared/presentation/ui`, with a `RunMark` of `widget-rows.presenter.ts`
-  (`runMark`, `recentRuns`), and `openJob` sets the project first. Never draw a mark with no click
-  for a job: use `JobRunMark`.
+  `l` and the sheet), Pipeline (each size), the recent jobs of Agent and the ticks of Last 24
+  hours. Each mark is a `JobRunMark` of `@shared/presentation/ui`, with a `RunMark` of
+  `widget-rows.presenter.ts` (`runMark`, `recentRuns`, `jobMarks`), and `jobMarkLink` gives its
+  `href` and the click that sets the project first. Never draw a mark with no click for a job:
+  use `JobRunMark`.
+- **What looks clickable opens a page, with a real link.** A name, a count or a bar of a widget
+  is an `<a href>` (`WidgetLink`, `JobRunMark` with `href`, `BarTip` with `href`, `Button` with
+  `href`), so a middle click opens a new tab. Its `title` tells what a click opens. The URLs come
+  from `scyllaHref` of `@platform/context`, through `widget-navigation.ts`. A link into a project
+  sets the project and the pipeline of the store on a plain click (`enterPlace`), as
+  `scyllaNavigate` does. With no page (a job of a pipeline that the dashboard does not know, the
+  triggers without `MANAGE_TRIGGERS`), the text shows with no link and no hover.
+- **The targets:** a job (Right now, Needs you, Sentence, Agent, Pipeline, the fires of
+  Schedules, the ticks of Last 24 hours); with a node, the logs of that node (the stages of
+  Pipeline); the jobs of a pipeline (Pipelines, Ranking, Pipeline, the most failures of Success
+  rate, the slowest of Run duration); the triggers of a pipeline (Schedules, a fire of Needs
+  you, a webhook trigger of Webhooks); an agent (Agents, Agent, Needs you); the agents (the count
+  of Agents and of Sentence); a project (the projects of Run minutes); the Integrations page (a
+  connection of Webhooks); the subject of an event of Activity (`activityLink`: an event names
+  its pipeline, so the dashboard finds the one pipeline of that name in the project).
+- **A bar of one day or one week opens the dashboard on that period** (`bucketHref` of the
+  period: `?from=…&to=…`): the bars of Success rate and of Runs, and the peak of Runs. A bar of
+  one hour has no link: a custom period has whole days. The jobs list has no filter of its URL
+  and the workspace has no list of its jobs: the bars cannot open a list of jobs.
 - **The success rate is completed / (completed + failed + orphaned).** The cancelled jobs show
   apart. Its change is in points; the change of a duration is in percent, and down is good.
 

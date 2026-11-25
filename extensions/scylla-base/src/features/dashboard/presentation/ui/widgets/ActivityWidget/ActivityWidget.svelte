@@ -9,6 +9,7 @@
   import { activityLine } from '@base/features/dashboard/presentation/presenters/activity.presenter.ts';
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
+  import { activityLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
   import ActivityRow from './ActivityRow.svelte';
 
@@ -26,6 +27,7 @@
 
   const feed = $derived(widgets.activityFeed.data);
   const lines = $derived((feed?.events ?? []).map(activityLine));
+  const links = $derived(new Map((feed?.events ?? []).map(event => [event.id, activityLink(event, widgets.pipelines)])));
   const since = $derived(widgets.since);
   const sinceClock = $derived(since ? clockIn(new Date(since), timeZone) : null);
   const newCount = $derived(feed?.sinceCount ?? 0);
@@ -73,7 +75,7 @@
     {:else if size === 's' || size === 'm'}
       <ul data-part="activity" class="flex flex-col gap-1">
         {#each shown as line (line.id)}
-          <ActivityRow {line} {timeZone} wide={size === 'm'} />
+          <ActivityRow {line} link={links.get(line.id) ?? null} {timeZone} wide={size === 'm'} />
         {/each}
       </ul>
     {:else}
@@ -85,12 +87,12 @@
           </p>
         {/if}
         <ul class="flex flex-col gap-1">
-          {#each recentShown as line (line.id)}<ActivityRow {line} {timeZone} wide />{/each}
+          {#each recentShown as line (line.id)}<ActivityRow {line} link={links.get(line.id) ?? null} {timeZone} wide />{/each}
         </ul>
         {#if earlierShown.length > 0}
           <p class="mt-2 text-xs text-muted-foreground">{t(messages.earlier)}</p>
           <ul class="flex flex-col gap-1">
-            {#each earlierShown as line (line.id)}<ActivityRow {line} {timeZone} wide />{/each}
+            {#each earlierShown as line (line.id)}<ActivityRow {line} link={links.get(line.id) ?? null} {timeZone} wide />{/each}
           </ul>
         {/if}
         <div class="mt-auto flex items-center gap-2 pt-2">
@@ -111,7 +113,7 @@
       <DialogDescription class="text-xs">{t(messages.readable)}</DialogDescription>
     </header>
     <ul class="relative flex min-h-0 flex-1 flex-col gap-1.5 overflow-y-auto px-5 py-4">
-      {#each lines as line (line.id)}<ActivityRow {line} {timeZone} wide />{/each}
+      {#each lines as line (line.id)}<ActivityRow {line} link={links.get(line.id) ?? null} {timeZone} wide />{/each}
     </ul>
   </SheetContent>
 </Dialog>

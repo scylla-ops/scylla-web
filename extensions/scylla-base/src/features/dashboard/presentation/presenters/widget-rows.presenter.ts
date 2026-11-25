@@ -104,6 +104,18 @@ export const runMark = (
   seconds: runSeconds(job),
 });
 
+/** The marks of the jobs of a known pipeline, by job id: a job of another pipeline has no page. */
+export const jobMarks = (
+  jobs: readonly JobEntity[],
+  pipelines: ReadonlyMap<string, PipelineSummary>,
+): ReadonlyMap<string, RunMark> =>
+  new Map(
+    jobs.flatMap(job => {
+      const pipeline = pipelines.get(job.pipelineId);
+      return pipeline ? [[job.id, runMark(job, pipeline, job.source?.branch ?? '')] as const] : [];
+    }),
+  );
+
 export interface PipelineRow {
   id: string;
   projectId: string;

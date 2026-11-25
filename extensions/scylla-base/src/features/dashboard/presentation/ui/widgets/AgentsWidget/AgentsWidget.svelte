@@ -15,7 +15,10 @@
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { agentLink, agentsLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -110,7 +113,9 @@
           <td>{@render agentIcon(agent)}</td>
           <td class="pr-2">
             <span class="flex min-w-0 items-baseline gap-1.5">
-              <span class={cn('shrink-0 font-mono text-[13px]', !agent.connected && 'text-muted-foreground')}>{agent.name}</span>
+              <WidgetLink link={agentLink(agent.id)} title={t(linkMessages.openAgent)} class={cn('shrink-0 font-mono text-[13px]', !agent.connected && 'text-muted-foreground')}>
+                {agent.name}
+              </WidgetLink>
               <span class="truncate text-muted-foreground">
                 {agent.connected ? hostLine(agent) : t(messages.offlineFor(shortAgo(agent.lastSeenAt)))}
               </span>
@@ -131,7 +136,9 @@
 
 {#snippet aside()}
   {#if capacity.total > 0}
-    <span>{size === 'xs' ? t(messages.agentsOf(capacity.online, capacity.total)) : t(messages.onlineOf(capacity.online, capacity.total))}</span>
+    <WidgetLink link={agentsLink()} title={t(linkMessages.openAgents)}>
+      {size === 'xs' ? t(messages.agentsOf(capacity.online, capacity.total)) : t(messages.onlineOf(capacity.online, capacity.total))}
+    </WidgetLink>
   {/if}
 {/snippet}
 
@@ -174,7 +181,9 @@
           {#each agents.slice(0, 4) as agent (agent.id)}
             <li class="flex h-[18px] min-w-0 items-center gap-2">
               {@render agentIcon(agent)}
-              <span class={cn('truncate font-mono text-[13px]', !agent.connected && 'text-muted-foreground')}>{agent.name}</span>
+              <WidgetLink link={agentLink(agent.id)} title={t(linkMessages.openAgent)} class={cn('truncate font-mono text-[13px]', !agent.connected && 'text-muted-foreground')}>
+                {agent.name}
+              </WidgetLink>
               <span class="ml-auto flex shrink-0 gap-[3px]">
                 {#each slotsOf(agent).slice(0, 4) as state, index (index)}<ChartSlot {state} />{/each}
               </span>

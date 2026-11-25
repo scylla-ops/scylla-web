@@ -164,4 +164,20 @@ describe('createDashboardPeriod', () => {
       expect(state.period).toEqual({ kind: '14d' });
     });
   });
+
+  it('gives the URL of the dashboard on the day or the week of a bar, with the other parameters', async () => {
+    openedWith('?period=30d&edit=1');
+
+    await withPeriod(async state => {
+      await waitFor(() => expect(state.timeZone).toBe('Europe/Paris'));
+
+      expect(state.bucketHref('2026-11-09T23:00:00Z', 'day')).toBe(
+        `${PATHNAME}?edit=1&from=2026-11-10&to=2026-11-10`,
+      );
+      expect(state.bucketHref('2026-11-15T23:00:00Z', 'week')).toBe(
+        `${PATHNAME}?edit=1&from=2026-11-16&to=2026-11-17`,
+      );
+      expect(state.bucketHref('2026-11-17T09:00:00Z', 'hour')).toBeNull();
+    });
+  });
 });

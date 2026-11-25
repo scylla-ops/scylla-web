@@ -9,7 +9,10 @@
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { projectLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -72,7 +75,9 @@
     <ul class="flex flex-col gap-1">
       {#each projects.slice(0, limit) as row (row.id)}
         <li class="flex h-5 items-center gap-3">
-          <span class="w-24 shrink-0 truncate text-sm font-medium">{row.name}</span>
+          <WidgetLink link={projectLink(row.id, row.name)} title={t(linkMessages.openProject)} class="w-24 shrink-0 truncate text-sm font-medium">
+            {row.name}
+          </WidgetLink>
           <span class="flex h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
             <ChartSegment tone="passed" class="h-full rounded-full" style="width: {(row.minutes / mostProject) * 100}%" />
           </span>

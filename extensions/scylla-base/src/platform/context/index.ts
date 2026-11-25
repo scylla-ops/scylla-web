@@ -18,6 +18,7 @@ export { contextStore } from './context.store.ts';
 export {
   activeWorkspaceSlug,
   workspaceUrl,
+  scyllaHref,
   scyllaNavigate,
   type ScyllaNavigate,
 } from './scylla-navigate.ts';

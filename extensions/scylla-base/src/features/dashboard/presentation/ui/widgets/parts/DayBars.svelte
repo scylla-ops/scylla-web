@@ -5,7 +5,7 @@
   import type { JobBucket } from '@base/features/jobs';
   import type { PeriodBucket } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
-  import { bucketAxis, bucketLabel, dayBars } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
+  import { bucketAxis, bucketHint, bucketLabel, dayBars } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import BarTip from './BarTip.svelte';
   import BucketAxis from './BucketAxis.svelte';
 
@@ -14,10 +14,12 @@
     bucket: PeriodBucket;
     timeZone: string;
     endsNow: boolean;
+    /** The page that a click on a bar opens: its day on the dashboard. */
+    hrefOf?: (start: string) => string | null;
     class?: string;
   }
 
-  let { buckets, bucket, timeZone, endsNow, class: className = '' }: Props = $props();
+  let { buckets, bucket, timeZone, endsNow, hrefOf, class: className = '' }: Props = $props();
 
   const bars = $derived(dayBars(buckets));
   const axis = $derived(bucketAxis(buckets, bucket, timeZone, endsNow));
@@ -34,6 +36,8 @@
           bar.empty ? 'border border-dashed border-border' : 'bg-muted/70',
         )}
         top={bar.top}
+        href={hrefOf?.(item.start)}
+        hint={bucketHint(item.start, bucket, timeZone)}
       >
         {#if o.completed > 0}<ChartSegment tone="passed" class="rounded-[2px]" style="height: {bar.completed}%" />{/if}
         {#if o.failed > 0}<ChartSegment tone="failed" class="rounded-[2px]" style="height: {bar.failed}%" />{/if}

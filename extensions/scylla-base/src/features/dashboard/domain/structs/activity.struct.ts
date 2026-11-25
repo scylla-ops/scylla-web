@@ -6,6 +6,8 @@ export interface ActivityEvent {
   /** jobs, triggers, secrets, members, integrations or agents. */
   area: string;
   actorName: string;
+  /** Empty for a change of the workspace. */
+  projectId: string;
   projectName: string;
   subjectKind: string;
   subjectId: string;

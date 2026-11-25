@@ -12,7 +12,10 @@
   } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { jobLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
   import LiveWaitingActions from './LiveWaitingActions.svelte';
 
   interface Props {
@@ -115,7 +118,7 @@
           {#each firstJobs as row (row.jobId)}
             <li class="flex h-5 min-w-0 items-center gap-1.5">
               <ChartDot tone={isRunning(row) ? 'running' : 'queued'} />
-              <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+              <WidgetLink link={jobLink(row)} title={t(linkMessages.openJob)} class="truncate text-sm font-medium">{row.pipelineName}</WidgetLink>
               <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">
                 {isRunning(row) ? row.elapsed : row.waited}
               </span>
@@ -134,7 +137,7 @@
               <li class="flex flex-col gap-1">
                 <p class="flex h-5 min-w-0 items-center gap-1.5">
                   <ChartDot tone="running" />
-                  <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+                  <WidgetLink link={jobLink(row)} title={t(linkMessages.openJob)} class="truncate text-sm font-medium">{row.pipelineName}</WidgetLink>
                   <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">{times(row)}</span>
                 </p>
                 {@render meter(row)}
@@ -151,7 +154,7 @@
             {#each waiting as row (row.jobId)}
               <li class="flex h-5 min-w-0 items-center gap-1.5">
                 <ChartDot tone="queued" />
-                <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+                <WidgetLink link={jobLink(row)} title={t(linkMessages.openJob)} class="truncate text-sm font-medium">{row.pipelineName}</WidgetLink>
                 <span class="shrink-0 text-xs text-muted-foreground">
                   {t(row.reason === 'approval' ? messages.reasonApproval : messages.reasonAgent)}
                 </span>
@@ -172,7 +175,7 @@
               <li class="flex flex-col gap-1">
                 <p class="flex h-5 min-w-0 items-center gap-1.5">
                   <ChartDot tone="running" />
-                  <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+                  <WidgetLink link={jobLink(row)} title={t(linkMessages.openJob)} class="truncate text-sm font-medium">{row.pipelineName}</WidgetLink>
                   <span class="shrink-0 text-xs text-muted-foreground">{row.projectName}</span>
                   <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">{times(row)}</span>
                 </p>
@@ -193,7 +196,7 @@
             {#each waiting as row (row.jobId)}
               <li class="flex h-6 min-w-0 items-center gap-1.5">
                 <ChartDot tone="queued" />
-                <span class="truncate text-sm font-medium">{row.pipelineName}</span>
+                <WidgetLink link={jobLink(row)} title={t(linkMessages.openJob)} class="truncate text-sm font-medium">{row.pipelineName}</WidgetLink>
                 <span class="shrink-0 text-xs text-muted-foreground">{row.projectName}</span>
                 <span class="truncate text-xs text-muted-foreground">
                   {t(row.reason === 'approval' ? messages.waitsForApproval : messages.waitsForAgent)}

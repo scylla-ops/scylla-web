@@ -20,7 +20,10 @@
   import BucketAxis from '../parts/BucketAxis.svelte';
   import ChangeBadge from '../parts/ChangeBadge.svelte';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { pipelineJobsLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -63,6 +66,7 @@
         id: group.id,
         name: widgets.pipelines.get(group.id)?.name ?? group.id.slice(-8),
         project: widgets.pipelines.get(group.id)?.projectName ?? '',
+        link: pipelineJobsLink(widgets.pipelines.get(group.id)),
         p50: durationText(group.figures.p50Duration),
         change: secondsDelta(group.figures.p50Duration, group.previous?.p50Duration ?? null),
       })),
@@ -188,7 +192,7 @@
               <ul class="flex flex-col gap-1">
                 {#each slowest as row (row.id)}
                   <li class="flex h-6 min-w-0 items-center gap-1.5">
-                    <span class="truncate text-sm font-medium">{row.name}</span>
+                    <WidgetLink link={row.link} title={t(linkMessages.openJobs)} class="truncate text-sm font-medium">{row.name}</WidgetLink>
                     <span class="truncate text-xs text-muted-foreground">{row.project}</span>
                     <span class="ml-auto shrink-0 pl-2 text-xs font-medium tabular-nums">{row.p50}</span>
                     <span class="flex w-[72px] shrink-0 justify-end"><ChangeBadge change={row.change} /></span>

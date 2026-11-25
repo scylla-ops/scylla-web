@@ -9,8 +9,10 @@
   import type { RankingMetric, RankingRow } from '@base/features/dashboard/presentation/presenters/ranking.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { openPipelineJobs } from '../widget-navigation.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { pipelineJobsLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
   import { createRanking } from './ranking.state.svelte.ts';
 
   interface Props {
@@ -33,11 +35,6 @@
   const meta = $derived(
     metric === 'slowest' ? t(messages.p50Of(periodMeta(period.period))) : t(messages.failedOf(periodMeta(period.period))),
   );
-
-  const open = (row: RankingRow) => {
-    const pipeline = widgets.pipelines.get(row.id);
-    if (pipeline) openPipelineJobs(pipeline);
-  };
 </script>
 
 {#snippet bar(row: RankingRow, className: string)}
@@ -47,9 +44,9 @@
 {/snippet}
 
 {#snippet name(row: RankingRow, className: string)}
-  <button type="button" class={cn('min-w-0 truncate text-left text-sm font-medium hover:underline', className)} onclick={() => open(row)}>
+  <WidgetLink link={pipelineJobsLink(widgets.pipelines.get(row.id))} title={t(linkMessages.openJobs)} class={cn('min-w-0 truncate text-sm font-medium', className)}>
     {row.name}
-  </button>
+  </WidgetLink>
 {/snippet}
 
 {#snippet aside()}

@@ -12,9 +12,12 @@
     ATTENTION_TONES,
     attentionCounts,
     attentionLabel,
+    attentionOpens,
     attentionTitle,
     attentionWhen,
   } from '@base/features/dashboard/presentation/presenters/attention.presenter.ts';
+  import { attentionLink } from '../widget-navigation.ts';
+  import WidgetLink from '../parts/WidgetLink.svelte';
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
@@ -117,7 +120,9 @@
         {#each shown as item, index (key(item, index))}
           <li class="flex h-5 min-w-0 items-center gap-2">
             <ChartDot tone={ATTENTION_TONES[item.kind]} />
-            <span class="truncate text-sm font-medium">{attentionTitle(item)}</span>
+            <WidgetLink link={attentionLink(item)} title={attentionOpens(item)} class="truncate text-sm font-medium">
+              {attentionTitle(item)}
+            </WidgetLink>
             <span class="ml-auto flex shrink-0 items-center gap-2 text-xs">
               {#if item.isNew}<span class="font-medium text-primary">{t(messages.newMark)}</span>{/if}
               <span class="text-muted-foreground tabular-nums">{attentionWhen(item, timeZone, true)}</span>

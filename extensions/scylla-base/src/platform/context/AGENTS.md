@@ -17,6 +17,8 @@ from it.
 contextStore
 scyllaNavigate, type ScyllaNavigate       context-aware navigation (goToUser, goToAccount, …)
 workspaceUrl(name, path = 'dashboard') the URL of a page of any workspace, for a link
+scyllaHref                                the URL of a page of the active workspace, for a link:
+                                          project, jobs, job (with a node), triggers, agents, agent
 navigateTo, navigateBack                  plain navigation
 currentPathname, currentSearch            the current URL
 hasPage                                  whether the router has a page for a pathname, also through a redirect
@@ -97,6 +99,9 @@ The navigator of the app is in `@scylla/core-sdk`; `index.ts` re-exports `naviga
   URLs from the current context so callers do not hand-assemble
   `/${workspaceSlug}/projects/${projectId}/…`. A template string passed to `navigateTo` is how a route
   change becomes fourteen broken links.
+- **A link takes its URL from `scyllaHref`**, for the same reason. It reads the workspace of the
+  store when it runs, but the caller gives the project: a link of the dashboard opens a job of any
+  project. The router follows a click on it in the tab; a middle click opens a new tab.
 - **The URL is the source of truth, the store is the mirror.** The shell's
   `WorkspaceSync.wrapper.svelte` syncs the store *from* route params. Do not add a second sync
   in the other direction — that is the effect cascade this design exists to avoid.
