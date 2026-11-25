@@ -14,6 +14,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 ### Fixed
 
 - Job page: the job title row now wraps on narrow screens, so the page does not scroll sideways.
+- The verify email page no longer shows a raw server message in a toast for a link that is not
+  valid.
 
 ## [0.7.2] - 2026-11-25
 
