@@ -20,6 +20,7 @@
     integrationsUrl,
     vcsReportMutations,
     vcsReportQueries,
+    type JobReports,
     type VcsReport,
   } from '@base/features/integrations';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
@@ -41,9 +42,12 @@
   /** A report changes while its job runs or while a call waits: read it again. */
   const POLL_MS = 3000;
 
-  // A job with no commit has no report: no call.
+  // A job with no commit has no report: no call. The status of the job is the version of its
+  // reports: at the end of the job, the reports are read again at once, and the poll does not
+  // stop on a read from before the end. The old reports stay on the screen until the new read.
   const reportsQuery = createQuery(() => ({
-    ...vcsReportQueries.byJobs([job.id], !!job.source),
+    ...vcsReportQueries.byJobs([job.id], !!job.source, job.status),
+    placeholderData: (previous: JobReports[] | undefined) => previous,
     refetchInterval: query => {
       const open = query.state.data?.some(entry =>
         entry.reports.some(report => report.state === 'sending' || report.state === 'retrying'),

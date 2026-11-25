@@ -171,6 +171,20 @@ describe('OnboardingTour', () => {
     await waitFor(() => expect(saveStatus).toHaveBeenCalledWith('anonymous', { kind: 'skipped' }));
   });
 
+  it('asks before it leaves a tour when Escape is pressed on the step before the bar opens', async () => {
+    const { saveStatus } = setUp({ kind: 'in-progress', tour: 'search', step: 'open-search' });
+    pageElement('<button data-tour="command-bar-trigger"></button>', '[data-tour="command-bar-trigger"]');
+    await screen.findByText('Open the search bar');
+
+    await userEvent.keyboard('{Escape}');
+
+    expect(await screen.findByText('Skip the tour?')).toBeInTheDocument();
+    expect(saveStatus).not.toHaveBeenCalledWith('anonymous', { kind: 'skipped' });
+    await userEvent.click(screen.getByRole('button', { name: 'Continue the tour' }));
+    await waitFor(() => expect(screen.queryByText('Skip the tour?')).not.toBeInTheDocument());
+    expect(saveStatus).not.toHaveBeenCalledWith('anonymous', { kind: 'skipped' });
+  });
+
   it('keeps the bar and the step when the user continues', async () => {
     const { saveStatus } = setUp({ kind: 'in-progress', tour: 'search', step: 'search-prefix' });
     pageElement('<div data-slot="dialog-content"></div>', '[data-slot="dialog-content"]');

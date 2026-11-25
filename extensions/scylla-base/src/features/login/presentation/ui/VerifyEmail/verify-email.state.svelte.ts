@@ -1,5 +1,5 @@
 import { createMutation, getModuleDomain } from '@scylla/core-sdk';
-import { refusalOf, type ScyllaError } from '@shared/utils/scylla-error.ts';
+import { refusalOf, ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { LoginModule } from '@base/features/login/login.module.ts';
 import { takeFromFragment } from '../../mappers/fragment-token.mapper.ts';
 
@@ -13,7 +13,16 @@ export class VerifyEmailState {
 
   /** The refusal is the page's own state: it must not reach the global error toast. */
   private readonly mutation = createMutation<string | null, ScyllaError, string>(() => ({
-    mutationFn: (token: string) => refusalOf(this.repository.verifyEmail(token)),
+    mutationFn: async (token: string) => {
+      try {
+        return await refusalOf(this.repository.verifyEmail(token));
+      } catch (error) {
+        // The server answers INVALID_ARGUMENT for a link that is bad or used: the page says it.
+        const refusal = ScyllaError.from(error);
+        if (refusal.code === 'INVALID_ARGUMENT') return refusal.userMessage();
+        throw error;
+      }
+    },
   }));
 
   get step(): VerifyEmailStep {

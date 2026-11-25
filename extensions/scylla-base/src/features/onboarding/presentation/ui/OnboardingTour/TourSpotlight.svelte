@@ -15,9 +15,11 @@
     connectors: readonly string[];
     blocking: boolean;
     allowed: TourRect | null;
+    /** A click on the dim, outside the card and the targets. */
+    onOutside: () => void;
   }
 
-  let { viewport, holes, connectors, blocking, allowed }: Props = $props();
+  let { viewport, holes, connectors, blocking, allowed, onOutside }: Props = $props();
 </script>
 
 <svg
@@ -27,6 +29,7 @@
 >
   <path
     {@attach holdPointer}
+    onclick={onOutside}
     d={dimPath(viewport, holes)}
     fill-rule="evenodd"
     class="pointer-events-auto fill-overlay/55"
@@ -37,6 +40,7 @@
   <svg class="pointer-events-none fixed inset-0 z-[195] size-full" aria-hidden="true">
     <path
       {@attach holdPointer}
+      onclick={onOutside}
       d={dimPath(viewport, allowed ? [allowed] : [])}
       fill-rule="evenodd"
       data-tour-blocker

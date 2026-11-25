@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
+import { fakePollTimers } from '@test/queries.ts';
 import type { DomainRegistry } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import type { JobReports, VcsReport } from '@base/features/integrations';
@@ -76,9 +77,13 @@ const report = (overrides: Partial<VcsReport> = {}): VcsReport => ({
 let cache: ReturnType<typeof withQueryClient>;
 let restoreRegistry: (() => void) | null = null;
 let navigator: ReturnType<typeof installTestNavigator>;
+let getById: Mock<(jobId: string) => Promise<JobEntity>>;
 let approve: ReturnType<typeof vi.fn>;
 let reject: ReturnType<typeof vi.fn>;
-let reports: { listByJobs: ReturnType<typeof vi.fn>; retry: ReturnType<typeof vi.fn> };
+let reports: {
+  listByJobs: Mock<(jobIds: string[]) => Promise<JobReports[]>>;
+  retry: ReturnType<typeof vi.fn>;
+};
 
 const grant = (permissions: Permission[] | 'all') =>
   permissionsStore.setState({
@@ -106,11 +111,12 @@ const renderPage = async (
   shown: JobEntity,
   { search = '', listed = [], noReportReason = '', registry = {} }: PageSetup = {},
 ) => {
+  getById = vi.fn<(jobId: string) => Promise<JobEntity>>().mockResolvedValue(shown);
   approve = vi.fn().mockResolvedValue({ ...shown, status: 'pending', approval: undefined });
   reject = vi.fn().mockResolvedValue({ ...shown, status: 'cancelled', approval: undefined });
   reports = {
     listByJobs: vi
-      .fn()
+      .fn<(jobIds: string[]) => Promise<JobReports[]>>()
       .mockResolvedValue([
         { jobId: 'job-1', reports: listed, noReportReason } satisfies JobReports,
       ]),
@@ -121,7 +127,7 @@ const renderPage = async (
     integrations: { vcsReportRepository: reports },
     jobs: {
       jobsRepository: {
-        getById: vi.fn().mockResolvedValue(shown),
+        getById,
         approve,
         reject,
       } as unknown as JobsRepository,
@@ -153,6 +159,7 @@ afterEach(() => {
   restoreRegistry = null;
   navigator?.restore();
   permissionsStore.setState({ permissions: null });
+  vi.useRealTimers();
 });
 
 describe('JobDetailsPage, the Git context', () => {
@@ -451,6 +458,34 @@ describe('JobDetailsPage, the Git context', () => {
       expect(
         within(reportBand).queryByRole('link', { name: 'Fix the connection' }),
       ).not.toBeInTheDocument();
+    });
+
+    it('shows the last state of a report when the job ends, with no reload', async () => {
+      fakePollTimers();
+      const inProgress = report({ sentState: 'in_progress' });
+      await renderPage(job({ status: 'running', finishedAt: undefined }), { listed: [inProgress] });
+      const reportBand = await band();
+      expect(reportBand).toHaveTextContent(/In progress sent at /);
+
+      // The server ends the job before the next read of the job, and records the last state of
+      // its report in the same change: a read of the reports after it gets that state.
+      let ended = false;
+      getById.mockImplementation(() => {
+        ended = true;
+        return Promise.resolve(job());
+      });
+      reports.listByJobs.mockImplementation(() =>
+        Promise.resolve([
+          {
+            jobId: 'job-1',
+            reports: [ended ? report() : inProgress],
+            noReportReason: '',
+          } satisfies JobReports,
+        ]),
+      );
+      await vi.advanceTimersByTimeAsync(3000);
+
+      await waitFor(() => expect(reportBand).toHaveTextContent(/Success sent at /));
     });
 
     it('says why a job with a commit has no report', async () => {

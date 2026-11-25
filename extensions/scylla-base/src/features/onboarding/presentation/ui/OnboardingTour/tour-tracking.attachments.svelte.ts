@@ -368,6 +368,8 @@ export interface TourKeyboard {
   /** Tab goes around the targets and the card, and not into the page behind the dim. */
   loopTab: boolean;
   targets: () => readonly (Element | null)[];
+  /** Escape with no dialog open: a step that has no dialog to hold still asks to skip. */
+  onEscape?: () => void;
 }
 
 const FOCUSABLE =
@@ -394,7 +396,19 @@ export const holdKeyboard =
   node => {
     const view = node.ownerDocument.defaultView;
     const onKeydown = (event: KeyboardEvent) => {
-      const { holdSearch, loopTab, targets } = options();
+      const { holdSearch, loopTab, targets, onEscape } = options();
+      const doc = node.ownerDocument;
+      if (
+        event.key === 'Escape' &&
+        onEscape &&
+        !doc.querySelector('[data-slot="dialog-content"]') &&
+        !doc.activeElement?.closest('[role="menu"], [role="listbox"]')
+      ) {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        onEscape();
+        return;
+      }
       if (holdSearch && (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
         event.preventDefault();
         event.stopImmediatePropagation();
