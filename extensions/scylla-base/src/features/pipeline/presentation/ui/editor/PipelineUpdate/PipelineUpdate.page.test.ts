@@ -247,6 +247,32 @@ describe('PipelineUpdatePage', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
   });
 
+  it('turns Save on as soon as the typed name is free, with the focus still in the field', async () => {
+    const listFileKeys = vi.fn(() =>
+      Promise.resolve([{ key: 'build', path: '.scylla/pipelines/build.yaml' }]),
+    );
+    renderPage(() => Promise.resolve(loaded), undefined, undefined, {
+      link: { projectId: 'project-1', provider: 'github', pipelineSource: 'file' },
+      repository: { listFileKeys },
+    });
+    await screen.findByDisplayValue('nightly');
+    await waitFor(() => expect(listFileKeys).toHaveBeenCalledWith('project-1'));
+    const name = () => screen.getByRole<HTMLInputElement>('textbox', { name: 'Pipeline name' });
+    await userEvent.type(name(), 'Build', {
+      initialSelectionStart: 0,
+      initialSelectionEnd: name().value.length,
+    });
+    // The click on the off Save takes the focus from the field: the name `Build` is applied.
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(name()).toHaveValue('Build');
+
+    await userEvent.type(name(), ' 2');
+
+    expect(name()).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Save' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Save' })).not.toHaveAttribute('aria-disabled');
+  });
+
   it('reads no key of a file in a project with no link', async () => {
     const listFileKeys = vi.fn(() => Promise.resolve([]));
     renderPage(() => Promise.resolve(loaded), undefined, undefined, {

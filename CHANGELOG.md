@@ -79,6 +79,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   pipeline file.
 - The "Try a search" examples now show right below the field during the command bar tour, also when
   you have recent picks.
+- Create and Save turn on as soon as the typed pipeline name is free, also after a click on the off
+  button.
 
 ## [0.7.1] - 2026-11-24
 
