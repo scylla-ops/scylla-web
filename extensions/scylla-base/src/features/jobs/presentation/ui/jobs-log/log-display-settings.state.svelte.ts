@@ -1,8 +1,16 @@
 /** The display settings of the log viewer of a job, in `localStorage` (tracker registry). */
 export const LOG_DISPLAY_KEY = 'scylla.job-log.display';
 
-export type LogTextSize = 's' | 'm' | 'l';
-export const LOG_TEXT_SIZES: readonly LogTextSize[] = ['s', 'm', 'l'];
+/** The text size of the log, in px. */
+export const LOG_TEXT_SIZE_MIN = 10;
+export const LOG_TEXT_SIZE_MAX = 32;
+
+export type LogTextSizePreset = 's' | 'm' | 'l';
+export const LOG_TEXT_SIZE_PRESETS: Record<LogTextSizePreset, number> = { s: 11, m: 12, l: 14 };
+
+/** The size in the allowed range, rounded to a whole px. */
+export const clampLogTextSize = (size: number): number =>
+  Math.min(LOG_TEXT_SIZE_MAX, Math.max(LOG_TEXT_SIZE_MIN, Math.round(size)));
 
 /** How the job page shows its nodes beside the log. */
 export type NodeView = 'list' | 'graph';
@@ -13,7 +21,8 @@ export interface LogDisplaySettings {
   wrap: boolean;
   timestamps: boolean;
   lineNumbers: boolean;
-  size: LogTextSize;
+  /** The text size in px. Older builds saved `s`, `m` or `l`. */
+  size: number;
   nodeView: NodeView;
 }
 
@@ -22,7 +31,7 @@ export const DEFAULT_LOG_DISPLAY: LogDisplaySettings = {
   wrap: true,
   timestamps: false,
   lineNumbers: true,
-  size: 'm',
+  size: LOG_TEXT_SIZE_PRESETS.m,
   nodeView: 'list',
 };
 
@@ -37,7 +46,11 @@ export const decodeLogDisplay = (value: unknown): LogDisplaySettings => {
   for (const key of BOOLEAN_KEYS) {
     if (typeof saved[key] === 'boolean') settings[key] = saved[key];
   }
-  if (LOG_TEXT_SIZES.includes(saved.size as LogTextSize)) settings.size = saved.size as LogTextSize;
+  if (typeof saved.size === 'string' && saved.size in LOG_TEXT_SIZE_PRESETS) {
+    settings.size = LOG_TEXT_SIZE_PRESETS[saved.size as LogTextSizePreset];
+  } else if (typeof saved.size === 'number' && Number.isFinite(saved.size)) {
+    settings.size = clampLogTextSize(saved.size);
+  }
   if (saved.nodeView === 'list' || saved.nodeView === 'graph') settings.nodeView = saved.nodeView;
   return settings;
 };

@@ -13,7 +13,7 @@ import type {
   LogLine,
   LogMatch,
 } from '@base/features/jobs/presentation/presenters/log-lines.presenter.ts';
-import type { LogDisplaySettings, LogTextSize } from '../log-display-settings.state.svelte.ts';
+import type { LogDisplaySettings } from '../log-display-settings.state.svelte.ts';
 
 /** What the decorations and the gutters of the log read. Line numbers are from 1. */
 export interface LogEditorSource {
@@ -40,8 +40,6 @@ const isRefresh = (update: ViewUpdate) =>
     transaction.effects.some(effect => effect.is(refreshLog)),
   );
 
-const FONT_SIZES: Record<LogTextSize, string> = { s: '11px', m: '12px', l: '14px' };
-
 /** The colors of the escape codes, as the tokens of the theme. */
 const ANSI_COLORS: Record<string, string> = {
   red: 'var(--status-failed)',
@@ -62,12 +60,12 @@ const ansiTheme = Object.fromEntries(
   ]),
 );
 
-const logTheme = (size: LogTextSize) =>
+const logTheme = (size: number) =>
   EditorView.theme({
     '&': { height: '100%' },
     '.cm-scroller': {
       fontFamily: 'var(--font-mono)',
-      fontSize: FONT_SIZES[size],
+      fontSize: `${size}px`,
       lineHeight: '1.6',
     },
     '.cm-gutters': { userSelect: 'none' },

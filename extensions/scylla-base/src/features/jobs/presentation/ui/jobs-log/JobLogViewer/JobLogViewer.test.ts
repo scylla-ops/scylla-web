@@ -290,6 +290,30 @@ describe('JobLogViewer', () => {
     });
   });
 
+  it('sets a custom text size from its field and buttons, and stops at 32 px', async () => {
+    install(() => streamOf([logLine('a line')]));
+
+    render(JobLogViewer, {});
+
+    await linesShown('a line');
+    await userEvent.click(screen.getByRole('button', { name: 'Display settings' }));
+    const field = await screen.findByLabelText('Size in px', { selector: 'input' });
+    expect(field).toHaveValue(12);
+
+    await userEvent.clear(field);
+    await userEvent.type(field, '31');
+    await userEvent.tab();
+    const increase = screen.getByText('Increase the text size').closest('button') as HTMLElement;
+    await userEvent.click(increase);
+    await userEvent.click(increase);
+
+    expect(field).toHaveValue(32);
+    expect(increase).toBeDisabled();
+    expect(JSON.parse(localStorage.getItem('scylla.job-log.display') ?? '{}')).toMatchObject({
+      size: 32,
+    });
+  });
+
   it('shows an error message when the stream could not be opened', async () => {
     install(() => {
       throw new ScyllaError('no stream');

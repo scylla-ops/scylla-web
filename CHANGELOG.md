@@ -31,6 +31,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   triggers of a Scylla pipeline in such a project, after a warning, and can revoke them. In the
   merge rules, a Scylla pipeline stays off, tells why, and opens its export to a file. In English
   and French.
+- The log viewer has a text size field with - and + buttons, from 10 to 32 px, next to the S, M and
+  L sizes.
 
 ### Changed
 
