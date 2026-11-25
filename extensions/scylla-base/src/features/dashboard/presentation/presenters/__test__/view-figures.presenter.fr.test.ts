@@ -35,14 +35,9 @@ describe('the figures of the dashboard in French', () => {
     expect(t(viewMessages.jobsAndFailed(3, 1))).toBe('3 jobs · 1 en échec');
   });
 
-  it('names the outcomes of the two legends with the same words, in the plural', () => {
-    const { completed, failed, orphaned, completedLower, failedLower, orphanedLower } = widgetMessages;
+  it('names the outcomes of the legends, in the plural', () => {
+    const { completed, failed, orphaned } = widgetMessages;
     expect([completed, failed, orphaned].map(t)).toEqual(['Terminés', 'Échoués', 'Orphelins']);
-    expect([completedLower, failedLower, orphanedLower].map(t)).toEqual([
-      'terminés',
-      'échoués',
-      'orphelins',
-    ]);
   });
 
   it('writes the day in French', () => {

@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:12
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:14
 msgctxt "webhooks"
 msgid "{account} · {count} repositories"
 msgstr "{account} · {count, plural, one {{count} dépôt} other {{count} dépôts}}"
@@ -411,7 +411,7 @@ msgstr "Ajouter un widget"
 msgid "Add a widget, or drop one here"
 msgstr "Ajoutez un widget, ou déposez-en un ici"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:88
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:85
 msgid "Add an agent"
 msgstr "Ajouter un agent"
 
@@ -622,7 +622,7 @@ msgstr "Annuler"
 msgid "cancelled"
 msgstr "annulés"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:84
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:81
 msgctxt "one job"
 msgid "cancelled"
 msgstr "annulé"
@@ -652,7 +652,7 @@ msgid "changed the trigger {name}"
 msgstr "a modifié le déclencheur {name}"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:92
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:90
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:87
 msgid "Choose a pipeline"
 msgstr "Choisir une pipeline"
 
@@ -672,11 +672,7 @@ msgstr "Choisir les jours"
 msgid "Close"
 msgstr "Fermer"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
-msgid "completed"
-msgstr "terminés"
-
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
 msgctxt "one job"
 msgid "completed"
 msgstr "terminé"
@@ -691,7 +687,7 @@ msgctxt "legend"
 msgid "Completed"
 msgstr "Terminés"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:20
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:22
 msgctxt "webhooks"
 msgid "Connect GitHub or GitLab, or add a webhook trigger, to see the deliveries here."
 msgstr "Connectez GitHub ou GitLab, ou ajoutez un déclencheur webhook, pour voir les livraisons ici."
@@ -745,14 +741,14 @@ msgstr "Personnalisée"
 msgid "Custom range"
 msgstr "Période personnalisée"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:56
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:64
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:70
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:60
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:69
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:75
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:4
 msgid "Dashboard"
 msgstr "Tableau de bord"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:61
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:66
 msgid "dashboard home"
 msgstr "tableau de bord accueil"
 
@@ -801,12 +797,17 @@ msgctxt "webhooks"
 msgid "delivered"
 msgstr "livrés"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:11
+msgctxt "webhooks legend"
+msgid "Delivered"
+msgstr "Livrés"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:9
 msgctxt "webhooks"
 msgid "delivered in 24 h"
 msgstr "livrés en 24 h"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:17
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:19
 msgctxt "webhooks"
 msgid "Deliveries per hour"
 msgstr "Livraisons par heure"
@@ -890,16 +891,12 @@ msgstr "tout le monde peut voir"
 msgid "Extra small"
 msgstr "Très petit"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:78
-msgid "failed"
-msgstr "échoués"
-
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:24
 msgctxt "attention"
 msgid "failed"
 msgstr "échec"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:83
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:80
 msgctxt "one job"
 msgid "failed"
 msgstr "échoué"
@@ -921,6 +918,11 @@ msgstr "en échec"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:23
 msgctxt "legend"
+msgid "Failed"
+msgstr "Échoués"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:12
+msgctxt "webhooks legend"
 msgid "Failed"
 msgstr "Échoués"
 
@@ -1021,7 +1023,7 @@ msgstr "dans {time}"
 msgid "Integrations"
 msgstr "Intégrations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:89
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:86
 msgid "Invite a member"
 msgstr "Inviter un membre"
 
@@ -1135,12 +1137,12 @@ msgstr "30 derniers jours"
 msgid "Last day"
 msgstr "Dernier jour"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:16
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:18
 msgctxt "webhooks"
 msgid "Last delivery {time}"
 msgstr "Dernière livraison {time}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:15
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:17
 msgctxt "webhooks"
 msgid "Last delivery {time} · {event} on {where}"
 msgstr "Dernière livraison {time} · {event} sur {where}"
@@ -1206,7 +1208,7 @@ msgstr "En faire mon tableau de bord par défaut"
 msgid "Make private"
 msgstr "Rendre privé"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:18
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:20
 msgctxt "webhooks"
 msgid "Manage"
 msgstr "Gérer"
@@ -1345,7 +1347,7 @@ msgstr "Aucun agent dans cet espace de travail"
 msgid "No change"
 msgstr "Aucune modification"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:19
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:21
 msgctxt "webhooks"
 msgid "No connection"
 msgstr "Aucune connexion"
@@ -1628,16 +1630,12 @@ msgstr "Ouvrir les déclencheurs de cette pipeline"
 msgid "Ops overview"
 msgstr "Vue des opérations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:79
-msgid "orphaned"
-msgstr "orphelins"
-
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/attention.messages.ts:26
 msgctxt "attention"
 msgid "orphaned"
 msgstr "orphelin"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:85
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:82
 msgctxt "one job"
 msgid "orphaned"
 msgstr "orphelin"
@@ -1656,7 +1654,7 @@ msgstr "Orphelins"
 msgid "Orphaned · {when}"
 msgstr "Orphelin · {when}"
 
-#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:60
+#: extensions/scylla-base/src/features/dashboard/dashboard.module.ts:65
 msgid "Overview"
 msgstr "Vue d'ensemble"
 
@@ -1707,10 +1705,6 @@ msgstr "p50 et p95"
 msgctxt "duration"
 msgid "p50 and p95 · {period}"
 msgstr "p50 et p95 · {period}"
-
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:53
-msgid "P50 and p95 of the jobs"
-msgstr "P50 et p95 des jobs"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:43
 msgid "p50 run duration"
@@ -1866,7 +1860,7 @@ msgstr "Relancer"
 msgid "Resize {title}"
 msgstr "Redimensionner {title}"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:93
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:90
 msgid "Retry"
 msgstr "Réessayer"
 
@@ -1909,7 +1903,7 @@ msgctxt "minutes"
 msgid "Run minutes"
 msgstr "Minutes d’exécution"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:87
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:84
 msgid "Run pipeline"
 msgstr "Lancer une pipeline"
 
@@ -2233,7 +2227,7 @@ msgctxt "activity"
 msgid "The changes of the jobs, triggers, secrets, members, connections and agents show here."
 msgstr "Les changements des jobs, déclencheurs, secrets, membres, connexions et agents s’affichent ici."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:21
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:23
 msgctxt "webhooks"
 msgid "The deliveries of 24 h and the failures"
 msgstr "Les livraisons de 24 h et les échecs"
@@ -2286,6 +2280,10 @@ msgstr "Les prochains déclenchements et les échecs"
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:41
 msgid "The open items, then the rest"
 msgstr "Les points ouverts, puis le reste"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/catalog.messages.ts:53
+msgid "The p50 and p95 of the jobs"
+msgstr "Les p50 et p95 des jobs"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets-view.messages.ts:17
 msgid "The rest is fine: {running} jobs run now, {waiting} wait for an agent, and {green} of {total} pipelines are green."
@@ -2456,7 +2454,7 @@ msgstr "Attend une validation · {when}"
 msgid "webhook"
 msgstr "webhook"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:13
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/webhooks.messages.ts:15
 msgctxt "webhooks"
 msgid "webhook trigger · {pipeline}"
 msgstr "déclencheur webhook · {pipeline}"
@@ -2474,11 +2472,11 @@ msgstr "Ce qui vous attend"
 msgid "What should it show?"
 msgstr "Que doit-il afficher ?"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:92
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:89
 msgid "You do not have the permission to read this data."
 msgstr "Vous n’avez pas la permission de lire ces données."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:91
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:88
 msgid "You have no permission for these actions."
 msgstr "Vous n’avez la permission pour aucune de ces actions."
 
