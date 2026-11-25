@@ -77,6 +77,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The What's new row now shows in the command bar when the field is empty.
 - Create and Save are now off, with the reason, while the typed pipeline name is the key of a
   pipeline file.
+- The "Try a search" examples now show right below the field during the command bar tour, also when
+  you have recent picks.
 
 ## [0.7.1] - 2026-11-24
 

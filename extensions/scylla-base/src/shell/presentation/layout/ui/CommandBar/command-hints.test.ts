@@ -11,6 +11,11 @@ describe('the hints of the empty command bar', () => {
     expect(showCommandHints(HINTS_UNTIL_PICKS, false)).toBe(false);
   });
 
+  it('show during a tour, whatever the picks', () => {
+    expect(showCommandHints(HINTS_UNTIL_PICKS + 1, false, true)).toBe(true);
+    expect(showCommandHints(HINTS_UNTIL_PICKS + 1, true, true)).toBe(false);
+  });
+
   it('never show while the user searches', () => {
     expect(showCommandHints(0, true)).toBe(false);
   });
