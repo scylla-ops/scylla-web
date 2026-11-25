@@ -112,6 +112,7 @@ export const createStreamedLogView = (source: () => LogSource): StreamedLogView 
     const ownerDocument = scroller.ownerDocument;
     const editor = view;
     let frame = 0;
+    let gesture = false;
 
     const isAtTail = () =>
       scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight <= TAIL_THRESHOLD_PX;
@@ -136,6 +137,7 @@ export const createStreamedLogView = (source: () => LogSource): StreamedLogView 
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      gesture = true;
       // A link of a line number is not a scroll.
       if ((event.target as Element | null)?.closest('a')) return;
       stopFollowing();
@@ -144,7 +146,13 @@ export const createStreamedLogView = (source: () => LogSource): StreamedLogView 
     };
 
     // On the document: a drag can end outside the log, and a touch scroll ends on `pointercancel`.
-    const handleGestureEnd = () => resync();
+    // Only a gesture that began in the log: a click on a button of the toolbar is not one, or it
+    // would turn follow on just before the button turns it off.
+    const handleGestureEnd = () => {
+      if (!gesture) return;
+      gesture = false;
+      resync();
+    };
 
     scroller.addEventListener('wheel', handleUserScroll, { passive: true });
     scroller.addEventListener('pointerdown', handlePointerDown);

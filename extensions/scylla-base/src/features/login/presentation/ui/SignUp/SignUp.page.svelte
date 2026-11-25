@@ -16,6 +16,7 @@
   import { linkSlot } from '@base/features/login/presentation/presenters/linked-text.presenter.ts';
   import { termsChangedText } from '@base/features/login/presentation/presenters/terms.presenter.ts';
   import LinkedText from '../LinkedText/LinkedText.svelte';
+  import ResendVerification from '../ResendVerification/ResendVerification.svelte';
   import TermsCheckbox from '../TermsCheckbox/TermsCheckbox.svelte';
 
   // Built during initialisation: it reads the invitation of the link, and its mutation needs an owner.
@@ -72,7 +73,13 @@
   description={state.isSent ? undefined : t(signUpMessages.description)}
 >
   {#if state.isSent}
-    <p role="status" class="text-center text-sm">{t(signUpMessages.sent)}</p>
+    <div class="flex flex-col items-center gap-4 text-center">
+      <p role="status" class="text-sm">{t(signUpMessages.sent(state.sentEmail))}</p>
+      <!-- A link of an invitation verifies the email: no mail to wait for. -->
+      {#if !state.invited}
+        <ResendVerification email={state.sentEmail} />
+      {/if}
+    </div>
   {:else}
     <ScyllaForm {items} onSubmit={state.submit} isPending={state.isPending}>
       {#snippet footer({ isValid, isPending })}

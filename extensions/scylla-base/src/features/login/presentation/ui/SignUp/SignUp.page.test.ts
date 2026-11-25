@@ -14,6 +14,7 @@ import SignUpPage from './SignUp.page.svelte';
 
 let teardown: Array<() => void> = [];
 let signUp: ReturnType<typeof vi.fn>;
+let resendVerificationEmail: ReturnType<typeof vi.fn>;
 
 let readLegalInfo: ReturnType<typeof withLegalInfo>['info'];
 
@@ -21,13 +22,21 @@ let readLegalInfo: ReturnType<typeof withLegalInfo>['info'];
 const openAt = async (url: string, ...legal: LegalInfo[]) => {
   history.replaceState(null, '', url);
   signUp = vi.fn().mockResolvedValue(undefined);
+  resendVerificationEmail = vi.fn().mockResolvedValue(undefined);
+  const listSignInMethods = vi.fn().mockResolvedValue({
+    providers: [],
+    signUpMode: 'open',
+    mailSender: 'no-reply@scylla.example',
+  });
   const cache = withQueryClient();
   const served = withLegalInfo(legal[0] ?? legalInfo(), ...legal.slice(1));
   readLegalInfo = served.info;
   teardown = [
     cache.restore,
     served.restore,
-    withRegistry({ login: { loginRepository: { signUp } } }),
+    withRegistry({
+      login: { loginRepository: { signUp, resendVerificationEmail, listSignInMethods } },
+    }),
   ];
   render(SignUpPage);
   await focusSettled();
@@ -68,7 +77,35 @@ describe('SignUpPage', () => {
         invitationToken: '',
       }),
     );
-    expect(await screen.findByRole('status')).toHaveTextContent('We sent a link to this address');
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'We sent a link to ada@example.com. Open it to activate your account.',
+    );
+  });
+
+  it('names the sender of the mail, and sends the link again', async () => {
+    await openAt('/sign-up');
+    await fill();
+
+    expect(
+      await screen.findByText(
+        'The mail comes from no-reply@scylla.example. Not in your inbox? Look in your spam or junk folder.',
+      ),
+    ).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Send the link again' }));
+
+    await waitFor(() =>
+      expect(resendVerificationEmail).toHaveBeenCalledWith('ada@example.com'),
+    );
+    expect(await screen.findByText('We sent a new link to ada@example.com.')).toBeInTheDocument();
+  });
+
+  it('offers no new link after the sign-up of an invitation', async () => {
+    await openAt('/sign-up#invitation=inv-42');
+
+    await fill();
+
+    await screen.findByRole('status');
+    expect(screen.queryByRole('button', { name: 'Send the link again' })).not.toBeInTheDocument();
   });
 
   it('sends the invitation of the link, and takes it out of the address bar', async () => {
@@ -100,7 +137,7 @@ describe('SignUpPage', () => {
           expect.objectContaining({ acceptedTermsVersion: '2.0' }),
         ),
       );
-      expect(await screen.findByRole('status')).toHaveTextContent('We sent a link to this address');
+      expect(await screen.findByRole('status')).toHaveTextContent('We sent a link to ada@example.com');
     });
 
     it('links the terms and the privacy policy in a new tab', async () => {

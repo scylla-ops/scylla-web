@@ -277,6 +277,11 @@ export const createOnboardingTour = (canStart: () => boolean) => {
       if (!status || !fallback || !onStepPage()) return;
       write(rewindTour(status, stepIds, stepId, fallback));
     },
+    /** The user opened a result from the bar: the tour goes on at the step after the bar. */
+    pick(stepId: string) {
+      const current = tour?.steps.find(candidate => candidate.id === stepId);
+      if (status && current?.picked) write(rewindTour(status, stepIds, stepId, current.picked));
+    },
     goBack() {
       if (!step?.page) return;
       scyllaNavigate.goToWorkspaceRoute(step.page(subject));

@@ -20,5 +20,6 @@ export function signInMethodsToDomain(response: ListSignInMethodsResponse): Sign
       kind: kindOf(kind),
     })),
     signUpMode: modeOf(response.signUpMode),
+    mailSender: response.mailSender,
   };
 }

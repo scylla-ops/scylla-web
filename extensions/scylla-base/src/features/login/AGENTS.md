@@ -73,6 +73,9 @@ The URL holds no data: the page reads the link with `GetPendingLink`.
 | `requestPasswordReset(email)` | `PasswordResetDelivery` |
 | `resetPassword(token, newPassword)` | `void` |
 | `signUp(input)` | `void`; `input.acceptedTermsVersion` is the version that the person accepted |
+| `verifyEmail(token)` | `void`; FAILED_PRECONDITION: the link is unknown, used or expired |
+| `resendVerificationEmail(email)` | `void`; the same answer for each email; RESOURCE_EXHAUSTED: too many requests |
+| `listSignInMethods()` | `SignInMethods`: the providers, the sign-up mode and `mailSender` |
 | `termsStatus()` | `TermsStatus` (`GetMe`) |
 | `acceptTerms(version)` | `TermsAcceptance` |
 
@@ -112,6 +115,12 @@ presentation/
     forgot-password.state.svelte.ts  the request of a reset link
   ui/ResetPassword/ResetPassword.page.svelte
     reset-password.state.svelte.ts   the token of the link, the new password
+  ui/SignUp/SignUp.page.svelte, ui/VerifyEmail/VerifyEmail.page.svelte
+  ui/ResendVerification/ResendVerification.svelte   the sender of the mails, "Send the link again"
+    resend-verification.state.svelte.ts             the sender (ListSignInMethods), the request
+  messages/verification.messages.ts        the texts of a new link to verify an email
+  mappers/sign-in-outcome.mapper.ts        EMAIL_NOT_VERIFIED of a sign-in as data
+  mappers/resend-outcome.mapper.ts         RESOURCE_EXHAUSTED of a new link as data
   messages/login.messages.ts               the sign-in strings (the `login.texts` point)
   messages/password-reset.messages.ts      the strings of the two reset pages
   messages/terms.messages.ts               the box, the notice and the terms step
@@ -257,6 +266,25 @@ sign-in, the login page goes to `returnTo` with `replace`, else to `/`.
   data, so the global handler does not toast it too. A link with no token shows the same state.
 - The new password is checked in the app first (`@shared/utils/account-validation.ts`): 8 to 255
   characters, and a confirmation equal to it.
+
+## The check of the email
+
+A sign-up with a password makes an account that waits for the check of its email. The server
+sends a link to `/verify-email#token=…`. A person who does not get the mail is never stuck:
+
+- **Each screen that waits for the mail has `ResendVerification`**: the sign-up page after the
+  submit (not after the sign-up of an invitation, which verifies the email), the sign-in page
+  after EMAIL_NOT_VERIFIED, and the verify page with an expired or used link. It names the sender
+  of the mails (`mailSender` of `ListSignInMethods`) and the spam folder, and its button calls
+  `ResendVerificationEmail`. Without an `email` prop, it asks for the email.
+- **The answer is the same for each email.** The text after a request with a typed email does not
+  tell whether an account uses it.
+- **EMAIL_NOT_VERIFIED of a sign-in is a state of the page**, not a toast (`signInOutcomeOf`): the
+  form stays, and the box above it sends the link to the identifier of the sign-in.
+- **RESOURCE_EXHAUSTED of a new link is a state of the component** (`resendOutcomeOf`), so its
+  text is in the language of the page.
+- A new sign-up with the email of an account that waits for its check also sends a new link: the
+  server does not change the account.
 
 ## Rules that bite here
 

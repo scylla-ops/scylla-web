@@ -118,6 +118,32 @@ describe('JobLogViewer', () => {
     expect(content()?.textContent).toContain('first line');
   });
 
+  it('turns follow off and on again with the toolbar button of a running job', async () => {
+    install(() => streamOf([logLine('one'), logLine('two')]));
+    const user = userEvent.setup();
+    render(JobLogViewer, { isLive: true });
+    await linesShown('two');
+
+    const follow = screen.getByRole('button', { name: 'Follow the end of the log' });
+    expect(follow).toHaveAttribute('aria-pressed', 'true');
+    await user.click(follow);
+    expect(follow).toHaveAttribute('aria-pressed', 'false');
+    await user.click(follow);
+    expect(follow).toHaveAttribute('aria-pressed', 'true');
+    await user.click(follow);
+    expect(follow).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  it('shows a finished job a go-to-the-end action, not a follow toggle', async () => {
+    install(() => streamOf([logLine('one'), logLine('two')]));
+    render(JobLogViewer, { isLive: false });
+    await linesShown('two');
+
+    expect(screen.queryByRole('button', { name: 'Follow the end of the log' })).toBeNull();
+    const goToEnd = screen.getByRole('button', { name: 'Go to the end of the log' });
+    expect(goToEnd).not.toHaveAttribute('aria-pressed');
+  });
+
   it('shows the lines of the chosen node only', async () => {
     install(() =>
       streamOf([logLine('compile', 'build'), logLine('run the tests', 'test'), logLine('link')]),
@@ -261,6 +287,30 @@ describe('JobLogViewer', () => {
     await waitFor(() => expect(content()).not.toHaveClass('cm-lineWrapping'));
     expect(JSON.parse(localStorage.getItem('scylla.job-log.display') ?? '{}')).toMatchObject({
       wrap: false,
+    });
+  });
+
+  it('sets a custom text size from its field and buttons, and stops at 32 px', async () => {
+    install(() => streamOf([logLine('a line')]));
+
+    render(JobLogViewer, {});
+
+    await linesShown('a line');
+    await userEvent.click(screen.getByRole('button', { name: 'Display settings' }));
+    const field = await screen.findByLabelText('Size in px', { selector: 'input' });
+    expect(field).toHaveValue(12);
+
+    await userEvent.clear(field);
+    await userEvent.type(field, '31');
+    await userEvent.tab();
+    const increase = screen.getByText('Increase the text size').closest('button') as HTMLElement;
+    await userEvent.click(increase);
+    await userEvent.click(increase);
+
+    expect(field).toHaveValue(32);
+    expect(increase).toBeDisabled();
+    expect(JSON.parse(localStorage.getItem('scylla.job-log.display') ?? '{}')).toMatchObject({
+      size: 32,
     });
   });
 

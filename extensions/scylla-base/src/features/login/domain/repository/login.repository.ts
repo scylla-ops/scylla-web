@@ -36,6 +36,11 @@ export interface LoginRepository {
   acceptTerms(version: string): Promise<TermsAcceptance>;
   /** FAILED_PRECONDITION: the link is unknown, used or expired. */
   verifyEmail(token: string): Promise<void>;
+  /**
+   * A new link to verify the email, when its account waits for the check. The same answer
+   * whether an account uses the email or not. RESOURCE_EXHAUSTED: too many requests.
+   */
+  resendVerificationEmail(email: string): Promise<void>;
   /** The same answer whether an account uses the email or not. */
   requestPasswordReset(email: string): Promise<PasswordResetDelivery>;
   /** FAILED_PRECONDITION: the link is unknown, used or expired, or the account is inactive. */

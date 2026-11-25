@@ -17,7 +17,7 @@ msgstr ""
 msgid "{count, plural, one {# error} other {# errors}}"
 msgstr "{count, plural, one {# error} other {# errors}}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:44
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:47
 msgid "{count, plural, one {# line} other {# lines}}"
 msgstr "{count, plural, one {# line} other {# lines}}"
 
@@ -25,7 +25,7 @@ msgstr "{count, plural, one {# line} other {# lines}}"
 msgid "{count, plural, one {# match} other {# matches}}"
 msgstr "{count, plural, one {# match} other {# matches}}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:45
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:48
 msgid "{count, plural, one {# new line} other {# new lines}}"
 msgstr "{count, plural, one {# new line} other {# new lines}}"
 
@@ -153,10 +153,29 @@ msgstr "Copy the SHA"
 msgid "Created"
 msgstr "Created"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:65
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:64
 msgctxt "date-prefix"
 msgid "Created"
 msgstr "Created"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:66
+msgctxt "run-time"
+msgid "Created"
+msgstr "Created"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:67
+msgctxt "run-time"
+msgid "Started"
+msgstr "Started"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:68
+msgctxt "run-time"
+msgid "Finished"
+msgstr "Finished"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:37
+msgid "Decrease the text size"
+msgstr "Decrease the text size"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:35
 msgid "Delete"
@@ -174,7 +193,7 @@ msgstr "Details"
 msgid "Display settings"
 msgstr "Display settings"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:36
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:39
 msgid "Download the log"
 msgstr "Download the log"
 
@@ -186,7 +205,7 @@ msgstr "Duration"
 msgid "Duration: {duration}"
 msgstr "Duration: {duration}"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:46
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:49
 msgid "Ended"
 msgstr "Ended"
 
@@ -210,7 +229,7 @@ msgstr "Errors"
 msgid "Event"
 msgstr "Event"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:40
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:43
 msgid "Exit full screen"
 msgstr "Exit full screen"
 
@@ -221,11 +240,6 @@ msgstr "Facts of the job"
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:85
 msgid "Failure"
 msgstr "Failure"
-
-#: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:64
-msgctxt "date-prefix"
-msgid "Finished"
-msgstr "Finished"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/jobs.messages.ts:46
 msgid "Finished: {time}"
@@ -239,11 +253,19 @@ msgstr "Fix the connection"
 msgid "Follow the end of the log"
 msgstr "Follow the end of the log"
 
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:26
+msgid "Go to the end of the log"
+msgstr "Go to the end of the log"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:26
+msgid "Go to the end of the log"
+msgstr "Go to the end of the log"
+
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:14
 msgid "Fork"
 msgstr "Fork"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:39
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:42
 msgid "Full screen"
 msgstr "Full screen"
 
@@ -270,6 +292,10 @@ msgstr "Graph of the job"
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:88
 msgid "In progress"
 msgstr "In progress"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:38
+msgid "Increase the text size"
+msgstr "Increase the text size"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:58
 msgid "Install Git on its machine"
@@ -316,7 +342,7 @@ msgstr "L"
 msgid "Labels"
 msgstr "Labels"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:43
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:46
 msgid "Line {line}"
 msgstr "Line {line}"
 
@@ -444,7 +470,7 @@ msgstr "Pipeline ID is missing"
 msgid "Pipeline ID:"
 msgstr "Pipeline ID:"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:37
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:40
 msgid "Plain text"
 msgstr "Plain text"
 
@@ -484,7 +510,7 @@ msgstr "Push of the tag {tag}"
 msgid "queued: waiting for an agent"
 msgstr "queued: waiting for an agent"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:38
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:41
 msgid "Raw, with the ANSI codes"
 msgstr "Raw, with the ANSI codes"
 
@@ -593,13 +619,17 @@ msgstr "Secrets"
 msgid "Sending..."
 msgstr "Sending..."
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:41
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:44
 msgid "Shortcut: {key}"
 msgstr "Shortcut: {key}"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:7
 msgid "Show the nodes as"
 msgstr "Show the nodes as"
+
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:36
+msgid "Size in px"
+msgstr "Size in px"
 
 #: extensions/scylla-base/src/features/jobs/presentation/messages/job-git.messages.ts:5
 msgid "Source"
@@ -730,7 +760,7 @@ msgstr "View on GitLab"
 msgid "waiting for a project editor"
 msgstr "waiting for a project editor"
 
-#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:47
+#: extensions/scylla-base/src/features/jobs/presentation/messages/job-log.messages.ts:50
 msgid "Waiting for the first lines..."
 msgstr "Waiting for the first lines..."
 

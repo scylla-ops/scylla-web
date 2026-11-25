@@ -45,6 +45,8 @@ export interface TourTracking {
   onUnlock: () => void;
   onLock: () => void;
   onLost: () => void;
+  /** The dialog of a `picked` step closed: the user opened a result. */
+  onPicked?: () => void;
   /** The target came back, or the page changed: the step is not lost any more. */
   onFound: () => void;
   onHint: (shown: boolean) => void;
@@ -298,6 +300,13 @@ export const trackTourStep =
         if (!element) armed = true;
         else if (armed) advance(step.advance.found?.(element));
       }
+      if (step.picked) {
+        if (resolve(step.targets[0])) seen = true;
+        else if (seen) {
+          seen = false;
+          tracking.onPicked?.();
+        }
+      }
       if (step.advance.on === 'gone') {
         if (resolve(step.advance.anchor)) seen = true;
         else if (seen) advance();
@@ -338,12 +347,12 @@ export const trackTourStep =
 
 /** Only Skip leaves a step that holds a dialog: no Escape, outside click or close button. */
 export const holdDialogs =
-  (held: () => boolean): Attachment<HTMLElement> =>
+  (held: () => boolean, onBlocked?: () => void): Attachment<HTMLElement> =>
   () => {
     $effect(() => {
-      dialogHoldStore.setState({ held: held() });
+      dialogHoldStore.setState({ held: held(), onBlocked: held() ? onBlocked : undefined });
     });
-    return () => dialogHoldStore.setState({ held: false });
+    return () => dialogHoldStore.setState({ held: false, onBlocked: undefined });
   };
 
 /** Tells what lies outside the tour, such as a launcher in the same corner, to stay out of it. */

@@ -333,4 +333,19 @@ describe('ScyllaGrpcTransport', () => {
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(headersOf(fetch.mock.calls[0]).get('authorization')).toBeNull();
   });
+
+  it('asks for a new link to verify an email with no token and no refresh: no session exists yet', async () => {
+    const fetch = vi.fn().mockResolvedValue(refusal(5, 'none'));
+    vi.stubGlobal('fetch', fetch);
+    const { AccountServiceClient } =
+      await import('@base/generated/scylla/accounts/v1/account_service.client.ts');
+
+    await new AccountServiceClient(transport())
+      .resendVerificationEmail({ email: 'ada@example.com' })
+      .response.catch(() => null);
+
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(String(fetch.mock.calls[0][0])).toMatch(/ResendVerificationEmail$/);
+    expect(headersOf(fetch.mock.calls[0]).get('authorization')).toBeNull();
+  });
 });

@@ -103,17 +103,19 @@ presentation/
   ui/JobDetails/                     one job: its header, its alerts, and its log beside its nodes
     JobHeader.svelte                       the id, the status, Details and Re-run, then JobFacts
     JobFacts.svelte                        the facts on one line, each with its icon
-    JobDetailsPanel.svelte                 the three groups of Details: Run, Source, Report
-    JobRunFacts.svelte                     the group Run: status, times, agent, labels
+    JobDetailsPanel.svelte                 Details: one row for each group (Run, Source, Report)
+    JobDetailsGroup.svelte                 a group of Details: its title, then its items on one line
+    JobDetailsFact.svelte                  a fact of a group: its label and its value on one line
+    JobRunFacts.svelte                     the group Run: status, duration, times, agent, labels
     JobAlerts.svelte                       the approval, the unfit agents, the invalid file or the error
     job-agent.state.svelte.ts              the name and the link of the agent of a job
     job-log-place.state.svelte.ts          the node of the log and the full screen, in the URL
     JobLogWorkspace/                       the split view: the list of the nodes (or its select under
                                            768 px), the handle, the viewer; the full screen
     NodePathNote.svelte                    the ports of a switch, where a failure went
-    JobSourceFacts.svelte                  the commit band: repo, ref, SHA, PRs, author, fork,
+    JobSourceFacts.svelte                  the group Source: repo, ref, SHA, PRs, author, fork,
                                            event, pipeline file, approval decision
-    JobReportsBand.svelte                  one row for each report to the provider, its retry
+    JobReportsBand.svelte                  the group Report: a chip for each report, its state, its retry
     JobApprovalBlock.svelte                Approve and run / Reject of a job from a fork
     InvalidFileAlert.svelte                the errors of an invalid pipeline file
     UnfitAgentsAlert.svelte                the online agents that cannot get the code of a waiting job
@@ -125,6 +127,8 @@ presentation/
   messages/job-git.messages.ts             the strings of the Git context of a job
   presenters/job-source.presenter.ts     the ref, the event and the PR numbers of a commit
   presenters/job-report.presenter.ts     the row and the tone of a report, the no-report reason
+  presenters/job-run-times.presenter.ts  runTimes: the times of a run, only the hour on the day of
+                                         the creation
   presenters/job-status.presenter.ts     the label and the hint of a status (invalid file,
                                          waiting reason, approval)
   presenters/job-steps.presenter.ts      the steps of the page: the checkout, then the nodes
@@ -228,6 +232,11 @@ paths.
   old link with `?nodes=a,b` opens the first of its nodes in the order of the list. A change of
   node drops the `#L` hash (it is a line of the other log); the full screen keeps it. Keep these
   parameters when you change the page: the share button of the top bar copies the URL as it is.
+- **Details is dense.** Each group (Run, Source, Report) is one row: its title, then its facts
+  one after the other, on more lines only when the width is not sufficient. A fact puts its label
+  and its value on one line; a long value is cut, with the whole value in its `title`. A fact with
+  no value is not shown. Under 640 px, each fact is on its own line. A new fact goes in a
+  `JobDetailsFact` of its group.
 - **One node at a time.** The list (or the graph, as the display settings say) selects one node,
   or the whole job; the viewer shows its lines. The checkout and a skipped node are entries too:
   a skipped node shows why it did not run in place of its log.

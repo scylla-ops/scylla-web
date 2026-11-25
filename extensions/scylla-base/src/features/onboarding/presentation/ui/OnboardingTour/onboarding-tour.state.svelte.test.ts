@@ -284,6 +284,29 @@ describe('createOnboardingTour', () => {
     await onStep(tour, 'new-agent');
   });
 
+  it('goes on at the step after the bar when the user opens a result', async () => {
+    const { tour, repository } = setUp({ kind: 'in-progress', tour: 'search', step: 'search-find' });
+    await onStep(tour, 'search-find');
+
+    tour.pick('search-find');
+
+    await onStep(tour, 'search-keys');
+    expect(repository.saveStatus).toHaveBeenCalledWith('ada', {
+      kind: 'in-progress',
+      tour: 'search',
+      step: 'search-keys',
+    });
+  });
+
+  it('ignores a pick on a step that does not hold the bar', async () => {
+    const { tour, repository } = setUp({ kind: 'in-progress', tour: 'search', step: 'open-search' });
+    await onStep(tour, 'open-search');
+
+    tour.pick('open-search');
+
+    expect(repository.saveStatus).not.toHaveBeenCalled();
+  });
+
   it('does not rewind while the user is only on another page', async () => {
     const { tour, repository } = setUp({
       kind: 'in-progress',
