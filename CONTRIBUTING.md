@@ -120,8 +120,11 @@ which is required on `main`. If this run is red on a version branch, fix or reve
 ## Changelog and releases
 
 [`CHANGELOG.md`](CHANGELOG.md) follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
-and the versions follow [Semantic Versioning](https://semver.org/). Before 1.0.0, each release is
-a minor version (0.7.0, 0.8.0). A patch version (0.7.1) only fixes a bug of a released version.
+and the versions follow [Semantic Versioning](https://semver.org/). Before 1.0.0, a minor version
+(0.8.0) can change what an extension imports, the API or the data in a way that is not
+compatible. A patch version (0.7.1, 0.7.2) adds features and fixes that stay compatible: an
+extension, a client of the API and the data of the last version keep working. Migrations and
+protos of a patch version only add.
 
 - **A pull request adds its entry** under `## [Unreleased]`, when a user or a host repo sees the
   change: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` or `Security`. Write
@@ -130,10 +133,14 @@ a minor version (0.7.0, 0.8.0). A patch version (0.7.1) only fixes a bug of a re
   1. On the version branch, rename `## [Unreleased]` to `## [0.7.2] - YYYY-MM-DD` in
      `CHANGELOG.md`. Add an empty `## [Unreleased]` above it, and update the links at the end
      of the file.
-  2. Create the next version branch (`v0.8.0`) from the version branch, if it does not exist
-     yet. Its first pull request sets the new version in all the `package.json` files, and sets
-     `target-branch` in `.github/dependabot.yml` to the new branch.
-  3. Open a pull request from the version branch to `main`, and merge it with a merge commit.
+  2. Set the version in the release commit, just before the tag. Set it in the 8 `package.json`
+     files and in `extensions/scylla-base/src/scylla-base.extension.ts` (the extension
+     manifest). The version branch keeps the version of the last tag until its release.
+     Then create the next version branch (`v0.8.0`) from the version branch, if it does not
+     exist yet. Its first pull request sets `target-branch` in `.github/dependabot.yml` to the
+     new branch.
+  3. Open the release pull request (`release/0.7.2`) with the version change, from the version
+     branch to `main`, and merge it with a merge commit.
   4. Delete the version branch. A branch and a tag with the same name make `git` refs
      ambiguous.
   5. Tag the merge commit on `main`: `git tag -a v0.7.2 -m "Scylla Web v0.7.2"`. Tags start

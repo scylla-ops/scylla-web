@@ -3,8 +3,9 @@
 All notable changes to Scylla Web are in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project
-follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Before 1.0.0, a new minor
-version (0.6.0) can change what an extension imports; a patch version (0.5.1) only fixes bugs.
+follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Before 1.0.0, a minor version
+(0.8.0) can change what an extension imports, the API or the data in a way that is not
+compatible. A patch version (0.7.1, 0.7.2) adds features and fixes that stay compatible.
 An entry marked **Breaking** changes what a host repo or an extension imports
 (`@scylla/ui/*`, `@scylla/core-sdk`, `@scylla/base-sdk`).
 
