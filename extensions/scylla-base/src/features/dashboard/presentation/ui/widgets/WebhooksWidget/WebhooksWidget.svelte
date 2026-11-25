@@ -200,8 +200,8 @@
             <div class="flex flex-col gap-1.5">
               <p class="flex items-center gap-3 text-xs text-muted-foreground">
                 <span class="mr-auto">{t(messages.perHour)}</span>
-                <ChartLegendItem tone="passed" label={t(messages.delivered)} />
-                <ChartLegendItem tone="failed" label={t(messages.failed)} />
+                <ChartLegendItem tone="passed" label={t(messages.deliveredLegend)} />
+                <ChartLegendItem tone="failed" label={t(messages.failedLegend)} />
               </p>
               <div class="flex h-[72px] items-end gap-1" role="img" aria-label={t(messages.perHour)}>
                 {#each stats.hours as hour (hour.start)}

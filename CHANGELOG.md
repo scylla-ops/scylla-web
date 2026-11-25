@@ -77,6 +77,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The What's new row now shows in the command bar when the field is empty.
 - Create and Save are now off, with the reason, while the typed pipeline name is the key of a
   pipeline file.
+- The "Try a search" examples now show right below the field during the command bar tour, also when
+  you have recent picks.
+- Create and Save turn on as soon as the typed pipeline name is free, also after a click on the off
+  button.
+- The legends of the Runs per day, Timeline and Webhooks widgets now use capitalized labels, like
+  the tooltips, and the Run duration widget text writes p50 and p95 in lower case.
 
 ## [0.7.1] - 2026-11-24
 

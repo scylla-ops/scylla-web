@@ -130,8 +130,8 @@ describe('the French catalogs', () => {
 
   it('agrees the words of a legend of jobs, and the outcome of one job', () => {
     expect(
-      ['passed', 'failed', 'cancelled', 'completed', 'orphaned'].map(id => textsOf(id)),
-    ).toEqual([['réussis'], ['échoués'], ['annulés'], ['terminés'], ['orphelins']]);
+      ['passed', 'failed', 'cancelled'].map(id => textsOf(id)),
+    ).toEqual([['réussis'], ['échoués'], ['annulés']]);
     expect(
       ['Completed', 'Failed', 'Cancelled', 'Orphaned'].map(id => textOf(id, 'legend')),
     ).toEqual(['Terminés', 'Échoués', 'Annulés', 'Orphelins']);

@@ -75,9 +75,6 @@ export const widgetMessages = {
   cancelled: msg`cancelled`,
   cancelledLegend: msg({ context: 'legend', message: 'Cancelled' }),
   noRunInBucket: msg({ context: 'legend', message: 'No run' }),
-  failedLower: msg`failed`,
-  orphanedLower: msg`orphaned`,
-  completedLower: msg`completed`,
   /** The outcome of one job, in a row. The words above name all the jobs of a legend. */
   oneCompleted: msg({ context: 'one job', message: 'completed' }),
   oneFailed: msg({ context: 'one job', message: 'failed' }),

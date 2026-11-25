@@ -50,7 +50,7 @@ export const catalogMessages = {
   runMinutes: msg`Run minutes`,
   runMinutesHint: msg`The run time of the period`,
   runDuration: msg`Run duration`,
-  runDurationHint: msg`P50 and p95 of the jobs`,
+  runDurationHint: msg`The p50 and p95 of the jobs`,
   rightNow: msg`Right now`,
   rightNowHint: msg`Running, waiting, agents online`,
   agents: msg`Agents online`,
