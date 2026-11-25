@@ -142,6 +142,11 @@
       case 'change':
         void change(row);
         break;
+      case 'act':
+        remember(row);
+        close();
+        void effect.run();
+        break;
       case 'confirm':
         confirming = row;
         break;

@@ -79,6 +79,12 @@ export interface ConfirmCommand extends CommandBase {
   run: () => void | Promise<void>;
 }
 
+/** Enter runs the function at once and closes the bar, e.g. to open a dialog. It changes no data. */
+export interface ActionCommand extends CommandBase {
+  kind: 'action';
+  run: () => void | Promise<void>;
+}
+
 /**
  * A row of the command bar that is not a page. A sidebar link is a row with no declaration. The
  * bar never deletes: a dangerous action stays on its page, behind its own dialog.
@@ -88,7 +94,8 @@ export type CommandDefinition =
   | CreateCommand
   | ChoiceCommand
   | ToggleCommand
-  | ConfirmCommand;
+  | ConfirmCommand
+  | ActionCommand;
 
 /** Declares a form with its props: it keeps the types of the dialog and of `props` together. */
 export const commandForm = <TProps extends object>(

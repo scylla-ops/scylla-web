@@ -57,6 +57,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The page that creates a pipeline has the "Agent labels" button of the editor. Create saves the
   labels with the pipeline, so its first job goes only to an agent with each label. In English and
   French.
+- The command bar (Ctrl K) has a What's new entry. It opens What's new like the user menu item.
 
 ## [0.7.1] - 2026-11-24
 

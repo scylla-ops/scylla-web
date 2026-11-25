@@ -34,6 +34,7 @@ export type {
 } from './routing/scylla-module.struct.ts';
 export { commandForm } from './extension/command.struct.ts';
 export type {
+  ActionCommand,
   ChoiceCommand,
   CommandDefinition,
   CommandForm,

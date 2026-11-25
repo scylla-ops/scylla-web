@@ -5,6 +5,7 @@ import WorkspaceSelector from './presentation/layout/ui/context-selector/Workspa
 import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverlays.svelte';
 import ServiceBanner from './presentation/layout/ui/ServiceBanner/ServiceBanner.svelte';
 import ConsentHost from './presentation/layout/ui/ConsentHost/ConsentHost.svelte';
+import { whatsNewCommands } from './presentation/layout/whats-new.commands.ts';
 import { languageCommands } from './presentation/layout/language.commands.ts';
 import { layoutMessages } from './presentation/layout/messages/layout.messages.ts';
 import AdminBar from './presentation/layout/ui/AdminBar/AdminBar.svelte';
@@ -121,7 +122,7 @@ export const ShellModule = {
     linkParams,
     shareHint,
   },
-  commands: languageCommands,
+  commands: [...languageCommands, ...whatsNewCommands],
   onQueryError: reportQueryError,
   onQueryRetry: retryQueryError,
   fallback: NotFoundPage,

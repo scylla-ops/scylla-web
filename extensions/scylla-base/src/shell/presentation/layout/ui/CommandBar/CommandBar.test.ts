@@ -46,6 +46,7 @@ const undoTheme = vi.fn();
 let theme = 'dark';
 const setToggle = vi.fn();
 const signOut = vi.fn();
+const openWhatsNew = vi.fn();
 
 const COMMANDS: CommandDefinition[] = [
   {
@@ -99,6 +100,14 @@ const COMMANDS: CommandDefinition[] = [
     verb: msg`Sign out`,
     question: msg`Sign out of Scylla?`,
     run: signOut,
+  },
+  {
+    id: 't.whats-new',
+    kind: 'action',
+    title: msg`What's new`,
+    keywords: msg`release notes`,
+    icon: FolderIcon,
+    run: openWhatsNew,
   },
   {
     id: 't.jobs',
@@ -418,6 +427,20 @@ describe('CommandBar', () => {
     await user().type(input, 'agents');
 
     expect(await option('Go to the page Agents (Machines).')).toHaveClass('cursor-pointer');
+  });
+
+  describe('a plain action', () => {
+    it('runs the function at once and closes the bar', async () => {
+      const input = await open();
+      const typing = user();
+      await typing.type(input, 'whats');
+      await option(/What's new/);
+      await waitFor(() => expect(selected()).toMatch(/What's new/));
+      await typing.keyboard('{Enter}');
+
+      await waitFor(() => expect(openWhatsNew).toHaveBeenCalledOnce());
+      await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+    });
   });
 
   describe('an action with a confirmation', () => {
