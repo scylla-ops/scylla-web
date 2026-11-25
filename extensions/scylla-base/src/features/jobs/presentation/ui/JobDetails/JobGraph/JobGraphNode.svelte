@@ -37,6 +37,7 @@
     notTaken
       ? 'border-dashed border-muted-foreground/50 bg-muted text-muted-foreground'
       : config.badgeClassName,
+    graph.isSelected(id) && 'ring-2 ring-primary ring-offset-1 ring-offset-card',
   )}
   style="width: {JOB_NODE.width}px;"
 >
@@ -44,6 +45,7 @@
   <button
     type="button"
     aria-label={t(jobsMessages.openLogsOf(id))}
+    aria-pressed={graph.isSelected(id)}
     class="nodrag nopan flex w-full cursor-pointer flex-col rounded-lg text-left"
     onclick={() => graph.select(id)}
   >

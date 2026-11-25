@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/svelte';
+import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
 import { ShieldCheckIcon } from '@lucide/svelte';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -8,6 +9,11 @@ import { setShellConfig } from '../shell-config.ts';
 import Bar from '../__test__/Bar.fixture.svelte';
 import Stub from '../__test__/Stub.fixture.svelte';
 import ShellFrameFixture from './ShellFrame.fixture.svelte';
+
+const toastSuccess = vi.fn();
+vi.mock('svelte-sonner', () => ({
+  toast: { success: (...args: unknown[]) => toastSuccess(...args), error: vi.fn() },
+}));
 
 let navigator: ReturnType<typeof installTestNavigator>;
 const matchMedia = window.matchMedia;
@@ -112,6 +118,56 @@ describe('ShellFrame', () => {
       'pb-[max(0.5rem,var(--shell-bottom-inset))]',
       'md:pb-[max(2rem,var(--shell-bottom-inset))]',
     );
+  });
+
+  describe('the share button', () => {
+    const onPage = (share?: true | { url: () => string | null }) => {
+      navigator.restore();
+      navigator = installTestNavigator({ share });
+      setShellConfig({
+        entries: [],
+        sections: [{ id: 'main', title: msg`Main` }],
+        contributions: [
+          { topBarEnd: [Bar], shareHint: () => 'Hint of the first module' },
+          { shareHint: () => 'Only members of Acme with access can open it.' },
+        ],
+      });
+      render(ShellFrameFixture);
+    };
+
+    it('sits between the crumbs and the parts at the end of the top bar, on a page that shares', () => {
+      onPage(true);
+
+      const button = within(screen.getByRole('banner')).getByRole('button', { name: 'Copy link' });
+      // The cell of the crumbs takes the free width, thus the button stays at the right end.
+      expect(button.previousElementSibling).toHaveClass('min-w-0', 'flex-1');
+      expect(button.nextElementSibling).toHaveTextContent('bar');
+    });
+
+    it('is not on a page that does not share', () => {
+      onPage();
+
+      expect(screen.queryByRole('button', { name: 'Copy link' })).not.toBeInTheDocument();
+    });
+
+    it('hides while the page gives no link', () => {
+      onPage({ url: () => null });
+
+      expect(screen.queryByRole('button', { name: 'Copy link' })).not.toBeInTheDocument();
+    });
+
+    it('copies the link of the page, with the hint of the last module that gives one', async () => {
+      const writeText = vi.fn(() => Promise.resolve());
+      Object.defineProperty(window.navigator, 'clipboard', { value: { writeText }, configurable: true });
+      onPage({ url: () => 'https://scylla.test/acme/dashboards/dash-7' });
+
+      await userEvent.click(screen.getByRole('button', { name: 'Copy link' }));
+
+      expect(writeText).toHaveBeenCalledWith('https://scylla.test/acme/dashboards/dash-7');
+      expect(toastSuccess).toHaveBeenCalledWith('Link copied', {
+        description: 'Only members of Acme with access can open it.',
+      });
+    });
   });
 
   describe('in a space', () => {

@@ -58,7 +58,7 @@
           {t(badge)}
         </span>
       </div>
-      <p class="text-sm text-muted-foreground">{fragment.description} · {t(byline)}</p>
+      <p class="text-sm text-muted-foreground">{[fragment.description, t(byline)].filter(Boolean).join(' · ')}</p>
     </div>
   </div>
   <div class="flex flex-wrap items-center gap-2 sm:pl-16">

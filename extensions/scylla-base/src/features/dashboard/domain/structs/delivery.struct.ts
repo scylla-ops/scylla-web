@@ -25,7 +25,13 @@ export interface DeliveryStats {
   delivered: number;
   failed: number;
   connections: DeliverySource[];
-  /** The webhook triggers, with their names. */
-  triggers: (DeliverySource & { name: string; pipelineName: string })[];
+  /** The webhook triggers, with their names and their pipelines. */
+  triggers: (DeliverySource & {
+    name: string;
+    pipelineId: string;
+    pipelineName: string;
+    projectId: string;
+    projectName: string;
+  })[];
   hours: DeliveryHour[];
 }

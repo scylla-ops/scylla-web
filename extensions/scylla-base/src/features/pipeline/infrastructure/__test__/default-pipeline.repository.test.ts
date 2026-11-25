@@ -15,6 +15,7 @@ const pipeline = (id: string, version: bigint): Pipeline => ({
   version,
   source: PipelineSource.EDITOR,
   fileKey: '',
+  key: id,
   filePath: '',
   fileErrorCount: 0,
   fragmentLinks: [],
@@ -158,6 +159,25 @@ describe('DefaultPipelineRepository', () => {
     expect(client.updatePipeline).toHaveBeenCalledWith(
       expect.objectContaining({ layout: { nodes: layout.nodes } }),
     );
+  });
+
+  it('sends the agent labels with the create, and no agent settings with no label', async () => {
+    const client = {
+      createPipeline: vi.fn(() => unaryCall({ pipeline: pipeline('p', 1n) })),
+    } as unknown as IPipelineServiceClient;
+    const repository = new DefaultPipelineRepository(client);
+
+    await repository.create({
+      projectId: 'project-1',
+      name: 'p',
+      nodes: [],
+      agentLabels: ['deploy', 'linux'],
+    });
+    await repository.create({ projectId: 'project-1', name: 'p', nodes: [], agentLabels: [] });
+
+    const [labelled, plain] = vi.mocked(client.createPipeline).mock.calls.map(call => call[0]);
+    expect(labelled).toEqual(expect.objectContaining({ agent: { labels: ['deploy', 'linux'] } }));
+    expect(plain).not.toHaveProperty('agent');
   });
 
   it('sends the needs with their ports and the places in the same update', async () => {
@@ -318,7 +338,49 @@ describe('DefaultPipelineRepository', () => {
       source: 'file',
       filePath: '.scylla/pipeline.toml',
       fileErrorCount: 2,
+      key: 'p',
     });
+  });
+
+  it('gives the key and the path of each file of the default branch', async () => {
+    const listPipelineFiles = vi.fn(() =>
+      unaryCall({
+        files: [{ key: 'build', file: { path: '.scylla/pipelines/build.yaml' } }],
+        errors: [],
+        commitSha: 'abc',
+      }),
+    );
+    const repository = new DefaultPipelineRepository({
+      listPipelineFiles,
+    } as unknown as IPipelineServiceClient);
+
+    await expect(repository.listFileKeys('project-1')).resolves.toEqual([
+      { key: 'build', path: '.scylla/pipelines/build.yaml' },
+    ]);
+    expect(listPipelineFiles).toHaveBeenCalledWith({ projectId: { value: 'project-1' } });
+  });
+
+  it('allows the Git events of a pipeline and gives its new origin', async () => {
+    const setPipelineGitEvents = vi.fn(() =>
+      unaryCall({
+        pipeline: {
+          ...pipeline('p', 2n),
+          gitEventsAllowedAt: { seconds: 1_790_000_000n, nanos: 0 },
+        },
+      }),
+    );
+    const repository = new DefaultPipelineRepository({
+      setPipelineGitEvents,
+    } as unknown as IPipelineServiceClient);
+
+    const origin = await repository.setGitEvents('p', true);
+
+    expect(setPipelineGitEvents).toHaveBeenCalledWith({
+      pipelineId: { value: 'p' },
+      allowed: true,
+    });
+    expect(origin.gitEventsAllowedAt).toBe(new Date(1_790_000_000_000).toISOString());
+    expect(origin.key).toBe('p');
   });
 
   it('reads the summaries of the pipelines that a query names only', async () => {

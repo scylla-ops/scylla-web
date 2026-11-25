@@ -3,6 +3,7 @@ import { cleanup, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
+import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { MergeBlock } from '@base/features/integrations/domain/entities/merge-block.entity.ts';
@@ -540,6 +541,41 @@ describe('Repository page', () => {
       );
 
       expect(blocks.set).toHaveBeenCalledWith({ projectId: 'p-1', enabled: true });
+    });
+
+    it('keeps the rule of a Scylla pipeline off in a project of files, and opens its export to a file', async () => {
+      const navigator = installTestNavigator({ pathname: '/acme/projects/p-1/repository' });
+      teardown.push(navigator.restore);
+      setUp([...EDITOR, Permission.UPDATE_PIPELINE], {
+        current: link({ pipelineSource: 'file' }),
+        rules: [block({ pipelineSource: 'editor' })],
+      });
+      const user = userEvent.setup();
+
+      expect(
+        await screen.findByRole('switch', { name: /scylla\/build fails/ }),
+      ).toBeDisabled();
+      expect(screen.getByText('Scylla pipeline')).toBeInTheDocument();
+      expect(screen.getByText(/^Only a file pipeline can block the merge/)).toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Export to file' }));
+
+      expect(navigator.navigate).toHaveBeenCalledWith(
+        '/acme/projects/p-1/edit/pl-1?export=file',
+        undefined,
+      );
+    });
+
+    it('keeps the export to a file inert for a person who cannot edit the pipeline', async () => {
+      setUp(EDITOR, {
+        current: link({ pipelineSource: 'file' }),
+        rules: [block({ pipelineSource: 'editor' })],
+      });
+
+      expect(await screen.findByRole('button', { name: 'Export to file' })).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      );
     });
 
     it('keeps the rules inert for a reader', async () => {

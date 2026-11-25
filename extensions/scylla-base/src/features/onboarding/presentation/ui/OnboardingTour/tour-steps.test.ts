@@ -50,6 +50,7 @@ describe('TOURS', () => {
       ['secrets', 5],
       ['roles', 5],
       ['users', 4],
+      ['search', 4],
     ]);
     expect(MAIN_TOUR_IDS).toEqual(['agent', 'pipeline', 'run']);
   });
@@ -194,7 +195,7 @@ describe('the way back from another page', () => {
       .flat()
       .map(step => step.id);
 
-    expect(withoutPage).toEqual(['new-trigger', 'trigger-kind', 'trigger-when', 'trigger-done']);
+    expect(withoutPage).toEqual(['new-trigger', 'trigger-kind', 'trigger-when', 'trigger-done', 'search-find', 'search-prefix', 'search-keys']);
   });
 
   it('leads back to the agent and the project the tour created', () => {
@@ -254,6 +255,9 @@ describe('the steps with a form', () => {
     expect(ALL_STEPS.filter(step => step.form).map(step => step.id)).toEqual([
       'trigger-kind',
       'role-details',
+      'search-find',
+      'search-prefix',
+      'search-keys',
     ]);
   });
 });
@@ -293,7 +297,7 @@ describe('the anchors of the dialog steps', () => {
   it('hold the dialogs of the steps that live in one, with a way back when the dialog is gone', () => {
     const held = ALL_STEPS.filter(step => step.holdsDialog);
 
-    expect(held.map(step => step.id)).toEqual(['secret-value', 'people-role']);
+    expect(held.map(step => step.id)).toEqual(['secret-value', 'people-role', 'search-find', 'search-prefix', 'search-keys']);
     for (const step of held) expect(step.fallback).toBeDefined();
   });
 
@@ -469,5 +473,27 @@ describe('the anchors of the page of a new agent', () => {
 
     expect(page(document, {})?.id).toBe('page');
     expect(conditionOf(spot('run-command'))(document, {})?.id).toBe('open');
+  });
+});
+
+describe('the search tour', () => {
+  it('needs no permission and starts when the bar opens', () => {
+    const tour = TOURS.find(({ id }) => id === 'search');
+    expect(tour?.permissions).toEqual([]);
+    expect(tour?.offer?.path.test('/dashboard')).toBe(true);
+    expect(tour?.offer?.path.test('/agents')).toBe(false);
+
+    document.body.innerHTML = '<button data-tour="command-bar-trigger"></button>';
+    expect(tour?.offer?.needs?.(document, {})).not.toBeNull();
+    const open = conditionOf(spot('open-search'));
+    expect(open(document, {})).toBeNull();
+    document.body.innerHTML = '<div data-slot="dialog-content"></div>';
+    expect(open(document, {})).not.toBeNull();
+  });
+
+  it('keeps the bar usable while it explains it', () => {
+    for (const id of ['search-find', 'search-prefix', 'search-keys']) {
+      expect(spot(id)).toMatchObject({ holdsDialog: true, form: true, fallback: 'open-search' });
+    }
   });
 });

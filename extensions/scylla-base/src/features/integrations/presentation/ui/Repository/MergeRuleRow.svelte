@@ -4,9 +4,11 @@
   import CircleSlashIcon from '@lucide/svelte/icons/circle-slash';
   import CircleXIcon from '@lucide/svelte/icons/circle-x';
   import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
+  import FileDownIcon from '@lucide/svelte/icons/file-down';
   import LoaderCircleIcon from '@lucide/svelte/icons/loader-circle';
   import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
+  import { Permission, can } from '@platform/authz';
   import { CopyableText, GatedButton } from '@scylla/ui';
   import { Badge, Button, buttonVariants, Switch } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
@@ -23,9 +25,14 @@
     locked: boolean;
     onChange: (enabled: boolean) => void;
     onRetry: () => void;
+    /** Opens the export of the pipeline as a file: a Scylla pipeline cannot block the merge. */
+    onExport?: () => void;
   }
 
-  let { view, canManage, locked, onChange, onRetry }: Props = $props();
+  let { view, canManage, locked, onChange, onRetry, onExport }: Props = $props();
+
+  // The export is on the edit page of the pipeline.
+  const canExport = $derived(can(Permission.UPDATE_PIPELINE));
 
   const id = $props.id();
   let byHand = $state(false);
@@ -52,7 +59,7 @@
   <Switch
     aria-labelledby="{id}-title"
     aria-describedby="{id}-detail"
-    disabled={!canManage || locked}
+    disabled={!canManage || locked || view.fileOnly}
     bind:checked={() => view.checked, next => onChange(next)}
   />
   <div class="flex min-w-0 grow flex-col gap-1.5">
@@ -75,8 +82,21 @@
         {view.detail}
       </span>
     </div>
-    {#if view.link || view.retry || view.steps.length > 0}
+    {#if view.link || view.retry || view.steps.length > 0 || (view.fileOnly && onExport)}
       <div class="flex flex-wrap items-center gap-2">
+        {#if view.fileOnly && onExport}
+          <GatedButton
+            variant="outline"
+            size="xs"
+            class="shrink-0"
+            allowed={canExport}
+            deniedReason={t(messages.exportDenied)}
+            onclick={onExport}
+          >
+            <FileDownIcon class="size-3" aria-hidden="true" />
+            {t(messages.exportToFile)}
+          </GatedButton>
+        {/if}
         {#if view.link}
           <a
             href={view.link.url}

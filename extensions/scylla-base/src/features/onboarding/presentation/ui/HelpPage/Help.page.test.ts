@@ -61,7 +61,7 @@ describe('Help page', () => {
 
     expect(await screen.findByText('Connect an agent')).toBeInTheDocument();
     expect(screen.queryByText('Make a role')).not.toBeInTheDocument();
-    expect(screen.getAllByText('1 of 5 done').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('1 of 6 done').length).toBeGreaterThan(0);
     expect(within(row('agent')).getByRole('button', { name: 'Restart' })).toBeInTheDocument();
     expect(within(row('run')).getByRole('button', { name: 'Start' })).toBeInTheDocument();
   });

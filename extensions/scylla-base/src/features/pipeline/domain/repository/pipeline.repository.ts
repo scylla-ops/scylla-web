@@ -4,12 +4,14 @@ import type {
   PipelineEntity,
   PipelineFileExport,
   PipelineMetadata,
+  PipelineOrigin,
   PipelineRun,
   PipelineWithLayout,
 } from '../entities/pipeline.entity.ts';
 import type { CommitRef } from '../structs/commit-ref.struct.ts';
 import type { PipelineFile } from '../structs/pipeline-file.struct.ts';
 import type { PipelineFileFormat } from '../structs/pipeline-file-format.struct.ts';
+import type { PipelineFileKey } from '../structs/pipeline-key.struct.ts';
 import type { PipelineLayout } from '../structs/pipeline-layout.struct.ts';
 import type {
   PipelineSummaryList,
@@ -54,4 +56,11 @@ export interface PipelineRepository {
   saveLayout(id: string, layout: PipelineLayout): Promise<void>;
   /** The saved version, as a file to put in the repository. */
   exportFile(id: string, format: PipelineFileFormat): Promise<PipelineFileExport>;
+  /** The keys of the pipeline files at the head of the default branch of the linked repository. */
+  listFileKeys(projectId: string): Promise<PipelineFileKey[]>;
+  /**
+   * Lets the push, pull request and tag triggers of an editor pipeline start runs in a project of
+   * files, or stops them. The admins of the workspace only. The version does not change.
+   */
+  setGitEvents(id: string, allowed: boolean): Promise<PipelineOrigin>;
 }

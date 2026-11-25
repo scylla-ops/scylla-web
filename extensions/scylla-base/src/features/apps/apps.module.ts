@@ -31,6 +31,7 @@ const agentDetails = {
   permission: Permission.READ_APP,
   breadcrumb: () => ({ label: appCrumbName() ?? msg`Agent` }),
   page: () => import('./presentation/ui/AgentDetails/AgentDetails.page.svelte'),
+  share: true as const,
 };
 
 /** The page of a new agent: name and access, install, connected. */
@@ -57,6 +58,7 @@ const appDetails = {
   permission: Permission.READ_APP,
   breadcrumb: () => ({ label: appCrumbName() ?? msg`App` }),
   page: () => import('./presentation/ui/AppDetails/AppDetails.page.svelte'),
+  share: true as const,
 };
 
 /** Two lists of the apps of a workspace: the agents, which run jobs, and the other apps. */

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { screen } from '@testing-library/svelte';
+import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { render } from '@test/render.ts';
@@ -36,6 +36,35 @@ describe('PipelineEditorHeader', () => {
     renderHeader({ mode: 'create', submitLabel: 'Create' });
 
     expect(screen.getByText('Draft: not created yet')).toBeInTheDocument();
+  });
+
+  it('gives the agent labels of a new pipeline to the page, which sends them with Create', async () => {
+    const onAgentLabelsChange = vi.fn();
+    grantOnly(Permission.CREATE_PIPELINE);
+    renderHeader({ mode: 'create', submitLabel: 'Create', agentLabels: [], onAgentLabelsChange });
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: 'Agent labels' }));
+    // jsdom leaves the floating layer `visibility: hidden`, and a hidden field has no name.
+    const field = await screen.findByPlaceholderText('deploy');
+    await waitFor(() => expect(field).toHaveFocus());
+    await user.type(field, 'linux{Enter}');
+
+    expect(onAgentLabelsChange).toHaveBeenCalledExactlyOnceWith(['linux']);
+    expect(screen.getByText('Create saves these labels with the pipeline.')).toBeInTheDocument();
+    expect(screen.queryByText('Save labels')).not.toBeInTheDocument();
+  });
+
+  it('shows the count of the agent labels of a new pipeline on its button', () => {
+    grantOnly(Permission.CREATE_PIPELINE);
+    renderHeader({
+      mode: 'create',
+      submitLabel: 'Create',
+      agentLabels: ['deploy', 'linux'],
+      onAgentLabelsChange: vi.fn(),
+    });
+
+    expect(screen.getByRole('button', { name: 'Agent labels 2' })).toBeInTheDocument();
   });
 
   it('says why the pipeline cannot be saved, and disables Save', () => {
@@ -122,17 +151,46 @@ describe('PipelineEditorHeader', () => {
     expect(onNameChange).toHaveBeenCalledExactlyOnceWith('release');
   });
 
-  it('says why a name with spaces is refused, and gives the saved one back on blur', async () => {
+  it('saves a name with spaces', async () => {
     grantOnly(Permission.UPDATE_PIPELINE);
     renderHeader();
 
     const name = screen.getByRole('textbox', { name: 'Pipeline name' });
-    await userEvent.type(name, ' run');
+    await userEvent.clear(name);
+    await userEvent.type(name, 'Branch Policy{Enter}');
 
-    expect(name).toHaveAccessibleDescription('The name cannot contain spaces.');
+    expect(onNameChange).toHaveBeenCalledExactlyOnceWith('Branch Policy');
+  });
+
+  it('says why a name the server refuses is refused, and gives the saved one back on blur', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    renderHeader();
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.type(name, 'a'.repeat(100));
+
+    expect(name).toHaveAccessibleDescription('The name cannot be longer than 100 characters.');
     await userEvent.tab();
     expect(onNameChange).not.toHaveBeenCalled();
     expect(name).toHaveValue('nightly');
+  });
+
+  it('says which file has the key of a typed name, and still applies it: the page keeps Save off', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    const keyIssueOf = (name: string) =>
+      name === 'build' ? 'The file .scylla/pipelines/build.yaml already uses the key build.' : null;
+    renderHeader({ keyIssueOf });
+
+    const name = screen.getByRole('textbox', { name: 'Pipeline name' });
+    await userEvent.clear(name);
+    await userEvent.type(name, 'build');
+
+    expect(name).toHaveAttribute('aria-invalid', 'true');
+    expect(name).toHaveAccessibleDescription(
+      'The file .scylla/pipelines/build.yaml already uses the key build.',
+    );
+    await userEvent.keyboard('{Enter}');
+    expect(onNameChange).toHaveBeenCalledExactlyOnceWith('build');
   });
 
   it('gives the saved name back on Escape', async () => {

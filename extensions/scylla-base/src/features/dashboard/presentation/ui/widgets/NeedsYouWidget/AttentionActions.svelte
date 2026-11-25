@@ -11,10 +11,9 @@
   import { jobMutations } from '@base/features/jobs';
   import { triggerMutations } from '@base/features/triggers';
   import type { AttentionItem } from '@base/features/dashboard/domain/structs/attention.struct.ts';
-  import { shortJobId } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import { attentionMessages } from '@base/features/dashboard/presentation/messages/attention.messages.ts';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
-  import { openAgent, openJob } from '../widget-navigation.ts';
+  import { attentionLink, enterPlace } from '../widget-navigation.ts';
 
   interface Props {
     item: AttentionItem;
@@ -35,14 +34,7 @@
 
   const enterProject = () => contextStore.getState().setProject(item.projectId, item.projectName);
 
-  const place = (jobId: string) => ({
-    jobId,
-    shortId: shortJobId(jobId),
-    pipelineId: item.pipelineId,
-    pipelineName: item.pipelineName,
-    projectId: item.projectId,
-    projectName: item.projectName,
-  });
+  const link = $derived(attentionLink(item));
 </script>
 
 <div class={cn('flex shrink-0 items-center gap-1', className)}>
@@ -61,8 +53,8 @@
         {t(widgetMessages.rerun)}
       </Button>
     {/if}
-    {#if item.kind !== 'job-orphaned'}
-      <Button variant="outline" size="xs" onclick={() => openJob(place(job.id))}>
+    {#if item.kind !== 'job-orphaned' && link}
+      <Button variant="outline" size="xs" href={link.href} onclick={link.place && enterPlace(link.place)}>
         {#if item.kind === 'approval-waiting'}
           {t(widgetMessages.review)}
         {:else}
@@ -84,9 +76,8 @@
       <PlayIcon aria-hidden="true" />
       {t(widgetMessages.fireNow)}
     </Button>
-  {:else if item.agent}
-    {@const agentId = item.agent.id}
-    <Button variant="outline" size="xs" onclick={() => openAgent(agentId)}>
+  {:else if item.agent && link}
+    <Button variant="outline" size="xs" href={link.href}>
       {t(attentionMessages.agent)}
     </Button>
   {/if}

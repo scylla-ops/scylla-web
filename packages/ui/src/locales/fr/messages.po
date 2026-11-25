@@ -75,6 +75,14 @@ msgstr "Copié !"
 msgid "Copy"
 msgstr "Copier"
 
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:4
+msgid "Copy link"
+msgstr "Copier le lien"
+
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:8
+msgid "Copy the address from the address bar."
+msgstr "Copiez l'adresse depuis la barre d'adresse."
+
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:4
 msgid "Copy your secret"
 msgstr "Copiez votre secret"
@@ -122,6 +130,14 @@ msgstr "Il faut {permission}. Demandez-le à un admin du workspace."
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:16
 msgid "It was deleted, or you cannot see it any more."
 msgstr "Il a été supprimé, ou vous ne pouvez plus le voir."
+
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:6
+msgid "Link copied"
+msgstr "Lien copié"
+
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:7
+msgid "Link shared"
+msgstr "Lien partagé"
 
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:4
 msgid "Loading"
@@ -182,6 +198,10 @@ msgstr "Secret copié"
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:5
 msgid "Select all"
 msgstr "Tout sélectionner"
+
+#: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:5
+msgid "Share link"
+msgstr "Partager le lien"
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:6
 msgid "Show the options"

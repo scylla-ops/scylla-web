@@ -17,6 +17,10 @@ msgstr ""
 msgid "{count, plural, one {# condition} other {# conditions}}"
 msgstr "{count, plural, one {# condition} other {# conditions}}"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:20
+msgid "{count, plural, one {# trigger} other {# triggers}}"
+msgstr "{count, plural, one {# déclencheur} other {# déclencheurs}}"
+
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:30
 msgid "{days} at {time}"
 msgstr "{days} à {time}"
@@ -128,6 +132,18 @@ msgstr "Ajouter une entrée"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:11
 msgid "Add this signing secret to your webhook sender's HMAC configuration."
 msgstr "Ajoutez ce secret de signature à la configuration HMAC de votre émetteur de webhook."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:14
+msgid "Add trigger"
+msgstr "Ajouter un déclencheur"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:18
+msgid "All triggers"
+msgstr "Tous les déclencheurs"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:186
+msgid "Allow Git events"
+msgstr "Autoriser les événements Git"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:76
 msgid "and"
@@ -312,6 +328,10 @@ msgstr "Toutes les heures à :{0}"
 msgid "Fire now"
 msgstr "Déclencher maintenant"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:16
+msgid "For inputs, open the full editor."
+msgstr "Pour les entrées, ouvrez l'éditeur complet."
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:118
 msgid "Frequency"
 msgstr "Fréquence"
@@ -319,6 +339,14 @@ msgstr "Fréquence"
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:12
 msgid "Fri"
 msgstr "Ven"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:5
+msgid "From the file"
+msgstr "Depuis le fichier"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:17
+msgid "Full editor"
+msgstr "Éditeur complet"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:166
 msgid "Full ref, refs/heads/main"
@@ -356,6 +384,10 @@ msgstr "Horaire"
 msgid "ID: {id}"
 msgstr "ID : {id}"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:185
+msgid "In a project of files, push, pull request and tag of a Scylla pipeline need the opt-in of a workspace admin."
+msgstr "Dans un projet de fichiers, push, pull request et tag d'une pipeline Scylla demandent l'accord d'un admin de l'espace de travail."
+
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:35
 msgid "Incomplete schedule"
 msgstr "Planification incomplète"
@@ -383,6 +415,10 @@ msgstr "Pointeur JSON"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:41
 msgid "last"
 msgstr "dernier"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:7
+msgid "Last run {time}"
+msgstr "Dernière exécution {time}"
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:128
 msgid "Link a repository first"
@@ -432,6 +468,10 @@ msgstr "Jamais déclenché"
 msgid "New commits"
 msgstr "Nouveaux commits"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:15
+msgid "New schedule"
+msgstr "Nouvelle planification"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:15
 #: extensions/scylla-base/src/features/triggers/presentation/triggers.commands.ts:35
 #: extensions/scylla-base/src/features/triggers/triggers.module.ts:33
@@ -442,6 +482,10 @@ msgstr "Nouveau déclencheur"
 msgid "next"
 msgstr "suivant"
 
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:8
+msgid "Next run {time}"
+msgstr "Prochaine exécution {time}"
+
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:21
 msgid "next scheduled run (local time)"
 msgstr "prochaine exécution planifiée (heure locale)"
@@ -449,6 +493,14 @@ msgstr "prochaine exécution planifiée (heure locale)"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:74
 msgid "No condition: each delivery starts a run."
 msgstr "Aucune condition : chaque livraison lance une exécution."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:12
+msgid "No schedule or webhook in Scylla yet."
+msgstr "Pas encore de planification ni de webhook dans Scylla."
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:11
+msgid "No trigger yet. Only a manual run starts this pipeline."
+msgstr "Pas encore de déclencheur. Seule une exécution manuelle lance cette pipeline."
 
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:7
 msgid "No triggers yet"
@@ -586,6 +638,18 @@ msgstr "Source"
 #: extensions/scylla-base/src/features/triggers/presentation/messages/triggers.messages.ts:26
 msgid "Status"
 msgstr "Statut"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:9
+msgid "Stopped: it starts no run"
+msgstr "Arrêté : il ne lance aucune exécution"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:10
+msgid "Stopped: its URL returns 404"
+msgstr "Arrêté : son URL renvoie 404"
+
+#: extensions/scylla-base/src/features/triggers/presentation/messages/trigger-panel.messages.ts:6
+msgid "Stored in Scylla"
+msgstr "Enregistrés dans Scylla"
 
 #: extensions/scylla-base/src/features/triggers/presentation/presenters/cron.presenter.ts:14
 msgid "Sun"

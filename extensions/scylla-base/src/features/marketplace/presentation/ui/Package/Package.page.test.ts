@@ -21,6 +21,8 @@ const grant = (permissions: Permission[]) =>
     },
   });
 
+const PAGE = '/acme/marketplace/pnpm.node-ci';
+
 let teardown: Array<() => void> = [];
 
 const renderPage = (fragments: FragmentEntity[] = []) => {
@@ -132,5 +134,27 @@ describe('PackagePage', () => {
 
     expect(marketplaceRepository.setStar).toHaveBeenCalledWith('pnpm.node-ci', true);
     expect(await screen.findByRole('button', { name: 'Starred · 11' })).toBeInTheDocument();
+  });
+
+  it('opens the tab of a link, so that a copied link shows the same tab', async () => {
+    const navigator = installTestNavigator({ pathname: PAGE, search: '?tab=readme' });
+    teardown.push(navigator.restore);
+    renderPage();
+
+    expect(await screen.findByRole('tab', { name: 'Readme', selected: true })).toBeInTheDocument();
+    expect(screen.getByText('Installs and tests.')).toBeInTheDocument();
+  });
+
+  it('writes the open tab in the URL, and names no tab for the overview, the default one', async () => {
+    const navigator = installTestNavigator({ pathname: PAGE });
+    teardown.push(navigator.restore);
+    renderPage();
+
+    await userEvent.click(await screen.findByRole('tab', { name: 'Readme' }));
+    expect(navigator.navigate).toHaveBeenLastCalledWith(`${PAGE}?tab=readme`, { replace: true });
+    expect(screen.getByRole('tab', { name: 'Readme', selected: true })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Overview' }));
+    expect(navigator.navigate).toHaveBeenLastCalledWith(PAGE, { replace: true });
   });
 });

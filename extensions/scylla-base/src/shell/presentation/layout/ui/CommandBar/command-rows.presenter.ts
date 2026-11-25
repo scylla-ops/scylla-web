@@ -12,6 +12,7 @@ import WorkflowIcon from '@lucide/svelte/icons/workflow';
 import { Permission, type PermissionTarget } from '@platform/authz';
 import { workspaceUrl } from '@platform/context';
 import type {
+  ActionCommand,
   AppNavLink,
   ChoiceCommand,
   CommandDefinition,
@@ -56,6 +57,7 @@ export type RowEffect =
       detail?: string;
       run: () => void | Promise<void>;
     }
+  | { kind: 'act'; run: () => void | Promise<void> }
   | { kind: 'run'; pipelineId: string; verb: string; question: string; detail: string }
   | { kind: 'switch'; workspace: { id: string; name: string; slug: string } };
 
@@ -221,6 +223,15 @@ const confirmDraft = (command: ConfirmCommand, base: Draft): Draft => ({
   say: messages.sayConfirm,
 });
 
+const actionDraft = (command: ActionCommand, base: Draft): Draft => ({
+  ...base,
+  group: 'actions',
+  type: t(messages.typeAction),
+  verb: t(messages.verbOpen),
+  effect: { kind: 'act', run: command.run },
+  say: messages.sayAction,
+});
+
 const commandDrafts = (input: RowsInput): Draft[] =>
   input.commands.flatMap((command): Draft[] => {
     if (command.permission && !input.can(command.permission)) return [];
@@ -259,6 +270,8 @@ const commandDrafts = (input: RowsInput): Draft[] =>
         return [toggleDraft(command, base)];
       case 'confirm':
         return [confirmDraft(command, base)];
+      case 'action':
+        return [actionDraft(command, base)];
     }
   });
 

@@ -8,3 +8,4 @@ export type {
   SegmentedOption,
   SegmentedSize,
 } from './SegmentedControl/segmented-control.ts';
+export { default as ShareLinkButton } from './ShareLinkButton/ShareLinkButton.svelte';

@@ -56,14 +56,20 @@ export interface BlueprintParams {
   /** Read at each build of the graph: a later save of a place does not move a node. */
   savedLayout?: () => PipelineLayout | null | undefined;
   places?: NodePlaces;
-  /** A pipeline that the server does not let change, such as a file pipeline: the graph only shows it. */
+  /**
+   * A pipeline that the server does not let change, such as a file pipeline: the graph only shows
+   * it. A click still opens a node or the start node, and a move still saves its place.
+   */
   locked?: () => boolean;
+  /** The pipeline is saved: a click on its start node opens the panel of what starts it. */
+  startPanel?: () => boolean;
 }
 
 /** How a new node joins the graph: after a node (by default the start node) or one of its ports, or inside an edge. */
 export type NodeLink = { after?: string; port?: string } | { replacing: string };
 
-export type NodePlacement = NodeLink & { position?: XYPosition };
+/** `detached`: no edge, the node waits where it is dropped. */
+export type NodePlacement = (NodeLink | { detached: true }) & { position?: XYPosition };
 
 /** What a block links: the version of a fragment, and the values of its parameters. */
 export interface BlockContent {
@@ -144,7 +150,8 @@ export const createBlueprint = (params: BlueprintParams) => {
    * through the ids. The document is never rewritten to remove the repeat.
    */
   const repeated = $derived(pipeline.repeatedNodeIds(params.nodes()).length > 0);
-  const readOnly = $derived(repeated || (params.locked?.() ?? false));
+  const locked = $derived(params.locked?.() ?? false);
+  const readOnly = $derived(repeated || locked);
 
   const inspected = $derived(
     flowNodes.find(
@@ -314,6 +321,10 @@ export const createBlueprint = (params: BlueprintParams) => {
     get inspectedBlock() {
       return inspectedBlock;
     },
+    /** A click on the start node opened its panel: in a locked graph, or for a saved pipeline. */
+    get inspectedStart() {
+      return inspectedId === START_NODE_ID;
+    },
     get selectedNodes() {
       return selectedNodes;
     },
@@ -415,12 +426,32 @@ export const createBlueprint = (params: BlueprintParams) => {
       flowNodes = [...flowNodes, flowNode];
       edges = [
         ...edges.filter(edge => edge !== replaced),
-        edgeBetween(source, id, port),
+        ...('detached' in placement ? [] : [edgeBetween(source, id, port)]),
         ...(replaced ? [edgeBetween(id, replaced.target)] : []),
       ];
 
       emit();
       return id;
+    },
+
+    /**
+     * Takes back an `addNode` or `addBlock`: the node goes with its edges, and the edge that it
+     * replaced comes back when both its ends are still there. One step, whatever the placement.
+     */
+    undoAdd(id: string, replaced?: FlowEdge) {
+      if (readOnly || !flowNodes.some(flowNode => flowNode.id === id)) return;
+      if (inspectedId === id) inspectedId = null;
+      flowNodes = flowNodes.filter(flowNode => flowNode.id !== id);
+      edges = edges.filter(edge => edge.source !== id && edge.target !== id);
+      if (
+        replaced &&
+        flowNodes.some(flowNode => flowNode.id === replaced.source) &&
+        flowNodes.some(flowNode => flowNode.id === replaced.target) &&
+        !edges.some(edge => edge.id === replaced.id)
+      ) {
+        edges = [...edges, replaced];
+      }
+      emit();
     },
 
     /** Adds a block that links the fragment, like `addNode`. Returns its id. */
@@ -435,7 +466,9 @@ export const createBlueprint = (params: BlueprintParams) => {
       flowNodes = [...flowNodes, blockNode(blockId, content, position)];
       edges = [
         ...edges.filter(edge => edge !== replaced),
-        edgeBetween(replaced?.source ?? after ?? START_NODE_ID, blockId),
+        ...('detached' in placement
+          ? []
+          : [edgeBetween(replaced?.source ?? after ?? START_NODE_ID, blockId)]),
         ...(replaced ? [edgeBetween(blockId, replaced.target)] : []),
       ];
 
@@ -547,10 +580,14 @@ export const createBlueprint = (params: BlueprintParams) => {
 
     /**
      * Opens the side panel on a node, selected on the canvas; `null` closes it. The start node
-     * is the pipeline: its name is edited in the header, so it closes the panel too.
+     * is the pipeline: its name is edited in the header, and its panel shows what starts it,
+     * which only a saved pipeline has (`startPanel`). A locked graph opens each node, the start
+     * node too, to show it: nothing in it edits a node.
      */
     inspect(id: string | null) {
-      const next = id === START_NODE_ID || readOnly ? null : id;
+      const opensStart = locked || (params.startPanel?.() ?? false);
+      const next =
+        id === START_NODE_ID ? (opensStart ? id : null) : locked || !readOnly ? id : null;
       inspectedId = next;
       flowNodes = flowNodes.map(flowNode =>
         Boolean(flowNode.selected) === (flowNode.id === next)
@@ -559,9 +596,12 @@ export const createBlueprint = (params: BlueprintParams) => {
       );
     },
 
-    /** The end of a drag. A read-only canvas saves nothing. */
+    /**
+     * The end of a drag. A place is not part of the pipeline, so a locked graph saves it too. Two
+     * nodes with one id share one place: that graph saves nothing.
+     */
     placesMoved(moved: readonly Pick<FlowNode, 'id' | 'position'>[]) {
-      if (!readOnly) params.places?.moved(moved);
+      if (!repeated) params.places?.moved(moved);
     },
 
     /** Lays the graph out again by depth: the same layout as a freshly opened pipeline. */
@@ -573,7 +613,7 @@ export const createBlueprint = (params: BlueprintParams) => {
         ...flowNode,
         position: positions.get(flowNode.id) ?? flowNode.position,
       }));
-      if (!readOnly) params.places?.moved(flowNodes);
+      if (!repeated) params.places?.moved(flowNodes);
     },
   };
 };

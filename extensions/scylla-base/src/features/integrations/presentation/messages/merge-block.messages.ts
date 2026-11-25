@@ -40,6 +40,10 @@ export const mergeBlockMessages = {
   gitLabStep3: msg`Save the changes.`,
 
   notAvailable: msg`Not available`,
+  scyllaPipeline: msg`Scylla pipeline`,
+  fileOnly: msg`Only a file pipeline can block the merge: a pull request reviews its file. Export this pipeline to a file of the repository first.`,
+  exportToFile: msg`Export to file`,
+  exportDenied: msg`You don't have permission to edit this pipeline.`,
   privateNotAllowed: msg`GitHub Free does not allow rules on private repositories.`,
   notAllowed: (provider: string) => msg`${provider} does not allow this rule on this repository.`,
 

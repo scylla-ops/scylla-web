@@ -35,7 +35,7 @@ import type { PipelineNodeViewProps } from './node-appearances.registry.ts';
       'relative flex items-center justify-center rounded-[18px] border bg-card shadow-[0_1px_2px_rgb(0_0_0/0.05),0_2px_8px_rgb(0_0_0/0.04)] transition-[border-color,box-shadow] duration-150',
       summary.problem && 'border-destructive',
       !summary.problem && selected && cn(summary.tone.border, 'ring-[3px]', summary.tone.ring),
-      !summary.problem && !selected && 'border-foreground/12',
+      !summary.problem && !selected && 'border-foreground/12 hover:border-foreground/30',
     )}
     style="width: {MINIMAL_NODE.tile}px; height: {minimalTileHeight(count)}px;"
   >

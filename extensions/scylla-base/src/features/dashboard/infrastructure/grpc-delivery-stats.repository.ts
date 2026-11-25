@@ -44,7 +44,16 @@ export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
     ]);
     const known = new Map(connections.connections.map(item => [idValue(item.id), item]));
     const names = new Map(
-      webhooks.triggers.map(summary => [idValue(summary.trigger?.id), { name: summary.trigger?.name ?? '', pipelineName: summary.pipelineName }]),
+      webhooks.triggers.map(summary => [
+        idValue(summary.trigger?.id),
+        {
+          name: summary.trigger?.name ?? '',
+          pipelineId: idValue(summary.trigger?.pipelineId),
+          pipelineName: summary.pipelineName,
+          projectId: idValue(summary.trigger?.projectId),
+          projectName: summary.projectName,
+        },
+      ]),
     );
     return {
       delivered: stats.totals?.delivered ?? 0,
@@ -69,7 +78,10 @@ export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
           account: '',
           repositoryCount: 0,
           name: names.get(id)?.name ?? id.slice(-8),
+          pipelineId: names.get(id)?.pipelineId ?? '',
           pipelineName: names.get(id)?.pipelineName ?? '',
+          projectId: names.get(id)?.projectId ?? '',
+          projectName: names.get(id)?.projectName ?? '',
           delivered: item.figures?.delivered ?? 0,
           failed: item.figures?.failed ?? 0,
           lastReceivedAt: timestampToIso(item.lastReceivedAt),

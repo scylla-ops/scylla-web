@@ -1,6 +1,7 @@
 import { untrack } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import type { XYPosition } from '@xyflow/svelte';
+import type { DropLink } from '@base/features/pipeline/presentation/presenters/smart-drop.presenter.ts';
 import type { DropTarget, PaletteDrag, PaletteEntry } from './palette-drag.state.svelte.ts';
 
 /** How far the pointer moves before a press on a row becomes a drag, not a click. */
@@ -25,9 +26,14 @@ export const dragToCanvas =
     let swallowClick = false;
 
     const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Alt') drag.setDetached(true);
       if (event.key !== 'Escape') return;
       drag.cancel();
       stop();
+    };
+
+    const onKeyUp = (event: KeyboardEvent) => {
+      if (event.key === 'Alt') drag.setDetached(false);
     };
 
     function stop() {
@@ -37,6 +43,7 @@ export const dragToCanvas =
       swallowClick = true;
       root.classList.remove(...HIDE_POINTER);
       window.removeEventListener('keydown', onKeyDown);
+      window.removeEventListener('keyup', onKeyUp);
     }
 
     const onPointerDown = (event: PointerEvent) => {
@@ -50,6 +57,7 @@ export const dragToCanvas =
       if (!origin) return;
       const at = pointOf(event);
       if (dragging) {
+        drag.setDetached(event.altKey);
         drag.move(at);
         return;
       }
@@ -58,6 +66,8 @@ export const dragToCanvas =
       dragging = true;
       root.classList.add(...HIDE_POINTER);
       window.addEventListener('keydown', onKeyDown);
+      window.addEventListener('keyup', onKeyUp);
+      drag.setDetached(event.altKey);
       drag.start(entry, at);
     };
 
@@ -107,8 +117,9 @@ const edgeIdAt = (root: Document, { x, y }: XYPosition): string | undefined =>
 /** Makes an element the place where a palette drag drops: its box is the canvas. */
 export const acceptPaletteDrop =
   (
-    options: () => { drag: PaletteDrag } & Pick<DropTarget, 'positionAt'> & {
-        drop: (entry: PaletteEntry, position: XYPosition, edgeId: string | undefined) => void;
+    options: () => { drag: PaletteDrag } & Pick<DropTarget, 'positionAt' | 'drop'> & {
+        /** The connection of a drop at this point, over this edge (if any). */
+        linkAt: (position: XYPosition, edgeId: string | undefined) => DropLink;
       },
   ): Attachment<HTMLElement> =>
   node => {
@@ -120,7 +131,8 @@ export const acceptPaletteDrop =
       },
       // Read at call time: the canvas's callbacks may change.
       positionAt: client => options().positionAt(client),
-      drop: (entry, position, client) =>
-        options().drop(entry, position, edgeIdAt(node.ownerDocument, client)),
+      linkAt: (client, position) =>
+        options().linkAt(position, edgeIdAt(node.ownerDocument, client)),
+      drop: (entry, position, link) => options().drop(entry, position, link),
     });
   };

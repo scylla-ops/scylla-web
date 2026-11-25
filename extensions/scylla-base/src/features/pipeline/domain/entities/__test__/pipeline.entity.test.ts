@@ -219,14 +219,14 @@ describe('hasRepeats', () => {
 });
 
 describe('pipelineIssue', () => {
-  it('accepts a name of one word and node ids the server accepts', () => {
-    expect(pipelineIssue({ name: 'nightly', nodes: [node('build'), node('test-2')] })).toBeNull();
+  it('accepts a name with spaces and node ids the server accepts', () => {
+    expect(pipelineIssue({ name: 'Night run', nodes: [node('build'), node('test-2')] })).toBeNull();
   });
 
   it('says the name first, as it is the first field of the form', () => {
-    expect(pipelineIssue({ name: 'my pipeline', nodes: [node('Build')] })).toEqual({
+    expect(pipelineIssue({ name: ' ', nodes: [node('Build')] })).toEqual({
       kind: 'name',
-      issue: 'spaces',
+      issue: 'empty',
     });
   });
 

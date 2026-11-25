@@ -1,6 +1,7 @@
 <script lang="ts">
   import { SvelteFlowProvider } from '@xyflow/svelte';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
   import { jobGraph } from '@base/features/jobs/presentation/presenters/job-graph.presenter.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
@@ -9,22 +10,28 @@
 
   interface Props {
     job: JobEntity;
-    /** A click on a node: the page opens its logs in the list. */
+    /** The node of the log: its node has a ring. */
+    selectedId: string | null;
+    /** A click on a node: the page opens its log. */
     onSelectNode: (nodeId: string) => void;
+    class?: string;
   }
 
-  let { job, onSelectNode }: Props = $props();
+  let { job, selectedId, onSelectNode, class: className }: Props = $props();
 
-  setJobGraph({ select: nodeId => onSelectNode(nodeId) });
+  setJobGraph({
+    select: nodeId => onSelectNode(nodeId),
+    isSelected: nodeId => nodeId === selectedId,
+  });
 
   // The same query as the list: each poll draws the job again.
   const graph = $derived(jobGraph(job));
 </script>
 
-<!-- The graph of the job, read-only: the path that it took, above the list of its nodes. -->
+<!-- The graph of the job, read-only: the path that it took. A click on a node opens its log. -->
 <section
   aria-label={t(jobsMessages.jobGraph)}
-  class="h-56 shrink-0 overflow-hidden rounded-xl border border-border bg-card"
+  class={cn('overflow-hidden rounded-xl border border-border bg-card', className)}
 >
   <!-- The provider lets the view fit the graph again at a resize. -->
   <SvelteFlowProvider>

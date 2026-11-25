@@ -7,6 +7,7 @@
   import { viewMessages as messages } from '@base/features/dashboard/presentation/messages/widgets-view.messages.ts';
   import {
     bucketAxis,
+    bucketHint,
     bucketLabel,
     periodMeta,
   } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
@@ -22,6 +23,7 @@
   import ChangeBadge from '../parts/ChangeBadge.svelte';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -65,6 +67,7 @@
       null,
     ),
   );
+  const peakHref = $derived(peak ? period.bucketHref(peak.start, bucket) : null);
   const axis = $derived(
     bucketAxis(stats?.buckets ?? [], bucket, period.timeZone ?? 'UTC', period.rangeAt().to === null),
   );
@@ -93,7 +96,12 @@
 {#snippet barChart(className: string)}
       <div class={className}>
         {#each bars as bar (bar.start)}
-          <BarTip class="flex h-full min-w-0 flex-1 flex-col-reverse gap-0.5" top={bar.completed + bar.failed + bar.other}>
+          <BarTip
+            class="flex h-full min-w-0 flex-1 flex-col-reverse gap-0.5"
+            top={bar.completed + bar.failed + bar.other}
+            href={period.bucketHref(bar.start, bucket)}
+            hint={bucketHint(bar.start, bucket, period.timeZone ?? 'UTC')}
+          >
             {#if bar.completed > 0}<ChartSegment tone="passed" class="rounded-[3px]" style="height: {bar.completed}%" />{/if}
             {#if bar.failed > 0}<ChartSegment tone="failed" class="rounded-[3px]" style="height: {bar.failed}%" />{/if}
             {#if bar.other > 0}<ChartSegment tone="canceled" class="rounded-[3px]" style="height: {bar.other}%" />{/if}
@@ -146,7 +154,12 @@
             <div class="flex min-w-0 flex-col gap-1">
               <dt class="sr-only">{t(messages.peakRuns(peak.count))}</dt>
               <dd class="truncate text-[34px] leading-none font-medium tracking-tight">
-                {bucketLabel(peak.start, bucket, period.timeZone ?? 'UTC')}
+                <WidgetLink
+                  link={peakHref ? { href: peakHref } : null}
+                  title={bucketHint(peak.start, bucket, period.timeZone ?? 'UTC')}
+                >
+                  {bucketLabel(peak.start, bucket, period.timeZone ?? 'UTC')}
+                </WidgetLink>
               </dd>
               <dd class="text-xs text-muted-foreground">{t(messages.peakRuns(peak.count))}</dd>
             </div>

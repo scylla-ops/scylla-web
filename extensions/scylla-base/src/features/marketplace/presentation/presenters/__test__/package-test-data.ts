@@ -4,13 +4,17 @@ import type {
   PackageVersion,
 } from '@base/features/marketplace/domain/entities/market-package.entity.ts';
 
+// One base time for the module: two versions with the same `days` get the same date,
+// so the order never depends on the millisecond at which each one is made.
+const NOW = Date.now();
+
 export const packageVersion = (number: number, days = 10): PackageVersion => ({
   number,
   nodes: [{ id: 'install', deps: [], kind: 'exec', command: 'pnpm', args: ['install'], env: [] }],
   parameters: [{ key: 'NPM_TOKEN', kind: 'secret', description: 'Registry token' }],
   changes: [`Release ${number}.`],
   author: { id: 'pnpm', name: '@pnpm' },
-  publishedAt: new Date(Date.now() - days * 24 * 60 * 60 * 1000).toISOString(),
+  publishedAt: new Date(NOW - days * 24 * 60 * 60 * 1000).toISOString(),
 });
 
 export const marketPackage = (overrides: Partial<MarketPackage> = {}): MarketPackage => ({

@@ -1,4 +1,10 @@
 import { contextStore, scyllaNavigate } from '@platform/context';
+import {
+  GIT_KINDS,
+  type TriggerDraftKind,
+} from '@base/features/triggers/domain/entities/trigger.entity.ts';
+
+const DRAFT_KINDS: readonly TriggerDraftKind[] = ['cron', 'webhook', ...GIT_KINDS];
 
 const listPathOf = (pipelineId: string): string =>
   `/projects/${contextStore.getState().project.id}/pipelines/${pipelineId}/triggers`;
@@ -6,9 +12,13 @@ const listPathOf = (pipelineId: string): string =>
 /** Goes to the list of the triggers of a pipeline. */
 export const toList = (pipelineId: string) => scyllaNavigate.goToWorkspaceRoute(listPathOf(pipelineId));
 
-/** Goes to the page that creates a trigger of a pipeline. */
-export const toCreate = (pipelineId: string) =>
-  scyllaNavigate.goToWorkspaceRoute(`${listPathOf(pipelineId)}/new`);
+/** Goes to the page that creates a trigger of a pipeline, with a kind picked in advance. */
+export const toCreate = (pipelineId: string, kind?: TriggerDraftKind) =>
+  scyllaNavigate.goToWorkspaceRoute(`${listPathOf(pipelineId)}/new${kind ? `?kind=${kind}` : ''}`);
+
+/** The kind of the `kind` parameter of the create page. Another value: none. */
+export const kindFromSearch = (value: string): TriggerDraftKind | undefined =>
+  DRAFT_KINDS.find(kind => kind === value);
 
 /** Goes to the page that edits a trigger of a pipeline. */
 export const toEdit = (pipelineId: string, triggerId: string) =>

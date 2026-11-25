@@ -7,6 +7,7 @@ import type {
   PageLoader,
   RouteMount,
   RoutePermission,
+  RouteShare,
   RouteSource,
   RouteWrapper,
 } from '@scylla/core-sdk';
@@ -50,6 +51,8 @@ export interface CompiledRoute {
   permission?: RoutePermission;
   /** The params whose change keeps the page mounted. */
   inPageParams?: readonly string[];
+  /** The share button of the top bar. */
+  share?: RouteShare;
   /** The layout of the root mount, around the shell. */
   layout?: LayoutComponent;
   /** The root mount renders its pages inside the shell. */
@@ -169,7 +172,7 @@ export const compileRoutes = ({
 
   const routes: CompiledRoute[] = declared
     .filter(route => route.page || route.redirect)
-    .map(({ mount, path, page, redirect, permission, inPageParams }) => {
+    .map(({ mount, path, page, redirect, permission, inPageParams, share }) => {
       const chain = mountChain(mount, mounts);
       const space = [...chain].reverse().find(definition => definition.space)?.space;
       return {
@@ -179,6 +182,7 @@ export const compileRoutes = ({
         redirect,
         permission,
         ...(inPageParams && { inPageParams }),
+        ...(share && { share }),
         layout: chain[0].layout,
         shell: chain[0].shell ?? false,
         ...(space && { space }),

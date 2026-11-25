@@ -256,12 +256,17 @@ export function toDomain(pipeline: Pipeline): PipelineEntity {
 export function originOf(pipeline: Pipeline): PipelineOrigin {
   const archivedAt = timestampToIsoOpt(pipeline.archivedAt);
   const removedAt = timestampToIsoOpt(pipeline.removedAt);
+  const keyTakenAt = timestampToIsoOpt(pipeline.keyTakenAt);
+  const gitEventsAllowedAt = timestampToIsoOpt(pipeline.gitEventsAllowedAt);
   return {
     source: pipeline.source === PipelineSource.FILE ? 'file' : 'editor',
     filePath: pipeline.filePath,
     fileErrorCount: pipeline.fileErrorCount,
+    ...(pipeline.key && { key: pipeline.key }),
     ...(archivedAt && { archivedAt }),
     ...(removedAt && { removedAt }),
+    ...(keyTakenAt && { keyTakenAt }),
+    ...(gitEventsAllowedAt && { gitEventsAllowedAt }),
   };
 }
 

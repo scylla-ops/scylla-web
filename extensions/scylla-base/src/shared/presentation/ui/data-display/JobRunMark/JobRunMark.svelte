@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import type { HTMLButtonAttributes } from 'svelte/elements';
+  import type { HTMLAttributes } from 'svelte/elements';
   import { StatusShape } from '@scylla/ui';
   import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
@@ -11,41 +11,66 @@
   import { jobRunMessages as messages } from '@base/shared/presentation/messages/job-run.messages.ts';
   import { jobShortId, type JobRun } from '@shared/presentation/presenters/job-run.presenter.ts';
 
-  type Props = Omit<HTMLButtonAttributes, 'children' | 'onclick' | 'type'> & {
+  type Props = Omit<HTMLAttributes<HTMLElement>, 'children' | 'onclick'> & {
     run: JobRun;
     /** In seconds. `null` before the start. */
     duration: number | null;
-    onSelect: () => void;
+    /**
+     * The page of the job: the mark is a link, and a middle click opens a new tab. `onSelect`
+     * then runs before the router follows the link.
+     */
+    href?: string;
+    onSelect?: (event: MouseEvent) => void;
     children?: Snippet;
   };
 
-  let { run, duration, onSelect, class: className, children, ...rest }: Props = $props();
+  let { run, duration, href, onSelect, class: className, children, ...rest }: Props = $props();
 
   const config = $derived(getStatusConfig(run.status));
   const status = $derived(t(config.label));
+  const markClass = $derived(
+    cn(
+      'shrink-0 cursor-pointer transition-[scale] duration-150 outline-none hover:scale-y-110 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-card',
+      className,
+    ),
+  );
 </script>
 
 <Tooltip delayDuration={100}>
   <TooltipTrigger>
     {#snippet child({ props })}
-      <button
-        {...props}
-        {...rest}
-        type="button"
-        aria-label={t(messages.jobMark(jobShortId(run.id), status))}
-        data-item-id={run.id}
-        onclick={event => {
-          (props.onclick as ((event: MouseEvent) => void) | undefined)?.(event);
-          event.stopPropagation();
-          onSelect();
-        }}
-        class={cn(
-          'shrink-0 cursor-pointer transition-[scale] duration-150 outline-none hover:scale-y-110 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:ring-offset-2 focus-visible:ring-offset-card',
-          className,
-        )}
-      >
-        {@render children?.()}
-      </button>
+      {#if href}
+        <a
+          {...props}
+          {...rest}
+          {href}
+          aria-label={t(messages.jobMark(jobShortId(run.id), status))}
+          data-item-id={run.id}
+          onclick={event => {
+            (props.onclick as ((event: MouseEvent) => void) | undefined)?.(event);
+            onSelect?.(event);
+          }}
+          class={markClass}
+        >
+          {@render children?.()}
+        </a>
+      {:else}
+        <button
+          {...props}
+          {...rest}
+          type="button"
+          aria-label={t(messages.jobMark(jobShortId(run.id), status))}
+          data-item-id={run.id}
+          onclick={event => {
+            (props.onclick as ((event: MouseEvent) => void) | undefined)?.(event);
+            event.stopPropagation();
+            onSelect?.(event);
+          }}
+          class={markClass}
+        >
+          {@render children?.()}
+        </button>
+      {/if}
     {/snippet}
   </TooltipTrigger>
   <TooltipContent

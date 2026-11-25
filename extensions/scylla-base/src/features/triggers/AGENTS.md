@@ -9,7 +9,8 @@ events of the linked repository.
 
 - May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts` (it reads
   `repositoryLinkQueries` and the `RepositoryLink` type of `integrations`, and
-  `pipelineQueries.byId` of `pipeline` for the origin of the pipeline).
+  `pipelineQueries.byId` of `pipeline` for the origin of the pipeline, and the Git events of
+  `pipeline`: `createGitEvents`, `GitEventsDialog`, `GitEventsNote`).
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
 
@@ -87,12 +88,15 @@ domain/
 infrastructure/
   default-triggers.repository.ts      TriggerServiceClient → TriggerEntity
   grpc-trigger.mapper.ts
+widget-injections/pipeline-triggers/ fills the zones of the start node of `pipeline`
+                                     (MANAGE_TRIGGERS): the count and the triggers panel
 presentation/
   triggers.commands.ts               the list and "Create trigger...", for the search bar
   triggers.queries.ts                every read and write, as query/mutation options
   ui/Triggers/Triggers.page.svelte
   ui/TriggerEditor/TriggerEditor.page.svelte   creates or edits a trigger of a pipeline
   messages/triggers.messages.ts      every string — `lingui extract` cannot read `.svelte`
+  messages/trigger-panel.messages.ts the strings of the panel of the start node
   ui/components/TriggersHeader/, TriggersOverview/, index.ts (local barrel)
   ui/components/trigger-form/        TriggerForm, TriggerFormSection,
                                      CronScheduleBuilder/, TriggerInputsEditor/,
@@ -105,6 +109,12 @@ presentation/
     TriggerEditorView/               the body of the editor page
       trigger-editor-view.state.svelte.ts   the trigger to edit (from the list), and the way back
   ui/triggers-table/                 TriggersTable + triggers-table.columns.ts + cells
+  ui/pipeline-panel/                 the parts of the start node of a pipeline (blueprint)
+    TriggerCountChip/                the number of triggers, on the start node
+    PipelineTriggersPanel/           the triggers of the pipeline: the rows of the file (read
+                                     only), the rows of Scylla (switch, edit, delete), the inline
+                                     form of a schedule (ScheduleQuickForm), "Add trigger"
+                                     (pipeline-triggers-panel.state.svelte.ts)
   mappers/cron.mapper.ts             the cron text ↔ the model of the builder
   mappers/cron-timezone.mapper.ts    the local time ↔ UTC (the server reads UTC)
   mappers/trigger-form.mapper.ts     the form ↔ the draft of a trigger
@@ -112,6 +122,8 @@ presentation/
   presenters/cron.presenter.ts       WEEKDAYS, describeCron
   presenters/trigger-source.presenter.ts   the labels of the kinds ("Merge request" on GitLab),
                                      the summary of a Git row, the hints, the variables, the notes
+  presenters/trigger-panel.presenter.ts    the rows of the panel: groups, summary, last run,
+                                     next run, the kinds to add, a free name
 ```
 
 ## Routes & nav
@@ -124,7 +136,8 @@ presentation/
 `mappers/triggers-navigation.mapper.ts` builds every URL between the list and the editor, and
 `toRepository(projectId)`: the project route `settings/repository` of `integrations`, where a
 person links a repository. Import it as a namespace: `triggersNavigation.toEdit(pipelineId,
-triggerId)`.
+triggerId)`. `toCreate(pipelineId, kind)` adds `?kind=`: the editor starts on that kind (a
+schedule for a kind that it does not know).
 
 **No nav entry** — reached from a pipeline. Its crumb is "Triggers" only: the crumb of
 `pipelines/:pipelineId` (`pipeline`) names the pipeline before it.
@@ -183,6 +196,19 @@ holding it that they are not split.
   first". The provider of the link names the pull request ("Merge request" on GitLab).
 - **A file pipeline takes its Git triggers from the `on` table of its file.** The type picker turns
   the Git kinds off there, and the list names the file of a trigger from the file.
+- **The start node of a pipeline shows its triggers** through the zones of `pipelinePoints`
+  (`pipeline`), filled by `PipelineTriggersWidgetInjection`, which the extension registers. The
+  `pipeline` module cannot import this one: this one imports it. The panel shows the rows of the
+  file read only and the rows of Scylla with a switch and a menu. "Add trigger" offers a schedule
+  and a webhook only on a file pipeline or with no linked repository; a schedule opens an inline
+  form, each other kind the full editor. A Git row of an editor pipeline shows no opt-in state
+  of the admin yet.
+- **A Scylla pipeline of a project of files needs the opt-in of an admin for its Git kinds.** The
+  state, the dialog and the note are in `pipeline` (`createGitEvents`), so each page that shows
+  the Git triggers reads the same state. The type picker turns the Git kinds off with the reason
+  (`gitOff: 'notAllowed'`) and, for an admin, "Allow Git events", which opens the dialog once the
+  menu is closed. The list shows `GitEventsNote` above the triggers when a Git trigger waits, or
+  while the opt-in is on (an admin revokes it there).
 - **The notes about the forks and one run per commit are fixed rules, not options.** They show in
   the Git form and under a list with a Git trigger.
 - **New strings go in `messages/triggers.messages.ts`, never inside a `.svelte`.** Extraction does not

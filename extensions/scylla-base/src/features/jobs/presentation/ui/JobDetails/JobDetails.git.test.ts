@@ -12,8 +12,8 @@ import JobDetailsPage from './JobDetails.page.svelte';
 
 /** The Git context of a job on its page: its commit, its approval, its file, its checkout, its reports. */
 
-vi.mock('../jobs-log/JobLogDisplay/JobLogDisplay.svelte', async () => ({
-  default: (await import('./JobLogDisplay.stub.svelte')).default,
+vi.mock('../jobs-log/JobLogViewer/JobLogViewer.svelte', async () => ({
+  default: (await import('./JobLogViewer.stub.svelte')).default,
 }));
 
 class ResizeObserverMock {
@@ -88,9 +88,7 @@ const grant = (permissions: Permission[] | 'all') =>
           scope: PermissionScope.SYSTEM,
           scopeId: '',
           access:
-            permissions === 'all'
-              ? { kind: 'fullControl' }
-              : { kind: 'restricted', permissions },
+            permissions === 'all' ? { kind: 'fullControl' } : { kind: 'restricted', permissions },
         },
       ],
     },
@@ -140,6 +138,9 @@ const renderPage = async (
 
 const sourceBand = () => screen.getByRole('region', { name: 'Source' });
 
+/** The source and the reports of the job are in its details. */
+const openDetails = () => userEvent.click(screen.getByRole('button', { name: 'Details' }));
+
 beforeEach(() => {
   vi.stubGlobal('ResizeObserver', ResizeObserverMock);
   cache = withQueryClient();
@@ -166,6 +167,12 @@ describe('JobDetailsPage, the Git context', () => {
       }),
     );
 
+    const facts = screen.getByRole('list', { name: 'Facts of the job' });
+    expect(facts).toHaveTextContent('feature/login');
+    expect(facts).toHaveTextContent('a1b2c3d');
+    expect(facts).toHaveTextContent('lea-martin');
+
+    await openDetails();
     const band = sourceBand();
     expect(within(band).getByRole('link', { name: 'acme/api' })).toHaveAttribute(
       'href',
@@ -173,9 +180,10 @@ describe('JobDetailsPage, the Git context', () => {
     );
     expect(band).toHaveTextContent('feature/login');
     expect(band).toHaveTextContent('a1b2c3d');
-    expect(
-      within(band).getByRole('link', { name: 'Add login form validation' }),
-    ).toHaveAttribute('href', 'https://github.com/acme/api/commit/a1b2c3d');
+    expect(within(band).getByRole('link', { name: 'Add login form validation' })).toHaveAttribute(
+      'href',
+      'https://github.com/acme/api/commit/a1b2c3d',
+    );
     expect(within(band).getByRole('link', { name: '#42' })).toHaveAttribute(
       'href',
       'https://github.com/acme/api/pull/42',
@@ -189,6 +197,7 @@ describe('JobDetailsPage, the Git context', () => {
 
   it('shows no Git context for a job with no commit, and reads no report', async () => {
     await renderPage(job({ source: undefined }));
+    await openDetails();
 
     expect(screen.queryByRole('region', { name: 'Source' })).not.toBeInTheDocument();
     expect(screen.queryByRole('region', { name: 'Report' })).not.toBeInTheDocument();
@@ -199,6 +208,7 @@ describe('JobDetailsPage, the Git context', () => {
     await renderPage(
       job({ source: source({ fromFork: true, forkRepository: 'octocat/api', branch: 'patch-1' }) }),
     );
+    await openDetails();
 
     const band = sourceBand();
     expect(band).toHaveTextContent('octocat:patch-1');
@@ -278,6 +288,7 @@ describe('JobDetailsPage, the Git context', () => {
       }),
       { registry: { user: { userRepository } } },
     );
+    await openDetails();
 
     await waitFor(() => expect(sourceBand()).toHaveTextContent(/Approved by Lea at /));
     expect(
@@ -338,14 +349,15 @@ describe('JobDetailsPage, the Git context', () => {
       .map(button => button.textContent?.replace(/\s+/g, ' ').trim());
     expect(steps).toHaveLength(3);
     expect(steps[0]).toMatch(/^checkout built in /);
-    expect(screen.getAllByTestId('job-log-display').map(panel => panel.textContent?.trim())).toEqual(
-      ['logs for job-1/.checkout'],
-    );
+    expect(screen.getByTestId('job-log-node')).toHaveTextContent('.checkout');
     expect(screen.getByRole('region', { name: 'checkout' })).toBeInTheDocument();
   });
 
   describe('the reports', () => {
-    const band = () => screen.findByRole('region', { name: 'Report' });
+    const band = async () => {
+      await openDetails();
+      return screen.findByRole('region', { name: 'Report' });
+    };
 
     it('shows a report that the provider got, with a link to it', async () => {
       await renderPage(job(), { listed: [report()] });
@@ -400,9 +412,10 @@ describe('JobDetailsPage, the Git context', () => {
       const reportBand = await band();
       expect(reportBand).toHaveTextContent('Not sent');
       expect(reportBand).toHaveTextContent('The GitHub App was uninstalled from acme.');
-      expect(
-        within(reportBand).getByRole('link', { name: 'Fix the connection' }),
-      ).toHaveAttribute('href', expect.stringMatching(/\/settings\/integrations$/));
+      expect(within(reportBand).getByRole('link', { name: 'Fix the connection' })).toHaveAttribute(
+        'href',
+        expect.stringMatching(/\/settings\/integrations$/),
+      );
       expect(within(reportBand).getByRole('button', { name: 'Retry now' })).toBeInTheDocument();
     });
 

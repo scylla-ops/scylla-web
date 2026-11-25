@@ -24,6 +24,11 @@ recentSuccessRate              // completed / (completed + failed) of the recent
 asPipelineFeed                 // a page of metadata → the list, and whether it is partial
 fragmentQueries, fragmentMutations, versionFromContent, pendingUpstream, ...  // the library
 loadFragmentNodes, loadFragmentParameters  // loaders: the graph brings the editor and Svelte Flow
+pipelinePoints, type PipelineStartContext, type PipelineStartPanelContext
+                               // the zones of the start node: its badge and the body of its panel
+gitEventsState, createGitEvents, type GitEvents, GitEventsDialog, GitEventsNote
+                               // the opt-in of an admin for the Git events of a Scylla pipeline
+                               // in a project of files: every page that shows the Git triggers
 ```
 
 Never add: `pipeline.module.ts`, pages — the module registry imports `.module.ts` by path,
@@ -41,13 +46,15 @@ not through the barrel.
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
 | `getWithLayout(id)` | `PipelineWithLayout`: the entity, the places of its nodes and its `origin` |
 | `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
-| `create(pipeline, layout?)` | `void` |
+| `create(pipeline, layout?)` | `void`. The agent labels of the pipeline go with it (`agent`) |
 | `edit(id, nodes, name?, layout?)` | `PipelineEntity` |
 | `setAgentLabels(id, labels)` | `PipelineEntity`: the agent labels only, with a new version. The nodes stay |
 | `deleteById(id)` | `void` |
 | `run(id, ref?)` | `PipelineRun`. A `CommitRef` (branch, tag or SHA) of the linked repository; none: an editor pipeline runs with no commit, a file pipeline at the head of the default branch |
 | `getFile(id, ref?)` | `PipelineFile`: the file of a file pipeline at the ref (none: the default branch), its nodes, its rules of `on`, its checkout, the labels of its key `agent` and its errors |
 | `exportFile(id, format)` | `PipelineFileExport`: the saved version as a file of the repository, and its path |
+| `listFileKeys(projectId)` | `PipelineFileKey[]`: the key and the path of each pipeline file of the default branch (`ListPipelineFiles`, in the cell of `pipelines.view`) |
+| `setGitEvents(id, allowed)` | `PipelineOrigin`: the new origin of an editor pipeline, with `gitEventsAllowedAt` (`SetPipelineGitEvents`, a workspace admin) |
 
 `NodeTemplateRepository` — `domain/repository/node-template.repository.ts`:
 
@@ -101,6 +108,8 @@ Reach a repository with `getModuleDomain<typeof PipelineModule.domain>('pipeline
 ```
 pipeline.module.ts                           the routes + DI wiring (private; registry only)
 index.ts                                     public API
+presentation/pipeline.points.ts              pipelinePoints: the zones of the start node (startBadge,
+                                             startPanel) that another module fills
 domain/
   entities/pipeline.entity.ts                PipelineEntity, PipelineIdentity, PipelineMetadata, the
                                              root of its nodes: newPipeline,
@@ -134,6 +143,9 @@ domain/
   structs/pipeline-file.struct.ts            PipelineFile, FileError, FileRules, CheckoutSettings,
                                              blockingErrors (a warning keeps a file valid)
   structs/commit-ref.struct.ts               CommitRef (branch, tag, SHA), commitShaIssue (7 to 40 hex)
+  structs/pipeline-key.struct.ts             PipelineFileKey, pipelineKey (the key rule of the server),
+                                             fileWithKeyOf (the file that has the key of a name),
+                                             fileKeyOf (the key of a path)
   use-cases/save-pipeline.use-case.ts        SavePipelineUseCase: the rules of the server, then create or edit
   repository/pipeline.repository.ts
   repository/node-template.repository.ts
@@ -153,8 +165,8 @@ presentation/
   fragment.queries.ts                        the library: fragmentQueries, fragmentMutations,
                                              (the links go with pipelineMutations.update)
   pipeline.query-keys.ts                     Query key factories (exported publicly)
-  messages/                                  pipeline, blueprint, scripting, node, export, file, run
-                                             (.messages.ts)
+  messages/                                  pipeline, blueprint, scripting, node, export, file, run,
+                                             git-events (.messages.ts)
   presenters/                                domain data → what a view shows (plain TS, tested)
     node-summary.presenter.ts                summarize (what a node shows), nodePreview, envCounts
     node-kind.presenter.ts                   icon and colours of each kind of node
@@ -165,12 +177,16 @@ presentation/
     blueprint-layout.presenter.ts            the position of each node: one column per stage (the
                                              targets of a switch in the order of its ports), positionAfter
     blueprint-geometry.presenter.ts          the sizes, anchors and footprints of the nodes, linkDropPoint
-    pipeline-issue.presenter.ts              the text of what stops a save (pipelineIssueText)
+    pipeline-issue.presenter.ts              the text of what stops a save (pipelineIssueText,
+                                             pipelineKeyTakenText)
+    git-events.presenter.ts                  gitEventsState: does the pipeline need the opt-in, and has it
     pipeline-feed.presenter.ts               asPipelineFeed
     pipeline-file.presenter.ts               a file pipeline: the rows of `on` and of the checkout,
                                              the place of an error, the note of a row of the list
                                              (originNote: a badge, its full text in a tooltip),
                                              the notice of its page (fileNotice)
+    node-details.presenter.ts                each field of a node as text, for a read-only node
+                                             (the code, the rows, the env, the cases of a switch)
     pipeline-history.presenter.ts            the bars of a row of the list (historyBars, barCapacity),
                                              the figures of its stats card (historyStats)
     ref-options.presenter.ts                 the rows of a branch or tag picker, and of the Run dialog
@@ -184,6 +200,9 @@ presentation/
     commit-ref.mapper.ts                     a CommitRef ↔ the value of a row of a picker
   ui/                                        Svelte only
     run-pipeline.state.svelte.ts             the Run action, shared by the dashboard and the jobs page
+    GitEvents/                               the opt-in of the Git events: git-events.state.svelte.ts
+                                             (createGitEvents), GitEventsDialog (the warning, or the
+                                             confirm of a revoke), GitEventsNote (the state, Allow or Revoke)
     RunPipelineDialog/                       the commit to run, for a project with a linked repository
                                              (run-request.state: dialog or direct run; run-target.state:
                                              the picked ref or the typed SHA)
@@ -192,7 +211,9 @@ presentation/
     JobFilters/                              branch, event, author, PR (job-filters.state.svelte.ts)
     file/FilePipeline/                       the page of a file pipeline: the editor page, read only
                                              (file-pipeline.state.svelte.ts, the header with the
-                                             branch picker, the notice, the locked panel, the text)
+                                             branch picker, the notice, the locked panel, the text).
+                                             FilePanel: FileSettings (the file), FileNodePanel
+                                             (one node, with FileNodeConditions) or StartPanel
     dashboard/
       DashboardPipeline/                     the page, its header, pipeline-dashboard.state.svelte.ts
       PipelineTable/                         the table, pipeline-table.columns.ts, bar-capacity.state.svelte.ts,
@@ -202,6 +223,8 @@ presentation/
     editor/
       PipelineCreation.page.svelte, PipelineEditor.svelte
       PipelineUpdate/                        the edit page (and its test)
+      pipeline-key-check.state.svelte.ts     createPipelineKeyCheck: the file that has the key of a name,
+                                             in a project of files
       pipeline-document.state.svelte.ts      the document of both tabs: script text, baseline, dirty
                                              check, the issue that stops the save; MissingDocument
       unsaved-changes.effect.svelte.ts       warnBeforeUnload: the browser's prompt while unsaved
@@ -244,6 +267,7 @@ presentation/
         canvas/                              the canvas and what it draws
           BlueprintCanvas.svelte, CanvasToolbar.svelte, DeletableEdge.svelte, DropSpot.svelte
           UpdateNotice.svelte                a newer version of a block
+          node-keys.attachments.ts           Enter or Space on a focused node opens it, as a click
           blueprint-canvas.context.ts        what the nodes and edges read from the canvas
           flow-theme.css                     the colours of the app on every Svelte Flow canvas
           CanvasCurtain/                     what covers the blueprint until it is ready: the animated
@@ -259,7 +283,9 @@ presentation/
           palette-drag.attachments.ts        dragToCanvas (a palette row), acceptPaletteDrop (the canvas)
           PaletteDragGhost.svelte            the dragged icon, in place of the pointer
         side-panel/                          palette (nothing inspected) / inspector of the inspected node
-                                             or block / the box selection
+                                             or block / the box selection / the start node
+          StartPanel/                        the panel of the start node: its title, and the zone
+                                             pipelinePoints.startPanel for its body
           PalettePanel.svelte                the tabs Nodes and Library (LibraryPalette/)
           FragmentInspector/                 a block: version, parameters, update, detach, remove
                                              (block-inspector.state.svelte.ts)
@@ -293,6 +319,15 @@ presentation/
 | `project` | `pipelines/:pipelineId/jobs` | `LIST_JOBS_BY_PIPELINE` | `PipelineJobsPage` |
 | `workspace` | `library` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentLibraryPage` |
 | `workspace` | `library/:fragmentId` | `LIST_PIPELINES_BY_WORKSPACE` | `FragmentDetailPage` |
+
+The project page, `edit/:pipelineId`, `pipelines/:pipelineId`, `pipelines/:pipelineId/jobs` and
+`library/:fragmentId` have the share button of the top bar (`share: true`). The others are forms
+or a list that the sidebar opens. A shared link opens the same view, because the view is in the
+URL: the filters of the jobs (`?branch=&event=&author=&pr=`, `createJobFilters`), and the ref and
+the tab of a file pipeline (`?ref=branch:dev&tab=scripting`, `createFilePipeline`, the ref with
+`toValue` / `fromValue` of `commit-ref.mapper.ts`). `createSearchParams` of `@platform/context`
+reads them and writes them in place of the current history entry. A default value writes no
+parameter.
 
 **One nav entry**, Library, in the workspace section. Pipelines are the project index, reached
 by entering a project. While it shows, the second sidebar lists the fragments of the library
@@ -376,14 +411,14 @@ the page.
   links follow the same rule (`fragment-links.state.svelte.ts`).
 - **A save that succeeds makes the sent version the saved one at once** (`createUnsavedChanges`:
   `send()`, then `markSaved` on the document and the links), before the server sends it back. The
-  page calls `done` in the `onSuccess` of `mutate`, and the editor then calls `onSaved`, which goes
-  back to the project (`returnToProject`). `pipelineMutations.create` and `update` do not navigate:
+  page calls `done` in the `onSuccess` of `mutate`, and the editor then calls `onSaved`. The create
+  page goes back to the project (`returnToProject`); the update page stays on the editor. `pipelineMutations.create` and `update` do not navigate:
   their `onSuccess` runs before `done`, and the leave guard would hold the navigation. The guard
   reads the dirty state at each navigation, not at the last run of its effect. A failed save marks
   nothing: the guard stays. A name that is typed and not applied yet is an unsaved change too.
 - **The blueprint has one side panel, on the right.** It shows `blueprint.inspected`, which only
-  a click sets (`blueprint.inspect(id)`): a click on a node, a click on a palette entry, a pick in
-  `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
+  a click sets (`blueprint.inspect(id)`): a click on a node (or Enter or Space on a focused node,
+  `openNodeOnKey`), a click on a palette entry, a pick in `QuickAddMenu`. A drag, a drop and a box selection never open it (`selectNodesOnDrag={false}`);
   a click on the empty canvas closes it. Nothing inspected: the palette. A node: its inspector.
   The panel derives its mode from `blueprint.inspected`; never store it. The canvas selection is
   xyflow's and is not the panel's state. `blueprint.selecting` tells when the selection panel
@@ -474,7 +509,15 @@ the page.
   with each of its ports (`<switch>:<port>`, `<node>:error`); a drop in the list sets a need
   with no port.
 - **The pipeline name is edited in the header** (`PipelineNameField`), never in the panel: it is
-  the name of the whole document. The start node opens nothing.
+  the name of the whole document. The start node of a new pipeline opens nothing in the editor.
+  The start node of a saved pipeline (`startPanel` of `createBlueprint`) and of a `locked` graph
+  opens `StartPanel` (`inspectedStart`): what starts the pipeline. The file page shows the
+  settings of the file when nothing is inspected.
+- **The start node shows what starts the pipeline through two zones** (`pipelinePoints`):
+  `startBadge` in the node (a count) and `startPanel` in the body of `StartPanel`. The module
+  `triggers` fills them with a widget injection: it imports `pipeline`, so `pipeline` cannot
+  import it (a module cycle). With no injection (no `MANAGE_TRIGGERS`), the panel says that only
+  the members who manage the triggers see them.
 - **The side panel of the blueprint is a paneforge pane** (`ResizablePane`), right of the
   canvas in one `ResizablePaneGroup` with `autoSaveId="scylla.blueprint.side-panel"`. The pane is
   keyed by the mode (`{#key mode}`) and each mode has its own `SIDE_PANEL_SIZES` (percent), so
@@ -495,6 +538,7 @@ the page.
   first layout of the panes (`onLayoutChange`), and the panes have no transition until the canvas
   is ready, so the first fit is at the final width. The canvas is ready when Svelte Flow is
   initialised and the `fitView` promise resolves (the nodes are measured, the view is fitted).
+  The fit zooms out to `MIN_ZOOM` (0.1) at most, so no node of a long pipeline is cut at the edge.
   Until then, `CanvasCurtain` covers the canvas and the side panel with the look of an empty
   canvas, and the blueprint is `inert`: the user does not see the side panel or the view move.
   The times are in `CURTAIN_TIMES`: nothing for 300 ms, then the logo for 400 ms at least, a
@@ -592,7 +636,9 @@ the page.
   editor. The places do not change the version of the pipeline.
 - **Limits of the server:** 256 places in a request (a longer request is refused whole), 1,000,000
   at most on each axis, whole numbers. `withinLimit` and `toNodePlace` apply them. A node with no
-  place gets an automatic place. A read-only canvas saves nothing.
+  place gets an automatic place. A graph with repeated ids saves nothing. A `locked` graph (a
+  file pipeline) saves its places: they are not in the file and do not change the version. A
+  reader without `UPDATE_PIPELINE` moves the nodes for the visit only.
 - Largest module in the codebase — respect the ~150-line component rule. New editor UI goes in
   the folder of `ui/editor/blueprint/` that has its responsibility (`canvas/`, `catalog/`,
   `palette-drag/`, `side-panel/`), new list UI in `ui/dashboard/PipelineTable/`. A field of a
@@ -621,6 +667,10 @@ the page.
   document again. The repository keeps the new version, so the next save of the nodes is not a
   conflict. Only an agent with each label runs the jobs; a job keeps the labels of its creation.
   A file pipeline asks its labels with the key `agent` of its file: `FilePanel` shows them.
+  The create page has the same popover (`CREATE_PIPELINE`), with no Save labels: the page keeps
+  the labels, and Create sends them with the nodes (`SavePipelineInput.agentLabels`). Thus the
+  pipeline has its labels before its first job. The JSON document of the editor holds the name
+  and the nodes only; Export writes the labels in the key `agent` of the file.
 - **A file pipeline is read only, on a page of its own** (`pipelines/:pipelineId`, `READ_PIPELINE`:
   the route `get_file_pipeline` is in the catalog cell of `get_pipeline`). The list opens it
   with View (`goToFilePipeline`), and the edit page of a file pipeline redirects to it. For an
@@ -628,20 +678,46 @@ the page.
   under `pipelines/:pipelineId` (jobs, a job, triggers) links here for each source. It is the
   only crumb that names the pipeline there: the crumb of the jobs is "Jobs" only. The page
   is the editor page with no edit: `PipelineBlueprint` gets `locked` (the blueprint is
-  `readOnly` and saves no place), a `notice` in place of the notice of the repeated ids, and a
-  `sidePanel` in place of the palette (`FilePanel`: the rules of `on` and the checkout, or the
-  errors of the file). The Scripting tab shows the text of the file with the colors of its
+  `readOnly`: a click opens a node, a drag or Arrange saves the places), a `notice` in place of
+  the notice of the repeated ids, and a `sidePanel(blueprint)` in place of the palette
+  (`FilePanel`: `FileSettings` with the rules of `on`, the checkout, the agent, the list of the
+  nodes, or the errors of the file; `FileNodePanel` for an inspected node, each field from
+  `nodeDetails`, with a Copy of its script and a way back). The Scripting tab shows the text of the file with the colors of its
   format, read only. The branch picker reads the file at another ref
   (`pipelineQueries.file`, keyed under `PIPELINE_QUERY_KEY`). When the file has errors (not
   warnings) or cannot be read (none on the branch: `NOT_FOUND`), the graph shows the saved
   pipeline, faded (`dimmed`): the server keeps the last valid version of the default branch. The
-  file query shows its own error (`showsOwnError`). A Schedule or a webhook of Scylla stays in
-  the triggers page.
+  file query shows its own error (`showsOwnError`). The start node opens the triggers: the
+  ones of `on` read only, and the schedules and webhooks of Scylla.
 - **The list says the state of a file** under the name of a row (`originNote`): the number of
   errors on the default branch, a file that left the default branch, an archived editor
-  pipeline. The default branch comes from the link of the project (`repositoryLinkQueries` of
+  pipeline, an editor pipeline whose key a file took (`keyTakenAt`: it runs, and sends no check).
+  The default branch comes from the link of the project (`repositoryLinkQueries` of
   `integrations`, which checks `READ_REPOSITORY_LINK`); without it, the text says "the default
   branch".
+- **A project of files keeps its Scylla pipelines** next to the file pipelines, in one list. Each
+  row has a source badge (`PipelineStatus`, "From file" or "Scylla"; the icon only on a phone)
+  when the project takes its pipelines from the files, and a file row has it in each project.
+  An editor pipeline that an older server archived comes back when the source of the project goes
+  to the editor, then to the files again: the archived note says it.
+- **A file and a Scylla pipeline never share a key** (`scylla/<key>`, the name of their check).
+  The server refuses a new name whose key a file has (`PIPELINE_KEY_TAKEN`); a file that comes
+  later takes the key (`keyTakenAt`). The editor checks it first in a project of files:
+  `createPipelineKeyCheck` reads `pipelineQueries.fileKeys` (only then), and the name field shows
+  the file in its popover. Such a name is applied, and Create or Save stays off while it stays. A
+  rename keeps its own key (`savedName`). `pipelineKey` copies the rule of the server; the server
+  stays the judge of the letters out of ASCII.
+- **The export opens from a link**: `?export=file` on the edit page (`goToEditPipeline(id, name,
+  { exportFile: true })`, the "Export to file" button of a merge rule). Closing it removes the
+  parameter. The dialog says which key the file takes and that its check moves to the file
+  pipeline.
+- **The Git events of a Scylla pipeline in a project of files wait for an admin.** Its push, pull
+  request and tag triggers start runs only after `SetPipelineGitEvents` (`SET_PIPELINE_GIT_EVENTS`,
+  a workspace admin; the area `git_events` of the roles). `createGitEvents` reads the link and
+  the pipeline from their cache entries, and asks before each change (`GitEventsDialog`: the
+  warning that nobody reviews the pipeline in a pull request, or the confirm of a revoke).
+  `gitEventsMutations.set` writes the new origin into the cached pipeline. The triggers pages
+  read them through the barrel; a member sees the reason and no action.
 - **Run asks for a commit only with a linked repository** (`createRunRequest`). Without a link, or
   while the link loads, Run runs at once, as before. The dialog offers the branches and the tags
   (`ListRefs`, the default branch first and chosen) and a row to type a SHA (7 to 40 hex). The

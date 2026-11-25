@@ -1,6 +1,7 @@
 <script lang="ts">
   import KeyRoundIcon from '@lucide/svelte/icons/key-round';
   import PlayIcon from '@lucide/svelte/icons/play';
+  import SearchIcon from '@lucide/svelte/icons/search';
   import ServerIcon from '@lucide/svelte/icons/server';
   import ShieldIcon from '@lucide/svelte/icons/shield';
   import UsersIcon from '@lucide/svelte/icons/users';
@@ -24,6 +25,7 @@
     secret: KeyRoundIcon,
     role: ShieldIcon,
     users: UsersIcon,
+    search: SearchIcon,
   } as const;
 
   const Icon = $derived(ICONS[icon]);

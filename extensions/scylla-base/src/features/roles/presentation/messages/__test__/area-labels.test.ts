@@ -31,6 +31,7 @@ const SERVER_AREAS = [
   'dashboards',
   'library',
   'integrations',
+  'git_events',
   'project',
   'project_members',
   'pipelines',

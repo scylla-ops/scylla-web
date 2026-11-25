@@ -13,9 +13,9 @@ import type { RoutePermission } from '../extension/register.struct.ts';
 import type { WidgetPoint } from '../widgets/widget-points.struct.ts';
 import type { BreadcrumbFn } from './crumb.struct.ts';
 import type { MountDefinition } from './mount.struct.ts';
-import type { RouteMount, RouteParams } from './route.struct.ts';
+import type { RouteMount, RouteParams, RouteShare } from './route.struct.ts';
 
-export type { RouteMount, RouteParams };
+export type { RouteMount, RouteParams, RouteShare };
 
 export type PageComponent = Component<RouteParams> | Component<Record<string, never>>;
 
@@ -75,6 +75,8 @@ export interface ModuleRoute {
    * Any other change of the URL mounts the page again.
    */
   inPageParams?: readonly string[];
+  /** The share button of the top bar, on this page only: a child route declares its own. */
+  share?: RouteShare;
   children?: readonly ModuleRoute[];
 }
 

@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   MAX_CUSTOM_DAYS,
+  bucketPeriod,
   customPeriodFrom,
   customPeriodIssue,
   periodRange,
@@ -109,5 +110,33 @@ describe('customPeriodIssue', () => {
 
     expect(customPeriodIssue(from, today, today)).toBe('too-long');
     expect(customPeriodIssue(addDays(from, 1), today, today)).toBeNull();
+  });
+});
+
+describe('bucketPeriod', () => {
+  it('gives the day of a bar of one day, in the zone of the workspace', () => {
+    expect(bucketPeriod('2026-11-11T23:00:00Z', 'day', PARIS, '2026-11-17')).toEqual({
+      kind: 'custom',
+      from: '2026-11-12',
+      to: '2026-11-12',
+    });
+  });
+
+  it('gives the seven days of a bar of one week, and stops at today', () => {
+    expect(bucketPeriod('2026-11-01T23:00:00Z', 'week', PARIS, '2026-11-17')).toEqual({
+      kind: 'custom',
+      from: '2026-11-02',
+      to: '2026-11-08',
+    });
+    expect(bucketPeriod('2026-11-15T23:00:00Z', 'week', PARIS, '2026-11-17')).toEqual({
+      kind: 'custom',
+      from: '2026-11-16',
+      to: '2026-11-17',
+    });
+  });
+
+  it('gives no period for a bar of one hour or a bar after today', () => {
+    expect(bucketPeriod('2026-11-17T08:00:00Z', 'hour', PARIS, '2026-11-17')).toBeNull();
+    expect(bucketPeriod('2026-11-18T08:00:00Z', 'day', PARIS, '2026-11-17')).toBeNull();
   });
 });

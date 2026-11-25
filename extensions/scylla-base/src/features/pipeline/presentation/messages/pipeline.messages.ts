@@ -61,14 +61,20 @@ export const pipelineMessages = {
     msg`${plural(count, { one: '# agent label', other: '# agent labels' })}`,
   saveLabels: msg`Save labels`,
   agentLabelsSaved: msg`Agent labels saved`,
+  agentLabelsWithCreate: msg`Create saves these labels with the pipeline.`,
+  gitEventsAllowed: msg`Git events allowed`,
+  gitEventsStopped: msg`Git events stopped`,
 
   deleteEdge: msg`Delete edge`,
   unnamedPipeline: msg`Unnamed`,
 
   pipelineName: msg`Pipeline name`,
   namePlaceholder: msg`e.g., my-pipeline`,
-  noSpaces: msg`The name cannot contain spaces.`,
+  nameTooLong: (max: number) => msg`The name cannot be longer than ${max} characters.`,
+  nameOneLine: msg`The name must be on one line.`,
   nameRequired: msg`The pipeline needs a name.`,
+  keyTaken: (path: string, key: string) =>
+    msg`The file ${path} already uses the key ${key}. Choose another name.`,
   invalidNodeIds: (ids: string) => msg`Fix the ID of these nodes before you save: ${ids}`,
   repeatedNodeIds: (ids: string) =>
     msg`Two nodes or more have the ID ${ids}. Give each node its own ID before you save.`,

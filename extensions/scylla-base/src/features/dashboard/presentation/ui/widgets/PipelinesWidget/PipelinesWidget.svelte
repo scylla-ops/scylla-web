@@ -9,9 +9,11 @@
   import { pipelinesMessages as messages } from '@base/features/dashboard/presentation/messages/pipelines.messages.ts';
   import { pipelineRows, type PipelineRow } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS, type DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { openJob, openPipelineJobs } from '../widget-navigation.ts';
+  import { jobMarkLink, pipelineJobsLink } from '../widget-navigation.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
   import PipelineTable from './PipelineTable.svelte';
   import PipelinesSheet from './PipelinesSheet.svelte';
 
@@ -81,12 +83,12 @@
           {#each failing as row (row.id)}
             <li class="flex h-5 min-w-0 items-center gap-2">
               <ChartDot tone={dotTone(row)} />
-              <button type="button" class="min-w-0 flex-1 truncate text-left text-sm font-medium hover:underline" onclick={() => openPipelineJobs(row)}>
+              <WidgetLink link={pipelineJobsLink(row)} title={t(linkMessages.openJobs)} class="min-w-0 flex-1 truncate text-sm font-medium">
                 {row.name}
-              </button>
+              </WidgetLink>
               <span class="flex h-3 shrink-0 gap-0.5" role="group" aria-label={t(messages.lastRuns(SMALL_RUNS))}>
                 {#each row.runs.slice(-SMALL_RUNS) as mark (mark.jobId)}
-                  <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[5px] rounded-[1px]" onSelect={() => openJob(mark)}>
+                  <JobRunMark run={mark.run} duration={mark.seconds} class="h-full w-[5px] rounded-[1px]" {...jobMarkLink(mark)}>
                     <ChartSegment tone={mark.tone} class="size-full rounded-[1px]" />
                   </JobRunMark>
                 {/each}

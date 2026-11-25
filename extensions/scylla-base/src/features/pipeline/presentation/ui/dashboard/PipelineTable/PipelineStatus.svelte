@@ -1,4 +1,7 @@
 <script lang="ts">
+  import FileCodeIcon from '@lucide/svelte/icons/file-code';
+  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
+  import WorkflowIcon from '@lucide/svelte/icons/workflow';
   import type { PipelineHistory } from '@base/features/jobs';
   import { CopyableText, StatusShape } from '@scylla/ui';
   import {
@@ -15,7 +18,11 @@
   import { formatDuration, getRelativeTime } from '@shared/utils/date-utils.ts';
   import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
-  import type { PipelineMetadata } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+  import type {
+    PipelineMetadata,
+    PipelineSource,
+  } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
+  import { fileMessages } from '@base/features/pipeline/presentation/messages/file.messages.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
   import type { RowNote } from '@base/features/pipeline/presentation/presenters/pipeline-file.presenter.ts';
   import {
@@ -32,11 +39,15 @@
     count: number;
     /** The state of the file of a file pipeline, or why the pipeline is read only. */
     note?: RowNote | null;
+    /** The source badge, in a list with the two sources. `null`: no badge. */
+    source?: PipelineSource | null;
     /** Makes the name a link. A click on it opens the pipeline and does not select the row. */
     onOpen?: () => void;
   }
 
-  let { pipeline, history, count, note, onOpen }: Props = $props();
+  let { pipeline, history, count, note, source = null, onOpen }: Props = $props();
+
+  const SourceIcon = $derived(source === 'file' ? FileCodeIcon : WorkflowIcon);
 
   const lastJob = $derived(history?.jobs[0]);
   const isRunning = $derived(lastJob?.status === 'running');
@@ -62,7 +73,7 @@
   <HoverCard openDelay={300} closeDelay={150}>
     <HoverCardTrigger>
       {#snippet child({ props })}
-        <div {...props} class="flex w-39 min-w-0 flex-col items-start gap-0.5 text-left">
+        <div {...props} class="flex w-52 min-w-0 flex-col items-start gap-0.5 text-left">
           <div class="flex h-5 max-w-full min-w-0 items-center gap-1.5">
             {#if onOpen}
               <button
@@ -78,6 +89,15 @@
             {:else}
               <span class="min-w-0 truncate font-semibold text-foreground">{pipeline.name}</span>
             {/if}
+            {#if source}
+              <!-- A phone shows the icon only; the name stays for a screen reader. -->
+              <Badge variant="outline" class="h-4.5 text-muted-foreground" data-source={source}>
+                <SourceIcon aria-hidden="true" />
+                <span class="[text-box:trim-both_cap_alphabetic] max-sm:sr-only">
+                  {t(source === 'file' ? fileMessages.fromFile : fileMessages.scylla)}
+                </span>
+              </Badge>
+            {/if}
             {#if note}
               <Tooltip>
                 <TooltipTrigger>
@@ -88,6 +108,7 @@
                       variant={note.tone === 'error' ? 'destructive' : 'warning'}
                       class="h-4.5"
                     >
+                      {#if note.tone === 'warning'}<TriangleAlertIcon aria-hidden="true" />{/if}
                       <span class="[text-box:trim-both_cap_alphabetic]">{note.badge}</span>
                     </Badge>
                   {/snippet}

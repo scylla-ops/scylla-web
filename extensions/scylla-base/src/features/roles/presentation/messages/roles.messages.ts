@@ -257,6 +257,10 @@ export const areaLabels: Record<string, { title: MessageDescriptor; hint: Messag
   dashboards: { title: msg`Dashboards`, hint: msg`Saved layouts of widgets, and the team default` },
   library: { title: msg`Library`, hint: msg`Reusable pipeline fragments of the workspace` },
   integrations: { title: msg`Integrations`, hint: msg`Connections to GitHub and GitLab` },
+  git_events: {
+    title: msg`Git events`,
+    hint: msg`Push, pull request and tag of a Scylla pipeline in a project of files`,
+  },
   job_execution: { title: msg`Job execution`, hint: msg`Run takes a job. Edit reports its state` },
   project: { title: msg`Project`, hint: msg`Name and settings` },
   project_members: { title: msg`Project members`, hint: msg`Who has a role on the project` },
@@ -274,6 +278,10 @@ export const areaLabels: Record<string, { title: MessageDescriptor; hint: Messag
 /** The full names of the permissions that their area and their action do not name well. */
 export const cellLabels: Record<string, { title: MessageDescriptor; hint?: MessageDescriptor }> = {
   'git_providers.manage': { title: msg`Manage Git providers` },
+  'git_events.manage': {
+    title: msg`Allow Git events`,
+    hint: msg`Let the pushes, pull requests and tags of the repository start a Scylla pipeline in a project of files. Nobody reviews such a pipeline in a pull request.`,
+  },
   'jobs.approve': {
     title: msg`Approve fork runs`,
     hint: msg`Approve or reject a run of a pull request from a fork. Such a run never gets the secrets.`,

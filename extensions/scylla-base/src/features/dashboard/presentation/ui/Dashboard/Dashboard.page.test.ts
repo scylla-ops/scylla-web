@@ -238,6 +238,31 @@ describe('DashboardPage', () => {
     expect(await within(pipelines).findByText('0 of 1 green')).toBeInTheDocument();
   });
 
+  it('opens the page of a pipeline, a job or an item with a real link, and names its project first', async () => {
+    const user = userEvent.setup();
+    render(DashboardPage);
+
+    const job = '/acme/projects/project-1/pipelines/pipeline-1/jobs/job-0000failed';
+    const pipelines = await screen.findByRole('region', { name: 'Pipelines' });
+    const name = await within(pipelines).findByRole('link', { name: /^deploy-web/ });
+    expect(name).toHaveAttribute('href', '/acme/projects/project-1/pipelines/pipeline-1/jobs');
+    expect(name).toHaveAttribute('title', 'Open the jobs of this pipeline');
+    expect(within(pipelines).getByRole('link', { name: /^Job 00failed/ })).toHaveAttribute('href', job);
+
+    const needsYou = screen.getByRole('region', { name: 'Needs you' });
+    expect(await within(needsYou).findByRole('link', { name: /^deploy-web/ })).toHaveAttribute('href', job);
+
+    const followed = (event: MouseEvent) => event.preventDefault();
+    window.addEventListener('click', followed);
+    try {
+      await user.click(name);
+    } finally {
+      window.removeEventListener('click', followed);
+    }
+    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'Acme project' });
+    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'deploy-web' });
+  });
+
   it('asks the live jobs with no period, and the job ends of the period', async () => {
     render(DashboardPage);
 
@@ -524,5 +549,36 @@ describe('The edit mode', () => {
     await vi.waitFor(() => expect(panel().getByText('Changed elsewhere')).toBeInTheDocument());
     expect(server.dashboards[0].widgets).toHaveLength(12);
     expect(server.dashboards[0].version).toBe(7);
+  });
+});
+
+describe('The share link', () => {
+  const widgets = [{ id: 'w1', data: 'success-rate' as const, size: 's' as const }];
+  const openOn = (visibility: 'private' | 'workspace') => {
+    server.dashboards = [
+      { id: 'dash-7', name: 'Release day', widgets, version: 3, visibility, teamDefault: false },
+    ];
+    installTestNavigator({
+      pathname: '/acme/dashboard',
+      search: '?period=7d',
+      params: { workspaceSlug: 'acme' },
+    });
+    render(DashboardPage);
+  };
+
+  it('links to the dashboard by its id, not to the default of each person, and keeps the period', async () => {
+    openOn('workspace');
+
+    await vi.waitFor(() =>
+      expect(dashboardView.shareUrl).toBe(`${window.location.origin}/acme/dashboards/dash-7?period=7d`),
+    );
+  });
+
+  it('gives no link to a private dashboard: no other person can open it', async () => {
+    openOn('private');
+
+    // The one widget of the dashboard of the server, not the twelve of the first layout.
+    await vi.waitFor(() => expect(screen.getAllByRole('region')).toHaveLength(1));
+    expect(dashboardView.shareUrl).toBeNull();
   });
 });

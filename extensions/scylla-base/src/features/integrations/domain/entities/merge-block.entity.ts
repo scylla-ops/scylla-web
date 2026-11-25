@@ -1,3 +1,5 @@
+import type { PipelineSource } from './repository-link.entity.ts';
+
 export type MergeBlockState =
   'off' | 'applying' | 'on' | 'needs_permission' | 'not_possible' | 'out_of_sync' | 'failed';
 
@@ -19,6 +21,11 @@ export interface MergeBlock {
   /** Where a person grants the permission or changes the rule on the provider. */
   actionUrl: string;
   updatedAt: string;
+  /**
+   * Where the pipeline of the rule comes from. In a project of files, only a file pipeline gets a
+   * new rule. Absent for the rule of the project on GitLab, and from an older server.
+   */
+  pipelineSource?: PipelineSource;
 }
 
 export interface SetMergeBlockInput {

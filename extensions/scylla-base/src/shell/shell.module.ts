@@ -5,6 +5,7 @@ import WorkspaceSelector from './presentation/layout/ui/context-selector/Workspa
 import LaunchOverlays from './presentation/layout/ui/LaunchOverlays/LaunchOverlays.svelte';
 import ServiceBanner from './presentation/layout/ui/ServiceBanner/ServiceBanner.svelte';
 import ConsentHost from './presentation/layout/ui/ConsentHost/ConsentHost.svelte';
+import { whatsNewCommands } from './presentation/layout/whats-new.commands.ts';
 import { languageCommands } from './presentation/layout/language.commands.ts';
 import { layoutMessages } from './presentation/layout/messages/layout.messages.ts';
 import AdminBar from './presentation/layout/ui/AdminBar/AdminBar.svelte';
@@ -24,7 +25,7 @@ import ContextCleanerWrapper from './presentation/router/ContextCleaner.wrapper.
 import NotFoundPage from './presentation/router/NotFound/NotFound.page.svelte';
 import WorkspaceSyncWrapper from './presentation/router/WorkspaceSync.wrapper.svelte';
 import PersonalLayout from './presentation/router/PersonalLayout/PersonalLayout.svelte';
-import { breadcrumbParams, linkParams } from './presentation/shell-params.ts';
+import { breadcrumbParams, linkParams, shareHint } from './presentation/shell-params.ts';
 
 /**
  * The frame around the Scylla pages: the mounts that the feature modules graft
@@ -119,8 +120,9 @@ export const ShellModule = {
     secondSidebarLinks: projectLinks,
     breadcrumbParams,
     linkParams,
+    shareHint,
   },
-  commands: languageCommands,
+  commands: [...languageCommands, ...whatsNewCommands],
   onQueryError: reportQueryError,
   onQueryRetry: retryQueryError,
   fallback: NotFoundPage,

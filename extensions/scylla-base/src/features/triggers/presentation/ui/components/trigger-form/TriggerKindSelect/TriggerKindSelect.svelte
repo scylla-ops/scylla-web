@@ -22,15 +22,31 @@
 
   interface Props {
     value: TriggerDraftKind;
-    /** Why the Git kinds are off: no linked repository, or a pipeline file gives them. */
-    gitOff?: 'noLink' | 'fromFile';
+    /**
+     * Why the Git kinds are off: no linked repository, a pipeline file gives them, or an editor
+     * pipeline of a project of files waits for the opt-in of an admin.
+     */
+    gitOff?: 'noLink' | 'fromFile' | 'notAllowed';
     provider?: VcsProvider;
     disabled?: boolean;
     onChange: (kind: TriggerDraftKind) => void;
     onLinkRepository: () => void;
+    /** An admin allows the Git events here: the members read why the kinds are off. */
+    onAllowGitEvents?: () => void;
   }
 
-  let { value, gitOff, provider, disabled = false, onChange, onLinkRepository }: Props = $props();
+  let {
+    value,
+    gitOff,
+    provider,
+    disabled = false,
+    onChange,
+    onLinkRepository,
+    onAllowGitEvents,
+  }: Props = $props();
+
+  // The dialog of the opt-in opens once the menu is closed.
+  let open = $state(false);
 
   const OTHER_KINDS = [
     { kind: 'cron', label: triggersMessages.kindSchedule },
@@ -59,6 +75,7 @@
     {value}
     {items}
     {disabled}
+    bind:open
     onValueChange={next => onChange(next as TriggerDraftKind)}
   >
     <SelectTrigger id="trigger-kind" class="w-full">
@@ -79,6 +96,24 @@
             {t(triggersMessages.linkRepositoryFirst)}
             <ArrowRightIcon />
           </Button>
+        </div>
+      {:else if gitOff === 'notAllowed'}
+        <div class="flex flex-col items-start gap-1 px-2 pt-1 pb-1.5">
+          <p class="text-xs text-muted-foreground">{t(triggersMessages.gitNotAllowed)}</p>
+          {#if onAllowGitEvents}
+            <Button
+              variant="link"
+              size="xs"
+              class="px-0"
+              onclick={() => {
+                open = false;
+                onAllowGitEvents();
+              }}
+            >
+              {t(triggersMessages.allowGitEvents)}
+              <ArrowRightIcon />
+            </Button>
+          {/if}
         </div>
       {:else if gitOff === 'fromFile'}
         <p class="px-2 pt-1 pb-1.5 text-xs text-muted-foreground">

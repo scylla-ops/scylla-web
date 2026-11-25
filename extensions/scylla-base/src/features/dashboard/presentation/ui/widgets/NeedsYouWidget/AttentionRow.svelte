@@ -8,9 +8,12 @@
     attentionError,
     attentionJob,
     attentionLabel,
+    attentionOpens,
     attentionTitle,
     attentionWhen,
   } from '@base/features/dashboard/presentation/presenters/attention.presenter.ts';
+  import { attentionLink } from '../widget-navigation.ts';
+  import WidgetLink from '../parts/WidgetLink.svelte';
   import AttentionActions from './AttentionActions.svelte';
 
   interface Props {
@@ -29,7 +32,9 @@
   </span>
   <div class="flex min-w-0 flex-1 flex-col gap-0.5">
     <p class="flex min-w-0 items-center gap-1.5">
-      <span class="truncate text-sm font-medium">{attentionTitle(item)}</span>
+      <WidgetLink link={attentionLink(item)} title={attentionOpens(item)} class="truncate text-sm font-medium">
+        {attentionTitle(item)}
+      </WidgetLink>
       {#if item.projectName}<span class="shrink-0 text-xs text-muted-foreground">{item.projectName}</span>{/if}
       {#if item.isNew}<span class="shrink-0 text-xs font-medium text-primary">{t(messages.newMark)}</span>{/if}
       <span class="ml-auto shrink-0 pl-2 text-xs text-muted-foreground tabular-nums">

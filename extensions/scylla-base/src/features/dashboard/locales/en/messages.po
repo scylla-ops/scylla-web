@@ -335,11 +335,11 @@ msgstr "1 problem"
 msgid "1 thing"
 msgstr "1 thing"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:16
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:17
 msgid "14 d"
 msgstr "14 d"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:14
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:15
 msgid "24 h"
 msgstr "24 h"
 
@@ -352,11 +352,11 @@ msgstr "24 h"
 msgid "24 hours"
 msgstr "24 hours"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:17
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:18
 msgid "30 d"
 msgstr "30 d"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:15
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:16
 msgid "7 d"
 msgstr "7 d"
 
@@ -514,7 +514,7 @@ msgstr "all online"
 msgid "All projects"
 msgstr "All projects"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:22
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:23
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/editor.messages.ts:57
 msgid "Apply"
 msgstr "Apply"
@@ -660,11 +660,11 @@ msgstr "Choose a pipeline"
 msgid "Choose an agent"
 msgstr "Choose an agent"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:25
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:26
 msgid "Choose one year or less."
 msgstr "Choose one year or less."
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:19
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:20
 msgid "Choose the days"
 msgstr "Choose the days"
 
@@ -736,7 +736,7 @@ msgstr "cron"
 msgid "Current dashboard"
 msgstr "Current dashboard"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:18
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:19
 msgctxt "period"
 msgid "Custom"
 msgstr "Custom"
@@ -986,7 +986,7 @@ msgctxt "schedules"
 msgid "fired"
 msgstr "fired"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:20
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:21
 msgid "First day"
 msgstr "First day"
 
@@ -1131,7 +1131,7 @@ msgstr "Last 24 hours"
 msgid "Last 30 days"
 msgstr "Last 30 days"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:21
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:22
 msgid "Last day"
 msgstr "Last day"
 
@@ -1584,6 +1584,46 @@ msgstr "Open agent"
 msgid "open now"
 msgstr "open now"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:8
+msgctxt "widget link"
+msgid "Open the agent"
+msgstr "Open the agent"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:9
+msgctxt "widget link"
+msgid "Open the agents"
+msgstr "Open the agents"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:11
+msgctxt "widget link"
+msgid "Open the integrations"
+msgstr "Open the integrations"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:5
+msgctxt "widget link"
+msgid "Open the job"
+msgstr "Open the job"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:6
+msgctxt "widget link"
+msgid "Open the jobs of this pipeline"
+msgstr "Open the jobs of this pipeline"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:13
+msgctxt "widget link"
+msgid "Open the logs of {node} in the newest job"
+msgstr "Open the logs of {node} in the newest job"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:10
+msgctxt "widget link"
+msgid "Open the project"
+msgstr "Open the project"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:7
+msgctxt "widget link"
+msgid "Open the triggers of this pipeline"
+msgstr "Open the triggers of this pipeline"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:6
 msgid "Ops overview"
 msgstr "Ops overview"
@@ -1710,7 +1750,7 @@ msgctxt "bars"
 msgid "per week"
 msgstr "per week"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:13
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:14
 msgid "Period"
 msgstr "Period"
 
@@ -2045,6 +2085,16 @@ msgstr "Shortcuts to the actions"
 msgid "Show"
 msgstr "Show"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:15
+msgctxt "widget link"
+msgid "Show {day} on the dashboard"
+msgstr "Show {day} on the dashboard"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:17
+msgctxt "widget link"
+msgid "Show the week of {day} on the dashboard"
+msgstr "Show the week of {day} on the dashboard"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/activity.messages.ts:6
 msgctxt "activity"
 msgid "since {time}"
@@ -2192,7 +2242,7 @@ msgstr "the deliveries of 24 h and the failures"
 msgid "the failed jobs of each pipeline"
 msgstr "the failed jobs of each pipeline"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:23
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:24
 msgid "The first day is after the last day."
 msgstr "The first day is after the last day."
 
@@ -2200,7 +2250,7 @@ msgstr "The first day is after the last day."
 msgid "the jobs of each weekday and hour"
 msgstr "the jobs of each weekday and hour"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:24
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:25
 msgid "The last day is in the future."
 msgstr "The last day is in the future."
 
@@ -2303,13 +2353,13 @@ msgstr "Time missed · {when}"
 msgid "Timeline"
 msgstr "Timeline"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:13
+msgid "Times in {timeZone} ({offset})"
+msgstr "Times in {timeZone} ({offset})"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:12
 msgid "Times in UTC"
 msgstr "Times in UTC"
-
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/dashboard.messages.ts:12
-msgid "Times in {timeZone} ({offset})"
-msgstr "Times in {timeZone} ({offset})"
 
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/widgets.messages.ts:15
 msgid "today"

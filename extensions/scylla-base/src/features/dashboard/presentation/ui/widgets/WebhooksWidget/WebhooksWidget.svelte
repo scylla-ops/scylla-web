@@ -14,7 +14,10 @@
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { integrationsLink, triggersLink, type LinkTarget } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -38,6 +41,8 @@
     detail: string;
     delivered: number;
     failed: number;
+    /** The Integrations page for a connection, the triggers of its pipeline for a trigger. */
+    link: LinkTarget | null;
   }
 
   const rows = $derived<Row[]>([
@@ -48,6 +53,7 @@
       detail: item.account ? t(messages.repositories(item.account, item.repositoryCount)) : '',
       delivered: item.delivered,
       failed: item.failed,
+      link: { ...integrationsLink(), title: t(linkMessages.openIntegrations) },
     })),
     ...(stats?.triggers ?? []).map(item => ({
       id: item.id,
@@ -56,6 +62,7 @@
       detail: t(messages.webhookTrigger(item.pipelineName)),
       delivered: item.delivered,
       failed: item.failed,
+      link: triggersLink(item),
     })),
   ]);
   const shown = $derived(rows.slice(0, ROWS[size]));
@@ -103,7 +110,7 @@
     {#each shown as row (row.id)}
       <li class="flex h-5 min-w-0 items-center gap-2">
         {@render mark(row)}
-        <span class="shrink-0 text-sm font-medium">{row.name}</span>
+        <WidgetLink link={row.link} title={row.link?.title ?? t(linkMessages.openTriggers)} class="shrink-0 text-sm font-medium">{row.name}</WidgetLink>
         <span class="min-w-0 flex-1 truncate text-xs text-muted-foreground">{row.detail}</span>
         <span class="flex h-1 w-[120px] shrink-0 gap-0.5" aria-hidden="true">
           <ChartSegment tone="passed" class="h-full rounded-full" style="width: {(row.delivered / most) * 100}%" />
@@ -162,7 +169,7 @@
             {#each shown as row (row.id)}
               <li class="flex h-5 min-w-0 items-center gap-2">
                 {@render mark(row)}
-                <span class="truncate text-sm font-medium">{row.name}</span>
+                <WidgetLink link={row.link} title={row.link?.title ?? t(linkMessages.openTriggers)} class="truncate text-sm font-medium">{row.name}</WidgetLink>
                 <span class={cn('ml-auto shrink-0 text-xs font-medium tabular-nums', row.failed > 0 && 'text-status-failed')}>
                   {formatNumber(row.delivered)}
                 </span>

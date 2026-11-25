@@ -46,6 +46,7 @@ const undoTheme = vi.fn();
 let theme = 'dark';
 const setToggle = vi.fn();
 const signOut = vi.fn();
+const openWhatsNew = vi.fn();
 
 const COMMANDS: CommandDefinition[] = [
   {
@@ -99,6 +100,14 @@ const COMMANDS: CommandDefinition[] = [
     verb: msg`Sign out`,
     question: msg`Sign out of Scylla?`,
     run: signOut,
+  },
+  {
+    id: 't.whats-new',
+    kind: 'action',
+    title: msg`What's new`,
+    keywords: msg`release notes`,
+    icon: FolderIcon,
+    run: openWhatsNew,
   },
   {
     id: 't.jobs',
@@ -264,12 +273,12 @@ describe('CommandBar', () => {
       expect(within(row).getByText('Go to')).toBeInTheDocument();
     });
 
-    it('shows in bold the letters that matched', async () => {
+    it('underlines the letters that matched', async () => {
       const input = await open();
       await user().type(input, 'age');
 
       const row = await option('Go to the page Agents (Machines).');
-      expect(row.querySelector('strong')).toHaveTextContent('Age');
+      expect(row.querySelector('.underline')).toHaveTextContent('Age');
     });
 
     it('gives the full sentence of the highlighted row in the footer', async () => {
@@ -418,6 +427,20 @@ describe('CommandBar', () => {
     await user().type(input, 'agents');
 
     expect(await option('Go to the page Agents (Machines).')).toHaveClass('cursor-pointer');
+  });
+
+  describe('a plain action', () => {
+    it('runs the function at once and closes the bar', async () => {
+      const input = await open();
+      const typing = user();
+      await typing.type(input, 'whats');
+      await option(/What's new/);
+      await waitFor(() => expect(selected()).toMatch(/What's new/));
+      await typing.keyboard('{Enter}');
+
+      await waitFor(() => expect(openWhatsNew).toHaveBeenCalledOnce());
+      await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+    });
   });
 
   describe('an action with a confirmation', () => {
@@ -720,6 +743,27 @@ describe('CommandBar', () => {
       expect(JSON.parse(localStorage.getItem('scylla-command-bar-recent:w1') ?? '[]')).toEqual([
         'page:workspace/agents',
       ]);
+    });
+
+    it('shows examples to try, and a click on one fills the field', async () => {
+      const input = await open();
+
+      expect(await screen.findByText('Try a search')).toBeInTheDocument();
+      await user().click(screen.getByRole('button', { name: 'agnts' }));
+
+      expect(input).toHaveValue('agnts');
+      expect(screen.queryByText('Try a search')).not.toBeInTheDocument();
+    });
+
+    it('stops the examples after three picks in this workspace', async () => {
+      localStorage.setItem(
+        'scylla-command-bar-recent:w1',
+        JSON.stringify(['page:workspace/agents', 'page:workspace/apps', 'page:account/appearance']),
+      );
+      await open();
+
+      expect(await screen.findByText('Recent')).toBeInTheDocument();
+      expect(screen.queryByText('Try a search')).not.toBeInTheDocument();
     });
 
     it('reads a recent row from the list of this workspace', async () => {

@@ -15,9 +15,11 @@ export {
   type ResourceErrorOptions,
 } from './resource-error.state.svelte.ts';
 export { contextStore } from './context.store.ts';
+export { createSearchParams } from './search-params.state.svelte.ts';
 export {
   activeWorkspaceSlug,
   workspaceUrl,
+  scyllaHref,
   scyllaNavigate,
   type ScyllaNavigate,
 } from './scylla-navigate.ts';

@@ -10,16 +10,21 @@
   import { pipelineMessages as messages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
 
   interface Props {
-    pipelineId: string;
-    /** The saved labels. */
+    /** A saved pipeline: Save labels sends its labels at once. */
+    pipelineId?: string;
+    /** The saved labels, or the labels of a new pipeline. */
     labels: readonly string[];
+    /** A new pipeline: each change goes to the labels that Create sends with the nodes. */
+    onChange?: (labels: string[]) => void;
     disabled?: boolean;
   }
 
-  let { pipelineId, labels, disabled = false }: Props = $props();
+  let { pipelineId, labels, onChange, disabled = false }: Props = $props();
 
-  const save = createMutation(() => pipelineMutations.setAgentLabels(pipelineId));
-  const canEdit = $derived(can(Permission.UPDATE_PIPELINE));
+  const save = createMutation(() => pipelineMutations.setAgentLabels(pipelineId ?? ''));
+  const canEdit = $derived(
+    can(pipelineId ? Permission.UPDATE_PIPELINE : Permission.CREATE_PIPELINE),
+  );
 
   let open = $state(false);
   let draft = $state<string[]>([]);
@@ -27,7 +32,10 @@
   const submit = () => save.mutate(draft, { onSuccess: () => (open = false) });
 </script>
 
-<!-- The labels save at once, apart from the nodes: the document keeps its unsaved changes. -->
+<!--
+  A saved pipeline: the labels save at once, apart from the nodes, and the document keeps its
+  unsaved changes. A new pipeline: Create sends them, so its first job already asks them.
+-->
 <Popover
   bind:open
   onOpenChange={next => {
@@ -60,7 +68,15 @@
       <h3 class="text-sm">{t(messages.agentLabels)}</h3>
       <p class="text-xs text-muted-foreground">{t(messages.agentLabelsHint)}</p>
     </div>
-    {#if canEdit}
+    {#if canEdit && !pipelineId}
+      <AgentLabelsField
+        {labels}
+        onChange={next => onChange?.(next)}
+        label={t(messages.agentLabels)}
+        autofocus
+      />
+      <p class="text-xs text-muted-foreground">{t(messages.agentLabelsWithCreate)}</p>
+    {:else if canEdit}
       <AgentLabelsField
         labels={draft}
         onChange={next => (draft = next)}

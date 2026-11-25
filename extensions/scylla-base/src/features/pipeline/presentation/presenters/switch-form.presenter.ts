@@ -25,6 +25,9 @@ const TEST_LABELS: Record<SwitchTest, MessageDescriptor> = {
   number_le: nodeMessages.testLessOrEqual,
 };
 
+/** Reads `t()`. */
+export const testLabel = (test: SwitchTest): string => t(TEST_LABELS[test]);
+
 export interface Choice<T extends string> {
   value: T;
   label: string;

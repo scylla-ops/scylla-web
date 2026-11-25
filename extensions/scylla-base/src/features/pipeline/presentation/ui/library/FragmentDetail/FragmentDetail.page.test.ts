@@ -154,4 +154,13 @@ describe('FragmentDetailPage', () => {
       expect.objectContaining({ id: 'f1', version: 1, author: REM }),
     );
   });
+
+  it('shows no separator dot in the byline when the description is empty', async () => {
+    renderPage(own);
+    expect(await screen.findByText('Lint and tests. · by Rem')).toBeInTheDocument();
+    teardown.forEach(restore => restore());
+
+    renderPage({ ...own, description: '' });
+    expect(await screen.findByText('by Rem')).toBeInTheDocument();
+  });
 });

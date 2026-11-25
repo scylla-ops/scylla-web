@@ -200,6 +200,38 @@ describe('createBlueprint', () => {
     });
   });
 
+  it('joins a dropped node after the node it is given, not the start node', () => {
+    withState([execNode('build')], (state, onNodesChange) => {
+      state.addNode('lint', definition, { after: 'build' });
+
+      const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
+      expect(textsOf(published.find(node => node.id === 'lint')?.deps)).toEqual(['build']);
+    });
+  });
+
+  it('adds a dropped node with no edge when it is detached', () => {
+    withState([execNode('build')], state => {
+      state.addNode('lint', definition, { detached: true, position: { x: 5, y: 6 } });
+
+      expect(state.edges.some(edge => edge.target === 'lint' || edge.source === 'lint')).toBe(false);
+      expect(state.isDetached('lint')).toBe(true);
+    });
+  });
+
+  it('undoes one drop on an edge: the node goes, the edge comes back', () => {
+    withState([execNode('build'), execNode('test', ['build'])], (state, onNodesChange) => {
+      const replaced = state.edges.find(edge => edge.id === 'build->test');
+      state.addNode('lint', definition, { replacing: 'build->test' });
+      state.undoAdd('lint', replaced);
+
+      expect(state.flowNodes.some(flowNode => flowNode.id === 'lint')).toBe(false);
+      expect(state.edges.some(edge => edge.id === 'build->test')).toBe(true);
+      const published = onNodesChange.mock.lastCall?.[0] as PipelineNodeEntity[];
+      expect(published.map(node => node.id)).toEqual(['build', 'test']);
+      expect(textsOf(published.find(node => node.id === 'test')?.deps)).toEqual(['build']);
+    });
+  });
+
   it('removes a node with its edges, but never the start node', () => {
     withState([execNode('build'), execNode('test', ['build'])], (state, onNodesChange) => {
       state.removeNode(START_NODE_ID);
@@ -224,12 +256,68 @@ describe('createBlueprint', () => {
     });
   });
 
-  it('never opens the side panel on the start node: the header edits the name', () => {
+  it('opens a node and the start node of a locked graph, and edits nothing', () => {
+    const onNodesChange = vi.fn();
+    const cleanup = $effect.root(() => {
+      const state = createBlueprint({
+        nodes: () => [execNode('build'), execNode('test', ['build'])],
+        pipelineName: () => 'nightly',
+        onNodesChange,
+        locked: () => true,
+      });
+      flushSync();
+
+      state.inspect('test');
+      expect(state.inspected?.id).toBe('test');
+      expect(state.inspectedStart).toBe(false);
+      expect(state.flowNodes.filter(flowNode => flowNode.selected).map(({ id }) => id)).toEqual(['test']);
+
+      state.inspect(START_NODE_ID);
+      expect(state.inspected).toBeUndefined();
+      expect(state.inspectedStart).toBe(true);
+
+      state.updateNode('test', definition);
+      state.removeNode('build');
+      state.addNode('lint', definition);
+      expect(onNodesChange).not.toHaveBeenCalled();
+      expect(state.selecting).toBe(false);
+    });
+    cleanup();
+  });
+
+  it('opens no panel on the start node of a new pipeline: the header edits the name', () => {
     withState([execNode('build')], state => {
       state.inspect('build');
       state.inspect(START_NODE_ID);
       expect(state.inspected).toBeUndefined();
+      expect(state.inspectedStart).toBe(false);
     });
+  });
+
+  it('opens the panel of the start node of a saved pipeline, also with repeated ids', () => {
+    const cleanup = $effect.root(() => {
+      const state = createBlueprint({
+        nodes: () => [execNode('build'), execNode('build')],
+        pipelineName: () => 'nightly',
+        onNodesChange: vi.fn(),
+        startPanel: () => true,
+      });
+      flushSync();
+
+      expect(state.readOnly).toBe(true);
+      state.inspect(START_NODE_ID);
+      expect(state.inspectedStart).toBe(true);
+      expect(state.inspected).toBeUndefined();
+      expect(state.flowNodes.filter(flowNode => flowNode.selected).map(({ id }) => id)).toEqual([
+        START_NODE_ID,
+      ]);
+
+      // A read-only graph that is not locked still opens no node.
+      state.inspect('build');
+      expect(state.inspectedStart).toBe(false);
+      expect(state.inspected).toBeUndefined();
+    });
+    cleanup();
   });
 
   it('never opens the side panel for a selection made on the canvas', () => {
@@ -456,6 +544,7 @@ describe('the places of the canvas', () => {
       places: { connect: ReturnType<typeof vi.fn>; moved: ReturnType<typeof vi.fn> },
     ) => void,
     savedLayout: PipelineLayout | null = null,
+    locked = false,
   ) => {
     const places = { connect: vi.fn(), moved: vi.fn(), waiting: vi.fn() };
     const cleanup = $effect.root(() => {
@@ -465,6 +554,7 @@ describe('the places of the canvas', () => {
         onNodesChange: vi.fn(),
         savedLayout: () => savedLayout,
         places,
+        locked: () => locked,
       });
       flushSync();
       run(state, places);
@@ -500,7 +590,24 @@ describe('the places of the canvas', () => {
     });
   });
 
-  it('saves nothing on a read-only canvas', () => {
+  it('saves the places of a locked graph: a place is not part of the pipeline', () => {
+    withPlaces(
+      [execNode('build')],
+      (state, places) => {
+        const dragged = state.flowNodes.filter(({ id }) => id === 'build');
+        state.placesMoved(dragged);
+        state.arrange();
+
+        expect(state.readOnly).toBe(true);
+        expect(places.moved).toHaveBeenCalledWith(dragged);
+        expect(places.moved).toHaveBeenLastCalledWith(state.flowNodes);
+      },
+      null,
+      true,
+    );
+  });
+
+  it('saves nothing for two nodes with one id: they would share one place', () => {
     withPlaces([execNode('build'), execNode('build')], (state, places) => {
       expect(state.readOnly).toBe(true);
       state.placesMoved(state.flowNodes);

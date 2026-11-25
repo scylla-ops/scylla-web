@@ -16,8 +16,10 @@
   import { periodMeta } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import type { DashboardPeriodState } from '@base/features/dashboard/presentation/ui/dashboard-period.state.svelte.ts';
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { openJob, openPipelineJobs } from '../widget-navigation.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { jobLink, jobMarkLink, pipelineJobsLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
   import { createPipelineWidget } from './pipeline-widget.state.svelte.ts';
 
   interface Props {
@@ -59,9 +61,9 @@
       aria-hidden="true"
       class={cn('size-4 shrink-0', view.tone === 'failed' ? 'text-status-failed' : view.tone === 'passed' ? 'text-status-passed' : 'text-muted-foreground')}
     />
-    <button type="button" class="shrink-0 font-display text-[15px] font-medium hover:underline" onclick={() => summary && openPipelineJobs(summary)}>
+    <WidgetLink link={pipelineJobsLink(summary)} title={t(linkMessages.openJobs)} class="shrink-0 font-display text-[15px] font-medium">
       {summary?.name}
-    </button>
+    </WidgetLink>
     {#if meta}<span class="truncate text-xs text-muted-foreground">{meta}</span>{/if}
     <span class="ml-auto shrink-0">{@render aside()}</span>
   </div>
@@ -82,7 +84,7 @@
 {#snippet strip(className: string, count: number)}
   <span class={cn('flex gap-1', className)} role="group" aria-label={t(messages.lastRuns(count))}>
     {#each (row?.runs ?? []).slice(-count) as mark (mark.jobId)}
-      <JobRunMark run={mark.run} duration={mark.seconds} class="h-full min-w-0 flex-1 rounded-[3px]" onSelect={() => openJob(mark)}>
+      <JobRunMark run={mark.run} duration={mark.seconds} class="h-full min-w-0 flex-1 rounded-[3px]" {...jobMarkLink(mark)}>
         <ChartSegment tone={mark.tone} class="size-full rounded-[3px]" />
       </JobRunMark>
     {/each}
@@ -99,7 +101,7 @@
 {#snippet side()}
   <span class="flex h-[34px] w-[60px] items-end gap-0.5" role="group" aria-label={t(messages.lastRuns(XS_RUNS))}>
     {#each (row?.runs ?? []).slice(-XS_RUNS) as mark (mark.jobId)}
-      <JobRunMark run={mark.run} duration={mark.seconds} class="h-3/5 min-w-0 flex-1 rounded-[1px]" onSelect={() => openJob(mark)}>
+      <JobRunMark run={mark.run} duration={mark.seconds} class="h-3/5 min-w-0 flex-1 rounded-[1px]" {...jobMarkLink(mark)}>
         <ChartSegment tone={mark.tone} class="size-full rounded-[1px]" />
       </JobRunMark>
     {/each}
@@ -129,14 +131,16 @@
         <div data-part="pipeline" class="flex min-w-0 flex-col gap-0.5">
           <span class="flex min-w-0 items-center gap-1.5">
             <Icon aria-hidden="true" class={cn('size-3.5 shrink-0', view.tone === 'failed' ? 'text-status-failed' : 'text-status-passed')} />
-            <span class="truncate text-sm font-medium">{summary.name}</span>
+            <WidgetLink link={pipelineJobsLink(summary)} title={t(linkMessages.openJobs)} class="truncate text-sm font-medium">{summary.name}</WidgetLink>
           </span>
           <span class="truncate text-xs text-muted-foreground">{row.rate} · {t(messages.medianOf(row.median))}</span>
         </div>
       {:else if size === 's'}
         <div data-part="pipeline" class="flex min-h-0 flex-1 flex-col gap-2">
           {@render header('', project)}
-          <p class="truncate text-xs text-muted-foreground">{lastText}</p>
+          <WidgetLink link={last ? view.jobLink(last.id) : null} title={t(linkMessages.openJob)} class="truncate text-xs text-muted-foreground">
+            {lastText}
+          </WidgetLink>
           <p class="mt-auto flex items-baseline gap-2">
             <span class="font-display text-[34px] leading-10 font-medium tabular-nums">{row.rate}</span>
             <span class="truncate text-xs text-muted-foreground">{t(messages.successLastRuns(row.strip.length))}</span>
@@ -162,11 +166,17 @@
           </div>
           {#if view.stages.length > 0}
             <div class="flex min-w-0 flex-wrap items-center gap-1.5">
-              <span class="font-mono text-xs text-muted-foreground">{view.newestShortId}</span>
+              <WidgetLink link={view.newestId ? view.jobLink(view.newestId) : null} title={t(linkMessages.openJob)} class="font-mono text-xs text-muted-foreground">
+                {view.newestShortId}
+              </WidgetLink>
               {#each view.stages as stage (stage.id)}
-                <span class="flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-xs">
+                <WidgetLink
+                  link={view.newestId ? view.jobLink(view.newestId, stage.id) : null}
+                  title={t(linkMessages.openNode(stage.id))}
+                  class="flex items-center gap-1.5 rounded-full border border-border px-2 py-0.5 text-xs hover:bg-muted"
+                >
                   <ChartDot tone={stage.tone} />{stage.id}
-                </span>
+                </WidgetLink>
               {/each}
             </div>
           {/if}
@@ -176,7 +186,7 @@
               {#each row.runs.slice(-L_RUNS).reverse() as run, index (index)}
                 <p class="flex h-6 min-w-0 items-center gap-3 text-xs">
                   <ChartDot tone={run.tone} />
-                  <span class="w-20 shrink-0 font-mono">{run.shortId}</span>
+                  <WidgetLink link={jobLink(run)} title={t(linkMessages.openJob)} class="w-20 shrink-0 font-mono">{run.shortId}</WidgetLink>
                   <span class="min-w-0 flex-1 truncate text-muted-foreground">{run.branch}</span>
                   <span class="w-16 shrink-0 text-right font-mono tabular-nums">{run.duration}</span>
                   <span class="w-14 shrink-0 text-right text-muted-foreground tabular-nums">{run.when}</span>

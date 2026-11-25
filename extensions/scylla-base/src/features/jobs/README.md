@@ -28,9 +28,10 @@ them, reading their status, following their logs while they happen, and deleting
 A job used to have no page of its own — its status lived in a table row and its logs in a modal
 opened from that row, so there was nothing to link to. The details page is now the single place
 a run is read, and every surface that shows a job links to it: the view action on the jobs
-table, a node in its timeline (which opens straight onto that node's logs, via a `nodes` search
-param), and the history and last-run cells on the pipeline dashboard. That param is a list: the
-page opens one log panel per node it names, so two nodes' output can be read side by side.
+table, a node in its timeline (which opens straight onto that node's log, via a `node` search
+param), and the history and last-run cells on the pipeline dashboard. The URL holds the whole view
+of the log (the node, the full screen, a line as `#L150`), so a link that someone shares opens
+the same view.
 
 The jobs **list**, though, is mounted by [pipeline](../pipeline/README.md) at
 `/:org/projects/:projectId/pipelines/:pipelineId/jobs`, behind `PipelineJobsRoute`.
@@ -58,9 +59,17 @@ closes it on teardown — a stream is a system outside the framework, and that i
 
 **Presentation** is the largest layer: a query-key factory module, the `*.queries.ts` factories,
 the `jobs-table/` folder holding the table, its columns and its cells
-(`JobStatus`, `JobTimeline`, `JobActions`), and the `JobDetails/` page folder holding the two halves of the
-details page — `JobSummary` (what the run did) and `JobNodeLogs` (what it printed, per node).
-The streamed viewer itself, `jobs-log/JobLogDisplay`, is shared by both pages.
+(`JobStatus`, `JobTimeline`, `JobActions`), and the `JobDetails/` page folder. The page is a
+header (the facts of the run on one line, and its details on demand), then a split view: the
+nodes of the job on the left, as a list with their errors and their bars on the timeline of the
+job, or as the graph; the log of the chosen node on the right, which takes the rest of the
+viewport. The log can also fill the whole window.
+
+The page reads one stream for the whole job. Each line is read once: its escape codes become
+styles over a clean text, and it is an error or not. So the list can show the errors of each
+node, and a change of node is instant. The viewer, `jobs-log/JobLogViewer`, writes the clean text
+in CodeMirror and draws the colors, the errors and the search as marks on the visible lines only:
+a log of many thousand lines stays fast.
 
 The log viewer behaves like an IDE console, and `streamed-log-view.state.svelte.ts` is where that
 lives. A live log is a stream, but a document you re-seed is a snapshot, and the gap between the

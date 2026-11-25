@@ -49,4 +49,21 @@ describe('copyToClipboard', () => {
     expect(await copyToClipboard('id', { copied: 'ID copied', failed: 'No copy' })).toBe(false);
     expect(toastError).toHaveBeenCalledWith('No copy');
   });
+
+  it('adds the second line of the caller under each toast', async () => {
+    const description = { copied: 'Members can open it.', failed: 'Copy it by hand.' };
+
+    withClipboard(() => Promise.resolve());
+    await copyToClipboard('https://scylla.test', { copied: 'Link copied', description });
+    expect(toastSuccess).toHaveBeenCalledWith('Link copied', {
+      description: 'Members can open it.',
+    });
+
+    withClipboard(() => Promise.reject(new Error('denied')));
+    await copyToClipboard('https://scylla.test', { description });
+    expect(toastError).toHaveBeenCalledWith(
+      'The browser did not let the page write to the clipboard.',
+      { description: 'Copy it by hand.' },
+    );
+  });
 });

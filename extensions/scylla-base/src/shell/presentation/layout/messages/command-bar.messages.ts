@@ -30,6 +30,7 @@ export const commandBarMessages = {
   typeWorkspace: msg`Workspace`,
 
   verbGo: msg`Go to`,
+  verbOpen: msg`Open`,
   verbUse: msg`Use`,
   verbTurnOn: msg`Turn on`,
   verbTurnOff: msg`Turn off`,
@@ -52,6 +53,7 @@ export const commandBarMessages = {
   sayTurnOff: (name: string) => msg`Turn off: ${name}. This device only.`,
   sayForm: (name: string) => msg`Open the form: ${name}. Nothing changes until you submit it.`,
   sayConfirm: (name: string) => msg`${name}: you confirm in the next step.`,
+  sayAction: (name: string) => msg`Open: ${name}.`,
   sayRun: (name: string) => msg`Run the pipeline ${name}: you confirm in the next step.`,
   sayCurrent: (name: string) => msg`${name} is the current choice.`,
   sayMore: (group: string) => msg`Show all the results in ${group}.`,
@@ -76,6 +78,9 @@ export const commandBarMessages = {
   turnedOn: (name: string) => msg`${name}: on`,
   turnedOff: (name: string) => msg`${name}: off`,
 
+  hintsTitle: msg`Try a search`,
+  hintsPrefixes: msg`> actions · / pages · # projects and pipelines · @ people`,
+  hintsKeys: msg`↑ ↓ move · Enter open · Tab filter · Esc close`,
   hintFilter: msg`Filter`,
   hintNewTab: msg`New tab`,
 };

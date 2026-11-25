@@ -16,12 +16,14 @@
   import './flow-theme.css';
   import { keepFitted } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { toast } from '@scylla/ui/utils';
   import type { Blueprint, NodePlacement } from '../blueprint.state.svelte.ts';
   import type { FragmentEntity } from '@base/features/pipeline/domain/entities/fragment.entity.ts';
   import type { NodeAppearancePreference } from './node-appearance-preference.state.svelte.ts';
   import type { QuickAdd } from '@base/features/pipeline/presentation/ui/editor/blueprint/catalog/QuickAddMenu/quick-add.state.svelte.ts';
   import {
     DEFAULT_EDGE_STYLE,
+    START_NODE_ID,
     edgeBetween,
   } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
   import { templateFor, type CatalogEntry } from '@base/features/pipeline/presentation/presenters/catalog.presenter.ts';
@@ -31,6 +33,20 @@
   import DeletableEdge from './DeletableEdge.svelte';
   import { linkDropPoint } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import DropSpot from './DropSpot.svelte';
+  import { openNodeOnKey } from './node-keys.attachments.ts';
+  import DropPreview from './DropPreview.svelte';
+  import { blueprintMessages } from '@base/features/pipeline/presentation/messages/blueprint.messages.ts';
+  import { scriptingMessages } from '@base/features/pipeline/presentation/messages/scripting.messages.ts';
+  import {
+    linkForDrop,
+    previewEdges,
+    type DropLink,
+    type DropNode,
+  } from '@base/features/pipeline/presentation/presenters/smart-drop.presenter.ts';
+  import {
+    DETAILED_NODE,
+    MINIMAL_NODE,
+  } from '@base/features/pipeline/presentation/presenters/blueprint-geometry.presenter.ts';
   import { acceptPaletteDrop } from '../palette-drag/palette-drag.attachments.ts';
   import { isFragment, type PaletteDrag, type PaletteEntry } from '../palette-drag/palette-drag.state.svelte.ts';
   import { NODE_APPEARANCE_VIEWS, nodePositionAt } from './nodes/node-appearances.registry.ts';
@@ -50,7 +66,10 @@
     /** Called once: the nodes are measured and the view frames them. */
     onReady?: () => void;
     fragmentOf: (fragmentId: string) => FragmentEntity | undefined;
-    onAddFragment: (fragment: FragmentEntity, placement: NodePlacement) => void;
+    /** The saved pipeline. None for a new pipeline. */
+    pipelineId?: string;
+    /** Adds the block, and returns its id. */
+    onAddFragment: (fragment: FragmentEntity, placement: NodePlacement) => string;
   }
 
   let {
@@ -63,6 +82,7 @@
     onReady,
     fragmentOf,
     onAddFragment,
+    pipelineId,
   }: Props = $props();
 
   const nodeTypes: NodeTypes = {
@@ -72,7 +92,9 @@
   };
   const edgeTypes: EdgeTypes = { deletable: DeletableEdge };
 
-  const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.25, maxZoom: 1 };
+  /** A long pipeline zooms out until each node is in the view. */
+  const MIN_ZOOM = 0.1;
+  const FIT_VIEW_OPTIONS: FitViewOptions = { padding: 0.25, maxZoom: 1, minZoom: MIN_ZOOM };
 
   const { screenToFlowPosition, fitView } = useSvelteFlow();
 
@@ -96,14 +118,56 @@
     iconHintOf: definition => templateFor(entries, definition)?.icon,
     insertOnEdge: (edgeId, at) => quickAdd.open({ ...at, link: { replacing: edgeId } }),
     fragmentOf: fragmentId => fragmentOf(fragmentId),
+    pipelineId: () => pipelineId,
   });
 
-  /** Dropped on an edge, the entry goes inside it; anywhere else, it waits for the start node. */
-  const dropEntry = (entry: PaletteEntry, position: XYPosition, edgeId: string | undefined) => {
-    const placement: NodePlacement = edgeId ? { replacing: edgeId, position } : { position };
-    if (isFragment(entry)) onAddFragment(entry, placement);
-    else blueprint.addNode(entry.nodeId, entry.definition, placement);
+  /** The boxes of the nodes, in graph points: what a drop measures its choice on. */
+  const dropNodes = $derived<DropNode[]>(
+    blueprint.flowNodes.map(({ id, position, measured }) => ({
+      id,
+      x: position.x,
+      y: position.y,
+      width: measured?.width ?? (appearance.current === 'minimal' ? MINIMAL_NODE.width : DETAILED_NODE.width),
+      height: measured?.height ?? (appearance.current === 'minimal' ? MINIMAL_NODE.tile : DETAILED_NODE.height),
+    })),
+  );
+
+  /** The one choice of the preview and of the drop: on an edge, inside it; else after the nearest node before it. */
+  const linkAt = (position: XYPosition, edgeId: string | undefined): DropLink => {
+    const { anchor } = NODE_APPEARANCE_VIEWS[appearance.current];
+    return linkForDrop({
+      nodes: dropNodes,
+      point: { x: position.x + anchor.x, y: position.y + anchor.y },
+      edgeId,
+      startId: START_NODE_ID,
+    });
   };
+
+  /** Dropped, the entry joins the graph as the preview showed; one "Undo" takes it back. */
+  const dropEntry = (entry: PaletteEntry, position: XYPosition, link: DropLink) => {
+    const placement: NodePlacement = link ? { ...link, position } : { detached: true, position };
+    const replaced =
+      link && 'replacing' in link ? blueprint.edges.find(edge => edge.id === link.replacing) : undefined;
+    const id = isFragment(entry)
+      ? onAddFragment(entry, placement)
+      : blueprint.addNode(entry.nodeId, entry.definition, placement);
+    toast(t(blueprintMessages.nodeAdded), {
+      action: { label: t(scriptingMessages.undo), onClick: () => blueprint.undoAdd(id, replaced) },
+    });
+  };
+
+  /** The edges that the drop in progress makes. */
+  const preview = $derived.by(() => {
+    if (!drag.spot) return [];
+    const { anchor } = NODE_APPEARANCE_VIEWS[appearance.current];
+    return previewEdges({
+      appearance: appearance.current,
+      nodes: dropNodes,
+      edges: blueprint.edges,
+      link: drag.link,
+      spot: { id: '', ...drag.spot, width: anchor.x * 2, height: anchor.y * 2 },
+    });
+  });
 
   const clientPoint = (event: MouseEvent | TouchEvent): XYPosition => {
     const point = 'changedTouches' in event ? event.changedTouches[0] : event;
@@ -136,10 +200,12 @@
   aria-label={t(pipelineMessages.blueprint)}
   class="canvas relative h-full min-w-0 flex-1"
   class:dimmed
+  {@attach openNodeOnKey(nodeId => blueprint.inspect(nodeId))}
   {@attach acceptPaletteDrop(() => ({
     drag,
     // The middle of the node lands on the pointer: the dragged icon is in the middle of the outline.
     positionAt: client => nodePositionAt(appearance.current, screenToFlowPosition(client)),
+    linkAt,
     drop: dropEntry,
   }))}
   {@attach keepFitted(() => ({ fitted, fit: () => void fitView(FIT_VIEW_OPTIONS) }))}
@@ -155,6 +221,7 @@
     {edgeTypes}
     fitView
     fitViewOptions={FIT_VIEW_OPTIONS}
+    minZoom={MIN_ZOOM}
     deleteKey={blueprint.readOnly ? null : ['Backspace', 'Delete']}
     nodesConnectable={!blueprint.readOnly}
     clickConnect={false}
@@ -195,6 +262,9 @@
       selectMode={blueprint.readOnly ? undefined : selectMode}
       onSelectModeChange={next => (selectMode = next)}
     />
+    {#if drag.spot}
+      <DropPreview edges={preview} />
+    {/if}
     {#if spot}
       <DropSpot
         position={spot}
@@ -202,6 +272,14 @@
       />
     {/if}
   </SvelteFlow>
+
+  {#if drag.spot}
+    <p
+      class="pointer-events-none absolute bottom-4 left-1/2 z-10 -translate-x-1/2 rounded-full border border-border bg-card px-3 py-1.5 text-center text-xs text-muted-foreground shadow-xs"
+    >
+      {t(drag.detached ? blueprintMessages.dropHintDetached : blueprintMessages.dropHint)}
+    </p>
+  {/if}
 
   <QuickAddMenu {quickAdd} />
 </div>
@@ -218,6 +296,13 @@
   .canvas :global(.svelte-flow__node.draggable),
   .canvas :global(.svelte-flow__nodesselection-rect) {
     cursor: pointer;
+  }
+
+  /* A node that the keyboard reaches shows it, also on a read-only canvas. */
+  .canvas :global(.svelte-flow__node:focus-visible) {
+    outline: 2px solid var(--ring);
+    outline-offset: 4px;
+    border-radius: 12px;
   }
 
   .canvas :global(.svelte-flow__pane.dragging),

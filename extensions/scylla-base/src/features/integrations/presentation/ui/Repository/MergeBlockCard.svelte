@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { scyllaNavigate } from '@platform/context';
   import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { RepositoryLink } from '@base/features/integrations/domain/entities/repository-link.entity.ts';
@@ -43,12 +44,16 @@
   {:else}
     <div class="flex flex-col gap-3">
       {#each rules as rule (rule.block.pipelineId ?? 'project')}
+        {@const pipelineId = rule.block.pipelineId}
         <MergeRuleRow
           view={rule.view}
           canManage={page.canManage}
           {locked}
           onChange={enabled => page.setBlock(rule.block, enabled)}
           onRetry={() => page.setBlock(rule.block, rule.block.enabled)}
+          onExport={pipelineId
+            ? () => scyllaNavigate.goToEditPipeline(pipelineId, '', { exportFile: true })
+            : undefined}
         />
       {/each}
     </div>

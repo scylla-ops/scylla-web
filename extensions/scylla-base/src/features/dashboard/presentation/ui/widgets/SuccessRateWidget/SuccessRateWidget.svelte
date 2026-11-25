@@ -14,7 +14,10 @@
   import ChangeBadge from '../parts/ChangeBadge.svelte';
   import DayBars from '../parts/DayBars.svelte';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
+  import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+  import { pipelineJobsLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
+  import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     widgets: DashboardWidgets;
@@ -44,6 +47,7 @@
         name: widgets.pipelines.get(group.id)?.name ?? group.id.slice(-8),
         project: widgets.pipelines.get(group.id)?.projectName ?? '',
         count: group.figures.outcomes.failed + group.figures.outcomes.orphaned,
+        link: pipelineJobsLink(widgets.pipelines.get(group.id)),
       }))
       .filter(row => row.count > 0)
       .slice(0, FAILURE_ROWS),
@@ -156,7 +160,7 @@
           {@render changeLine('')}
         </div>
         {#if stats}
-          <DayBars class="flex-1" buckets={stats.buckets} bucket={range.bucket} {timeZone} endsNow={range.to === null} />
+          <DayBars class="flex-1" buckets={stats.buckets} bucket={range.bucket} {timeZone} endsNow={range.to === null} hrefOf={start => period.bucketHref(start, range.bucket)} />
         {/if}
       </div>
     {:else}
@@ -172,7 +176,7 @@
           {/if}
         </div>
         {#if stats}
-          <DayBars class="h-[116px] shrink-0" buckets={stats.buckets} bucket={range.bucket} {timeZone} endsNow={range.to === null} />
+          <DayBars class="h-[116px] shrink-0" buckets={stats.buckets} bucket={range.bucket} {timeZone} endsNow={range.to === null} hrefOf={start => period.bucketHref(start, range.bucket)} />
         {/if}
         {#if failures.length > 0}
           <div class="flex flex-col gap-1.5">
@@ -183,10 +187,10 @@
             <ul class="flex flex-col gap-1">
               {#each failures as row (row.id)}
                 <li class="flex h-5 items-center gap-3">
-                  <span class="flex w-[170px] shrink-0 items-baseline gap-1.5 truncate">
+                  <WidgetLink link={row.link} title={t(linkMessages.openJobs)} class="flex w-[170px] shrink-0 items-baseline gap-1.5 truncate">
                     <span class="truncate text-sm font-medium">{row.name}</span>
                     <span class="truncate text-xs text-muted-foreground">{row.project}</span>
-                  </span>
+                  </WidgetLink>
                   <span class="flex h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
                     <ChartSegment tone="failed" class="h-full rounded-full" style="width: {(row.count / mostFailures) * 100}%" />
                   </span>

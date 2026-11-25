@@ -53,6 +53,8 @@ export const onboardingMessages = {
   rolesTourSummary: msg`Choose what a person or an app can do.`,
   usersTour: msg`Invite your team`,
   usersTourSummary: msg`Add people to the workspace.`,
+  searchTour: msg`Find anything fast`,
+  searchTourSummary: msg`Use the search bar to reach a page, an item or an action.`,
 
   openAgentsTitle: msg`Open Agents`,
   openAgentsBody: msg`Agents are under “Machines” in the menu. Click it, or use Go.`,
@@ -145,6 +147,15 @@ export const onboardingMessages = {
   peopleRoleBody: msg`Type a name or an email, pick their role, then click “Add members”.`,
   membersListTitle: msg`Your team`,
   membersListBody: msg`Each member and app of the workspace, with its roles. Instance admins also create accounts under Instance, in “Users”.`,
+
+  openSearchTitle: msg`Open the search bar`,
+  openSearchBody: msg`Click it. On any page, Ctrl K (Cmd K on a Mac) opens it too.`,
+  searchFindTitle: msg`Type a name`,
+  searchFindBody: msg`Find a page, a project, a pipeline, an agent or a person. A typing error still finds it: try “agnts”. Click one of the examples below the field.`,
+  searchPrefixTitle: msg`Narrow the search`,
+  searchPrefixBody: msg`Start with > for the actions, such as a new pipeline or a run. Use / for the pages, # for the projects and pipelines, and @ for the people. Tab goes through the filters.`,
+  searchKeysTitle: msg`Use the keyboard`,
+  searchKeysBody: msg`The arrows move, Enter opens, and Ctrl Enter opens in a new tab. Esc closes the bar. The bar shows your last picks first, for each workspace.`,
 
   lostNotice: msg`This step is on another page.`,
   lostAbsentNotice: msg`This page does not show what this step needs. Create it first, or skip the tour.`,

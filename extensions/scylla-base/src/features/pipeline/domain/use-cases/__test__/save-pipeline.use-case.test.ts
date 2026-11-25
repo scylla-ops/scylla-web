@@ -49,6 +49,22 @@ describe('SavePipelineUseCase', () => {
     expect(issue).toBeNull();
   });
 
+  it('creates a pipeline with its agent labels, so its first job asks them', async () => {
+    const { create, repository } = repositoryWith();
+
+    await new SavePipelineUseCase(repository).execute({
+      projectId: 'proj',
+      name: 'nightly',
+      nodes: [node('build')],
+      agentLabels: ['deploy', 'linux'],
+    });
+
+    expect(create).toHaveBeenCalledWith(
+      { projectId: 'proj', name: 'nightly', nodes: [node('build')], agentLabels: ['deploy', 'linux'] },
+      undefined,
+    );
+  });
+
   it('edits a pipeline that has an id', async () => {
     const { create, edit, repository } = repositoryWith();
 
@@ -141,13 +157,13 @@ describe('SavePipelineUseCase', () => {
     const issue = await issueOf(
       new SavePipelineUseCase(repository).execute({
         projectId: 'proj',
-        name: 'my pipeline',
+        name: 'a\nb',
         nodes: [node('build')],
       }),
     );
 
     expect(create).not.toHaveBeenCalled();
-    expect(issue).toEqual({ kind: 'name', issue: 'spaces' });
+    expect(issue).toEqual({ kind: 'name', issue: 'not-one-line' });
   });
 
   it('gives back the error of the server', async () => {

@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { JobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import { TriggerKind } from '@base/generated/scylla/pipelines/v1/trigger.ts';
+import { PipelineSource } from '@base/generated/scylla/integrations/v1/vcs.ts';
 import type { PipelineSummary } from '@base/generated/scylla/pipelines/v1/pipeline_summary.ts';
 import { healthOf, listToDomain } from '../grpc-pipeline-summary.mapper.ts';
 
@@ -27,6 +28,8 @@ const summary = (overrides: Partial<PipelineSummary> = {}): PipelineSummary => (
   lastEndedStatus: JobStatus.FAILED,
   active: false,
   triggerKinds: [TriggerKind.PUSH, 99 as TriggerKind],
+  source: PipelineSource.EDITOR,
+  keyTaken: false,
   ...overrides,
 });
 

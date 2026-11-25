@@ -4,6 +4,7 @@ import { formatNumber, t } from '@scylla/ui/i18n';
 import { formatDuration, formatUtcDay } from '@shared/utils/date-utils.ts';
 import { decidedJobs, type JobBucket, type JobStatus } from '@base/features/jobs';
 import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
 import type {
   DashboardPeriod,
   PeriodBucket,
@@ -135,6 +136,12 @@ export const durationBars = (buckets: readonly JobBucket[]): DurationBar[] => {
 export const bucketLabel = (start: string, bucket: PeriodBucket, timeZone: string): string => {
   const instant = new Date(start);
   return bucket === 'hour' ? clockIn(instant, timeZone) : formatUtcDay(dayIn(instant, timeZone));
+};
+
+/** What a click on a bar opens: its day, or its week, on the dashboard. */
+export const bucketHint = (start: string, bucket: PeriodBucket, timeZone: string): string => {
+  const label = bucketLabel(start, bucket, timeZone);
+  return t(bucket === 'week' ? linkMessages.showWeek(label) : linkMessages.showDay(label));
 };
 
 /**

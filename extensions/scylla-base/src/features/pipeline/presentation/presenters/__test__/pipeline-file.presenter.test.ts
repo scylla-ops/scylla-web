@@ -132,7 +132,26 @@ describe('originNote', () => {
     ).toEqual({
       tone: 'muted',
       badge: 'Archived',
-      text: 'Archived: the project uses the repository files',
+      text: 'Archived when the project moved to the repository files. To bring it back, set the source of the project to the editor, then to the files again.',
+    });
+  });
+
+  it('warns that a file took the key of an editor pipeline: it sends no check', () => {
+    expect(
+      originNote(
+        {
+          source: 'editor',
+          filePath: '',
+          fileErrorCount: 0,
+          key: 'build',
+          keyTakenAt: '2026-11-24T10:00:00Z',
+        },
+        'main',
+      ),
+    ).toEqual({
+      tone: 'warning',
+      badge: 'Key taken',
+      text: 'A pipeline file took the key build. This pipeline still runs, but it sends no check to the repository. Rename it to free the key.',
     });
   });
 });

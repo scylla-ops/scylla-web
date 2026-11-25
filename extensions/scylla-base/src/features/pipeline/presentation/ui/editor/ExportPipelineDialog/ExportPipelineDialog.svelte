@@ -3,6 +3,7 @@
   import DownloadIcon from '@lucide/svelte/icons/download';
   import FileCodeIcon from '@lucide/svelte/icons/file-code';
   import InfoIcon from '@lucide/svelte/icons/info';
+  import KeyRoundIcon from '@lucide/svelte/icons/key-round';
   import Loader2Icon from '@lucide/svelte/icons/loader-2';
   import { ScyllaDialog } from '@scylla/ui';
   import {
@@ -18,6 +19,7 @@
     PIPELINE_FILE_FORMATS,
     type PipelineFileFormat,
   } from '@base/features/pipeline/domain/structs/pipeline-file-format.struct.ts';
+  import { fileKeyOf } from '@base/features/pipeline/domain/structs/pipeline-key.struct.ts';
   import { exportMessages } from '@base/features/pipeline/presentation/messages/export.messages.ts';
   import { createExportPipeline } from './export-pipeline.state.svelte.ts';
 
@@ -84,6 +86,14 @@
       </div>
     </TabsContent>
   </Tabs>
+
+  {#if exported.file}
+    <!-- The file and the Scylla pipeline share the key: the file wins. -->
+    <p class="flex items-center gap-2 text-sm text-muted-foreground">
+      <KeyRoundIcon class="size-4 shrink-0" aria-hidden="true" />
+      {t(exportMessages.keyNote(fileKeyOf(exported.file.path)))}
+    </p>
+  {/if}
 
   {#if dirty}
     <p class="flex items-center gap-2 text-sm text-muted-foreground">

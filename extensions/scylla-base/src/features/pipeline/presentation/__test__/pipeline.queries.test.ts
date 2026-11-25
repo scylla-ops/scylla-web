@@ -11,6 +11,7 @@ import type {
 import type { PipelineRepository } from '@base/features/pipeline/domain/repository/pipeline.repository.ts';
 import type { NodeTemplateEntity } from '@base/features/pipeline/domain/entities/node-template.entity.ts';
 import {
+  gitEventsMutations,
   pipelineMutations,
   pipelineQueries,
   nodeTemplateQueries,
@@ -89,6 +90,14 @@ beforeEach(() => {
       path: '.scylla/pipelines/ci.toml',
     }),
     getFile: vi.fn().mockResolvedValue({ key: 'ci', content: 'version = 1' }),
+    listFileKeys: vi.fn().mockResolvedValue([{ key: 'build', path: '.scylla/pipelines/build.yaml' }]),
+    setGitEvents: vi.fn().mockResolvedValue({
+      source: 'editor',
+      filePath: '',
+      fileErrorCount: 0,
+      key: 'ci',
+      gitEventsAllowedAt: '2026-11-25T10:00:00Z',
+    }),
   };
 
   toastSuccess.mockClear();
@@ -244,6 +253,45 @@ describe('pipelineQueries.file', () => {
 
   it('does not query without a pipeline', () => {
     expect(pipelineQueries.file('').enabled).toBe(false);
+  });
+});
+
+describe('pipelineQueries.fileKeys', () => {
+  it('reads the keys of the files under the pipelines of the project: a write refreshes them', async () => {
+    const options = pipelineQueries.fileKeys('p-1');
+
+    expect(options.queryKey.slice(0, 2)).toEqual(['pipelines', 'p-1']);
+    await expect(runQueryFn(options)).resolves.toEqual([
+      { key: 'build', path: '.scylla/pipelines/build.yaml' },
+    ]);
+    expect(repository.listFileKeys).toHaveBeenCalledWith('p-1');
+  });
+
+  it('stays idle until the project takes its pipelines from the files', () => {
+    expect(pipelineQueries.fileKeys('p-1', false).enabled).toBe(false);
+    expect(pipelineQueries.fileKeys('').enabled).toBe(false);
+  });
+});
+
+describe('gitEventsMutations.set', () => {
+  it('gives the cached pipeline its new origin, keeps its document, and refreshes the lists', async () => {
+    const saved = { pipeline: pipeline(), layout: null, origin: { source: 'editor' } };
+    cache.queryClient.setQueryData(['pipeline', 'p-1'], saved);
+    const invalidate = vi.spyOn(cache.queryClient, 'invalidateQueries');
+    const options = gitEventsMutations.set('p-1');
+
+    const origin = await runMutationFn(options, true);
+    runOnSuccess(options, origin, true);
+
+    expect(repository.setGitEvents).toHaveBeenCalledWith('p-1', true);
+    const cached = cache.queryClient.getQueryData<{ pipeline: unknown; origin: unknown }>([
+      'pipeline',
+      'p-1',
+    ]);
+    expect(cached?.pipeline).toBe(saved.pipeline);
+    expect(cached?.origin).toEqual(origin);
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['pipelines'] });
+    expect(toastSuccess).toHaveBeenCalledWith('Git events allowed');
   });
 });
 

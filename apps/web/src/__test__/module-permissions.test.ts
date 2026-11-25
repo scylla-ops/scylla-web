@@ -71,6 +71,7 @@ const UNGATED_COMMANDS: Readonly<Record<string, string>> = {
   'login.sign-out': 'It ends the own session, which needs no grant.',
   'notifications.open': 'The inbox of the caller, which needs no grant.',
   'notifications.mark-all-read': 'It acts on the inbox of the caller, which needs no grant.',
+  'shell.whats-new': 'It opens the notes of the release, which are the same for all users.',
 };
 
 describe('module permission declarations', () => {
