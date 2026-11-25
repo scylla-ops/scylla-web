@@ -8,7 +8,7 @@ import { PipelineTriggersWidgetInjection } from './features/triggers/widget-inje
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.7.1',
+  version: '0.7.2',
   modules: [ShellModule, ...modules],
   widgetInjections: { PipelineTriggersWidgetInjection },
   catalogs: import.meta.glob<CatalogModule>('./**/locales/*/messages.ts'),
