@@ -15,6 +15,7 @@
   import { createProjectList } from './project-list.state.svelte.ts';
   import { createProjectReorder } from './project-reorder.state.svelte.ts';
   import { createProjectSections } from './project-sections.state.svelte.ts';
+  import { focusGroup } from './group-focus.attachments.svelte.ts';
   import { reorderIn, reorderOut } from './reorder.transition.ts';
   import { projectMessages } from '../messages/project.messages.ts';
   import { projectGroupMutations } from '../project-group.queries.ts';
@@ -115,7 +116,15 @@
 
 <svelte:window {onkeydown} />
 
-<div data-tour="projects" class="flex min-h-full w-full shrink-0 flex-col gap-4 pb-20">
+<div
+  data-tour="projects"
+  class="flex min-h-full w-full shrink-0 flex-col gap-4 pb-20"
+  {@attach focusGroup(() => ({
+    ready: !list.query && !sections.loading && !sections.failed,
+    keys: sections.sections.map(section => section.key),
+    open: sections.open,
+  }))}
+>
   <ProjectHeader
     counts={list.wholeCounts}
     projectIds={list.query ? list.items.map(project => project.id) : sections.projectIds}

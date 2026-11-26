@@ -74,11 +74,23 @@ const rowsIn = (locale: SupportedLocale, context: { pipelineId?: string } = {}):
     other: (message: MessageDescriptor | undefined) =>
       plainMessage(catalogs[locale === 'en' ? 'fr' : 'en'], message?.id),
     projects: [
-      { id: 'p1', name: 'web-api' },
+      { id: 'p1', name: 'web-api', groupId: 'g1' },
       { id: 'p2', name: 'mobile-app' },
-      { id: 'p3', name: 'infrastructure' },
+      { id: 'p3', name: 'infrastructure', groupId: 'g1' },
     ],
-    groups: [],
+    groups: [{ id: 'g1', name: 'Backend services', color: 'chart-2' }],
+    fragments: [{ id: 'f1', name: 'lint-checks', tags: ['quality'] }],
+    dashboards: [
+      {
+        id: 'd1',
+        name: 'Release health',
+        visibility: 'workspace',
+        teamDefault: true,
+        createdBy: 'u2',
+        path: 'dashboard',
+      },
+    ],
+    selfId: 'u1',
     pipelines: [
       { id: 'l1', name: 'Deploy', projectId: 'p1' },
       { id: 'l2', name: 'Deploy', projectId: 'p2' },
@@ -185,6 +197,9 @@ const ENGLISH: readonly (readonly [string, readonly string[]])[] = [
   ['prdo runner', ['app:a1']], ['runer', ['app:a1', PAGE.agents]],
   ['marie dubio', ['member:u2']], ['dubios', ['member:u2']],
   ['databse url', ['secret:p1:DATABASE_URL']], ['database_ulr', ['secret:p1:DATABASE_URL']],
+  ['bakend services', ['group:g1']], ['backend srevices', ['group:g1']],
+  ['releas health', ['dashboard:d1']], ['release healht', ['dashboard:d1']],
+  ['lint chekcs', ['fragment:f1']], ['lnit checks', ['fragment:f1']],
 ];
 
 const FRENCH: readonly (readonly [string, readonly string[]])[] = [

@@ -4,11 +4,17 @@ import Building2Icon from '@lucide/svelte/icons/building-2';
 import FileTextIcon from '@lucide/svelte/icons/file-text';
 import FolderIcon from '@lucide/svelte/icons/folder';
 import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
+import GitForkIcon from '@lucide/svelte/icons/git-fork';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+import LayersIcon from '@lucide/svelte/icons/layers';
+import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
+import LinkIcon from '@lucide/svelte/icons/link';
+import LockIcon from '@lucide/svelte/icons/lock';
 import PlayIcon from '@lucide/svelte/icons/play';
 import ServerIcon from '@lucide/svelte/icons/server';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import UserRoundIcon from '@lucide/svelte/icons/user-round';
+import UsersIcon from '@lucide/svelte/icons/users';
 import WorkflowIcon from '@lucide/svelte/icons/workflow';
 import { Permission, type PermissionTarget } from '@platform/authz';
 import { workspaceUrl } from '@platform/context';
@@ -26,7 +32,13 @@ import type { EntityIconProps, LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { prepareFuzzyText, type FuzzyFields } from '@scylla/ui/utils';
 import { agentProfile, type AppEntity } from '@base/features/apps';
-import { newProjectPath, projectIconProps, type ProjectIcon } from '@base/features/project';
+import type { DashboardEntry } from '@base/features/dashboard';
+import {
+  newProjectPath,
+  projectIconProps,
+  type ProjectGroupEntity,
+  type ProjectIcon,
+} from '@base/features/project';
 import { roleName, type RoleEntity } from '@base/features/roles';
 import type {
   IdentityKind,
@@ -40,7 +52,10 @@ export type CommandGroupId =
   | 'preferences'
   | 'actions'
   | 'projects'
+  | 'groups'
   | 'pipelines'
+  | 'fragments'
+  | 'dashboards'
   | 'machines'
   | 'people'
   | 'roles'
@@ -87,9 +102,19 @@ export interface CommandRow {
   icon: LucideIcon;
   /** A person, an agent, an app or a project shows as everywhere else: its photo or its icon. */
   look?: RowLook;
+  /** The color of `icon`, e.g. the folder of a group. Unset: grey. */
+  iconColor?: string;
+  /** Changes when the icon changes: the new icon then takes the place of the old one. */
+  iconKey?: string;
+  /** A glyph before the place, e.g. the folder of the group of a project. */
+  placeGlyph?: { icon: LucideIcon; color?: string };
+  /** More facts after the place, e.g. the number of projects of a group. Not searched. */
+  facts?: string;
   effect: RowEffect;
   /** `true`: the row acts on the current page. */
   here?: boolean;
+  /** `true`: the row shows only under the chip of its group. A row of another group is the same. */
+  chipOnly?: boolean;
   /** `run`: the row shows only when the text starts with a word that means to run. */
   gate?: 'run';
   projectId?: string;
@@ -97,10 +122,18 @@ export interface CommandRow {
 }
 
 export interface CommandSourcesData {
-  projects: readonly { id: string; name: string; icon?: ProjectIcon }[];
-  /** The groups of the projects: a new project in each one. */
-  groups: readonly { id: string; name: string }[];
+  projects: readonly { id: string; name: string; icon?: ProjectIcon; groupId?: string }[];
+  /** The groups of the projects: a row for each one, and a new project in each one. */
+  groups: readonly Pick<ProjectGroupEntity, 'id' | 'name' | 'color'>[];
   pipelines: readonly { id: string; name: string; projectId: string }[];
+  fragments: readonly {
+    id: string;
+    name: string;
+    tags?: readonly string[];
+    source?: { kind: 'linked' | 'forked' };
+  }[];
+  /** Not set while the bar cannot read them. */
+  dashboards?: readonly DashboardEntry[];
   apps: readonly ({ id: string; name: string; runner: boolean } & Partial<Pick<AppEntity, 'icon'>>)[];
   members: readonly {
     actorId: string;
@@ -110,7 +143,7 @@ export interface CommandSourcesData {
     avatarUrl?: string;
     avatarColor?: string;
   }[];
-  /** The account of the session: its row shows the avatar of the reader. */
+  /** The account of the session: its row shows the avatar of the reader, and « You » names it. */
   selfId?: string;
   workspaceRoles: readonly RoleEntity[];
   instanceRoles: readonly RoleEntity[];
@@ -391,6 +424,98 @@ const newProjectDrafts = ({ slug, workspaceId, groups, can }: RowsInput): Draft[
       }))
     : [];
 
+/** A project shows its icon, and its group as its place, with the folder of the group. */
+const projectDrafts = ({ projects, groups }: RowsInput, slug: string): Draft[] =>
+  projects.map(({ id, name, icon, groupId }): Draft => {
+    const group = groupId ? groups.find(item => item.id === groupId) : undefined;
+    return {
+      id: `project:${id}`,
+      uid: id,
+      group: 'projects',
+      name,
+      type: t(messages.typeProject),
+      place: group?.name,
+      placeGlyph: group && { icon: FolderIcon, color: group.color },
+      verb: t(messages.verbGo),
+      icon: FolderIcon,
+      look: { kind: 'project', icon: projectIconProps(icon) },
+      iconKey: JSON.stringify(icon ?? null),
+      effect: { kind: 'go', href: workspaceUrl(slug, `projects/${id}`) },
+      projectId: id,
+      say: messages.sayProject,
+    };
+  });
+
+/** A group opens the projects page on it. It counts the projects of the lookup. */
+const groupDrafts = ({ groups, projects, can, workspaceId }: RowsInput, slug: string): Draft[] => {
+  if (!can(Permission.READ_WORKSPACE, { workspaceId: workspaceId ?? undefined })) return [];
+  return groups.map(({ id, name, color }): Draft => ({
+    id: `group:${id}`,
+    uid: id,
+    group: 'groups',
+    name,
+    type: t(messages.typeGroup),
+    facts: t(messages.projectCount(projects.filter(project => project.groupId === id).length)),
+    verb: t(messages.verbGo),
+    icon: FolderIcon,
+    iconColor: color,
+    iconKey: color ?? '',
+    effect: { kind: 'go', href: workspaceUrl(slug, `projects?group=${encodeURIComponent(id)}`) },
+    say: messages.sayGroup,
+  }));
+};
+
+const FRAGMENT_ICONS = { linked: LinkIcon, forked: GitForkIcon } as const;
+
+/** A fragment of the library, with the icon of the library: its own, linked or forked. */
+const fragmentDrafts = ({ fragments }: RowsInput, slug: string): Draft[] =>
+  fragments.map(({ id, name, tags, source }): Draft => ({
+    id: `fragment:${id}`,
+    uid: id,
+    group: 'fragments',
+    name,
+    type: t(messages.typeFragment),
+    place: source && t(source.kind === 'linked' ? messages.fragmentLinked : messages.fragmentForked),
+    verb: t(messages.verbGo),
+    icon: source ? FRAGMENT_ICONS[source.kind] : LayersIcon,
+    effect: { kind: 'go', href: workspaceUrl(slug, `library/${id}`) },
+    say: messages.sayFragment,
+    keywords: tags,
+  }));
+
+/** The name of the creator of a dashboard: « You », else the member of the workspace. */
+const creatorOf = ({ selfId, members }: RowsInput, id: string | undefined): string | undefined => {
+  if (!id) return undefined;
+  if (id === selfId) return t(messages.you);
+  const member = members.find(item => item.actorId === id);
+  return member ? member.displayName || member.handle : undefined;
+};
+
+/** A dashboard is personal or shared with the workspace; a shared one names its creator. */
+const dashboardDrafts = (input: RowsInput, slug: string): Draft[] =>
+  (input.dashboards ?? []).map((dashboard): Draft => {
+    const shared = dashboard.visibility === 'workspace';
+    const creator = shared ? creatorOf(input, dashboard.createdBy) : undefined;
+    return {
+      id: `dashboard:${dashboard.id}`,
+      uid: dashboard.id,
+      group: 'dashboards',
+      name: dashboard.name,
+      type: t(messages.typeDashboard),
+      place: t(shared ? messages.dashboardShared : messages.dashboardPersonal),
+      placeGlyph: { icon: shared ? UsersIcon : LockIcon },
+      facts:
+        present([creator, dashboard.teamDefault ? t(messages.teamDefault) : undefined]).join(
+          ' · ',
+        ) || undefined,
+      verb: t(messages.verbGo),
+      icon: LayoutDashboardIcon,
+      effect: { kind: 'go', href: workspaceUrl(slug, dashboard.path) },
+      say: messages.sayDashboard,
+      searchPlace: [creator],
+    };
+  });
+
 const entityDrafts = (input: RowsInput): Draft[] => {
   const { slug, project, workspaceId } = input;
   const workspaces = input.workspaces.map(
@@ -409,22 +534,11 @@ const entityDrafts = (input: RowsInput): Draft[] => {
   if (!slug) return workspaces;
 
   return [
-    ...input.projects.map(
-      ({ id, name, icon }): Draft => ({
-        id: `project:${id}`,
-        uid: id,
-        group: 'projects',
-        name,
-        type: t(messages.typeProject),
-        verb: t(messages.verbGo),
-        icon: FolderIcon,
-        look: { kind: 'project', icon: projectIconProps(icon) },
-        effect: { kind: 'go', href: workspaceUrl(slug, `projects/${id}`) },
-        projectId: id,
-        say: messages.sayProject,
-      }),
-    ),
+    ...projectDrafts(input, slug),
+    ...groupDrafts(input, slug),
     ...pipelineDrafts(input),
+    ...fragmentDrafts(input, slug),
+    ...dashboardDrafts(input, slug),
     ...input.apps.map(
       ({ id, name, runner, icon }): Draft => ({
         id: `app:${id}`,
@@ -484,6 +598,18 @@ const entityDrafts = (input: RowsInput): Draft[] => {
   ];
 };
 
+const DASHBOARD_PAGE_ID = 'page:workspace/dashboard';
+
+/**
+ * With no dashboard on the server, the chip of the dashboards shows the page of the dashboard:
+ * the page creates the first one, the bar never does. The row keeps the id of the page, so a pick
+ * goes to the recent rows as the page.
+ */
+const emptyDashboardDrafts = (input: RowsInput, pages: readonly Draft[]): Draft[] => {
+  const page = pages.find(draft => draft.id === DASHBOARD_PAGE_ID);
+  return page && input.dashboards?.length === 0 ? [{ ...page, group: 'dashboards', chipOnly: true }] : [];
+};
+
 const identityOf = (draft: Draft): string => `${draft.name}\n${draft.type}\n${draft.place ?? ''}`;
 
 /**
@@ -491,11 +617,13 @@ const identityOf = (draft: Draft): string => `${draft.name}\n${draft.type}\n${dr
  * id: two rows must not read the same.
  */
 export const buildCommandRows = (input: RowsInput): CommandRow[] => {
+  const pages = pageDrafts(input);
   const drafts = [
-    ...pageDrafts(input),
+    ...pages,
     ...commandDrafts(input),
     ...newProjectDrafts(input),
     ...entityDrafts(input),
+    ...emptyDashboardDrafts(input, pages),
   ];
 
   const counts = new Map<string, number>();

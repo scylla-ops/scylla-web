@@ -12,9 +12,23 @@ The workspace landing page: a grid of widgets that shows the jobs and the pipeli
 
 ## Public API — `index.ts`
 
-Empty (`export {};`). Nothing outside the page reads the dashboard. Never export a component
-from it: Rollup cannot drop a `.svelte` that a barrel re-exports, and the import of a type
-would pull bits-ui into the chunk of the importer.
+```typescript
+dashboardQueries   list (the dashboards that the person can open, with their path)
+type DashboardEntry
+```
+
+The search bar of the shell runs `dashboardQueries.list`, with `READ_WORKSPACE` in `enabled`.
+**It only reads (`list`), and never creates the first dashboard**: a search must not write data,
+and a member who cannot create a dashboard would get an error toast. Its key is under the key of
+the set (`[...DASHBOARDS_QUERY_KEY, 'list']`), so an invalidation of the set reaches it. It starts
+from the set of the page when the cache has it (`initialData`, the dashboards with a `version`
+only). The changes that write the set in the cache (`keep`, `setMyDefault`, the first load that
+creates) invalidate it. `path` is `dashboard` for the default dashboard of the person, else
+`dashboards/<id>`. `createdBy` is the actor that created it: the bar
+names the creator of a shared dashboard.
+
+Never export a component from it: Rollup cannot drop a `.svelte` that a barrel re-exports, and
+the import of a type would pull bits-ui into the chunk of the importer.
 
 ## Data contract
 
@@ -22,7 +36,7 @@ would pull bits-ui into the chunk of the importer.
 you".**
 
 - A dashboard is a name, a visibility (`private` or `workspace`), the team default mark, a
-  `version`, and an ordered list of `{ id, data, size, target? }`
+  `version`, its creator (`createdBy`), and an ordered list of `{ id, data, size, target? }`
   (`domain/structs/dashboard-layout.struct.ts`). `target` is the id of the agent or of the
   pipeline of a dedicated widget. It is optional, so the format stays schema version 1:
   `toWidgetList` keeps a text target, and `toWidgets` writes it only when it is set.

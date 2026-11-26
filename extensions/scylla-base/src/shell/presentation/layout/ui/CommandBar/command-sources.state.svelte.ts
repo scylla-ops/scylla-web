@@ -6,7 +6,8 @@ import { activeLocale, plainMessage, readCatalogs } from '@scylla/ui/i18n';
 import { toRune } from '@scylla/ui/stores';
 import { accessQueries, workspaceRef } from '@base/features/access';
 import { appQueries } from '@base/features/apps';
-import { pipelineQueries } from '@base/features/pipeline';
+import { dashboardQueries } from '@base/features/dashboard';
+import { fragmentQueries, pipelineQueries } from '@base/features/pipeline';
 import { projectGroupQueries, projectQueries } from '@base/features/project';
 import { roleQueries } from '@base/features/roles';
 import { secretQueries } from '@base/features/secret';
@@ -36,17 +37,32 @@ export const createCommandSources = () => {
       enabled: !!workspaceId && can(Permission.LIST_PROJECTS_BY_WORKSPACE, target),
     }),
   );
-  // The groups give "New project in <group>": they read only for a person who can create one.
+  // The groups give their rows, and "New project in <group>" to a person who can create one.
   const groups = createQuery(() =>
     allChanges({
       ...projectGroupQueries.list(workspaceId ?? ''),
-      enabled: !!workspaceId && can(Permission.CREATE_PROJECT, target),
+      enabled:
+        !!workspaceId &&
+        (can(Permission.LIST_PROJECTS_BY_WORKSPACE, target) || can(Permission.CREATE_PROJECT, target)),
     }),
   );
   const pipelines = createQuery(() =>
     allChanges({
       ...pipelineQueries.allOfWorkspace(workspaceId),
       enabled: !!workspaceId && can(Permission.LIST_PIPELINES_BY_WORKSPACE, target),
+    }),
+  );
+  const fragments = createQuery(() =>
+    allChanges({
+      ...fragmentQueries.list(workspaceId),
+      enabled: !!workspaceId && can(Permission.LIST_PIPELINES_BY_WORKSPACE, target),
+    }),
+  );
+  // It only reads, and starts from the set of the dashboard page when the cache has it.
+  const dashboards = createQuery(() =>
+    allChanges({
+      ...dashboardQueries.list(workspaceId),
+      enabled: !!workspaceId && can(Permission.READ_WORKSPACE, target),
     }),
   );
   const apps = createQuery(() =>
@@ -73,12 +89,16 @@ export const createCommandSources = () => {
     }),
   );
   const workspaces = createQuery(() => allChanges(workspaceQueries.mine()));
+  // The session: the shell has read it already.
   const me = createQuery(() => userQueries.me());
 
   const reads: readonly { group: CommandGroupId; query: { isLoading: boolean; isError: boolean } }[] =
     [
       { group: 'projects', query: projects },
+      { group: 'groups', query: groups },
       { group: 'pipelines', query: pipelines },
+      { group: 'fragments', query: fragments },
+      { group: 'dashboards', query: dashboards },
       { group: 'machines', query: apps },
       { group: 'people', query: members },
       { group: 'roles', query: workspaceRoles },
@@ -91,6 +111,8 @@ export const createCommandSources = () => {
     projects: projects.data?.items ?? [],
     groups: groups.data ?? [],
     pipelines: pipelines.data?.items ?? [],
+    fragments: fragments.data ?? [],
+    dashboards: dashboards.data,
     apps: apps.data ?? [],
     members: members.data ?? [],
     workspaceRoles: workspaceRoles.data ?? [],

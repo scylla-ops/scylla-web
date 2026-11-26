@@ -62,6 +62,33 @@ describe('the chips', () => {
     expect(chips.map(chip => chip.title)).toEqual(['All', 'Pages', 'Actions']);
   });
 
+  it('puts the groups after the projects and the dashboards after the pipelines', () => {
+    const chips = commandChips([
+      row('w', 'workspaces', 'W'),
+      row('d', 'dashboards', 'D'),
+      row('m', 'machines', 'M'),
+      row('l', 'pipelines', 'L'),
+      row('g', 'groups', 'G'),
+      row('p', 'projects', 'P'),
+    ]);
+
+    expect(chips.map(chip => chip.title)).toEqual([
+      'All',
+      'Projects',
+      'Groups',
+      'Pipelines',
+      'Dashboards',
+      'Machines',
+      'Workspaces',
+    ]);
+  });
+
+  it('gives the fragments of the library to the chip of the pipelines', () => {
+    const chips = commandChips([row('f', 'fragments', 'F')]);
+
+    expect(chips.map(chip => chip.filter)).toEqual([null, 'pipelines']);
+  });
+
   it('does not count a row that needs a word to show', () => {
     const chips = commandChips([row('a', 'actions', 'A', { gate: 'run' })]);
 
@@ -92,6 +119,81 @@ describe('the groups', () => {
       'projects',
       'workspaces',
     ]);
+  });
+
+  it('ranks the groups, the fragments and the dashboards with the others', () => {
+    const results = search(
+      [
+        row('d', 'dashboards', 'deploy dashboard'),
+        row('f', 'fragments', 'deploy fragment'),
+        row('l', 'pipelines', 'deploy pipeline'),
+        row('g', 'groups', 'deploy group'),
+        row('s', 'projects', 'deploy project'),
+      ],
+      'deploy',
+    );
+
+    expect(results.sections.map(section => [section.id, section.heading])).toEqual([
+      ['groups', 'Groups'],
+      ['projects', 'Projects'],
+      ['pipelines', 'Pipelines'],
+      ['fragments', 'Fragments'],
+      ['dashboards', 'Dashboards'],
+    ]);
+  });
+
+  it('shows a group before the projects that name it in their place', () => {
+    const inGroup = (name: string) => ({
+      fields: { name: prepareFuzzyText(name), place: prepareFuzzyText('Backend services') },
+    });
+    const results = search(
+      [
+        row('p1', 'projects', 'web-api', inGroup('web-api')),
+        row('p2', 'projects', 'worker', inGroup('worker')),
+        row('g', 'groups', 'Backend services'),
+      ],
+      'bakend services',
+    );
+
+    expect(ids(results).slice(0, 1)).toEqual(['g']);
+  });
+
+  describe('a row of one chip only', () => {
+    const rows = [
+      row('page:dashboard', 'pages', 'Dashboard'),
+      row('page:dashboard', 'dashboards', 'Dashboard', { chipOnly: true }),
+    ];
+
+    it('shows under its chip, and gives the chip', () => {
+      expect(commandResults(rows, '', 'dashboards', ORDER).sections.map(section => section.id)).toEqual([
+        'dashboards',
+      ]);
+      expect(commandResults(rows, 'dash', 'dashboards', ORDER).sections.map(section => section.id)).toEqual([
+        'dashboards',
+      ]);
+      expect(commandChips(rows).map(chip => chip.title)).toEqual(['All', 'Pages', 'Dashboards']);
+    });
+
+    it('does not show twice with all the rows', () => {
+      expect(search(rows, 'dash').sections.map(section => section.id)).toEqual(['pages']);
+    });
+
+    it('shows a recent pick as the row of the other group', () => {
+      const [first] = resultItems(search(rows, '', { recent: ['page:dashboard'] }));
+
+      expect(first.kind === 'row' && first.row.group).toBe('pages');
+    });
+  });
+
+  it('lists the fragments under the filter of the pipelines', () => {
+    const results = commandResults(
+      [row('f', 'fragments', 'lint'), row('l', 'pipelines', 'build'), row('g', 'groups', 'core')],
+      '',
+      'pipelines',
+      ORDER,
+    );
+
+    expect(ids(results)).toEqual(['l', 'f']);
   });
 
   it('keeps 4 rows, then a row with the number of the others', () => {

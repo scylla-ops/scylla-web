@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 export const commandBarMessages = {
   groupBest: msg`Best match`,
@@ -10,7 +10,10 @@ export const commandBarMessages = {
   groupHelp: msg`Help`,
   groupActions: msg`Actions`,
   groupProjects: msg`Projects`,
+  groupGroups: msg`Groups`,
   groupPipelines: msg`Pipelines`,
+  groupFragments: msg`Fragments`,
+  groupDashboards: msg`Dashboards`,
   groupMachines: msg`Machines`,
   groupPeople: msg`People`,
   groupRoles: msg`Roles`,
@@ -22,7 +25,10 @@ export const commandBarMessages = {
   typePage: msg`Page`,
   typeAction: msg`Action`,
   typeProject: msg`Project`,
+  typeGroup: msg`Group`,
   typePipeline: msg`Pipeline`,
+  typeFragment: msg`Fragment`,
+  typeDashboard: msg`Dashboard`,
   typeAgent: msg`Agent`,
   typeApp: msg`App`,
   typeMember: msg`Member`,
@@ -42,7 +48,10 @@ export const commandBarMessages = {
 
   sayPage: (name: string) => msg`Go to the page ${name}.`,
   sayProject: (name: string) => msg`Go to the project ${name}.`,
+  sayGroup: (name: string) => msg`Go to the group ${name} on the projects page.`,
   sayPipeline: (name: string) => msg`Go to the pipeline ${name}.`,
+  sayFragment: (name: string) => msg`Go to the fragment ${name} of the library.`,
+  sayDashboard: (name: string) => msg`Go to the dashboard ${name}.`,
   sayAgent: (name: string) => msg`Go to the agent ${name}.`,
   sayApp: (name: string) => msg`Go to the app ${name}.`,
   sayMember: (name: string) => msg`Go to the member ${name}.`,
@@ -64,6 +73,13 @@ export const commandBarMessages = {
   runQuestion: (name: string) => msg`Run ${name}?`,
   runDetail: msg`A new job starts now.`,
 
+  projectCount: (count: number) => msg`${plural(count, { one: '# project', other: '# projects' })}`,
+  dashboardPersonal: msg({ context: 'dashboard', message: 'Personal' }),
+  dashboardShared: msg({ context: 'dashboard', message: 'Shared' }),
+  teamDefault: msg`Team default`,
+  you: msg`You`,
+  fragmentLinked: msg`Linked`,
+  fragmentForked: msg`Forked`,
 
   more: (count: number) => msg`${count} more`,
   moreHidden: (count: number) => msg`${count} more. Type more letters to find them.`,

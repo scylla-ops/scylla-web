@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { flip } from 'svelte/animate';
   import SearchIcon from '@lucide/svelte/icons/search';
   import { can } from '@platform/authz';
   import { contextStore, navigateTo, workspaceUrl } from '@platform/context';
@@ -9,7 +10,7 @@
     type CommandDefinition,
     type CommandForm,
   } from '@scylla/core-sdk';
-  import { EntityIcon } from '@scylla/ui';
+  import { ColorGlyph, motionDuration, swapIn, swapOut } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     Command,
@@ -23,9 +24,10 @@
   import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import { linkParams } from '@base/shell/presentation/shell-params.ts';
-  import IdentityAvatar from '@shared/presentation/ui/data-display/IdentityAvatar/IdentityAvatar.svelte';
   import { modifierKey } from '../GlobalSearch/modifier-key.ts';
   import CommandConfirm from './CommandConfirm.svelte';
+  import CommandRowIcon from './CommandRowIcon.svelte';
+  import { appearRow } from './command-row.attachments.ts';
   import { addRecent, readRecent } from './command-recent.ts';
   import {
     chipPressed,
@@ -245,10 +247,14 @@
     </div>
 
     <div class="relative flex items-center gap-1 overflow-x-auto border-b border-border px-2 py-1.5">
+      <!-- A chip comes when its list loads: it grows in, and the others make room. -->
       {#each chips as { filter: value, title } (value ?? 'all')}
         <button
           type="button"
           tabindex="-1"
+          in:swapIn
+          out:swapOut
+          animate:flip={{ duration: motionDuration(200) }}
           aria-pressed={chipPressed(value, filter)}
           class={cn(
             'shrink-0 rounded-md px-2 py-0.5 text-xs text-muted-foreground outline-hidden transition-colors hover:bg-accent motion-reduce:transition-none',
@@ -301,36 +307,34 @@
           {#each section.items as item (item.id)}
             {#if item.kind === 'row'}
               {@const row = item.row}
-              {@const Icon = row.icon}
               <CommandItem
                 value={row.id}
                 disabled={row.verb === undefined}
                 aria-label={row.sentence}
                 onSelect={() => pick(row)}
+                {@attach appearRow}
               >
-                <span class="flex size-5 shrink-0 items-center justify-center" aria-hidden="true">
-                  {#if row.look?.kind === 'project'}
-                    <EntityIcon {...row.look.icon} size={20} />
-                  {:else if row.look}
-                    <IdentityAvatar
-                      profile={row.look.profile}
-                      kind={row.look.kind}
-                      self={row.look.self}
-                      size={20}
-                    />
-                  {:else}
-                    <Icon class="size-4 text-muted-foreground" />
-                  {/if}
-                </span>
+                <CommandRowIcon {row} />
                 <span class="flex min-w-0 flex-1 flex-col">
                   <span class="truncate">
                     {#each nameParts(row.name, item.ranges) as part, index (index)}
                       {#if part.hit}<span class="underline decoration-primary decoration-2 underline-offset-2">{part.text}</span>{:else}{part.text}{/if}
                     {/each}
                   </span>
-                  <span class="truncate text-xs text-muted-foreground">
-                    {row.place ? `${row.type} · ${row.place}` : row.type}
-                  </span>
+                  {#if row.placeGlyph && row.place}
+                    <!-- The glyph of the place: the folder of a group, a shared dashboard. -->
+                    <span class="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+                      <span class="shrink-0">{row.type} ·</span>
+                      <ColorGlyph icon={row.placeGlyph.icon} color={row.placeGlyph.color} class="size-3" />
+                      <span class="truncate">
+                        {row.facts ? `${row.place} · ${row.facts}` : row.place}
+                      </span>
+                    </span>
+                  {:else}
+                    <span class="truncate text-xs text-muted-foreground">
+                      {[row.type, row.place, row.facts].filter(Boolean).join(' · ')}
+                    </span>
+                  {/if}
                 </span>
                 <span class="shrink-0 text-xs text-muted-foreground">
                   {row.verb ?? t(messages.current)}
@@ -341,8 +345,9 @@
                 value={item.id}
                 aria-label={item.sentence}
                 onSelect={() => setFilter(item.filter)}
+                {@attach appearRow}
               >
-                <span class="pl-6 text-xs text-muted-foreground">{t(messages.more(item.count))}</span>
+                <span class="pl-7 text-xs text-muted-foreground">{t(messages.more(item.count))}</span>
               </CommandItem>
             {/if}
           {/each}

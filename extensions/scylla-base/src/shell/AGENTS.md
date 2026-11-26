@@ -132,6 +132,8 @@ changes only for a new mount, a new section or a new part of the shell.
 ```
 CommandBar.svelte                the dialog
 CommandBarContent.svelte         the input, the chips, the rows, the status lines, the footer
+CommandRowIcon.svelte            the icon of a row: the entity icon, or a glyph in its color
+command-row.attachments.ts       the fade of a row that a new search shows
 command-sources.state.svelte.ts  the lists. Each list reads only with its permission, while the bar is open
 command-rows.presenter.ts        builds a CommandRow from each page, command and entity
 command-results.presenter.ts     prefixes, chips, groups, order, limits
@@ -158,6 +160,24 @@ Rules:
   and checks the typing errors on the real labels in the two languages. Run it when you add a label.
 - A list of the bar uses `notifyOnChangeProps: 'all'`. TanStack tells only the changes of the fields that
   were read, and the bar reads the state of a list at the first key.
+- **The bar reads the cached lists of the features, never a list of its own.** The lists: the pages
+  (`navLinks()`), the commands, the projects (`projectQueries.lookup`), the project groups
+  (`projectGroupQueries.list`), the pipelines, the fragments of the library (`fragmentQueries.list`),
+  the dashboards (`dashboardQueries.list`), the apps and agents, the members, the roles, the secrets
+  of the open project (names only, never a value) and the workspaces. No list reads at each key: a
+  list that can be too big for the browser needs a server search, with a pause after the typing.
+- **Opening the bar never writes data.** A list of the bar only reads: with no dashboard on the
+  server, the bar creates none. The chip of the dashboards then shows the page of the dashboard
+  (`chipOnly`: the row shows under its chip only, with the id of the page), and the page creates
+  the first one.
+- **A row shows the visual of its entity**: the icon of a project (`look`), the folder color of a
+  group (`iconColor`), and a glyph before the place (`placeGlyph`): the folder of the group of a
+  project, the lock of a personal dashboard, the people of a shared one. `facts` comes after the place
+  and is not searched (the number of projects of a group, the creator of a shared dashboard).
+- A group goes to `projects?group=<id>`: the projects page opens the group, scrolls to it and flashes
+  its header (`features/project`). The section of the groups comes before the projects: the text of
+  a group also finds its projects (by their place), and the group must stay in the first rows. The
+  fragments show with the chip of the pipelines.
 - A form stays open after the bar closes, so `GlobalSearch` keeps it, not the bar.
 - A row of a person, an agent, an app or a project shows its `look`, as everywhere else: the photo or
   the initials color (`IdentityAvatar`, solid for the reader), or the icon (`EntityIcon`), at 20 px.

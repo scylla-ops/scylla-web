@@ -137,6 +137,7 @@ presentation/
   ui/reorder.transition.ts           the transitions of the reorder mode, and a card that moves to
                                      another section
   ui/project-layout.context.ts       what the menu of a card reads from the page
+  ui/group-focus.attachments.svelte.ts   `?group=<id>`: opens, scrolls to and flashes a group
   ui/ProjectSections/                the sections, their headers (with "+" and « New group »), the
                                      group menu, the group name row, the grid with the drop slot and
                                      the ghost card, the line of chips of a folded section
@@ -266,6 +267,10 @@ choice card links to it by its path only.
   it: `pipeline` reaches `project` through `apps`, so an import makes a module cycle. A click on this
   row goes to the list.
 
+- **`?group=<id>` opens the page on a group** (the search bar of the shell links to it). When the
+  sections show, `focusGroup` (`ui/group-focus.attachments.svelte.ts`) opens the group, scrolls to it
+  and flashes its header once, then takes the parameter out of the URL. A group that the page does
+  not have only clears the parameter. A reduced motion jumps, with no flash.
 - **The page has sections when there is no search**: the pins, the groups, then « No group ».
   Each section is one `ListProjects` with `section` (or `project_ids` for the pins) and its own
   "Show more". A search shows one flat list, as before. With no pin and no group, the page shows

@@ -15,7 +15,9 @@ export type CommandFilter =
   | 'pages'
   | 'actions'
   | 'projects'
+  | 'groups'
   | 'pipelines'
+  | 'dashboards'
   | 'machines'
   | 'people'
   | 'secrets'
@@ -27,7 +29,10 @@ const FILTER_GROUPS: Record<CommandFilter, readonly CommandGroupId[]> = {
   pages: ['pages'],
   actions: ['preferences', 'actions'],
   projects: ['projects'],
-  pipelines: ['pipelines'],
+  groups: ['groups'],
+  /** The fragments of the library are parts of pipelines. */
+  pipelines: ['pipelines', 'fragments'],
+  dashboards: ['dashboards'],
   machines: ['machines'],
   people: ['people', 'roles'],
   secrets: ['secrets'],
@@ -40,7 +45,10 @@ const GROUP_FILTER: Record<CommandGroupId, CommandFilter> = {
   preferences: 'actions',
   actions: 'actions',
   projects: 'projects',
+  groups: 'groups',
   pipelines: 'pipelines',
+  fragments: 'pipelines',
+  dashboards: 'dashboards',
   machines: 'machines',
   people: 'people',
   roles: 'people',
@@ -48,12 +56,19 @@ const GROUP_FILTER: Record<CommandGroupId, CommandFilter> = {
   workspaces: 'workspaces',
 };
 
+/**
+ * A group comes before the projects: the text of a group also finds its projects (by their place)
+ * and its "New project in" action, and the group must stay in the first rows.
+ */
 const GROUP_ORDER: readonly CommandGroupId[] = [
   'pages',
   'preferences',
   'actions',
+  'groups',
   'projects',
   'pipelines',
+  'fragments',
+  'dashboards',
   'machines',
   'people',
   'roles',
@@ -66,7 +81,10 @@ const GROUP_TITLES: Record<CommandGroupId, MessageDescriptor> = {
   preferences: messages.groupPreferences,
   actions: messages.groupActions,
   projects: messages.groupProjects,
+  groups: messages.groupGroups,
   pipelines: messages.groupPipelines,
+  fragments: messages.groupFragments,
+  dashboards: messages.groupDashboards,
   machines: messages.groupMachines,
   people: messages.groupPeople,
   roles: messages.groupRoles,
@@ -117,7 +135,9 @@ export const commandChips = (rows: readonly CommandRow[]): CommandChip[] => {
     ...chip('pages', messages.groupPages),
     ...chip('actions', messages.groupActions),
     ...chip('projects', messages.groupProjects),
+    ...chip('groups', messages.groupGroups),
     ...chip('pipelines', messages.groupPipelines),
+    ...chip('dashboards', messages.groupDashboards),
     ...chip('machines', messages.groupMachines),
     ...chip('people', messages.groupPeople),
     ...chip('secrets', messages.groupSecrets),
@@ -265,7 +285,7 @@ export const searchCommandRows = (
   const runWord = hasRunWord(query);
 
   const scored = rows
-    .filter(row => !groups || groups.includes(row.group))
+    .filter(row => (groups ? groups.includes(row.group) : !row.chipOnly))
     .filter(row => row.gate !== 'run' || runWord || row.here)
     .flatMap((row): Scored[] => {
       const match = fuzzyMatch(query, row.fields);
@@ -305,7 +325,8 @@ export const startCommandRows = (
   rows: readonly CommandRow[],
   order: ResultOrder,
 ): CommandResults => {
-  const byId = new Map(rows.map(row => [row.id, row]));
+  const shown = rows.filter(row => !row.chipOnly);
+  const byId = new Map(shown.map(row => [row.id, row]));
   const taken = new Set<string>();
   const take = (list: readonly CommandRow[]): ResultRow[] =>
     list.flatMap(row => {

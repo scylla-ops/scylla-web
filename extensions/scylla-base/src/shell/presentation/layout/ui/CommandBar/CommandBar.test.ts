@@ -129,7 +129,12 @@ const reads = () => ({
       ],
     }),
   ),
-  listGroups: vi.fn(() => Promise.resolve([{ id: 'g-1', workspaceId: 'w1', name: 'Deploys' }])),
+  listGroups: vi.fn(() =>
+    Promise.resolve([
+      { id: 'g-1', workspaceId: 'w1', name: 'Deploys' },
+      { id: 'g1', workspaceId: 'w1', name: 'Backend', color: 'chart-2' },
+    ]),
+  ),
   getMetadataByWorkspaceId: vi.fn(() =>
     Promise.resolve({ items: [{ id: 'l1', name: 'Build web', projectId: 'p1' }] }),
   ),
@@ -159,6 +164,22 @@ const reads = () => ({
       { id: 'w2', name: 'Globex', slug: 'globex' },
     ]),
   ),
+  listDashboards: vi.fn(() =>
+    Promise.resolve([
+      { id: 'd1', name: 'Ops overview', visibility: 'private', teamDefault: false, widgets: [] },
+      {
+        id: 'd2',
+        name: 'Release health',
+        visibility: 'workspace',
+        teamDefault: false,
+        createdBy: 'u1',
+        widgets: [],
+      },
+    ]),
+  ),
+  listFragments: vi.fn(() => Promise.resolve([{ id: 'f1', name: 'docker-build', tags: [] }])),
+  createDashboard: vi.fn(),
+  getMe: vi.fn(() => Promise.resolve({ id: 'me', username: 'me' })),
   run: vi.fn(() => Promise.resolve()),
 });
 
@@ -239,7 +260,13 @@ beforeEach(() => {
           getMetadataByWorkspaceId: fakes.getMetadataByWorkspaceId,
           run: fakes.run,
         },
+        fragmentRepository: { list: fakes.listFragments },
       },
+      dashboard: {
+        dashboardLayoutRepository: { list: fakes.listDashboards, create: fakes.createDashboard },
+        dashboardPreferences: { defaultId: () => null, legacy: () => null },
+      },
+      user: { userRepository: { getMe: fakes.getMe } },
       apps: { appsRepository: { listApps: fakes.listApps } },
       access: { accessRepository: { listMembers: fakes.listMembers } },
       roles: { roleRepository: { list: fakes.listRoles } },
@@ -334,6 +361,38 @@ describe('CommandBar', () => {
         'Open the form: New project in Deploys. Nothing changes until you submit it.',
         '/acme/projects/new?group=g-1',
       ));
+
+    it('opens the projects page on a group', () =>
+      go(
+        'backend',
+        'Go to the group Backend on the projects page.',
+        '/acme/projects?group=g1',
+      ));
+
+    it('goes to the default dashboard at its short path', () =>
+      go('ops overview', 'Go to the dashboard Ops overview (Personal).', '/acme/dashboard'));
+
+    it('goes to a shared dashboard', () =>
+      go(
+        'release health',
+        'Go to the dashboard Release health (Shared).',
+        '/acme/dashboards/d2',
+      ));
+
+    it('goes to a fragment of the library', () =>
+      go('docker build', 'Go to the fragment docker-build of the library.', '/acme/library/f1'));
+
+    it('shows the number of projects of a group, and who shares a dashboard', async () => {
+      const input = await open();
+      const typing = user();
+      await typing.type(input, 'backend');
+      expect(within(await option(/group Backend/)).getByText('Group · 0 projects')).toBeInTheDocument();
+
+      await typing.clear(input);
+      await typing.type(input, 'release health');
+      const row = await option(/Release health/);
+      expect(within(row).getByText('Shared · Marie Dubois')).toBeInTheDocument();
+    });
 
     it('goes to a pipeline, and names its project', () =>
       go(
@@ -683,6 +742,29 @@ describe('CommandBar', () => {
       expect(chip(name)).toHaveAttribute('aria-pressed', 'true');
     });
 
+    it('has the chips of the groups and of the dashboards, in a logical order', async () => {
+      await open();
+
+      await waitFor(() => expect(chip('Dashboards')).toBeInTheDocument());
+      const titles = screen
+        .getAllByRole('button')
+        .map(button => button.textContent?.trim())
+        .filter(title => ['Projects', 'Groups', 'Pipelines', 'Dashboards', 'Machines'].includes(title ?? ''));
+      expect(titles).toEqual(['Projects', 'Groups', 'Pipelines', 'Dashboards', 'Machines']);
+    });
+
+    it('lists the groups, and the fragments with the pipelines', async () => {
+      await open();
+      await waitFor(() => expect(chip('Groups')).toBeInTheDocument());
+      await fireEvent.click(chip('Groups'));
+      expect(await option(/group Backend/)).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /project web-api/ })).not.toBeInTheDocument();
+
+      await fireEvent.click(chip('Pipelines'));
+      expect(await option(/fragment docker-build/)).toBeInTheDocument();
+      expect(await option(/pipeline Build web/)).toBeInTheDocument();
+    });
+
     it('marks two chips for the prefix of the projects and of the pipelines', async () => {
       const input = await open();
       await user().type(input, '#');
@@ -813,6 +895,29 @@ describe('CommandBar', () => {
       expect(input).toHaveValue('agnts');
     });
 
+    it('keeps a group and a dashboard in the recent rows', async () => {
+      const input = await open();
+      const typing = user();
+      await typing.type(input, 'backend');
+      await option(/group Backend/);
+      await waitFor(() => expect(selected()).toMatch(/group Backend/));
+      await typing.keyboard('{Enter}');
+
+      expect(JSON.parse(localStorage.getItem('scylla-command-bar-recent:w1') ?? '[]')).toEqual([
+        'group:g1',
+      ]);
+    });
+
+    it('shows a recent dashboard first in the empty bar', async () => {
+      localStorage.setItem('scylla-command-bar-recent:w1', JSON.stringify(['dashboard:d2']));
+      await open();
+
+      expect(await screen.findByText('Recent')).toBeInTheDocument();
+      await waitFor(() =>
+        expect(options()[0]).toHaveAccessibleName('Go to the dashboard Release health (Shared).'),
+      );
+    });
+
     it('reads a recent row from the list of this workspace', async () => {
       localStorage.setItem('scylla-command-bar-recent:w1', JSON.stringify(['page:workspace/agents']));
       await open();
@@ -860,6 +965,33 @@ describe('CommandBar', () => {
       expect(fakes.listApps).not.toHaveBeenCalled();
       expect(fakes.listMembers).not.toHaveBeenCalled();
       expect(fakes.listByProjectId).not.toHaveBeenCalled();
+      expect(fakes.listGroups).not.toHaveBeenCalled();
+      expect(fakes.listDashboards).not.toHaveBeenCalled();
+      expect(fakes.listFragments).not.toHaveBeenCalled();
+    });
+
+    it('creates no dashboard when it opens in a workspace with none', async () => {
+      fakes.listDashboards.mockResolvedValue([]);
+      setNavLinks(() => [...LINKS, link('dashboard', msg`Dashboard`)]);
+      await open();
+
+      await waitFor(() => expect(chip('Dashboards')).toBeInTheDocument());
+      await fireEvent.click(chip('Dashboards'));
+
+      expect(options().map(element => element.getAttribute('aria-label'))).toEqual([
+        'Go to the page Dashboard.',
+      ]);
+      expect(fakes.listDashboards).toHaveBeenCalledWith('w1');
+      expect(fakes.createDashboard).not.toHaveBeenCalled();
+    });
+
+    it('reads the groups, the dashboards and the fragments each with its own permission', async () => {
+      grant([Permission.LIST_PROJECTS_BY_WORKSPACE, Permission.READ_WORKSPACE]);
+      await open();
+
+      await waitFor(() => expect(fakes.listGroups).toHaveBeenCalledWith('w1'));
+      await waitFor(() => expect(fakes.listDashboards).toHaveBeenCalledWith('w1'));
+      expect(fakes.listFragments).not.toHaveBeenCalled();
     });
 
     it('hides a command without its permission', async () => {

@@ -121,6 +121,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   card to create a project in this group, and the project forms have a Group field. The sidebar and
   the search bar also open a new project in a group. A folded group shows one line with its first
   projects and "+N".
+- The search bar (Ctrl K) now finds the project groups, the dashboards and the fragments of the
+  library. A group row shows the folder color of the group and its number of projects, and opens the
+  projects page on this group: the group opens, comes into view and its header flashes once. A
+  dashboard row tells if the dashboard is personal or shared, and names the person that shares it. A
+  project row shows the icon of the project and its group, with the folder color. The tabs "Groups"
+  and "Dashboards" come after "Projects" and "Pipelines", and the fragments show in "Pipelines". The
+  recent list keeps these rows too. The rows fade in, and a new tab grows in.
 
 ## [0.7.2] - 2026-11-25
 

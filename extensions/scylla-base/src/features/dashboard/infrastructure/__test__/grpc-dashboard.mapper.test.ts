@@ -26,3 +26,12 @@ describe('widgets_json', () => {
     expect(toStored(dashboard, stored).widgets).toEqual([{ id: 'a', data: 'runs', size: 'm' }]);
   });
 });
+
+describe('the dashboard', () => {
+  it('keeps the creator, which the search bar names for a shared dashboard', () => {
+    const shared = { ...dashboard, createdBy: { value: 'u2' } } as unknown as Dashboard;
+
+    expect(toStored(shared).createdBy).toBe('u2');
+    expect(toStored(dashboard)).not.toHaveProperty('createdBy');
+  });
+});

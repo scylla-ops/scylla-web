@@ -66,6 +66,8 @@ export interface DashboardLayout {
   visibility?: DashboardVisibility;
   /** The team default of the workspace. */
   teamDefault?: boolean;
+  /** The id of the actor that created it. Not set for a layout that the server does not have. */
+  createdBy?: string;
 }
 
 /** Who sees a dashboard: its creator only, or each member of the workspace. */
