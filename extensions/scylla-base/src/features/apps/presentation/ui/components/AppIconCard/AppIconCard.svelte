@@ -1,7 +1,7 @@
 <script lang="ts">
   import PaletteIcon from '@lucide/svelte/icons/palette';
   import { createMutation } from '@scylla/core-sdk';
-  import { ScyllaDialog } from '@scylla/ui';
+  import { ScyllaDialog, swapIn, swapOut } from '@scylla/ui';
   import {
     Button,
     Card,
@@ -15,27 +15,43 @@
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { appMutations } from '@base/features/apps/presentation/apps.queries.ts';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
+  import { appPageMessages } from '@base/features/apps/presentation/messages/app-page.messages.ts';
   import { agentProfile } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
-  import AgentIconForm from './AgentIconForm.svelte';
+  import AppIconForm from './AppIconForm.svelte';
 
   interface Props {
     /** Only the admins of the workspace see the card: `set_app_icon`. */
-    agent: Pick<AppEntity, 'id' | 'name' | 'icon'>;
+    app: Pick<AppEntity, 'id' | 'name' | 'icon' | 'runner'>;
   }
 
-  let { agent }: Props = $props();
+  let { app }: Props = $props();
 
   const reset = createMutation(() => appMutations.setIcon());
   let open = $state(false);
+  const title = $derived(t(app.runner ? messages.icon : appPageMessages.icon));
+  const iconKey = $derived(JSON.stringify(app.icon ?? null));
 </script>
 
 <Card>
   <CardHeader>
-    <CardTitle><h2>{t(messages.icon)}</h2></CardTitle>
-    <CardDescription>{t(messages.iconDescription)}</CardDescription>
+    <CardTitle><h2>{title}</h2></CardTitle>
+    <CardDescription>
+      {t(app.runner ? messages.iconDescription : appPageMessages.iconDescription)}
+    </CardDescription>
   </CardHeader>
   <CardContent class="flex items-center gap-4">
-    <IdentityAvatar profile={agentProfile(agent)} kind="agent" size={48} />
+    <!-- A new icon fades in over the old one. -->
+    <span class="grid shrink-0 place-items-center">
+      {#key iconKey}
+        <span class="col-start-1 row-start-1 flex" in:swapIn out:swapOut>
+          <IdentityAvatar
+            profile={agentProfile(app)}
+            kind={app.runner ? 'agent' : 'app'}
+            size={48}
+          />
+        </span>
+      {/key}
+    </span>
     <div class="flex min-w-0 flex-col gap-1.5">
       <div class="flex flex-wrap items-center gap-2">
         <Button variant="outline" size="sm" onclick={() => (open = true)}>
@@ -45,8 +61,8 @@
         <Button
           variant="ghost"
           size="sm"
-          disabled={!agent.icon || reset.isPending}
-          onclick={() => reset.mutate({ appId: agent.id, icon: { kind: 'default' } })}
+          disabled={!app.icon || reset.isPending}
+          onclick={() => reset.mutate({ appId: app.id, icon: { kind: 'default' } })}
         >
           {t(messages.resetIcon)}
         </Button>
@@ -56,13 +72,13 @@
   </CardContent>
 </Card>
 
-<!-- The form is built again at each opening: it starts on the icon of the agent. -->
+<!-- The form is built again at each opening: it starts on the icon of the app. -->
 <ScyllaDialog
   {open}
   onOpenChange={next => (open = next)}
-  title={t(messages.icon)}
-  description={t(messages.iconDialogDescription)}
+  {title}
+  description={t(app.runner ? messages.iconDialogDescription : appPageMessages.iconDialogDescription)}
   class="sm:max-w-lg"
 >
-  <AgentIconForm {agent} close={() => (open = false)} />
+  <AppIconForm {app} close={() => (open = false)} />
 </ScyllaDialog>

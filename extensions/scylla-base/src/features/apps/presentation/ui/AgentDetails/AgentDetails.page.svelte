@@ -20,7 +20,7 @@
   import AgentRecentJobsCard from './AgentRecentJobsCard.svelte';
   import AgentAccessCard from './AgentAccessCard.svelte';
   import AgentLabelsCard from './AgentLabelsCard.svelte';
-  import AgentIconCard from './AgentIconCard/AgentIconCard.svelte';
+  import AppIconCard from '../components/AppIconCard/AppIconCard.svelte';
   import AgentKeysCard from './AgentKeysCard.svelte';
   import AgentConnectCard from './AgentConnectCard.svelte';
   import AgentDangerZone from './AgentDangerZone.svelte';
@@ -172,7 +172,7 @@
         {/if}
         <AgentLabelsCard {agent} canChange={canSetLabels} />
         {#if canSetIcon}
-          <AgentIconCard {agent} />
+          <AppIconCard app={agent} />
         {/if}
       </div>
     </div>

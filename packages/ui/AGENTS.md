@@ -36,7 +36,7 @@ src/
   chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
                            ChartSlot, ChartRing: the marks of the charts of a widget
   controls/                IconButton, GatedButton, PasswordInput, SearchSelect, SegmentedControl,
-                           ShareLinkButton, ColorPicker, IconPicker
+                           ShareLinkButton, ColorPicker, IconPicker, IconField
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
                            CopyableText, TruncatedText, EntityIcon
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
@@ -45,7 +45,8 @@ src/
                            ScyllaLoadingScreen, keepFitted (an attachment: fits a view again at
                            each resize)
   widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
-  motion/                  page transitions, reduced motion, a spring easing
+  motion/                  page transitions, reduced motion, a spring easing, fold and
+                           unfold (height and fade), swap (a cross-fade of a value)
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -91,7 +92,7 @@ they use the language of the browser or no language.
 | Row selection | `createSelection(key)` over the single `selectionStore` — **no per-feature selection store** |
 | Selection for a list header | `createFeatureSelection(key, () => ids, { deleteItem })` → `headerProps` for `FeatureHeader` |
 | List header (count, clear, delete, new) | `FeatureHeader` |
-| A form | `FormItem[]` → `ScyllaForm`; `FormDialog` wraps it; `createFormState(() => items)` owns values/validation. Declare the ids in the item type (`readonly FormItem<'name' \| 'description'>[]`) and `onSubmit` receives a typed `FormValues` record — never re-index the values by hand |
+| A form | `FormItem[]` → `ScyllaForm`; `FormDialog` wraps it; `createFormState(() => items)` owns values/validation. Declare the ids in the item type (`readonly FormItem<'name' \| 'description'>[]`) and `onSubmit` receives a typed `FormValues` record — never re-index the values by hand. A field that is not text or a choice (an `IconField`) goes in the `leading` snippet of `ScyllaForm`, before the items; the owner keeps its value and sends it with the values |
 | Pagination | `createPagination(options)` — local page merged with server `totalCount`/`totalPages`; `responsive: true` sizes the page to the container |
 | How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
@@ -104,6 +105,7 @@ they use the language of the browser or no language.
 | Give the link of a page to another person | `ShareLinkButton` (`url`, `hint`). The top bar of the core renders it for a route with `share`: a page does not render it |
 | The icon of an entity (a project, an agent): a glyph in a color, or an image | `EntityIcon` (`icon`, `color`, `image`, `size` 20, 36 or 48). A free color `#RRGGBB` goes through `iconColors` (`utils/color.ts`): under 3:1 with the card of the theme, the tile is solid with a white or near-black glyph. The glyphs of a picker are `ENTITY_GLYPHS` |
 | Choose the icon of an entity | `IconPicker` (`value`: an `IconChoice`, `onchange`, `title`, `recent`, and the default icon of the entity: `defaultGlyph`, `defaultColor`): the glyphs with a search, the colors of the theme, the free color, the image tab. The owner puts it in a `ScyllaDialog` and saves. The free color is `ColorPicker`, which also works alone |
+| The icon in a form that creates or edits an entity | `IconField` (`value`, `onchange`, `recent`, `defaultGlyph`, `defaultColor`, `disabled`): the label, the preview, "Change the icon" and Reset on one line; the button unfolds the `IconPicker` (with no header) under them. Nothing is saved: the owner sends the choice with the other fields at the submit. The field keeps the URL of a new image while the picker is closed, and frees it when it goes away. Every create and edit form of an entity with an icon has it |
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
 | One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
@@ -178,7 +180,12 @@ scylla-base is the only place that changes the theme.
 Svelte transition writes inline styles from JavaScript and that query never sees it — every
 transition here asks and collapses its duration to zero. `springEasing({ bounce, duration })`
 gives a spring as an easing, with the parameters of the design tools: the thumb of
-`SegmentedControl` and the rail tile of the core use it.
+`SegmentedControl` and the rail tile of the core use it. `unfold` and `fold` (`in:` and `out:`)
+open and close a part under its owner: the height, the paddings and an opacity, 220 ms in and
+150 ms out. Put the space above the part in its padding, not in a `gap`, or the close ends with
+a jump. `swapIn` and `swapOut` cross-fade a value that changes, as an icon: put the two in one
+grid cell (`grid` on the parent, `col-start-1 row-start-1` on the child) in a `{#key}`, so the
+place keeps its size.
 
 ### `primitives/` — the primitives
 

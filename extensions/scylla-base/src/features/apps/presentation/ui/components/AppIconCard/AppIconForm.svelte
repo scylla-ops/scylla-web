@@ -10,27 +10,27 @@
   import {
     agentIconChange,
     agentIconChoice,
-    DEFAULT_AGENT_COLOR,
-    DEFAULT_AGENT_GLYPH,
+    defaultAppIcon,
   } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
 
   interface Props {
-    agent: Pick<AppEntity, 'id' | 'name' | 'icon'>;
+    app: Pick<AppEntity, 'id' | 'name' | 'icon' | 'runner'>;
     close: () => void;
   }
 
-  let { agent, close }: Props = $props();
+  let { app, close }: Props = $props();
 
   const setIcon = createMutation(() => appMutations.setIcon());
+  const defaults = $derived(defaultAppIcon(app.runner));
   // svelte-ignore state_referenced_locally
-  let choice = $state<IconChoice>(agentIconChoice(agent.icon));
+  let choice = $state<IconChoice>(agentIconChoice(app.icon, defaultAppIcon(app.runner).color));
   const recent = recentColors();
 
   const save = async () => {
-    const icon = await agentIconChange(choice, agent.icon);
+    const icon = await agentIconChange(choice, app.icon);
     if (!icon) return close();
     setIcon.mutate(
-      { appId: agent.id, icon },
+      { appId: app.id, icon },
       {
         onSuccess: () => {
           if (icon.kind === 'glyph') keepRecentColor(icon.color);
@@ -44,10 +44,10 @@
 <IconPicker
   value={choice}
   onchange={next => (choice = next)}
-  title={agent.name}
+  title={app.name}
   {recent}
-  defaultGlyph={DEFAULT_AGENT_GLYPH}
-  defaultColor={DEFAULT_AGENT_COLOR}
+  defaultGlyph={defaults.glyph}
+  defaultColor={defaults.color}
 />
 <DialogFooter>
   <Button variant="outline" data-dialog-dismiss onclick={close}>

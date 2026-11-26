@@ -1,5 +1,6 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
+  import { can, Permission } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import {
@@ -10,6 +11,7 @@
     DialogHeader,
     DialogTitle,
   } from '@scylla/ui/primitives';
+  import type { IconChoice } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { TokenExpiry, TokenPreset } from '@shared/domain/structs/api-token.struct.ts';
   import {
@@ -35,6 +37,7 @@
     type NewCredential,
     type ReadyApp,
   } from '@base/features/apps/presentation/app-credentials.queries.ts';
+  import { agentIconChange } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
   import StepBar from './StepBar.svelte';
   import CiForm from '../CiForm/CiForm.svelte';
   import RolesStep from './RolesStep.svelte';
@@ -60,6 +63,9 @@
 
   let step = $state(0);
   let name = $state('');
+  let icon = $state<IconChoice>({ kind: 'default' });
+  /** `SetAppIcon` is for the admins of the workspace: the others make an app with no icon. */
+  const canSetIcon = $derived(can(Permission.SET_APP_ICON, { workspaceId }));
   let workspaceRole = $state('member');
   let projectRoles = $state<Record<string, string>>({});
   let kind = $state<ConnectionKind>('token');
@@ -107,6 +113,7 @@
     setOpen(false);
     step = 0;
     name = '';
+    icon = { kind: 'default' };
     workspaceRole = 'member';
     projectRoles = {};
     kind = 'token';
@@ -143,9 +150,14 @@
     return { kind };
   };
 
-  const submit = () =>
+  const submit = async () =>
     create.mutate(
-      { name, grants: grantsOf(workspaceRole, projectRoles), credential: credential() },
+      {
+        name,
+        grants: grantsOf(workspaceRole, projectRoles),
+        credential: credential(),
+        icon: canSetIcon ? await agentIconChange(icon, undefined) : undefined,
+      },
       {
         onSuccess: result => {
           ready = result;
@@ -157,7 +169,7 @@
 
   const next = () => {
     if (step === 0 && name.trim()) step = 1;
-    else if (step === 1 && kind === 'keypair') submit();
+    else if (step === 1 && kind === 'keypair') void submit();
     else if (step === 1) step = 2;
   };
 
@@ -194,6 +206,8 @@
             {workspaceId}
             {workspaceName}
             bind:name
+            bind:icon
+            {canSetIcon}
             bind:workspaceRole
             bind:projectRoles
           />

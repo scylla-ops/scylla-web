@@ -4,6 +4,7 @@ import { contextStore } from '@platform/context';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
 import type {
   ProjectEntity,
@@ -13,6 +14,7 @@ import type {
 import type { ProjectSearch } from '../domain/structs/project-search.struct.ts';
 import type { ProjectModule } from '../project.module.ts';
 import { projectMessages } from './messages/project.messages.ts';
+import { keepRecentColor } from './recent-colors.user-state.ts';
 
 // Resolved per call: tests swap the registry.
 const repository = () => getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
@@ -141,6 +143,31 @@ const refetchEveryProjectList = () =>
 const writeReadOfProject = (projectId: string, project: ProjectEntity | null) =>
   getQueryClient().setQueriesData({ queryKey: PROJECT_QUERY_KEY(projectId), exact: true }, project);
 
+/** A free color of a saved icon goes first in the recent colors. */
+const keepColorOf = (icon: ProjectIconChange | undefined) => {
+  if (icon?.kind === 'glyph') keepRecentColor(icon.color);
+};
+
+/**
+ * `CreateProject` has no icon: it goes in an `UpdateProject` just after. The project stays when
+ * only the icon fails, and a toast tells it.
+ */
+const createWithIcon = async (
+  name: string,
+  workspaceId: string,
+  description?: string,
+  icon?: ProjectIconChange,
+): Promise<ProjectEntity> => {
+  const created = await repository().create(name, workspaceId, description);
+  if (!icon) return created;
+  try {
+    return await repository().setIcon(created.id, icon);
+  } catch (error) {
+    toast.error(i18n._(projectMessages.iconNotSaved(ScyllaError.from(error).userMessage())));
+    return created;
+  }
+};
+
 export const projectMutations = {
   create: () =>
     mutationOptions({
@@ -149,30 +176,37 @@ export const projectMutations = {
         name,
         workspaceId,
         description,
+        icon,
       }: {
         name: string;
         workspaceId: string;
         description?: string;
-      }) => repository().create(name, workspaceId, description),
-      onSuccess: () => {
+        icon?: ProjectIconChange;
+      }) => createWithIcon(name, workspaceId, description, icon),
+      onSuccess: (created, { icon }) => {
         toast.success(i18n._(ToastMessages.PROJECT_CREATE));
+        if (created.icon) keepColorOf(icon);
         return invalidateProjects();
       },
     }),
 
+  /** The icon goes in the same `UpdateProject` as the name and the description. */
   update: () =>
     mutationOptions({
       mutationFn: ({
         projectId,
         name,
         description,
+        icon,
       }: {
         projectId: string;
         name?: string;
         description?: string;
-      }) => repository().update(projectId, name, description),
-      onSuccess: updated => {
+        icon?: ProjectIconChange;
+      }) => repository().update(projectId, name, description, icon),
+      onSuccess: (updated, { icon }) => {
         toast.success(i18n._(ToastMessages.PROJECT_UPDATE));
+        keepColorOf(icon);
         // No `cleanContext` is mounted on the list, and the search bar shows the stored name there.
         const { project, setProject } = contextStore.getState();
         if (project.id === updated.id) setProject(updated.id, updated.name);

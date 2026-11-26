@@ -1,12 +1,21 @@
 <script lang="ts">
+  import { IconField, type IconChoice } from '@scylla/ui';
   import { Button, Input, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import { recentColors } from '@base/features/project';
   import ProjectChooser from '../components/ProjectChooser/ProjectChooser.svelte';
   import { addAgentMessages as messages } from '@base/features/apps/presentation/messages/add-agent.messages.ts';
+  import {
+    DEFAULT_AGENT_COLOR,
+    DEFAULT_AGENT_GLYPH,
+  } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
 
   interface Props {
     workspaceId: string;
     name: string;
+    icon: IconChoice;
+    /** Only the admins of the workspace give an icon: `set_app_icon`. */
+    canSetIcon: boolean;
     /** Empty: each project of the workspace. */
     projectIds: string[];
     someProjects: boolean;
@@ -17,11 +26,15 @@
   let {
     workspaceId,
     name = $bindable(),
+    icon = $bindable(),
+    canSetIcon,
     projectIds = $bindable(),
     someProjects = $bindable(),
     canAdd,
     onAdd,
   }: Props = $props();
+
+  const recent = recentColors();
 </script>
 
 <form
@@ -32,6 +45,16 @@
     onAdd();
   }}
 >
+  {#if canSetIcon}
+    <IconField
+      value={icon}
+      onchange={next => (icon = next)}
+      {recent}
+      defaultGlyph={DEFAULT_AGENT_GLYPH}
+      defaultColor={DEFAULT_AGENT_COLOR}
+    />
+  {/if}
+
   <div class="flex max-w-sm flex-col gap-1.5">
     <Label for="agent-name">{t(messages.name)}</Label>
     <Input

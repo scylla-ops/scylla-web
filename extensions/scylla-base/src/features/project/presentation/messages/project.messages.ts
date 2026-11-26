@@ -22,7 +22,7 @@ export const projectMessages = {
   addDescription: msg`Add a description...`,
   createSubmit: msg`Create project`,
   editTitle: msg`Edit project`,
-  editDescription: msg`Update the project name and description.`,
+  editDescription: msg`Update the icon, the name and the description of the project.`,
   save: msg`Save`,
   saving: msg`Saving...`,
 
@@ -44,6 +44,8 @@ export const projectMessages = {
   iconDescription: msg`It shows on the card, in the sidebar and at the top of the project page.`,
   changeIcon: msg`Change the icon…`,
   iconSaved: msg`Project icon saved`,
+  iconNotSaved: (reason: string) =>
+    msg`The project is created, but its icon is not saved: ${reason}`,
   cancel: msg`Cancel`,
   counts: (pipelines: number, failed: number, running: number) =>
     msg`${plural(pipelines, { one: '# pipeline', other: '# pipelines' })} · ${failed} failing · ${running} running`,

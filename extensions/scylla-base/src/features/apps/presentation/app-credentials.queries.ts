@@ -10,7 +10,8 @@ import type {
   CreateCiIdentityInput,
 } from '../domain/entities/ci-identity.entity.ts';
 import type { RoleGrant } from '../domain/structs/app-grants.struct.ts';
-import { APPS_QUERY_ROOT } from './apps.queries.ts';
+import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
+import { APPS_QUERY_ROOT, withIcon } from './apps.queries.ts';
 import { credentialsMessages } from './messages/credentials.messages.ts';
 
 const repository = () => getModuleDomain<typeof AppsModule.domain>('apps').appsRepository;
@@ -27,6 +28,8 @@ export interface NewAppWithCredential {
   name: string;
   grants: readonly RoleGrant[];
   credential: NewCredential;
+  /** Set with `SetAppIcon` just after the creation. */
+  icon?: CustomIconChange;
 }
 
 export interface ReadyApp {
@@ -98,8 +101,16 @@ export const credentialMutations = {
   /** Makes the app, gives its roles, then makes its first credential. */
   createApp: (workspaceId: string) =>
     mutationOptions({
-      mutationFn: async ({ name, grants, credential }: NewAppWithCredential): Promise<ReadyApp> => {
-        const created = await repository().createApp(workspaceId, name.trim(), false);
+      mutationFn: async ({
+        name,
+        grants,
+        credential,
+        icon,
+      }: NewAppWithCredential): Promise<ReadyApp> => {
+        const created = await withIcon(
+          await repository().createApp(workspaceId, name.trim(), false),
+          icon,
+        );
         let rolesGranted = true;
         try {
           await repository().grantRoles(workspaceId, created.app.id, grants);

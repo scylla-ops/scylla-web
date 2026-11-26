@@ -3,8 +3,10 @@
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
   import SearchIcon from '@lucide/svelte/icons/search';
   import UploadIcon from '@lucide/svelte/icons/upload';
+  import { fade } from 'svelte/transition';
   import EntityIcon from '../../data-display/EntityIcon/EntityIcon.svelte';
   import { t } from '../../i18n/index.ts';
+  import { motionDuration } from '../../motion/reduced-motion.ts';
   import {
     Button,
     Input,
@@ -18,6 +20,7 @@
   } from '../../primitives/index.ts';
   import { cn, isHexColor } from '../../utils/index.ts';
   import ColorPicker from '../ColorPicker/ColorPicker.svelte';
+  import ChoicePreview from './ChoicePreview.svelte';
   import IconImageDrop from './IconImageDrop.svelte';
   import {
     choiceIconProps,
@@ -31,7 +34,7 @@
     value: IconChoice;
     onchange: (choice: IconChoice) => void;
     /** The name of the entity, next to the preview. */
-    title: string;
+    title?: string;
     subtitle?: string;
     /** The recent free colors, the most recent first. */
     recent?: readonly string[];
@@ -39,6 +42,8 @@
     defaultGlyph?: string;
     /** The color of the default icon, e.g. `info` for an agent. */
     defaultColor?: string;
+    /** Off in a field that shows the preview and Reset itself (`IconField`). */
+    header?: boolean;
     class?: string;
   }
 
@@ -50,6 +55,7 @@
     recent = [],
     defaultGlyph = 'folder',
     defaultColor = 'primary',
+    header = true,
     class: className,
   }: Props = $props();
 
@@ -115,19 +121,27 @@
 </script>
 
 <div bind:this={root} data-slot="icon-picker" class={cn('flex flex-col gap-4', className)}>
-  <div class="flex h-12 items-center gap-3">
-    <EntityIcon size={48} {...choiceIconProps(value, defaultGlyph, defaultColor)} />
-    <div class="flex min-w-0 flex-1 flex-col justify-center">
-      <span class="truncate text-sm font-semibold">{title}</span>
-      {#if subtitle}
-        <span class="text-muted-foreground truncate text-xs">{subtitle}</span>
-      {/if}
+  {#if header}
+    <div class="flex h-12 items-center gap-3">
+      <ChoicePreview {value} {defaultGlyph} {defaultColor} />
+      <div class="flex min-w-0 flex-1 flex-col justify-center">
+        <span class="truncate text-sm font-semibold">{title}</span>
+        {#if subtitle}
+          <span class="text-muted-foreground truncate text-xs">{subtitle}</span>
+        {/if}
+      </div>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        disabled={value.kind === 'default'}
+        onclick={reset}
+      >
+        <RotateCcwIcon aria-hidden="true" />
+        {t(m.reset)}
+      </Button>
     </div>
-    <Button variant="ghost" size="sm" disabled={value.kind === 'default'} onclick={reset}>
-      <RotateCcwIcon aria-hidden="true" />
-      {t(m.reset)}
-    </Button>
-  </div>
+  {/if}
 
   <Tabs bind:value={tab} class="flex flex-col gap-4">
     <TabsList class="w-full">
@@ -135,114 +149,119 @@
       <TabsTrigger value="image"><UploadIcon aria-hidden="true" />{t(m.imageTab)}</TabsTrigger>
     </TabsList>
 
-    <TabsContent value="icon" class="flex flex-col gap-4">
-      <div class="relative">
-        <SearchIcon
-          class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
-          aria-hidden="true"
-        />
-        <Input
-          type="search"
-          bind:value={search}
-          placeholder={t(m.search)}
-          aria-label={t(m.search)}
-          class="pl-8"
-        />
-      </div>
+    <TabsContent value="icon">
+      <!-- A change of tab fades the new content in. -->
+      <div class="flex flex-col gap-4" in:fade={{ duration: motionDuration(150) }}>
+        <div class="relative">
+          <SearchIcon
+            class="text-muted-foreground pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2"
+            aria-hidden="true"
+          />
+          <Input
+            type="search"
+            bind:value={search}
+            placeholder={t(m.search)}
+            aria-label={t(m.search)}
+            class="pl-8"
+          />
+        </div>
 
-      <!-- Four rows: the dialog keeps its height while the search filters the glyphs. -->
-      <div class="relative h-[188px] overflow-y-auto">
-        {#if glyphs.length === 0}
-          <p class="text-muted-foreground flex h-11 items-center justify-center text-sm">
-            {t(m.noGlyph)}
-          </p>
-        {:else}
-          <div class="grid grid-cols-8 gap-1">
-            {#each glyphs as option (option.name)}
-              {@const selected = option.name === selectedGlyph}
-              <div class="flex h-11 items-center justify-center">
-                <button
-                  type="button"
-                  aria-label={option.name}
-                  aria-pressed={selected}
-                  title={option.name}
-                  class={cn(
-                    'focus-visible:ring-ring/50 flex size-9 cursor-pointer items-center justify-center rounded-lg outline-none focus-visible:ring-[3px]',
-                    selected
-                      ? 'bg-secondary text-secondary-foreground ring-primary ring-2'
-                      : 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
-                  )}
-                  onclick={() => chooseGlyph(option.name)}
-                >
-                  <option.icon
-                    class="size-5"
-                    aria-hidden="true"
-                    color={selected && selectedColor ? glyphColor(selectedColor) : undefined}
-                  />
-                </button>
-              </div>
+        <!-- Four rows: the dialog keeps its height while the search filters the glyphs. -->
+        <div class="relative h-[188px] overflow-y-auto">
+          {#if glyphs.length === 0}
+            <p class="text-muted-foreground flex h-11 items-center justify-center text-sm">
+              {t(m.noGlyph)}
+            </p>
+          {:else}
+            <div class="grid grid-cols-8 gap-1">
+              {#each glyphs as option (option.name)}
+                {@const selected = option.name === selectedGlyph}
+                <div class="flex h-11 items-center justify-center">
+                  <button
+                    type="button"
+                    aria-label={option.name}
+                    aria-pressed={selected}
+                    title={option.name}
+                    class={cn(
+                      'focus-visible:ring-ring/50 flex size-9 cursor-pointer items-center justify-center rounded-lg transition-[background-color,box-shadow,color] duration-150 outline-none motion-reduce:transition-none focus-visible:ring-[3px]',
+                      selected
+                        ? 'bg-secondary text-secondary-foreground ring-primary ring-2'
+                        : 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
+                    )}
+                    onclick={() => chooseGlyph(option.name)}
+                  >
+                    <option.icon
+                      class="size-5"
+                      aria-hidden="true"
+                      color={selected && selectedColor ? glyphColor(selectedColor) : undefined}
+                    />
+                  </button>
+                </div>
+              {/each}
+            </div>
+          {/if}
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <span class="text-muted-foreground text-xs font-medium">{t(m.color)}</span>
+          <div class="flex flex-wrap items-center gap-2">
+            {#each SWATCH_COLORS as token, index (token)}
+              {@const selected = selectedColor === token}
+              <button
+                type="button"
+                aria-label={swatchName(token, index)}
+                aria-pressed={selected}
+                class={cn(
+                  'focus-visible:ring-ring/50 flex size-8 cursor-pointer items-center justify-center rounded-full transition-shadow duration-150 outline-none motion-reduce:transition-none focus-visible:ring-[3px]',
+                  selected && 'ring-foreground ring-2',
+                )}
+                onclick={() => chooseColor(token)}
+              >
+                <span class="size-[22px] rounded-full" style:background="var(--{token})"></span>
+              </button>
             {/each}
-          </div>
-        {/if}
-      </div>
-
-      <div class="flex flex-col gap-2">
-        <span class="text-muted-foreground text-xs font-medium">{t(m.color)}</span>
-        <div class="flex flex-wrap items-center gap-2">
-          {#each SWATCH_COLORS as token, index (token)}
-            {@const selected = selectedColor === token}
-            <button
-              type="button"
-              aria-label={swatchName(token, index)}
-              aria-pressed={selected}
-              class={cn(
-                'focus-visible:ring-ring/50 flex size-8 cursor-pointer items-center justify-center rounded-full outline-none focus-visible:ring-[3px]',
-                selected && 'ring-foreground ring-2',
-              )}
-              onclick={() => chooseColor(token)}
-            >
-              <span class="size-[22px] rounded-full" style:background="var(--{token})"></span>
-            </button>
-          {/each}
-          <Popover open={colorOpen} onOpenChange={openFreeColor}>
-            <PopoverTrigger
-              aria-label={t(m.freeColor)}
-              aria-pressed={value.kind === 'glyph' && isHexColor(value.color)}
-              class={cn(
-                'focus-visible:ring-ring/50 flex size-8 cursor-pointer items-center justify-center rounded-full outline-none focus-visible:ring-[3px]',
-                value.kind === 'glyph' && isHexColor(value.color) && 'ring-foreground ring-2',
-              )}
-            >
-              <span
-                class="flex size-[22px] items-center justify-center rounded-full"
-                style:background="conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)"
+            <Popover open={colorOpen} onOpenChange={openFreeColor}>
+              <PopoverTrigger
+                aria-label={t(m.freeColor)}
+                aria-pressed={value.kind === 'glyph' && isHexColor(value.color)}
+                class={cn(
+                  'focus-visible:ring-ring/50 flex size-8 cursor-pointer items-center justify-center rounded-full transition-shadow duration-150 outline-none motion-reduce:transition-none focus-visible:ring-[3px]',
+                  value.kind === 'glyph' && isHexColor(value.color) && 'ring-foreground ring-2',
+                )}
               >
                 <span
-                  class="ring-background size-3.5 rounded-full ring-2"
-                  style:background={freeColor}
-                ></span>
-              </span>
-            </PopoverTrigger>
-            <PopoverContent
-              side="right"
-              align="start"
-              sideOffset={32}
-              customAnchor={root}
-              class="w-auto p-3"
-            >
-              <ColorPicker value={freeColor} onchange={chooseColor} {recent}>
-                {#snippet preview(hex)}
-                  <EntityIcon size={36} icon={choiceIconProps({ kind: 'glyph', name: glyph, color: hex }, defaultGlyph).icon} color={hex} />
-                {/snippet}
-              </ColorPicker>
-            </PopoverContent>
-          </Popover>
+                  class="flex size-[22px] items-center justify-center rounded-full"
+                  style:background="conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)"
+                >
+                  <span
+                    class="ring-background size-3.5 rounded-full ring-2"
+                    style:background={freeColor}
+                  ></span>
+                </span>
+              </PopoverTrigger>
+              <PopoverContent
+                side="right"
+                align="start"
+                sideOffset={32}
+                customAnchor={root}
+                class="w-auto p-3"
+              >
+                <ColorPicker value={freeColor} onchange={chooseColor} {recent}>
+                  {#snippet preview(hex)}
+                    <EntityIcon size={36} icon={choiceIconProps({ kind: 'glyph', name: glyph, color: hex }, defaultGlyph).icon} color={hex} />
+                  {/snippet}
+                </ColorPicker>
+              </PopoverContent>
+            </Popover>
+          </div>
         </div>
       </div>
     </TabsContent>
 
     <TabsContent value="image">
-      <IconImageDrop onfile={chooseImage} />
+      <div in:fade={{ duration: motionDuration(150) }}>
+        <IconImageDrop onfile={chooseImage} />
+      </div>
     </TabsContent>
   </Tabs>
 </div>

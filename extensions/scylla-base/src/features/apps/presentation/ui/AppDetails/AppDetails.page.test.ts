@@ -96,6 +96,7 @@ const setUp = (permissions = ALL) => {
       .fn()
       .mockResolvedValue({ token: { ...token, id: 't-2', name: 'nightly' }, secret: 'scya_NEW' }),
     deleteApp: vi.fn().mockResolvedValue(undefined),
+    setIcon: vi.fn().mockResolvedValue(app),
   };
   const access = { listAccess: vi.fn().mockResolvedValue([]) };
   const projects = {
@@ -224,6 +225,26 @@ describe('AppDetails', () => {
     ).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Delete app' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Disable' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'App icon' })).not.toBeInTheDocument();
+  });
+
+  it('gives the icon of the app to an admin of the workspace, as for an agent', async () => {
+    setUp([...ALL, Permission.SET_APP_ICON]);
+    const user = userEvent.setup();
+
+    expect(await screen.findByRole('heading', { name: 'App icon' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Change the icon…' }));
+    const dialog = await screen.findByRole('dialog', { name: 'App icon' });
+    await user.click(within(dialog).getByRole('button', { name: 'key' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(apps.setIcon).toHaveBeenCalledWith(app.id, {
+        kind: 'glyph',
+        name: 'key',
+        color: 'muted-foreground',
+      }),
+    );
   });
 });
 

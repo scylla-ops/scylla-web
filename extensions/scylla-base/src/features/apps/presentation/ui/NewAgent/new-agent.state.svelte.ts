@@ -2,6 +2,7 @@ import { untrack } from 'svelte';
 import { can, Permission } from '@platform/authz';
 import { scyllaNavigate } from '@platform/context';
 import { createMutation, createQuery, getQueryClient } from '@scylla/core-sdk';
+import type { IconChoice } from '@scylla/ui';
 import {
   appStateOf,
   type AppEntity,
@@ -14,6 +15,7 @@ import {
   hasJoined,
   isJoining,
 } from '@base/features/apps/presentation/apps.queries.ts';
+import { agentIconChange } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
 
 export type AgentStep = 'name' | 'install' | 'connected';
 
@@ -47,6 +49,7 @@ export const createNewAgent = (input: () => NewAgentInput) => {
   const handed = appId ? take(appId) : null;
 
   let name = $state('');
+  let icon = $state<IconChoice>({ kind: 'default' });
   let someProjects = $state(false);
   let projectIds = $state<string[]>([]);
   /** The agent when the page opened. */
@@ -60,6 +63,8 @@ export const createNewAgent = (input: () => NewAgentInput) => {
   const remove = createMutation(() => appMutations.remove('agent', agent?.name));
   const deleting = $derived(remove.isPending || remove.isSuccess);
 
+  /** `SetAppIcon` is for the admins of the workspace: the others make an agent with no icon. */
+  const canSetIcon = $derived(can(Permission.SET_APP_ICON, { workspaceId: workspaceId() }));
   const canReadAccess = $derived(
     can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId: workspaceId() }),
   );
@@ -161,6 +166,15 @@ export const createNewAgent = (input: () => NewAgentInput) => {
     set name(value: string) {
       name = value;
     },
+    get icon() {
+      return icon;
+    },
+    set icon(value: IconChoice) {
+      icon = value;
+    },
+    get canSetIcon() {
+      return canSetIcon;
+    },
     get someProjects() {
       return someProjects;
     },
@@ -177,11 +191,12 @@ export const createNewAgent = (input: () => NewAgentInput) => {
       return canAdd;
     },
     newCode,
-    add() {
+    async add() {
       if (!canAdd) return;
       const chosen = someProjects ? projectIds : [];
+      const change = canSetIcon ? await agentIconChange(icon, undefined) : undefined;
       create.mutate(
-        { name, runner: true, projectIds: chosen },
+        { name, runner: true, projectIds: chosen, icon: change },
         {
           onSuccess: result => {
             created = { ...result, projectCount: chosen.length };

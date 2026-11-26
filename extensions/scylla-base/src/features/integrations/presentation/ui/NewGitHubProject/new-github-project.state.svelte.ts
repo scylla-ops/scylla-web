@@ -1,7 +1,8 @@
 import { can, Permission } from '@platform/authz';
 import { scyllaNavigate } from '@platform/context';
 import { createMutation, createQuery } from '@scylla/core-sdk';
-import { projectMutations } from '@base/features/project';
+import type { IconChoice } from '@scylla/ui';
+import { projectIconChange, projectMutations } from '@base/features/project';
 import type { PipelineSource } from '@base/features/integrations/domain/entities/repository-link.entity.ts';
 import type { ProviderRepository } from '@base/features/integrations/domain/entities/vcs-connection.entity.ts';
 import { unavailableText } from '@base/features/integrations/presentation/presenters/connection.presenter.ts';
@@ -53,6 +54,7 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
   let name = $state('');
   let prefilled = '';
   let description = $state('');
+  let icon = $state<IconChoice>({ kind: 'default' });
   let source = $state<PipelineSource>('editor');
   let reports = $state(true);
 
@@ -87,6 +89,7 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
           name: name.trim(),
           workspaceId: params.workspaceId(),
           description: description.trim() || undefined,
+          icon: await projectIconChange(icon, undefined),
         });
         projectId = project.id;
       } catch {
@@ -177,6 +180,13 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
     set description(value: string) {
       description = value;
     },
+    /** Saved with the creation of the project, as its name. */
+    get icon() {
+      return icon;
+    },
+    set icon(value: IconChoice) {
+      icon = value;
+    },
     get source() {
       return source;
     },
@@ -189,7 +199,7 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
     set reports(value: boolean) {
       reports = value;
     },
-    /** The project exists: its name and its description do not change here. */
+    /** The project exists: its icon, its name and its description do not change here. */
     get created() {
       return !!projectId;
     },

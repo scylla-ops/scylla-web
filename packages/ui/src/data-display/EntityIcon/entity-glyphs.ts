@@ -10,6 +10,7 @@ import PlayIcon from '@lucide/svelte/icons/play';
 import CalendarClockIcon from '@lucide/svelte/icons/calendar-clock';
 import ClockIcon from '@lucide/svelte/icons/clock';
 import BotIcon from '@lucide/svelte/icons/bot';
+import BlocksIcon from '@lucide/svelte/icons/blocks';
 import PaletteIcon from '@lucide/svelte/icons/palette';
 import SearchIcon from '@lucide/svelte/icons/search';
 import UploadIcon from '@lucide/svelte/icons/upload';
@@ -71,6 +72,7 @@ export const ENTITY_GLYPHS: readonly EntityGlyph[] = [
   { name: 'calendar-clock', icon: CalendarClockIcon, keywords: 'calendrier planning cron' },
   { name: 'clock', icon: ClockIcon, keywords: 'horloge heure temps' },
   { name: 'bot', icon: BotIcon, keywords: 'robot agent' },
+  { name: 'blocks', icon: BlocksIcon, keywords: 'app application blocs module' },
   { name: 'palette', icon: PaletteIcon, keywords: 'couleur design' },
   { name: 'search', icon: SearchIcon, keywords: 'recherche loupe' },
   { name: 'upload', icon: UploadIcon, keywords: 'envoi import' },

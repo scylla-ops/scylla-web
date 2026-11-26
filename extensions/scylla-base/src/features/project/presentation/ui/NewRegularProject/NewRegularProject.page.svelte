@@ -3,20 +3,34 @@
   import { i18n } from '@lingui/core';
   import { activeWorkspaceSlug, contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
-  import { FormItemType, ScyllaForm, type FormItem, type FormValues } from '@scylla/ui';
+  import {
+    FormItemType,
+    IconField,
+    ScyllaForm,
+    type FormItem,
+    type FormValues,
+    type IconChoice,
+  } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { toast } from '@scylla/ui/utils';
   import { ToastMessages } from '@shared/utils/toast-messages.ts';
   import { projectMessages as messages } from '@base/features/project/presentation/messages/project.messages.ts';
+  import {
+    DEFAULT_PROJECT_GLYPH,
+    iconChangeOf,
+  } from '@base/features/project/presentation/presenters/project-icon.presenter.ts';
   import { projectMutations } from '@base/features/project/presentation/project.queries.ts';
+  import { recentColors } from '@base/features/project/presentation/recent-colors.user-state.ts';
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id);
   const backHref = $derived(`/${context().workspace.slug ?? activeWorkspaceSlug() ?? ''}/projects/new`);
 
   const createProject = createMutation(() => projectMutations.create());
+  let icon = $state<IconChoice>({ kind: 'default' });
+  const recent = recentColors();
 
   const items: readonly FormItem<'name' | 'description'>[] = $derived([
     {
@@ -36,14 +50,19 @@
     },
   ]);
 
-  const submit = ({ name, description }: FormValues<'name' | 'description'>) => {
+  const submit = async ({ name, description }: FormValues<'name' | 'description'>) => {
     // A project needs a workspace: the toast says so.
     if (!name.trim() || !workspaceId) {
       toast.error(i18n._(ToastMessages.PROJECT_NAME_REQUIRED_ERROR));
       return;
     }
     createProject.mutate(
-      { name: name.trim(), workspaceId, description: description.trim() || undefined },
+      {
+        name: name.trim(),
+        workspaceId,
+        description: description.trim() || undefined,
+        icon: await iconChangeOf(icon, undefined),
+      },
       { onSuccess: () => scyllaNavigate.goToWorkspaceRoute('/projects') },
     );
   };
@@ -62,6 +81,15 @@
     isPending={createProject.isPending}
     onSubmit={submit}
   >
+    {#snippet leading()}
+      <IconField
+        value={icon}
+        onchange={next => (icon = next)}
+        {recent}
+        defaultGlyph={DEFAULT_PROJECT_GLYPH}
+        disabled={createProject.isPending}
+      />
+    {/snippet}
     {#snippet footer({ isValid, isPending })}
       <div class="flex items-center justify-between gap-2 pt-2">
         <Button href={backHref} variant="outline">

@@ -16,6 +16,9 @@ export const appsMessages = {
   accessChanged: msg`Access changed`,
   labelsChanged: msg`Labels changed`,
   iconChanged: msg`Icon changed`,
+  iconNotSaved: (reason: string) => msg`The app is created, but its icon is not saved: ${reason}`,
+  agentIconNotSaved: (reason: string) =>
+    msg`The agent is created, but its icon is not saved: ${reason}`,
   disabledToast: (name: string) => msg`${name} is disabled`,
   enabledToast: (name: string) => msg`${name} is enabled`,
   noAgentConnected: msg`Jobs are waiting and no agent is connected.`,

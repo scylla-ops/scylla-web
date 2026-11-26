@@ -62,3 +62,15 @@ export const choiceIconProps = (
       return { icon: entityGlyph(defaultGlyph), color: defaultColor };
   }
 };
+
+/** One text for each look of a choice: a change of the text is a change of the preview. */
+export const choiceKey = (choice: IconChoice): string => {
+  switch (choice.kind) {
+    case 'image':
+      return `image:${choice.url}`;
+    case 'glyph':
+      return `glyph:${choice.name}:${choice.color}`;
+    default:
+      return 'default';
+  }
+};

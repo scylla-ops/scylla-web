@@ -75,6 +75,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   its dialog now name the same places: the list of the agents, the agent page and the jobs.
 - A project URL with an unknown project id now shows the "Page not found" page and no longer sends
   the user to the dashboard. The not-found page no longer shows an empty second sidebar.
+- Each form that creates or edits a project or an app has an icon field: Edit of a project, a new
+  regular project, a new project from GitHub, a new agent and a new app (API token, CI identity or
+  key pair). The field shows the icon, opens the icon picker (a glyph with a theme color or a free
+  color, or an image) and has Reset. Save keeps the icon with the other fields, and Cancel removes
+  the change. If the item is created but its icon is not saved, an error message tells it. The page
+  of each app shows its icon and has the icon card, and the app list shows the icon of each app.
+  "Change the icon..." on the project card and the icon of the project header stay as shortcuts.
 
 ## [0.7.2] - 2026-11-25
 

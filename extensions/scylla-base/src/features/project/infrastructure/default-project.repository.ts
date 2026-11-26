@@ -127,11 +127,13 @@ export class DefaultProjectRepository implements ProjectRepository {
     projectId: string,
     name?: string,
     description?: string,
+    icon?: ProjectIconChange,
   ): Promise<ProjectEntity> {
     const response = await this.client.updateProject({
       projectId: wrapId(projectId),
       ...(name !== undefined && { name }),
       ...(description !== undefined && { description }),
+      ...(icon && { icon: grpcProject.fromIconChange(icon) }),
     }).response;
     return requireProject(response.project);
   }

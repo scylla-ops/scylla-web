@@ -50,6 +50,10 @@ msgstr "browse"
 msgid "Cancel"
 msgstr "Cancel"
 
+#: packages/ui/src/controls/IconField/icon-field.messages.ts:5
+msgid "Change the icon"
+msgstr "Change the icon"
+
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:6
 msgid "Clear"
 msgstr "Clear"
@@ -175,6 +179,7 @@ msgstr "Hide password"
 msgid "Hue"
 msgstr "Hue"
 
+#: packages/ui/src/controls/IconField/icon-field.messages.ts:4
 #: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:5
 msgid "Icon"
 msgstr "Icon"
@@ -272,6 +277,7 @@ msgctxt "colors"
 msgid "Recent"
 msgstr "Recent"
 
+#: packages/ui/src/controls/IconField/icon-field.messages.ts:6
 #: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:4
 msgid "Reset"
 msgstr "Reset"

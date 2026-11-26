@@ -17,6 +17,7 @@ export {
   withRecentColor,
   type ContrastLine,
 } from './ColorPicker/color-picker.ts';
+export { default as IconField } from './IconField/IconField.svelte';
 export { default as IconPicker } from './IconPicker/IconPicker.svelte';
 export {
   choiceIconProps,

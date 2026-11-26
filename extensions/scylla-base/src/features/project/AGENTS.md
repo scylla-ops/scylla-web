@@ -20,8 +20,10 @@ type ProjectEntity, ProjectList, ProjectLookupEntry, ProjectIcon, ProjectIconCha
 projectQueries        byWorkspace (paginated) · lookup (org-wide) · search (the projects page) ·
                       byId (one project, or null) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
-projectMutations      create · update · setIcon · remove
+projectMutations      create (with an icon: a second UpdateProject) · update (with the icon) ·
+                      setIcon · remove
 projectIconProps      ProjectIcon → the props of EntityIcon: the sidebar links of the shell use it
+projectIconChange     IconChoice of an IconField → ProjectIconChange, for a form of another module
 recentColors, keepRecentColor   the user-state key `recent-colors`, for each icon color picker
 loadProjectTitle      a loader: the icon and the name at the top of the page of a project (pipeline)
 canListProjects
@@ -47,7 +49,7 @@ Never add: `project.module.ts`, pages.
 | `getById(projectId)` | `ProjectEntity`, or `null` when the server refuses the id: see the rules below |
 | `search(ProjectSearch)` | `ProjectSearchResult`: the first `limit` projects of a search (text, order, health), the counts of all of them, and `hasMore`. It reads pages of at most 100 |
 | `create(name, workspaceId, description?)` | `ProjectEntity` |
-| `update(projectId, name?, description?)` | `ProjectEntity` |
+| `update(projectId, name?, description?, icon?)` | `ProjectEntity`: one `UpdateProject`. With an icon, the server deletes the old image |
 | `setIcon(projectId, icon)` | `ProjectEntity`: `UpdateProject` with the icon only. The server deletes the old image |
 | `delete(projectId)` | `void` |
 
@@ -127,14 +129,15 @@ presentation/
   ui/ProjectResults/                 the empty states, "Show more"
   ui/ProjectCard/                    the card, its zones, its menu (Pin, Change the icon, Move to
                                      group, Move up and down, Edit, Duplicate, Delete)
-  ui/EditProjectDialog.svelte
+  ui/EditProjectDialog/               the dialog of « Edit »; its form: the icon, the name, the
+                                     description, saved by one UpdateProject
   ui/ProjectIcon/                    the one component that draws the icon of a project
   ui/ProjectIconDialog/              the icon picker of @scylla/ui in a dialog; the form saves
   ui/ProjectTitle/                   the icon (a button for an editor) and the name on a project page
   presenters/project-icon.presenter.ts   ProjectIcon ↔ EntityIcon props, IconChoice, ProjectIconChange
   recent-colors.user-state.ts        the key `recent-colors`; project.module.ts imports it
   ui/NewProject/                     the choice of the kind of project: ProjectKindCard per way
-  ui/NewRegularProject/              the name and the description of a regular project
+  ui/NewRegularProject/              the icon, the name and the description of a regular project
   messages/project.messages.ts
 ```
 
@@ -195,6 +198,15 @@ choice card links to it by its path only.
   of the theme, the tile is solid. The saved color does not change.
 - **Only a person with `UPDATE_PROJECT` on the project changes its icon**: the icon of the page is
   a button for this person only. The server checks it too (`UpdateProject`).
+- **Each form that creates or edits a project has the icon** (`IconField` of `@scylla/ui`): « Edit »,
+  `projects/new/regular` and `projects/new/github` (integrations). The picker of the dialog
+  « Change the icon… » and the icon of the page stay as shortcuts. « Edit » sends the icon in the
+  same `UpdateProject` as the name, only at « Save »; « Cancel » forgets it, because the dialog
+  builds its form again at each opening. `CreateProject` has no icon: `projectMutations.create`
+  sends it in an `UpdateProject` just after, in the same action. When only the icon fails, the
+  project stays, one toast says that it is created and one error toast says that its icon is not
+  saved. An image goes as bytes at the submit only, so a cancelled form leaves no image on the
+  server.
 - **The image goes as bytes in `UpdateProject`.** The picker refuses a file over 1 MB or of another
   type than PNG, JPEG or WebP before the upload; the server makes it a square PNG of 256 px.
 - **A new project is a page, not a dialog.** "New project" in the header and the command of the

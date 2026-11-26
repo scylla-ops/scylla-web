@@ -6,6 +6,7 @@
   import { Badge, TableCell, TableRow } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import { IdentityAvatar } from '@shared/presentation/ui';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import { roleLabel } from '@base/features/access';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
@@ -18,6 +19,7 @@
     type HeldRole,
   } from '@base/features/apps/domain/structs/app-list.struct.ts';
   import { credentialQueries } from '@base/features/apps/presentation/app-credentials.queries.ts';
+  import { agentProfile } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
   import { credentialSummary } from '@base/features/apps/presentation/presenters/credential-labels.presenter.ts';
   import { appsListMessages as messages } from '@base/features/apps/presentation/messages/apps-list.messages.ts';
   import AppRowMenu from '../AppRowMenu/AppRowMenu.svelte';
@@ -111,13 +113,16 @@
 {#if asCard}
   <article class="flex flex-col gap-2 rounded-xl border p-4 text-sm">
     <div class="flex items-center justify-between gap-2">
-      <button
-        type="button"
-        class="min-w-0 truncate text-left font-mono font-medium hover:underline"
-        onclick={onOpen}
-      >
-        {app.name}
-      </button>
+      <span class="flex min-w-0 items-center gap-2">
+        <IdentityAvatar profile={agentProfile(app)} kind="app" size={24} />
+        <button
+          type="button"
+          class="min-w-0 truncate text-left font-mono font-medium hover:underline"
+          onclick={onOpen}
+        >
+          {app.name}
+        </button>
+      </span>
       <span class="flex shrink-0 items-center gap-1">
         {#if app.disabledAt}
           <Badge variant="outline">{t(messages.disabled)}</Badge>
@@ -134,6 +139,7 @@
 <TableRow>
   <TableCell>
     <span class="flex items-center gap-2">
+      <IdentityAvatar profile={agentProfile(app)} kind="app" />
       <button type="button" class="font-mono font-medium hover:underline" onclick={onOpen}>
         {app.name}
       </button>

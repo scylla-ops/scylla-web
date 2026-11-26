@@ -21,6 +21,7 @@
   import AppActivityCard from './AppActivityCard.svelte';
   import AppCredentialsCard from './AppCredentialsCard.svelte';
   import AddCredentialDialog from './AddCredentialDialog.svelte';
+  import AppIconCard from '../components/AppIconCard/AppIconCard.svelte';
   import { agentPageMessages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
 
   let { appId = '' }: { appId?: string } = $props();
@@ -31,6 +32,7 @@
 
   const canCreate = $derived(can(Permission.CREATE_APP, target));
   const canManage = $derived(can(Permission.DELETE_APP, target));
+  const canSetIcon = $derived(can(Permission.SET_APP_ICON, target));
 
   const details = createQuery(() => appQueries.byId(appId, workspaceId));
   const tokens = createQuery(() => credentialQueries.tokens(appId));
@@ -93,7 +95,12 @@
           canManage={can(Permission.MANAGE_WORKSPACE_GRANTS, target)}
         />
       </div>
-      <AppActivityCard latest={lastUsedOf(rows)} />
+      <div class="flex flex-col gap-4">
+        <AppActivityCard latest={lastUsedOf(rows)} />
+        {#if canSetIcon}
+          <AppIconCard {app} />
+        {/if}
+      </div>
     </div>
 
     <AppCredentialsCard

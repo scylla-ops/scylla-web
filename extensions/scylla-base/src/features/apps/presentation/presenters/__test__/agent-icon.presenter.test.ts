@@ -4,6 +4,7 @@ import {
   agentIconChange,
   agentIconChoice,
   agentProfile,
+  defaultAppIcon,
 } from '../agent-icon.presenter.ts';
 
 describe('agentProfile', () => {
@@ -28,6 +29,19 @@ describe('agentProfile', () => {
 
     expect(plain.avatarColor).toBe('info');
     expect(agentProfile({ name: 'mac-mini' })).toEqual({ username: '', displayName: 'mac-mini' });
+  });
+
+  it('gives a glyph with no color of another app the grey of an app', () => {
+    const app = agentProfile({ name: 'ci', runner: false, icon: { kind: 'glyph', name: 'key' } });
+
+    expect(app.avatarColor).toBe('muted-foreground');
+  });
+});
+
+describe('defaultAppIcon', () => {
+  it('is a bot in the color of the information for an agent, and grey blocks for an app', () => {
+    expect(defaultAppIcon(true)).toEqual({ glyph: 'bot', color: 'info' });
+    expect(defaultAppIcon(false)).toEqual({ glyph: 'blocks', color: 'muted-foreground' });
   });
 });
 
