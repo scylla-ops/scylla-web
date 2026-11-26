@@ -8,6 +8,7 @@ import { DefaultProjectRepository } from './infrastructure/default-project.repos
 import { projectCommands } from './presentation/project.commands.ts';
 // The key of the recent colors is defined before the read of the server.
 import './presentation/recent-colors.user-state.ts';
+import { projectPoints } from './presentation/project.points.ts';
 
 const transport = grpcTransport.getTransport();
 const projectRepository = new DefaultProjectRepository(new ProjectServiceClient(transport));
@@ -18,6 +19,7 @@ export const ProjectModule = {
     projectRepository: projectRepository,
   },
   commands: projectCommands,
+  points: projectPoints,
   routes: {
     workspace: [
       {

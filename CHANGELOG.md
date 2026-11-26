@@ -18,6 +18,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   an uploaded image. The icon shows on the project card, in the projects of the sidebar and in the
   project header, where a member that can edit the project opens the icon picker. A color with low
   contrast shows as a solid tile.
+- A new projects page. Each card shows the linked repository, a badge with the count of failing
+  pipelines, the first pipelines with their status, branch and time, and the last job or the next
+  cron. A click on a pipeline opens its jobs, and its Run button runs it in one click. The page has
+  the counts of the workspace, a search ("/" goes to it, Escape clears it), the filters All, Failing
+  and Running, and a sort by name, last job or failures first, all kept in the URL. "Show more"
+  replaces the page numbers: 6 cards (3 on a phone), then 12 more each time. The menu of a card has
+  Edit and Delete.
 
 ### Changed
 

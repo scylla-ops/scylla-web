@@ -64,11 +64,12 @@ export const formatDuration = (seconds: number): string => {
   return durationPart(secs, 'second');
 };
 
-export const getRelativeTime = (dateString: string): string => {
+/** `now`: a ticking clock of the caller, so that the text follows the time. */
+export const getRelativeTime = (dateString: string, now: number = Date.now()): string => {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return '-';
 
-  const diffSeconds = Math.floor((Date.now() - date.getTime()) / 1000);
+  const diffSeconds = Math.floor((now - date.getTime()) / 1000);
   const diffMinutes = Math.floor(diffSeconds / 60);
   const diffHours = Math.floor(diffMinutes / 60);
   const diffDays = Math.floor(diffHours / 24);
@@ -134,3 +135,30 @@ export function formatTime(isoString: string | undefined): string {
     second: 'numeric',
   }).format(date);
 }
+
+/** One unit only, for a short label: "12 min", "3 h", "2 j" in French. Under a minute: "1 min". */
+export const formatCoarseDuration = (seconds: number): string => {
+  const minutes = Math.max(1, Math.floor(seconds / 60));
+  const [value, unit] =
+    minutes < 60
+      ? [minutes, 'minute' as const]
+      : minutes < 24 * 60
+        ? [Math.floor(minutes / 60), 'hour' as const]
+        : [Math.floor(minutes / (24 * 60)), 'day' as const];
+  return formatNumber(value, { style: 'unit', unit, unitDisplay: 'short' });
+};
+
+/**
+ * A time to come, short: "03:00" in the next 24 hours, else with the day ("lun. 03:00"). In the
+ * time zone of the browser.
+ */
+export const formatUpcomingTime = (isoString: string, now: number = Date.now()): string => {
+  const date = new Date(isoString);
+  if (isNaN(date.getTime())) return '-';
+  const soon = date.getTime() - now < 24 * 60 * 60 * 1000;
+  return getDateFormatter(soon ? 'upcoming-time' : 'upcoming-day', {
+    ...(soon ? {} : { weekday: 'short' }),
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(date);
+};

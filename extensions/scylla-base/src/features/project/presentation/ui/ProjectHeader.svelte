@@ -5,15 +5,18 @@
   import { FeatureHeader } from '@scylla/ui';
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
+  import type { ProjectCounts } from '@base/features/project/domain/structs/project-search.struct.ts';
   import { projectMutations } from '../project.queries.ts';
   import { projectMessages } from '../messages/project.messages.ts';
 
   interface Props {
-    numberOfProjects: number;
+    /** The counts of the whole workspace. Not loaded yet: no count. */
+    counts?: ProjectCounts;
+    /** The projects of the cards on the page: "Select all" selects them. */
     projectIds: string[];
   }
 
-  let { numberOfProjects, projectIds }: Props = $props();
+  let { counts, projectIds }: Props = $props();
 
   const deleteProject = createMutation(() => projectMutations.remove());
 
@@ -26,8 +29,17 @@
   const canDelete = $derived(can(Permission.DELETE_PROJECT));
 </script>
 
+{#snippet countsLine()}
+  {#if counts}
+    <p class="text-sm text-muted-foreground" data-part="project-counts">
+      {t(projectMessages.counts(counts.pipelines, counts.failed, counts.running))}
+    </p>
+  {/if}
+{/snippet}
+
 <FeatureHeader
-  count={numberOfProjects}
+  count={counts?.total}
+  underLabel={countsLine}
   label={t(projectMessages.project)}
   pluralLabel={t(projectMessages.projects)}
   {...selection.headerProps}

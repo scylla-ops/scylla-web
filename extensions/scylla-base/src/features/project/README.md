@@ -12,7 +12,9 @@ This module owns the project entity itself — the list, the CRUD, and the card 
 
 ## What it covers
 
-- **The projects list** at `/:org/projects`, paginated.
+- **The projects page** at `/:org/projects`: one card for each project, with its pipelines,
+  its repository and its last job; a search, a filter by health and an order, all in the URL;
+  "Show more" in place of page numbers.
 - **Creating, editing and deleting** a project.
 - **Project members** — the raw list of principals holding a project-scoped grant. The member
   *experience* is [membership](../membership/README.md)'s.
@@ -28,7 +30,8 @@ live here, in `project.queries.ts`:
 
 | Factory | Used by | Shape |
 |---|---|---|
-| `projectQueries.byWorkspace` | this module's list page | paginated |
+| `projectQueries.byWorkspace` | other extensions, through `@scylla/base-sdk` | paginated |
+| `projectQueries.search` | this module's projects page | the first projects of a search, with counts |
 | `projectQueries.lookup` | [dashboard](../dashboard/README.md), [agents](../agents/README.md) | one page of every project |
 | `projectLookupQueries` | [roles](../roles/README.md) grant labels | batched lookup |
 
@@ -46,6 +49,14 @@ page can still exist.
 `projectLookupQueries` is also the codebase's reference for batching: it resolves projects
 across several workspaces with `createQueries` rather than a loop of `createQuery`, which is
 what keeps the grant list from firing one request per row.
+
+## The card of a project shows what other modules own
+
+The pipelines of a project and its repository are in [pipeline](../pipeline/README.md) and
+[integrations](../integrations/README.md), and both import this module. The card thus opens
+widget zones (`projectPoints`), and these modules fill them. A card gives its zones the projects
+of its batch: one call reads the pipelines of all the cards that came together, so the page does
+not make one call for each card.
 
 ## Where the project's contents live
 

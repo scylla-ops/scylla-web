@@ -17,7 +17,8 @@ component or another feature runs with `createQuery`.
 
 ```typescript
 type ProjectEntity, ProjectList, ProjectLookupEntry, ProjectIcon, ProjectIconChange
-projectQueries        byWorkspace (paginated) · lookup (org-wide) · byId (one project, or null) · members
+projectQueries        byWorkspace (paginated) · lookup (org-wide) · search (the projects page) ·
+                      byId (one project, or null) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
 projectMutations      create · update · setIcon · remove
 projectIconProps      ProjectIcon → the props of EntityIcon: the sidebar links of the shell use it
@@ -25,7 +26,9 @@ recentColors, keepRecentColor   the user-state key `recent-colors`, for each ico
 loadProjectTitle      a loader: the icon and the name at the top of the page of a project (pipeline)
 canListProjects
 PROJECTS_QUERY_KEY, PROJECTS_QUERY_ROOT, PROJECTS_LOOKUP_PAGE
+PROJECT_SEARCHES_QUERY_KEY    // the searches of a workspace; `pipeline` refreshes them after a run
 CREATE_PROJECT_MUTATION_KEY   // the key of projectMutations.create; onboarding follows it
+projectPoints, type ProjectCardContext   // the zones of a project card: see "Widget points"
 ```
 
 `shell`, `roles`, `membership` and `dashboard` all run these with `createQuery` /
@@ -42,12 +45,29 @@ Never add: `project.module.ts`, pages.
 |---|---|
 | `getByWorkspaceId(workspaceId, pagination?)` | `ProjectList`: a `PaginatedList<ProjectEntity>` (`items`, `pagination`) |
 | `getById(projectId)` | `ProjectEntity`, or `null` when the server refuses the id: see the rules below |
+| `search(ProjectSearch)` | `ProjectSearchResult`: the first `limit` projects of a search (text, order, health), the counts of all of them, and `hasMore`. It reads pages of at most 100 |
 | `create(name, workspaceId, description?)` | `ProjectEntity` |
 | `update(projectId, name?, description?)` | `ProjectEntity` |
 | `setIcon(projectId, icon)` | `ProjectEntity`: `UpdateProject` with the icon only. The server deletes the old image |
 | `delete(projectId)` | `void` |
 
 Reach it from `presentation/project.queries.ts` only, never from a component.
+
+## Widget points
+
+`presentation/project.points.ts`, listed in `ProjectModule.points`. Each zone gets a
+`ProjectCardContext`: the workspace, the project, its name, and `batch`, the projects of the
+cards that came with this one.
+
+| Point | Where | Filled by |
+|---|---|---|
+| `project.cardBadge` | after the name of the project | `pipeline`: the count of failing pipelines |
+| `project.cardSubtitle` | one line under the name | `integrations`: the linked repository |
+| `project.cardBody` | under the description | `pipeline`: the first pipelines, with Run |
+| `project.cardFooter` | the bottom line of the card | `pipeline`: the job that runs, or the last job |
+
+This module cannot import `pipeline` or `integrations`: they import it. The zones let them show
+on the card with no import back.
 
 ## Layout
 
@@ -56,16 +76,26 @@ project.module.ts                    route + nav + DI wiring (private; registry 
 index.ts                             public API
 domain/
   entities/project.entity.ts         ProjectEntity, ProjectList
+  structs/project-search.struct.ts   ProjectSearch, ProjectOrder, ProjectHealth, ProjectCounts,
+                                     ProjectSearchResult, countOfHealth
   repository/project.repository.ts
 infrastructure/
   default-project.repository.ts      ProjectServiceClient → ProjectEntity; the project cap
-  grpc-project.mapper.ts
+  grpc-project.mapper.ts             also the order, the health and the counts
 presentation/
   project.commands.ts                "Create project...", for the search bar: it opens projects/new
   project.queries.ts                 every read and write, plus the key factories
+  project.points.ts                  projectPoints: the zones of a project card
+  presenters/project-list.presenter.ts   the batches of cards, the orders of the page, the
+                                     parameters of the URL
   ui/Project.page.svelte             picks the workspace, or says there is none
   ui/ProjectList.svelte              keyed on the workspace — that is the page reset
-  ui/ProjectHeader.svelte, ProjectCard.svelte
+  ui/project-list.state.svelte.ts    createProjectList: the search, the health and the order in
+                                     the URL, the search delay, "Show more", the batches
+  ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New project"
+  ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order
+  ui/ProjectResults/                 the empty states, "Show more"
+  ui/ProjectCard/                    the card, its zones, its menu (Edit, Delete)
   ui/EditProjectDialog.svelte
   ui/ProjectIcon/                    the one component that draws the icon of a project
   ui/ProjectIconDialog/              the icon picker of @scylla/ui in a dialog; the form saves
@@ -107,7 +137,18 @@ choice card links to it by its path only.
 - `projectLookupQueries` gives the options of each workspace to `createQueries`: one batch,
   never a loop of `createQuery`.
 - The member UI and its data belong to [`membership`](../membership/AGENTS.md), through `access`.
-- Lists use `DataTable` + `createPagination()`; row keys are project ids.
+- **The projects page has no page numbers.** It shows 6 cards (3 on a phone), then 12 more at
+  each "Show more". The search, the health (`?health=failed|running`) and the order (`?sort=`)
+  are in the URL, and the server applies them (`ListProjects`): a new value shows the first
+  batch again. The search goes to the URL and the server 250 ms after the last letter.
+- **The header counts the whole workspace, the segments count the search.** The health does not
+  change the counts of the server, so each segment shows its count with any health.
+- **A part of a card reads the data of its whole batch.** The cards that came together have the
+  same `batch`: the pipelines of a batch are one `ListPipelineSummaries`, the repositories of the
+  workspace are one `ListRepositoryLinks`. Do not read in a zone by `projectId` alone.
+- **A link or a button in a card does its own action.** The card opens the project only for a
+  click that is not in an `a` or a `button`. Do not stop the propagation of a link: the router
+  follows the links on `window`.
 - **`data-tour` attributes are anchors of the onboarding tour** (`projects` on the list, `project-card` with
   `data-project-id` on each card, `regular-project` on the card of a regular project,
   `add-project-form` around the form of `projects/new/regular`). Keep them on the same

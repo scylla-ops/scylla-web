@@ -13,11 +13,31 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:65
+msgid "{count, plural, one {# result} other {# results}} for “{query}” · names, descriptions, repositories and pipelines"
+msgstr "{count, plural, one {# result} other {# results}} for “{query}” · names, descriptions, repositories and pipelines"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:49
+msgid "{pipelines, plural, one {# pipeline} other {# pipelines}} · {failed} failing · {running} running"
+msgstr "{pipelines, plural, one {# pipeline} other {# pipelines}} · {failed} failing · {running} running"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:76
+msgid "{shown} of {total, plural, one {# project} other {# projects}}"
+msgstr "{shown} of {total, plural, one {# project} other {# projects}}"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:73
+msgid "A project holds pipelines, their secrets and their members."
+msgstr "A project holds pipelines, their secrets and their members."
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:22
 msgid "Add a description..."
 msgstr "Add a description..."
 
-#: extensions/scylla-base/src/features/project/project.module.ts:31
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:54
+msgid "All"
+msgstr "All"
+
+#: extensions/scylla-base/src/features/project/project.module.ts:33
 msgid "All projects"
 msgstr "All projects"
 
@@ -37,6 +57,10 @@ msgstr "Change the icon…"
 msgid "Choose how the pipelines of the project start. You can link a repository later to a regular project."
 msgstr "Choose how the pipelines of the project start. You can link a repository later to a regular project."
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:66
+msgid "Clear the search"
+msgstr "Clear the search"
+
 #: extensions/scylla-base/src/features/project/presentation/project.commands.ts:16
 msgid "create add"
 msgstr "create add"
@@ -44,6 +68,14 @@ msgstr "create add"
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:23
 msgid "Create project"
 msgstr "Create project"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:78
+msgid "Delete"
+msgstr "Delete"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:79
+msgid "Delete the project “{name}”?"
+msgstr "Delete the project “{name}”?"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:20
 msgid "Description"
@@ -73,13 +105,29 @@ msgstr "Edit"
 msgid "Edit project"
 msgstr "Edit project"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:55
+msgid "Failing"
+msgstr "Failing"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:60
+msgid "Failing first"
+msgstr "Failing first"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:44
 msgid "It shows on the card, in the sidebar and at the top of the project page."
 msgstr "It shows on the card, in the sidebar and at the top of the project page."
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:59
+msgid "Last job"
+msgstr "Last job"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:35
 msgid "Link a GitHub repository"
 msgstr "Link a GitHub repository"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:58
+msgid "Name (A → Z)"
+msgstr "Name (A → Z)"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:39
 msgid "Name the project"
@@ -87,7 +135,7 @@ msgstr "Name the project"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:10
 #: extensions/scylla-base/src/features/project/presentation/project.commands.ts:15
-#: extensions/scylla-base/src/features/project/project.module.ts:40
+#: extensions/scylla-base/src/features/project/project.module.ts:42
 msgid "New project"
 msgstr "New project"
 
@@ -98,6 +146,26 @@ msgstr "New project · Regular project"
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:16
 msgid "No description"
 msgstr "No description"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:67
+msgid "No project found"
+msgstr "No project found"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:70
+msgid "No project is failing."
+msgstr "No project is failing."
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:71
+msgid "No project is running."
+msgstr "No project is running."
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:69
+msgid "No project matches “{query}”. The search reads the name, the description, the repository and the pipeline names."
+msgstr "No project matches “{query}”. The search reads the name, the description, the repository and the pipeline names."
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:72
+msgid "No project yet"
+msgstr "No project yet"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:4
 msgid "No workspace selected"
@@ -123,19 +191,27 @@ msgstr "Project icon saved"
 msgid "Project linked to GitHub"
 msgstr "Project linked to GitHub"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:77
+msgid "Project menu"
+msgstr "Project menu"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:18
 msgid "Project name"
 msgstr "Project name"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:9
-#: extensions/scylla-base/src/features/project/project.module.ts:27
-#: extensions/scylla-base/src/features/project/project.module.ts:34
+#: extensions/scylla-base/src/features/project/project.module.ts:29
+#: extensions/scylla-base/src/features/project/project.module.ts:36
 msgid "Projects"
 msgstr "Projects"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:30
 msgid "Regular project"
 msgstr "Regular project"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:56
+msgid "Running"
+msgstr "Running"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:26
 msgid "Save"
@@ -145,6 +221,18 @@ msgstr "Save"
 msgid "Saving..."
 msgstr "Saving..."
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:51
+msgid "Search a project, a repository, a pipeline…"
+msgstr "Search a project, a repository, a pipeline…"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:52
+msgid "Search a project, a repository…"
+msgstr "Search a project, a repository…"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:50
+msgid "Search the projects"
+msgstr "Search the projects"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:15
 msgid "Select"
 msgstr "Select"
@@ -153,11 +241,39 @@ msgstr "Select"
 msgid "Select a workspace from the sidebar to view its projects"
 msgstr "Select a workspace from the sidebar to view its projects"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:74
+msgid "Show {count} more"
+msgstr "Show {count} more"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:53
+msgid "Show the projects"
+msgstr "Show the projects"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:57
+msgid "Sort the projects"
+msgstr "Sort the projects"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:63
+msgid "Sort: failing first"
+msgstr "Sort: failing first"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:62
+msgid "Sort: last job"
+msgstr "Sort: last job"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:61
+msgid "Sort: name (A → Z)"
+msgstr "Sort: name (A → Z)"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:32
 msgid "Start a regular project"
 msgstr "Start a regular project"
 
-#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:24
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:80
+msgid "This action cannot be undone."
+msgstr "This action cannot be undone."
+
+#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:30
 msgid "This workspace has reached its project limit."
 msgstr "This workspace has reached its project limit."
 

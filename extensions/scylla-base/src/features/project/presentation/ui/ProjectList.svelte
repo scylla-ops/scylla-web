@@ -1,11 +1,13 @@
 <script lang="ts">
-  import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, Pagination, ListSkeleton } from '@scylla/ui';
-  import { createPagination } from '@scylla/ui/state';
+  import { ErrorState, ListSkeleton } from '@scylla/ui';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { projectQueries } from '../project.queries.ts';
   import ProjectCard from './ProjectCard/ProjectCard.svelte';
   import ProjectHeader from './ProjectHeader.svelte';
+  import ProjectEmpty from './ProjectResults/ProjectEmpty.svelte';
+  import ProjectShowMore from './ProjectResults/ProjectShowMore.svelte';
+  import ProjectToolbar from './ProjectToolbar/ProjectToolbar.svelte';
+  import { createProjectList } from './project-list.state.svelte.ts';
   import { projectMessages } from '../messages/project.messages.ts';
 
   interface Props {
@@ -14,40 +16,56 @@
 
   let { workspaceId }: Props = $props();
 
-  const pagination = createPagination();
-
-  const projectsQuery = createQuery(() =>
-    projectQueries.byWorkspace(workspaceId, pagination.paginationParams),
-  );
-
-  const projects = $derived(projectsQuery.data?.items);
-  const paginationInfo = $derived(projectsQuery.data?.pagination);
+  const list = createProjectList(() => workspaceId);
+  const GRID = 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3';
 </script>
 
-{#if projectsQuery.isLoading}
-  <!-- The header and the grid of the project cards. -->
-  <ListSkeleton
-    header
-    rows={4}
-    class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4"
-    rowClass="h-36 w-full rounded-xl"
+<div data-tour="projects" class="flex min-h-full w-full shrink-0 flex-col gap-4 pb-20">
+  <ProjectHeader counts={list.wholeCounts} projectIds={list.items.map(project => project.id)} />
+  <ProjectToolbar
+    text={list.text}
+    health={list.health}
+    order={list.order}
+    counts={list.counts}
+    phone={list.phone}
+    onType={list.type}
+    onClear={list.clearSearch}
+    onHealth={list.setHealth}
+    onOrder={list.setOrder}
   />
-{:else if projectsQuery.isError || !projects}
-  <ErrorState message={t(projectMessages.loadError)} />
-{:else}
-  <div data-tour="projects" class="flex min-h-full w-full shrink-0 flex-col gap-4 pb-20">
-    <ProjectHeader
-      numberOfProjects={paginationInfo?.totalCount ?? projects.length}
-      projectIds={projects.map(project => project.id)}
-    />
-    <!-- Breakpoints are viewport-wide and the sidebar takes ~16rem: late 3rd and 4th columns. -->
-    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-      {#each projects as project (project.id)}
-        <ProjectCard {project} />
+
+  {#if list.results.isPending}
+    <ListSkeleton rows={list.phone ? 3 : 6} class={GRID} rowClass="h-60 w-full rounded-xl" />
+  {:else if !list.results.data}
+    <ErrorState message={t(projectMessages.loadError)} />
+  {:else if list.items.length === 0}
+    <ProjectEmpty query={list.query} health={list.health} onClearSearch={list.clearSearch} />
+  {:else}
+    {#if list.query}
+      <div class="flex flex-wrap items-center gap-x-2" data-part="project-results">
+        <p class="text-sm font-medium text-muted-foreground">
+          {t(projectMessages.results(list.total, list.query))}
+        </p>
+        <Button variant="link" class="h-auto p-0" onclick={list.clearSearch}>
+          {t(projectMessages.clearSearch)}
+        </Button>
+      </div>
+    {/if}
+    <!-- Breakpoints are viewport-wide and the sidebar takes ~16rem: a card needs about 300 px. -->
+    <div class={GRID}>
+      {#each list.items as project (project.id)}
+        <ProjectCard {project} batch={list.batchOf(project.id)} />
       {/each}
     </div>
-    {#if paginationInfo && paginationInfo.totalPages > 1}
-      <Pagination {paginationInfo} onPageChange={page => pagination.setPage(page)} />
+    {#if list.nextBatch > 0}
+      <ProjectShowMore
+        next={list.nextBatch}
+        shown={list.items.length}
+        total={list.total}
+        busy={list.results.isFetching}
+        phone={list.phone}
+        onShowMore={list.showMore}
+      />
     {/if}
-  </div>
-{/if}
+  {/if}
+</div>

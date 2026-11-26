@@ -1,4 +1,4 @@
-import { msg } from '@lingui/core/macro';
+import { msg, plural } from '@lingui/core/macro';
 
 export const projectMessages = {
   noWorkspace: msg`No workspace selected`,
@@ -45,4 +45,37 @@ export const projectMessages = {
   changeIcon: msg`Change the icon…`,
   iconSaved: msg`Project icon saved`,
   cancel: msg`Cancel`,
+  counts: (pipelines: number, failed: number, running: number) =>
+    msg`${plural(pipelines, { one: '# pipeline', other: '# pipelines' })} · ${failed} failing · ${running} running`,
+  searchLabel: msg`Search the projects`,
+  searchPlaceholder: msg`Search a project, a repository, a pipeline…`,
+  searchPlaceholderShort: msg`Search a project, a repository…`,
+  healthLabel: msg`Show the projects`,
+  healthAll: msg`All`,
+  healthFailed: msg`Failing`,
+  healthRunning: msg`Running`,
+  sortLabel: msg`Sort the projects`,
+  sortName: msg`Name (A → Z)`,
+  sortLastJob: msg`Last job`,
+  sortFailedFirst: msg`Failing first`,
+  sortedByName: msg`Sort: name (A → Z)`,
+  sortedByLastJob: msg`Sort: last job`,
+  sortedByFailedFirst: msg`Sort: failing first`,
+  results: (count: number, query: string) =>
+    msg`${plural(count, { one: '# result', other: '# results' })} for “${query}” · names, descriptions, repositories and pipelines`,
+  clearSearch: msg`Clear the search`,
+  noMatchTitle: msg`No project found`,
+  noMatchBody: (query: string) =>
+    msg`No project matches “${query}”. The search reads the name, the description, the repository and the pipeline names.`,
+  noFailing: msg`No project is failing.`,
+  noRunning: msg`No project is running.`,
+  emptyTitle: msg`No project yet`,
+  emptyBody: msg`A project holds pipelines, their secrets and their members.`,
+  showMore: (count: number) => msg`Show ${count} more`,
+  shownOf: (shown: number, total: number) =>
+    msg`${shown} of ${plural(total, { one: '# project', other: '# projects' })}`,
+  projectMenu: msg`Project menu`,
+  delete: msg`Delete`,
+  deleteTitle: (name: string) => msg`Delete the project “${name}”?`,
+  deleteBody: msg`This action cannot be undone.`,
 };

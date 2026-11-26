@@ -5,7 +5,17 @@ import type {
   ProjectList,
 } from '@base/features/project/domain/entities/project.entity.ts';
 import type { Icon, IconChange } from '@base/generated/scylla/common/v1/icon.ts';
+import type {
+  ProjectCounts,
+  ProjectHealth,
+  ProjectOrder,
+} from '@base/features/project/domain/structs/project-search.struct.ts';
 import type { Project } from '@base/generated/scylla/projects/v1/project.ts';
+import {
+  ProjectHealth as GrpcProjectHealth,
+  ProjectOrder as GrpcProjectOrder,
+  type ProjectCounts as GrpcProjectCounts,
+} from '@base/generated/scylla/projects/v1/project_service.ts';
 import type { PaginationParams } from '@scylla/ui/structs';
 import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
 
@@ -70,3 +80,28 @@ export function toDomainPage(
     },
   };
 }
+
+const ORDERS: Record<ProjectOrder, GrpcProjectOrder> = {
+  position: GrpcProjectOrder.POSITION,
+  name: GrpcProjectOrder.NAME,
+  'last-job': GrpcProjectOrder.LAST_JOB,
+  'failed-first': GrpcProjectOrder.FAILED_FIRST,
+};
+
+const HEALTHS: Record<ProjectHealth, GrpcProjectHealth> = {
+  all: GrpcProjectHealth.ALL,
+  failed: GrpcProjectHealth.FAILED,
+  running: GrpcProjectHealth.RUNNING,
+};
+
+export const orderToProto = (order: ProjectOrder): GrpcProjectOrder => ORDERS[order];
+
+export const healthToProto = (health: ProjectHealth): GrpcProjectHealth => HEALTHS[health];
+
+/** No counts: a server older than the counts, read as an empty list. */
+export const countsToDomain = (counts: GrpcProjectCounts | undefined): ProjectCounts => ({
+  total: counts?.total ?? 0,
+  failed: counts?.failed ?? 0,
+  running: counts?.running ?? 0,
+  pipelines: counts?.pipelines ?? 0,
+});

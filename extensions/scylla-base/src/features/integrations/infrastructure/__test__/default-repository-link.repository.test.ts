@@ -165,4 +165,23 @@ describe('DefaultRepositoryLinkRepository', () => {
       ['v1.0.0', 'tag'],
     ]);
   });
+  it('reads the links of a workspace in one call', async () => {
+    const listRepositoryLinks = vi.fn(() =>
+      unaryCall({ links: [wire(), wire({ projectId: { value: 'p-2' }, fullName: 'acme/web' })] }),
+    );
+    const repository = new DefaultRepositoryLinkRepository({
+      listRepositoryLinks,
+    } as unknown as IRepositoryServiceClient);
+
+    const links = await repository.listByWorkspace('ws-1');
+
+    expect(listRepositoryLinks).toHaveBeenCalledWith({
+      workspaceId: { value: 'ws-1' },
+      projectIds: [],
+    });
+    expect(links.map(link => [link.projectId, link.fullName])).toEqual([
+      ['p-1', 'acme/api'],
+      ['p-2', 'acme/web'],
+    ]);
+  });
 });
