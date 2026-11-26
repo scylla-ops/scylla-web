@@ -7,6 +7,8 @@ import type { ICapabilityServiceClient } from '@base/generated/scylla/capabiliti
 import type { App } from '@base/generated/scylla/apps/v1/app.ts';
 import type { ApiToken as GrpcApiToken } from '@base/generated/scylla/auth/v1/api_token.ts';
 import type { AppsRepository } from '@base/features/apps/domain/repository/apps.repository.ts';
+import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
+import { iconChangeToProto } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import type {
   AppDetails,
   AppEntity,
@@ -104,6 +106,14 @@ export class DefaultAppsRepository implements AppsRepository {
   public async setLabels(appId: string, labels: readonly string[]): Promise<AppEntity> {
     const response = await this.client.setAppLabels({ appId: wrapId(appId), labels: [...labels] })
       .response;
+    return requireApp(response.app);
+  }
+
+  public async setIcon(appId: string, change: CustomIconChange): Promise<AppEntity> {
+    const response = await this.client.setAppIcon({
+      appId: wrapId(appId),
+      icon: iconChangeToProto(change),
+    }).response;
     return requireApp(response.app);
   }
 

@@ -5,6 +5,7 @@ import {
   buildMemberRows,
   buildProjectMemberRows,
   filterMemberRows,
+  memberProfile,
 } from '../member-rows.presenter.ts';
 
 const role = (overrides: Partial<MemberRoleEntity>): MemberRoleEntity => ({
@@ -90,6 +91,36 @@ describe('buildMemberRows', () => {
 
   it('puts an app on the tab of the apps', () => {
     expect(buildMemberRows([member([role({})], 'app')])[0]?.tab).toBe('apps');
+  });
+});
+
+describe('memberProfile', () => {
+  it('keeps the photo, the color and the glyph that a member chose', () => {
+    const [row] = buildMemberRows([
+      { ...member([role({})]), avatarUrl: '/images/img-1', avatarColor: 'chart-4' },
+    ]);
+    const [agent] = buildProjectMemberRows([
+      { ...member([project], 'app'), avatarGlyph: 'server', avatarColor: 'chart-3' },
+    ]);
+
+    expect(memberProfile(row)).toEqual({
+      displayName: 'Lina',
+      username: 'lina',
+      avatarUrl: '/images/img-1',
+      avatarColor: 'chart-4',
+    });
+    expect(memberProfile(agent)).toEqual({
+      displayName: 'Lina',
+      username: 'lina',
+      avatarGlyph: 'server',
+      avatarColor: 'chart-3',
+    });
+  });
+
+  it('gives no avatar to a member that chose none', () => {
+    const [row] = buildMemberRows([member([role({})])]);
+
+    expect(memberProfile(row)).toEqual({ displayName: 'Lina', username: 'lina' });
   });
 });
 

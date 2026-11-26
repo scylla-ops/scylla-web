@@ -89,15 +89,24 @@ export class DefaultPipelineRepository implements PipelineRepository {
   }
 
   public async getSummaries(query: PipelineSummaryQuery): Promise<PipelineSummaryList> {
-    const response = await this.client.listPipelineSummaries({
-      workspaceId: wrapId(query.workspaceId),
-      projectIds: [],
-      pipelineIds: (query.pipelineIds ?? []).map(wrapId),
-      runs: query.runs,
-      order: grpcPipelineSummary.orderToProto(query.order),
-      page: { size: query.limit, token: '' },
-    }).response;
-    return grpcPipelineSummary.listToDomain(response);
+    const read = (token: string) =>
+      this.client.listPipelineSummaries({
+        workspaceId: wrapId(query.workspaceId),
+        projectIds: (query.projectIds ?? []).map(wrapId),
+        pipelineIds: (query.pipelineIds ?? []).map(wrapId),
+        runs: query.runs,
+        order: grpcPipelineSummary.orderToProto(query.order),
+        page: { size: query.limit, token },
+      }).response;
+    const first = await read('');
+    const list = grpcPipelineSummary.listToDomain(first);
+    let token = query.allPages ? (first.page?.nextToken ?? '') : '';
+    while (token) {
+      const next = await read(token);
+      list.items.push(...grpcPipelineSummary.listToDomain(next).items);
+      token = next.page?.nextToken ?? '';
+    }
+    return list;
   }
 
   public async deleteById(id: string): Promise<void> {

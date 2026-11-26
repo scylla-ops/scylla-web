@@ -11,6 +11,7 @@ import type {
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
+import { imageUrl } from '@platform/grpc';
 import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 export function toDomain(user: User): UserEntity {
@@ -20,6 +21,8 @@ export function toDomain(user: User): UserEntity {
     username: user.handle,
     ...(user.email ? { email: user.email } : {}),
     ...(user.displayName ? { displayName: user.displayName } : {}),
+    ...(user.avatar?.imageId?.value && { avatarUrl: imageUrl(user.avatar.imageId.value) }),
+    ...(user.avatar?.color && { avatarColor: user.avatar.color }),
     isActive: user.status === 'active',
     instanceAdmin: user.instanceAdmin,
     createdAt,

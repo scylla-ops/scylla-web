@@ -2,6 +2,7 @@ import type { UserRepository } from '@base/features/user/domain/repository/user.
 import type {
   AccountDataExport,
   CreateUserInput,
+  UpdateAvatarInput,
   UpdateUserInput,
   UserEntity,
 } from '@base/features/user/domain/entities/user.entity.ts';
@@ -110,6 +111,15 @@ export class DefaultUserRepository implements UserRepository {
       return requireUser(response.user);
     }
     const response = await this.admin.updateUser(grpcUser.toUpdateRequest(input)).response;
+    return requireUser(response.user);
+  }
+
+  /** Empty bytes remove the photo. */
+  public async updateAvatar(input: UpdateAvatarInput): Promise<UserEntity> {
+    const response = await this.profiles.updateProfile({
+      ...(input.image !== undefined && { avatarImage: input.image ?? new Uint8Array() }),
+      ...(input.color !== undefined && { avatarColor: input.color }),
+    }).response;
     return requireUser(response.user);
   }
 

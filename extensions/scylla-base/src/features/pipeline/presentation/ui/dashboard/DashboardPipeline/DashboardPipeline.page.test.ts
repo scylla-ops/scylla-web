@@ -92,6 +92,17 @@ const setUp = (getMetadataByProjectId: () => Promise<unknown>, linked: unknown =
         },
       },
       apps: { appsRepository: { listApps: () => Promise.resolve([]) } },
+      project: {
+        projectRepository: {
+          getById: () =>
+            Promise.resolve({
+              id: 'project-1',
+              workspaceId: 'org-1',
+              name: 'web-app',
+              icon: { kind: 'glyph', name: 'rocket', color: 'chart-2' },
+            }),
+        },
+      },
     }),
   ];
   return render(DashboardPipelinePage, { projectId: 'project-1' });
@@ -118,6 +129,16 @@ describe('DashboardPipelinePage', () => {
 
     expect(await screen.findByText('nightly')).toBeInTheDocument();
     expect(screen.getByText('release')).toBeInTheDocument();
+  });
+
+  it('shows the icon, the name and the repository of the project, and changes the icon from it', async () => {
+    setUp(() => Promise.resolve(page(pipelines)), link);
+
+    expect(await screen.findByText('web-app')).toBeInTheDocument();
+    expect(await screen.findByText('acme/api')).toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Change the icon…' }));
+
+    expect(await screen.findByRole('dialog', { name: 'Project icon' })).toBeInTheDocument();
   });
 
   it('says so when the project has no pipeline', async () => {

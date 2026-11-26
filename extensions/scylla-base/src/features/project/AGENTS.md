@@ -2,7 +2,7 @@
 
 Projects: the unit that owns pipelines, secrets and its own member list.
 
-**Layer** `features/` · **id** `project` · **DI key** `projectRepository`
+**Layer** `features/` · **id** `project` · **DI keys** `projectRepository`, `projectGroupRepository`
 
 ## Import rules
 
@@ -16,13 +16,19 @@ component or another feature runs with `createQuery`.
 ## Public API — `index.ts`
 
 ```typescript
-type ProjectEntity, ProjectList, ProjectLookupEntry
-projectQueries        byWorkspace (paginated) · lookup (org-wide) · byId (one project, or null) · members
+type ProjectEntity, ProjectList, ProjectLookupEntry, ProjectIcon, ProjectIconChange
+projectQueries        byWorkspace (paginated) · lookup (org-wide) · search (the projects page) ·
+                      byId (one project, or null) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
-projectMutations      create · update · remove
+projectMutations      create · update · setIcon · remove
+projectIconProps      ProjectIcon → the props of EntityIcon: the sidebar links of the shell use it
+recentColors, keepRecentColor   the user-state key `recent-colors`, for each icon color picker
+loadProjectTitle      a loader: the icon and the name at the top of the page of a project (pipeline)
 canListProjects
 PROJECTS_QUERY_KEY, PROJECTS_QUERY_ROOT, PROJECTS_LOOKUP_PAGE
+PROJECT_SEARCHES_QUERY_KEY    // the searches of a workspace; `pipeline` refreshes them after a run
 CREATE_PROJECT_MUTATION_KEY   // the key of projectMutations.create; onboarding follows it
+projectPoints, type ProjectCardContext   // the zones of a project card: see "Widget points"
 ```
 
 `shell`, `roles`, `membership` and `dashboard` all run these with `createQuery` /
@@ -39,11 +45,43 @@ Never add: `project.module.ts`, pages.
 |---|---|
 | `getByWorkspaceId(workspaceId, pagination?)` | `ProjectList`: a `PaginatedList<ProjectEntity>` (`items`, `pagination`) |
 | `getById(projectId)` | `ProjectEntity`, or `null` when the server refuses the id: see the rules below |
+| `search(ProjectSearch)` | `ProjectSearchResult`: the first `limit` projects of a search (text, order, health), the counts of all of them, and `hasMore`. It reads pages of at most 100 |
 | `create(name, workspaceId, description?)` | `ProjectEntity` |
 | `update(projectId, name?, description?)` | `ProjectEntity` |
+| `setIcon(projectId, icon)` | `ProjectEntity`: `UpdateProject` with the icon only. The server deletes the old image |
 | `delete(projectId)` | `void` |
 
 Reach it from `presentation/project.queries.ts` only, never from a component.
+
+`ProjectGroupRepository` — `domain/repository/project-group.repository.ts`, the client of
+`ProjectGroupService`:
+
+| Method | Returns |
+|---|---|
+| `list(workspaceId)` | each `ProjectGroupEntity` of the workspace, in their order. It reads each page |
+| `create(workspaceId, name)` | the new group, after the other groups |
+| `rename(groupId, name)` | the group |
+| `reorder(groupId, position)` | the group at its new place, from 0 |
+| `delete(groupId)` | `void`. Its projects come after the projects with no group |
+| `move({ id, groupId?, beforeId? })` | the project, in the group (or in no group), before `beforeId` or last |
+
+Reach it from `presentation/project-group.queries.ts` only.
+
+## Widget points
+
+`presentation/project.points.ts`, listed in `ProjectModule.points`. Each zone gets a
+`ProjectCardContext`: the workspace, the project, its name, and `batch`, the projects of the
+cards that came with this one.
+
+| Point | Where | Filled by |
+|---|---|---|
+| `project.cardBadge` | after the name of the project | `pipeline`: the count of failing pipelines |
+| `project.cardSubtitle` | one line under the name | `integrations`: the linked repository |
+| `project.cardBody` | under the description | `pipeline`: the first pipelines, with Run |
+| `project.cardFooter` | the bottom line of the card | `pipeline`: the job that runs, or the last job |
+
+This module cannot import `pipeline` or `integrations`: they import it. The zones let them show
+on the card with no import back.
 
 ## Layout
 
@@ -52,17 +90,49 @@ project.module.ts                    route + nav + DI wiring (private; registry 
 index.ts                             public API
 domain/
   entities/project.entity.ts         ProjectEntity, ProjectList
+  entities/project-group.entity.ts   ProjectGroupEntity, MoveProjectInput
+  structs/project-search.struct.ts   ProjectSearch, ProjectOrder, ProjectHealth, ProjectCounts,
+                                     ProjectSection, ProjectSearchResult, countOfHealth
+  structs/project-layout.struct.ts   placeBefore, withPin, withoutPin, MAX_PINS
   repository/project.repository.ts
+  repository/project-group.repository.ts
 infrastructure/
   default-project.repository.ts      ProjectServiceClient → ProjectEntity; the project cap
-  grpc-project.mapper.ts
+  grpc-project.mapper.ts             also the order, the health, the section and the counts
+  default-project-group.repository.ts   ProjectGroupServiceClient → ProjectGroupEntity
+  grpc-project-group.mapper.ts
 presentation/
   project.commands.ts                "Create project...", for the search bar: it opens projects/new
   project.queries.ts                 every read and write, plus the key factories
+  project-group.queries.ts           the groups, the moves and « Duplicate »
+  project-layout.user-state.ts       the keys `project-pins` and `project-sections`
+  project.points.ts                  projectPoints: the zones of a project card
+  presenters/project-list.presenter.ts   the batches of cards, the orders of the page, the
+                                     parameters of the URL
+  presenters/project-sections.presenter.ts   the section keys, applyMoves, movesToSave
   ui/Project.page.svelte             picks the workspace, or says there is none
   ui/ProjectList.svelte              keyed on the workspace — that is the page reset
-  ui/ProjectHeader.svelte, ProjectCard.svelte
+  ui/project-list.state.svelte.ts    createProjectList: the search, the health and the order in
+                                     the URL, the search delay, "Show more", the batches
+  ui/project-sections.state.svelte.ts   createProjectSections: one search for each section, the
+                                     pins, the closed sections, "Show more" for each section
+  ui/project-reorder.state.svelte.ts    createProjectReorder: the drops of the reorder mode
+  ui/project-layout.context.ts       what the menu of a card reads from the page
+  ui/ProjectSections/                the sections, their headers, the group menu, the group name
+                                     row, the grid with the drop slot
+  ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New group",
+                                     "New project"
+  ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order,
+                                     "Reorder", and the bar of the reorder mode
+  ui/ProjectResults/                 the empty states, "Show more"
+  ui/ProjectCard/                    the card, its zones, its menu (Pin, Change the icon, Move to
+                                     group, Move up and down, Edit, Duplicate, Delete)
   ui/EditProjectDialog.svelte
+  ui/ProjectIcon/                    the one component that draws the icon of a project
+  ui/ProjectIconDialog/              the icon picker of @scylla/ui in a dialog; the form saves
+  ui/ProjectTitle/                   the icon (a button for an editor) and the name on a project page
+  presenters/project-icon.presenter.ts   ProjectIcon ↔ EntityIcon props, IconChoice, ProjectIconChange
+  recent-colors.user-state.ts        the key `recent-colors`; project.module.ts imports it
   ui/NewProject/                     the choice of the kind of project: ProjectKindCard per way
   ui/NewRegularProject/              the name and the description of a regular project
   messages/project.messages.ts
@@ -98,7 +168,18 @@ choice card links to it by its path only.
 - `projectLookupQueries` gives the options of each workspace to `createQueries`: one batch,
   never a loop of `createQuery`.
 - The member UI and its data belong to [`membership`](../membership/AGENTS.md), through `access`.
-- Lists use `DataTable` + `createPagination()`; row keys are project ids.
+- **The projects page has no page numbers.** It shows 6 cards (3 on a phone), then 12 more at
+  each "Show more". The search, the health (`?health=failed|running`) and the order (`?sort=`)
+  are in the URL, and the server applies them (`ListProjects`): a new value shows the first
+  batch again. The search goes to the URL and the server 250 ms after the last letter.
+- **The header counts the whole workspace, the segments count the search.** The health does not
+  change the counts of the server, so each segment shows its count with any health.
+- **A part of a card reads the data of its whole batch.** The cards that came together have the
+  same `batch`: the pipelines of a batch are one `ListPipelineSummaries`, the repositories of the
+  workspace are one `ListRepositoryLinks`. Do not read in a zone by `projectId` alone.
+- **A link or a button in a card does its own action.** The card opens the project only for a
+  click that is not in an `a` or a `button`. Do not stop the propagation of a link: the router
+  follows the links on `window`.
 - **`data-tour` attributes are anchors of the onboarding tour** (`projects` on the list, `project-card` with
   `data-project-id` on each card, `regular-project` on the card of a regular project,
   `add-project-form` around the form of `projects/new/regular`). Keep them on the same
@@ -107,6 +188,15 @@ choice card links to it by its path only.
   and an English server text that names the workspace by id. The repository maps it to
   its own sentence in `create` and keeps the code; the global toast shows it.
 - The description is optional in the edit dialog and on the new project page (`optional: true`).
+- **Draw the icon of a project with `ProjectIcon` only** (the card, the page, the dialog), and the
+  sidebar link with `projectIconProps`. No icon is the folder in `primary`. An image comes from
+  `imageUrl(id)` of `@platform/grpc` (`GET /images/{id}`, no token); it falls back to the folder when
+  it does not load. A free color goes through `iconColors` of `@scylla/ui`: under 3:1 with the card
+  of the theme, the tile is solid. The saved color does not change.
+- **Only a person with `UPDATE_PROJECT` on the project changes its icon**: the icon of the page is
+  a button for this person only. The server checks it too (`UpdateProject`).
+- **The image goes as bytes in `UpdateProject`.** The picker refuses a file over 1 MB or of another
+  type than PNG, JPEG or WebP before the upload; the server makes it a square PNG of 256 px.
 - **A new project is a page, not a dialog.** "New project" in the header and the command of the
   search bar open `projects/new`. The GitHub card stays inert, with its reason, for a person
   without `MANAGE_REPOSITORY_LINK` on the workspace.
@@ -134,6 +224,26 @@ choice card links to it by its path only.
   a pipeline of the deleted project for up to 30 seconds (`staleTime`). This module cannot invalidate
   it: `pipeline` reaches `project` through `apps`, so an import makes a module cycle. A click on this
   row goes to the list.
+
+- **The page has sections when there is no search**: the pins, the groups, then « No group ».
+  Each section is one `ListProjects` with `section` (or `project_ids` for the pins) and its own
+  "Show more". A search shows one flat list, as before. With no pin and no group, the page shows
+  one list with no header.
+- **The groups and the order belong to the workspace; the pins belong to the person.** The pins are
+  the user-state key `project-pins` (at most 100 for each workspace); the closed sections are
+  `project-sections`. In the custom order, the pins keep the order of the person.
+- **« Move up » and « Move down » swap a card with its neighbor** (`MoveProject` with
+  `before_project_id`), in the order of the page. They show only in the custom order, with no
+  search. In the pins, they change the order of the pins.
+- **The reorder mode keeps the drops on the page until « Done ».** `applyMoves` gives the page the
+  order after the drops; « Done » sends one `MoveProject` for each drop, in their order, and saves the
+  pins. The server places a project with the same rule as `placeBefore`, so the order stays the same.
+  « Cancel » or Escape forgets the drops. The mode needs the custom order, no search, a screen that
+  is not a phone and `UPDATE_PROJECT` on the workspace.
+- **The dragged card stays in the page, hidden.** The browser ends a drag on the element where it
+  started: a card that leaves the DOM loses its `dragend`.
+- **« Duplicate » copies the name, the description and a glyph icon**, just after the project in its
+  group. It does not copy an image icon, the pipelines, the secrets or the members.
 
 ## Before done
 

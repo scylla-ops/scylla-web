@@ -395,4 +395,52 @@ describe('DefaultPipelineRepository', () => {
     expect(listPipelineSummaries).toHaveBeenNthCalledWith(1, expect.objectContaining({ pipelineIds: [{ value: 'p' }] }));
     expect(listPipelineSummaries).toHaveBeenNthCalledWith(2, expect.objectContaining({ pipelineIds: [] }));
   });
+  it('reads each page of the summaries of a few projects when a query asks for all of them', async () => {
+    const summary = (id: string) => ({
+      pipelineId: { value: id },
+      projectId: { value: 'proj-1' },
+      name: id,
+      projectName: 'web',
+      recent: [],
+      completed: 0,
+      failed: 0,
+      lastEndedStatus: 0,
+      active: false,
+      triggerKinds: [],
+    });
+    const listPipelineSummaries = vi
+      .fn()
+      .mockReturnValueOnce(
+        unaryCall({ pipelines: [summary('a')], total: 2, green: 0, page: { nextToken: 't-2' } }),
+      )
+      .mockReturnValueOnce(
+        unaryCall({ pipelines: [summary('b')], total: 2, green: 0, page: { nextToken: '' } }),
+      );
+    const repository = new DefaultPipelineRepository({
+      listPipelineSummaries,
+    } as unknown as IPipelineServiceClient);
+
+    const list = await repository.getSummaries({
+      workspaceId: 'w',
+      runs: 1,
+      order: 'failing-first',
+      limit: 100,
+      allPages: true,
+      projectIds: ['proj-1'],
+    });
+
+    expect(list.items.map(item => item.id)).toEqual(['a', 'b']);
+    expect(list.total).toBe(2);
+    expect(listPipelineSummaries).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        projectIds: [{ value: 'proj-1' }],
+        page: { size: 100, token: '' },
+      }),
+    );
+    expect(listPipelineSummaries).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ page: { size: 100, token: 't-2' } }),
+    );
+  });
 });

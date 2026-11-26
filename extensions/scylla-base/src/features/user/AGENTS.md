@@ -19,7 +19,7 @@ component or another feature runs with `createQuery`.
 ```typescript
 type UserEntity, UserSummary, CreateUserInput, UpdateUserInput, UserAccess, UserSessionEntity
 userQueries        list · byId · me · access · sessions
-userMutations      create · update · remove · setActive · changePassword · sendPasswordReset ·
+userMutations      create · update · updateAvatar · remove · setActive · changePassword · sendPasswordReset ·
                    revokeSessions · revokeSession · deleteAccount · exportAccountData
 canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_KEY,
 USER_SESSIONS_QUERY_KEY
@@ -34,7 +34,7 @@ SDK gives them to other extensions): the own id of the session needs no grant, a
 needs `READ_USER`.
 
 **`UserSummary` is the one type for a person** (`id`, `username`, `email?`,
-`displayName?`): a `Pick` of `UserEntity`. The member lists of `workspace` and `project`
+`displayName?`, `avatarUrl?`, `avatarColor?`): a `Pick` of `UserEntity`. The member lists of `workspace` and `project`
 return it, because their RPCs carry no more. Show it with `Identity` from
 `@shared/presentation/ui`, never with a local avatar and name.
 
@@ -51,6 +51,7 @@ Never add: `user.module.ts`, a page or a component (export a loader, as `loadAcc
 | `getMe()`                          | `GetMe`              | `UserEntity`                                          |
 | `create(CreateUserInput)`          | `CreateUser`         | `UserEntity`                                          |
 | `update(UpdateUserInput)`          | `UpdateUser`         | `UserEntity`                                          |
+| `updateAvatar(UpdateAvatarInput)`  | `UpdateProfile`      | `UserEntity` (own account: photo or initials color)   |
 | `delete(userId)`                   | `DeleteUser`         | `void`                                                |
 | `setActive(userId, isActive)`      | `SetUserActive`      | `UserEntity`                                          |
 | `changePassword(current, next)`    | `ChangePassword`     | `void`                                                |
@@ -92,6 +93,7 @@ presentation/
   user.queries.ts                    the reads, the writes, `canListUsers`
   messages/user.messages.ts                every string the screens show
   messages/privacy.messages.ts             the section Privacy and the facts of the deletion
+  messages/avatar.messages.ts              the photo and the color of the initials
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
   ui/admin/user-table/               UserTable, user-table.columns.ts
@@ -118,6 +120,7 @@ presentation/
     UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
+                                     UserAvatarCard/ (own page only),
                                      UserAccessList/, UserIdentityCard, SessionList,
                                      SessionRow/ (both pages),
                                      ThemePicker/ (own page only)
@@ -155,6 +158,13 @@ first-workspace screen and the `personal` layout link to `/account`: the same pa
 user who has no workspace.
 
 ## Rules that bite here
+
+- **The section `profile` has the photo of the user** (`UserAvatarCard`): an image (PNG, JPEG
+  or WebP, 1 MB at most, checked with `imageFileProblem` before the upload), or the initials on a
+  color of `SWATCH_COLORS`. Each action sends `UpdateProfile` at once (`updateAvatar`): empty
+  bytes remove the image, an empty color gives the main color. The mapper gives the URL of the
+  image (`imageUrl`), so `IdentityAvatar` shows the photo wherever it gets a `UserEntity`: the
+  user menu of the shell, the account header, the member lists.
 
 - **The section `tokens` of the account page is the personal tokens.** `PersonalTokenService` needs
   no right: it is the account of the session. A token acts as its user. The server can turn them

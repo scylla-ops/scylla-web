@@ -60,6 +60,13 @@ const clients = () => {
     createJoinCode: vi.fn(() => unaryCall({ joinCode: 'JOIN-2', expiresAt: TS })),
     revokeAppKey: vi.fn(() => unaryCall({})),
     deleteApp: vi.fn(() => unaryCall({})),
+    setAppIcon: vi.fn(() =>
+      unaryCall({
+        app: wireApp({
+          icon: { kind: { oneofKind: 'glyph', glyph: { name: 'server', color: 'chart-3' } } },
+        }),
+      }),
+    ),
     setAppLabels: vi.fn(({ labels }: { labels: string[] }) =>
       unaryCall({ app: wireApp({ labels }) }),
     ),
@@ -250,6 +257,23 @@ describe('grpcApp.toDomain labels', () => {
 });
 
 describe('DefaultAppsRepository', () => {
+  it('sends the icon of an app, and gives the app back with it', async () => {
+    const { apps, repository } = clients();
+
+    const app = await repository.setIcon('app-1', { kind: 'glyph', name: 'server', color: 'chart-3' });
+    await repository.setIcon('app-1', { kind: 'default' });
+
+    expect(apps.setAppIcon).toHaveBeenNthCalledWith(1, {
+      appId: { value: 'app-1' },
+      icon: { kind: { oneofKind: 'glyph', glyph: { name: 'server', color: 'chart-3' } } },
+    });
+    expect(apps.setAppIcon).toHaveBeenNthCalledWith(2, {
+      appId: { value: 'app-1' },
+      icon: { kind: { oneofKind: undefined } },
+    });
+    expect(app.icon).toEqual({ kind: 'glyph', name: 'server', color: 'chart-3' });
+  });
+
   it('replaces the labels of an app, and gives the app back', async () => {
     const { apps, repository } = clients();
 

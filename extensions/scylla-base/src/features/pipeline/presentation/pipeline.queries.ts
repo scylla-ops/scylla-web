@@ -100,6 +100,28 @@ export const pipelineQueries = {
       refetchInterval: 30_000,
     }),
 
+  /**
+   * Each pipeline of a few projects, with its last job: the cards of a batch on the projects
+   * page, in one call. Scoped by the backend: a project that the caller cannot see gives no
+   * pipeline. Refetched each 30 s, as `summaries`.
+   */
+  ofProjects: (workspaceId: string | null, projectIds: readonly string[]) =>
+    queryOptions<PipelineSummaryList>({
+      queryKey: WORKSPACE_PIPELINE_SUMMARIES_QUERY_KEY(workspaceId, { projectIds }),
+      enabled: !!workspaceId && projectIds.length > 0,
+      queryFn: () =>
+        repository().getSummaries({
+          workspaceId: workspaceId!,
+          runs: 1,
+          order: 'failing-first',
+          limit: 100,
+          allPages: true,
+          projectIds,
+        }),
+      staleTime: 10_000,
+      refetchInterval: 30_000,
+    }),
+
   /** One call, scoped by the backend: nothing to gate here. */
   byWorkspace: (workspaceId: string | null) =>
     queryOptions<PaginatedList<PipelineMetadata>>({

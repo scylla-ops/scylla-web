@@ -5,8 +5,14 @@ import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
-import type { ProjectEntity, ProjectList } from '../domain/entities/project.entity.ts';
+import type {
+  ProjectEntity,
+  ProjectIconChange,
+  ProjectList,
+} from '../domain/entities/project.entity.ts';
+import type { ProjectSearch } from '../domain/structs/project-search.struct.ts';
 import type { ProjectModule } from '../project.module.ts';
+import { projectMessages } from './messages/project.messages.ts';
 
 // Resolved per call: tests swap the registry.
 const repository = () => getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
@@ -18,6 +24,16 @@ export const PROJECTS_QUERY_ROOT = ['projects'] as const;
 
 const PROJECT_QUERY_KEY = (projectId: string | undefined) =>
   [...PROJECTS_QUERY_ROOT, 'one', projectId] as const;
+
+/**
+ * Every search of the projects of a workspace, under its projects: a write of a project refreshes
+ * the searches too. A run changes their health: `pipeline` refreshes them through this key.
+ */
+export const PROJECT_SEARCHES_QUERY_KEY = (workspaceId: string) =>
+  [...PROJECTS_QUERY_ROOT, workspaceId, 'search'] as const;
+
+const PROJECT_SEARCH_QUERY_KEY = (search: ProjectSearch) =>
+  [...PROJECT_SEARCHES_QUERY_KEY(search.workspaceId), search] as const;
 
 export const CREATE_PROJECT_MUTATION_KEY = ['project', 'create'] as const;
 
@@ -51,6 +67,22 @@ export const projectQueries = {
       queryFn: () => repository().getByWorkspaceId(workspaceId!, PROJECTS_LOOKUP_PAGE),
       enabled: !!workspaceId,
       staleTime: 30_000,
+    }),
+
+  /**
+   * The first projects of a search, scoped by the backend: no client-side gate. While a new
+   * search loads, the cards of the last one stay, so that a typed letter or "Show more" does not
+   * empty the page. The health of the projects moves with their jobs: it is read each 30 s, as the
+   * pipelines of the cards.
+   */
+  search: (search: ProjectSearch, enabled = true) =>
+    queryOptions({
+      queryKey: PROJECT_SEARCH_QUERY_KEY(search),
+      queryFn: () => repository().search(search),
+      enabled: enabled && !!search.workspaceId,
+      placeholderData: previous => previous,
+      staleTime: 10_000,
+      refetchInterval: 30_000,
     }),
 
   /** One project, scoped by the backend: no client-side gate. Gives `null`, see the repository. */
@@ -98,6 +130,10 @@ export const projectLookupQueries = (workspaceIds: string[], enabled = true) => 
 const invalidateProjects = () =>
   getQueryClient().invalidateQueries({ queryKey: PROJECTS_QUERY_ROOT });
 
+/** `all`: the dashboard, the sidebar and the menus read a list that nothing has mounted now. */
+const refetchEveryProjectList = () =>
+  getQueryClient().invalidateQueries({ queryKey: PROJECTS_QUERY_ROOT, refetchType: 'all' });
+
 /**
  * Only an entry that a read made: an entry that this write makes has no `queryFn`, and
  * `refetchType: 'all'` fails on it.
@@ -141,11 +177,19 @@ export const projectMutations = {
         const { project, setProject } = contextStore.getState();
         if (project.id === updated.id) setProject(updated.id, updated.name);
         writeReadOfProject(updated.id, updated);
-        // `all`: the dashboard and the menus read a list that nothing has mounted now.
-        return getQueryClient().invalidateQueries({
-          queryKey: PROJECTS_QUERY_ROOT,
-          refetchType: 'all',
-        });
+        return refetchEveryProjectList();
+      },
+    }),
+
+  /** The card, the sidebar and the page of the project show the new icon. */
+  setIcon: () =>
+    mutationOptions({
+      mutationFn: ({ projectId, icon }: { projectId: string; icon: ProjectIconChange }) =>
+        repository().setIcon(projectId, icon),
+      onSuccess: updated => {
+        toast.success(i18n._(projectMessages.iconSaved));
+        writeReadOfProject(updated.id, updated);
+        return refetchEveryProjectList();
       },
     }),
 

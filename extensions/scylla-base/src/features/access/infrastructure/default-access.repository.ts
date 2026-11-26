@@ -15,6 +15,8 @@ import type {
   ObjectRef as GrpcObjectRef,
 } from '@base/generated/scylla/access/v1/access_service.ts';
 import { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
+import { imageUrl } from '@platform/grpc';
+import { iconToDomain } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 const PAGE_SIZE = 100;
@@ -31,7 +33,22 @@ const toDomain = (entry: AccessEntry): AccessEntryEntity => ({
   role: entry.role,
 });
 
+/** The photo or the color of the initials of a person, or the icon of an app. */
+const avatarOf = ({ avatar, icon }: Member): Partial<MemberEntity> => {
+  const custom = iconToDomain(icon);
+  return {
+    ...(avatar?.imageId?.value && { avatarUrl: imageUrl(avatar.imageId.value) }),
+    ...(avatar?.color && { avatarColor: avatar.color }),
+    ...(custom?.kind === 'image' && { avatarUrl: imageUrl(custom.imageId) }),
+    ...(custom?.kind === 'glyph' && {
+      avatarGlyph: custom.name,
+      ...(custom.color && { avatarColor: custom.color }),
+    }),
+  };
+};
+
 const memberToDomain = (member: Member): MemberEntity => ({
+  ...avatarOf(member),
   actorId: idValue(member.actorId),
   actorKind: member.actorKind,
   displayName: member.displayName,

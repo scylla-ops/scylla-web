@@ -1,6 +1,6 @@
 import type { Component, Snippet } from 'svelte';
 import type { MessageDescriptor } from '@lingui/core';
-import type { LucideIcon } from '@scylla/ui';
+import type { EntityIconProps, LucideIcon } from '@scylla/ui';
 import type { BreadcrumbParams } from '../routing/crumb.struct.ts';
 import type { RouteParams } from '../routing/route.struct.ts';
 import type { RoutePermission } from './register.struct.ts';
@@ -49,6 +49,8 @@ export interface SecondSidebarLink {
   /** The URL that the link opens. */
   href: string;
   icon?: LucideIcon;
+  /** The icon of the entity that the link opens, e.g. a project, in place of `icon`. */
+  entityIcon?: EntityIconProps;
   /** Apart from the links before it. By default, only the first link of a module is apart. */
   apart?: boolean;
 }

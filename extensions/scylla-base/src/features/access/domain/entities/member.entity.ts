@@ -27,6 +27,12 @@ export interface MemberEntity {
   /** An app that runs jobs: an agent. */
   runner: boolean;
   roles: MemberRoleEntity[];
+  /** The URL of the photo of a person, or of the image of the icon of an app. */
+  avatarUrl?: string;
+  /** The color of the initials of a person, or of the glyph of an app. */
+  avatarColor?: string;
+  /** The glyph of the icon of an app, a name of `ENTITY_GLYPHS`. */
+  avatarGlyph?: string;
 }
 
 /** The role that gives a permission. */

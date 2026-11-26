@@ -2,7 +2,7 @@ import FolderIcon from '@lucide/svelte/icons/folder';
 import { contextStore, workspaceUrl } from '@platform/context';
 import { createQuery, type SecondSidebarLink } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import { canListProjects, projectQueries } from '@base/features/project';
+import { canListProjects, projectIconProps, projectQueries } from '@base/features/project';
 import { linkParams } from '../shell-params.ts';
 
 /** The group of "All projects" in `project.module.ts`: its id is the id of the rail item. */
@@ -28,6 +28,7 @@ export const projectLinks = (
       title: project.name,
       href: workspaceUrl(slug, `projects/${project.id}`),
       icon: FolderIcon,
+      entityIcon: projectIconProps(project.icon),
     }));
   });
 

@@ -27,16 +27,22 @@ domain/structs/job-status.struct.ts  JobStatus, isActiveStatus, isFinishedStatus
                                      job, which `jobs` and `agents` both read (`jobs` re-exports it)
 domain/structs/api-token.struct.ts   ApiToken, TokenLimits, TokenPreset, TokenExpiry, expiryStateOf:
                                      the API tokens of the apps and the personal tokens
+domain/structs/custom-icon.struct.ts CustomIcon, CustomIconChange: the icon that an admin gives
+                                     to a thing of a workspace (an agent)
 domain/structs/agent-label.struct.ts AGENT_LABEL_PATTERN, MAX_AGENT_LABELS, agentLabelIssue,
                                      sameAgentLabels: the rule of a label of an agent, as the
                                      server checks it (`apps` and `pipeline` both use it)
 infrastructure/grpc/wrappers.ts      proto helpers, and `required`: the entity a response must carry
                                      (MALFORMED_RESPONSE when the server left it out)
 infrastructure/grpc/api-token.mapper.ts  apiTokenToDomain, limitsToProto, expiryToProto
+infrastructure/grpc/icon.mapper.ts   iconToDomain, iconChangeToProto: `scylla.common.v1.Icon`
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      Identity, IdentityAvatar, identityKindOf, userName,
                                      userSecondaryLine, IdentityKind, UserIdentityProfile,
+                                     AvatarLook (the photo, the color, the glyph of an App:
+                                     IdentityAvatar shows them, the chosen color through CSS
+                                     variables, so the class of a caller still wins),
                                      ProviderMark, JobRunMark, FragmentIcon, VersionBadge (the
                                      library: pipeline and marketplace), AgentLabels (the labels
                                      of an agent, a pipeline or a job; the labels of the machine

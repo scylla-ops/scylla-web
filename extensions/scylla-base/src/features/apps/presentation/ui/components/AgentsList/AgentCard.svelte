@@ -2,9 +2,10 @@
   import FolderIcon from '@lucide/svelte/icons/folder';
   import { t } from '@scylla/ui/i18n';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
-  import { AgentLabels } from '@shared/presentation/ui';
+  import { AgentLabels, IdentityAvatar } from '@shared/presentation/ui';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { agentStatusOf } from '@base/features/apps/domain/structs/agent-list.struct.ts';
+  import { agentProfile } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
   import AgentCompatibilityBadge from '../AgentCompatibilityBadge/AgentCompatibilityBadge.svelte';
   import AgentStatusPill from '../AgentStatusPill/AgentStatusPill.svelte';
   import Sparkline from '../Sparkline/Sparkline.svelte';
@@ -36,10 +37,11 @@
   <div class="flex items-center justify-between gap-2">
     <button
       type="button"
-      class="min-w-0 truncate text-left font-mono font-medium hover:underline"
+      class="flex min-w-0 items-center gap-2 text-left font-mono font-medium"
       onclick={onOpen}
     >
-      {agent.name}
+      <IdentityAvatar profile={agentProfile(agent)} kind="agent" size={24} />
+      <span class="truncate hover:underline">{agent.name}</span>
     </button>
     <span class="flex shrink-0 items-center gap-2">
       <AgentCompatibilityBadge {agent} />

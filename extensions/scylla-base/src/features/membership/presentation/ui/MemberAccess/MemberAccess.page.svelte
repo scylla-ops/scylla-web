@@ -103,7 +103,7 @@
       <div class="flex min-w-0 flex-col gap-3">
         <Identity
           format="header"
-          profile={memberProfile({ name, handle: member.handle })}
+          profile={memberProfile({ ...member, name })}
           kind={identityKindOf(member)}
           self={member.actorId === meQuery.data?.id}
         />

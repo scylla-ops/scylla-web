@@ -1,7 +1,13 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import {
+  findFloating,
+  render,
+  withQueryClient,
+  withRegistry,
+  withWidgetInjections,
+} from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
 import { permissionsStore, PermissionScope } from '@platform/authz';
@@ -10,7 +16,9 @@ import type { ProjectEntity } from '@base/features/project/domain/entities/proje
 import type {
   ProjectRepository,
 } from '@base/features/project/domain/repository/project.repository.ts';
+import { projectPoints } from '../../project.points.ts';
 import ProjectCard from './ProjectCard.svelte';
+import ProjectCardProbe from './ProjectCardProbe.fixture.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn() } }));
 
@@ -24,13 +32,15 @@ const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
 
 let teardown: Array<() => void> = [];
 let testNavigator: ReturnType<typeof installTestNavigator>;
+let remove: ReturnType<typeof vi.fn>;
 
-const renderCard = (entity: ProjectEntity = project()) => {
+const renderCard = (entity: ProjectEntity = project(), batch?: string[]) => {
+  remove = vi.fn().mockResolvedValue(undefined);
   const repository = {
     getByWorkspaceId: vi.fn(),
     create: vi.fn(),
     update: vi.fn().mockResolvedValue(entity),
-    delete: vi.fn(),
+    delete: remove,
   } as unknown as ProjectRepository;
 
   const cache = withQueryClient();
@@ -38,8 +48,10 @@ const renderCard = (entity: ProjectEntity = project()) => {
   testNavigator = installTestNavigator({ pathname: '/acme/projects' });
   teardown = [cache.restore, restoreRegistry, testNavigator.restore];
 
-  return render(ProjectCard, { project: entity });
+  return render(ProjectCard, { project: entity, batch });
 };
+
+const openMenu = () => userEvent.click(screen.getByRole('button', { name: 'Project menu' }));
 
 beforeEach(() => {
   selectionStore.setState({ selectedIds: {} });
@@ -75,21 +87,55 @@ describe('ProjectCard', () => {
     expect(screen.getByText('No description')).toBeInTheDocument();
   });
 
-  const findEditButton = () => screen.queryByRole('button', { name: 'Edit' });
-
-  it('the Edit button is hidden without UPDATE_PROJECT on this project', () => {
+  it('has no menu without UPDATE_PROJECT and DELETE_PROJECT on this project', () => {
     permissionsStore.setState({ permissions: { scopes: [] } });
     renderCard();
-    expect(findEditButton()).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Project menu' })).toBeNull();
   });
 
-  it('the Edit button opens the edit dialog without navigating', async () => {
+  it('opens the edit dialog from its menu, without navigating', async () => {
     renderCard();
 
-    await userEvent.click(findEditButton()!);
+    await openMenu();
+    await userEvent.click(await findFloating('menuitem', 'Edit project'));
 
     expect(testNavigator.navigate).not.toHaveBeenCalled();
-    expect(await screen.findByText('Edit project')).toBeInTheDocument();
+    expect(await screen.findByText('Update the project name and description.')).toBeInTheDocument();
+  });
+
+  it('deletes the project from its menu after a confirmation', async () => {
+    renderCard();
+
+    await openMenu();
+    await userEvent.click(await findFloating('menuitem', 'Delete'));
+    const dialog = await screen.findByRole('alertdialog');
+    expect(dialog).toHaveTextContent('Delete the project “web”?');
+    expect(remove).not.toHaveBeenCalled();
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }));
+
+    expect(remove).toHaveBeenCalledWith('project-1');
+    expect(testNavigator.navigate).not.toHaveBeenCalled();
+  });
+
+  it('gives its zones the project and its batch, and a link of a zone does not open the project', async () => {
+    teardown.push(
+      withWidgetInjections({
+        Probe: [
+          projectPoints.cardBody.inject({
+            component: () => Promise.resolve({ default: ProjectCardProbe }),
+          }),
+        ],
+      }),
+    );
+    renderCard(project(), ['project-1', 'project-2']);
+
+    const link = await screen.findByRole('link', {
+      name: 'Pipelines of web, batch of project-1 and project-2',
+    });
+    link.addEventListener('click', event => event.preventDefault());
+    await userEvent.click(link);
+
+    expect(testNavigator.navigate).not.toHaveBeenCalled();
   });
 
   it('checking the selection checkbox toggles selection without navigating', async () => {

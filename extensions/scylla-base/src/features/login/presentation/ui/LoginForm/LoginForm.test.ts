@@ -10,6 +10,18 @@ describe('LoginForm', () => {
     expect(screen.getByLabelText('Password')).toHaveAttribute('type', 'password');
   });
 
+  it('shows the typed password on request and hides it again', async () => {
+    const user = userEvent.setup();
+    render(LoginForm, { handleSubmit: vi.fn() });
+    const field = screen.getByLabelText('Password');
+
+    await user.click(screen.getByRole('button', { name: 'Show password' }));
+    expect(field).toHaveAttribute('type', 'text');
+
+    await user.click(screen.getByRole('button', { name: 'Hide password' }));
+    expect(field).toHaveAttribute('type', 'password');
+  });
+
   it('Sign in stays disabled until both fields are filled', async () => {
     const user = userEvent.setup();
     render(LoginForm, { handleSubmit: vi.fn() });

@@ -12,6 +12,7 @@ import type { AgentStats } from '../structs/agent-stats.struct.ts';
 import type { StatsPeriod } from '../structs/stats-period.struct.ts';
 import type { RunnerChange } from '../structs/agent-access.struct.ts';
 import type { RoleGrant } from '../structs/app-grants.struct.ts';
+import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
 import type {
   ApiToken,
   CreatedToken,
@@ -56,6 +57,8 @@ export interface AppsRepository {
   enableApp(appId: string): Promise<AppEntity>;
   /** Replaces the labels that an admin gives to the app. An empty list removes them. */
   setLabels(appId: string, labels: readonly string[]): Promise<AppEntity>;
+  /** The icon of an admin: a glyph in a color, an image, or the default icon again. */
+  setIcon(appId: string, change: CustomIconChange): Promise<AppEntity>;
   /** The secret comes one time. */
   createToken(appId: string, input: CreateTokenInput): Promise<CreatedToken>;
   /** Newest first, with the revoked and the expired ones. */

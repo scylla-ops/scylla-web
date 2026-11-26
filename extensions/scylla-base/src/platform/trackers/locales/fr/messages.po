@@ -45,7 +45,7 @@ msgstr "Contient l'identité d'un fournisseur pendant que vous la liez à votre 
 msgid "Keeps the copy of your interface settings the same as the copy of the server."
 msgstr "Garde la copie de vos réglages d'interface identique à la copie du serveur."
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:142
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:169
 msgid "Keeps the display settings of the log of a job."
 msgstr "Garde les paramètres d'affichage du journal d'un job."
 
@@ -53,31 +53,43 @@ msgstr "Garde les paramètres d'affichage du journal d'un job."
 msgid "Keeps the language that you chose. With no choice, the app uses the language of the browser."
 msgstr "Garde la langue que vous avez choisie. Sans choix, l'application prend la langue du navigateur."
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:196
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:133
+msgid "Keeps the last free colors that you chose for an icon."
+msgstr "Garde les dernières couleurs libres que vous avez choisies pour une icône."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:223
 msgid "Keeps the page to go back to after the install of the GitHub App."
 msgstr "Garde la page où revenir après l'installation de l'application GitHub."
+
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:142
+msgid "Keeps the projects that you pinned on the projects page."
+msgstr "Garde les projets que vous avez épinglés sur la page des projets."
 
 #: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:115
 msgid "Keeps the release notes that you saw."
 msgstr "Garde les notes de version que vous avez vues."
 
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:151
+msgid "Keeps the sections that you closed on the projects page."
+msgstr "Garde les sections que vous avez repliées sur la page des projets."
+
 #: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:124
 msgid "Keeps the style of the nodes in the pipeline editor."
 msgstr "Garde le style des nœuds dans l'éditeur de pipeline."
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:187
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:214
 msgid "Keeps the time of your last visit to the dashboards."
 msgstr "Garde l'heure de votre dernière visite des tableaux de bord."
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:151
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:178
 msgid "Keeps the width of the list of nodes on the page of a job."
 msgstr "Garde la largeur de la liste des nœuds sur la page d'un job."
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:160
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:187
 msgid "Keeps the width of the second sidebar."
 msgstr "Garde la largeur de la seconde barre latérale."
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:133
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:160
 msgid "Keeps the width of the side panel of the pipeline editor."
 msgstr "Garde la largeur du panneau latéral de l'éditeur de pipeline."
 
@@ -93,11 +105,11 @@ msgstr "Vous garde connecté : il contient le jeton de la session de ce navigat
 msgid "Keeps your choice for the trackers that need your consent, so the app does not ask again. The app sets it only when it has such a tracker."
 msgstr "Garde votre choix pour les traceurs qui demandent votre consentement, pour que l'application ne vous le redemande pas. L'application ne le crée que si elle a un tel traceur."
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:178
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:205
 msgid "Keeps your default dashboard."
 msgstr "Garde votre tableau de bord par défaut."
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:169
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:196
 msgid "Keeps your last entries in the command bar."
 msgstr "Garde vos dernières entrées dans la barre de commandes."
 
@@ -153,7 +165,7 @@ msgstr "Finalité"
 msgid "Session storage"
 msgstr "Stockage de session"
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:205
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:232
 msgid "Starts the arrival animation when a sign-in with GitHub, GitLab or OIDC sends you back to the app."
 msgstr "Lance l'animation d'arrivée quand une connexion avec GitHub, GitLab ou OIDC vous renvoie dans l'application."
 
@@ -169,7 +181,7 @@ msgstr "Strictement nécessaire"
 msgid "Support"
 msgstr "Support"
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:206
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:233
 msgid "Until the app opens again in this tab"
 msgstr "Jusqu'à la prochaine ouverture de l'application dans cet onglet"
 
@@ -177,7 +189,7 @@ msgstr "Jusqu'à la prochaine ouverture de l'application dans cet onglet"
 msgid "Until you clear the site data"
 msgstr "Jusqu'à l'effacement des données du site"
 
-#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:197
+#: extensions/scylla-base/src/platform/trackers/presentation/ui/trackers.registry.ts:224
 msgid "Until you close the tab"
 msgstr "Jusqu'à la fermeture de l'onglet"
 

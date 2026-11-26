@@ -25,7 +25,8 @@
   } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
-  import { AgentLabels } from '@shared/presentation/ui';
+  import { AgentLabels, IdentityAvatar } from '@shared/presentation/ui';
+  import { agentProfile } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import {
     AGENT_FILTERS,
@@ -228,12 +229,15 @@
               <TableCell>
                 <button
                   type="button"
-                  class="flex flex-col items-start text-left"
+                  class="flex items-center gap-3 text-left"
                   onclick={() => openAgent(agent.id)}
                 >
-                  <span class="font-mono font-medium hover:underline">{agent.name}</span>
-                  <span class="text-xs text-muted-foreground">
-                    {agent.host?.hostname ?? t(messages.neverSaidHello)}
+                  <IdentityAvatar profile={agentProfile(agent)} kind="agent" />
+                  <span class="flex min-w-0 flex-col">
+                    <span class="font-mono font-medium hover:underline">{agent.name}</span>
+                    <span class="text-xs text-muted-foreground">
+                      {agent.host?.hostname ?? t(messages.neverSaidHello)}
+                    </span>
                   </span>
                 </button>
               </TableCell>

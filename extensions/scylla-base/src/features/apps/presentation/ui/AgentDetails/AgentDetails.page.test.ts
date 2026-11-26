@@ -147,6 +147,7 @@ const setUp = (
     disableApp: vi.fn().mockResolvedValue({ ...details, disabledAt: '2026-11-04T00:00:00.000Z' }),
     changeRunner: vi.fn().mockResolvedValue(undefined),
     setLabels: vi.fn().mockResolvedValue(details),
+    setIcon: vi.fn().mockResolvedValue(details),
     renameKey: vi.fn().mockResolvedValue(key('k-active-01JBX9QF7T', 'gpu-box')),
     revokeKey: vi.fn().mockResolvedValue(undefined),
     deleteApp: vi.fn().mockResolvedValue(undefined),
@@ -554,6 +555,38 @@ describe('AgentDetails', () => {
     expect(await screen.findByRole('list', { name: 'From an admin' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Change the labels' })).not.toBeInTheDocument();
     expect(screen.getByText('After the first connection')).toBeInTheDocument();
+  });
+
+  it('gives the icon of an agent to an admin of the workspace, who resets it or picks one', async () => {
+    setUp(agent({ icon: { kind: 'glyph', name: 'server', color: 'chart-3' } }), [
+      ...ALL,
+      Permission.SET_APP_ICON,
+    ]);
+    const user = userEvent.setup();
+
+    expect(await screen.findByRole('heading', { name: 'Agent icon' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Reset' }));
+    await waitFor(() =>
+      expect(apps.setIcon).toHaveBeenCalledWith('01JBX7AAAAAAAAAAAAAAAAK2M', { kind: 'default' }),
+    );
+    await user.click(screen.getByRole('button', { name: 'Change the icon…' }));
+    const dialog = await screen.findByRole('dialog');
+    await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(apps.setIcon).toHaveBeenLastCalledWith('01JBX7AAAAAAAAAAAAAAAAK2M', {
+        kind: 'glyph',
+        name: 'server',
+        color: 'chart-3',
+      }),
+    );
+  });
+
+  it('gives the change of the icon only to an admin of the workspace', async () => {
+    setUp(agent());
+
+    expect(await screen.findByRole('heading', { name: 'Labels' })).toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: 'Agent icon' })).not.toBeInTheDocument();
   });
 
   it('renames a key', async () => {

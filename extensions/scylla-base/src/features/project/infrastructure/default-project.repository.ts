@@ -2,10 +2,17 @@ import { t } from '@lingui/core/macro';
 import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
 import type {
   ProjectEntity,
+  ProjectIconChange,
   ProjectList,
 } from '@base/features/project/domain/entities/project.entity.ts';
+import type {
+  ProjectCounts,
+  ProjectSearch,
+  ProjectSearchResult,
+} from '@base/features/project/domain/structs/project-search.struct.ts';
 import type { IProjectServiceClient } from '@base/generated/scylla/projects/v1/project_service.client.ts';
 import type { Project } from '@base/generated/scylla/projects/v1/project.ts';
+import { ProjectHealth, ProjectOrder } from '@base/generated/scylla/projects/v1/project_service.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
@@ -59,6 +66,10 @@ export class DefaultProjectRepository implements ProjectRepository {
       const response = await this.client.listProjects({
         workspaceId: wrapId(workspaceId),
         page: { size: PAGE_SIZE, token },
+        query: '',
+        order: ProjectOrder.UNSPECIFIED,
+        health: ProjectHealth.UNSPECIFIED,
+        projectIds: [],
       }).response;
       projects.push(...response.projects);
       token = response.page?.nextToken ?? '';
@@ -67,6 +78,32 @@ export class DefaultProjectRepository implements ProjectRepository {
       projects,
       pagination ?? { page: 1, pageSize: DEFAULT_PAGE_SIZE },
     );
+  }
+
+  /** Reads pages of at most 100 projects until it has `limit` of them, or none is left. */
+  public async search(search: ProjectSearch): Promise<ProjectSearchResult> {
+    const projects: Project[] = [];
+    let counts: ProjectCounts | undefined;
+    let token = '';
+    do {
+      const response = await this.client.listProjects({
+        workspaceId: wrapId(search.workspaceId),
+        page: { size: Math.min(PAGE_SIZE, search.limit - projects.length), token },
+        query: search.query,
+        order: grpcProject.orderToProto(search.order),
+        health: grpcProject.healthToProto(search.health),
+        section: grpcProject.sectionToProto(search.section),
+        projectIds: (search.projectIds ?? []).map(wrapId),
+      }).response;
+      projects.push(...response.projects);
+      counts ??= grpcProject.countsToDomain(response.counts);
+      token = response.page?.nextToken ?? '';
+    } while (token && projects.length < search.limit);
+    return {
+      items: projects.map(grpcProject.toDomain),
+      counts: counts ?? grpcProject.countsToDomain(undefined),
+      hasMore: !!token,
+    };
   }
 
   public async create(
@@ -95,6 +132,14 @@ export class DefaultProjectRepository implements ProjectRepository {
       projectId: wrapId(projectId),
       ...(name !== undefined && { name }),
       ...(description !== undefined && { description }),
+    }).response;
+    return requireProject(response.project);
+  }
+
+  public async setIcon(projectId: string, icon: ProjectIconChange): Promise<ProjectEntity> {
+    const response = await this.client.updateProject({
+      projectId: wrapId(projectId),
+      icon: grpcProject.fromIconChange(icon),
     }).response;
     return requireProject(response.project);
   }

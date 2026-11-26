@@ -11,6 +11,38 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Added
+
+- Each password field has a button to show and hide the typed text.
+- Each project can have its own icon: a glyph of the icon set with a theme color or a free color, or
+  an uploaded image. The icon shows on the project card, in the projects of the sidebar and in the
+  project header, where a member that can edit the project opens the icon picker. A color with low
+  contrast shows as a solid tile.
+- A new projects page. Each card shows the linked repository, a badge with the count of failing
+  pipelines, the first pipelines with their status, branch and time, and the last job or the next
+  cron. A click on a pipeline opens its jobs, and its Run button runs it in one click. The page has
+  the counts of the workspace, a search ("/" goes to it, Escape clears it), the filters All, Failing
+  and Running, and a sort by name, last job or failures first, all kept in the URL. "Show more"
+  replaces the page numbers: 6 cards (3 on a phone), then 12 more each time. The menu of a card has
+  Edit and Delete.
+- Each user can set a profile photo in Account > Profile: an uploaded image, or the initials on a
+  color. The photo shows in the account menu, in the account header and in the member lists. An
+  admin of the workspace can set the icon of an agent on the agent page, with the icon picker of the
+  projects: a glyph with a theme color or a free color, or an image. The icon shows in the list of
+  the agents, on the agent page and in the member lists.
+- The projects page has groups, pins and a custom order. A member that can edit the projects creates
+  a group with "New group", and opens, closes, renames, moves or deletes each group section, which
+  shows its count and its health. Each person pins projects in a "Pinned" zone at the top. The menu
+  of a card has Pin, Change the icon, Move to group, Move up and Move down, Edit, Duplicate and
+  Delete. The sort has "Custom order", the default, and in this order the "Reorder" mode lets you
+  drag the cards to a group, to a place or to the pins: Done saves the order, Cancel or Escape
+  reverts it. On a phone, the page has no Reorder, no New group and no Select all.
+
+### Changed
+
+- What's new shows one tab for each version, an icon tile for each item, and new, clearer texts. It
+  also announces the Projects page and the project icons.
+
 ### Fixed
 
 - Job page: the job title row now wraps on narrow screens, so the page does not scroll sideways.
@@ -23,6 +55,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The report icon in the jobs list now updates when a job ends, with no reload.
 - The report icons of the jobs list stay on screen when a job changes status, and a new job shows in
   the list with no refresh.
+- The forgot password and sign-up pages no longer show a form error before the user types.
 
 ## [0.7.2] - 2026-11-25
 

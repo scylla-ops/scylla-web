@@ -98,11 +98,12 @@ export const withModuleLinks = (
         ...content,
         pages: [
           ...content.pages,
-          ...links.map(({ title, href, icon, apart }, index) => ({
+          ...links.map(({ title, href, icon, entityIcon, apart }, index) => ({
             title,
             href,
             url: href,
             icon,
+            entityIcon,
             apart: apart ?? index === 0,
           })),
         ],

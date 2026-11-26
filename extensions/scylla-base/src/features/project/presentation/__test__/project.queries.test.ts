@@ -51,6 +51,7 @@ const withRepository = (overrides: Partial<ProjectRepository> = {}) => {
     getByWorkspaceId: vi.fn().mockResolvedValue(page([project()])),
     create: vi.fn().mockResolvedValue(project()),
     update: vi.fn().mockResolvedValue(project()),
+    setIcon: vi.fn().mockResolvedValue(project()),
     delete: vi.fn().mockResolvedValue(undefined),
     ...overrides,
   };
@@ -344,6 +345,25 @@ describe('the mutations', () => {
     });
 
     expect(contextStore.getState().project).toEqual({ id: 'project-2', name: 'api' });
+  });
+
+  it('setIcon sends the icon, gives the read of the project the new icon and refetches each list', async () => {
+    const repository = withRepository();
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    queryClient.setQueryData(projectQueries.byId('project-1').queryKey, () => project());
+    const icon = { kind: 'glyph', name: 'rocket', color: 'chart-2' } as const;
+    const updated = project({ icon });
+
+    await runMutationFn(projectMutations.setIcon(), { projectId: 'project-1', icon });
+    runOnSuccess(projectMutations.setIcon(), updated, { projectId: 'project-1', icon });
+
+    expect(repository.setIcon).toHaveBeenCalledWith('project-1', icon);
+    expect(toastSuccess).toHaveBeenCalledWith('Project icon saved');
+    expect(queryClient.getQueryData(projectQueries.byId('project-1').queryKey)).toEqual(updated);
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: PROJECTS_QUERY_ROOT,
+      refetchType: 'all',
+    });
   });
 
   it('remove deletes and invalidates the projects root', async () => {

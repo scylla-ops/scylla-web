@@ -1,3 +1,4 @@
+import type { CustomIcon } from '@shared/domain/structs/custom-icon.struct.ts';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 
 /**
@@ -40,6 +41,8 @@ export interface AppEntity {
    * architecture (`x64`, `arm64`) and `container`. Empty before the first hello.
    */
   automaticLabels: string[];
+  /** The icon that an admin chose. Absent: the default icon of its kind. */
+  icon?: CustomIcon;
 }
 
 /**

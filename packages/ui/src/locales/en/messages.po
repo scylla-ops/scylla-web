@@ -41,6 +41,10 @@ msgstr "Are you absolutely sure?"
 msgid "Ask an admin for access."
 msgstr "Ask an admin for access."
 
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:15
+msgid "browse"
+msgstr "browse"
+
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:6
 #: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:4
 msgid "Cancel"
@@ -53,6 +57,18 @@ msgstr "Clear"
 #: packages/ui/src/primitives/dialog/dialog.messages.ts:4
 msgid "Close"
 msgstr "Close"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:9
+msgid "Color"
+msgstr "Color"
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:9
+msgid "Color {hex}"
+msgstr "Color {hex}"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:11
+msgid "Color {index}"
+msgstr "Color {index}"
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:7
 msgid "Continue"
@@ -99,6 +115,18 @@ msgstr "Create"
 msgid "Creating..."
 msgstr "Creating..."
 
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:15
+msgid "Dark theme {ratio}:1: set as a solid tile, dark glyph ({glyph}:1)"
+msgstr "Dark theme {ratio}:1: set as a solid tile, dark glyph ({glyph}:1)"
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:13
+msgid "Dark theme {ratio}:1: set as a solid tile, light glyph ({glyph}:1)"
+msgstr "Dark theme {ratio}:1: set as a solid tile, light glyph ({glyph}:1)"
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:10
+msgid "Dark theme {ratio}:1: the color on its tint"
+msgstr "Dark theme {ratio}:1: the color on its tint"
+
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:7
 msgid "Delete"
 msgstr "Delete"
@@ -111,9 +139,17 @@ msgstr "Displays the mobile sidebar."
 msgid "Done"
 msgstr "Done"
 
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:14
+msgid "Drop an image here, or"
+msgstr "Drop an image here, or"
+
 #: packages/ui/src/feedback/ErrorState/error-state.messages.ts:4
 msgid "Error"
 msgstr "Error"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:13
+msgid "Free color"
+msgstr "Free color"
 
 #: packages/ui/src/primitives/pagination/pagination.messages.ts:13
 msgid "Go to next page"
@@ -123,6 +159,30 @@ msgstr "Go to next page"
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:12
+msgid "Grey"
+msgstr "Grey"
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:6
+msgid "Hex color"
+msgstr "Hex color"
+
+#: packages/ui/src/controls/PasswordInput/password-input.messages.ts:5
+msgid "Hide password"
+msgstr "Hide password"
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:5
+msgid "Hue"
+msgstr "Hue"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:5
+msgid "Icon"
+msgstr "Icon"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:6
+msgid "Image"
+msgstr "Image"
+
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:14
 msgid "It needs {permission}. Ask a workspace admin."
 msgstr "It needs {permission}. Ask a workspace admin."
@@ -130,6 +190,18 @@ msgstr "It needs {permission}. Ask a workspace admin."
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:16
 msgid "It was deleted, or you cannot see it any more."
 msgstr "It was deleted, or you cannot see it any more."
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:19
+msgid "Light theme {ratio}:1: set as a solid tile, dark glyph ({glyph}:1)"
+msgstr "Light theme {ratio}:1: set as a solid tile, dark glyph ({glyph}:1)"
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:17
+msgid "Light theme {ratio}:1: set as a solid tile, light glyph ({glyph}:1)"
+msgstr "Light theme {ratio}:1: set as a solid tile, light glyph ({glyph}:1)"
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:11
+msgid "Light theme {ratio}:1: the color on its tint"
+msgstr "Light theme {ratio}:1: the color on its tint"
 
 #: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:6
 msgid "Link copied"
@@ -147,6 +219,10 @@ msgstr "Loading"
 msgid "Loading…"
 msgstr "Loading…"
 
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:10
+msgid "Main color"
+msgstr "Main color"
+
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:9
 msgid "New {label}"
 msgstr "New {label}"
@@ -154,6 +230,10 @@ msgstr "New {label}"
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:9
 msgid "No data matches the period or the scope of this widget."
 msgstr "No data matches the period or the scope of this widget."
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:8
+msgid "No icon matches this search."
+msgstr "No icon matches this search."
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:4
 msgid "No match"
@@ -179,6 +259,23 @@ msgstr "Page {page} of {totalPages}"
 msgid "Pagination"
 msgstr "Pagination"
 
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:7
+msgid "Pick a color on the screen"
+msgstr "Pick a color on the screen"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:16
+msgid "PNG, JPEG or WebP · 1 MB max · cropped to a square (256 × 256)"
+msgstr "PNG, JPEG or WebP · 1 MB max · cropped to a square (256 × 256)"
+
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:8
+msgctxt "colors"
+msgid "Recent"
+msgstr "Recent"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:4
+msgid "Reset"
+msgstr "Reset"
+
 #: packages/ui/src/primitives/resizable/resizable.messages.ts:4
 msgid "Resize panel"
 msgstr "Resize panel"
@@ -191,6 +288,14 @@ msgstr "Reveal"
 msgid "Reveal the secret first"
 msgstr "Reveal the secret first"
 
+#: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:4
+msgid "Saturation and brightness"
+msgstr "Saturation and brightness"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:7
+msgid "Search for an icon (rocket, server, database…)"
+msgstr "Search for an icon (rocket, server, database…)"
+
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:6
 msgid "Secret copied"
 msgstr "Secret copied"
@@ -202,6 +307,10 @@ msgstr "Select all"
 #: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:5
 msgid "Share link"
 msgstr "Share link"
+
+#: packages/ui/src/controls/PasswordInput/password-input.messages.ts:4
+msgid "Show password"
+msgstr "Show password"
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:6
 msgid "Show the options"
@@ -231,9 +340,17 @@ msgstr "The server did not answer. Scylla tries again in {time}."
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
 
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:17
+msgid "This file is too large: 1 MB max."
+msgstr "This file is too large: 1 MB max."
+
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:15
 msgid "This item is gone"
 msgstr "This item is gone"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:18
+msgid "This type of file is not accepted: use PNG, JPEG or WebP."
+msgstr "This type of file is not accepted: use PNG, JPEG or WebP."
 
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:12
 msgid "You cannot see this data"

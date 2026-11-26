@@ -5,9 +5,11 @@ import { WHATS_NEW } from '@base/shell/whats-new.ts';
 import {
   dismissRelease,
   highlightIdForNav,
+  isNewInRelease,
   isUnseen,
   markNavSeen,
   markSeen,
+  tabHasNew,
   unseenRelease,
 } from '../whats-new.state.svelte.ts';
 import type * as UserStateModule from '@platform/user-state';
@@ -112,9 +114,11 @@ describe('the flags of 0.7.0', () => {
     expect(isUnseen('agent-labels')).toBe(true);
   });
 
-  it('give the new highlights the key of 0.7.2', () => {
+  it('give the new highlights the key of their own version', () => {
     markSeen('agent-labels');
+    markSeen('projects-page');
     expect(localStorage.getItem('whats-new-seen:0.7.2:agent-labels')).toBe('1');
+    expect(localStorage.getItem('whats-new-seen:0.7.3:projects-page')).toBe('1');
   });
 
   it('do not hide the dialog: its flag has the version of the release', () => {
@@ -181,5 +185,40 @@ describe('the flags on the server', () => {
     await flush();
 
     expect(server.putUserStateEntry).toHaveBeenCalledOnce();
+  });
+});
+
+describe('the new highlights of the dialog', () => {
+  const find = (id: string) => WHATS_NEW.highlights.find(highlight => highlight.id === id)!;
+
+  it('are all new for a user who saw nothing', () => {
+    expect(WHATS_NEW.tabs.every(tabHasNew)).toBe(true);
+  });
+
+  it('are only the 0.7.3 ones for a user who dismissed the 0.7.2 dialog', () => {
+    localStorage.setItem('whats-new-seen:0.7.2:release', '1');
+
+    expect(isNewInRelease(find('projects-page'))).toBe(true);
+    expect(isNewInRelease(find('custom-icons'))).toBe(true);
+    expect(isNewInRelease(find('log-viewer'))).toBe(false);
+    expect(isNewInRelease(find('new-look'))).toBe(false);
+    expect(WHATS_NEW.tabs.filter(tabHasNew)).toEqual(['0.7.3']);
+  });
+
+  it('are all seen once the 0.7.3 dialog is dismissed', () => {
+    dismissRelease();
+
+    expect(WHATS_NEW.tabs.filter(tabHasNew)).toEqual([]);
+  });
+
+  it('drop the new flag of a highlight whose link the user opened', () => {
+    markNavSeen('projects');
+
+    expect(isNewInRelease(find('projects-page'))).toBe(false);
+    expect(tabHasNew('0.7.3')).toBe(true);
+  });
+
+  it('do not include the deleted sign-up mail highlight', () => {
+    expect(WHATS_NEW.highlights.some(highlight => highlight.id === 'verify-email')).toBe(false);
   });
 });

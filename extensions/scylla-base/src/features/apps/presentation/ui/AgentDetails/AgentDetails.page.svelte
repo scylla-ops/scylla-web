@@ -20,6 +20,7 @@
   import AgentRecentJobsCard from './AgentRecentJobsCard.svelte';
   import AgentAccessCard from './AgentAccessCard.svelte';
   import AgentLabelsCard from './AgentLabelsCard.svelte';
+  import AgentIconCard from './AgentIconCard/AgentIconCard.svelte';
   import AgentKeysCard from './AgentKeysCard.svelte';
   import AgentConnectCard from './AgentConnectCard.svelte';
   import AgentDangerZone from './AgentDangerZone.svelte';
@@ -41,6 +42,7 @@
   const canReadJobs = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE, target));
   const canReadStats = $derived(can(Permission.READ_APP_STATS, target));
   const canSetLabels = $derived(can(Permission.SET_APP_LABELS, target));
+  const canSetIcon = $derived(can(Permission.SET_APP_ICON, target));
 
   const details = createQuery(() => appQueries.byId(appId, workspaceId));
   const jobs = createQuery(() => appQueries.jobs(workspaceId, appId, canReadJobs));
@@ -169,6 +171,9 @@
           </div>
         {/if}
         <AgentLabelsCard {agent} canChange={canSetLabels} />
+        {#if canSetIcon}
+          <AgentIconCard {agent} />
+        {/if}
       </div>
     </div>
 

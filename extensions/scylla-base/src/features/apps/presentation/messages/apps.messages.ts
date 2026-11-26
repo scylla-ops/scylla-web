@@ -15,6 +15,7 @@ export const appsMessages = {
   keyRenamed: msg`Key renamed`,
   accessChanged: msg`Access changed`,
   labelsChanged: msg`Labels changed`,
+  iconChanged: msg`Icon changed`,
   disabledToast: (name: string) => msg`${name} is disabled`,
   enabledToast: (name: string) => msg`${name} is enabled`,
   noAgentConnected: msg`Jobs are waiting and no agent is connected.`,

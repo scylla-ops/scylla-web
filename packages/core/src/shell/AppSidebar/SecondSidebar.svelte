@@ -2,7 +2,7 @@
   import { fade } from 'svelte/transition';
   import type { Component } from 'svelte';
   import type { SecondSidebarSearch } from '@scylla/core-sdk';
-  import { prefersReducedMotion } from '@scylla/ui';
+  import { EntityIcon, prefersReducedMotion } from '@scylla/ui';
   import { Input, Skeleton } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import type { NavItem, SecondSidebarContent } from '../structs/nav-section.struct.ts';
@@ -114,7 +114,9 @@
                 data-nav-url={page.url}
                 onclick={() => onOpenPage(page)}
               >
-                {#if page.icon}
+                {#if page.entityIcon}
+                  <EntityIcon {...page.entityIcon} size={20} />
+                {:else if page.icon}
                   <page.icon class="size-4 shrink-0" />
                 {/if}
                 <span class="min-w-0 flex-1 truncate" title={page.title}>{page.title}</span>

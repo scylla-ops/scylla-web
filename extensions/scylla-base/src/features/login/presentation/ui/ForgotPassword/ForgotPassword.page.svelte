@@ -48,9 +48,15 @@
   {#if state.delivery}
     <p role="status" class="text-center text-sm">{t(SENT[state.delivery])}</p>
   {:else}
-    <ScyllaForm {items} onSubmit={values => state.submit(values.email)} isPending={state.isPending}>
-      {#snippet footer({ isValid, isPending })}
-        <Button type="submit" class="mt-2 w-full" disabled={!isValid || isPending}>
+    <!-- No autofocus and a button never disabled by an empty field: no error before the person types. -->
+    <ScyllaForm
+      {items}
+      autofocus={false}
+      onSubmit={values => state.submit(values.email)}
+      isPending={state.isPending}
+    >
+      {#snippet footer({ isPending })}
+        <Button type="submit" class="mt-2 w-full" disabled={isPending}>
           {t(passwordResetMessages.sendLink)}
         </Button>
       {/snippet}
