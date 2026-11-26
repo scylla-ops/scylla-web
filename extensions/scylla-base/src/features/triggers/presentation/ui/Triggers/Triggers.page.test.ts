@@ -168,6 +168,38 @@ describe('TriggersPage', () => {
     expect(screen.queryByText('0/0')).not.toBeInTheDocument();
   });
 
+  it('offers "New trigger" in the empty list, for the pipeline of the page', async () => {
+    listByPipelineId.mockResolvedValue([]);
+    render(TriggersPage, props);
+    const empty = (await screen.findByText('No triggers yet')).closest('[data-slot="empty-state"]');
+
+    await userEvent.click(within(empty as HTMLElement).getByRole('button', { name: 'New trigger' }));
+
+    expect(navigator.navigate).toHaveBeenCalledWith(
+      '/acme/projects/project-1/pipelines/pipeline-1/triggers/new',
+      undefined,
+    );
+  });
+
+  it('shows no "New trigger" in the empty list to a person who may not manage the triggers', async () => {
+    listByPipelineId.mockResolvedValue([]);
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.PROJECT,
+            scopeId: 'project-1',
+            access: { kind: 'restricted', permissions: [Permission.READ_PIPELINE] },
+          },
+        ],
+      },
+    });
+    render(TriggersPage, props);
+    const empty = (await screen.findByText('No triggers yet')).closest('[data-slot="empty-state"]');
+
+    expect(within(empty as HTMLElement).queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('refuses to render without the route parameters it needs', () => {
     render(TriggersPage, {});
 

@@ -4,11 +4,13 @@ import { Permission } from '@platform/authz';
 import { ACCESS_NAV } from '@shared/presentation/access-nav.ts';
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { memberCrumbName } from './presentation/member-crumb.state.svelte.ts';
+import { membershipCommands } from './presentation/membership.commands.ts';
 import { membershipPoints } from './presentation/membership.points.ts';
 
 export const MembershipModule = {
   id: 'membership',
   domain: {},
+  commands: membershipCommands,
   routes: {
     access: [
       {

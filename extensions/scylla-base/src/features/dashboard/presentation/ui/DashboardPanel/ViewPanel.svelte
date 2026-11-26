@@ -26,6 +26,9 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
   } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { toRune } from '@scylla/ui/stores';
@@ -112,7 +115,23 @@
 </div>
 
 <div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
-  <p class={section}>{t(messages.dashboards)}</p>
+  <!-- The "+" of the title repeats "New dashboard" at the end of the list. A mouse sees it on hover. -->
+  <div class="group/section flex items-center gap-2 pt-5 pr-3 pb-2 pl-4">
+    <p class="min-w-0 flex-1 truncate text-xs text-muted-foreground">{t(messages.dashboards)}</p>
+    <Tooltip>
+      <TooltipTrigger
+        class="-my-1 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-[opacity,color,background-color] outline-hidden hover:bg-accent hover:text-foreground focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:group-hover/section:opacity-100"
+        data-part="dashboards-new"
+        onclick={() => dashboardView.setCreating(true)}
+      >
+        <PlusIcon class="size-3.5" aria-hidden="true" />
+        <span class="sr-only">{t(editorMessages.newDashboard)}</span>
+      </TooltipTrigger>
+      <TooltipContent side="right">
+        <p>{t(editorMessages.newDashboard)}</p>
+      </TooltipContent>
+    </Tooltip>
+  </div>
   <ul class="flex flex-col gap-0.5 px-2">
     {#each dashboards.set.dashboards as dashboard (dashboard.id)}
       {@const current = dashboard.id === openId}

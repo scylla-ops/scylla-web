@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
   import { createQuery, currentSearch, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
@@ -70,7 +71,8 @@
   let outside = $state<string | null>(null);
 
   // A direct link gives a role to an app: `?addApp=<id>`. Another workspace gets a clear refusal.
-  const linked = new URLSearchParams(currentSearch()).get('addApp');
+  const linkSearch = new URLSearchParams(currentSearch());
+  const linked = linkSearch.get('addApp');
   if (linked) {
     tab = 'apps';
     addingApp = { id: linked, name: t(linkedApp), kind: 'app' };
@@ -138,6 +140,29 @@
 
   const openMember = (row: MemberRow) =>
     navigateTo(`${routePathname()}/${encodeURIComponent(row.actorId)}`);
+
+  /** The add action of the tab: the people get the dialog, an app gets the row that chooses it. */
+  const startAdd = () => {
+    if (tab === 'apps') choosingApp = true;
+    else addOpen = true;
+  };
+
+  // `?add` (the "Add members" of the search bar) opens the dialog, for a person who can add.
+  if (linkSearch.has('add')) addOpen = untrack(() => showAdd && canManage);
+
+  const searching = $derived(search.trim() !== '');
+  const emptyTitle = $derived(
+    searching
+      ? t(membershipMessages.noMemberMatch)
+      : tab === 'apps'
+        ? t(membershipMessages.appsEmpty)
+        : undefined,
+  );
+  const emptyAction = $derived(
+    showAdd && canManage && !searching
+      ? { label: t(membershipMessages.addMembers), onSelect: startAdd }
+      : undefined,
+  );
 </script>
 
 {#snippet actions()}
@@ -148,10 +173,7 @@
         allowed={canManage}
         deniedReason={t(membershipMessages.workspaceNewDenied)}
         variant={addAction.variant}
-        onclick={() => {
-          if (tab === 'apps') choosingApp = true;
-          else addOpen = true;
-        }}
+        onclick={startAdd}
       >
         {t(membershipMessages.addMembers)}
       </GatedButton>
@@ -213,6 +235,8 @@
       onOpen={openMember}
       onChangeRoles={row => (changing = row)}
       onRemove={askToRemove}
+      {emptyTitle}
+      {emptyAction}
     />
 
     {#await loadPendingInvitations() then { default: PendingInvitations }}

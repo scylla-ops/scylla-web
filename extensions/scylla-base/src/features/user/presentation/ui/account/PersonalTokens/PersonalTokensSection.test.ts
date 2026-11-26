@@ -164,6 +164,27 @@ describe('PersonalTokensSection', () => {
 
     expect(await screen.findByText('No personal token yet.')).toBeInTheDocument();
   });
+
+  it('offers "New token" in the empty list, and it opens the form of a token', async () => {
+    setUp({ tokens: [] });
+    const user = userEvent.setup();
+    const empty = (await screen.findByText('No personal token yet.')).closest<HTMLElement>(
+      '[data-slot="empty-state"]',
+    )!;
+
+    await user.click(within(empty).getByRole('button', { name: 'New token' }));
+
+    expect(await screen.findByRole('dialog')).toHaveTextContent('Token name');
+  });
+
+  it('shows no "New token" in the empty list when the server turned the tokens off', async () => {
+    setUp({ tokens: [], enabled: false });
+    const empty = (await screen.findByText('No personal token yet.')).closest<HTMLElement>(
+      '[data-slot="empty-state"]',
+    )!;
+
+    expect(within(empty).queryByRole('button')).not.toBeInTheDocument();
+  });
 });
 
 const onAPhone = () => {

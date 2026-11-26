@@ -467,11 +467,23 @@ describe('The edit mode', () => {
     expect(screen.getByText('2 changes · not saved')).toBeInTheDocument();
   });
 
+  it('repeats "New dashboard" as a "+" on the title of the list of dashboards', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+
+    const buttons = await panel().findAllByRole('button', { name: 'New dashboard' });
+    expect(buttons).toHaveLength(2);
+    await user.click(buttons[0]);
+
+    expect(await screen.findByLabelText('Name')).toBeInTheDocument();
+  });
+
   it('creates a dashboard from a template, and opens it in the edit mode', async () => {
     const user = userEvent.setup();
     render(DashboardWithPanel);
 
-    await user.click(await panel().findByRole('button', { name: 'New dashboard' }));
+    const buttons = await panel().findAllByRole('button', { name: 'New dashboard' });
+    await user.click(buttons[buttons.length - 1]);
     await user.type(await screen.findByLabelText('Name'), 'Release day');
     await user.click(await findFloating('button', 'Create dashboard'));
 

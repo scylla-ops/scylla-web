@@ -1,8 +1,11 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import ListChecksIcon from '@lucide/svelte/icons/list-checks';
+  import PlayIcon from '@lucide/svelte/icons/play';
   import { loadNoAgentsBanner } from '@base/features/apps';
+  import { can, Permission } from '@platform/authz';
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, ListSkeleton, PaginationSlot, enter } from '@scylla/ui';
+  import { EmptyState, ErrorState, ListSkeleton, PaginationSlot } from '@scylla/ui';
   import { createPagination } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -34,6 +37,12 @@
   );
 
   const filtered = $derived(!!filter && Object.values(filter).some(value => value !== undefined));
+  // A filter that matches nothing is not a pipeline with no run: no Run there.
+  const runFirst = $derived(
+    onRun && !filtered && can(Permission.RUN_PIPELINE)
+      ? { label: t(jobsMessages.run), icon: PlayIcon, onSelect: () => void onRun() }
+      : undefined,
+  );
 
   const jobs = $derived(jobsQuery.data?.items);
 
@@ -79,14 +88,12 @@
           <!-- The rows of the jobs table. -->
           <ListSkeleton rows={5} rowClass="h-14 w-full" />
         {:else}
-          <div class="flex items-center justify-center h-full min-h-[400px]" in:enter>
-            <div class="text-center space-y-2">
-              <p class="text-muted-foreground">{t(jobsMessages.noJobsFound)}</p>
-              {#if !filtered}
-                <p class="text-sm text-muted-foreground">{t(jobsMessages.noJobsBody)}</p>
-              {/if}
-            </div>
-          </div>
+          <EmptyState
+            icon={ListChecksIcon}
+            title={t(jobsMessages.noJobsFound)}
+            description={filtered ? undefined : t(jobsMessages.noJobsBody)}
+            action={runFirst}
+          />
         {/if}
       </div>
     </div>

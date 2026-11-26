@@ -189,6 +189,12 @@ narrower permission without moving that redirect target too.
   failed fire, missed time, offline agent), the open and the new counts, and the error of the
   node or of the job. A `PERMISSION_DENIED` shows Locked. The summary sentence counts the open
   items of the server.
+- **An empty widget adds its first item, for a person who can** (`WidgetBody` `emptyAction`, the
+  links of `widget-navigation.ts`): Capacity gives "Add an agent" (`create_app`), Pipelines gives
+  "New pipeline" in the project of the scope (`create_pipeline`), or "New project" with no scope
+  (`create_project`). Without the right, no button.
+- **The list of dashboards has a "+" on its title**, as "New dashboard" at its end. A mouse sees it
+  on hover and on focus.
 - Activity is partial: the job ends only (no G1). Quick actions has no "Fire a trigger" (C1)
   and no "Add a secret" (a secret belongs to a project).
 - **The page has no header.** The Figma page "Dashboard" (`695:13437`, frame `1524:6327`) puts

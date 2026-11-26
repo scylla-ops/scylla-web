@@ -53,14 +53,17 @@ It composes, through public APIs only:
 - `otherRoles` shows the roles of the other scopes as read only, with a link to the page that changes them. `can()` reads only the active scopes, so it cannot gate a link to another project: the route guard decides.
 - Only a role is a pill. A scope (the workspace or a project) is never a pill: `ScopeLabel` shows it as an icon and a name. The Roles card of a member (`MemberRolesCard`) gives each scope a header with its kind, and shows the projects inside the workspace, because a workspace role also applies in each project.
 - An app gets a role from the Apps tab of the members, or on the members of a project. Only the apps of the workspace are in the list. `?addApp=<id>` is a direct link: an app of another workspace gets a dialog that says why not.
+- **An empty list has its add action** (`EmptyState`), for a person who can add: "Add members" on the workspace page (the add dialog in People, the app chooser in Apps), "Add to <project>" on a project. A search that finds nobody shows "No member matches this search", with no action.
+- **`?add` opens the add form** of the page for a person who can add: the add dialog of the workspace, the chooser row of a project. The search bar gives "Add members" and "Add members to this project" (`membership.commands.ts`) with this link.
 
 ## Layout
 
 ```
-membership.module.ts                 routes + nav, empty domain
+membership.module.ts                 routes + nav + the commands of the search bar, empty domain
 index.ts                             public API
 presentation/
   membership.points.ts               the extension points (see below)
+  membership.commands.ts             "Add members", "Add members to this project": the `?add` link
   presenters/scope-members.presenter.ts   ScopeMember, MemberRole, MemberRoleOrigin +
                                      buildWorkspaceMembers / buildProjectMembers (pure)
   presenters/assignable-roles.presenter.ts   grantable → AssignableRole (no apps roles), and

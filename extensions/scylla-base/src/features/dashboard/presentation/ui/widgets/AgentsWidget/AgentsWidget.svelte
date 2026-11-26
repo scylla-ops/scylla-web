@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import ServerIcon from '@lucide/svelte/icons/server';
+  import { scyllaNavigate } from '@platform/context';
   import { ChartSegment, ChartSlot, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -16,7 +18,7 @@
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
-  import { agentLink, agentsLink } from '../widget-navigation.ts';
+  import { agentLink, agentsLink, newAgentLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
   import WidgetLink from '../parts/WidgetLink.svelte';
 
@@ -44,6 +46,7 @@
   const hot = $derived(Math.max(1, (usage?.capacity ?? capacity.slots) - 1));
   const highest = $derived(Math.max(1, usage?.capacity ?? 0, ...(usage?.buckets ?? []).map(item => item.average)));
   const wait = $derived(widgets.stats.data?.totals.p50Queue ?? null);
+  const addAgent = $derived(newAgentLink());
 
   const slotsOf = (agent: AppEntity): ('busy' | 'free' | 'offline')[] => {
     const slots = Math.max(1, agent.host?.capacity ?? 1);
@@ -159,6 +162,9 @@
     onRetry={() => void widgets.agents.refetch()}
     empty={capacity.total === 0}
     emptyTitle={t(messages.noAgent)}
+    emptyAction={addAgent
+      ? { label: addAgent.label, icon: PlusIcon, onSelect: () => scyllaNavigate.navigate(addAgent.href) }
+      : undefined}
   >
     {#if size === 'xs'}
       <div data-part="capacity" class="flex h-7 min-w-0 items-center gap-1.5">

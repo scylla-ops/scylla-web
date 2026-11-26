@@ -39,7 +39,8 @@ src/
                            ShareLinkButton, ColorPicker, ColorSwatches, IconPicker, IconField
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
                            CopyableText, TruncatedText, EntityIcon, ColorGlyph
-  feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
+  feedback/                ScyllaDialog, ErrorState, EmptyState, ConfirmOperationAlertDialog,
+                           SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
   layout/                  FeatureHeader, ContextItem, DangerZone, PageTransition,
                            ScyllaLoadingScreen, keepFitted (an attachment: fits a view again at
@@ -119,6 +120,7 @@ they use the language of the browser or no language.
 | The section of a settings page with the actions that cannot be undone | `DangerZone` (`title`, `description`, `action`: the destructive button, centered on the text or under it in a narrow card, `children`) |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
+| A list, a table or a section with no item yet | `EmptyState` (`icon`, `title`, `description`, `action`: `{ label, onSelect, icon }`, `Plus` by default). The action adds the first item in the context of the page (the project, the pipeline, the scope). Give it only to a person who can do it: with no `action`, no button shows. Never a bare sentence for an empty list. The icon and the title have their own grid row between rows of 2fr and 3fr, so a longer text does not move them |
 | Class names | `cn()` |
 | Toasts | `toast` from `@scylla/ui/utils` (`svelte-sonner`) |
 | Light/dark | `getTheme` / `currentTheme()` (reactive): the theme on screen. `getThemePreference` / `currentThemePreference()` / `setThemePreference(choice, origin?)`: the choice of the user (`light`, `dark` or `system`), from `@scylla/ui/stores` |
@@ -126,7 +128,7 @@ they use the language of the browser or no language.
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
 | A dashboard: a grid of widgets | `WidgetGrid` around `Widget`s (`size`: `xs`, `s`, `m`, `l`). See "Widgets" |
-| A widget with no data to draw (loading, error, empty, all clear, locked, missing) | `WidgetState` inside the `Widget`, with the same `size` |
+| A widget with no data to draw (loading, error, empty, all clear, locked, missing) | `WidgetState` inside the `Widget`, with the same `size`. Its `action` has a `RotateCw` icon by default; an empty state that adds the first item gives `icon: PlusIcon` |
 | A mark of a chart: a bar, a legend, a change, a ring | The `Chart*` parts. See "Charts" |
 | Panels the user can resize | `ResizablePaneGroup`, `ResizablePane`, `ResizableHandle` (`@scylla/ui/primitives`, on paneforge). See "`resizable`" below |
 | A card that opens on hover and holds links | `HoverCard`, `HoverCardTrigger`, `HoverCardContent` (bits-ui `LinkPreview`). A `Tooltip` holds text only: it must not hold a link. See "`hover-card`" below |

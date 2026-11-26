@@ -1,12 +1,20 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import InfoIcon from '@lucide/svelte/icons/info';
+  import UsersRoundIcon from '@lucide/svelte/icons/users-round';
   import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
+  import {
+    createQuery,
+    currentSearch,
+    navigateTo,
+    routePathname,
+    WidgetZone,
+  } from '@scylla/core-sdk';
   import { accessQueries, projectRef } from '@base/features/access';
   import { appQueries } from '@base/features/apps';
   import { userQueries } from '@base/features/user';
-  import { GatedButton, enter } from '@scylla/ui';
+  import { EmptyState, GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     Button,
@@ -66,7 +74,10 @@
   const rows = $derived(buildProjectMemberRows(membersQuery.data ?? []));
 
   let changing = $state<Changing | null>(null);
-  let adding = $state(false);
+  // `?add` (the "Add members to this project" of the search bar) opens the row that chooses one.
+  let adding = $state(
+    new URLSearchParams(currentSearch()).has('add') && untrack(() => canManage),
+  );
 
   const appsQuery = createQuery(() => {
     const query = appQueries.list(workspaceId ?? '');
@@ -152,12 +163,13 @@
         {/each}
       </div>
     {:else if rows.length === 0}
-      <p
-        class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground"
-        in:enter
-      >
-        {t(membershipMessages.projectEmpty)}
-      </p>
+      <EmptyState
+        icon={UsersRoundIcon}
+        title={t(membershipMessages.projectEmpty)}
+        action={canManage && !adding
+          ? { label: t(addTo(projectName)), onSelect: () => (adding = true) }
+          : undefined}
+      />
     {:else}
       <TableFrame>
         <Table class="min-w-[720px]">

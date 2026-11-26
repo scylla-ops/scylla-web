@@ -76,10 +76,11 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   read one of them: that query gives `null`, with no error, and the line shows a dash. The access
   column needs `list_workspace_members` (`appQueries.appRoles`). Each line starts with the icon of
   the app (`IdentityAvatar`, kind `app`).
-- With no item, both pages show `components/EmptyList/`. The icon and the title have their own
-  grid row, between two rows of 2fr and 3fr. The text and the button are in the 3fr row. Thus a
-  longer text does not move the icon or the title, unless the text and the button are taller
-  than this row. Do not center the full group: its height changes with the text.
+- With no item, both pages show `EmptyState` of `@scylla/ui`, with the add action for a person
+  who can create an app. The icon and the title have their own grid row, between two rows of 2fr
+  and 3fr. The text and the button are in the 3fr row. Thus a longer text does not move the icon
+  or the title, unless the text and the button are taller than this row. Do not center the full
+  group: its height changes with the text.
 - The agent page (`ui/AgentDetails/`, route `/agents/:appId`) shows the header (Disable or
   Enable), a banner when it is disabled, the timeline, the stats of the period, the jobs per day,
   the machine, the recent jobs, the access (Change: `runnerChanges` in

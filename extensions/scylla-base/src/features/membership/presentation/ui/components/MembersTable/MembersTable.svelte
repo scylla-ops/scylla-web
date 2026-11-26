@@ -1,6 +1,7 @@
 <script lang="ts">
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
-  import { enter } from '@scylla/ui';
+  import UsersRoundIcon from '@lucide/svelte/icons/users-round';
+  import { EmptyState, type EmptyStateAction } from '@scylla/ui';
   import { intlLocale, t } from '@scylla/ui/i18n';
   import {
     Button,
@@ -34,10 +35,24 @@
     onOpen: (row: MemberRow) => void;
     onChangeRoles: (row: MemberRow) => void;
     onRemove: (row: MemberRow) => void;
+    /** The title of an empty list: the tab or the search decides it. */
+    emptyTitle?: string;
+    /** The add action of an empty list, for a person who can add. */
+    emptyAction?: EmptyStateAction;
   }
 
-  let { rows, isLoading, userFor, selfId, canManage, onOpen, onChangeRoles, onRemove }: Props =
-    $props();
+  let {
+    rows,
+    isLoading,
+    userFor,
+    selfId,
+    canManage,
+    onOpen,
+    onChangeRoles,
+    onRemove,
+    emptyTitle,
+    emptyAction,
+  }: Props = $props();
 
   const dateFormat = $derived(
     new Intl.DateTimeFormat(intlLocale(), { day: 'numeric', month: 'short' }),
@@ -53,9 +68,11 @@
     {/each}
   </div>
 {:else if rows.length === 0}
-  <p class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground" in:enter>
-    {t(membershipMessages.workspaceEmpty)}
-  </p>
+  <EmptyState
+    icon={UsersRoundIcon}
+    title={emptyTitle ?? t(membershipMessages.workspaceEmpty)}
+    action={emptyAction}
+  />
 {:else}
   <TableFrame>
     <Table class="min-w-[840px]">

@@ -279,7 +279,7 @@ msgstr "Admins of {workspace} can create apps. Ask an admin for the role \"App c
 msgid "After the first connection"
 msgstr "After the first connection"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:32
+#: extensions/scylla-base/src/features/apps/apps.module.ts:33
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:4
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:38
 msgid "Agent"
@@ -297,8 +297,8 @@ msgstr "Agent icon"
 msgid "Agent version"
 msgstr "Agent version"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:76
-#: extensions/scylla-base/src/features/apps/apps.module.ts:80
+#: extensions/scylla-base/src/features/apps/apps.module.ts:77
+#: extensions/scylla-base/src/features/apps/apps.module.ts:81
 #: extensions/scylla-base/src/features/apps/presentation/messages/agents-list.messages.ts:5
 msgid "Agents"
 msgstr "Agents"
@@ -352,7 +352,7 @@ msgstr "API token"
 msgid "API tokens expire after 7, 30 or 90 days, or 1 year. A warning shows 14 days before the end. A CI identity and a key pair have no secret to expire."
 msgstr "API tokens expire after 7, 30 or 90 days, or 1 year. A warning shows 14 days before the end. A CI identity and a key pair have no secret to expire."
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:59
+#: extensions/scylla-base/src/features/apps/apps.module.ts:60
 #: extensions/scylla-base/src/features/apps/presentation/messages/app-page.messages.ts:4
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps-list.messages.ts:12
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:4
@@ -367,12 +367,12 @@ msgstr "App deleted"
 msgid "App icon"
 msgstr "App icon"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:96
+#: extensions/scylla-base/src/features/apps/apps.module.ts:97
 msgid "application"
 msgstr "application"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:91
-#: extensions/scylla-base/src/features/apps/apps.module.ts:95
+#: extensions/scylla-base/src/features/apps/apps.module.ts:92
+#: extensions/scylla-base/src/features/apps/apps.module.ts:96
 #: extensions/scylla-base/src/features/apps/presentation/messages/apps.messages.ts:5
 msgid "Apps"
 msgstr "Apps"
@@ -1041,8 +1041,8 @@ msgstr "Never said hello"
 msgid "Never used"
 msgstr "Never used"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:43
-#: extensions/scylla-base/src/features/apps/apps.module.ts:51
+#: extensions/scylla-base/src/features/apps/apps.module.ts:44
+#: extensions/scylla-base/src/features/apps/apps.module.ts:52
 #: extensions/scylla-base/src/features/apps/presentation/apps.commands.ts:20
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:4
 msgid "New agent"
@@ -1339,7 +1339,7 @@ msgstr "Run this command on the machine."
 msgid "Run your first agent"
 msgstr "Run your first agent"
 
-#: extensions/scylla-base/src/features/apps/apps.module.ts:81
+#: extensions/scylla-base/src/features/apps/apps.module.ts:82
 msgid "runner machine"
 msgstr "runner machine"
 

@@ -62,8 +62,8 @@ msgid "Accepted on {date}"
 msgstr "Acceptées le {date}"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:57
-#: extensions/scylla-base/src/features/user/user.module.ts:60
-#: extensions/scylla-base/src/features/user/user.module.ts:67
+#: extensions/scylla-base/src/features/user/user.module.ts:61
+#: extensions/scylla-base/src/features/user/user.module.ts:68
 msgid "Account"
 msgstr "Compte"
 
@@ -282,7 +282,7 @@ msgstr "Supprimer l'utilisateur"
 msgid "Deleted at once"
 msgstr "Supprimé tout de suite"
 
-#: extensions/scylla-base/src/features/user/user.module.ts:50
+#: extensions/scylla-base/src/features/user/user.module.ts:51
 msgid "Detail"
 msgstr "Détail"
 
@@ -864,7 +864,7 @@ msgid "Use my {provider} photo"
 msgstr "Utiliser ma photo {provider}"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
-#: extensions/scylla-base/src/features/user/user.module.ts:50
+#: extensions/scylla-base/src/features/user/user.module.ts:51
 msgid "User"
 msgstr "Utilisateur"
 
