@@ -447,12 +447,16 @@ describe('the second sidebar', () => {
     expect(screen.getByText('badge:apps')).toBeInTheDocument();
   });
 
-  it('shows nothing for a URL with no section', () => {
+  it('collapses the column, and keeps the rail, when no section matches the URL', () => {
     navigator.restore();
     navigator = installTestNavigator({ pathname: '/acme-corp/other' });
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
-    expect(within(secondSidebar()).queryByRole('heading')).not.toBeInTheDocument();
+    expect(document.querySelector('aside[data-slot="sidebar"]')).toBeNull();
+    expect(railOf()).toBeInTheDocument();
+    expect(
+      document.querySelector<HTMLElement>('[data-slot="sidebar-container"]')?.style.width,
+    ).toBe('56px');
   });
 
   it('sits on its own surface, between the rail and the page', () => {
@@ -627,6 +631,8 @@ describe('the band of the brand', () => {
   });
 
   it('continues the light line of its right edge on the second sidebar', () => {
+    navigator.restore();
+    navigator = installTestNavigator({ pathname: '/acme-corp/apps/1' });
     render(AppSidebarFixture, { config: configWith({ entries: groupEntries }) });
 
     expect(secondSidebar()).toHaveClass('border-r', 'border-sidebar-border');
