@@ -56,6 +56,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The report icons of the jobs list stay on screen when a job changes status, and a new job shows in
   the list with no refresh.
 - The forgot password and sign-up pages no longer show a form error before the user types.
+- The What's new dialog keeps the same height on each tab, and only the tab panel scrolls.
 
 ## [0.7.2] - 2026-11-25
 
