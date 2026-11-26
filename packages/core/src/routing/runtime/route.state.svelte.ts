@@ -12,6 +12,8 @@ export const setRouteTable = (next: RouteTable | null): void => {
 
 export const routeFallback = () => table?.fallback;
 
+export const routeShellLayout = () => table?.shellLayout;
+
 export const routeShell = () => table?.shell;
 
 export const routeGuard = () => table?.guard;

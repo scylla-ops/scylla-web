@@ -57,6 +57,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the list with no refresh.
 - The forgot password and sign-up pages no longer show a form error before the user types.
 - The What's new dialog keeps the same height on each tab, and only the tab panel scrolls.
+- The page not found inside a workspace now shows the navigation of the workspace, not endless
+  loading placeholders.
 
 ## [0.7.2] - 2026-11-25
 

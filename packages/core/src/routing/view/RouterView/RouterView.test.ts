@@ -125,11 +125,12 @@ describe('the app router', () => {
     expect(screen.queryByTestId('frame')).not.toBeInTheDocument();
   });
 
-  it('renders the fallback, without the layout or the shell, for a URL that no route matches', async () => {
+  it('renders the fallback inside the layout and the shell for a URL inside a workspace', async () => {
     await renderAt('/acme/nothing/here');
 
     expect(await screen.findByTestId('fallback')).toBeInTheDocument();
-    expect(screen.queryByTestId('layout')).not.toBeInTheDocument();
+    expect(screen.getByTestId('layout')).toContainElement(screen.getByTestId('frame'));
+    expect(screen.getByTestId('frame')).toContainElement(screen.getByTestId('fallback'));
   });
 
   it('follows a redirect relative to the route', async () => {
