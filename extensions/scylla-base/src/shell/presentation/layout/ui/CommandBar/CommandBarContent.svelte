@@ -1,5 +1,6 @@
 <script lang="ts">
   import { flip } from 'svelte/animate';
+  import { fade } from 'svelte/transition';
   import SearchIcon from '@lucide/svelte/icons/search';
   import { can } from '@platform/authz';
   import { contextStore, navigateTo, workspaceUrl } from '@platform/context';
@@ -21,6 +22,7 @@
   } from '@scylla/ui/primitives';
   import { dialogHoldStore, toRune } from '@scylla/ui/stores';
   import { cn, toast } from '@scylla/ui/utils';
+  import { IdentityAvatar } from '@shared/presentation/ui';
   import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import { linkParams } from '@base/shell/presentation/shell-params.ts';
@@ -53,7 +55,9 @@
   let { close, openForm }: Props = $props();
 
   const context = toRune(contextStore);
-  const sources = createCommandSources();
+  let text = $state('');
+  const parsed = $derived(parseCommandText(text));
+  const sources = createCommandSources(() => parsed.search);
 
   const workspace = $derived(context().workspace);
   const project = $derived(context().project);
@@ -63,7 +67,6 @@
     .flatMap(extension => extension.modules)
     .flatMap(module => module.commands ?? []);
 
-  let text = $state('');
   let chip = $state<CommandFilter | null>(null);
   let highlighted = $state('');
   let confirming = $state<CommandRow | null>(null);
@@ -71,7 +74,6 @@
 
   const recent = readRecent(context().workspace.id);
 
-  const parsed = $derived(parseCommandText(text));
   const filter = $derived(parsed.filter ?? chip);
 
   const rows = $derived(
@@ -83,6 +85,7 @@
       workspaceId: workspace.id,
       project,
       pipelineId,
+      search: parsed.search,
       can,
       other: sources.other,
     }),
@@ -321,7 +324,19 @@
                       {#if part.hit}<span class="underline decoration-primary decoration-2 underline-offset-2">{part.text}</span>{:else}{part.text}{/if}
                     {/each}
                   </span>
-                  {#if row.placeGlyph && row.place}
+                  {#if row.owner}
+                    <!-- A workspace: the avatar of its owner, then the role and the counts. -->
+                    <span
+                      class="flex min-w-0 items-center gap-1 text-xs text-muted-foreground"
+                      in:fade|global={{ duration: motionDuration(150) }}
+                    >
+                      <span class="shrink-0">{row.type} ·</span>
+                      <IdentityAvatar profile={row.owner} size={16} />
+                      <span class="truncate">
+                        {row.facts ? `${row.place} · ${row.facts}` : row.place}
+                      </span>
+                    </span>
+                  {:else if row.placeGlyph && row.place}
                     <!-- The glyph of the place: the folder of a group, a shared dashboard. -->
                     <span class="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
                       <span class="shrink-0">{row.type} ·</span>

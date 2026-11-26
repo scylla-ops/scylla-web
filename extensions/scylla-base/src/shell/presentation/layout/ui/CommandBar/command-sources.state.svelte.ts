@@ -12,7 +12,7 @@ import { projectGroupQueries, projectQueries } from '@base/features/project';
 import { roleQueries } from '@base/features/roles';
 import { secretQueries } from '@base/features/secret';
 import { userQueries } from '@base/features/user';
-import { workspaceQueries } from '@base/features/workspace';
+import { OTHERS_LIMIT, SEARCH_DELAY_MS, workspaceQueries } from '@base/features/workspace';
 import type { CommandSourcesData, CommandGroupId } from './command-rows.presenter.ts';
 
 /**
@@ -24,8 +24,11 @@ const allChanges = <T extends object>(options: T) => ({
   notifyOnChangeProps: 'all' as const,
 });
 
-/** The lists of the bar: each one reads only with its permission, and only while the bar is open. */
-export const createCommandSources = () => {
+/**
+ * The lists of the bar: each one reads only with its permission, and only while the bar is open.
+ * `search` is the text of the bar: the server finds the workspaces of other users with it.
+ */
+export const createCommandSources = (search: () => string = () => '') => {
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id);
   const projectId = $derived(context().project.id);
@@ -92,6 +95,28 @@ export const createCommandSources = () => {
   // The session: the shell has read it already.
   const me = createQuery(() => userQueries.me());
 
+  // The server search waits for a pause in the typing.
+  let searched = $state('');
+  $effect(() => {
+    const next = search().trim();
+    const timer = setTimeout(() => (searched = next), SEARCH_DELAY_MS);
+    return () => clearTimeout(timer);
+  });
+  const others = createQuery(() =>
+    allChanges(
+      workspaceQueries.all(
+        {
+          query: searched,
+          order: 'activity',
+          othersOnly: true,
+          pageSize: OTHERS_LIMIT,
+          pageToken: '',
+        },
+        { enabled: can(Permission.LIST_ALL_WORKSPACES) },
+      ),
+    ),
+  );
+
   const reads: readonly { group: CommandGroupId; query: { isLoading: boolean; isError: boolean } }[] =
     [
       { group: 'projects', query: projects },
@@ -105,6 +130,7 @@ export const createCommandSources = () => {
       { group: 'roles', query: instanceRoles },
       { group: 'secrets', query: secrets },
       { group: 'workspaces', query: workspaces },
+      { group: 'workspaces', query: others },
     ];
 
   const data = $derived<CommandSourcesData>({
@@ -120,6 +146,7 @@ export const createCommandSources = () => {
     secrets: secrets.data ?? [],
     workspaces: workspaces.data ?? [],
     selfId: me.data?.id,
+    otherWorkspaces: others.data?.items ?? [],
   });
 
   let otherCatalog = $state.raw<Messages>({});

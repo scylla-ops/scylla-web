@@ -15,12 +15,22 @@ const workspacesState: { workspaces?: { id: string; name: string; slug: string }
   isLoading: false,
 };
 
+/** What the server answers for a slug that is not on the list. None: NOT_FOUND. */
+const lookupState: { found?: { id: string; name: string; slug: string } } = {};
+
 vi.mock('@base/features/workspace', () => ({
   workspaceQueries: {
     mine: () =>
       stubQuery(['workspaces', 'mine'], workspacesState.workspaces, {
         loading: workspacesState.isLoading,
       }),
+    bySlug: (slug: string | undefined) => ({
+      queryKey: ['workspaces', 'one', 'slug', slug ?? ''],
+      queryFn: () =>
+        lookupState.found ? Promise.resolve(lookupState.found) : Promise.reject(new Error('NOT_FOUND')),
+      enabled: !!slug,
+      retry: false,
+    }),
   },
 }));
 
@@ -45,6 +55,7 @@ beforeEach(() => {
     { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' },
   ];
   workspacesState.isLoading = false;
+  lookupState.found = undefined;
   rememberWorkspace.mockClear();
   contextStore.setState({
     workspace: { id: null, name: null, slug: null },
@@ -155,28 +166,53 @@ describe('syncWorkspace', () => {
     });
   });
 
-  it('goes to the first workspace when the active workspace is gone', () => {
+  it('goes to the first workspace when the active workspace is gone', async () => {
     contextStore.setState({ workspace: { id: 'org-deleted', name: 'Gone', slug: 'gone' } });
 
-    run('gone')();
+    const cleanup = run('gone');
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
+    await vi.waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true }),
+    );
+    cleanup();
     expect(contextStore.getState().workspace).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
   });
 
-  it('goes to the first workspace when the slug is not the one of the active workspace', () => {
+  it('goes to the first workspace when the slug is not the one of the active workspace', async () => {
     contextStore.setState({ workspace: { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' } });
 
-    run('no-such-org')();
+    const cleanup = run('no-such-org');
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
+    await vi.waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true }),
+    );
+    cleanup();
   });
 
-  it('goes to the first workspace when the slug matches none', () => {
-    run('no-such-org')();
+  it('goes to the first workspace when the slug matches none', async () => {
+    const cleanup = run('no-such-org');
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
+    await vi.waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true }),
+    );
+    cleanup();
     expect(contextStore.getState().workspace).toEqual({ id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' });
+  });
+
+  it('asks the server before the redirect, and opens the workspace of another user that it finds', async () => {
+    lookupState.found = { id: 'org-9', name: 'Personal', slug: 'personal-alice' };
+
+    const cleanup = run('personal-alice');
+
+    expect(navigator.navigate).not.toHaveBeenCalled();
+    await vi.waitFor(() => expect(synced.matched).toBe(true));
+    cleanup();
+    expect(contextStore.getState().workspace).toEqual({
+      id: 'org-9',
+      name: 'Personal',
+      slug: 'personal-alice',
+    });
+    expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('keeps the page of a URL with no workspace, in the active workspace', () => {

@@ -15,7 +15,7 @@
 <span data-slot="command-row-icon" class="grid size-5 shrink-0 place-items-center" aria-hidden="true">
   {#key row.iconKey ?? ''}
     <span class="col-start-1 row-start-1 flex" in:swapIn out:swapOut>
-      {#if row.look?.kind === 'project'}
+      {#if row.look?.kind === 'project' || row.look?.kind === 'workspace'}
         <EntityIcon {...row.look.icon} size={20} />
       {:else if row.look}
         <IdentityAvatar profile={row.look.profile} kind={row.look.kind} self={row.look.self} size={20} />

@@ -128,6 +128,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   project row shows the icon of the project and its group, with the folder color. The tabs "Groups"
   and "Dashboards" come after "Projects" and "Pipelines", and the fragments show in "Pipelines". The
   recent list keeps these rows too. The rows fade in, and a new tab grows in.
+- Workspace switcher of an instance admin: your workspaces show first, then the 5 workspaces of
+  other users with the last activity, each with its icon and its owner, and the entry "All
+  workspaces…". The search also finds a workspace by the name, handle or email of its owner. A new
+  page, Administration > Workspaces, lists all the workspaces with their icon, owner, members,
+  projects, creation date and last activity, with a search, an order and pages from the server. In
+  the command bar, a workspace row shows its icon, its owner, your role and its counts, and no part
+  of its id.
 
 ## [0.7.2] - 2026-11-25
 

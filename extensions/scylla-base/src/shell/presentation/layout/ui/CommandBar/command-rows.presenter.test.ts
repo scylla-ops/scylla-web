@@ -5,7 +5,13 @@ import GitForkIcon from '@lucide/svelte/icons/git-fork';
 import LockIcon from '@lucide/svelte/icons/lock';
 import UsersIcon from '@lucide/svelte/icons/users';
 import { Permission } from '@platform/authz';
-import { buildCommandRows, type CommandRow, type RowsInput } from './command-rows.presenter.ts';
+import { commandResults } from './command-results.presenter.ts';
+import {
+  buildCommandRows,
+  type CommandRow,
+  type CommandWorkspace,
+  type RowsInput,
+} from './command-rows.presenter.ts';
 
 const input = (overrides: Partial<RowsInput> = {}): RowsInput => ({
   links: [],
@@ -13,7 +19,8 @@ const input = (overrides: Partial<RowsInput> = {}): RowsInput => ({
   slug: 'acme',
   workspaceId: 'w1',
   project: { id: 'p1', name: 'web-api' },
-  can: () => true,
+  // Each right but the instance view of the workspaces: the tests of an admin give it.
+  can: permission => permission !== Permission.LIST_ALL_WORKSPACES,
   other: () => undefined,
   projects: [
     { id: 'p1', name: 'web-api' },
@@ -29,6 +36,7 @@ const input = (overrides: Partial<RowsInput> = {}): RowsInput => ({
   instanceRoles: [],
   secrets: [],
   workspaces: [],
+  otherWorkspaces: [],
   ...overrides,
 });
 
@@ -433,5 +441,96 @@ describe('buildCommandRows', () => {
     ]);
     expect(rows[1].icon).toBe(GitForkIcon);
     expect(rows[0].fields.keywords?.[0].normal).toBe('docker');
+  });
+
+  describe('the workspaces', () => {
+    const personal = (
+      id: string,
+      owner: string,
+      role: string,
+      counts = { memberCount: 1, projectCount: 2 },
+    ): CommandWorkspace => ({
+      id,
+      name: 'Personal',
+      slug: `personal-${id}`,
+      owner: { id: `u-${id}`, username: owner.split(' ')[0].toLowerCase(), displayName: owner },
+      role,
+      ...counts,
+    });
+    const own: CommandWorkspace = {
+      ...personal('01a1b2c3', 'Sébastien LUCAS', 'owner'),
+      icon: { kind: 'glyph', name: 'rocket', color: 'chart-2' },
+    };
+    const shared = personal('01d4e5f6', 'Marie Dubois', 'member', { memberCount: 3, projectCount: 0 });
+    const alice = personal('01f7a8b9', 'Alice Martin', '');
+    const workspaceRows = (overrides: Partial<RowsInput>) =>
+      buildCommandRows(input({ slug: undefined, ...overrides })).filter(
+        row => row.group === 'workspaces',
+      );
+
+    it('show the owner, the role and the counts, with no part of the id', () => {
+      const [mine, other] = workspaceRows({ workspaces: [own, shared] });
+
+      expect(mine).toMatchObject({
+        name: 'Personal',
+        place: 'Sébastien LUCAS',
+        facts: 'Owner · Members: 1 · Projects: 2',
+        owner: own.owner,
+        sentence: 'Switch to Personal of Sébastien LUCAS',
+      });
+      expect(other).toMatchObject({ place: 'Marie Dubois', facts: 'Member · Members: 3 · Projects: 0' });
+      // The icon that the workspace chose, else a building in grey.
+      expect(mine.look).toMatchObject({ kind: 'workspace', icon: { color: 'chart-2' } });
+      expect(other.look).toMatchObject({ kind: 'workspace', icon: { color: 'muted-foreground' } });
+      expect(mine.iconKey).toBe('{"kind":"glyph","name":"rocket","color":"chart-2"}');
+      expect(JSON.stringify([mine.place, mine.sentence, other.place])).not.toMatch(/01/);
+    });
+
+    it('say "Current" on the active workspace', () => {
+      const [mine] = workspaceRows({ workspaces: [own], workspaceId: own.id });
+
+      expect(mine.verb).toBeUndefined();
+      expect(mine.sentence).toBe('Personal (Sébastien LUCAS) is the current choice.');
+    });
+
+    it('give a user without the instance view only its own workspaces', () => {
+      const rows = workspaceRows({ workspaces: [own], otherWorkspaces: [alice] });
+
+      expect(rows.map(row => row.id)).toEqual([`workspace:${own.id}`]);
+    });
+
+    it('give an admin its own workspaces, then the others with "Instance admin", then the list of all', () => {
+      const rows = workspaceRows({
+        can: () => true,
+        search: 'martin',
+        workspaces: [own],
+        otherWorkspaces: [alice, own],
+      });
+
+      expect(rows.map(row => [row.id, row.rank])).toEqual([
+        [`workspace:${own.id}`, 0],
+        [`workspace:${alice.id}`, 1],
+        ['workspaces:all', 2],
+      ]);
+      expect(rows[1].facts).toBe('Instance admin · Members: 1 · Projects: 2');
+      expect(rows[2]).toMatchObject({
+        name: 'All workspaces…',
+        effect: { kind: 'go', href: '/admin/workspaces?q=martin' },
+      });
+    });
+
+    it('find a workspace by its owner, own first, and keep the list of all after them', () => {
+      const rows = buildCommandRows(
+        input({ can: () => true, workspaces: [own], otherWorkspaces: [alice] }),
+      );
+      const ids = (search: string) =>
+        commandResults(rows, search, 'workspaces', { recent: [] }).sections.flatMap(section =>
+          section.items.map(item => item.id),
+        );
+
+      expect(ids('personal')).toEqual([`workspace:${own.id}`, `workspace:${alice.id}`, 'workspaces:all']);
+      expect(ids('alice')).toEqual([`workspace:${alice.id}`, 'workspaces:all']);
+      expect(ids('zzzz')).toEqual([]);
+    });
   });
 });

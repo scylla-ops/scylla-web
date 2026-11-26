@@ -194,6 +194,8 @@ interface Scored {
   match: FuzzyMatch;
 }
 
+const noMatch: FuzzyMatch = { score: 0, typo: false, ranges: [] };
+
 const SCORE_BUCKET = 20;
 const TIER = 100;
 
@@ -209,6 +211,7 @@ const recentRank = (order: ResultOrder, id: string): number => {
 const compareScored =
   (order: ResultOrder) =>
   (a: Scored, b: Scored): number =>
+    (a.row.rank ?? 0) - (b.row.rank ?? 0) ||
     Number(a.row.verb === undefined) - Number(b.row.verb === undefined) ||
     Math.round(b.match.score / SCORE_BUCKET) - Math.round(a.match.score / SCORE_BUCKET) ||
     Number(!!b.row.projectId && b.row.projectId === order.openProject) -
@@ -284,14 +287,19 @@ export const searchCommandRows = (
   const groups = filter && FILTER_GROUPS[filter];
   const runWord = hasRunWord(query);
 
-  const scored = rows
+  const kept = rows
     .filter(row => (groups ? groups.includes(row.group) : !row.chipOnly))
-    .filter(row => row.gate !== 'run' || runWord || row.here)
-    .flatMap((row): Scored[] => {
-      const match = fuzzyMatch(query, row.fields);
-      return match ? [{ row, match }] : [];
-    })
-    .sort(compareScored(order));
+    .filter(row => row.gate !== 'run' || runWord || row.here);
+  const matched = kept.flatMap((row): Scored[] => {
+    const match = fuzzyMatch(query, row.fields);
+    return match ? [{ row, match }] : [];
+  });
+  // A pinned row follows the results of its group, e.g. the list of all the workspaces.
+  const hit = new Set(matched.map(({ row }) => row.group));
+  const pinned = kept
+    .filter(row => row.pinned && hit.has(row.group) && !matched.some(item => item.row === row))
+    .map((row): Scored => ({ row, match: noMatch }));
+  const scored = [...matched, ...pinned].sort(compareScored(order));
 
   const best = filter ? null : bestMatchOf(scored);
   const sections = sectionsOf(best ? scored.filter(item => item !== best) : scored, filter);
@@ -304,8 +312,6 @@ export const searchCommandRows = (
     closeOnly: scored.length > 0 && scored.every(({ match }) => match.typo),
   };
 };
-
-const noMatch: FuzzyMatch = { score: 0, typo: false, ranges: [] };
 
 /** A filter with no text lists its rows. */
 export const browseCommandRows = (

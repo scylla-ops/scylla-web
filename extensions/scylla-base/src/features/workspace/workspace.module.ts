@@ -1,5 +1,6 @@
 import type { ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
+import Building2Icon from '@lucide/svelte/icons/building-2';
 import SettingsIcon from '@lucide/svelte/icons/settings';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
@@ -14,7 +15,10 @@ const workspaceRepository = new DefaultWorkspaceRepository(
   new AccessServiceClient(transport),
 );
 
-/** The settings page; the workspace switcher of the shell and other features read its queries. */
+/**
+ * The settings page, and the list of all the workspaces in the administration. The workspace
+ * switcher of the shell and other features read its queries.
+ */
 export const WorkspaceModule = {
   id: 'workspace',
   domain: {
@@ -22,6 +26,21 @@ export const WorkspaceModule = {
   },
   commands: workspaceCommands,
   routes: {
+    admin: [
+      {
+        path: 'workspaces',
+        permission: Permission.LIST_ALL_WORKSPACES,
+        breadcrumb: () => ({ label: msg`Workspaces` }),
+        page: () => import('./presentation/ui/WorkspaceAdmin/WorkspaceAdmin.page.svelte'),
+        nav: {
+          section: 'instance',
+          title: msg`Workspaces`,
+          keywords: msg`workspaces owners personal`,
+          icon: Building2Icon,
+          order: 15,
+        },
+      },
+    ],
     workspace: [
       {
         permission: Permission.UPDATE_WORKSPACE,

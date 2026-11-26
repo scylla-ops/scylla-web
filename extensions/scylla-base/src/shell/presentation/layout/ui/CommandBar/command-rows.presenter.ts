@@ -8,6 +8,7 @@ import GitForkIcon from '@lucide/svelte/icons/git-fork';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import LayersIcon from '@lucide/svelte/icons/layers';
 import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
+import LayoutListIcon from '@lucide/svelte/icons/layout-list';
 import LinkIcon from '@lucide/svelte/icons/link';
 import LockIcon from '@lucide/svelte/icons/lock';
 import PlayIcon from '@lucide/svelte/icons/play';
@@ -40,6 +41,15 @@ import {
   type ProjectIcon,
 } from '@base/features/project';
 import { roleName, type RoleEntity } from '@base/features/roles';
+import {
+  allWorkspacesHref,
+  ownerName,
+  workspaceCounts,
+  workspaceIconProps,
+  workspaceRoleLabel,
+  type WorkspaceEntity,
+  type WorkspaceOwnerEntity,
+} from '@base/features/workspace';
 import type {
   IdentityKind,
   UserIdentityProfile,
@@ -86,7 +96,8 @@ export type RowEffect =
 /** The own avatar of an entity row, in place of the icon of its kind. */
 export type RowLook =
   | { kind: IdentityKind; profile: UserIdentityProfile; self?: boolean }
-  | { kind: 'project'; icon: EntityIconProps };
+  | { kind: 'project'; icon: EntityIconProps }
+  | { kind: 'workspace'; icon: EntityIconProps };
 
 export interface CommandRow {
   /** Stable from a session to the next one: the list of the recent rows stores it. */
@@ -108,8 +119,13 @@ export interface CommandRow {
   iconKey?: string;
   /** A glyph before the place, e.g. the folder of the group of a project. */
   placeGlyph?: { icon: LucideIcon; color?: string };
-  /** More facts after the place, e.g. the number of projects of a group. Not searched. */
+  /**
+   * More facts after the place, e.g. the number of projects of a group, or the role of the user and
+   * the counts of a workspace. Not searched.
+   */
   facts?: string;
+  /** The owner of a workspace: its avatar shows before the place. */
+  owner?: WorkspaceOwnerEntity;
   effect: RowEffect;
   /** `true`: the row acts on the current page. */
   here?: boolean;
@@ -118,8 +134,16 @@ export interface CommandRow {
   /** `run`: the row shows only when the text starts with a word that means to run. */
   gate?: 'run';
   projectId?: string;
+  /** The order in the group, before the score: 0 first. */
+  rank?: number;
+  /** Shows with the results of its group, also when the text does not match it. */
+  pinned?: boolean;
   fields: FuzzyFields;
 }
+
+/** A workspace of the bar. The details come with the lists of the server. */
+export type CommandWorkspace = Pick<WorkspaceEntity, 'id' | 'name' | 'slug'> &
+  Partial<Pick<WorkspaceEntity, 'icon' | 'owner' | 'role' | 'memberCount' | 'projectCount'>>;
 
 export interface CommandSourcesData {
   projects: readonly { id: string; name: string; icon?: ProjectIcon; groupId?: string }[];
@@ -148,7 +172,9 @@ export interface CommandSourcesData {
   workspaceRoles: readonly RoleEntity[];
   instanceRoles: readonly RoleEntity[];
   secrets: readonly { name: string }[];
-  workspaces: readonly { id: string; name: string; slug: string }[];
+  workspaces: readonly CommandWorkspace[];
+  /** The workspaces of other users that the search finds: only for an instance admin. */
+  otherWorkspaces: readonly CommandWorkspace[];
 }
 
 export interface RowsInput extends CommandSourcesData {
@@ -159,6 +185,8 @@ export interface RowsInput extends CommandSourcesData {
   project: { id: string | null; name: string | null };
   /** The pipeline in the URL. */
   pipelineId?: string;
+  /** The text of the search, with no filter prefix. */
+  search?: string;
   can: (permission: Permission, target?: PermissionTarget) => boolean;
   /** The text of a message in the other language. */
   other: (message: MessageDescriptor | undefined) => string | undefined;
@@ -516,21 +544,66 @@ const dashboardDrafts = (input: RowsInput, slug: string): Draft[] =>
     };
   });
 
-const entityDrafts = (input: RowsInput): Draft[] => {
-  const { slug, project, workspaceId } = input;
-  const workspaces = input.workspaces.map(
-    (workspace): Draft => ({
+/**
+ * The workspaces of the user, with the owner, the role and the counts. An instance admin also gets
+ * the workspaces of other users that the search finds, after its own, then the list of all.
+ */
+const workspaceDrafts = (input: RowsInput): Draft[] => {
+  const seesAll = input.can(Permission.LIST_ALL_WORKSPACES);
+  const draft = (workspace: CommandWorkspace, rank: number): Draft => {
+    const current = workspace.id === input.workspaceId;
+    const owner = workspace.owner && ownerName(workspace.owner);
+    const facts = present([workspaceRoleLabel(workspace.role, seesAll), ...workspaceCounts(workspace)]);
+    return {
       id: `workspace:${workspace.id}`,
-      uid: workspace.id,
       group: 'workspaces',
       name: workspace.name,
       type: t(messages.typeWorkspace),
-      verb: workspace.id === workspaceId ? undefined : t(messages.verbSwitch),
+      place: owner,
+      facts: facts.join(' · ') || undefined,
+      owner: workspace.owner,
+      rank,
+      verb: current ? undefined : t(messages.verbSwitch),
       icon: Building2Icon,
-      effect: { kind: 'switch', workspace },
-      say: workspace.id === workspaceId ? messages.sayCurrent : messages.saySwitch,
-    }),
-  );
+      look: { kind: 'workspace', icon: workspaceIconProps(workspace.icon) },
+      iconKey: JSON.stringify(workspace.icon ?? null),
+      effect: {
+        kind: 'switch',
+        workspace: { id: workspace.id, name: workspace.name, slug: workspace.slug },
+      },
+      say: current
+        ? messages.sayCurrent
+        : () =>
+            owner ? messages.saySwitchOf(workspace.name, owner) : messages.saySwitch(workspace.name),
+      keywords: [workspace.slug, workspace.owner?.username, workspace.owner?.email],
+    };
+  };
+
+  const own = input.workspaces.map(workspace => draft(workspace, 0));
+  if (!seesAll) return own;
+  const mine = new Set(input.workspaces.map(workspace => workspace.id));
+  const others = input.otherWorkspaces
+    .filter(workspace => !mine.has(workspace.id))
+    .map(workspace => draft(workspace, 1));
+  const all: Draft = {
+    id: 'workspaces:all',
+    group: 'workspaces',
+    name: t(messages.allWorkspaces),
+    type: t(messages.typePage),
+    verb: t(messages.verbGo),
+    icon: LayoutListIcon,
+    effect: { kind: 'go', href: allWorkspacesHref(input.search ?? '') },
+    rank: 2,
+    pinned: true,
+    say: () => messages.sayAllWorkspaces,
+    keywords: [input.other(messages.allWorkspaces)],
+  };
+  return [...own, ...others, all];
+};
+
+const entityDrafts = (input: RowsInput): Draft[] => {
+  const { slug, project } = input;
+  const workspaces = workspaceDrafts(input);
   if (!slug) return workspaces;
 
   return [

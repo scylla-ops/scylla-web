@@ -3,7 +3,6 @@
   import PlusIcon from '@lucide/svelte/icons/plus';
   import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery } from '@scylla/core-sdk';
   import { EntityIcon, swapIn, swapOut } from '@scylla/ui';
   import {
     Button,
@@ -17,19 +16,22 @@
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import {
+    createWorkspaceOf,
     loadAddWorkspaceDialog,
     loadWorkspaceList,
     workspaceIconProps,
-    workspaceQueries,
   } from '@base/features/workspace';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
 
   const context = toRune(contextStore);
   const workspaceName = $derived(context().workspace.name);
-  const mine = createQuery(() => workspaceQueries.mine());
-  const icon = $derived(mine.data?.find(item => item.id === context().workspace.id)?.icon);
+  // An instance admin opens the workspaces of other users: these are not in its list.
+  const active = createWorkspaceOf(() => context().workspace.id);
+  const icon = $derived(active.workspace?.icon);
   const iconKey = $derived(JSON.stringify(icon ?? null));
   const canCreate = $derived(can(Permission.CREATE_WORKSPACE));
+  // The rows of the workspaces of other users also show their owner.
+  const seesAll = $derived(can(Permission.LIST_ALL_WORKSPACES));
 
   let addOpen = $state(false);
 </script>
@@ -60,7 +62,7 @@
   </DropdownMenuTrigger>
 
   <DropdownMenuContent
-    class="w-60 rounded-xl border-border bg-popover p-1 shadow-lg"
+    class="{seesAll ? 'w-72' : 'w-60'} rounded-xl border-border bg-popover p-1 shadow-lg"
     side="bottom"
     align="end"
     sideOffset={4}

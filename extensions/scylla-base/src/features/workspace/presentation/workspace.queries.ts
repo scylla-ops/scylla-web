@@ -7,7 +7,11 @@ import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
 import { keepRecentColor } from '@base/features/project';
 import { PERSONAL_TOKENS_QUERY_KEY } from '@base/features/user';
-import type { WorkspaceEntity } from '../domain/entities/workspace.entity.ts';
+import type {
+  WorkspaceEntity,
+  WorkspacePage,
+  WorkspaceSearch,
+} from '../domain/entities/workspace.entity.ts';
 import type { WorkspaceModule } from '../workspace.module.ts';
 import { workspaceMessages } from './messages/workspace.messages.ts';
 import { workspaceSettingsMessages } from './messages/workspace-settings.messages.ts';
@@ -20,9 +24,16 @@ export const WORKSPACES_QUERY_KEY = () => ['workspaces'] as const;
 export const MY_WORKSPACES_QUERY_KEY = () => ['workspaces', 'mine'] as const;
 export const WORKSPACE_MEMBERS_QUERY_KEY = (workspaceId: string) =>
   ['workspaces', workspaceId, 'members'] as const;
+export const ALL_WORKSPACES_QUERY_KEY = (search: WorkspaceSearch) =>
+  ['workspaces', 'all', search] as const;
+const ONE_WORKSPACE_QUERY_KEY = (by: 'slug' | 'id', value: string) =>
+  ['workspaces', 'one', by, value] as const;
+
+/** A miss is an answer, not an error: the caller shows its own state, and no toast shows. */
+const QUIET = { retry: false, meta: { showsOwnError: true } } as const;
 
 export const workspaceQueries = {
-  /** Not the global list: non-admins may not read it. */
+  /** Not the global list: an instance admin also gets only its own workspaces here. */
   mine: () =>
     queryOptions({
       queryKey: MY_WORKSPACES_QUERY_KEY(),
@@ -36,6 +47,36 @@ export const workspaceQueries = {
       queryKey: WORKSPACE_MEMBERS_QUERY_KEY(workspaceId ?? ''),
       queryFn: () => repository().listMembers(workspaceId!),
       enabled: (options.enabled ?? true) && !!workspaceId,
+    }),
+
+  /**
+   * One page of all the workspaces, for a user with `LIST_ALL_WORKSPACES`. The last page stays
+   * on the screen while the next one loads.
+   */
+  all: (search: WorkspaceSearch, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: ALL_WORKSPACES_QUERY_KEY(search),
+      queryFn: () => repository().listAll(search),
+      enabled: options.enabled ?? true,
+      placeholderData: (previous: WorkspacePage | undefined) => previous,
+      staleTime: 1000 * 30,
+    }),
+
+  /** A workspace that is not in `mine`, e.g. the workspace of another user for an admin. */
+  bySlug: (slug: string | undefined, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: ONE_WORKSPACE_QUERY_KEY('slug', slug ?? ''),
+      queryFn: () => repository().getBySlug(slug!),
+      enabled: (options.enabled ?? true) && !!slug,
+      ...QUIET,
+    }),
+
+  byId: (workspaceId: string | null, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: ONE_WORKSPACE_QUERY_KEY('id', workspaceId ?? ''),
+      queryFn: () => repository().getById(workspaceId!),
+      enabled: (options.enabled ?? true) && !!workspaceId,
+      ...QUIET,
     }),
 };
 

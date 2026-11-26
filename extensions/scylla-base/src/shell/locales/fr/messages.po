@@ -13,39 +13,39 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:76
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:79
 msgid "{count, plural, one {# project} other {# projects}}"
 msgstr "{count, plural, one {# projet} other {# projets}}"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:84
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:87
 msgid "{count} more"
 msgstr "{count} de plus"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:85
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:88
 msgid "{count} more. Type more letters to find them."
 msgstr "{count} de plus. Tapez plus de lettres pour les trouver."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:68
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:71
 msgid "{name} is the current choice."
 msgstr "{name} est le choix actuel."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:96
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:99
 msgid "{name}: off"
 msgstr "{name} : désactivé"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:95
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:98
 msgid "{name}: on"
 msgstr "{name} : activé"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:65
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:68
 msgid "{name}: you confirm in the next step."
 msgstr "{name} : vous confirmez à l'étape suivante."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:100
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:103
 msgid "↑ ↓ move · Enter open · Tab filter · Esc close"
 msgstr "↑ ↓ déplacer · Entrée ouvrir · Tab filtrer · Échap fermer"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:99
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:102
 msgid "> actions · / pages · # projects and pipelines · @ people"
 msgstr "> actions · / pages · # projets et pipelines · @ personnes"
 
@@ -73,7 +73,7 @@ msgstr "Un job est en cours"
 msgid "A library of fragments"
 msgstr "Une bibliothèque de fragments"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:74
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:77
 msgid "A new job starts now."
 msgstr "Un nouveau job démarre maintenant."
 
@@ -117,6 +117,10 @@ msgstr "Agent"
 msgid "All"
 msgstr "Tous"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:63
+msgid "All workspaces…"
+msgstr "Tous les espaces de travail…"
+
 #: extensions/scylla-base/src/shell/whats-new.ts:171
 msgid "All your notifications behind the bell: accept an invitation in one click and follow the failed runs of your workspace."
 msgstr "Toutes vos notifications derrière la cloche : acceptez une invitation en un clic et suivez les exécutions en échec de votre espace de travail."
@@ -145,7 +149,7 @@ msgstr "Retour à {name}"
 msgid "Best match"
 msgstr "Meilleur résultat"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:93
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:96
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -221,11 +225,11 @@ msgstr "English"
 msgid "english language"
 msgstr "anglais langue"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:101
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:104
 msgid "Filter"
 msgstr "Filtre"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:82
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:85
 msgid "Forked"
 msgstr "Forké"
 
@@ -322,7 +326,7 @@ msgstr "Aide et visites"
 msgid "Here is what landed in this version."
 msgstr "Voici ce qui arrive dans cette version."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:90
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:93
 msgid "In {name}"
 msgstr "Dans {name}"
 
@@ -354,7 +358,7 @@ msgstr "Langue"
 msgid "Link a repository to your project, run a pipeline straight from a file of the repository, and export your pipelines as TOML, YAML or JSON."
 msgstr "Liez un dépôt à votre projet, lancez une pipeline directement depuis un fichier du dépôt, et exportez vos pipelines en TOML, YAML ou JSON."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:81
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:84
 msgid "Linked"
 msgstr "Lié"
 
@@ -382,11 +386,11 @@ msgstr "Nouveau projet dans {group}"
 msgid "New project with no group"
 msgstr "Nouveau projet sans groupe"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:102
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:105
 msgid "New tab"
 msgstr "Nouvel onglet"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:86
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:89
 msgid "No exact match. Close results:"
 msgstr "Pas de résultat exact. Résultats proches :"
 
@@ -402,7 +406,7 @@ msgstr "Rien ne correspond à cette recherche."
 msgid "Notifications"
 msgstr "Notifications"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:94
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:97
 msgid "Now using: {name}"
 msgstr "Maintenant : {name}"
 
@@ -422,11 +426,15 @@ msgstr "Ouvrir"
 msgid "Open Scylla"
 msgstr "Ouvrir Scylla"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:64
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:67
 msgid "Open the form: {name}. Nothing changes until you submit it."
 msgstr "Ouvrir le formulaire : {name}. Rien ne change avant son envoi."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:66
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:62
+msgid "Open the list of all the workspaces."
+msgstr "Ouvrir la liste de tous les espaces de travail."
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:69
 msgid "Open: {name}."
 msgstr "Ouvrir : {name}."
 
@@ -450,7 +458,7 @@ msgstr "Mettre la visite en pause"
 msgid "People"
 msgstr "Personnes"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:77
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:80
 msgctxt "dashboard"
 msgid "Personal"
 msgstr "Personnel"
@@ -480,7 +488,7 @@ msgstr "Projet"
 msgid "Projects"
 msgstr "Projets"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:87
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:90
 msgid "Reading the lists…"
 msgstr "Lecture des listes…"
 
@@ -492,7 +500,7 @@ msgstr "Récents"
 msgid "release notes changelog news version updates"
 msgstr "notes de version nouveautés changements mises à jour"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:89
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:92
 msgid "Results: {count}"
 msgstr "Résultats : {count}"
 
@@ -508,19 +516,19 @@ msgstr "Rôle"
 msgid "Roles"
 msgstr "Rôles"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:71
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:74
 msgid "Run {name}"
 msgstr "Lancer {name}"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:73
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:76
 msgid "Run {name}?"
 msgstr "Lancer {name} ?"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:72
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:75
 msgid "run start launch execute"
 msgstr "lancer démarrer exécuter"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:67
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:70
 msgid "Run the pipeline {name}: you confirm in the next step."
 msgstr "Lancer la pipeline {name} : vous confirmez à l'étape suivante."
 
@@ -564,12 +572,12 @@ msgstr "Service indisponible, nous revenons tout de suite."
 msgid "Share any page"
 msgstr "Partagez n'importe quelle page"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:78
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:81
 msgctxt "dashboard"
 msgid "Shared"
 msgstr "Partagé"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:69
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:72
 msgid "Show all the results in {group}."
 msgstr "Voir tous les résultats dans {group}."
 
@@ -585,11 +593,15 @@ msgstr "Connecté en tant que {name}"
 msgid "Switch to"
 msgstr "Passer à"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:61
+msgid "Switch to {name} of {owner}"
+msgstr "Passer à {name} de {owner}"
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:60
 msgid "Switch to the workspace {name}."
 msgstr "Passer à l'espace de travail {name}."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:79
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:82
 msgid "Team default"
 msgstr "Par défaut pour l'équipe"
 
@@ -601,7 +613,7 @@ msgstr "La marketplace"
 msgid "The server does not answer"
 msgstr "Le serveur ne répond pas"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:88
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:91
 msgid "These lists could not be read: {lists}."
 msgstr "Ces listes n'ont pas pu être lues : {lists}."
 
@@ -617,7 +629,7 @@ msgstr "Pour commencer, veuillez créer votre premier espace de travail."
 msgid "Triggers from the start node"
 msgstr "Les déclencheurs depuis le nœud de départ"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:98
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:101
 msgid "Try a search"
 msgstr "Essayez une recherche"
 
@@ -633,7 +645,7 @@ msgstr "Transformez un groupe de nœuds en fragment et réutilisez-le dans toute
 msgid "Turn off"
 msgstr "Désactiver"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:63
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:66
 msgid "Turn off: {name}. This device only."
 msgstr "Désactiver : {name}. Cet appareil seulement."
 
@@ -641,11 +653,11 @@ msgstr "Désactiver : {name}. Cet appareil seulement."
 msgid "Turn on"
 msgstr "Activer"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:62
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:65
 msgid "Turn on: {name}. This device only."
 msgstr "Activer : {name}. Cet appareil seulement."
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:92
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:95
 msgid "Undo"
 msgstr "Annuler"
 
@@ -653,7 +665,7 @@ msgstr "Annuler"
 msgid "Use"
 msgstr "Utiliser"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:61
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:64
 msgid "Use {name}. Now: {now}. This device only."
 msgstr "Utiliser {name}. Actuellement : {now}. Cet appareil seulement."
 
@@ -684,7 +696,7 @@ msgstr "Espace de travail"
 msgid "Workspaces"
 msgstr "Espaces de travail"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:80
+#: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:83
 msgid "You"
 msgstr "Vous"
 

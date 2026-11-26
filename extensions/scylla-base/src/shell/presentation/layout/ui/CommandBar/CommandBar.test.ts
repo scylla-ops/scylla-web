@@ -180,6 +180,27 @@ const reads = () => ({
   listFragments: vi.fn(() => Promise.resolve([{ id: 'f1', name: 'docker-build', tags: [] }])),
   createDashboard: vi.fn(),
   getMe: vi.fn(() => Promise.resolve({ id: 'me', username: 'me' })),
+  // The workspaces of other users: the server finds Alice's with a search of her name.
+  listAll: vi.fn((search: { query: string }) =>
+    Promise.resolve({
+      items: 'alice martin'.includes(search.query)
+        ? [
+            {
+              id: 'w9',
+              name: 'Personal',
+              slug: 'personal-alice',
+              owner: { id: 'u9', username: 'alice', displayName: 'Alice Martin' },
+              icon: { kind: 'glyph', name: 'rocket', color: 'chart-2' },
+              role: '',
+              memberCount: 1,
+              projectCount: 4,
+            },
+          ]
+        : [],
+      nextToken: '',
+      total: 1,
+    }),
+  ),
   run: vi.fn(() => Promise.resolve()),
 });
 
@@ -271,7 +292,7 @@ beforeEach(() => {
       access: { accessRepository: { listMembers: fakes.listMembers } },
       roles: { roleRepository: { list: fakes.listRoles } },
       secret: { secretRepository: { listByProjectId: fakes.listByProjectId } },
-      workspace: { workspaceRepository: { getMine: fakes.getMine } },
+      workspace: { workspaceRepository: { getMine: fakes.getMine, listAll: fakes.listAll } },
     }),
   ];
 });
@@ -951,6 +972,25 @@ describe('CommandBar', () => {
       await user().type(input, 'zzzzzz');
 
       expect(await screen.findByText('Nothing matches this search.')).toBeInTheDocument();
+    });
+
+    it('finds the workspace of another user by its owner, for an instance admin', async () => {
+      const input = await open();
+      await user().type(input, 'alice');
+
+      expect(await screen.findByText('Alice Martin · Instance admin · Members: 1 · Projects: 4'))
+        .toBeInTheDocument();
+      await waitFor(() =>
+        expect(fakes.listAll).toHaveBeenLastCalledWith(
+          expect.objectContaining({ query: 'alice', othersOnly: true }),
+        ),
+      );
+      const row = screen.getByRole('option', { name: 'Switch to Personal of Alice Martin' });
+      // The icon of the workspace, in place of the building.
+      expect(row.querySelector('[data-slot="entity-icon"] svg')).toHaveAttribute(
+        'stroke',
+        'var(--chart-2)',
+      );
     });
   });
 

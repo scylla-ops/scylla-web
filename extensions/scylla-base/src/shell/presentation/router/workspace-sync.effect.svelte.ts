@@ -32,19 +32,28 @@ const pageUnder = (target: string): string | null => {
  * `matched` stays `false` until the slug names a workspace of the person: until then the wrapper
  * renders no page and no redirect. Thus the redirect of the root of a workspace does not add
  * `/dashboard` to `/marketplace` before this effect reads the URL.
+ *
+ * The list holds only the workspaces of the person. A slug that is not in it is asked to the server
+ * before the redirect: an instance admin opens the workspace of another user with its URL.
  */
 export const syncWorkspace = (workspaceSlug: string | undefined): { readonly matched: boolean } => {
   const workspaces = createQuery(() => workspaceQueries.mine());
+  let lookup = $state<string | undefined>(undefined);
+  const other = createQuery(() => workspaceQueries.bySlug(lookup));
   let matched = $state(false);
 
   $effect(() => {
     const list = workspaces.data;
+    const found = other.data;
+    const missed = other.isError;
     if (!workspaceSlug || workspaces.isLoading || !list) return;
 
     untrack(() => {
       const store = contextStore.getState();
       const { workspace } = store;
-      const match = list.find(item => item.slug === workspaceSlug);
+      const match =
+        list.find(item => item.slug === workspaceSlug) ??
+        (found?.slug === workspaceSlug ? found : undefined);
 
       if (match) {
         rememberWorkspace(match.id);
@@ -64,11 +73,17 @@ export const syncWorkspace = (workspaceSlug: string | undefined): { readonly mat
       }
 
       const fallback = list[0];
-      if (!fallback) return;
-
       // No workspace in the URL: the page stays, in the workspace that the person uses now.
       const current = list.find(item => item.id === workspace.id) ?? fallback;
-      const samePage = pageUnder(current.slug);
+      const samePage = current ? pageUnder(current.slug) : null;
+
+      // Not a workspace of the person: the server tells if the person can read it.
+      if (!samePage && !missed) {
+        lookup = workspaceSlug;
+        return;
+      }
+      if (!current || !fallback) return;
+
       navigateTo(samePage ?? workspaceUrl(fallback.slug), { replace: true });
       const target = samePage ? current : fallback;
       store.setWorkspace(target.id, target.name, target.slug);

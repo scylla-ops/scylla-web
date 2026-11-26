@@ -1,6 +1,11 @@
 import type { WorkspaceRepository } from '@base/features/workspace/domain/repository/workspace.repository.ts';
-import type { WorkspaceEntity } from '@base/features/workspace/domain/entities/workspace.entity.ts';
+import type {
+  WorkspaceEntity,
+  WorkspacePage,
+  WorkspaceSearch,
+} from '@base/features/workspace/domain/entities/workspace.entity.ts';
 import type { IWorkspaceServiceClient } from '@base/generated/scylla/workspaces/v1/workspace_service.client.ts';
+import type { GetWorkspaceRequest } from '@base/generated/scylla/workspaces/v1/workspace_service.ts';
 import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/access_service.client.ts';
 import type { AccessEntry } from '@base/generated/scylla/access/v1/access_service.ts';
 import type { Workspace } from '@base/generated/scylla/workspaces/v1/workspace.ts';
@@ -37,12 +42,43 @@ export class DefaultWorkspaceRepository implements WorkspaceRepository {
   ) {}
 
   public async getMine(): Promise<WorkspaceEntity[]> {
-    const workspaces = await allPages(async token => {
-      const response = await this.workspaces.listWorkspaces({ page: { size: PAGE_SIZE, token } })
-        .response;
-      return { items: response.workspaces, next: response.page?.nextToken ?? '' };
+    return allPages(async token => {
+      const response = await this.workspaces.listWorkspaces({
+        page: { size: PAGE_SIZE, token },
+        onlyWithRole: true,
+      }).response;
+      return {
+        items: grpcWorkspace.withDetails(response.workspaces, response.details),
+        next: response.page?.nextToken ?? '',
+      };
     });
-    return workspaces.map(grpcWorkspace.toDomain);
+  }
+
+  public async listAll(search: WorkspaceSearch): Promise<WorkspacePage> {
+    const response = await this.workspaces.listAllWorkspaces({
+      query: search.query,
+      order: grpcWorkspace.orderToGrpc(search.order),
+      othersOnly: search.othersOnly,
+      page: { size: search.pageSize, token: search.pageToken },
+    }).response;
+    return {
+      items: grpcWorkspace.withDetails(response.workspaces, response.details),
+      nextToken: response.page?.nextToken ?? '',
+      total: response.total,
+    };
+  }
+
+  public getBySlug(slug: string): Promise<WorkspaceEntity> {
+    return this.getOne({ oneofKind: 'slug', slug });
+  }
+
+  public getById(workspaceId: string): Promise<WorkspaceEntity> {
+    return this.getOne({ oneofKind: 'workspaceId', workspaceId: wrapId(workspaceId) });
+  }
+
+  private async getOne(workspace: GetWorkspaceRequest['workspace']): Promise<WorkspaceEntity> {
+    const response = await this.workspaces.getWorkspace({ workspace }).response;
+    return grpcWorkspace.toDomain(required(response.workspace, 'workspace'), response.details);
   }
 
   public async listMembers(workspaceId: string): Promise<UserSummary[]> {

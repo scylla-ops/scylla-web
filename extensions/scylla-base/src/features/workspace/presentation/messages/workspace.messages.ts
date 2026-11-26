@@ -26,4 +26,18 @@ export const workspaceMessages = {
     msg`The workspace is created, but its icon is not saved: ${reason}`,
   findWorkspace: msg`Find a workspace`,
   noWorkspaceMatch: msg`No workspace matches this search.`,
+
+  findWorkspaceOrOwner: msg`Find a workspace or an owner`,
+  yourWorkspaces: msg`Your workspaces`,
+  otherWorkspaces: msg`Other workspaces`,
+  allWorkspaces: msg`All workspaces…`,
+  ownedBy: (owner: string, hint: string) => msg`Owner: ${owner} (${hint})`,
+
+  roleOwner: msg`Owner`,
+  roleAdmin: msg`Admin`,
+  roleMember: msg`Member`,
+  roleViewer: msg`Viewer`,
+  roleInstanceAdmin: msg`Instance admin`,
+  memberCount: (count: number) => msg`Members: ${count}`,
+  projectCount: (count: number) => msg`Projects: ${count}`,
 };

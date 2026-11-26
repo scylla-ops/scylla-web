@@ -92,6 +92,8 @@ export enum Permission {
   SET_PIPELINE_GIT_EVENTS = 80,
   /** Give the icon of an agent: the admins of the workspace, not the creator of the agent. */
   SET_APP_ICON = 81,
+  /** Open the list of each workspace of the instance, in the administration. */
+  LIST_ALL_WORKSPACES = 82,
 }
 
 const SYSTEM_LEVEL = new Set<Permission>([
@@ -104,6 +106,7 @@ const SYSTEM_LEVEL = new Set<Permission>([
   Permission.LIST_USER_PROJECTS,
   Permission.CREATE_WORKSPACE,
   Permission.LIST_WORKSPACES,
+  Permission.LIST_ALL_WORKSPACES,
   Permission.LIST_PROJECTS,
   Permission.LIST_PIPELINES,
   Permission.LIST_JOBS,

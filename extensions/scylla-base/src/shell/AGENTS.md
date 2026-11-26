@@ -183,6 +183,15 @@ Rules:
   the initials color (`IdentityAvatar`, solid for the reader), or the icon (`EntityIcon`), at 20 px.
 - « New project in <group> » is a row of each group of the projects, for a person with
   `CREATE_PROJECT`: it opens `projects/new?group=<id>`. The groups read only for this person.
+- A workspace row shows the icon of the workspace (`look`, from `workspaceIconProps`), and the owner
+  (avatar and name) as its place, then the role of the user and the counts (`facts`). It never shows
+  a part of the id: two "Personal" differ by their owner. The footer says "Switch to Personal of
+  <owner>". `workspaceQueries.mine()` holds only the own workspaces. For a user with
+  `LIST_ALL_WORKSPACES`, `command-sources` asks the server for a few workspaces of other users with
+  the text of the bar, after a pause (`workspaceQueries.all`). `workspaceDrafts` puts them after the
+  own ones (`rank`), with the role "Instance admin", then the row "All workspaces…".
+- A `pinned` row shows with the results of its group, also when the text does not match it. It does
+  not show alone.
 
 ## The wrappers
 
@@ -197,6 +206,10 @@ Rules:
   the mount. A new name goes to the store with no navigation. A new slug of the active workspace
   opens the same page under the new slug. This starts from the list of the server, so it is not a
   store → URL sync.
+- The list holds only the workspaces of the person. `syncWorkspace` asks the server for a slug that
+  is not in it (`workspaceQueries.bySlug`) before it redirects: an instance admin opens the workspace
+  of another user with its URL. A URL with no workspace, like `/marketplace`, keeps its page with no
+  call.
 - **`WorkspaceSyncWrapper` renders its page only after the slug names a workspace of the person**
   (`matched` of `syncWorkspace`). A URL with no workspace, like `/marketplace`, reads its page as
   the slug. No page and no redirect of the mount runs for it, so `syncWorkspace` reads the URL that
@@ -244,7 +257,10 @@ Rules:
   the slug from `linkParams`, so it follows a change of workspace. With no active workspace it
   opens `/`, and `/` picks the workspace of the user.
 - `WorkspaceSelector` shows `WorkspaceList` from `features/workspace` and opens
-  `AddWorkspaceDialog`, both through the **loaders** of its barrel.
+  `AddWorkspaceDialog`, both through the **loaders** of its barrel. Its menu is wider (`w-72`) for a
+  user with `LIST_ALL_WORKSPACES`: the rows of the workspaces of other users show their owner. The
+  icon of the trigger comes from `createWorkspaceOf`: the workspace of another user that an admin
+  opens is not in `mine`.
 - `createShell()` is created once, in `WorkspaceGate`. It loads the workspaces of
   the user, and an effect calls `syncMyPermissions` (`features/roles`) when the active
   workspace or project changes. It is the only writer of the permissions store.

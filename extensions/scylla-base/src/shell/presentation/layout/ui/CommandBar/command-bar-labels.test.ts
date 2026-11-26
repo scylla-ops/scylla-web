@@ -98,6 +98,7 @@ const rowsIn = (locale: SupportedLocale, context: { pipelineId?: string } = {}):
       { id: 'l4', name: 'nightly-tests', projectId: 'p3' },
     ],
     apps: [{ id: 'a1', name: 'prod-runner-eu', runner: true }],
+    otherWorkspaces: [],
     members: [
       { actorId: 'u1', actorKind: 'user', displayName: 'Sébastien Lucas', handle: 'sebastien.lucas' },
       { actorId: 'u2', actorKind: 'user', displayName: 'Marie Dubois', handle: 'marie' },
