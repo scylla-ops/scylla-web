@@ -19,6 +19,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   project header, where a member that can edit the project opens the icon picker. A color with low
   contrast shows as a solid tile.
 
+### Changed
+
+- What's new shows one tab for each version, an icon tile for each item, and new, clearer texts. It
+  also announces the Projects page and the project icons.
+
 ### Fixed
 
 - Job page: the job title row now wraps on narrow screens, so the page does not scroll sideways.
