@@ -1,6 +1,7 @@
 <script lang="ts">
   import { untrack, type Snippet } from 'svelte';
   import type { RouteParams } from '@scylla/core-sdk';
+  import NotFoundPage from './NotFound/NotFound.page.svelte';
   import { cleanContext, namePipeline } from './context-cleaner.effect.svelte.ts';
 
   let { params, children }: { params: RouteParams; children: Snippet } = $props();
@@ -9,6 +10,8 @@
   namePipeline(untrack(() => params.pipelineId));
 </script>
 
-{#if !project.gone}
+{#if project.gone}
+  <NotFoundPage />
+{:else}
   {@render children()}
 {/if}
