@@ -50,6 +50,7 @@ userState.forget()             removes what this browser holds for a deleted acc
 | `recent-colors` | up to 8 colors `#RRGGBB`, the most recent first | `features/project/presentation/recent-colors.user-state.ts` | this device first, then the other | yes |
 | `project-pins` | `{ workspaceId: [projectId…] }`, at most 100 for each workspace, in their order | `features/project/presentation/project-layout.user-state.ts` | no | yes |
 | `project-sections` | `{ workspaceId: [sectionKey…] }`: the closed sections of the projects page | `features/project/presentation/project-layout.user-state.ts` | no | yes |
+| `project-density` | `{ workspaceId: { default, sections: { sectionKey: density } } }`: the display of the projects page (`comfortable`, `compact`, `list`, `tiles`) and of the sections with their own | `features/project/presentation/project-density.user-state.ts` | no | yes |
 
 ## How to add a key
 

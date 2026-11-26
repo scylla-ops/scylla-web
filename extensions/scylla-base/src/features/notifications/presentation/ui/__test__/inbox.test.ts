@@ -20,6 +20,7 @@ const repository = {
 };
 const invitations = { acceptById: vi.fn(), decline: vi.fn() };
 const jobs = { getByWorkspaceId: vi.fn() };
+const workspaces = { getMine: vi.fn() };
 const pipelines = { getMetadataByWorkspaceId: vi.fn() };
 
 let teardown: Array<() => void> = [];
@@ -50,6 +51,7 @@ beforeEach(() => {
   repository.summary.mockResolvedValue({ unread: 0, needsAction: 0, pollAfterSeconds: 30 });
   repository.markRead.mockResolvedValue(undefined);
   repository.markAllRead.mockResolvedValue(undefined);
+  workspaces.getMine.mockResolvedValue([]);
   navigator = installTestNavigator();
   const cache = withQueryClient();
   teardown = [
@@ -57,7 +59,7 @@ beforeEach(() => {
     withRegistry({
       notifications: { notificationRepository: repository },
       invitation: { invitationRepository: invitations },
-      workspace: { workspaceRepository: { getMine: vi.fn().mockResolvedValue([]) } },
+      workspace: { workspaceRepository: workspaces },
       jobs: { jobsRepository: jobs },
       pipeline: { pipelineRepository: pipelines },
     }),
@@ -124,6 +126,54 @@ describe('the panel of the bell', () => {
     expect(screen.getByText('Needs action')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Accept' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Decline' })).toBeInTheDocument();
+  });
+
+  it('shows who acted, with the icon of the workspace on the corner of the avatar', async () => {
+    lists(
+      invitedRow({
+        actorKind: 'user',
+        actorLook: { avatarColor: 'chart-2' },
+        workspaceId: 'ws-1',
+        workspaceIcon: { kind: 'image', imageId: 'img-1' },
+      }),
+    );
+
+    panel();
+
+    const item = (await screen.findByText('Sam invited you to Acme as Member.')).closest('li')!;
+    const mark = item.querySelector('[data-part="notification-mark"]');
+    expect(mark).toHaveTextContent('S');
+    expect(mark).toHaveClass('size-6');
+    const corner = mark?.querySelector('[data-part="notification-workspace"]');
+    expect(corner?.querySelector('img')?.getAttribute('src')).toContain('img-1');
+    expect(within(item).getByRole('button', { name: /Accept/ })).toBeInTheDocument();
+  });
+
+  it('takes the icon of a workspace of the reader for a row that comes with none', async () => {
+    workspaces.getMine.mockResolvedValue([
+      { id: 'ws-2', name: 'Globex', slug: 'globex', icon: { kind: 'image', imageId: 'img-2' } },
+    ]);
+    lists(row({ workspaceId: 'ws-2', workspaceName: 'Globex', workspaceSlug: 'globex' }));
+
+    panel();
+
+    await waitFor(() => {
+      const corner = document.querySelector('[data-part="notification-workspace"]');
+      expect(corner?.querySelector('img')?.getAttribute('src')).toContain('img-2');
+    });
+  });
+
+  it('shows the glyph of the kind, with no corner, on a row with no actor and no workspace', async () => {
+    lists(row());
+
+    panel();
+
+    await waitFor(() =>
+      expect(document.querySelector('[data-part="notification-mark"]')).toBeInTheDocument(),
+    );
+    const mark = document.querySelector('[data-part="notification-mark"]');
+    expect(mark?.querySelector('svg')).toBeInTheDocument();
+    expect(mark?.querySelector('[data-part="notification-workspace"]')).toBeNull();
   });
 
   it('marks all as read', async () => {

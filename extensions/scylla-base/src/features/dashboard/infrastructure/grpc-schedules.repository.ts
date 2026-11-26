@@ -35,7 +35,10 @@ const JOB_STATUSES: Readonly<Partial<Record<GrpcJobStatus, JobStatus>>> = {
   [GrpcJobStatus.AWAITING_APPROVAL]: 'awaiting_approval',
 };
 
-const timestamp = (date: Date) => ({ seconds: BigInt(Math.floor(date.getTime() / 1000)), nanos: 0 });
+const timestamp = (date: Date) => ({
+  seconds: BigInt(Math.floor(date.getTime() / 1000)),
+  nanos: 0,
+});
 
 const toFire = (fire: TriggerFire): ScheduleFire => ({
   id: idValue(fire.id),
@@ -53,7 +56,11 @@ const toFire = (fire: TriggerFire): ScheduleFire => ({
 export class GrpcSchedulesRepository implements SchedulesRepository {
   constructor(private readonly client: ITriggerServiceClient) {}
 
-  public async list(query: { workspaceId: string; projectIds: string[]; from: Date }): Promise<Schedules> {
+  public async list(query: {
+    workspaceId: string;
+    projectIds: string[];
+    from: Date;
+  }): Promise<Schedules> {
     const projectIds = query.projectIds.map(wrapId);
     const [triggers, fires] = await Promise.all([
       this.client.listWorkspaceTriggers({
@@ -65,6 +72,7 @@ export class GrpcSchedulesRepository implements SchedulesRepository {
         order: TriggerOrder.NEXT_FIRE,
         upcoming: { seconds: BigInt(DAY_SECONDS), nanos: 0 },
         page: { size: TRIGGER_LIMIT, token: '' },
+        query: '',
       }).response,
       this.client.listTriggerFires({
         workspaceId: wrapId(query.workspaceId),

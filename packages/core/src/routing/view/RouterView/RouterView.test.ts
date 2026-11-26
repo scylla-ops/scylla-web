@@ -21,6 +21,7 @@ import type { AppRouterConfig } from '../../compilation/compile-routes.ts';
 import { createAppRouter } from '../../runtime/app-router.ts';
 import { breakLoadOnce, breakOnce, failsThisLoad } from './fixtures/broken-page.fixture.ts';
 import TestBrokenPage from './fixtures/TestBrokenPage.fixture.svelte';
+import TestEnterPage from './fixtures/TestEnterPage.fixture.svelte';
 import TestFallback from './fixtures/TestFallback.fixture.svelte';
 import TestFrame from './fixtures/TestFrame.fixture.svelte';
 import TestGuard from './fixtures/TestGuard.fixture.svelte';
@@ -33,6 +34,7 @@ import RouterView from './RouterView.svelte';
 const page: PageLoader = () => Promise.resolve({ default: TestPage });
 const otherPage: PageLoader = () => Promise.resolve({ default: TestOtherPage });
 const brokenPage: PageLoader = () => Promise.resolve({ default: TestBrokenPage });
+const enterPage: PageLoader = () => Promise.resolve({ default: TestEnterPage });
 /** A chunk that is gone after a deploy: the import rejects. */
 const stalePage: PageLoader = () =>
   failsThisLoad()
@@ -74,6 +76,7 @@ const config: AppRouterConfig = {
           { path: 'open', breadcrumb: () => ({ label: msg`Open` }), page: otherPage },
           { path: 'tabs/:tab', inPageParams: ['tab'], page },
           { path: 'broken', page: brokenPage },
+          { path: 'enter', page: enterPage },
           { path: 'stale', page: stalePage },
         ],
       },
@@ -108,6 +111,14 @@ describe('the app router', () => {
     expect(screen.getByTestId('layout')).toContainElement(screen.getByTestId('frame'));
     expect(screen.getByTestId('frame')).toContainElement(screen.getByTestId('wrapper'));
     expect(screen.getByTestId('wrapper')).toHaveAttribute('data-slug', 'acme');
+  });
+
+  it('plays no enter transition of a part of the page at its first paint', async () => {
+    await renderAt('/acme/enter');
+
+    const part = await screen.findByTestId('enter-page');
+
+    expect(vi.mocked(Element.prototype.animate).mock.contexts).not.toContain(part);
   });
 
   it('gives the route parameters to the page as props', async () => {

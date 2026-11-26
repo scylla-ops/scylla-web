@@ -2,7 +2,11 @@ import { i18n } from '@lingui/core';
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { TriggerDraft, TriggerEntity } from '../domain/entities/trigger.entity.ts';
+import type {
+  TriggerDraft,
+  TriggerEntity,
+  WorkspaceTrigger,
+} from '../domain/entities/trigger.entity.ts';
 import type { TriggersModule } from '../triggers.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -13,6 +17,10 @@ export const CREATE_TRIGGER_MUTATION_KEY = ['trigger', 'create'] as const;
 
 export const TRIGGERS_QUERY_KEY = (pipelineId: string) =>
   ['triggers', 'pipeline', pipelineId] as const;
+
+/** Under the `'triggers'` root: a change of a trigger refreshes the results of a search. */
+const SEARCH_TRIGGERS_QUERY_KEY = (workspaceId: string | null, text: string, limit: number) =>
+  ['triggers', 'workspace', workspaceId, 'search', text, limit] as const;
 
 /** Must match `JOBS_QUERY_KEY` of `jobs`: not imported, to keep the graph acyclic. */
 const JOBS_OF_PIPELINE = (pipelineId: string) => ['jobs', 'pipeline', pipelineId] as const;
@@ -32,6 +40,26 @@ export const triggerQueries = {
         );
         return hasEnabledCron ? 30_000 : false;
       },
+    }),
+
+  /**
+   * The triggers of the workspace whose name, pipeline name or project name holds `text`. A new
+   * text stops the call of the old one, and the old results stay until the new ones come. The
+   * pages of the triggers need MANAGE_TRIGGERS: the caller adds it to `enabled`.
+   */
+  search: (
+    workspaceId: string | null,
+    text: string,
+    limit: number,
+    options: { enabled?: boolean } = {},
+  ) =>
+    queryOptions<WorkspaceTrigger[]>({
+      queryKey: SEARCH_TRIGGERS_QUERY_KEY(workspaceId, text, limit),
+      enabled: (options.enabled ?? true) && !!workspaceId,
+      queryFn: ({ signal }) =>
+        repository().searchWorkspace({ workspaceId: workspaceId!, text, limit }, signal),
+      placeholderData: previous => previous,
+      staleTime: 10_000,
     }),
 };
 
@@ -99,6 +127,28 @@ export const triggerMutations = {
         );
       },
       onSettled: () => void invalidateTriggers(pipelineId),
+    }),
+
+  /**
+   * The same as `setEnabled`, for a trigger of any pipeline (the command bar): the variables name
+   * the pipeline. Each list of triggers reads again.
+   */
+  setEnabledOf: () =>
+    mutationOptions({
+      mutationFn: ({
+        triggerId,
+        enabled,
+      }: {
+        triggerId: string;
+        pipelineId: string;
+        enabled: boolean;
+      }) => repository().setEnabled(triggerId, enabled),
+      onSuccess: (_data, { enabled }) => {
+        toast.success(
+          i18n._(enabled ? ToastMessages.TRIGGER_ENABLED : ToastMessages.TRIGGER_DISABLED),
+        );
+      },
+      onSettled: () => void getQueryClient().invalidateQueries({ queryKey: ['triggers'] }),
     }),
 
   /** Creates a real job: the pipeline's job list is invalidated too. */

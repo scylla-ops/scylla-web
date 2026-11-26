@@ -11,6 +11,7 @@ import { projectCommands } from './presentation/project.commands.ts';
 // The key of the recent colors is defined before the read of the server.
 import './presentation/recent-colors.user-state.ts';
 import './presentation/project-layout.user-state.ts';
+import './presentation/project-density.user-state.ts';
 import { projectPoints } from './presentation/project.points.ts';
 
 const transport = grpcTransport.getTransport();

@@ -10,7 +10,7 @@ import {
 } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
-import { permissionsStore, PermissionScope } from '@platform/authz';
+import { Permission, permissionsStore, PermissionScope } from '@platform/authz';
 import { selectionStore } from '@scylla/ui/stores';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
 import type {
@@ -100,7 +100,31 @@ describe('ProjectCard', () => {
     await userEvent.click(await findFloating('menuitem', 'Edit project'));
 
     expect(testNavigator.navigate).not.toHaveBeenCalled();
-    expect(await screen.findByText('Update the project name and description.')).toBeInTheDocument();
+    expect(
+      await screen.findByText('Update the icon, the name, the description and the group of the project.'),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Icon' })).toBeInTheDocument();
+  });
+
+  it('does not let a member without UPDATE_PROJECT edit the project or its icon', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.PROJECT,
+            scopeId: 'project-1',
+            access: { kind: 'restricted', permissions: [Permission.DELETE_PROJECT] },
+          },
+        ],
+      },
+    });
+    renderCard();
+
+    await openMenu();
+    await findFloating('menuitem', 'Delete');
+
+    expect(screen.queryByRole('menuitem', { name: 'Edit project' })).toBeNull();
+    expect(screen.queryByRole('menuitem', { name: 'Change the icon…' })).toBeNull();
   });
 
   it('deletes the project from its menu after a confirmation', async () => {

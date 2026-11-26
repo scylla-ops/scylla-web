@@ -1,4 +1,5 @@
 <script module lang="ts">
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import { Widget, WidgetGrid, WidgetState, type WidgetSize, type WidgetStateKind } from '@scylla/ui';
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import Specimen from '../Specimen.svelte';
@@ -53,6 +54,21 @@
           size="m"
           title="No jobs in this period"
           description="Change the period or the scope of the widget."
+        />
+      </Widget>
+    </WidgetGrid>
+  </Specimen>
+</Story>
+
+<Story name="Action that adds" asChild>
+  <Specimen label="empty, with the action that adds the first item" class="w-full max-w-xl">
+    <WidgetGrid class="w-full">
+      <Widget size="m" title="Capacity">
+        <WidgetState
+          state="empty"
+          size="m"
+          title="No agent"
+          action={{ label: 'Add an agent', icon: PlusIcon, onSelect: () => {} }}
         />
       </Widget>
     </WidgetGrid>

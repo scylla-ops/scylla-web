@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import PlusIcon from '@lucide/svelte/icons/plus';
 import { render } from '@test/render.ts';
 import WidgetState from './WidgetState.svelte';
 import type { WidgetStateKind } from './widget-state.ts';
@@ -51,6 +52,29 @@ describe('WidgetState', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Retry' }));
 
     expect(onSelect).toHaveBeenCalledOnce();
+  });
+
+  it('draws the icon of the action, a retry by default', () => {
+    const retry = render(WidgetState, {
+      state: 'error',
+      size: 's',
+      action: { label: 'Retry', onSelect: vi.fn() },
+    });
+
+    expect(retry.getByRole('button', { name: 'Retry' }).querySelector('svg')).toHaveClass(
+      'lucide-rotate-cw',
+    );
+    retry.unmount();
+
+    render(WidgetState, {
+      state: 'empty',
+      size: 's',
+      action: { label: 'Add an agent', onSelect: vi.fn(), icon: PlusIcon },
+    });
+
+    expect(screen.getByRole('button', { name: 'Add an agent' }).querySelector('svg')).toHaveClass(
+      'lucide-plus',
+    );
   });
 
   it.each<WidgetStateKind>(['error', 'missing'])(

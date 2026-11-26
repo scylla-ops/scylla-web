@@ -25,6 +25,10 @@ export const NEWEST_JOBS_QUERY_KEY = (
   shape: object,
 ) => ['jobs', 'workspace', workspaceId, 'newest', ...scope, shape] as const;
 
+/** Under the `'jobs'` root too: a run refreshes the results of a search. */
+export const SEARCH_JOBS_QUERY_KEY = (workspaceId: string | null, text: string, limit: number) =>
+  ['jobs', 'workspace', workspaceId, 'search', text, limit] as const;
+
 /** Under the `'jobs'` root too. */
 export const JOB_QUERY_KEY = (jobId: string) => ['jobs', 'detail', jobId] as const;
 

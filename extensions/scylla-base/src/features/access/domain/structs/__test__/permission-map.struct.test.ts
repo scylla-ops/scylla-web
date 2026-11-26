@@ -13,6 +13,7 @@ const SERVER: Record<'platform' | 'workspace' | 'project', string[]> = {
     'get_user',
     'create_user',
     'update_user',
+    'list_all_workspaces',
     'set_user_status',
     'delete_user',
     'send_password_reset',

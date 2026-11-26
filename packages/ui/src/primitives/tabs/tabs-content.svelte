@@ -1,6 +1,7 @@
 <script lang="ts">
   import { Tabs as TabsPrimitive } from 'bits-ui';
   import { cn } from '../../utils/index.ts';
+  import { enterOnActivate } from '../../motion/enter.attachments.ts';
 
   let { class: className, ...rest }: TabsPrimitive.ContentProps = $props();
 </script>
@@ -9,4 +10,5 @@
   data-slot="tabs-content"
   class={cn('flex-1 outline-none data-[state=inactive]:hidden', className)}
   {...rest}
+  {@attach enterOnActivate}
 />

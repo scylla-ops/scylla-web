@@ -1,7 +1,6 @@
 import { contextStore, currentPathname, currentSearch, navigateTo } from '@platform/context';
-import { createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import { workspaceQueries } from '@base/features/workspace';
+import { createWorkspaceOf } from '@base/features/workspace';
 import {
   DEFAULT_PERIOD,
   bucketPeriod,
@@ -32,10 +31,10 @@ import {
 export const createDashboardPeriod = (now: () => Date = currentInstant) => {
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id);
-  const workspaces = createQuery(() => workspaceQueries.mine());
+  const current = createWorkspaceOf(() => workspaceId);
 
   const timeZone = $derived.by((): string | null => {
-    const zone = workspaces.data?.find(workspace => workspace.id === workspaceId)?.timeZone;
+    const zone = current.workspace?.timeZone;
     return zone ? knownTimeZone(zone) : null;
   });
 

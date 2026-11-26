@@ -34,6 +34,7 @@
   );
 
   const compact = $derived(size === 'xs');
+  const ActionIcon = $derived(action?.icon ?? RotateCwIcon);
 </script>
 
 {#if state === 'loading'}
@@ -78,7 +79,7 @@
     </div>
     {#if action && !compact}
       <Button variant="outline" size="xs" class="mt-2" onclick={action.onSelect}>
-        <RotateCwIcon aria-hidden="true" />
+        <ActionIcon aria-hidden="true" />
         {action.label}
       </Button>
     {/if}

@@ -84,6 +84,7 @@
     </div>
 
     <UserTable
+      selfId={currentUserId}
       data={shown}
       {canChangeRoles}
       canDelete={user => canDelete && user.id !== currentUserId}

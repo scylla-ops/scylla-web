@@ -15,5 +15,7 @@ export default defineConfig({
   use: {
     baseURL: process.env.SCYLLA_E2E_URL ?? 'http://127.0.0.1:3000',
     trace: 'retain-on-failure',
+    // The app then skips its enter and exit moves: no spec waits for an animation.
+    contextOptions: { reducedMotion: 'reduce' },
   },
 });

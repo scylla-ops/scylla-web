@@ -1,4 +1,5 @@
 import type { PaginatedList } from '@scylla/ui/structs';
+import type { ProjectGroupChoice } from './project-group.entity.ts';
 
 /**
  * The icon that a person chose for a project: a glyph of the icon set with a color of the theme
@@ -25,3 +26,13 @@ export interface ProjectEntity {
 }
 
 export type ProjectList = PaginatedList<ProjectEntity>;
+
+/** A new project. `CreateProject` takes the name and the description; the rest goes just after. */
+export interface CreateProjectInput {
+  name: string;
+  workspaceId: string;
+  description?: string;
+  icon?: ProjectIconChange;
+  /** Unset or `none`: no group. */
+  group?: ProjectGroupChoice;
+}

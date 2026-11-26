@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { LucideIcon } from '@scylla/ui';
+  import { fold, unfold } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
 
   interface Props {
@@ -16,6 +17,8 @@
 </script>
 
 <div
+  in:unfold
+  out:fold
   role={tone === 'destructive' ? 'alert' : 'status'}
   class="flex flex-wrap items-center gap-3 rounded-xl border bg-card px-4 py-3"
 >

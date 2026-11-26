@@ -1,7 +1,8 @@
 <script lang="ts">
   import BlocksIcon from '@lucide/svelte/icons/blocks';
   import BotIcon from '@lucide/svelte/icons/bot';
-  import { entityGlyph } from '@scylla/ui';
+  import { fade } from 'svelte/transition';
+  import { entityGlyph, motionDuration } from '@scylla/ui';
   import { currentTheme } from '@scylla/ui/stores';
   import { cn } from '@scylla/ui/utils';
   import {
@@ -19,7 +20,7 @@
     self?: boolean;
     /** An agent with an open stream: a dot on the corner. */
     online?: boolean;
-    size?: 16 | 24 | 32 | 40 | 48 | 72;
+    size?: 16 | 20 | 24 | 32 | 40 | 48 | 72;
     class?: string;
   }
 
@@ -34,6 +35,7 @@
 
   const SIZES = {
     16: { box: 'size-4 text-[8px]', icon: 'size-2.5', dot: 'size-1.5' },
+    20: { box: 'size-5 text-[9px]', icon: 'size-3', dot: 'size-1.5' },
     24: { box: 'size-6 text-[10px]', icon: 'size-3.5', dot: 'size-2' },
     32: { box: 'size-8 text-xs', icon: 'size-4', dot: 'size-2.5' },
     40: { box: 'size-10 text-sm', icon: 'size-5', dot: 'size-2.5' },
@@ -69,6 +71,13 @@
     (profile?.avatarGlyph && entityGlyph(profile.avatarGlyph)) ||
       (look === 'app' ? BlocksIcon : BotIcon),
   );
+  // A new photo, initials or glyph cross-fades with the old one; a new color fades in CSS.
+  const content = $derived(
+    image ??
+      (look === 'agent' || look === 'app'
+        ? `glyph:${profile?.avatarGlyph ?? ''}`
+        : `text:${profile ? initials : '?'}`),
+  );
 </script>
 
 <span
@@ -76,7 +85,7 @@
   data-kind={look}
   data-image={image ? '' : undefined}
   class={cn(
-    'relative flex shrink-0 items-center justify-center font-semibold',
+    'relative flex shrink-0 items-center justify-center font-semibold transition-[background-color,color] duration-200 motion-reduce:transition-none',
     SIZES[size].box,
     LOOKS[look],
     colors && 'bg-(--avatar-tile) text-(--avatar-ink)',
@@ -85,21 +94,29 @@
   style:--avatar-tile={colors?.tile}
   style:--avatar-ink={colors?.ink}
 >
-  {#if image}
-    <img
-      src={image}
-      alt=""
-      draggable="false"
-      class="size-full rounded-[inherit] object-cover"
-      onerror={() => (failedImage = image)}
-    />
-  {:else if look === 'agent' || look === 'app'}
-    <Glyph class={SIZES[size].icon} />
-  {:else if profile}
-    {initials}
-  {:else}
-    ?
-  {/if}
+  {#key content}
+    <span
+      class="absolute inset-0 flex items-center justify-center rounded-[inherit]"
+      in:fade={{ duration: motionDuration(200) }}
+      out:fade={{ duration: motionDuration(120) }}
+    >
+      {#if image}
+        <img
+          src={image}
+          alt=""
+          draggable="false"
+          class="size-full rounded-[inherit] object-cover"
+          onerror={() => (failedImage = image)}
+        />
+      {:else if look === 'agent' || look === 'app'}
+        <Glyph class={SIZES[size].icon} />
+      {:else if profile}
+        {initials}
+      {:else}
+        ?
+      {/if}
+    </span>
+  {/key}
   {#if look === 'agent' && online}
     <span
       data-slot="online"

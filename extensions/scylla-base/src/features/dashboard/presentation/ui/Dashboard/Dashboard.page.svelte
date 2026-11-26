@@ -3,7 +3,7 @@
   import { onDestroy } from 'svelte';
   import { scyllaNavigate } from '@platform/context';
   import { guardLeave, routeParams } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, WidgetGrid, widgetSpanStyle } from '@scylla/ui';
+  import { ConfirmOperationAlertDialog, reflow, WidgetGrid, widgetSpanStyle } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { LayoutSize, LayoutWidget } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
@@ -33,7 +33,6 @@
     type Span,
   } from '@base/features/dashboard/presentation/presenters/grid-pack.presenter.ts';
   import DropSlot from '../DashboardEditor/DropSlot.svelte';
-  import { reflow } from './reflow.animation.ts';
   import MobileBar from './MobileBar.svelte';
 
   const period = createDashboardPeriod();

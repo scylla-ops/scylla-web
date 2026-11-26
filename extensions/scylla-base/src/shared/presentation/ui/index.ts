@@ -6,6 +6,12 @@ export { jobShortId, type JobRun } from '../presenters/job-run.presenter.ts';
 export { default as ProviderMark } from './data-display/ProviderMark/ProviderMark.svelte';
 export { default as IdentityAvatar } from './data-display/IdentityAvatar/IdentityAvatar.svelte';
 export { default as Identity } from './data-display/Identity/Identity.svelte';
+export { default as WorkspaceIcon } from './data-display/WorkspaceIcon/WorkspaceIcon.svelte';
+export {
+  DEFAULT_WORKSPACE_COLOR,
+  DEFAULT_WORKSPACE_GLYPH,
+  workspaceIconProps,
+} from '../presenters/workspace-icon.presenter.ts';
 export {
   identityKindOf,
   userName,

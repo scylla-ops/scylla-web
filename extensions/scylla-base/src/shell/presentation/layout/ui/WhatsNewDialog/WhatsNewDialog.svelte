@@ -7,7 +7,9 @@
     TabsList,
     TabsTrigger,
   } from '@scylla/ui/primitives';
-  import { ScyllaDialog } from '@scylla/ui';
+  import PauseIcon from '@lucide/svelte/icons/pause';
+  import PlayIcon from '@lucide/svelte/icons/play';
+  import { ScyllaDialog, prefersReducedMotion, swapIn, swapOut } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     dismissRelease,
@@ -17,6 +19,96 @@
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
 
   const release = $derived(unseenRelease());
+
+  const TICK_MS = 50;
+  const RESUME_AFTER_MS = 5000;
+  const MIN_ITEM_MS = 6000;
+  const MAX_ITEM_MS = 16000;
+  const MS_PER_CHAR = 45;
+  /** Share of the item time with no scroll, at the top and at the bottom. */
+  const SCROLL_PAUSE = 0.12;
+  const USER_EVENTS = ['pointermove', 'pointerdown', 'wheel', 'keydown', 'touchstart'] as const;
+
+  let active = $state<string>('');
+  let elapsed = $state(0);
+  let userPaused = $state(false);
+  let finished = $state(false);
+  const reduced = prefersReducedMotion();
+  let root = $state<HTMLElement>();
+  let lastInput = -Infinity;
+  let scrollPos = 0;
+  let wasRunning = false;
+
+  $effect(() => {
+    if (!active && release) active = release.tabs[0];
+  });
+
+  const itemMs = (version: string): number => {
+    const chars = (release?.highlights ?? [])
+      .filter(highlight => highlight.version === version)
+      .reduce(
+        (sum, highlight) => sum + t(highlight.title).length + t(highlight.description).length,
+        0,
+      );
+    return Math.min(MAX_ITEM_MS, Math.max(MIN_ITEM_MS, 3000 + chars * MS_PER_CHAR));
+  };
+  const duration = $derived(itemMs(active));
+  const progress = $derived(Math.min(1, elapsed / duration));
+
+  const panel = (): HTMLElement | null =>
+    root?.querySelector<HTMLElement>('[role="tabpanel"]:not([hidden])') ?? null;
+
+  $effect(() => {
+    void active;
+    elapsed = 0;
+    finished = false;
+    scrollPos = 0;
+    const current = panel();
+    if (current) current.scrollTop = 0;
+  });
+
+  const tick = () => {
+    if (!release || finished) return;
+    const running =
+      !reduced && !userPaused && !document.hidden && Date.now() - lastInput >= RESUME_AFTER_MS;
+    if (!running) {
+      wasRunning = false;
+      return;
+    }
+    const current = panel();
+    if (current && !wasRunning) scrollPos = current.scrollTop;
+    wasRunning = true;
+    elapsed = Math.min(duration, elapsed + TICK_MS);
+    const max = current ? current.scrollHeight - current.clientHeight : 0;
+    if (current && max > 0) {
+      const share = elapsed / duration;
+      if (share > SCROLL_PAUSE && share < 1 - SCROLL_PAUSE) {
+        scrollPos = Math.min(max, scrollPos + (max * TICK_MS) / (duration * (1 - 2 * SCROLL_PAUSE)));
+        current.scrollTop = scrollPos;
+      }
+    }
+    if (elapsed < duration) return;
+    const index = release.tabs.findIndex(version => version === active);
+    if (index < release.tabs.length - 1) active = release.tabs[index + 1];
+    else finished = true;
+  };
+
+  $effect(() => {
+    const id = setInterval(tick, TICK_MS);
+    return () => clearInterval(id);
+  });
+
+  $effect(() => {
+    const target = root?.closest<HTMLElement>('[data-slot="dialog-content"]') ?? root;
+    if (!target) return;
+    const onInput = () => {
+      lastInput = Date.now();
+    };
+    for (const name of USER_EVENTS) target.addEventListener(name, onInput, { passive: true });
+    return () => {
+      for (const name of USER_EVENTS) target.removeEventListener(name, onInput);
+    };
+  });
 </script>
 
 {#if release}
@@ -29,8 +121,10 @@
     title={t(layoutMessages.whatsNew(release.line))}
     description={t(layoutMessages.whatsNewDescription)}
   >
-    <Tabs value={release.tabs[0]} class="min-h-0 min-w-0 gap-3">
-      <div class="relative shrink-0 overflow-x-auto">
+    <div bind:this={root} class="contents">
+    <Tabs bind:value={active} class="min-h-0 min-w-0 gap-3">
+      <div class="flex shrink-0 items-center gap-2">
+        <div class="relative min-w-0 flex-1 overflow-x-auto">
         <TabsList class="mx-auto">
           {#each release.tabs as version (version)}
             <TabsTrigger value={version} class="relative px-3">
@@ -42,9 +136,37 @@
             </TabsTrigger>
           {/each}
         </TabsList>
+        </div>
+        {#if !reduced}
+          <Button
+            variant="ghost"
+            size="icon"
+            class="size-8 shrink-0"
+            aria-label={userPaused ? t(layoutMessages.playAutoplay) : t(layoutMessages.pauseAutoplay)}
+            aria-pressed={userPaused}
+            onclick={() => (userPaused = !userPaused)}
+          >
+            <span class="grid size-4 place-items-center *:col-start-1 *:row-start-1">
+              {#if userPaused}
+                <span in:swapIn out:swapOut class="flex"><PlayIcon class="size-4" /></span>
+              {:else}
+                <span in:swapIn out:swapOut class="flex"><PauseIcon class="size-4" /></span>
+              {/if}
+            </span>
+          </Button>
+        {/if}
+      </div>
+      <div class="h-0.5 shrink-0 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+        <div
+          data-testid="whats-new-progress"
+          class="h-full origin-left bg-primary"
+          class:invisible={reduced}
+          style:transform={`scaleX(${progress})`}
+        ></div>
       </div>
       {#each release.tabs as version (version)}
-        <TabsContent value={version} class="relative min-h-0 overflow-y-auto py-2">
+        <TabsContent value={version} class="relative min-h-0 overflow-y-auto py-2 data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-200"
+        >
           <ul class="flex flex-col gap-4">
             {#each release.highlights.filter(highlight => highlight.version === version) as highlight (highlight.id)}
               <li class="flex items-center gap-3">
@@ -63,6 +185,7 @@
         </TabsContent>
       {/each}
     </Tabs>
+    </div>
 
     <DialogFooter>
       <Button onclick={dismissRelease}>{t(layoutMessages.gotIt)}</Button>

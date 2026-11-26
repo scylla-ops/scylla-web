@@ -1,12 +1,19 @@
 <script lang="ts">
   import { MediaQuery } from 'svelte/reactivity';
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+  import KeySquareIcon from '@lucide/svelte/icons/key-square';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import TrashIcon from '@lucide/svelte/icons/trash';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import { contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, ErrorState, ListSkeleton, StatusShape } from '@scylla/ui';
+  import {
+    ConfirmOperationAlertDialog,
+    EmptyState,
+    ErrorState,
+    ListSkeleton,
+    StatusShape,
+  } from '@scylla/ui';
   import {
     Button,
     buttonVariants,
@@ -138,9 +145,12 @@
   {:else if mine.isPending}
     <ListSkeleton rows={3} rowClass="h-14 w-full rounded-xl" />
   {:else if mine.data.tokens.length === 0}
-    <p class="rounded-xl border p-6 text-center text-sm text-muted-foreground">
-      {t(messages.empty)}
-    </p>
+    <EmptyState
+      class="min-h-56"
+      icon={KeySquareIcon}
+      title={t(messages.empty)}
+      action={enabled ? { label: t(messages.newToken), onSelect: () => (newOpen = true) } : undefined}
+    />
   {:else if phone.current}
     <div class="flex flex-col gap-3">
       {#each mine.data.tokens as token (token.id)}

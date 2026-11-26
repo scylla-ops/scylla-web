@@ -2,6 +2,7 @@
   import { slide } from 'svelte/transition';
   import FolderIcon from '@lucide/svelte/icons/folder';
   import { createQuery } from '@scylla/core-sdk';
+  import { IconField, type IconChoice } from '@scylla/ui';
   import {
     Button,
     Input,
@@ -14,13 +15,20 @@
   import { t } from '@scylla/ui/i18n';
   import { matchesSearch } from '@scylla/ui/utils';
   import { PROJECT_ROLES, roleLabel, rolesOf } from '@base/features/access';
-  import { projectQueries } from '@base/features/project';
+  import { projectQueries, recentColors } from '@base/features/project';
   import { credentialsMessages as messages } from '@base/features/apps/presentation/messages/credentials.messages.ts';
+  import {
+    DEFAULT_APP_COLOR,
+    DEFAULT_APP_GLYPH,
+  } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
 
   interface Props {
     workspaceId: string;
     workspaceName: string;
     name: string;
+    icon: IconChoice;
+    /** Only the admins of the workspace give an icon: `set_app_icon`. */
+    canSetIcon: boolean;
     workspaceRole: string;
     /** By project id. An empty role: none. */
     projectRoles: Record<string, string>;
@@ -30,11 +38,14 @@
     workspaceId,
     workspaceName,
     name = $bindable(),
+    icon = $bindable(),
+    canSetIcon,
     workspaceRole = $bindable(),
     projectRoles = $bindable(),
   }: Props = $props();
 
   const projects = createQuery(() => projectQueries.lookup(workspaceId));
+  const recent = recentColors();
   const WORKSPACE_CHOICES = rolesOf('workspace');
   /** Below this, all the rows show at once. */
   const FILTER_FROM = 8;
@@ -51,6 +62,17 @@
 </script>
 
 <div class="flex flex-col gap-4">
+  {#if canSetIcon}
+    <IconField
+      value={icon}
+      onchange={next => (icon = next)}
+      {recent}
+      defaultGlyph={DEFAULT_APP_GLYPH}
+      defaultColor={DEFAULT_APP_COLOR}
+      avatar
+    />
+  {/if}
+
   <div class="flex flex-col gap-1.5">
     <Label for="app-name">{t(messages.name)}</Label>
     <Input

@@ -290,8 +290,18 @@ describe('grpcJob.toDomain', () => {
         baseJob({
           waitingReason: 'NO_AGENT_WITH_CHECKOUT',
           unfitAgents: [
-            { id: { value: 'a-1' }, name: 'old', version: '0.7.0-rc.1', reason: UnfitReason.UPDATE_AGENT },
-            { id: { value: 'a-2' }, name: 'no-git', version: '0.7.0', reason: UnfitReason.INSTALL_GIT },
+            {
+              id: { value: 'a-1' },
+              name: 'old',
+              version: '0.7.0-rc.1',
+              reason: UnfitReason.UPDATE_AGENT,
+            },
+            {
+              id: { value: 'a-2' },
+              name: 'no-git',
+              version: '0.7.0',
+              reason: UnfitReason.INSTALL_GIT,
+            },
             { id: { value: 'a-3' }, name: 'next', version: '0.8.0', reason: 99 as UnfitReason },
           ],
         }),
@@ -322,7 +332,10 @@ describe('grpcJob.toDomain', () => {
 
     it('keeps the ports that a switch opened', () => {
       const [n] = grpcJob.toDomain(
-        baseJob({ nodes: [node('is-main')], runs: [run('is-main', NodeStatus.COMPLETED, 1, true, ['true'])] }),
+        baseJob({
+          nodes: [node('is-main')],
+          runs: [run('is-main', NodeStatus.COMPLETED, 1, true, ['true'])],
+        }),
       ).nodeExecutions;
       expect(n.ports).toEqual(['true']);
     });
@@ -475,6 +488,7 @@ describe('grpcJob.filterToProto', () => {
       pullRequest: 51,
       statuses: [],
       origins: [],
+      query: '',
     });
   });
 
@@ -486,6 +500,7 @@ describe('grpcJob.filterToProto', () => {
       pullRequest: 0,
       statuses: [],
       origins: [],
+      query: '',
     });
   });
 });

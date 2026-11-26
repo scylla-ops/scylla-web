@@ -147,6 +147,33 @@ describe('DashboardPipelinePage', () => {
     expect(await screen.findByText('No pipeline found')).toBeInTheDocument();
   });
 
+  it('offers "New pipeline" in the empty list, in the editor of this project', async () => {
+    setUp(() => Promise.resolve(page([])));
+    const empty = (await screen.findByText('No pipeline found')).closest('[data-slot="empty-state"]');
+
+    await userEvent.click(within(empty as HTMLElement).getByRole('button', { name: 'New pipeline' }));
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/projects/project-1/create', undefined);
+  });
+
+  it('shows no "New pipeline" in the empty list to a person who may not create one', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.PROJECT,
+            scopeId: 'project-1',
+            access: { kind: 'restricted', permissions: [Permission.LIST_PIPELINES_BY_PROJECT] },
+          },
+        ],
+      },
+    });
+    setUp(() => Promise.resolve(page([])));
+    const empty = (await screen.findByText('No pipeline found')).closest('[data-slot="empty-state"]');
+
+    expect(within(empty as HTMLElement).queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('shows the error of the backend when the list fails', async () => {
     setUp(() => Promise.reject(new ScyllaError('backend is down')));
 

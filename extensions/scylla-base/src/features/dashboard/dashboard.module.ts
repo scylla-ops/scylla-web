@@ -72,7 +72,7 @@ export const DashboardModule = {
       {
         path: 'dashboards/:dashboardId',
         permission: Permission.READ_WORKSPACE,
-        breadcrumb: () => ({ label: msg`Dashboard` }),
+        breadcrumb: ({ dashboardId }) => (dashboardId === '' ? null : { label: msg`Dashboard` }),
         page,
         share,
       },

@@ -55,7 +55,13 @@
   </span>
   <p class="flex flex-wrap items-center justify-center gap-1 text-sm font-medium">
     <span>{t(m.dropHere)}</span>
-    <Button variant="link" size="sm" class="h-auto p-0" onclick={() => input?.click()}>
+    <Button
+      type="button"
+      variant="link"
+      size="sm"
+      class="h-auto p-0"
+      onclick={() => input?.click()}
+    >
       {t(m.browse)}
     </Button>
   </p>

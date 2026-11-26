@@ -2,6 +2,7 @@
   import { workspaceQueries } from '@base/features/workspace';
   import { Permission, RequirePermission } from '@platform/authz';
   import { contextStore, navigateTo } from '@platform/context';
+  import { imageUrl } from '@platform/grpc';
   import { createQuery, Redirect, routeParams } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -12,6 +13,7 @@
     SelectValue,
   } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
+  import { WorkspaceIcon } from '@shared/presentation/ui';
   import { notificationMessages as messages } from '../../messages/notifications.messages.ts';
   import FailedRuns from './FailedRuns.svelte';
   import {
@@ -44,7 +46,7 @@
   const current = $derived(notificationView(routeParams().view ?? view));
   // The failed runs are those of a workspace: the personal mount has none.
   const known = $derived(current && (current.filter || workspaceSlug) ? current : undefined);
-  const workspaceName = $derived(workspaces.data?.find(item => item.id === workspaceId)?.name);
+  const chosen = $derived(workspaces.data?.find(item => item.id === workspaceId));
 
   const clearFilter = () => {
     workspaceId = ALL;
@@ -69,14 +71,26 @@
         {#if known.filter}
           <Select type="single" bind:value={workspaceId}>
             <SelectTrigger aria-label={t(messages.workspace)} class="w-56">
-              <SelectValue>{workspaceName ?? t(messages.allWorkspaces)}</SelectValue>
+              <SelectValue class="flex min-w-0 items-center gap-2">
+                {#if chosen}
+                  <WorkspaceIcon icon={chosen.icon} {imageUrl} size={16} />
+                  <span class="truncate">{chosen.name}</span>
+                {:else}
+                  {t(messages.allWorkspaces)}
+                {/if}
+              </SelectValue>
             </SelectTrigger>
             <SelectContent>
               <SelectItem value={ALL} label={t(messages.allWorkspaces)}>
                 {t(messages.allWorkspaces)}
               </SelectItem>
               {#each workspaces.data ?? [] as item (item.id)}
-                <SelectItem value={item.id} label={item.name}>{item.name}</SelectItem>
+                <SelectItem value={item.id} label={item.name}>
+                  <span class="flex min-w-0 items-center gap-2">
+                    <WorkspaceIcon icon={item.icon} {imageUrl} size={16} />
+                    <span class="truncate">{item.name}</span>
+                  </span>
+                </SelectItem>
               {/each}
             </SelectContent>
           </Select>

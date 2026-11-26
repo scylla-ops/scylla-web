@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { RoleHolderEntry } from '../../../domain/entities/role.entity.ts';
-import { holderCard } from '../holder-card.presenter.ts';
+import { holderCard, holderProfile } from '../holder-card.presenter.ts';
 
 const grant = (actorId: string, over: Partial<RoleHolderEntry> = {}): RoleHolderEntry => ({
   actorId,
@@ -100,5 +100,28 @@ describe('holderCard', () => {
 
     expect(card.allHref).toBeUndefined();
     expect(card.rows.map(row => row.href)).toEqual([undefined, undefined]);
+  });
+});
+
+describe('holderProfile', () => {
+  it('gives the photo or the initials color of a person, and the icon of an app', () => {
+    expect(holderProfile(grant('marie', { displayName: 'Marie', avatarColor: '#3366cc' }))).toEqual({
+      displayName: 'Marie',
+      username: 'marie',
+      avatarColor: '#3366cc',
+    });
+    expect(holderProfile(grant('julie', { avatarUrl: '/images/img-1' })).avatarUrl).toBe(
+      '/images/img-1',
+    );
+    expect(
+      holderProfile(grant('ci', { actorKind: 'app', avatarGlyph: 'server', avatarColor: 'chart-2' })),
+    ).toMatchObject({ avatarGlyph: 'server', avatarColor: 'chart-2' });
+    expect(holderProfile(grant('bo'))).toEqual({ displayName: 'bo', username: 'bo' });
+  });
+
+  it('puts the avatar of each holder on its row of the card', () => {
+    const card = holderCard({ holders: [grant('marie', { avatarColor: 'chart-4' })], total: 1 });
+
+    expect(card.rows[0].profile.avatarColor).toBe('chart-4');
   });
 });

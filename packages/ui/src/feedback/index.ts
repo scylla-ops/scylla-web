@@ -3,3 +3,5 @@ export { default as ScyllaDialog } from './ScyllaDialog/ScyllaDialog.svelte';
 export { default as ErrorState } from './ErrorState/ErrorState.svelte';
 export { default as SecretRevealDialog } from './SecretRevealDialog/SecretRevealDialog.svelte';
 export { default as ListSkeleton } from './ListSkeleton/ListSkeleton.svelte';
+export { default as EmptyState } from './EmptyState/EmptyState.svelte';
+export type { EmptyStateAction } from './EmptyState/empty-state.ts';

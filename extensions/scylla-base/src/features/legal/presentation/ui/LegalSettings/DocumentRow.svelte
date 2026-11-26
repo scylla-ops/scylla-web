@@ -1,5 +1,6 @@
 <script lang="ts">
   import FileTextIcon from '@lucide/svelte/icons/file-text';
+  import { fold, unfold } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     Button,
@@ -219,7 +220,7 @@
   {/if}
 
   {#if changed}
-    <div class="flex justify-end">
+    <div class="flex justify-end" in:unfold out:fold>
       <Button
         disabled={disabled || !valid || (draft.mode === 'url' && !draft.url.trim())}
         onclick={() => onSave(toChange(kind, draft), () => (typed = null))}

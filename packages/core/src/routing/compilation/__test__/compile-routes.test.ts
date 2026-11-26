@@ -53,7 +53,7 @@ const paths = (...routes: ModuleRoutes[]) => compile(...routes).map(route => joi
 const routeAt = (path: string, ...routes: ModuleRoutes[]) =>
   compile(...routes).find(route => joinPath(route.path) === path);
 const labelsOf = (route?: CompiledRoute) =>
-  route?.trail.map(mark => (mark.breadcrumb({}).label as { message: string }).message);
+  route?.trail.map(mark => (mark.breadcrumb({})?.label as { message: string }).message);
 
 describe('flattenModuleRoutes', () => {
   it('gives each child the path of its parents', () => {
@@ -140,11 +140,7 @@ describe('compileRoutes', () => {
         workspace: [{ path: 'agents', page }],
         project: [{ path: 'secrets', page }],
       }),
-    ).toEqual([
-      '/login',
-      '/:workspaceSlug/agents',
-      '/:workspaceSlug/projects/:projectId/secrets',
-    ]);
+    ).toEqual(['/login', '/:workspaceSlug/agents', '/:workspaceSlug/projects/:projectId/secrets']);
   });
 
   it('keeps only the routes that render something: a page or a redirect', () => {
@@ -219,7 +215,9 @@ describe('compileRoutes', () => {
         ...configWith({ workspace: [{ path: 'users', permission: LIST_USERS, page }] }),
         guard: undefined,
       }),
-    ).toThrow(/"\/:workspaceSlug\/users" declares a `permission`, but no extension gives an access policy/);
+    ).toThrow(
+      /"\/:workspaceSlug\/users" declares a `permission`, but no extension gives an access policy/,
+    );
   });
 
   it("keeps a route's own permission, and never lends it to a child", () => {

@@ -6,11 +6,13 @@ import { activeLocale, plainMessage, readCatalogs } from '@scylla/ui/i18n';
 import { toRune } from '@scylla/ui/stores';
 import { accessQueries, workspaceRef } from '@base/features/access';
 import { appQueries } from '@base/features/apps';
-import { pipelineQueries } from '@base/features/pipeline';
-import { projectQueries } from '@base/features/project';
+import { dashboardQueries } from '@base/features/dashboard';
+import { fragmentQueries, pipelineQueries } from '@base/features/pipeline';
+import { projectGroupQueries, projectQueries } from '@base/features/project';
 import { roleQueries } from '@base/features/roles';
 import { secretQueries } from '@base/features/secret';
-import { workspaceQueries } from '@base/features/workspace';
+import { userQueries } from '@base/features/user';
+import { OTHERS_LIMIT, SEARCH_DELAY_MS, workspaceQueries } from '@base/features/workspace';
 import type { CommandSourcesData, CommandGroupId } from './command-rows.presenter.ts';
 
 /**
@@ -22,8 +24,11 @@ const allChanges = <T extends object>(options: T) => ({
   notifyOnChangeProps: 'all' as const,
 });
 
-/** The lists of the bar: each one reads only with its permission, and only while the bar is open. */
-export const createCommandSources = () => {
+/**
+ * The lists of the bar: each one reads only with its permission, and only while the bar is open.
+ * `search` is the text of the bar: the server finds the workspaces of other users with it.
+ */
+export const createCommandSources = (search: () => string = () => '') => {
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id);
   const projectId = $derived(context().project.id);
@@ -35,10 +40,32 @@ export const createCommandSources = () => {
       enabled: !!workspaceId && can(Permission.LIST_PROJECTS_BY_WORKSPACE, target),
     }),
   );
+  // The groups give their rows, and "New project in <group>" to a person who can create one.
+  const groups = createQuery(() =>
+    allChanges({
+      ...projectGroupQueries.list(workspaceId ?? ''),
+      enabled:
+        !!workspaceId &&
+        (can(Permission.LIST_PROJECTS_BY_WORKSPACE, target) || can(Permission.CREATE_PROJECT, target)),
+    }),
+  );
   const pipelines = createQuery(() =>
     allChanges({
       ...pipelineQueries.allOfWorkspace(workspaceId),
       enabled: !!workspaceId && can(Permission.LIST_PIPELINES_BY_WORKSPACE, target),
+    }),
+  );
+  const fragments = createQuery(() =>
+    allChanges({
+      ...fragmentQueries.list(workspaceId),
+      enabled: !!workspaceId && can(Permission.LIST_PIPELINES_BY_WORKSPACE, target),
+    }),
+  );
+  // It only reads, and starts from the set of the dashboard page when the cache has it.
+  const dashboards = createQuery(() =>
+    allChanges({
+      ...dashboardQueries.list(workspaceId),
+      enabled: !!workspaceId && can(Permission.READ_WORKSPACE, target),
     }),
   );
   const apps = createQuery(() =>
@@ -65,28 +92,61 @@ export const createCommandSources = () => {
     }),
   );
   const workspaces = createQuery(() => allChanges(workspaceQueries.mine()));
+  // The session: the shell has read it already.
+  const me = createQuery(() => userQueries.me());
+
+  // The server search waits for a pause in the typing.
+  let searched = $state('');
+  $effect(() => {
+    const next = search().trim();
+    const timer = setTimeout(() => (searched = next), SEARCH_DELAY_MS);
+    return () => clearTimeout(timer);
+  });
+  const others = createQuery(() =>
+    allChanges(
+      workspaceQueries.all(
+        {
+          query: searched,
+          order: 'activity',
+          othersOnly: true,
+          pageSize: OTHERS_LIMIT,
+          pageToken: '',
+        },
+        { enabled: can(Permission.LIST_ALL_WORKSPACES) },
+      ),
+    ),
+  );
 
   const reads: readonly { group: CommandGroupId; query: { isLoading: boolean; isError: boolean } }[] =
     [
       { group: 'projects', query: projects },
+      { group: 'groups', query: groups },
       { group: 'pipelines', query: pipelines },
+      { group: 'fragments', query: fragments },
+      { group: 'dashboards', query: dashboards },
       { group: 'machines', query: apps },
       { group: 'people', query: members },
       { group: 'roles', query: workspaceRoles },
       { group: 'roles', query: instanceRoles },
       { group: 'secrets', query: secrets },
       { group: 'workspaces', query: workspaces },
+      { group: 'workspaces', query: others },
     ];
 
   const data = $derived<CommandSourcesData>({
     projects: projects.data?.items ?? [],
+    groups: groups.data ?? [],
     pipelines: pipelines.data?.items ?? [],
+    fragments: fragments.data ?? [],
+    dashboards: dashboards.data,
     apps: apps.data ?? [],
     members: members.data ?? [],
     workspaceRoles: workspaceRoles.data ?? [],
     instanceRoles: instanceRoles.data ?? [],
     secrets: secrets.data ?? [],
     workspaces: workspaces.data ?? [],
+    selfId: me.data?.id,
+    otherWorkspaces: others.data?.items ?? [],
   });
 
   let otherCatalog = $state.raw<Messages>({});

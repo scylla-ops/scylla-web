@@ -3,6 +3,8 @@
   import { currentPathname, currentSearch } from '@platform/context';
   import type { RouteParams } from '@scylla/core-sdk';
   import { rememberWorkspacePage } from '@base/shell/presentation/layout/admin-exit.state.svelte.ts';
+  import { malformedIdParams } from '@shared/utils/id.ts';
+  import NotFoundPage from './NotFound/NotFound.page.svelte';
   import { syncWorkspace } from './workspace-sync.effect.svelte.ts';
 
   let { params, children }: { params: RouteParams; children: Snippet } = $props();
@@ -13,6 +15,11 @@
   if (slug) rememberWorkspacePage(slug, `${currentPathname()}${currentSearch()}`);
 </script>
 
+<!-- An id with a wrong form names nothing: not found, and no request for the server to refuse. -->
 {#if workspace.matched}
-  {@render children()}
+  {#if malformedIdParams(params).length > 0}
+    <NotFoundPage />
+  {:else}
+    {@render children()}
+  {/if}
 {/if}

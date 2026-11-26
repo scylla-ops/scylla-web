@@ -111,7 +111,10 @@
 <div
   bind:this={root}
   data-slot="sidebar-container"
-  class="relative h-svh shrink-0"
+  class={cn(
+    'relative h-svh shrink-0 transition-[width] duration-200 ease-out motion-reduce:transition-none',
+    width.dragging && 'transition-none',
+  )}
   style:width="{containerWidth}px"
 >
   <div
@@ -119,7 +122,7 @@
     class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-background"
   >
     {#if Brand}
-      <Brand />
+      <Brand {collapsed} />
     {/if}
   </div>
   <Rail

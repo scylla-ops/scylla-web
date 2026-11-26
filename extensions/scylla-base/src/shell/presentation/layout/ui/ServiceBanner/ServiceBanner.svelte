@@ -1,5 +1,6 @@
 <script lang="ts">
   import { apiAnswers, serviceStatus } from '@platform/grpc';
+  import { enter, exit } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
 
@@ -21,6 +22,8 @@
 <!-- One banner for the whole app, over each page: an outage shows no toast for each failed call. -->
 {#if serviceStatus.unavailable}
   <div
+    in:enter
+    out:exit
     role="alert"
     class="fixed inset-x-0 top-0 z-50 flex items-center justify-center bg-destructive px-4 py-2 text-center text-sm font-medium text-destructive-foreground"
   >

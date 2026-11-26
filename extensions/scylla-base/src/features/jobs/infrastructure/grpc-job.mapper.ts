@@ -71,6 +71,7 @@ export const filterToProto = (filter: JobFilter): GrpcJobFilter => ({
   pullRequest: filter.pullRequest ?? 0,
   statuses: [],
   origins: [],
+  query: '',
 });
 
 const STATUSES: Record<Exclude<JobStatus, 'unknown'>, GrpcJobStatus> = {
@@ -277,6 +278,7 @@ export function toDomain(job: Job): JobEntity {
     agentLabels: job.agentLabels.length > 0 ? [...job.agentLabels] : undefined,
     waitingReason: job.waitingReason || undefined,
     unfitAgents: job.unfitAgents.length > 0 ? job.unfitAgents.map(unfitAgentToDomain) : undefined,
+    triggerId: job.triggerId ? idValue(job.triggerId) : undefined,
   };
 }
 

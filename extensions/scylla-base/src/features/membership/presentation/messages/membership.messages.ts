@@ -66,6 +66,8 @@ export const membershipMessages = {
   selectAnWorkspace: msg`Select a workspace to see its members.`,
   workspaceNewDenied: msg`You don't have permission to admit members here.`,
   workspaceEmpty: msg`Nobody belongs to this workspace yet.`,
+  appsEmpty: msg`No app has a role in this workspace yet.`,
+  noMemberMatch: msg`No member matches this search.`,
   removeFromWorkspace: msg`Remove from the workspace`,
 
   projectBlurb: msg`Everyone with access to this project, whether granted here or through a role on the workspace. Only project roles can be changed from this page.`,

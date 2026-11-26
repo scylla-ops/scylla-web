@@ -2,6 +2,9 @@ import { msg } from '@lingui/core/macro';
 
 export const appPageMessages = {
   appBadge: msg`App`,
+  icon: msg`App icon`,
+  iconDescription: msg`It tells the app apart in the list of the apps, on its page and in the members. Only the admins of the workspace change it.`,
+  iconDialogDescription: msg`It shows in the list of the apps, on the app page and in the members.`,
   activity: msg`Activity`,
   lastUsed: (when: string) => msg`Last used ${when}`,
   lastUsedWith: (credential: string) => msg`With ${credential}.`,

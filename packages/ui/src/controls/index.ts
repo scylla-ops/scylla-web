@@ -17,12 +17,26 @@ export {
   withRecentColor,
   type ContrastLine,
 } from './ColorPicker/color-picker.ts';
+export { default as IconField } from './IconField/IconField.svelte';
+export { default as ColorSwatches } from './ColorSwatches/ColorSwatches.svelte';
+export { SWATCH_COLORS } from './ColorSwatches/color-swatches.ts';
+export { default as GlyphAvatarCredit } from './GlyphAvatar/GlyphAvatarCredit.svelte';
+export { default as GlyphAvatarDialog } from './GlyphAvatar/GlyphAvatarDialog.svelte';
+export { default as GlyphAvatarEditor } from './GlyphAvatar/GlyphAvatarEditor.svelte';
+export {
+  glyphDataUri,
+  glyphSvg,
+  randomGlyphAvatar,
+  seededGlyphAvatar,
+} from './GlyphAvatar/glyph-avatar.ts';
 export { default as IconPicker } from './IconPicker/IconPicker.svelte';
 export {
   choiceIconProps,
   IMAGE_TYPES,
   imageFileProblem,
   MAX_IMAGE_BYTES,
-  SWATCH_COLORS,
   type IconChoice,
 } from './IconPicker/icon-picker.ts';
+export { default as GhostItem } from './GhostItem/GhostItem.svelte';
+export { GHOST_ITEM_SHAPES, type GhostItemShape } from './GhostItem/ghost-item.ts';
+export { default as Chip } from './Chip/Chip.svelte';

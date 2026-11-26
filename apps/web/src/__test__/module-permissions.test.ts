@@ -72,6 +72,7 @@ const UNGATED_COMMANDS: Readonly<Record<string, string>> = {
   'notifications.open': 'The inbox of the caller, which needs no grant.',
   'notifications.mark-all-read': 'It acts on the inbox of the caller, which needs no grant.',
   'shell.whats-new': 'It opens the notes of the release, which are the same for all users.',
+  'user.glyph-avatar': 'It opens the own profile photo, which needs no grant.',
 };
 
 describe('module permission declarations', () => {

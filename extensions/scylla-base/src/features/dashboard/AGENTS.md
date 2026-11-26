@@ -12,9 +12,23 @@ The workspace landing page: a grid of widgets that shows the jobs and the pipeli
 
 ## Public API — `index.ts`
 
-Empty (`export {};`). Nothing outside the page reads the dashboard. Never export a component
-from it: Rollup cannot drop a `.svelte` that a barrel re-exports, and the import of a type
-would pull bits-ui into the chunk of the importer.
+```typescript
+dashboardQueries   list (the dashboards that the person can open, with their path)
+type DashboardEntry
+```
+
+The search bar of the shell runs `dashboardQueries.list`, with `READ_WORKSPACE` in `enabled`.
+**It only reads (`list`), and never creates the first dashboard**: a search must not write data,
+and a member who cannot create a dashboard would get an error toast. Its key is under the key of
+the set (`[...DASHBOARDS_QUERY_KEY, 'list']`), so an invalidation of the set reaches it. It starts
+from the set of the page when the cache has it (`initialData`, the dashboards with a `version`
+only). The changes that write the set in the cache (`keep`, `setMyDefault`, the first load that
+creates) invalidate it. `path` is `dashboard` for the default dashboard of the person, else
+`dashboards/<id>`. `createdBy` is the actor that created it: the bar
+names the creator of a shared dashboard.
+
+Never export a component from it: Rollup cannot drop a `.svelte` that a barrel re-exports, and
+the import of a type would pull bits-ui into the chunk of the importer.
 
 ## Data contract
 
@@ -22,7 +36,7 @@ would pull bits-ui into the chunk of the importer.
 you".**
 
 - A dashboard is a name, a visibility (`private` or `workspace`), the team default mark, a
-  `version`, and an ordered list of `{ id, data, size, target? }`
+  `version`, its creator (`createdBy`), and an ordered list of `{ id, data, size, target? }`
   (`domain/structs/dashboard-layout.struct.ts`). `target` is the id of the agent or of the
   pipeline of a dedicated widget. It is optional, so the format stays schema version 1:
   `toWidgetList` keeps a text target, and `toWidgets` writes it only when it is set.
@@ -58,7 +72,9 @@ The ViewModels of the page read, through public APIs only:
 | `features/jobs` | `jobQueries.stats` (GetJobStats), `jobQueries.newest` (the live jobs, the job ends of the period), `successRate`, `successRateChange` |
 | `features/pipeline` | `pipelineQueries.summaries` (ListPipelineSummaries; with `pipelineIds` for the Pipeline widget), `createRunPipeline` (Quick actions, Pipeline) |
 | `features/jobs` (Pipeline) | `jobQueries.byPipeline` (ListPipelineJobs): the nodes of the newest job |
-| `features/apps` | `appQueries.runners` (the agents, the picker), `appQueries.agentStatsOf` (GetAgentStats), `appQueries.jobs` (the last jobs of one agent) |
+| `features/apps` | `appQueries.runners` (the agents, the picker), `appQueries.agentStatsOf` (GetAgentStats), `appQueries.jobs` (the last jobs of one agent), `agentProfile` (the icon of an agent in Agents and Activity) |
+| `features/access` | `accessQueries.members` (with `LIST_WORKSPACE_MEMBERS`): the photo or the initials color of an actor of Activity (`activityLook`). A change with no actor shows Scylla with the Scylla head (`systemActorProfile` of `shared/`) |
+| `features/user` | `userQueries.me`: the reader in Activity, as a solid avatar |
 
 All these reads are `queryOptions` objects, so this module shares one cache entry per resource
 with whoever else reads it.
@@ -187,6 +203,12 @@ narrower permission without moving that redirect target too.
   failed fire, missed time, offline agent), the open and the new counts, and the error of the
   node or of the job. A `PERMISSION_DENIED` shows Locked. The summary sentence counts the open
   items of the server.
+- **An empty widget adds its first item, for a person who can** (`WidgetBody` `emptyAction`, the
+  links of `widget-navigation.ts`): Capacity gives "Add an agent" (`create_app`), Pipelines gives
+  "New pipeline" in the project of the scope (`create_pipeline`), or "New project" with no scope
+  (`create_project`). Without the right, no button.
+- **The list of dashboards has a "+" on its title**, as "New dashboard" at its end. A mouse sees it
+  on hover and on focus.
 - Activity is partial: the job ends only (no G1). Quick actions has no "Fire a trigger" (C1)
   and no "Add a secret" (a secret belongs to a project).
 - **The page has no header.** The Figma page "Dashboard" (`695:13437`, frame `1524:6327`) puts

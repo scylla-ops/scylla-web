@@ -1,12 +1,20 @@
 <script lang="ts">
+  import { untrack } from 'svelte';
   import InfoIcon from '@lucide/svelte/icons/info';
+  import UsersRoundIcon from '@lucide/svelte/icons/users-round';
   import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
-  import { createQuery, navigateTo, routePathname, WidgetZone } from '@scylla/core-sdk';
+  import {
+    createQuery,
+    currentSearch,
+    navigateTo,
+    routePathname,
+    WidgetZone,
+  } from '@scylla/core-sdk';
   import { accessQueries, projectRef } from '@base/features/access';
   import { appQueries } from '@base/features/apps';
   import { userQueries } from '@base/features/user';
-  import { GatedButton } from '@scylla/ui';
+  import { EmptyState, GatedButton } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     Button,
@@ -66,7 +74,10 @@
   const rows = $derived(buildProjectMemberRows(membersQuery.data ?? []));
 
   let changing = $state<Changing | null>(null);
-  let adding = $state(false);
+  // `?add` (the "Add members to this project" of the search bar) opens the row that chooses one.
+  let adding = $state(
+    new URLSearchParams(currentSearch()).has('add') && untrack(() => canManage),
+  );
 
   const appsQuery = createQuery(() => {
     const query = appQueries.list(workspaceId ?? '');
@@ -76,6 +87,7 @@
   const usersQuery = createQuery(() =>
     userQueries.list({ enabled: adding && can(Permission.LIST_USERS) }),
   );
+  const meQuery = createQuery(() => userQueries.me());
 
   /** A person with a role in the workspace, or an app of the workspace, with no role here yet. */
   const candidates = $derived([
@@ -151,9 +163,13 @@
         {/each}
       </div>
     {:else if rows.length === 0}
-      <p class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
-        {t(membershipMessages.projectEmpty)}
-      </p>
+      <EmptyState
+        icon={UsersRoundIcon}
+        title={t(membershipMessages.projectEmpty)}
+        action={canManage && !adding
+          ? { label: t(addTo(projectName)), onSelect: () => (adding = true) }
+          : undefined}
+      />
     {:else}
       <TableFrame>
         <Table class="min-w-[720px]">
@@ -169,7 +185,11 @@
             {#each rows as row (row.actorId)}
               <TableRow class={row.inheritedOnly ? '[&>td]:bg-muted/50' : ''}>
                 <TableCell>
-                  <Identity profile={memberProfile(row)} kind={row.kind} />
+                  <Identity
+                    profile={memberProfile(row)}
+                    kind={row.kind}
+                    self={row.actorId === meQuery.data?.id}
+                  />
                 </TableCell>
                 <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-1.5">
@@ -183,7 +203,11 @@
                 <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-x-3 gap-y-1.5">
                     {#each row.scopes as scope (scope.scopeKind)}
-                      <ScopeLabel kind={scope.scopeKind} name={scope.scopeName} />
+                      <ScopeLabel
+                        kind={scope.scopeKind}
+                        id={scope.scopeId}
+                        name={scope.scopeName}
+                      />
                     {/each}
                   </div>
                 </TableCell>

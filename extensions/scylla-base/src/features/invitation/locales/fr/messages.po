@@ -13,7 +13,7 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:23
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:24
 msgid "Create an account"
 msgstr "Créer un compte"
 
@@ -41,11 +41,15 @@ msgstr "Inviter une personne"
 msgid "Invite by email"
 msgstr "Inviter par e-mail"
 
-#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:19
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:17
+msgid "Invited by {name}"
+msgstr "Invitation envoyée par {name}"
+
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:20
 msgid "Join a workspace"
 msgstr "Rejoindre un espace de travail"
 
-#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:20
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:21
 msgid "Joining the workspace…"
 msgstr "Connexion à l'espace de travail…"
 
@@ -61,7 +65,7 @@ msgstr "Aucune invitation en attente."
 msgid "Open invitations"
 msgstr "Invitations en attente"
 
-#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:18
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:19
 msgid "Revoke"
 msgstr "Révoquer"
 
@@ -69,7 +73,7 @@ msgstr "Révoquer"
 msgid "Role"
 msgstr "Rôle"
 
-#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:17
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:18
 msgid "Send again"
 msgstr "Renvoyer"
 
@@ -77,11 +81,11 @@ msgstr "Renvoyer"
 msgid "Send the invitation"
 msgstr "Envoyer l'invitation"
 
-#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:22
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:23
 msgid "Sign in"
 msgstr "Se connecter"
 
-#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:21
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:22
 msgid "Sign in or create an account to accept the invitation."
 msgstr "Connectez-vous ou créez un compte pour accepter l'invitation."
 
@@ -89,7 +93,7 @@ msgstr "Connectez-vous ou créez un compte pour accepter l'invitation."
 msgid "The people who have a link and have not joined yet."
 msgstr "Les personnes qui ont un lien et n'ont pas encore rejoint."
 
-#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:24
+#: extensions/scylla-base/src/features/invitation/presentation/messages/invitation.messages.ts:25
 msgid "This invitation is not valid any more. Ask for a new one."
 msgstr "Cette invitation n'est plus valide. Demandez-en une nouvelle."
 

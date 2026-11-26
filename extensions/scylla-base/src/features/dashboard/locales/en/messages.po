@@ -1310,6 +1310,14 @@ msgstr "New"
 msgid "New dashboard"
 msgstr "New dashboard"
 
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:5
+msgid "New pipeline"
+msgstr "New pipeline"
+
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:6
+msgid "New project"
+msgstr "New project"
+
 #: extensions/scylla-base/src/features/dashboard/presentation/messages/schedules.messages.ts:7
 msgctxt "schedules"
 msgid "next 24 h"
@@ -1586,42 +1594,42 @@ msgstr "Open agent"
 msgid "open now"
 msgstr "open now"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:8
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:10
 msgctxt "widget link"
 msgid "Open the agent"
 msgstr "Open the agent"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:9
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:11
 msgctxt "widget link"
 msgid "Open the agents"
 msgstr "Open the agents"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:11
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:13
 msgctxt "widget link"
 msgid "Open the integrations"
 msgstr "Open the integrations"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:5
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:7
 msgctxt "widget link"
 msgid "Open the job"
 msgstr "Open the job"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:6
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:8
 msgctxt "widget link"
 msgid "Open the jobs of this pipeline"
 msgstr "Open the jobs of this pipeline"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:13
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:15
 msgctxt "widget link"
 msgid "Open the logs of {node} in the newest job"
 msgstr "Open the logs of {node} in the newest job"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:10
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:12
 msgctxt "widget link"
 msgid "Open the project"
 msgstr "Open the project"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:7
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:9
 msgctxt "widget link"
 msgid "Open the triggers of this pipeline"
 msgstr "Open the triggers of this pipeline"
@@ -2079,12 +2087,12 @@ msgstr "Shortcuts to the actions"
 msgid "Show"
 msgstr "Show"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:15
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:17
 msgctxt "widget link"
 msgid "Show {day} on the dashboard"
 msgstr "Show {day} on the dashboard"
 
-#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:17
+#: extensions/scylla-base/src/features/dashboard/presentation/messages/links.messages.ts:19
 msgctxt "widget link"
 msgid "Show the week of {day} on the dashboard"
 msgstr "Show the week of {day} on the dashboard"

@@ -16,6 +16,7 @@ import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { glyphAvatarToProto } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import {
   apiTokenToDomain,
   expiryToProto,
@@ -85,6 +86,19 @@ export class DefaultUserRepository implements UserRepository {
     return grpcUser.toDomainList(users);
   }
 
+  public async search(text: string, limit: number, signal?: AbortSignal): Promise<UserEntity[]> {
+    const request = {
+      query: text.trim(),
+      withInstanceRole: false,
+      page: { size: limit, token: '' },
+    };
+    const call = signal
+      ? this.admin.listUsers(request, { abort: signal })
+      : this.admin.listUsers(request);
+    const response = await call.response;
+    return response.users.map(grpcUser.entryToDomain);
+  }
+
   public async getById(userId: string): Promise<UserEntity> {
     if (this.isSelf(userId)) return this.getMe();
     const response = await this.admin.getUser({ userId: wrapId(userId) }).response;
@@ -118,6 +132,7 @@ export class DefaultUserRepository implements UserRepository {
   public async updateAvatar(input: UpdateAvatarInput): Promise<UserEntity> {
     const response = await this.profiles.updateProfile({
       ...(input.image !== undefined && { avatarImage: input.image ?? new Uint8Array() }),
+      ...(input.glyph && { avatarGlyph: glyphAvatarToProto(input.glyph) }),
       ...(input.color !== undefined && { avatarColor: input.color }),
     }).response;
     return requireUser(response.user);
@@ -196,12 +211,18 @@ export class DefaultUserRepository implements UserRepository {
         subject: identity.subject,
         email: identity.email,
         linkedAt: timestampToIso(identity.linkedAt),
+        hasPicture: identity.hasPicture,
       })),
     };
   }
 
   public async unlinkIdentity(provider: string, subject: string): Promise<void> {
     await this.profiles.unlinkIdentity({ provider, subject }).response;
+  }
+
+  public async importAvatar(provider: string, subject: string): Promise<UserEntity> {
+    const response = await this.profiles.importAvatar({ provider, subject }).response;
+    return requireUser(response.user);
   }
 
   public async setInstanceAdmin(userId: string, admin: boolean): Promise<void> {

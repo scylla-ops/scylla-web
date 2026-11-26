@@ -44,14 +44,18 @@ export const orderOfParam = (value: string): PageOrder =>
  * The projects of the page in batches: the first batch, then one batch for each "Show more". A
  * card reads the data of its pipelines and of its repository for its whole batch, in one call.
  */
-export const batchesOf = (ids: readonly string[], first: number): string[][] => {
+export const batchesOf = (
+  ids: readonly string[],
+  first: number,
+  more: number = MORE_CARDS,
+): string[][] => {
   const batches = [ids.slice(0, first)];
-  for (let start = first; start < ids.length; start += MORE_CARDS) {
-    batches.push(ids.slice(start, start + MORE_CARDS));
+  for (let start = first; start < ids.length; start += more) {
+    batches.push(ids.slice(start, start + more));
   }
   return batches.filter(batch => batch.length > 0);
 };
 
-/** The number of cards that "Show more" adds: 12, or what is left. */
-export const nextBatchSize = (shown: number, total: number): number =>
-  Math.max(0, Math.min(MORE_CARDS, total - shown));
+/** The number of cards that "Show more" adds: 12 (`more`), or what is left. */
+export const nextBatchSize = (shown: number, total: number, more: number = MORE_CARDS): number =>
+  Math.max(0, Math.min(more, total - shown));

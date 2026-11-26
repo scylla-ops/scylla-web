@@ -24,7 +24,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `intlLocale` (the locale for `Intl`, `en` before the first activation), `formatNumber` (a decimal, a percent or a large number in the language of the UI), `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
 | `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result, with an optional second line), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
-| `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList` — plain shapes, the only part a `domain/` may import |
+| `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList`, `GlyphAvatar` and its constants (`GLYPH_SHAPES`, `SCYLLA_GLYPH_AVATAR`, `glyphAvatarKey`) — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
 | `@scylla/ui/assets/*` | the logos |
 
@@ -36,16 +36,23 @@ src/
   chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
                            ChartSlot, ChartRing: the marks of the charts of a widget
   controls/                IconButton, GatedButton, PasswordInput, SearchSelect, SegmentedControl,
-                           ShareLinkButton, ColorPicker, IconPicker
+                           ShareLinkButton, ColorPicker, ColorSwatches, IconPicker, IconField,
+                           GhostItem, Chip, GlyphAvatarEditor, GlyphAvatarDialog,
+                           GlyphAvatarCredit
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
-                           CopyableText, TruncatedText, EntityIcon
-  feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
+                           CopyableText, TruncatedText, EntityIcon, ColorGlyph, CompactCard,
+                           ListRow, Tile, DropSlot
+  feedback/                ScyllaDialog, ErrorState, EmptyState, ConfirmOperationAlertDialog,
+                           SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
   layout/                  FeatureHeader, ContextItem, DangerZone, PageTransition,
                            ScyllaLoadingScreen, keepFitted (an attachment: fits a view again at
                            each resize)
   widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
-  motion/                  page transitions, reduced motion, a spring easing
+  motion/                  page transitions, reduced motion, a spring easing, enter and exit
+                           (fade and rise), fold and unfold (height and fade), reflow (the move
+                           of the items of a list), swap (a cross-fade of a value), a count
+                           that rolls
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -91,7 +98,7 @@ they use the language of the browser or no language.
 | Row selection | `createSelection(key)` over the single `selectionStore` — **no per-feature selection store** |
 | Selection for a list header | `createFeatureSelection(key, () => ids, { deleteItem })` → `headerProps` for `FeatureHeader` |
 | List header (count, clear, delete, new) | `FeatureHeader` |
-| A form | `FormItem[]` → `ScyllaForm`; `FormDialog` wraps it; `createFormState(() => items)` owns values/validation. Declare the ids in the item type (`readonly FormItem<'name' \| 'description'>[]`) and `onSubmit` receives a typed `FormValues` record — never re-index the values by hand |
+| A form | `FormItem[]` → `ScyllaForm`; `FormDialog` wraps it; `createFormState(() => items)` owns values/validation. Declare the ids in the item type (`readonly FormItem<'name' \| 'description'>[]`) and `onSubmit` receives a typed `FormValues` record — never re-index the values by hand. A field that is not text or a choice (an `IconField`) goes in the `leading` snippet of `ScyllaForm`, before the items, or in `trailing`, after them (a group picker); the owner keeps its value and sends it with the values |
 | Pagination | `createPagination(options)` — local page merged with server `totalCount`/`totalPages`; `responsive: true` sizes the page to the container |
 | How much room the layout left a component | `createMeasuredHeight()` → `{ height, measure }`, and `{@attach measure}` on a container sized by the layout, never by its content |
 | A table | `DataTable` (+ `createPagination`) — row keys are business ids, never indices. Give each column `meta.card` (see "`DataTable` on a phone") |
@@ -102,8 +109,19 @@ they use the language of the browser or no language.
 | A password field | `PasswordInput`: an `Input` with a show / hide button (`aria-pressed`), hidden again after a submit. `ScyllaForm` uses it for `inputType: 'password'`. Never `<Input type="password">` |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | Give the link of a page to another person | `ShareLinkButton` (`url`, `hint`). The top bar of the core renders it for a route with `share`: a page does not render it |
-| The icon of an entity (a project, an agent): a glyph in a color, or an image | `EntityIcon` (`icon`, `color`, `image`, `size` 20, 36 or 48). A free color `#RRGGBB` goes through `iconColors` (`utils/color.ts`): under 3:1 with the card of the theme, the tile is solid with a white or near-black glyph. The glyphs of a picker are `ENTITY_GLYPHS` |
-| Choose the icon of an entity | `IconPicker` (`value`: an `IconChoice`, `onchange`, `title`, `recent`, and the default icon of the entity: `defaultGlyph`, `defaultColor`): the glyphs with a search, the colors of the theme, the free color, the image tab. The owner puts it in a `ScyllaDialog` and saves. The free color is `ColorPicker`, which also works alone |
+| The icon of an entity (a project, an agent): a glyph in a color, or an image | `EntityIcon` (`icon`, `color`, `image`, `size` 16, 20, 24, 32, 36 or 48). A free color `#RRGGBB` goes through `iconColors` (`utils/color.ts`): under 3:1 with the card of the theme, the tile is solid with a white or near-black glyph. The glyphs of a picker are `ENTITY_GLYPHS` |
+| An item of a dense grid: a smaller card | `CompactCard` (`title`, `icon`, `badge`, `subtitle`, `actions`, `footer`, `selected`, `interactive`): the icon, the title and the actions on one line, centered, then the footer. The cards of a row have the same height |
+| An item of a list, one row each | `ListRow` (`title`, `icon`, `badge`, `subtitle`, `meta`, `actions`, `stacked`, `selected`, `interactive`): 48 px, each part centered on one line. `stacked` (a phone) puts the subtitle and `meta` on a second line, and the icon and the actions stay centered on the row |
+| A small tile of an overview (the health of each item) | `Tile` (`title`, `icon`, `status`, `actions`, `selected`, `interactive`): the icon, the title and the status centered on both axes; `actions` in the top right corner |
+| The place where a dragged item goes | `DropSlot` (`shape`: `card`, `row`, `header` or `tile`, from `DROP_SLOT_SHAPES`; `children`: a text, centered). Give it the shape of the item, so that the grid does not jump. With no text it is `aria-hidden`: a live region says the place |
+| « New … » as the last item of a grid or a list | `GhostItem` (`label`, `shape`: `card`, `row` or `tile`, from `GHOST_ITEM_SHAPES`; `icon`, `Plus` by default; `href` for a link, else `onclick`): a dashed item, its content centered on both axes |
+| A small item in a line: a name with its icon, or "+N" | `Chip` (`icon` snippet, `variant`: `default` or `more`, the button attributes): 28 px, rounded, the content centered |
+| A glyph in a color with no tile (the folder of a group of projects) | `ColorGlyph` (`icon`, `color`, `label`, `class` for the size, 16 px by default): the outline in the color on its tint. A free color under 3:1 with the card fills the glyph, with a white or near-black outline (`iconColors`). No color: grey, with no fill |
+| Choose the icon of an entity | `IconPicker` (`value`: an `IconChoice`, `onchange`, `title`, `recent`, and the default icon of the entity: `defaultGlyph`, `defaultColor`): the glyphs with a search, the colors of the theme, the free color, the image tab, and with `avatar` (a person or an App only) the Avatar tab: a `GlyphAvatarEditor` with no preview of its own, which gives `{ kind: 'avatar' }`. The owner puts it in a `ScyllaDialog` and saves. The free color is `ColorPicker`, which also works alone |
+| A glyph avatar (DiceBear "Glyphs", the only style) of a person or an App | `GlyphAvatarEditor` (`value`, `onchange`, `recent`, `preview`, `square`): the 35 shapes and the Scylla head, the glyph and background paints (solid, linear or radial, with an angle), and flip, rotation and size behind "More". `GlyphAvatarDialog` puts it in a dialog (a sheet from the bottom on a phone) with Save. `glyphSvg` and `glyphDataUri` draw it in the browser with `@dicebear/core` 11 and `GlyphAvatar/glyph-style.json`. scylla-ce draws the same SVG with `dicebear-core` and the same file: `glyph-avatar.fixtures.json`, the same file in the two repositories, checks it. A change of the style is a change of the two copies. `GlyphAvatarCredit` is the credit that the license CC BY 4.0 of the style asks for: the editor and the account page show it. "Random" (`randomGlyphAvatar`) picks explicit values: the server keeps the options, never a seed |
+| The icon in a form that creates or edits an entity | `IconField` (`value`, `onchange`, `recent`, `defaultGlyph`, `defaultColor`, `disabled`): the label, the preview, "Change the icon" and Reset on one line; the button unfolds the `IconPicker` (with no header) under them. Nothing is saved: the owner sends the choice with the other fields at the submit. The field keeps the URL of a new image while the picker is closed, and frees it when it goes away. Every create and edit form of an entity with an icon has it |
+| Choose a color, with no icon (the initials of a person) | `ColorSwatches` (`value`: a color of the theme or `#RRGGBB`, `onchange`, `recent`, `preview`): the colors of the theme (`SWATCH_COLORS`), then the free color in a popover with `ColorPicker`. `IconPicker`, the profile initials and the folder colors of the project groups use it, so each picker of the app offers the same colors. `onchange` comes at each move of the free color: a caller that saves at once waits for the end of the moves |
+| The glyph or the initials on a solid tile of a color | `glyphOn(rgb)` (white or near-black, the one that contrasts more), with `colorIn(color, theme)`: a free color, or a color of the theme from `THEME_COLORS` (the tokens of `styles.css`, which `styles.test.ts` compares) |
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
 | One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
@@ -112,6 +130,7 @@ they use the language of the browser or no language.
 | The section of a settings page with the actions that cannot be undone | `DangerZone` (`title`, `description`, `action`: the destructive button, centered on the text or under it in a narrow card, `children`) |
 | Show a one-time secret | `SecretRevealDialog` |
 | Error state | `ErrorState` |
+| A list, a table or a section with no item yet | `EmptyState` (`icon`, `title`, `description`, `action`: `{ label, onSelect, icon }`, `Plus` by default). The action adds the first item in the context of the page (the project, the pipeline, the scope). Give it only to a person who can do it: with no `action`, no button shows. Never a bare sentence for an empty list. The icon and the title have their own grid row between rows of 2fr and 3fr, so a longer text does not move them |
 | Class names | `cn()` |
 | Toasts | `toast` from `@scylla/ui/utils` (`svelte-sonner`) |
 | Light/dark | `getTheme` / `currentTheme()` (reactive): the theme on screen. `getThemePreference` / `currentThemePreference()` / `setThemePreference(choice, origin?)`: the choice of the user (`light`, `dark` or `system`), from `@scylla/ui/stores` |
@@ -119,7 +138,7 @@ they use the language of the browser or no language.
 | Translating | `t()` from `@scylla/ui/i18n`, over a `*.messages.ts` |
 | A page transition | `PageTransition` — the core's router already wraps every page in it |
 | A dashboard: a grid of widgets | `WidgetGrid` around `Widget`s (`size`: `xs`, `s`, `m`, `l`). See "Widgets" |
-| A widget with no data to draw (loading, error, empty, all clear, locked, missing) | `WidgetState` inside the `Widget`, with the same `size` |
+| A widget with no data to draw (loading, error, empty, all clear, locked, missing) | `WidgetState` inside the `Widget`, with the same `size`. Its `action` has a `RotateCw` icon by default; an empty state that adds the first item gives `icon: PlusIcon` |
 | A mark of a chart: a bar, a legend, a change, a ring | The `Chart*` parts. See "Charts" |
 | Panels the user can resize | `ResizablePaneGroup`, `ResizablePane`, `ResizableHandle` (`@scylla/ui/primitives`, on paneforge). See "`resizable`" below |
 | A card that opens on hover and holds links | `HoverCard`, `HoverCardTrigger`, `HoverCardContent` (bits-ui `LinkPreview`). A `Tooltip` holds text only: it must not hold a link. See "`hover-card`" below |
@@ -179,6 +198,39 @@ Svelte transition writes inline styles from JavaScript and that query never sees
 transition here asks and collapses its duration to zero. `springEasing({ bounce, duration })`
 gives a spring as an easing, with the parameters of the design tools: the thumb of
 `SegmentedControl` and the rail tile of the core use it.
+
+Each element that appears, goes away or moves after the first paint has a motion, and the same
+kind of element has the same motion everywhere. Use these presets, never a new duration:
+
+| What changes | Use | Time |
+|---|---|---|
+| A part that appears in its place: an empty state, a banner over the page, the content that replaces a skeleton | `in:enter` (fade and a rise of 4 px) | 200 ms, ease out |
+| A part out of the flow that goes away: an overlay, a floating bar | `out:exit` (fade) | 150 ms, ease in |
+| A part that opens or closes in the flow: a message under a field, a folding section, a banner, a row of a list | `in:unfold` and `out:fold` (height and fade) | 220 ms in, 150 ms out |
+| The items of a keyed `{#each}` that change places when one comes, goes or moves (rows, the widgets of the dashboard, the cards of the projects page) | `animate:reflow` (a slide from the old box; `{ still: true }` keeps a dragged item still) | 200 ms, ease out |
+| The content of a tab that becomes active | `{@attach enterOnActivate}` (`TabsContent` has it) | as `enter` |
+| A number that changes | `createCountRoll(() => count)` (`rollIn`, `rollOut`, `pulse`) | 370 ms spring in, 220 ms out |
+| A value that takes the place of another, as an icon | `swapIn` and `swapOut` | 240 ms spring in, 120 ms out |
+| A modal (dialog, alert dialog, sheet) and its backdrop | `MODAL_TIMING_CLASS` (`dialog/dialog-variants.ts`) | 200 ms ease out in, 150 ms ease in out |
+
+- **No motion at the first paint.** A Svelte transition is local: it plays when its own block
+  (`{#if}`, `{#each}`, `{#key}`, `{#await}`) changes, not when a block above it is created. The
+  router renders each page in a new `{#key}` (`RouteEntry`), thus a page plays only the page
+  transition when it mounts, and its parts play their motion on a change. A test that renders a
+  component at its root has no block above it: the root element plays its `in:`.
+- **The primitives `Card`, `Badge`, `TableFrame` and `TableRow` have `in:enter`.** A card or a
+  table that replaces a skeleton, and a row that comes after the first render, fade in with no
+  code in the feature. A row has no exit: a new page of rows would wait for the old one.
+- **`fold` and `unfold` take in the gap of a flex column** around the part (`row-gap`), so the
+  parts around do not jump. A gap of another layout (a grid, `space-y`) is not taken in: put the
+  space in the padding of the part.
+- **An `out:` keeps the element in the DOM while it runs**, `inert`. In jsdom the animation never
+  ends (`setup.ts`), thus the element stays. A test that checks that an element went away sets
+  `prefers-reduced-motion: reduce` (`window.matchMedia`): each preset then has a duration of 0
+  and the element goes at once. The end-to-end tests run with reduced motion.
+- `swapIn` and `swapOut` need the two values in one grid cell (`grid` on the parent,
+  `col-start-1 row-start-1` on the child) in a `{#key}`, so the place keeps its size. So does the
+  count roll.
 
 ### `primitives/` — the primitives
 
@@ -386,7 +438,7 @@ Space). The selected background is not on the segment: it is one thumb under the
   segment makes bits-ui clear its value; the setter ignores it, thus the segment stays selected.
   With a plain `value` prop and `onValueChange`, bits-ui keeps the cleared value and shows no
   selection.
-- **A count rolls** (`count-roll.transition.ts`): the old number leaves and the new one enters,
+- **A count rolls** (`motion/count-roll.ts`): the old number leaves and the new one enters,
   up when the count grows. The chip is `aria-hidden` and an `sr-only` copy gives the current
   count to the name of the radio: the leaving number stays in the DOM during its transition (and
   in jsdom, where the animation never ends), and must not go into the name.

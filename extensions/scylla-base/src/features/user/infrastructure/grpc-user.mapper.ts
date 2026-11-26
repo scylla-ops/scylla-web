@@ -12,6 +12,7 @@ import type {
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import { imageUrl } from '@platform/grpc';
+import { glyphAvatarToDomain, iconToDomain } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 export function toDomain(user: User): UserEntity {
@@ -22,6 +23,8 @@ export function toDomain(user: User): UserEntity {
     ...(user.email ? { email: user.email } : {}),
     ...(user.displayName ? { displayName: user.displayName } : {}),
     ...(user.avatar?.imageId?.value && { avatarUrl: imageUrl(user.avatar.imageId.value) }),
+    ...(user.avatar?.imageId?.value &&
+      user.avatar.glyphAvatar && { glyphAvatar: glyphAvatarToDomain(user.avatar.glyphAvatar) }),
     ...(user.avatar?.color && { avatarColor: user.avatar.color }),
     isActive: user.status === 'active',
     instanceAdmin: user.instanceAdmin,
@@ -37,6 +40,16 @@ export function entryToDomain(entry: UserEntry): UserEntity {
     ...toDomain(required(entry.user, 'user')),
     instanceRoles: entry.instanceRoles.map(({ key, name, builtin }) => ({ key, name, builtin })),
     workspaces: entry.workspaces,
+    workspaceDetails: entry.workspaceDetails.map(workspace => {
+      const icon = iconToDomain(workspace.icon);
+      return {
+        id: idValue(workspace.workspaceId),
+        name: workspace.name,
+        ...(icon && { icon }),
+        owner: workspace.owner,
+        ...(workspace.ownerName && { ownerName: workspace.ownerName }),
+      };
+    }),
     ...(lastSignInAt ? { lastSignInAt } : {}),
   };
 }

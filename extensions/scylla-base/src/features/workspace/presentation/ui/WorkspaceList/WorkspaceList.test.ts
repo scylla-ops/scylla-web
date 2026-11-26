@@ -6,19 +6,51 @@ import { contextStore } from '@platform/context';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import type { WorkspaceRepository } from '@base/features/workspace/domain/repository/workspace.repository.ts';
+import type {
+  WorkspaceEntity,
+  WorkspacePage,
+  WorkspaceSearch,
+} from '@base/features/workspace/domain/entities/workspace.entity.ts';
 import WorkspaceList from './WorkspaceList.svelte';
 import WorkspaceListFixture from './WorkspaceList.fixture.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+
+// `animate:flip` reads the running animations, which jsdom does not have.
+Element.prototype.getAnimations ??= () => [];
+
+/** The stub of `animate()` keeps running: this ends each animation, so a row that leaves goes. */
+const finishAnimations = () =>
+  vi.mocked(Element.prototype.animate).mock.results.forEach(result =>
+    (result.value as { finish: () => void }).finish(),
+  );
 
 const workspaces = [
   { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' },
   { id: 'org-2', name: 'Globex Inc', slug: 'globex-inc' },
 ];
 
+/** The workspaces of other users, as the server gives them to an instance admin. */
+const ownedBy = (id: string, name: string, owner: string, email: string): WorkspaceEntity => ({
+  id,
+  name,
+  slug: id,
+  personalTokensEnabled: true,
+  timeZone: 'UTC',
+  owner: { id: `user-${id}`, username: owner.toLowerCase(), displayName: owner, email },
+  role: '',
+});
+
+const othersOf = (items: WorkspaceEntity[], total = items.length): WorkspacePage => ({
+  items,
+  nextToken: '',
+  total,
+});
+
 let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;
 let remove: ReturnType<typeof vi.fn>;
+let listAll: ReturnType<typeof vi.fn<(search: WorkspaceSearch) => Promise<WorkspacePage>>>;
 let allowed: Record<string, readonly string[]>;
 
 /** The names that the server allows on each workspace. */
@@ -26,9 +58,9 @@ const grant = (byWorkspace: Record<string, readonly string[]>) => {
   allowed = byWorkspace;
 };
 
-const setUp = (getMine: () => Promise<typeof workspaces>) => {
+const setUp = (getMine: () => Promise<WorkspaceEntity[] | typeof workspaces>) => {
   remove = vi.fn().mockResolvedValue(undefined);
-  const repository = { getMine, delete: remove } as unknown as WorkspaceRepository;
+  const repository = { getMine, listAll, delete: remove } as unknown as WorkspaceRepository;
   const check = (object: { id: string }, names: string[]) =>
     Promise.resolve(new Set(names.filter(name => allowed[object.id]?.includes(name))));
   const cache = withQueryClient();
@@ -41,8 +73,23 @@ const setUp = (getMine: () => Promise<typeof workspaces>) => {
   ];
 };
 
+/** The instance view of the workspaces: the user is an instance admin. */
+const seeAllWorkspaces = () =>
+  permissionsStore.setState({
+    permissions: {
+      scopes: [
+        {
+          scope: PermissionScope.SYSTEM,
+          scopeId: '',
+          access: { kind: 'restricted', permissions: [Permission.LIST_ALL_WORKSPACES] },
+        },
+      ],
+    },
+  });
+
 beforeEach(() => {
   vi.clearAllMocks();
+  listAll = vi.fn().mockResolvedValue(othersOf([]));
   navigator = installTestNavigator();
   allowed = {};
   permissionsStore.setState({ permissions: null });
@@ -188,5 +235,112 @@ describe('WorkspaceList', () => {
 
     await userEvent.click(screen.getAllByRole('button', { name: 'pick' })[1]);
     expect(navigator.navigate).toHaveBeenCalledWith('/globex-inc/dashboard', undefined);
+  });
+
+  describe('for an instance admin', () => {
+    const alice: WorkspaceEntity = {
+      ...ownedBy('ws-alice', 'Personal', 'Alice Martin', 'alice@example.test'),
+      icon: { kind: 'glyph', name: 'rocket', color: 'chart-2' },
+    };
+    const bob = ownedBy('ws-bob', 'Personal', 'Bob Stone', 'bob@example.test');
+
+    it('keeps the switcher of a user without the instance view: no section, no owner', async () => {
+      setUp(() => Promise.resolve(workspaces));
+      render(WorkspaceList);
+
+      await screen.findByText('Acme Corp');
+
+      expect(screen.queryByText('Your workspaces')).not.toBeInTheDocument();
+      expect(screen.queryByText('All workspaces…')).not.toBeInTheDocument();
+      expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
+      expect(listAll).not.toHaveBeenCalled();
+    });
+
+    it('shows its own workspaces first, then a few others with their owner', async () => {
+      seeAllWorkspaces();
+      listAll.mockResolvedValue(othersOf([alice, bob], 31));
+      setUp(() => Promise.resolve(workspaces));
+      render(WorkspaceList);
+
+      expect(await screen.findByText('Alice Martin')).toBeInTheDocument();
+      const texts = screen
+        .getAllByText(/Your workspaces|Acme Corp|Other workspaces|Alice Martin|Bob Stone/)
+        .map(element => element.textContent);
+      expect(texts).toEqual([
+        'Your workspaces',
+        'Acme Corp',
+        'Other workspaces',
+        'Alice Martin',
+        'Bob Stone',
+      ]);
+      expect(listAll).toHaveBeenCalledWith({
+        query: '',
+        order: 'activity',
+        othersOnly: true,
+        pageSize: 5,
+        pageToken: '',
+      });
+      expect(screen.getByText('All workspaces…')).toBeInTheDocument();
+      expect(screen.getByText('31')).toBeInTheDocument();
+      // The icon of each workspace, before its name and its owner. No icon: a building in grey.
+      const glyphOf = (owner: string) =>
+        screen
+          .getByText(owner)
+          .closest('div')
+          ?.querySelector('[data-slot="workspace-icon"] svg')
+          ?.getAttribute('stroke');
+      expect(glyphOf('Alice Martin')).toBe('var(--chart-2)');
+      expect(glyphOf('Bob Stone')).toBe('var(--muted-foreground)');
+    });
+
+    it('opens the workspace of another user from its row', async () => {
+      seeAllWorkspaces();
+      listAll.mockResolvedValue(othersOf([alice]));
+      setUp(() => Promise.resolve(workspaces));
+      render(WorkspaceList);
+
+      await fireEvent.click(await screen.findByText('Alice Martin'));
+
+      expect(contextStore.getState().workspace).toEqual({
+        id: 'ws-alice',
+        name: 'Personal',
+        slug: 'ws-alice',
+      });
+      expect(navigator.navigate).toHaveBeenCalledWith('/ws-alice/dashboard', undefined);
+    });
+
+    it('searches the others on the server, by owner', async () => {
+      seeAllWorkspaces();
+      listAll.mockImplementation(search =>
+        Promise.resolve(othersOf(search.query === 'martin' ? [alice] : [alice, bob])),
+      );
+      setUp(() => Promise.resolve(workspaces));
+      render(WorkspaceList);
+      await screen.findByText('Bob Stone');
+
+      await userEvent.type(screen.getByRole('textbox'), 'martin');
+
+      await waitFor(() =>
+        expect(listAll).toHaveBeenLastCalledWith(expect.objectContaining({ query: 'martin' })),
+      );
+      await waitFor(() => {
+        finishAnimations();
+        expect(screen.queryByText('Bob Stone')).not.toBeInTheDocument();
+      });
+      expect(screen.getByText('Alice Martin')).toBeInTheDocument();
+      expect(screen.queryByText('Acme Corp')).not.toBeInTheDocument();
+    });
+
+    it('opens "All workspaces…" with the text of the search', async () => {
+      seeAllWorkspaces();
+      setUp(() => Promise.resolve(workspaces));
+      render(WorkspaceList);
+      await screen.findByText('Acme Corp');
+
+      await userEvent.type(screen.getByRole('textbox'), 'alice');
+      await fireEvent.click(screen.getByText('All workspaces…'));
+
+      expect(navigator.navigate).toHaveBeenCalledWith('/admin/workspaces?q=alice', undefined);
+    });
   });
 });

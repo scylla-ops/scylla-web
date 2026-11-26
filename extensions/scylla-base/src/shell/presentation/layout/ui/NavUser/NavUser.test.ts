@@ -93,10 +93,10 @@ const ADMIN_USERS = {
 
 describe('NavUser', () => {
   describe('on the rail', () => {
-    const at = async (pathname: string) => {
+    const at = async (pathname: string, user: typeof me & { avatarColor?: string } = me) => {
       navigator.restore();
       navigator = installTestNavigator({ pathname });
-      setUp(() => Promise.resolve(me));
+      setUp(() => Promise.resolve(user));
       return screen.findByRole('button', { name: /Ravenne Lee/ });
     };
 
@@ -120,6 +120,19 @@ describe('NavUser', () => {
 
         expect(button).not.toHaveClass('bg-sidebar-primary');
         expect(button).not.toHaveAttribute('aria-current');
+      },
+    );
+
+    it.each(['/acme/dashboard', '/acme/account/profile'])(
+      'shows the initials on the chosen color of the user on %s, as each place does',
+      async pathname => {
+        const button = await at(pathname, { ...me, avatarColor: '#3366CC' });
+        const avatar = button.querySelector<HTMLElement>('[data-kind]')!;
+
+        expect(avatar).toHaveAttribute('data-kind', 'self');
+        expect(avatar).toHaveClass('bg-(--avatar-tile)');
+        expect(avatar).not.toHaveClass('bg-transparent');
+        expect(avatar.style.getPropertyValue('--avatar-tile')).toBe('#3366CC');
       },
     );
 
@@ -158,6 +171,21 @@ describe('NavUser', () => {
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/account', undefined);
   });
 
+  it('shows the own avatar at the top of the menu, which opens the photo on Account > Profile', async () => {
+    setUp(() => Promise.resolve({ ...me, avatarColor: 'chart-3' }));
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: /Ravenne Lee/ }));
+    const photo = await screen.findByLabelText('Change your photo');
+    expect(photo).toHaveAttribute('role', 'menuitem');
+    expect(photo).toHaveTextContent('Ravenne Lee');
+    expect(photo).toHaveTextContent('ravenne@example.com');
+    expect(photo.querySelector('[data-kind]')).toHaveAttribute('data-kind', 'self');
+    await user.click(photo);
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/account/profile', undefined);
+  });
+
   it('opens the help page from the menu', async () => {
     setUp(() => Promise.resolve(me));
     const user = userEvent.setup();
@@ -177,8 +205,10 @@ describe('NavUser', () => {
       ...(await screen.findAllByRole('menuitem', { hidden: true })),
       ...screen.getAllByRole('menuitemradio', { hidden: true }),
     ];
-    expect(choices.map(choice => choice.textContent.trim())).toEqual([
+    expect(choices.map(choice => choice.textContent.trim().replace(/\s+/g, ' '))).toEqual([
+      'RL Ravenne Lee ravenne@example.com',
       'Account',
+      'Make an avatar',
       'Help & tours',
       "What's new",
       'Sign out',

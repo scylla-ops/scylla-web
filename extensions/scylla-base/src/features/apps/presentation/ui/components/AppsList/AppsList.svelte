@@ -4,7 +4,13 @@
   import { can, Permission } from '@platform/authz';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, ErrorState, FeatureHeader, ListSkeleton } from '@scylla/ui';
+  import {
+    ConfirmOperationAlertDialog,
+    EmptyState,
+    ErrorState,
+    FeatureHeader,
+    ListSkeleton,
+  } from '@scylla/ui';
   import {
     Table,
     TableBody,
@@ -18,7 +24,6 @@
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
   import AddAppDialog from '../AddAppDialog/AddAppDialog.svelte';
-  import EmptyList from '../EmptyList/EmptyList.svelte';
   import AppRow from './AppRow.svelte';
   import { appsMessages } from '@base/features/apps/presentation/messages/apps.messages.ts';
   import { appsListMessages as messages } from '@base/features/apps/presentation/messages/apps-list.messages.ts';
@@ -74,12 +79,11 @@
     <!-- Pending, not loading: the query waits for the permissions before its first call. -->
     <ListSkeleton rows={3} rowClass="h-14 w-full rounded-xl" />
   {:else if (apps.data ?? []).length === 0}
-    <EmptyList
+    <EmptyState
       icon={PlugIcon}
       title={canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
-      body={canCreate ? t(messages.firstBody) : t(messages.askAdmin(workspaceName))}
-      addLabel={t(messages.add)}
-      onAdd={canCreate ? () => (addOpen = true) : undefined}
+      description={canCreate ? t(messages.firstBody) : t(messages.askAdmin(workspaceName))}
+      action={canCreate ? { label: t(messages.add), onSelect: () => (addOpen = true) } : undefined}
     />
   {:else}
     {#if phone.current}

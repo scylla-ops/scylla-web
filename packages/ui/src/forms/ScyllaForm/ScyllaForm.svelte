@@ -14,6 +14,7 @@
   } from '../../primitives/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import PasswordInput from '../../controls/PasswordInput/PasswordInput.svelte';
+  import { fold, unfold } from '../../motion/fold.ts';
   import { createFormState } from '../form.state.svelte.ts';
   import { FormItemType, type FormItem, type FormValues } from '../scylla-form.struct.ts';
 
@@ -22,6 +23,10 @@
     class?: string;
     onSubmit: (values: FormValues<TId>) => void;
     isPending?: boolean;
+    /** A field before the items that is not text or a choice, e.g. an `IconField`. */
+    leading?: Snippet;
+    /** A field after the items that is not text or a choice of plain labels, e.g. a group picker. */
+    trailing?: Snippet;
     footer?: Snippet<[{ isValid: boolean; isPending: boolean }]>;
     buttonLabel?: string;
     /** Messages from the server, shown under their field when the field has no message of its own. */
@@ -35,6 +40,8 @@
     class: className,
     onSubmit,
     isPending = false,
+    leading,
+    trailing,
     footer,
     buttonLabel,
     errors,
@@ -62,6 +69,7 @@
 <!-- `novalidate`: the form checks its values itself, with translated messages. -->
 <form novalidate onsubmit={handleSubmit} class="space-y-4">
   <FieldGroup class={className}>
+    {@render leading?.()}
     {#each items as item, index (item.id)}
       {@const error = errorOf(item.id)}
       <Field class="gap-1">
@@ -130,10 +138,11 @@
           </p>
         {/if}
         {#if error}
-          <p id="{item.id}-error" class="text-xs text-destructive">{error}</p>
+          <p id="{item.id}-error" class="text-xs text-destructive" in:unfold out:fold>{error}</p>
         {/if}
       </Field>
     {/each}
+    {@render trailing?.()}
   </FieldGroup>
 
   {#if footer}

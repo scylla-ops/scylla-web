@@ -1,4 +1,5 @@
 import { point } from '@scylla/core-sdk';
+import type { ProjectDensity } from './presenters/project-density.presenter.ts';
 
 /** The project that a part of its card shows. */
 export interface ProjectCardContext {
@@ -10,6 +11,12 @@ export interface ProjectCardContext {
    * the data of the whole batch in one call, not one call for each card.
    */
   batch: readonly string[];
+  /**
+   * The shape that shows the project: `comfortable` (the card with each zone), `compact` (a
+   * smaller card: no body), `list` (one row: the footer is at its end) or `tiles` (a small tile:
+   * the badge and the footer under the name). A zone fits its text to it.
+   */
+  density: ProjectDensity;
 }
 
 /**

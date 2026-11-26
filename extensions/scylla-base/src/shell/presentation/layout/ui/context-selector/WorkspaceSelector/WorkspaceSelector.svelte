@@ -1,9 +1,9 @@
 <script lang="ts">
-  import Building2Icon from '@lucide/svelte/icons/building-2';
   import ChevronsUpDownIcon from '@lucide/svelte/icons/chevrons-up-down';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
+  import { EntityIcon, swapIn, swapOut } from '@scylla/ui';
   import {
     Button,
     DropdownMenu,
@@ -15,12 +15,23 @@
   } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
-  import { loadAddWorkspaceDialog, loadWorkspaceList } from '@base/features/workspace';
+  import {
+    createWorkspaceOf,
+    loadAddWorkspaceDialog,
+    loadWorkspaceList,
+    workspaceIconProps,
+  } from '@base/features/workspace';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
 
   const context = toRune(contextStore);
   const workspaceName = $derived(context().workspace.name);
+  // An instance admin opens the workspaces of other users: these are not in its list.
+  const active = createWorkspaceOf(() => context().workspace.id);
+  const icon = $derived(active.workspace?.icon);
+  const iconKey = $derived(JSON.stringify(icon ?? null));
   const canCreate = $derived(can(Permission.CREATE_WORKSPACE));
+  // The rows of the workspaces of other users also show their owner.
+  const seesAll = $derived(can(Permission.LIST_ALL_WORKSPACES));
 
   let addOpen = $state(false);
 </script>
@@ -34,7 +45,14 @@
         class="h-8 max-w-36 shrink-0 gap-2 rounded-lg px-2.5 data-[state=open]:bg-accent sm:max-w-52"
         data-slot="workspace-switcher"
       >
-        <Building2Icon class="size-4 shrink-0" />
+        <!-- The icon of the workspace; a new one grows in over the old one. -->
+        <span class="grid shrink-0 place-items-center">
+          {#key iconKey}
+            <span class="col-start-1 row-start-1 flex" in:swapIn out:swapOut>
+              <EntityIcon {...workspaceIconProps(icon)} size={20} />
+            </span>
+          {/key}
+        </span>
         <span class="min-w-0 truncate">
           {workspaceName || t(layoutMessages.selectWorkspace)}
         </span>
@@ -44,7 +62,7 @@
   </DropdownMenuTrigger>
 
   <DropdownMenuContent
-    class="w-60 rounded-xl border-border bg-popover p-1 shadow-lg"
+    class="{seesAll ? 'w-72' : 'w-60'} rounded-xl border-border bg-popover p-1 shadow-lg"
     side="bottom"
     align="end"
     sideOffset={4}

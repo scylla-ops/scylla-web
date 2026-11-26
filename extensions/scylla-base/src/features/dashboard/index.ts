@@ -1,2 +1,5 @@
-/** The widgets of the workspace. Nothing outside the page reads them. */
-export {};
+/** The dashboards that the person can open, for the search bar of the shell. */
+export {
+  dashboardQueries,
+  type DashboardEntry,
+} from './presentation/dashboard-layout.queries.ts';

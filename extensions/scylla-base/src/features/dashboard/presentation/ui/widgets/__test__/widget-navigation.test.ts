@@ -10,9 +10,11 @@ import {
   agentsLink,
   attentionLink,
   enterPlace,
+  firstPipelineLink,
   integrationsLink,
   jobLink,
   jobMarkLink,
+  newAgentLink,
   pipelineJobsLink,
   projectLink,
   triggersLink,
@@ -169,6 +171,30 @@ describe('the links of the widgets', () => {
       place: { projectId: 'project-2', projectName: 'frontend' },
     });
     expect(integrationsLink()).toEqual({ href: '/acme/settings/integrations' });
+  });
+
+  it('adds the first agent of an empty widget, for a person who can add one', () => {
+    grant([Permission.CREATE_APP]);
+    expect(newAgentLink()).toEqual({ href: '/acme/agents/new', label: 'Add an agent' });
+
+    grant([Permission.LIST_APPS_BY_WORKSPACE]);
+    expect(newAgentLink()).toBeNull();
+  });
+
+  it('adds the first pipeline in the project of the scope, else a new project', () => {
+    grant([Permission.CREATE_PIPELINE, Permission.CREATE_PROJECT]);
+    expect(firstPipelineLink('project-2')).toEqual({
+      href: '/acme/projects/project-2/create',
+      label: 'New pipeline',
+    });
+    expect(firstPipelineLink(undefined)).toEqual({
+      href: '/acme/projects/new',
+      label: 'New project',
+    });
+
+    grant([Permission.LIST_PIPELINES_BY_WORKSPACE]);
+    expect(firstPipelineLink('project-2')).toBeNull();
+    expect(firstPipelineLink(undefined)).toBeNull();
   });
 
   it('opens the subject of an item of Needs you', () => {

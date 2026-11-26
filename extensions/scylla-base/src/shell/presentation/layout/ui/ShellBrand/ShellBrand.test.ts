@@ -47,6 +47,25 @@ describe('ShellBrand', () => {
     expect(logoLink()).toHaveAttribute('href', '/');
   });
 
+  it('shows the wordmark when the second sidebar is there', () => {
+    const { container } = render(ShellBrand);
+
+    expect(container.querySelector('[data-slot="brand-wordmark"]')).not.toBeNull();
+    expect(container.querySelector('[data-slot="brand-mark"]')).toBeNull();
+    expect(container.querySelector('img')).toHaveClass('h-11');
+  });
+
+  it('shows the mark alone, centered, when only the rail column is there', () => {
+    const { container } = render(ShellBrand, { collapsed: true });
+
+    const mark = container.querySelector('[data-slot="brand-mark"]');
+    expect(mark).not.toBeNull();
+    expect(mark).toHaveClass('items-center', 'justify-center');
+    expect(mark?.querySelector('img')).toHaveClass('size-9');
+    expect(logoLink()).toHaveClass('place-items-center');
+    expect(container.querySelector('[data-slot="brand-wordmark"]')).toBeNull();
+  });
+
   it('hides the logo until the mark of the sign-in lands on it', () => {
     vi.useFakeTimers();
     vi.mocked(window.matchMedia).mockImplementation(

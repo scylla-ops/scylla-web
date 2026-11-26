@@ -1,5 +1,6 @@
 import { imageUrl } from '@platform/grpc';
 import type { IconChoice } from '@scylla/ui';
+import { glyphAvatarKey } from '@scylla/ui/structs';
 import type {
   CustomIcon,
   CustomIconChange,
@@ -11,8 +12,23 @@ import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.t
 export const DEFAULT_AGENT_GLYPH = 'bot';
 export const DEFAULT_AGENT_COLOR = 'info';
 
-/** How an agent shows in `IdentityAvatar`: its name, and the icon that an admin chose. */
-export const agentProfile = (agent: Pick<AppEntity, 'name' | 'icon'>): UserIdentityProfile => {
+/** The glyph of another app with no icon: blocks in grey, as `IdentityAvatar` shows it. */
+export const DEFAULT_APP_GLYPH = 'blocks';
+export const DEFAULT_APP_COLOR = 'muted-foreground';
+
+/** The default icon of an app: the one of an agent, or the one of another app. */
+export const defaultAppIcon = (runner: boolean): { glyph: string; color: string } =>
+  runner
+    ? { glyph: DEFAULT_AGENT_GLYPH, color: DEFAULT_AGENT_COLOR }
+    : { glyph: DEFAULT_APP_GLYPH, color: DEFAULT_APP_COLOR };
+
+/**
+ * How an app shows in `IdentityAvatar`: its name, and the icon that an admin chose. With no
+ * `runner`, it is an agent.
+ */
+export const agentProfile = (
+  agent: Pick<AppEntity, 'name' | 'icon'> & { runner?: boolean },
+): UserIdentityProfile => {
   const profile = { username: '', displayName: agent.name };
   switch (agent.icon?.kind) {
     case 'image':
@@ -21,20 +37,26 @@ export const agentProfile = (agent: Pick<AppEntity, 'name' | 'icon'>): UserIdent
       return {
         ...profile,
         avatarGlyph: agent.icon.name,
-        avatarColor: agent.icon.color ?? DEFAULT_AGENT_COLOR,
+        avatarColor: agent.icon.color ?? defaultAppIcon(agent.runner ?? true).color,
       };
     default:
       return profile;
   }
 };
 
-/** The choice of the icon picker when it opens on an agent. */
-export const agentIconChoice = (icon: CustomIcon | undefined): IconChoice => {
+/** The choice of the icon picker when it opens on an app: an agent by default. */
+export const agentIconChoice = (
+  icon: CustomIcon | undefined,
+  defaultColor = DEFAULT_AGENT_COLOR,
+): IconChoice => {
   switch (icon?.kind) {
     case 'image':
-      return { kind: 'image', url: imageUrl(icon.imageId) };
+      // A glyph avatar opens on its options, for a new edit.
+      return icon.glyph
+        ? { kind: 'avatar', avatar: icon.glyph }
+        : { kind: 'image', url: imageUrl(icon.imageId) };
     case 'glyph':
-      return { kind: 'glyph', name: icon.name, color: icon.color ?? DEFAULT_AGENT_COLOR };
+      return { kind: 'glyph', name: icon.name, color: icon.color ?? defaultColor };
     default:
       return { kind: 'default' };
   }
@@ -42,7 +64,7 @@ export const agentIconChoice = (icon: CustomIcon | undefined): IconChoice => {
 
 /**
  * The change that a choice of the picker makes. Undefined when the icon stays: the image that the
- * agent has, or the default icon of an agent that has no icon.
+ * agent has, the same glyph avatar, or the default icon of an agent that has no icon.
  */
 export const agentIconChange = async (
   choice: IconChoice,
@@ -53,6 +75,12 @@ export const agentIconChange = async (
       return choice.file
         ? { kind: 'image', data: new Uint8Array(await choice.file.arrayBuffer()) }
         : undefined;
+    case 'avatar':
+      return current?.kind === 'image' &&
+        current.glyph &&
+        glyphAvatarKey(current.glyph) === glyphAvatarKey(choice.avatar)
+        ? undefined
+        : { kind: 'avatar', avatar: choice.avatar };
     case 'glyph':
       return { kind: 'glyph', name: choice.name, color: choice.color };
     default:

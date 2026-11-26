@@ -12,12 +12,21 @@ import { textSnippet, withQueryClient, withRegistry } from '@test/render.ts';
 import { cleanContext, namePipeline } from '../context-cleaner.effect.svelte.ts';
 import ContextCleaner from '../ContextCleaner.wrapper.svelte';
 
-const web: ProjectEntity = { id: 'project-1', workspaceId: 'org-1', name: 'web' };
+const web: ProjectEntity = {
+  id: '00000000-0000-4000-8000-0000000000a1',
+  workspaceId: 'org-1',
+  name: 'web',
+};
 
 const repository = { getById: vi.fn(), getByWorkspaceId: vi.fn() };
 
 const lint = {
-  pipeline: { id: 'pipeline-1', projectId: 'project-1', name: 'lint', nodes: [] },
+  pipeline: {
+    id: '00000000-0000-4000-8000-0000000000c1',
+    projectId: '00000000-0000-4000-8000-0000000000a1',
+    name: 'lint',
+    nodes: [],
+  },
   layout: null,
   origin: { source: 'file' as const, filePath: '.scylla/pipelines/lint.yaml', fileErrorCount: 0 },
 };
@@ -37,7 +46,7 @@ const settled = async () => {
 
 const mount = (
   projectId: string | undefined,
-  pathname = '/acme/projects/project-1',
+  pathname = '/acme/projects/00000000-0000-4000-8000-0000000000a1',
   params: Record<string, string> = projectId ? { projectId } : {},
 ) => {
   navigator.restore();
@@ -87,7 +96,7 @@ beforeEach(() => {
   grantProjectList();
   contextStore.setState({
     workspace: { id: 'org-1', name: 'Acme Corp', slug: null },
-    project: { id: 'project-1', name: 'web' },
+    project: { id: '00000000-0000-4000-8000-0000000000a1', name: 'web' },
     pipeline: { id: null, name: null },
   });
 });
@@ -103,12 +112,15 @@ afterEach(() => {
 describe('cleanContext', () => {
   it('does nothing before the server answers', () => {
     repository.getById.mockReturnValue(new Promise(() => {}));
-    contextStore.setState({ project: { id: 'project-2', name: 'api' } });
+    contextStore.setState({ project: { id: '00000000-0000-4000-8000-0000000000a2', name: 'api' } });
 
-    const cleaner = mount('project-1');
+    const cleaner = mount('00000000-0000-4000-8000-0000000000a1');
 
     expect(navigator.navigate).not.toHaveBeenCalled();
-    expect(contextStore.getState().project).toEqual({ id: 'project-2', name: 'api' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000a2',
+      name: 'api',
+    });
     expect(cleaner.gone).toBe(false);
   });
 
@@ -117,14 +129,17 @@ describe('cleanContext', () => {
 
     expect(repository.getById).not.toHaveBeenCalled();
     expect(navigator.navigate).not.toHaveBeenCalled();
-    expect(contextStore.getState().project.id).toBe('project-1');
+    expect(contextStore.getState().project.id).toBe('00000000-0000-4000-8000-0000000000a1');
   });
 
   it('leaves a project that still exists alone', async () => {
-    const cleaner = await run('project-1');
+    const cleaner = await run('00000000-0000-4000-8000-0000000000a1');
 
     expect(navigator.navigate).not.toHaveBeenCalled();
-    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'web' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000a1',
+      name: 'web',
+    });
     expect(cleaner.gone).toBe(false);
   });
 
@@ -132,31 +147,47 @@ describe('cleanContext', () => {
     repository.getByWorkspaceId.mockResolvedValue({
       items: Array.from({ length: 10 }, (_, index) => ({ ...web, id: `other-${index}` })),
     });
-    repository.getById.mockResolvedValue({ ...web, id: 'project-11', name: 'the eleventh' });
+    repository.getById.mockResolvedValue({
+      ...web,
+      id: '00000000-0000-4000-8000-0000000000b1',
+      name: 'the eleventh',
+    });
     contextStore.setState({ project: { id: null, name: null } });
 
-    await run('project-11', '/acme/projects/project-11');
+    await run(
+      '00000000-0000-4000-8000-0000000000b1',
+      '/acme/projects/00000000-0000-4000-8000-0000000000b1',
+    );
 
     expect(navigator.navigate).not.toHaveBeenCalled();
-    expect(contextStore.getState().project).toEqual({ id: 'project-11', name: 'the eleventh' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000b1',
+      name: 'the eleventh',
+    });
   });
 
   it('gives the store the name of the server after a rename', async () => {
     repository.getById.mockResolvedValue({ ...web, name: 'renamed' });
 
-    await run('project-1');
+    await run('00000000-0000-4000-8000-0000000000a1');
 
-    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'renamed' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000a1',
+      name: 'renamed',
+    });
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('follows an answer that changes after the mount', async () => {
-    await run('project-1');
+    await run('00000000-0000-4000-8000-0000000000a1');
 
-    cache.queryClient.setQueryData(projectQueries.byId('project-1').queryKey, () => ({
-      ...web,
-      name: 'renamed in another tab',
-    }));
+    cache.queryClient.setQueryData(
+      projectQueries.byId('00000000-0000-4000-8000-0000000000a1').queryKey,
+      () => ({
+        ...web,
+        name: 'renamed in another tab',
+      }),
+    );
 
     await vi.waitFor(() =>
       expect(contextStore.getState().project.name).toBe('renamed in another tab'),
@@ -164,35 +195,48 @@ describe('cleanContext', () => {
   });
 
   it('takes the project of the URL when the store holds another project', async () => {
-    contextStore.setState({ project: { id: 'project-2', name: 'api' } });
+    contextStore.setState({ project: { id: '00000000-0000-4000-8000-0000000000a2', name: 'api' } });
 
-    await run('project-1');
+    await run('00000000-0000-4000-8000-0000000000a1');
 
-    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'web' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000a1',
+      name: 'web',
+    });
   });
 
   it('fills an empty store on a direct link', async () => {
     contextStore.setState({ project: { id: null, name: null } });
 
-    await run('project-1');
+    await run('00000000-0000-4000-8000-0000000000a1');
 
-    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'web' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000a1',
+      name: 'web',
+    });
   });
 
   it('writes nothing during the exit animation, when the URL left its project', async () => {
-    contextStore.setState({ project: { id: 'project-2', name: 'api' } });
+    contextStore.setState({ project: { id: '00000000-0000-4000-8000-0000000000a2', name: 'api' } });
 
-    await run('project-1', '/acme/projects/project-2', { projectId: 'project-2' });
+    await run(
+      '00000000-0000-4000-8000-0000000000a1',
+      '/acme/projects/00000000-0000-4000-8000-0000000000a2',
+      { projectId: '00000000-0000-4000-8000-0000000000a2' },
+    );
 
-    expect(contextStore.getState().project).toEqual({ id: 'project-2', name: 'api' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000a2',
+      name: 'api',
+    });
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('clears the project and the pipeline and does not leave the URL when the project is gone', async () => {
     repository.getById.mockResolvedValue(null);
-    contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'ci' } });
+    contextStore.setState({ pipeline: { id: '00000000-0000-4000-8000-0000000000c1', name: 'ci' } });
 
-    const cleaner = await run('deleted-project');
+    const cleaner = await run('00000000-0000-4000-8000-0000000000d1');
 
     expect(contextStore.getState().project).toEqual({ id: null, name: null });
     expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
@@ -202,9 +246,12 @@ describe('cleanContext', () => {
 
   it('leaves at once when the cache already knows that the project is gone', () => {
     repository.getById.mockReturnValue(new Promise(() => {}));
-    cache.queryClient.setQueryData(projectQueries.byId('deleted-project').queryKey, null);
+    cache.queryClient.setQueryData(
+      projectQueries.byId('00000000-0000-4000-8000-0000000000d1').queryKey,
+      null,
+    );
 
-    const cleaner = mount('deleted-project');
+    const cleaner = mount('00000000-0000-4000-8000-0000000000d1');
 
     expect(cleaner.gone).toBe(true);
     expect(navigator.navigate).not.toHaveBeenCalled();
@@ -213,7 +260,7 @@ describe('cleanContext', () => {
   it('counts a project of another workspace as gone', async () => {
     repository.getById.mockResolvedValue({ ...web, workspaceId: 'org-2' });
 
-    const cleaner = await run('project-1');
+    const cleaner = await run('00000000-0000-4000-8000-0000000000a1');
 
     expect(cleaner.gone).toBe(true);
     expect(contextStore.getState().project).toEqual({ id: null, name: null });
@@ -224,18 +271,21 @@ describe('cleanContext', () => {
     permissionsStore.setState({ permissions: { scopes: [] } });
     repository.getById.mockResolvedValue(null);
 
-    const cleaner = await run('project-1');
+    const cleaner = await run('00000000-0000-4000-8000-0000000000a1');
 
     expect(cleaner.gone).toBe(false);
     expect(navigator.navigate).not.toHaveBeenCalled();
-    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'web' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000a1',
+      name: 'web',
+    });
   });
 
   it('decides when the permissions arrive after the answer', async () => {
     permissionsStore.setState({ permissions: null });
     repository.getById.mockResolvedValue(null);
 
-    await run('deleted-project');
+    await run('00000000-0000-4000-8000-0000000000d1');
     expect(navigator.navigate).not.toHaveBeenCalled();
 
     grantProjectList();
@@ -250,10 +300,14 @@ describe('cleanContext', () => {
       project: { id: null, name: null },
     });
 
-    const cleaner = await run('project-1', '/acme-corp/projects/project-1', {
-      workspaceSlug: 'acme-corp',
-      projectId: 'project-1',
-    });
+    const cleaner = await run(
+      '00000000-0000-4000-8000-0000000000a1',
+      '/acme-corp/projects/00000000-0000-4000-8000-0000000000a1',
+      {
+        workspaceSlug: 'acme-corp',
+        projectId: '00000000-0000-4000-8000-0000000000a1',
+      },
+    );
 
     expect(cleaner.gone).toBe(false);
     expect(navigator.navigate).not.toHaveBeenCalled();
@@ -261,48 +315,71 @@ describe('cleanContext', () => {
     contextStore.getState().setWorkspace('org-1', 'Acme Corp', 'acme-corp');
     flushSync();
 
-    expect(contextStore.getState().project).toEqual({ id: 'project-1', name: 'web' });
+    expect(contextStore.getState().project).toEqual({
+      id: '00000000-0000-4000-8000-0000000000a1',
+      name: 'web',
+    });
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('stays on the page when the read fails for another reason', async () => {
     repository.getById.mockRejectedValue(new ScyllaError('down', { code: 'UNAVAILABLE' }));
 
-    const cleaner = await run('project-1');
+    const cleaner = await run('00000000-0000-4000-8000-0000000000a1');
 
     expect(cleaner.gone).toBe(false);
     expect(navigator.navigate).not.toHaveBeenCalled();
-    expect(contextStore.getState().project.id).toBe('project-1');
+    expect(contextStore.getState().project.id).toBe('00000000-0000-4000-8000-0000000000a1');
   });
 
   it('clears a stale pipeline outside the pipeline pages', async () => {
-    contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'ci' } });
+    contextStore.setState({ pipeline: { id: '00000000-0000-4000-8000-0000000000c1', name: 'ci' } });
 
-    await run('project-1', '/acme/projects/project-1/settings');
+    await run(
+      '00000000-0000-4000-8000-0000000000a1',
+      '/acme/projects/00000000-0000-4000-8000-0000000000a1/settings',
+    );
 
     expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
   });
 
   it('keeps the pipeline on its editor page', async () => {
-    contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'ci' } });
+    contextStore.setState({ pipeline: { id: '00000000-0000-4000-8000-0000000000c1', name: 'ci' } });
 
-    await run('project-1', '/acme/projects/project-1/edit/pipeline-1');
+    await run(
+      '00000000-0000-4000-8000-0000000000a1',
+      '/acme/projects/00000000-0000-4000-8000-0000000000a1/edit/00000000-0000-4000-8000-0000000000c1',
+    );
 
-    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'ci' });
+    expect(contextStore.getState().pipeline).toEqual({
+      id: '00000000-0000-4000-8000-0000000000c1',
+      name: 'ci',
+    });
   });
 
   it('keeps the pipeline on any /pipelines/ page', async () => {
-    contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'ci' } });
+    contextStore.setState({ pipeline: { id: '00000000-0000-4000-8000-0000000000c1', name: 'ci' } });
 
-    await run('project-1', '/acme/projects/project-1/pipelines/pipeline-1/jobs');
+    await run(
+      '00000000-0000-4000-8000-0000000000a1',
+      '/acme/projects/00000000-0000-4000-8000-0000000000a1/pipelines/00000000-0000-4000-8000-0000000000c1/jobs',
+    );
 
-    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'ci' });
+    expect(contextStore.getState().pipeline).toEqual({
+      id: '00000000-0000-4000-8000-0000000000c1',
+      name: 'ci',
+    });
   });
 });
 
 describe('namePipeline', () => {
-  const jobPage = '/acme/projects/project-1/pipelines/pipeline-1/jobs/job-1';
-  const inJobPage = { projectId: 'project-1', pipelineId: 'pipeline-1', jobId: 'job-1' };
+  const jobPage =
+    '/acme/projects/00000000-0000-4000-8000-0000000000a1/pipelines/00000000-0000-4000-8000-0000000000c1/jobs/job-1';
+  const inJobPage = {
+    projectId: '00000000-0000-4000-8000-0000000000a1',
+    pipelineId: '00000000-0000-4000-8000-0000000000c1',
+    jobId: 'job-1',
+  };
 
   const runNamer = async (
     pipelineId: string | undefined,
@@ -318,36 +395,53 @@ describe('namePipeline', () => {
   beforeEach(() => grantInWorkspace(Permission.READ_PIPELINE));
 
   it('names the pipeline of a direct link, so the crumbs do not show its id', async () => {
-    await runNamer('pipeline-1');
+    await runNamer('00000000-0000-4000-8000-0000000000c1');
 
-    expect(pipelineRepository.getWithLayout).toHaveBeenCalledWith('pipeline-1');
-    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'lint' });
+    expect(pipelineRepository.getWithLayout).toHaveBeenCalledWith(
+      '00000000-0000-4000-8000-0000000000c1',
+    );
+    expect(contextStore.getState().pipeline).toEqual({
+      id: '00000000-0000-4000-8000-0000000000c1',
+      name: 'lint',
+    });
   });
 
   it('replaces another pipeline that the store kept from an earlier page', async () => {
-    contextStore.setState({ pipeline: { id: 'pipeline-2', name: 'build' } });
+    contextStore.setState({
+      pipeline: { id: '00000000-0000-4000-8000-0000000000c2', name: 'build' },
+    });
 
-    await runNamer('pipeline-1');
+    await runNamer('00000000-0000-4000-8000-0000000000c1');
 
-    expect(contextStore.getState().pipeline).toEqual({ id: 'pipeline-1', name: 'lint' });
+    expect(contextStore.getState().pipeline).toEqual({
+      id: '00000000-0000-4000-8000-0000000000c1',
+      name: 'lint',
+    });
   });
 
   it('reads nothing when the store already names the pipeline', async () => {
-    contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'lint' } });
+    contextStore.setState({
+      pipeline: { id: '00000000-0000-4000-8000-0000000000c1', name: 'lint' },
+    });
 
-    await runNamer('pipeline-1');
+    await runNamer('00000000-0000-4000-8000-0000000000c1');
 
     expect(pipelineRepository.getWithLayout).not.toHaveBeenCalled();
   });
 
   it('follows a rename in the cache', async () => {
-    contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'lint' } });
-    await runNamer('pipeline-1');
-
-    cache.queryClient.setQueryData(pipelineQueries.byId('pipeline-1').queryKey, {
-      ...lint,
-      pipeline: { ...lint.pipeline, name: 'checks' },
+    contextStore.setState({
+      pipeline: { id: '00000000-0000-4000-8000-0000000000c1', name: 'lint' },
     });
+    await runNamer('00000000-0000-4000-8000-0000000000c1');
+
+    cache.queryClient.setQueryData(
+      pipelineQueries.byId('00000000-0000-4000-8000-0000000000c1').queryKey,
+      {
+        ...lint,
+        pipeline: { ...lint.pipeline, name: 'checks' },
+      },
+    );
 
     await vi.waitFor(() => expect(contextStore.getState().pipeline.name).toBe('checks'));
   });
@@ -355,20 +449,23 @@ describe('namePipeline', () => {
   it('reads nothing without the right to read the pipeline: the crumbs keep its id', async () => {
     grantProjectList();
 
-    await runNamer('pipeline-1');
+    await runNamer('00000000-0000-4000-8000-0000000000c1');
 
     expect(pipelineRepository.getWithLayout).not.toHaveBeenCalled();
     expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
   });
 
   it('reads nothing on a page with no pipeline', async () => {
-    await runNamer(undefined, { projectId: 'project-1' });
+    await runNamer(undefined, { projectId: '00000000-0000-4000-8000-0000000000a1' });
 
     expect(pipelineRepository.getWithLayout).not.toHaveBeenCalled();
   });
 
   it('writes nothing during the exit animation, when the URL left its pipeline', async () => {
-    await runNamer('pipeline-1', { ...inJobPage, pipelineId: 'pipeline-2' });
+    await runNamer('00000000-0000-4000-8000-0000000000c1', {
+      ...inJobPage,
+      pipelineId: '00000000-0000-4000-8000-0000000000c2',
+    });
 
     expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
   });
@@ -387,16 +484,19 @@ describe('ContextCleaner.wrapper', () => {
   it('shows the page while the answer is on the way', () => {
     repository.getById.mockReturnValue(new Promise(() => {}));
 
-    renderWrapper('project-1');
+    renderWrapper('00000000-0000-4000-8000-0000000000a1');
 
     expect(screen.getByText('the page')).toBeTruthy();
   });
 
   it('never mounts the page of a project that the cache knows is gone', () => {
     repository.getById.mockReturnValue(new Promise(() => {}));
-    cache.queryClient.setQueryData(projectQueries.byId('deleted-project').queryKey, null);
+    cache.queryClient.setQueryData(
+      projectQueries.byId('00000000-0000-4000-8000-0000000000d1').queryKey,
+      null,
+    );
 
-    renderWrapper('deleted-project');
+    renderWrapper('00000000-0000-4000-8000-0000000000d1');
 
     expect(screen.queryByText('the page')).toBeNull();
   });
@@ -404,7 +504,7 @@ describe('ContextCleaner.wrapper', () => {
   it('takes the page away when the server says that the project is gone', async () => {
     repository.getById.mockResolvedValue(null);
 
-    renderWrapper('deleted-project');
+    renderWrapper('00000000-0000-4000-8000-0000000000d1');
     expect(screen.getByText('the page')).toBeTruthy();
 
     await vi.waitFor(() => expect(screen.queryByText('the page')).toBeNull());
@@ -422,9 +522,18 @@ describe('ContextCleaner.wrapper', () => {
       },
     ]);
 
-    renderWrapper('deleted-project');
+    renderWrapper('00000000-0000-4000-8000-0000000000d1');
 
     expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
     expect(navigator.navigate).not.toHaveBeenCalled();
+  });
+
+  it('shows the not-found page, with no request, for an id that has a wrong form', async () => {
+    renderWrapper('01ZZZZZZZZZZZZZZZZZZZZZZZZ');
+
+    await settled();
+
+    expect(screen.queryByText('the page')).toBeNull();
+    expect(repository.getById).not.toHaveBeenCalled();
   });
 });

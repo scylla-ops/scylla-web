@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import BotIcon from '@lucide/svelte/icons/bot';
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import ServerIcon from '@lucide/svelte/icons/server';
+  import { scyllaNavigate } from '@platform/context';
   import { ChartSegment, ChartSlot, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
-  import type { AppEntity } from '@base/features/apps';
+  import { agentProfile, type AppEntity } from '@base/features/apps';
+  import { IdentityAvatar } from '@shared/presentation/ui';
   import { capacityMessages as messages } from '@base/features/dashboard/presentation/messages/capacity.messages.ts';
   import { durationText } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
   import { capacityOf } from '@base/features/dashboard/presentation/presenters/view-figures.presenter.ts';
@@ -16,7 +18,7 @@
   import type { DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
-  import { agentLink, agentsLink } from '../widget-navigation.ts';
+  import { agentLink, agentsLink, newAgentLink } from '../widget-navigation.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
   import WidgetLink from '../parts/WidgetLink.svelte';
 
@@ -44,6 +46,7 @@
   const hot = $derived(Math.max(1, (usage?.capacity ?? capacity.slots) - 1));
   const highest = $derived(Math.max(1, usage?.capacity ?? 0, ...(usage?.buckets ?? []).map(item => item.average)));
   const wait = $derived(widgets.stats.data?.totals.p50Queue ?? null);
+  const addAgent = $derived(newAgentLink());
 
   const slotsOf = (agent: AppEntity): ('busy' | 'free' | 'offline')[] => {
     const slots = Math.max(1, agent.host?.capacity ?? 1);
@@ -79,9 +82,8 @@
 </script>
 
 {#snippet agentIcon(agent: AppEntity)}
-  <span class="relative flex size-4 shrink-0 items-center justify-center rounded-[4px] bg-primary/10">
-    <BotIcon aria-hidden="true" class="size-3 text-primary" />
-    <span class={cn('absolute -right-0.5 -bottom-0.5 size-1.5 rounded-full ring-1 ring-background', agent.connected ? 'bg-status-passed' : 'bg-muted-foreground/40')}></span>
+  <span class="flex size-4 shrink-0 items-center justify-center" aria-hidden="true">
+    <IdentityAvatar profile={agentProfile(agent)} kind="agent" online={agent.connected} size={16} />
   </span>
 {/snippet}
 
@@ -160,6 +162,9 @@
     onRetry={() => void widgets.agents.refetch()}
     empty={capacity.total === 0}
     emptyTitle={t(messages.noAgent)}
+    emptyAction={addAgent
+      ? { label: addAgent.label, icon: PlusIcon, onSelect: () => scyllaNavigate.navigate(addAgent.href) }
+      : undefined}
   >
     {#if size === 'xs'}
       <div data-part="capacity" class="flex h-7 min-w-0 items-center gap-1.5">

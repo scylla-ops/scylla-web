@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { PermissionScope, permissionsStore } from '@platform/authz';
+import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { loadJobsPage } from '@base/features/jobs';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -100,6 +100,11 @@ afterEach(() => teardown.forEach(restore => restore()));
 
 const lastFilter = () => getByPipelineId.mock.calls.at(-1)?.[2];
 
+const emptyState = async () =>
+  (await screen.findByText('No jobs found')).closest<HTMLElement>('[data-slot="empty-state"]')!;
+/** The Run of the header: the empty list has its own. */
+const headerRun = () => document.querySelector<HTMLElement>('[data-part="feature-header-new"]')!;
+
 describe('PipelineJobsPage', () => {
   it('offers no filter when the project has no linked repository: its jobs have no commit', async () => {
     setUp(null);
@@ -155,11 +160,42 @@ describe('PipelineJobsPage', () => {
     setUp(link);
     await screen.findByRole('group', { name: 'Filter the jobs' });
 
-    await userEvent.click(screen.getByRole('button', { name: 'Run' }));
+    await userEvent.click(headerRun());
 
     const dialog = await screen.findByRole('dialog', { name: 'Run build' });
     expect(dialog).toHaveTextContent(
       'The reports of this repository are off: the provider gets no result.',
     );
+  });
+
+  it('offers Run in the empty list of a pipeline with no job, for this pipeline', async () => {
+    setUp(link);
+
+    await userEvent.click(within(await emptyState()).getByRole('button', { name: 'Run' }));
+
+    expect(await screen.findByRole('dialog', { name: 'Run build' })).toBeInTheDocument();
+  });
+
+  it('shows no Run in the empty list when a filter matches no job', async () => {
+    setUp(link, '?event=pull_request');
+
+    expect(within(await emptyState()).queryByRole('button')).not.toBeInTheDocument();
+  });
+
+  it('shows no Run in the empty list to a person who may not run the pipeline', async () => {
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.PROJECT,
+            scopeId: 'project-1',
+            access: { kind: 'restricted', permissions: [Permission.LIST_JOBS_BY_PIPELINE] },
+          },
+        ],
+      },
+    });
+    setUp(null);
+
+    expect(within(await emptyState()).queryByRole('button')).not.toBeInTheDocument();
   });
 });

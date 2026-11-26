@@ -32,6 +32,7 @@ describe('the administration of the server', () => {
 
     expect(links.map(link => link.url)).toEqual([
       'users',
+      'workspaces',
       'roles',
       'extensions',
       'git-providers',
@@ -41,6 +42,7 @@ describe('the administration of the server', () => {
     ]);
     expect(links.map(link => link.heading?.message)).toEqual([
       'Users and roles',
+      undefined,
       undefined,
       'Integrations',
       undefined,

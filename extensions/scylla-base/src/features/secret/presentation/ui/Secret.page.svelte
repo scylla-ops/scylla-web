@@ -1,5 +1,7 @@
 <script lang="ts">
-  import { ListSkeleton } from '@scylla/ui';
+  import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+  import { can, Permission } from '@platform/authz';
+  import { EmptyState, ListSkeleton } from '@scylla/ui';
   import { createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { secretMessages } from '@base/features/secret/presentation/messages/secret.messages.ts';
@@ -19,6 +21,7 @@
   const secrets = $derived(secretsQuery.data ?? []);
 
   let isCreateDialogOpen = $state(false);
+  const canCreate = $derived(can(Permission.CREATE_SECRET, { projectId }));
 </script>
 
 {#if projectId}
@@ -34,12 +37,14 @@
         <!-- The rows of the secrets table. -->
         <ListSkeleton rows={4} rowClass="h-12 w-full" />
       {:else if secrets.length === 0}
-        <section
-          class="flex min-h-60 flex-col items-center justify-center gap-2 rounded-xl border p-8 text-center"
-        >
-          <h2 class="text-xl">{t(secretMessages.emptyTitle)}</h2>
-          <p class="max-w-md text-sm text-muted-foreground">{t(secretMessages.emptyBody)}</p>
-        </section>
+        <EmptyState
+          icon={KeyRoundIcon}
+          title={t(secretMessages.emptyTitle)}
+          description={t(secretMessages.emptyBody)}
+          action={canCreate
+            ? { label: t(secretMessages.newSecret), onSelect: () => (isCreateDialogOpen = true) }
+            : undefined}
+        />
       {:else}
         <SecretList {secrets} {projectId} />
       {/if}

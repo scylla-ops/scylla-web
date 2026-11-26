@@ -19,6 +19,7 @@ events of the linked repository.
 ```typescript
 type TriggerEntity, TriggerDraft, CreatedTrigger
 type TriggerSource, TriggerInput, TriggerKind
+type WorkspaceTrigger                 ← a trigger of the workspace search, with its pipeline and project
 triggerQueries, triggerMutations, TRIGGERS_QUERY_KEY
 ```
 
@@ -37,11 +38,12 @@ one cannot be tree-shaken out of whoever imports it for a type.
 | Method | Returns |
 |---|---|
 | `listByPipelineId(pipelineId)` | `TriggerEntity[]` |
+| `searchWorkspace(search, signal?)` | `WorkspaceTrigger[]` — one page of `ListWorkspaceTriggers` whose name, pipeline or project holds the text. `triggerQueries.search`, for the command bar |
 | `getById(triggerId)` | `TriggerEntity` |
 | `create(pipelineId, TriggerDraft)` | `CreatedTrigger` |
 | `update(triggerId, TriggerDraft)` | `TriggerEntity` |
 | `deleteById(triggerId)` | `void` |
-| `setEnabled(triggerId, enabled)` | `TriggerEntity` |
+| `setEnabled(triggerId, enabled)` | `TriggerEntity` — `triggerMutations.setEnabledOf()` takes the trigger in its variables (the command bar) |
 | `fireNow(triggerId)` | `string` — the created job id |
 
 Each method rejects with a `ScyllaError` on failure. Reach it from `triggers.queries.ts` only — never from a component.

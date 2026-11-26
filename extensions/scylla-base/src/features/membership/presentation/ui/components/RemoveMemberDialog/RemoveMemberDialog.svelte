@@ -66,9 +66,14 @@
   };
 </script>
 
-{#snippet scopedRoles(kind: MemberRoleEntity['scopeKind'], scope: string, roles: string)}
+{#snippet scopedRoles(
+  kind: MemberRoleEntity['scopeKind'],
+  id: string,
+  scope: string,
+  roles: string,
+)}
   <div class="flex min-w-0 items-center gap-2">
-    <ScopeLabel {kind} name={scope} />
+    <ScopeLabel {kind} {id} name={scope} />
     <ChevronRightIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
     <span>{roles}</span>
   </div>
@@ -85,11 +90,16 @@
   {#if row}
     <div class="flex flex-col gap-3">
       <div class="rounded-xl border p-3 text-sm">
-        {@render scopedRoles('workspace', workspaceName, given.map(memberRoleName).join(', '))}
+        {@render scopedRoles(
+          'workspace',
+          workspaceId,
+          workspaceName,
+          given.map(memberRoleName).join(', '),
+        )}
       </div>
       {#each row.projectRoles as role (`${role.scopeId}-${role.role}`)}
         <div class="rounded-xl border p-3 text-sm">
-          {@render scopedRoles('project', role.scopeName, memberRoleName(role))}
+          {@render scopedRoles('project', role.scopeId, role.scopeName, memberRoleName(role))}
           <p class="mt-1 text-xs text-muted-foreground">{t(needsWorkspaceRole(workspaceName))}</p>
         </div>
       {/each}

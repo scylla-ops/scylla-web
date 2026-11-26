@@ -126,7 +126,7 @@
       {#each openSources as source (`${source.scopeId}-${source.roleKey}`)}
         <li class="flex items-center justify-between gap-3">
           <span class="flex min-w-0 items-center gap-2">
-            <ScopeLabel kind={source.scopeKind} name={source.scopeName} />
+            <ScopeLabel kind={source.scopeKind} id={source.scopeId} name={source.scopeName} />
             <ChevronRightIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
             <span class="font-medium">{sourceRoleName(source)}</span>
           </span>

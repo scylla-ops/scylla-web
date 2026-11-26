@@ -22,6 +22,33 @@ export const CARD_COLORS: Record<ColorTheme, string> = { dark: '#1E1E1C', light:
 export const LIGHT_GLYPH = '#FFFFFF';
 export const DARK_GLYPH = '#171715';
 
+/**
+ * The colors of the theme that a color picker offers (`SWATCH_COLORS`), and `info`, in each theme
+ * (the tokens of `styles.css`). A solid tile in one of them needs its value to choose its glyph.
+ */
+export const THEME_COLORS: Record<ColorTheme, Readonly<Record<string, string>>> = {
+  light: {
+    primary: '#447857',
+    'chart-1': '#5D9972',
+    'chart-2': '#4097A6',
+    'chart-3': '#287683',
+    'chart-4': '#ECA851',
+    'chart-5': '#BA4C43',
+    'muted-foreground': '#686965',
+    info: '#287683',
+  },
+  dark: {
+    primary: '#5D9972',
+    'chart-1': '#5D9972',
+    'chart-2': '#4097A6',
+    'chart-3': '#81C2CE',
+    'chart-4': '#ECA851',
+    'chart-5': '#BA4C43',
+    'muted-foreground': '#B4B5B1',
+    info: '#4097A6',
+  },
+};
+
 /** The smallest contrast of a glyph with the card (WCAG 1.4.11, non-text contrast). */
 export const MIN_GLYPH_CONTRAST = 3;
 
@@ -129,8 +156,17 @@ export const iconColors = (color: string, theme: ColorTheme): IconColors => {
   if (ratio >= MIN_GLYPH_CONTRAST) {
     return { tile: `color-mix(in srgb, ${hex} 10%, transparent)`, glyph: hex, solid: false, ratio };
   }
+  const glyph = glyphOn(rgb);
+  return { tile: hex, glyph, solid: true, ratio, glyphRatio: contrastRatio(rgb, parseHex(glyph) as Rgb) };
+};
+
+/** The glyph on a solid tile of a color: white or near-black, the one that contrasts more. */
+export const glyphOn = (rgb: Rgb): string => {
   const onLight = contrastRatio(rgb, parseHex(LIGHT_GLYPH) as Rgb);
   const onDark = contrastRatio(rgb, parseHex(DARK_GLYPH) as Rgb);
-  const glyph = onLight >= onDark ? LIGHT_GLYPH : DARK_GLYPH;
-  return { tile: hex, glyph, solid: true, ratio, glyphRatio: Math.max(onLight, onDark) };
+  return onLight >= onDark ? LIGHT_GLYPH : DARK_GLYPH;
 };
+
+/** The value of a color in a theme: a free color as it is, a color of `THEME_COLORS`, else null. */
+export const colorIn = (color: string, theme: ColorTheme): Rgb | null =>
+  parseHex(isHexColor(color) ? color : (THEME_COLORS[theme][color] ?? ''));

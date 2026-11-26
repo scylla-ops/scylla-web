@@ -39,10 +39,13 @@ const profiles = () =>
     listIdentities: vi.fn(() =>
       unaryCall({
         hasPassword: false,
-        identities: [{ provider: 'github', subject: '42', email: 'ada@example.com' }],
+        identities: [
+          { provider: 'github', subject: '42', email: 'ada@example.com', hasPicture: true },
+        ],
       }),
     ),
     unlinkIdentity: vi.fn(() => unaryCall({})),
+    importAvatar: vi.fn(() => unaryCall({ user: wireUser })),
   }) as unknown as IProfileServiceClient;
 
 const admin = () =>
@@ -51,12 +54,17 @@ const admin = () =>
       unaryCall(
         page.token === ''
           ? {
-              users: [{ user: wireUser, instanceRoles: [], workspaces: [] }],
+              users: [{ user: wireUser, instanceRoles: [], workspaces: [], workspaceDetails: [] }],
               page: { nextToken: 'next' },
             }
           : {
               users: [
-                { user: { ...wireUser, id: { value: 'user-2' } }, instanceRoles: [], workspaces: [] },
+                {
+                  user: { ...wireUser, id: { value: 'user-2' } },
+                  instanceRoles: [],
+                  workspaces: [],
+                  workspaceDetails: [],
+                },
               ],
               page: { nextToken: '' },
             },
@@ -141,6 +149,20 @@ describe('DefaultUserRepository', () => {
     expect(a.listUsers).toHaveBeenCalledTimes(2);
   });
 
+  it('finds the users by a text, in one page, and passes the signal that stops the call', async () => {
+    const { repo, a } = repository();
+    const stop = new AbortController();
+
+    const found = await repo.search(' ada ', 8, stop.signal);
+
+    expect(found.map(user => user.id)).toEqual(['user-1']);
+    expect(a.listUsers).toHaveBeenCalledTimes(1);
+    expect(a.listUsers).toHaveBeenCalledWith(
+      { query: 'ada', withInstanceRole: false, page: { size: 8, token: '' } },
+      { abort: stop.signal },
+    );
+  });
+
   it('reads the own account with GetMe, another one with the admin service', async () => {
     const { repo, p, a } = repository();
 
@@ -215,8 +237,25 @@ describe('DefaultUserRepository', () => {
 
     await expect(repo.listSignInMethods()).resolves.toEqual({
       hasPassword: false,
-      identities: [{ provider: 'github', subject: '42', email: 'ada@example.com', linkedAt: '' }],
+      identities: [
+        {
+          provider: 'github',
+          subject: '42',
+          email: 'ada@example.com',
+          linkedAt: '',
+          hasPicture: true,
+        },
+      ],
     });
+  });
+
+  it('imports the photo of an identity with ImportAvatar', async () => {
+    const { repo, p } = repository();
+
+    const user = await repo.importAvatar('github', '42');
+
+    expect(p.importAvatar).toHaveBeenCalledWith({ provider: 'github', subject: '42' });
+    expect(user.id).toBe('user-1');
   });
 
   it('asks for an email change with the password', async () => {

@@ -1,3 +1,4 @@
+import type { SecondSidebarSection, SecondSidebarStatus } from '@scylla/core-sdk';
 import type { EntityIconProps, LucideIcon } from '@scylla/ui';
 
 export interface NavItem {
@@ -15,6 +16,10 @@ export interface NavItem {
   apart?: boolean;
   /** A title above this link. It also covers the links after it, up to the next one. */
   heading?: string;
+  /** The folding section of a link of a module, e.g. a group of projects. */
+  section?: SecondSidebarSection;
+  /** A small live mark at the end of the row of a link of a module. */
+  status?: SecondSidebarStatus;
 }
 
 /** A folding item with the links of one `NavGroup`, e.g. the agents and the apps. */

@@ -2,12 +2,14 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '../../utils/index.ts';
+  import { enter } from '../../motion/enter.ts';
 
   type Props = HTMLAttributes<HTMLDivElement> & { children?: Snippet };
 
   let { class: className, children, ...rest }: Props = $props();
 </script>
 
-<div data-slot="card" class={cn('flex flex-col gap-4 rounded-xl border bg-card py-6 text-card-foreground', className)} {...rest}>
+<!-- A card that comes after the first render of its place fades in (local transition). -->
+<div in:enter data-slot="card" class={cn('flex flex-col gap-4 rounded-xl border bg-card py-6 text-card-foreground', className)} {...rest}>
   {@render children?.()}
 </div>

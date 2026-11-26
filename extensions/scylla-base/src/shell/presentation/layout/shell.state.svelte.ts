@@ -1,8 +1,8 @@
 import { navigateTo, contextStore, workspaceUrl } from '@platform/context';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
-import type { FormValues } from '@scylla/ui';
-import { workspaceMutations, workspaceQueries } from '@base/features/workspace';
+import type { FormValues, IconChoice } from '@scylla/ui';
+import { workspaceIconChange, workspaceMutations, workspaceQueries } from '@base/features/workspace';
 import { syncMyPermissions } from '@base/features/access';
 
 /** Loads the user's workspaces and keeps the permissions in sync with the context. Create it once, in `Layout`. */
@@ -26,11 +26,19 @@ export const createShell = () => {
     get isCreating() {
       return createWorkspace.isPending;
     },
-    createFirstWorkspace: ({ name, slug }: FormValues<'name' | 'slug'>) => {
+    /** The icon goes in the same create as in the dialog of the switcher. */
+    createFirstWorkspace: async (
+      { name, slug }: FormValues<'name' | 'slug'>,
+      icon: IconChoice = { kind: 'default' },
+    ) => {
       if (!name.trim()) return;
 
       createWorkspace.mutate(
-        { name: name.trim(), slug: slug.trim() || undefined },
+        {
+          name: name.trim(),
+          slug: slug.trim() || undefined,
+          icon: await workspaceIconChange(icon, undefined),
+        },
         { onSuccess: workspace => navigateTo(workspaceUrl(workspace.slug)) },
       );
     },

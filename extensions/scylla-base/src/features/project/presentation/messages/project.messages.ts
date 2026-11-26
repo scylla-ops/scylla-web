@@ -22,7 +22,7 @@ export const projectMessages = {
   addDescription: msg`Add a description...`,
   createSubmit: msg`Create project`,
   editTitle: msg`Edit project`,
-  editDescription: msg`Update the project name and description.`,
+  editDescription: msg`Update the icon, the name, the description and the group of the project.`,
   save: msg`Save`,
   saving: msg`Saving...`,
 
@@ -44,6 +44,8 @@ export const projectMessages = {
   iconDescription: msg`It shows on the card, in the sidebar and at the top of the project page.`,
   changeIcon: msg`Change the icon…`,
   iconSaved: msg`Project icon saved`,
+  iconNotSaved: (reason: string) =>
+    msg`The project is created, but its icon is not saved: ${reason}`,
   cancel: msg`Cancel`,
   counts: (pipelines: number, failed: number, running: number) =>
     msg`${plural(pipelines, { one: '# pipeline', other: '# pipelines' })} · ${failed} failing · ${running} running`,
@@ -66,7 +68,7 @@ export const projectMessages = {
   reorder: msg`Reorder`,
   reorderNeedsCustom: msg`Reorder is only available in the custom order.`,
   reorderNeedsNoSearch: msg`Clear the search to reorder.`,
-  reorderHint: msg`Drag a card to change its order, or drop it on a group or on “Pinned”.`,
+  reorderHint: msg`Drag a card to change its order, or drop it on a group or on “Pinned”. Drag the handle of a group to move the group.`,
   done: msg`Done`,
   results: (count: number, query: string) =>
     msg`${plural(count, { one: '# result', other: '# results' })} for “${query}” · names, descriptions, repositories and pipelines`,
@@ -104,6 +106,10 @@ export const projectMessages = {
   newGroupDescription: msg`The project moves into the new group.`,
   groupName: msg`Group name`,
   groupNamePlaceholder: msg`e.g., Deploys`,
+  folderColor: msg`Folder color`,
+  changeFolderColor: (group: string) => msg`Change the folder color of ${group}`,
+  folderColorOfNew: msg`Folder color of the new group`,
+  resetColor: msg`Reset`,
   create: msg`Create`,
   createHint: msg`Enter to create · Escape to cancel`,
   renameHint: msg`Enter to save · Escape to cancel`,
@@ -119,6 +125,45 @@ export const projectMessages = {
   pinsDrop: msg`Drop a card here to pin it.`,
   dropHere: msg`Drop a card here.`,
   currentGroup: msg`Current group`,
+  newProjectIn: (group: string) => msg`New project in ${group}`,
+  newProjectHere: msg`New project here`,
+  newProjectNoGroup: msg`New project with no group`,
+  emptyGroupCreate: msg`No project in this group yet. Create one here, or move a card into it.`,
+  group: msg`Group`,
+  newGroupName: msg`Name of the new group`,
+  groupNotSaved: (reason: string) =>
+    msg`The project is created, but it is not in its group: ${reason}`,
+  groupNotMoved: (reason: string) =>
+    msg`The project is saved, but it did not move to its group: ${reason}`,
+  foldedLine: (count: number, group: string) =>
+    msg`${plural(count, { one: '# project', other: '# projects' })} in ${group}, folded`,
+  moreProjects: (count: number) =>
+    msg`${plural(count, { one: '# more project', other: '# more projects' })}`,
   releaseInto: (project: string, group: string) => msg`Release to move “${project}” into ${group}`,
   releaseToPin: (project: string) => msg`Release to pin “${project}”`,
+  slotPlace: (project: string, place: number, count: number, section: string) =>
+    msg`“${project}”: place ${place} of ${count} in ${section}`,
+  droppedAt: (project: string, place: number, count: number, section: string) =>
+    msg`“${project}” is now at place ${place} of ${count} in ${section}`,
+  droppedInto: (project: string, section: string) => msg`“${project}” is now in ${section}`,
+  dragCancelled: (project: string) => msg`“${project}” is back at its place`,
+
+  moveGroup: (group: string) => msg`Move the group ${group}`,
+  groupGripHint: msg`Space lifts the group. The arrow keys move it, Space drops it, and Escape cancels.`,
+  groupLifted: (group: string, place: number, count: number) =>
+    msg`“${group}” is lifted, at place ${place} of ${count} in the groups. The arrow keys move it, Space drops it, and Escape cancels.`,
+  groupPlace: (group: string, place: number, count: number) =>
+    msg`“${group}”: place ${place} of ${count} in the groups`,
+  groupDropped: (group: string, place: number, count: number) =>
+    msg`“${group}” is now at place ${place} of ${count} in the groups`,
+  sectionMenu: msg`Section menu`,
+  display: msg`Display`,
+  displayOf: (display: string) => msg`Display: ${display}`,
+  pageDisplay: msg`Display of the page`,
+  sectionDisplay: msg`Display of this section`,
+  applyToAll: msg`Apply to all sections`,
+  densityComfortable: msg`Comfortable`,
+  densityCompact: msg`Compact`,
+  densityList: msg`List`,
+  densityTiles: msg`Tiles`,
 };

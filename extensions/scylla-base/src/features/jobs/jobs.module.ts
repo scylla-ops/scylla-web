@@ -20,7 +20,9 @@ export const JobsModule = {
         // Under the jobs list of `pipeline`, whose crumb shows first.
         path: 'pipelines/:pipelineId/jobs/:jobId',
         permission: Permission.READ_JOB,
-        breadcrumb: ({ jobId }) => ({ label: msg`Job`, highlight: `#${jobId}` }),
+        // '' when the id has a wrong form: no crumb for a job that cannot exist.
+        breadcrumb: ({ jobId }) =>
+          jobId === '' ? null : { label: msg`Job`, highlight: `#${jobId}` },
         page: () => import('./presentation/ui/JobDetails/JobDetails.page.svelte'),
         share: true,
       },

@@ -24,6 +24,7 @@ export const toStored = (dashboard: Dashboard, widgets?: DashboardWidgets): Stor
       parsed = [];
     }
   }
+  const createdBy = idValue(dashboard.createdBy);
   return {
     id: idValue(dashboard.id),
     name: dashboard.name,
@@ -31,6 +32,7 @@ export const toStored = (dashboard: Dashboard, widgets?: DashboardWidgets): Stor
     version: Number(dashboard.version),
     visibility: dashboard.visibility === GrpcVisibility.WORKSPACE ? 'workspace' : 'private',
     teamDefault: dashboard.teamDefault,
+    ...(createdBy && { createdBy }),
   };
 };
 

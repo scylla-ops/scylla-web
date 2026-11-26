@@ -12,8 +12,10 @@
     Separator,
     Switch,
   } from '@scylla/ui/primitives';
+  import { IconField } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
+  import { loadGroupField, recentColors } from '@base/features/project';
   import type { PipelineSource } from '@base/features/integrations/domain/entities/repository-link.entity.ts';
   import { newProjectMessages as messages } from '@base/features/integrations/presentation/messages/new-project.messages.ts';
   import { pipelineSourceMessages } from '@base/features/integrations/presentation/messages/pipeline-source.messages.ts';
@@ -30,6 +32,7 @@
   let { page, settingsHref }: Props = $props();
 
   const id = $props.id();
+  const recent = recentColors();
 
   const SOURCES = [
     {
@@ -77,6 +80,13 @@
       </div>
     {/if}
 
+    <IconField
+      value={page.icon}
+      onchange={next => (page.icon = next)}
+      {recent}
+      disabled={page.created || page.working}
+    />
+
     <div class="flex flex-col gap-2">
       <Label for="{id}-name">{t(messages.projectName)}</Label>
       <Input
@@ -101,6 +111,15 @@
         bind:value={page.description}
       />
     </div>
+
+    {#await loadGroupField() then { default: GroupField }}
+      <GroupField
+        workspaceId={page.workspaceId}
+        value={page.group}
+        onchange={next => (page.group = next)}
+        disabled={page.created || page.working}
+      />
+    {/await}
 
     <Separator />
 

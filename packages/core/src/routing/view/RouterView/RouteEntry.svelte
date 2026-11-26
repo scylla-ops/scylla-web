@@ -48,7 +48,13 @@
     {#await loading then module}
       {@const Page = module.default as Component<RouteParams>}
       <svelte:boundary onerror={reportPageError}>
-        <Page {...params} />
+        <!--
+          A block that is new with the page: the enter transitions of its parts play on a change
+          of the page, not at its first paint, which the page transition animates.
+        -->
+        {#key Page}
+          <Page {...params} />
+        {/key}
 
         {#snippet failed(_error, reset)}
           {@render failure(reset)}

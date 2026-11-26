@@ -2,9 +2,12 @@ import { describe, expect, it } from 'vitest';
 import type { NavItem, NavSection } from '../structs/nav-section.struct.ts';
 import {
   activePageOf,
+  pageRuns,
   railFor,
   secondSidebarFor,
+  sectionMarks,
   selectedRailItem,
+  sheetHolderOf,
   sheetSections,
 } from './nav-rail.ts';
 
@@ -134,5 +137,65 @@ describe('secondSidebarFor', () => {
 
   it('uses the title of the section until the name is known', () => {
     expect(secondSidebarFor(projects, sections, {}).title).toBe('Inner');
+  });
+});
+
+describe('pageRuns', () => {
+  const sectionOf = (key: string) => ({ key, title: key, folded: false, onToggle: () => {} });
+  const inSection = (url: string, key: string): NavItem => ({ ...page(url), section: sectionOf(key) });
+
+  it('puts the next pages of one section in one run, and the pages with no section apart', () => {
+    const runs = pageRuns([
+      page('all'),
+      inSection('web', 'pins'),
+      inSection('api', 'g-1'),
+      inSection('docs', 'g-1'),
+      inSection('cli', 'ungrouped'),
+    ]);
+
+    expect(runs.map(run => [run.key, run.pages.map(item => item.url)])).toEqual([
+      ['pages:0', ['all']],
+      ['section:pins', ['web']],
+      ['section:g-1', ['api', 'docs']],
+      ['section:ungrouped', ['cli']],
+    ]);
+  });
+
+  it('gives one run to pages with no section', () => {
+    expect(pageRuns([page('a'), page('b')]).map(run => run.pages.length)).toEqual([2]);
+  });
+});
+
+describe('sectionMarks', () => {
+  it('gives one mark for each tone, a failure first, with the name of each link', () => {
+    const marked = (url: string, tone: 'running' | 'failed', label: string): NavItem => ({
+      ...page(url),
+      status: { tone, label },
+    });
+
+    expect(
+      sectionMarks([
+        marked('api', 'running', 'runs'),
+        page('web'),
+        marked('db', 'failed', 'failed'),
+        marked('ops', 'failed', 'failed'),
+      ]),
+    ).toEqual([
+      { tone: 'failed', label: 'db: failed, ops: failed' },
+      { tone: 'running', label: 'api: runs' },
+    ]);
+  });
+
+  it('gives no mark for links with no status', () => {
+    expect(sectionMarks([page('api')])).toEqual([]);
+  });
+});
+
+describe('sheetHolderOf', () => {
+  it('finds the section of a group, of a link, or the section itself', () => {
+    expect(sheetHolderOf(sections, 'machines')).toBe('main');
+    expect(sheetHolderOf(sections, 'dashboard')).toBe('main');
+    expect(sheetHolderOf(sections, 'inner')).toBe('inner');
+    expect(sheetHolderOf(sections, 'nothing')).toBeUndefined();
   });
 });

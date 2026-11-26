@@ -48,7 +48,7 @@
 </script>
 
 <div data-slot="space-frame" class="flex h-svh w-full min-w-0 flex-col">
-  <header class="flex h-14 shrink-0 items-stretch bg-second-sidebar md:h-17">
+  <header class="flex h-14 shrink-0 items-stretch bg-background md:h-17">
     <!-- As wide as the column of the links: the two lines meet the line of the column. -->
     <div
       data-slot="space-title"

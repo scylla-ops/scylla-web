@@ -40,7 +40,7 @@
     {#each scopes as scope (scope.id)}
       <li class="flex items-center justify-between gap-3 text-sm">
         <span class="flex min-w-0 items-center gap-2">
-          <ScopeLabel kind={scope.kind} name={scope.name} />
+          <ScopeLabel kind={scope.kind} id={scope.id} name={scope.name} />
           <ChevronRightIcon class="size-3 shrink-0 text-muted-foreground" aria-hidden="true" />
           <span class="truncate">{scope.roles.join(', ')}</span>
         </span>

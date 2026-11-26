@@ -1,4 +1,5 @@
 <script lang="ts">
+  import type { Snippet } from 'svelte';
   import { slide } from 'svelte/transition';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import { navigateTo, routePathname, type ShellContributions } from '@scylla/core-sdk';
@@ -27,9 +28,11 @@
   interface Props {
     sections: NavSection[];
     contributions: readonly ShellContributions[];
+    /** A card after one section, e.g. the links of the modules after the section of the URL. */
+    after?: { sectionId: string; content: Snippet };
   }
 
-  let { sections, contributions }: Props = $props();
+  let { sections, contributions, after }: Props = $props();
 
   const FOLD_MS = 200;
 
@@ -120,4 +123,7 @@
       {/each}
     </SidebarMenu>
   </SidebarGroup>
+  {#if after?.sectionId === section.id}
+    {@render after.content()}
+  {/if}
 {/each}

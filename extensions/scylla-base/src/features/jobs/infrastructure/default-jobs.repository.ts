@@ -5,7 +5,10 @@ import type {
   JobLogStream,
   NewestJobsQuery,
 } from '@base/features/jobs/domain/entities/job.entity.ts';
-import type { JobStats, JobStatsQuery } from '@base/features/jobs/domain/structs/job-stats.struct.ts';
+import type {
+  JobStats,
+  JobStatsQuery,
+} from '@base/features/jobs/domain/structs/job-stats.struct.ts';
 import { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import { JobView } from '@base/generated/scylla/pipelines/v1/job_service.ts';
@@ -68,8 +71,11 @@ export class DefaultJobsRepository implements JobsRepository {
     return grpcJob.toDomainPage(jobs, pagination);
   }
 
-  public async getNewestByWorkspaceId(query: NewestJobsQuery): Promise<JobEntity[]> {
-    const response = await this.client.listWorkspaceJobs({
+  public async getNewestByWorkspaceId(
+    query: NewestJobsQuery,
+    signal?: AbortSignal,
+  ): Promise<JobEntity[]> {
+    const request = {
       workspaceId: wrapId(query.workspaceId),
       projectIds: [],
       pipelineIds: [],
@@ -79,9 +85,14 @@ export class DefaultJobsRepository implements JobsRepository {
         statuses: (query.statuses ?? []).map(grpcJob.statusToProto),
         ...(query.createdAfter && { createdAfter: Timestamp.fromDate(query.createdAfter) }),
         ...(query.createdBefore && { createdBefore: Timestamp.fromDate(query.createdBefore) }),
+        query: query.text?.trim() ?? '',
       },
       view: JobView.SUMMARY,
-    }).response;
+    };
+    const call = signal
+      ? this.client.listWorkspaceJobs(request, { abort: signal })
+      : this.client.listWorkspaceJobs(request);
+    const response = await call.response;
     return response.jobs.map(grpcJob.toDomain);
   }
 

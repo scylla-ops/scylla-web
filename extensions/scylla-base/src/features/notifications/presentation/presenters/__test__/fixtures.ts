@@ -7,6 +7,8 @@ export const row = (overrides: Partial<NotificationEntity> = {}): NotificationEn
   category: 'security',
   reason: 'subject',
   actorName: '',
+  actorKind: '',
+  actorLook: {},
   workspaceId: null,
   workspaceSlug: '',
   workspaceName: '',

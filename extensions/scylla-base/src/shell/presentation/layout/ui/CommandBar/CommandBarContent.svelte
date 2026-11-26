@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { flip } from 'svelte/animate';
+  import { fade } from 'svelte/transition';
   import SearchIcon from '@lucide/svelte/icons/search';
   import { can } from '@platform/authz';
   import { contextStore, navigateTo, workspaceUrl } from '@platform/context';
@@ -9,6 +11,7 @@
     type CommandDefinition,
     type CommandForm,
   } from '@scylla/core-sdk';
+  import { ColorGlyph, motionDuration, swapIn, swapOut } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     Command,
@@ -19,12 +22,15 @@
   } from '@scylla/ui/primitives';
   import { dialogHoldStore, toRune } from '@scylla/ui/stores';
   import { cn, toast } from '@scylla/ui/utils';
+  import { IdentityAvatar } from '@shared/presentation/ui';
   import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import { linkParams } from '@base/shell/presentation/shell-params.ts';
   import { modifierKey } from '../GlobalSearch/modifier-key.ts';
   import CommandConfirm from './CommandConfirm.svelte';
-  import { addRecent, readRecent } from './command-recent.ts';
+  import CommandRowIcon from './CommandRowIcon.svelte';
+  import { appearRow } from './command-row.attachments.ts';
+  import { addRecent, readRecent, readRecentRows } from './command-recent.ts';
   import {
     chipPressed,
     commandChips,
@@ -36,9 +42,12 @@
     resultItems,
     type CommandFilter,
   } from './command-results.presenter.ts';
-  import { buildCommandRows, type CommandRow } from './command-rows.presenter.ts';
+  import { buildCommandRows, buildRecentRows, type CommandRow } from './command-rows.presenter.ts';
+  import { toRecentRow } from './command-search-rows.presenter.ts';
   import { HINT_EXAMPLES, showCommandHints } from './command-hints.ts';
+  import { createCommandSearch } from './command-search.state.svelte.ts';
   import { createCommandSources } from './command-sources.state.svelte.ts';
+  import CommandSearchStatus from './CommandSearchStatus.svelte';
   import RunPipelineConfirm from './RunPipelineConfirm.svelte';
 
   interface Props {
@@ -49,7 +58,9 @@
   let { close, openForm }: Props = $props();
 
   const context = toRune(contextStore);
-  const sources = createCommandSources();
+  let text = $state('');
+  const parsed = $derived(parseCommandText(text));
+  const sources = createCommandSources(() => parsed.search);
 
   const workspace = $derived(context().workspace);
   const project = $derived(context().project);
@@ -59,38 +70,45 @@
     .flatMap(extension => extension.modules)
     .flatMap(module => module.commands ?? []);
 
-  let text = $state('');
   let chip = $state<CommandFilter | null>(null);
   let highlighted = $state('');
   let confirming = $state<CommandRow | null>(null);
   let input = $state<HTMLInputElement | null>(null);
 
   const recent = readRecent(context().workspace.id);
+  const recentRows = buildRecentRows(readRecentRows(context().workspace.id));
 
-  const parsed = $derived(parseCommandText(text));
   const filter = $derived(parsed.filter ?? chip);
+  const search = createCommandSearch(() => ({ search: parsed.search, filter }));
 
   const rows = $derived(
     buildCommandRows({
       ...sources.data,
+      ...search.data,
+      actions: search.actions,
+      workspaceName: workspace.name,
       links: navLinks(),
       commands,
       slug: linkParams().workspaceSlug,
       workspaceId: workspace.id,
       project,
       pipelineId,
+      search: parsed.search,
       can,
       other: sources.other,
     }),
   );
 
-  const chips = $derived(commandChips(rows));
+  const chips = $derived(commandChips(rows, search.available));
 
   const order = $derived({
     openProject: project.id,
     recent,
+    recentRows,
+    searching: search.searching,
     here: pipelineId ? ('pipeline' as const) : ('project' as const),
   });
+  const failed = $derived([...new Set([...sources.failed, ...search.failed])]);
 
   const results = $derived(commandResults(rows, parsed.search, filter, order));
   const items = $derived(resultItems(results));
@@ -116,7 +134,7 @@
     setFilter(next.filter);
   };
 
-  const remember = (row: CommandRow) => addRecent(workspace.id, row.id);
+  const remember = (row: CommandRow) => addRecent(workspace.id, row.id, toRecentRow(row));
 
   const change = async (row: CommandRow) => {
     if (row.effect.kind !== 'change') return;
@@ -209,6 +227,7 @@
     question={confirming.effect.question}
     detail={confirming.effect.detail}
     verb={confirming.effect.verb}
+    destructive={confirming.effect.destructive}
     run={confirming.effect.run}
     onCancel={() => (confirming = null)}
     onDone={close}
@@ -243,10 +262,14 @@
     </div>
 
     <div class="relative flex items-center gap-1 overflow-x-auto border-b border-border px-2 py-1.5">
+      <!-- A chip comes when its list loads: it grows in, and the others make room. -->
       {#each chips as { filter: value, title } (value ?? 'all')}
         <button
           type="button"
           tabindex="-1"
+          in:swapIn
+          out:swapOut
+          animate:flip={{ duration: motionDuration(200) }}
           aria-pressed={chipPressed(value, filter)}
           class={cn(
             'shrink-0 rounded-md px-2 py-0.5 text-xs text-muted-foreground outline-hidden transition-colors hover:bg-accent motion-reduce:transition-none',
@@ -299,23 +322,46 @@
           {#each section.items as item (item.id)}
             {#if item.kind === 'row'}
               {@const row = item.row}
-              {@const Icon = row.icon}
               <CommandItem
                 value={row.id}
                 disabled={row.verb === undefined}
                 aria-label={row.sentence}
                 onSelect={() => pick(row)}
+                {@attach appearRow}
               >
-                <Icon class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <CommandRowIcon {row} />
                 <span class="flex min-w-0 flex-1 flex-col">
                   <span class="truncate">
                     {#each nameParts(row.name, item.ranges) as part, index (index)}
                       {#if part.hit}<span class="underline decoration-primary decoration-2 underline-offset-2">{part.text}</span>{:else}{part.text}{/if}
                     {/each}
                   </span>
-                  <span class="truncate text-xs text-muted-foreground">
-                    {row.place ? `${row.type} · ${row.place}` : row.type}
-                  </span>
+                  {#if row.owner}
+                    <!-- A workspace: the avatar of its owner, then the role and the counts. -->
+                    <span
+                      class="flex min-w-0 items-center gap-1 text-xs text-muted-foreground"
+                      in:fade|global={{ duration: motionDuration(150) }}
+                    >
+                      <span class="shrink-0">{row.type} ·</span>
+                      <IdentityAvatar profile={row.owner} size={16} />
+                      <span class="truncate">
+                        {row.facts ? `${row.place} · ${row.facts}` : row.place}
+                      </span>
+                    </span>
+                  {:else if row.placeGlyph && row.place}
+                    <!-- The glyph of the place: the folder of a group, a shared dashboard. -->
+                    <span class="flex min-w-0 items-center gap-1 text-xs text-muted-foreground">
+                      <span class="shrink-0">{row.type} ·</span>
+                      <ColorGlyph icon={row.placeGlyph.icon} color={row.placeGlyph.color} class="size-3" />
+                      <span class="truncate">
+                        {row.facts ? `${row.place} · ${row.facts}` : row.place}
+                      </span>
+                    </span>
+                  {:else}
+                    <span class="truncate text-xs text-muted-foreground">
+                      {[row.type, row.place, row.facts].filter(Boolean).join(' · ')}
+                    </span>
+                  {/if}
                 </span>
                 <span class="shrink-0 text-xs text-muted-foreground">
                   {row.verb ?? t(messages.current)}
@@ -326,8 +372,9 @@
                 value={item.id}
                 aria-label={item.sentence}
                 onSelect={() => setFilter(item.filter)}
+                {@attach appearRow}
               >
-                <span class="pl-6 text-xs text-muted-foreground">{t(messages.more(item.count))}</span>
+                <span class="pl-7 text-xs text-muted-foreground">{t(messages.more(item.count))}</span>
               </CommandItem>
             {/if}
           {/each}
@@ -336,18 +383,21 @@
               {t(messages.moreHidden(section.hidden))}
             </p>
           {/if}
+          {#if section.searching}
+            <CommandSearchStatus />
+          {/if}
         </CommandGroup>
       {/each}
 
       {#if searching && sources.loading}
         <p class="px-2 py-2 text-sm text-muted-foreground">{t(messages.reading)}</p>
       {/if}
-      {#if searching && sources.failed.length > 0}
+      {#if searching && failed.length > 0}
         <p class="px-2 py-2 text-sm text-muted-foreground">
-          {t(messages.failed(sources.failed.map(groupTitle).join(', ')))}
+          {t(messages.failed(failed.map(groupTitle).join(', ')))}
         </p>
       {/if}
-      {#if searching && results.total === 0 && !sources.loading && sources.failed.length === 0}
+      {#if searching && results.total === 0 && !sources.loading && search.searching.length === 0 && failed.length === 0}
         <p class="px-2 py-6 text-center text-sm text-muted-foreground">
           {t(layoutMessages.searchNoResult)}
         </p>

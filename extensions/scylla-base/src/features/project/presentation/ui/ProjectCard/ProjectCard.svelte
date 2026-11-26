@@ -1,15 +1,7 @@
 <script lang="ts">
-  import MoveIcon from '@lucide/svelte/icons/move';
   import { scyllaNavigate } from '@platform/context';
   import { WidgetZone } from '@scylla/core-sdk';
-  import {
-    Card,
-    CardTitle,
-    Checkbox,
-    Tooltip,
-    TooltipContent,
-    TooltipTrigger,
-  } from '@scylla/ui/primitives';
+  import { Card, CardTitle } from '@scylla/ui/primitives';
   import { createSelection } from '@scylla/ui/state';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
@@ -18,7 +10,7 @@
   import { projectPoints, type ProjectCardContext } from '../../project.points.ts';
   import type { SectionKey } from '../../presenters/project-sections.presenter.ts';
   import ProjectIcon from '../ProjectIcon/ProjectIcon.svelte';
-  import ProjectCardMenu from './ProjectCardMenu.svelte';
+  import ProjectCardControls from './ProjectCardControls.svelte';
 
   interface Props {
     project: ProjectEntity;
@@ -40,6 +32,7 @@
     projectId: project.id,
     projectName: project.name,
     batch: batch ?? [project.id],
+    density: 'comfortable',
   });
 
   /** A link or a button of a part of the card does its own action: the card does not open. */
@@ -52,6 +45,7 @@
 <Card
   data-tour="project-card"
   data-project-id={project.id}
+  data-density="comfortable"
   onclick={open}
   class={cn(
     'group flex h-full flex-col justify-between gap-4 p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-lg',
@@ -71,36 +65,7 @@
         </div>
         <WidgetZone point={projectPoints.cardSubtitle} {context} />
       </div>
-      {#if reordering}
-        <span class="flex size-8 shrink-0 items-center justify-center text-muted-foreground">
-          <MoveIcon class="size-4" aria-hidden="true" />
-        </span>
-      {:else}
-      <!-- At rest, a mouse sees no menu: it shows on hover, on focus, and while it is open. -->
-      <ProjectCardMenu
-        {project}
-        {section}
-        class="pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100 pointer-fine:data-[state=open]:opacity-100"
-      />
-      <Tooltip>
-        <TooltipTrigger>
-          {#snippet child({ props })}
-            <span {...props} class="flex size-4 shrink-0 items-center justify-center">
-              <Checkbox
-                checked={isSelected}
-                aria-label={t(projectMessages.select)}
-                class="relative cursor-pointer transition-all hover:border-primary max-md:after:absolute max-md:after:-inset-[15px]"
-                onclick={event => event.stopPropagation()}
-                onCheckedChange={() => selection.select(project.id)}
-              />
-            </span>
-          {/snippet}
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>{t(projectMessages.select)}</p>
-        </TooltipContent>
-      </Tooltip>
-      {/if}
+      <ProjectCardControls {project} {section} {reordering} />
     </div>
 
     <p class="line-clamp-2 text-sm text-muted-foreground">

@@ -2,6 +2,8 @@ import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/acce
 import type { IRoleServiceClient } from '@base/generated/scylla/access/v1/role_service.client.ts';
 import type { Role } from '@base/generated/scylla/access/v1/role_service.ts';
 import { platformRef } from '@base/features/access';
+import { imageUrl } from '@platform/grpc';
+import { actorLookToDomain } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import type {
   CreateRoleInput,
@@ -95,6 +97,7 @@ export class DefaultRoleRepository implements RoleRepository {
     return {
       total,
       holders: holders.map(holder => ({
+        ...actorLookToDomain(holder, imageUrl),
         actorId: idValue(holder.actorId),
         actorKind: holder.actorKind,
         displayName: holder.displayName,

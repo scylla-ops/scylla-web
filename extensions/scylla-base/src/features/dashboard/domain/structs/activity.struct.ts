@@ -5,6 +5,8 @@ export interface ActivityEvent {
   kind: string;
   /** jobs, triggers, secrets, members, integrations or agents. */
   area: string;
+  /** The user or the app of the change. Absent if the change has no actor. */
+  actorId?: string;
   actorName: string;
   /** Empty for a change of the workspace. */
   projectId: string;

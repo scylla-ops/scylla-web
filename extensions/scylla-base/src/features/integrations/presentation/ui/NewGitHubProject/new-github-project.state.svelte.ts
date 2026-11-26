@@ -1,7 +1,14 @@
 import { can, Permission } from '@platform/authz';
 import { scyllaNavigate } from '@platform/context';
 import { createMutation, createQuery } from '@scylla/core-sdk';
-import { projectMutations } from '@base/features/project';
+import type { IconChoice } from '@scylla/ui';
+import {
+  groupChoiceComplete,
+  groupChoiceOf,
+  projectIconChange,
+  projectMutations,
+  type ProjectGroupChoice,
+} from '@base/features/project';
 import type { PipelineSource } from '@base/features/integrations/domain/entities/repository-link.entity.ts';
 import type { ProviderRepository } from '@base/features/integrations/domain/entities/vcs-connection.entity.ts';
 import { unavailableText } from '@base/features/integrations/presentation/presenters/connection.presenter.ts';
@@ -19,6 +26,8 @@ export interface NewGitHubProjectParams {
   workspaceId: () => string;
   /** The connection to show first: the one that the GitHub callback made. */
   connectionId: string;
+  /** The group to choose first: the one of the button that opened the page. */
+  groupId?: string;
 }
 
 /** The repository of step 2, as step 1 picked it. */
@@ -53,8 +62,10 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
   let name = $state('');
   let prefilled = '';
   let description = $state('');
+  let icon = $state<IconChoice>({ kind: 'default' });
   let source = $state<PipelineSource>('editor');
   let reports = $state(true);
+  let group = $state<ProjectGroupChoice>(groupChoiceOf(params.groupId));
 
   let projectId = $state('');
   let linked = $state(false);
@@ -87,6 +98,8 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
           name: name.trim(),
           workspaceId: params.workspaceId(),
           description: description.trim() || undefined,
+          icon: await projectIconChange(icon, undefined),
+          group,
         });
         projectId = project.id;
       } catch {
@@ -177,6 +190,13 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
     set description(value: string) {
       description = value;
     },
+    /** Saved with the creation of the project, as its name. */
+    get icon() {
+      return icon;
+    },
+    set icon(value: IconChoice) {
+      icon = value;
+    },
     get source() {
       return source;
     },
@@ -189,7 +209,17 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
     set reports(value: boolean) {
       reports = value;
     },
-    /** The project exists: its name and its description do not change here. */
+    /** Set with the creation of the project, as its icon. */
+    get group() {
+      return group;
+    },
+    set group(value: ProjectGroupChoice) {
+      group = value;
+    },
+    get workspaceId() {
+      return params.workspaceId();
+    },
+    /** The project exists: its icon, its name, its description and its group do not change here. */
     get created() {
       return !!projectId;
     },
@@ -201,7 +231,13 @@ export const createNewGitHubProject = (params: NewGitHubProjectParams) => {
       return working;
     },
     get canSubmit() {
-      return !!picked && !!name.trim() && !!params.workspaceId() && !working;
+      return (
+        !!picked &&
+        !!name.trim() &&
+        !!params.workspaceId() &&
+        groupChoiceComplete(group) &&
+        !working
+      );
     },
     get failure() {
       return failure;

@@ -12,14 +12,18 @@ export const breadcrumbsFor = (
   trail: readonly TrailCrumb[],
   params: BreadcrumbParams,
   translate: (message: MessageDescriptor) => string,
-): BreadcrumbItem[] =>
-  trail.map(({ breadcrumb, pathname }) => {
+): BreadcrumbItem[] => {
+  const items: BreadcrumbItem[] = [];
+  for (const { breadcrumb, pathname } of trail) {
     const crumb = breadcrumb(params);
+    if (!crumb) break;
 
-    return {
+    items.push({
       label: typeof crumb.label === 'string' ? crumb.label : translate(crumb.label),
       highlight: crumb.highlight,
       detail: crumb.detail && translate(crumb.detail),
       pathname,
-    };
-  });
+    });
+  }
+  return items;
+};
