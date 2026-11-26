@@ -629,6 +629,14 @@ msgstr "Remove instance admin"
 msgid "Remove the image"
 msgstr "Remove the image"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:19
+msgid "Replace"
+msgstr "Replace"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:16
+msgid "Replace your profile photo?"
+msgstr "Replace your profile photo?"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:18
 msgid "Revoke"
 msgstr "Revoke"
@@ -721,6 +729,10 @@ msgstr "Terms of service"
 #: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:27
 msgid "Terms of service · version {version}"
 msgstr "Terms of service · version {version}"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:21
+msgid "The {provider} photo could not be imported. Try again later."
+msgstr "The {provider} photo could not be imported. Try again later."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:64
 msgid "The address of your account. A change needs a click on a link sent to the new address."
@@ -855,6 +867,10 @@ msgstr "Unlink"
 msgid "Upload an image"
 msgstr "Upload an image"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:14
+msgid "Use my {provider} photo"
+msgstr "Use my {provider} photo"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
 #: extensions/scylla-base/src/features/user/user.module.ts:50
 msgid "User"
@@ -929,6 +945,14 @@ msgstr "You don't have permission to delete users."
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:95
 msgid "You sign in with a provider. Set a password to also sign in with your email. This signs out your other sessions."
 msgstr "You sign in with a provider. Set a password to also sign in with your email. This signs out your other sessions."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:15
+msgid "Your {provider} photo is your profile photo"
+msgstr "Your {provider} photo is your profile photo"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:18
+msgid "Your {provider} photo replaces the current photo. The current photo is deleted."
+msgstr "Your {provider} photo replaces the current photo. The current photo is deleted."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:8
 msgid "Your data"

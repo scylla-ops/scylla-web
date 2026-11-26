@@ -122,6 +122,21 @@ export const userMutations = {
       },
     }),
 
+  /**
+   * The photo of an identity replaces the avatar of the own account. The card shows a refusal
+   * itself (NO_PICTURE, PICTURE_UNAVAILABLE).
+   */
+  importAvatar: () =>
+    mutationOptions({
+      mutationFn: ({ provider, subject }: { provider: string; subject: string }) =>
+        repository().importAvatar(provider, subject),
+      meta: { showsOwnError: true },
+      onSuccess: user => {
+        getQueryClient().setQueryData(ME_QUERY_KEY(), user);
+        return invalidateUser(user.id);
+      },
+    }),
+
   remove: () =>
     mutationOptions({
       mutationFn: (userId: string) => repository().delete(userId),

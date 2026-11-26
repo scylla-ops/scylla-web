@@ -39,10 +39,13 @@ const profiles = () =>
     listIdentities: vi.fn(() =>
       unaryCall({
         hasPassword: false,
-        identities: [{ provider: 'github', subject: '42', email: 'ada@example.com' }],
+        identities: [
+          { provider: 'github', subject: '42', email: 'ada@example.com', hasPicture: true },
+        ],
       }),
     ),
     unlinkIdentity: vi.fn(() => unaryCall({})),
+    importAvatar: vi.fn(() => unaryCall({ user: wireUser })),
   }) as unknown as IProfileServiceClient;
 
 const admin = () =>
@@ -215,8 +218,19 @@ describe('DefaultUserRepository', () => {
 
     await expect(repo.listSignInMethods()).resolves.toEqual({
       hasPassword: false,
-      identities: [{ provider: 'github', subject: '42', email: 'ada@example.com', linkedAt: '' }],
+      identities: [
+        { provider: 'github', subject: '42', email: 'ada@example.com', linkedAt: '', hasPicture: true },
+      ],
     });
+  });
+
+  it('imports the photo of an identity with ImportAvatar', async () => {
+    const { repo, p } = repository();
+
+    const user = await repo.importAvatar('github', '42');
+
+    expect(p.importAvatar).toHaveBeenCalledWith({ provider: 'github', subject: '42' });
+    expect(user.id).toBe('user-1');
   });
 
   it('asks for an email change with the password', async () => {

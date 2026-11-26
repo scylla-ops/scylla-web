@@ -196,12 +196,18 @@ export class DefaultUserRepository implements UserRepository {
         subject: identity.subject,
         email: identity.email,
         linkedAt: timestampToIso(identity.linkedAt),
+        hasPicture: identity.hasPicture,
       })),
     };
   }
 
   public async unlinkIdentity(provider: string, subject: string): Promise<void> {
     await this.profiles.unlinkIdentity({ provider, subject }).response;
+  }
+
+  public async importAvatar(provider: string, subject: string): Promise<UserEntity> {
+    const response = await this.profiles.importAvatar({ provider, subject }).response;
+    return requireUser(response.user);
   }
 
   public async setInstanceAdmin(userId: string, admin: boolean): Promise<void> {

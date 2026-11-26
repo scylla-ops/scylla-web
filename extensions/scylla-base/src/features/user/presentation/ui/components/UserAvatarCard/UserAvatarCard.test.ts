@@ -15,10 +15,32 @@ const me: UserEntity = {
 
 let teardown: Array<() => void> = [];
 
+/** GitHub gave a photo, the SSO gave none. */
+const identities = [
+  { provider: 'github', subject: '42', email: '', linkedAt: '', hasPicture: true },
+  { provider: 'corp', subject: 'ada', email: '', linkedAt: '', hasPicture: false },
+];
+
 const setUp = (user: UserEntity = me) => {
-  const repository = { updateAvatar: vi.fn().mockResolvedValue(user) };
+  const repository = {
+    updateAvatar: vi.fn().mockResolvedValue(user),
+    listSignInMethods: vi.fn().mockResolvedValue({ hasPassword: true, identities }),
+    importAvatar: vi.fn().mockResolvedValue({ ...user, avatarUrl: '/images/img-2' }),
+  };
+  const loginRepository = {
+    listSignInMethods: vi.fn().mockResolvedValue({
+      providers: [
+        { slug: 'github', displayName: 'GitHub', kind: 'github' },
+        { slug: 'corp', displayName: 'Corp SSO', kind: 'oidc' },
+      ],
+      signUpMode: 'closed',
+    }),
+  };
   const cache = withQueryClient();
-  teardown = [cache.restore, withRegistry({ user: { userRepository: repository } })];
+  teardown = [
+    cache.restore,
+    withRegistry({ user: { userRepository: repository }, login: { loginRepository } }),
+  ];
   render(UserAvatarCard, { user });
   return repository;
 };
@@ -77,5 +99,51 @@ describe('UserAvatarCard', () => {
     await user.click(screen.getByRole('button', { name: 'Main color' }));
 
     expect(repository.updateAvatar).not.toHaveBeenCalled();
+  });
+
+  it('offers the photo of each linked provider that gave one', async () => {
+    setUp();
+
+    expect(await screen.findByRole('button', { name: 'Use my GitHub photo' })).toBeEnabled();
+    expect(screen.queryByRole('button', { name: 'Use my Corp SSO photo' })).toBeNull();
+  });
+
+  it('imports the photo of the provider at once when the user has no photo', async () => {
+    const repository = setUp();
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Use my GitHub photo' }));
+
+    await waitFor(() => expect(repository.importAvatar).toHaveBeenCalledWith('github', '42'));
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Your GitHub photo is your profile photo',
+    );
+  });
+
+  it('asks before the photo of the provider replaces a photo', async () => {
+    const repository = setUp({ ...me, avatarUrl: '/images/img-1' });
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Use my GitHub photo' }));
+    const dialog = await screen.findByRole('alertdialog');
+    expect(dialog).toHaveTextContent('Replace your profile photo?');
+    expect(dialog).toHaveTextContent('Your GitHub photo replaces the current photo.');
+    expect(repository.importAvatar).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Replace' }));
+
+    await waitFor(() => expect(repository.importAvatar).toHaveBeenCalledWith('github', '42'));
+  });
+
+  it('tells when the photo of the provider cannot be imported', async () => {
+    const repository = setUp();
+    repository.importAvatar.mockRejectedValue(new Error('PICTURE_UNAVAILABLE'));
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Use my GitHub photo' }));
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'The GitHub photo could not be imported. Try again later.',
+    );
   });
 });

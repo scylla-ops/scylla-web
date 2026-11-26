@@ -1,8 +1,9 @@
 <script lang="ts">
   import UploadIcon from '@lucide/svelte/icons/upload';
   import type { MessageDescriptor } from '@lingui/core';
+  import { fade } from 'svelte/transition';
   import { createMutation } from '@scylla/core-sdk';
-  import { IMAGE_TYPES, imageFileProblem, SWATCH_COLORS } from '@scylla/ui';
+  import { IMAGE_TYPES, imageFileProblem, motionDuration, SWATCH_COLORS } from '@scylla/ui';
   import { Button, Separator } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -11,6 +12,8 @@
   import { avatarMessages as m } from '../../../messages/avatar.messages.ts';
   import { userMutations } from '../../../user.queries.ts';
   import SettingsSection from '../SettingsSection.svelte';
+  import ProviderPhotoButtons from './ProviderPhotoButtons.svelte';
+  import type { PhotoFeedback } from './photo-feedback.ts';
 
   interface Props {
     /** The account of the session. */
@@ -24,6 +27,7 @@
 
   let input = $state<HTMLInputElement | null>(null);
   let problem = $state<MessageDescriptor | undefined>();
+  let feedback = $state<PhotoFeedback | null>(null);
 
   /** With no color, the initials show on the main color. */
   const selected = $derived(user.avatarColor || 'primary');
@@ -31,6 +35,7 @@
   const upload = async (file: File | undefined) => {
     if (!file) return;
     problem = imageFileProblem(file);
+    feedback = null;
     if (problem) return;
     change.mutate({ image: new Uint8Array(await file.arrayBuffer()) });
   };
@@ -51,7 +56,18 @@
 <SettingsSection title={t(m.title)} description={t(m.description)}>
   <div class="flex flex-col gap-4">
     <div class="flex items-center gap-4">
-      <IdentityAvatar profile={user} self size={40} />
+      <!-- A new photo cross-fades with the old one. -->
+      <span class="grid size-10 shrink-0 place-items-center">
+        {#key user.avatarUrl}
+          <span
+            class="col-start-1 row-start-1 flex"
+            in:fade={{ duration: motionDuration(240) }}
+            out:fade={{ duration: motionDuration(160) }}
+          >
+            <IdentityAvatar profile={user} self size={40} />
+          </span>
+        {/key}
+      </span>
       <div class="flex min-w-0 flex-col gap-1.5">
         <div class="flex flex-wrap items-center gap-2">
           <Button
@@ -67,16 +83,41 @@
             variant="ghost-destructive"
             size="sm"
             disabled={!user.avatarUrl || change.isPending}
-            onclick={() => change.mutate({ image: null })}
+            onclick={() => {
+              feedback = null;
+              change.mutate({ image: null });
+            }}
           >
             {t(m.removeImage)}
           </Button>
+          <ProviderPhotoButtons {user} disabled={change.isPending} bind:feedback />
         </div>
-        {#if problem}
-          <p role="alert" class="text-xs text-destructive">{t(problem)}</p>
-        {:else}
-          <p class="text-xs text-muted-foreground">{t(m.imageRules)}</p>
-        {/if}
+        <div class="grid">
+          {#if problem}
+            <p role="alert" class="col-start-1 row-start-1 text-xs text-destructive">{t(problem)}</p>
+          {:else if feedback}
+            {#key feedback}
+              <p
+                role={feedback.kind === 'failed' ? 'alert' : 'status'}
+                class={cn(
+                  'col-start-1 row-start-1 text-xs',
+                  feedback.kind === 'failed' ? 'text-destructive' : 'text-muted-foreground',
+                )}
+                in:fade={{ duration: motionDuration(200) }}
+                out:fade={{ duration: motionDuration(120) }}
+              >
+                {feedback.text}
+              </p>
+            {/key}
+          {:else}
+            <p
+              class="col-start-1 row-start-1 text-xs text-muted-foreground"
+              in:fade={{ duration: motionDuration(200) }}
+            >
+              {t(m.imageRules)}
+            </p>
+          {/if}
+        </div>
       </div>
       <input
         bind:this={input}

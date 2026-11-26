@@ -11,4 +11,12 @@ export const avatarMessages = {
   mainColor: msg`Main color`,
   chartColor: (index: number) => msg`Color ${index}`,
   grey: msg`Grey`,
+  useProviderPhoto: (provider: string) => msg`Use my ${provider} photo`,
+  providerPhotoUsed: (provider: string) => msg`Your ${provider} photo is your profile photo`,
+  replaceTitle: msg`Replace your profile photo?`,
+  replaceDescription: (provider: string) =>
+    msg`Your ${provider} photo replaces the current photo. The current photo is deleted.`,
+  replace: msg`Replace`,
+  providerPhotoFailed: (provider: string) =>
+    msg`The ${provider} photo could not be imported. Try again later.`,
 };

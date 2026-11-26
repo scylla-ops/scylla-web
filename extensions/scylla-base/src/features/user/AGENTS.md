@@ -19,7 +19,7 @@ component or another feature runs with `createQuery`.
 ```typescript
 type UserEntity, UserSummary, CreateUserInput, UpdateUserInput, UserAccess, UserSessionEntity
 userQueries        list · byId · me · access · sessions
-userMutations      create · update · updateAvatar · remove · setActive · changePassword · sendPasswordReset ·
+userMutations      create · update · updateAvatar · importAvatar · remove · setActive · changePassword · sendPasswordReset ·
                    revokeSessions · revokeSession · deleteAccount · exportAccountData
 canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_KEY,
 USER_SESSIONS_QUERY_KEY
@@ -52,6 +52,7 @@ Never add: `user.module.ts`, a page or a component (export a loader, as `loadAcc
 | `create(CreateUserInput)`          | `CreateUser`         | `UserEntity`                                          |
 | `update(UpdateUserInput)`          | `UpdateUser`         | `UserEntity`                                          |
 | `updateAvatar(UpdateAvatarInput)`  | `UpdateProfile`      | `UserEntity` (own account: photo or initials color)   |
+| `importAvatar(provider, subject)`  | `ImportAvatar`       | `UserEntity` (own account: the photo of a provider)   |
 | `delete(userId)`                   | `DeleteUser`         | `void`                                                |
 | `setActive(userId, isActive)`      | `SetUserActive`      | `UserEntity`                                          |
 | `changePassword(current, next)`    | `ChangePassword`     | `void`                                                |
@@ -120,7 +121,7 @@ presentation/
     UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
-                                     UserAvatarCard/ (own page only),
+                                     UserAvatarCard/ (own page only, with ProviderPhotoButtons),
                                      UserAccessList/, UserIdentityCard, SessionList,
                                      SessionRow/ (both pages),
                                      ThemePicker/ (own page only)
@@ -165,6 +166,12 @@ user who has no workspace.
   bytes remove the image, an empty color gives the main color. The mapper gives the URL of the
   image (`imageUrl`), so `IdentityAvatar` shows the photo wherever it gets a `UserEntity`: the
   user menu of the shell, the account header, the member lists.
+  `ProviderPhotoButtons` adds "Use my <provider> photo" for each identity whose provider gave a
+  photo (`hasPicture` of `listSignInMethods`): `importAvatar` downloads it on the server. A photo
+  that the user has goes only after a confirmation. The button shows its states (a spinner, then a
+  check) in one icon box, the card shows the result or the refusal under the buttons
+  (`showsOwnError`), and a new photo cross-fades with the old one. The server imports this photo
+  one time at the sign-up with a provider.
 
 - **The section `tokens` of the account page is the personal tokens.** `PersonalTokenService` needs
   no right: it is the account of the session. A token acts as its user. The server can turn them

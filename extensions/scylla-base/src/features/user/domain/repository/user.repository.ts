@@ -53,6 +53,11 @@ export interface UserRepository {
   listSignInMethods(): Promise<SignInMethodsOfUser>;
   /** FAILED_PRECONDITION with LAST_SIGN_IN_METHOD for the last way to sign in. */
   unlinkIdentity(provider: string, subject: string): Promise<void>;
+  /**
+   * Of the session's account: the photo of an identity at its provider replaces the avatar.
+   * FAILED_PRECONDITION with NO_PICTURE or PICTURE_UNAVAILABLE.
+   */
+  importAvatar(provider: string, subject: string): Promise<UserEntity>;
   /** For an admin of the instance. The last active admin stays: LAST_ADMIN. */
   setInstanceAdmin(userId: string, admin: boolean): Promise<void>;
 }
