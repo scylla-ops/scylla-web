@@ -64,6 +64,17 @@ const fill = async () => {
 const termsBox = () => screen.findByRole('checkbox', { name: 'I accept the Terms of service' });
 
 describe('SignUpPage', () => {
+  it('shows no error at load, and shows them when the empty form is sent', async () => {
+    await openAt('/sign-up');
+
+    expect(screen.queryByText('Enter a valid email address.')).not.toBeInTheDocument();
+
+    await userEvent.setup().click(screen.getByRole('button', { name: 'Create the account' }));
+
+    expect(await screen.findByText('Enter a valid email address.')).toBeInTheDocument();
+    expect(signUp).not.toHaveBeenCalled();
+  });
+
   it('sends the trimmed name and the email, then says that a mail was sent', async () => {
     await openAt('/sign-up');
 

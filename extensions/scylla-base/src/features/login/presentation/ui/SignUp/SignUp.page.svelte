@@ -81,8 +81,9 @@
       {/if}
     </div>
   {:else}
-    <ScyllaForm {items} onSubmit={state.submit} isPending={state.isPending}>
-      {#snippet footer({ isValid, isPending })}
+    <!-- No autofocus: no error before the person types. -->
+    <ScyllaForm {items} autofocus={false} onSubmit={state.submit} isPending={state.isPending}>
+      {#snippet footer({ isPending })}
         <!-- No box when the operator asks no acceptance of the terms. -->
         {#if state.terms}
           <TermsCheckbox
@@ -95,7 +96,7 @@
         <Button
           type="submit"
           class="mt-2 w-full"
-          disabled={!isValid || isPending || !state.canSubmit}
+          disabled={isPending || !state.canSubmit}
         >
           {t(signUpMessages.submit)}
         </Button>
