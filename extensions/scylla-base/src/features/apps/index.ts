@@ -10,6 +10,8 @@ export type {
 } from './domain/entities/app.entity.ts';
 export { appStateOf } from './domain/entities/app.entity.ts';
 export { dailyCountsOf, type AgentStats } from './domain/structs/agent-stats.struct.ts';
+/** How an agent shows in `IdentityAvatar`: the icon that an admin chose, or the default bot. */
+export { agentProfile } from './presentation/presenters/agent-icon.presenter.ts';
 export {
   appQueries,
   appMutations,

@@ -2,7 +2,6 @@
   import CalendarIcon from '@lucide/svelte/icons/calendar';
   import GitBranchIcon from '@lucide/svelte/icons/git-branch';
   import GitCommitHorizontalIcon from '@lucide/svelte/icons/git-commit-horizontal';
-  import ServerIcon from '@lucide/svelte/icons/server';
   import TagIcon from '@lucide/svelte/icons/tag';
   import TimerIcon from '@lucide/svelte/icons/timer';
   import UserIcon from '@lucide/svelte/icons/user';
@@ -15,6 +14,7 @@
     formatDuration,
   } from '@shared/utils/date-utils.ts';
   import { isActiveStatus } from '@shared/domain/structs/job-status.struct.ts';
+  import { IdentityAvatar } from '@shared/presentation/ui';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
   import { jobsMessages } from '@base/features/jobs/presentation/messages/jobs.messages.ts';
   import { jobGitMessages } from '@base/features/jobs/presentation/messages/job-git.messages.ts';
@@ -64,7 +64,8 @@
   </li>
   {#if job.agentId}
     <li class="flex min-w-0 items-center gap-1.5" title={t(jobsMessages.agent)}>
-      {@render fact(ServerIcon, t(jobsMessages.agent))}
+      <IdentityAvatar profile={agent.profile} kind="agent" size={16} />
+      <span class="sr-only">{t(jobsMessages.agent)}</span>
       {#if agent.href}
         <a class="truncate font-mono hover:underline" href={agent.href}>{agent.name}</a>
       {:else}

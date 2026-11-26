@@ -6,6 +6,7 @@ import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { CustomIcon } from '@shared/domain/structs/custom-icon.struct.ts';
 import type { JobEntity, JobLog } from '@base/features/jobs/domain/entities/job.entity.ts';
 import type { JobsRepository } from '@base/features/jobs/domain/repository/jobs.repository.ts';
 import JobDetailsPage from './JobDetails.page.svelte';
@@ -65,6 +66,14 @@ const logLine = (line: string, nodeId: string): JobLog => ({
   timestamp: '2026-01-01T00:00:00.000Z',
 });
 
+/** The agent of the job, as the apps give it, with the icon that an admin chose. */
+const agentDetails = (icon?: CustomIcon) => ({
+  app: { id: 'agent-1', name: 'pc-windows', runner: true, labels: [], icon },
+  keys: [],
+});
+/** The avatar of the agent in a part of the page. */
+const agentAvatar = (scope: HTMLElement) => scope.querySelector('[data-kind="agent"]');
+
 /** The node of the log that the page shows. */
 const shownNode = () => screen.queryByTestId('job-log-node')?.textContent?.trim();
 const nodeList = () => screen.getByRole('navigation', { name: 'Node executions' });
@@ -89,7 +98,12 @@ const grantAll = () =>
     },
   });
 
-const renderPage = async (result: unknown, search = '', logs: JobLog[] = []) => {
+const renderPage = async (
+  result: unknown,
+  search = '',
+  logs: JobLog[] = [],
+  agent?: ReturnType<typeof agentDetails>,
+) => {
   rerun = vi.fn().mockResolvedValue('job-2');
   tailLogs = vi.fn(() => ({
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -106,6 +120,7 @@ const renderPage = async (result: unknown, search = '', logs: JobLog[] = []) => 
         tailLogs,
       } as unknown as JobsRepository,
     },
+    ...(agent && { apps: { appsRepository: { getApp: vi.fn().mockResolvedValue(agent) } } }),
   });
   navigator = installTestNavigator({ pathname: PATHNAME, search });
 
@@ -254,6 +269,50 @@ describe('JobDetailsPage', () => {
 
     expect(screen.getByText('agent-1')).toBeInTheDocument();
     expect(screen.queryByRole('link', { name: 'agent-1' })).not.toBeInTheDocument();
+    expect(agentAvatar(document.body)?.querySelector('svg')).toHaveClass('lucide-bot');
+  });
+
+  it('shows the icon that an admin chose for the agent, in the facts and in the details', async () => {
+    await renderPage(
+      job({ agentId: 'agent-1' }),
+      '',
+      [],
+      agentDetails({ kind: 'glyph', name: 'server', color: 'chart-3' }),
+    );
+
+    const facts = screen.getByRole('list', { name: 'Facts of the job' });
+    await within(facts).findByRole('link', { name: 'pc-windows' });
+    expect(agentAvatar(facts)?.querySelector('svg')).toHaveClass('lucide-server');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Details' }));
+
+    const run = screen.getByRole('region', { name: 'Run' });
+    expect(agentAvatar(run)?.querySelector('svg')).toHaveClass('lucide-server');
+  });
+
+  it('shows the image that an admin chose for the agent', async () => {
+    await renderPage(
+      job({ agentId: 'agent-1' }),
+      '',
+      [],
+      agentDetails({ kind: 'image', imageId: 'img-1' }),
+    );
+
+    const facts = screen.getByRole('list', { name: 'Facts of the job' });
+    await within(facts).findByRole('link', { name: 'pc-windows' });
+    expect(agentAvatar(facts)?.querySelector('img')).toHaveAttribute(
+      'src',
+      expect.stringContaining('/images/img-1'),
+    );
+  });
+
+  it('shows the default icon of an agent, not a server, for an agent with no icon', async () => {
+    await renderPage(job({ agentId: 'agent-1' }), '', [], agentDetails());
+
+    const facts = screen.getByRole('list', { name: 'Facts of the job' });
+    await within(facts).findByRole('link', { name: 'pc-windows' });
+    expect(agentAvatar(facts)?.querySelector('svg')).toHaveClass('lucide-bot');
+    expect(facts.querySelector('.lucide-server')).not.toBeInTheDocument();
   });
 
   it('names the online agents that cannot get the code of a waiting job, with a link', async () => {
