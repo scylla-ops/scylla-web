@@ -2,6 +2,7 @@ import { t } from '@lingui/core/macro';
 import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
 import type {
   ProjectEntity,
+  ProjectIconChange,
   ProjectList,
 } from '@base/features/project/domain/entities/project.entity.ts';
 import type { IProjectServiceClient } from '@base/generated/scylla/projects/v1/project_service.client.ts';
@@ -95,6 +96,14 @@ export class DefaultProjectRepository implements ProjectRepository {
       projectId: wrapId(projectId),
       ...(name !== undefined && { name }),
       ...(description !== undefined && { description }),
+    }).response;
+    return requireProject(response.project);
+  }
+
+  public async setIcon(projectId: string, icon: ProjectIconChange): Promise<ProjectEntity> {
+    const response = await this.client.updateProject({
+      projectId: wrapId(projectId),
+      icon: grpcProject.fromIconChange(icon),
     }).response;
     return requireProject(response.project);
   }

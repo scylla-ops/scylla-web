@@ -492,6 +492,30 @@ describe('the second sidebar', () => {
       ).not.toHaveClass('border-t');
     });
 
+    it('shows the icon of the entity of a link in place of its icon', () => {
+      const contributions: ShellContributions[] = [
+        {
+          linkParams: () => ({ workspaceSlug: 'acme-corp' }),
+          secondSidebarLinks: shown => () =>
+            shown() === 'machines'
+              ? [
+                  {
+                    title: 'runner-1',
+                    href: '/acme-corp/agents/1',
+                    entityIcon: { image: '/images/1' },
+                  },
+                ]
+              : [],
+        },
+      ];
+      render(AppSidebarFixture, { config: configWith({ entries: groupEntries, contributions }) });
+
+      const link = within(secondSidebar()).getByRole('button', { name: 'runner-1' });
+      const tile = link.querySelector('[data-slot="entity-icon"]');
+      expect(tile).toHaveClass('size-5');
+      expect(tile?.querySelector('img')).toHaveAttribute('src', '/images/1');
+    });
+
     it('opens the URL of a link', async () => {
       render(AppSidebarFixture, {
         config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),

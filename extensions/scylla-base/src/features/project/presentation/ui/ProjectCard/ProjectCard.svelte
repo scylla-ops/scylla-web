@@ -1,5 +1,4 @@
 <script lang="ts">
-  import FolderIcon from '@lucide/svelte/icons/folder';
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
@@ -19,6 +18,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
   import EditProjectDialog from '../EditProjectDialog.svelte';
+  import ProjectIcon from '../ProjectIcon/ProjectIcon.svelte';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
 
   interface Props {
@@ -45,9 +45,7 @@
   <CardHeader class="pb-2">
     <div class="flex items-start justify-between gap-2">
       <div class="flex min-w-0 flex-1 items-center gap-3">
-        <div class="shrink-0 rounded-lg bg-primary/10 p-2 transition-colors group-hover:bg-primary/20">
-          <FolderIcon class="h-5 w-5 text-primary" />
-        </div>
+        <ProjectIcon icon={project.icon} size={36} />
         <CardTitle class="min-w-0 truncate text-base" title={project.name}>
           {project.name}
         </CardTitle>

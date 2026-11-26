@@ -17,13 +17,21 @@ msgstr ""
 msgid "Add a description..."
 msgstr "Ajouter une description..."
 
-#: extensions/scylla-base/src/features/project/project.module.ts:29
+#: extensions/scylla-base/src/features/project/project.module.ts:31
 msgid "All projects"
 msgstr "Tous les projets"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:41
 msgid "Back"
 msgstr "Retour"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:47
+msgid "Cancel"
+msgstr "Annuler"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:45
+msgid "Change the icon…"
+msgstr "Changer l'icône…"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:29
 msgid "Choose how the pipelines of the project start. You can link a repository later to a regular project."
@@ -65,6 +73,10 @@ msgstr "Modifier"
 msgid "Edit project"
 msgstr "Modifier le projet"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:44
+msgid "It shows on the card, in the sidebar and at the top of the project page."
+msgstr "Elle s'affiche sur la carte, dans la barre latérale et en tête de la page du projet."
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:35
 msgid "Link a GitHub repository"
 msgstr "Lier un dépôt GitHub"
@@ -75,7 +87,7 @@ msgstr "Nommez le projet"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:10
 #: extensions/scylla-base/src/features/project/presentation/project.commands.ts:15
-#: extensions/scylla-base/src/features/project/project.module.ts:38
+#: extensions/scylla-base/src/features/project/project.module.ts:40
 msgid "New project"
 msgstr "Nouveau projet"
 
@@ -99,6 +111,14 @@ msgstr "Choisissez un dépôt. Ses pipelines se lancent sur ses commits, et Scyl
 msgid "Project"
 msgstr "Projet"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:43
+msgid "Project icon"
+msgstr "Icône du projet"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:46
+msgid "Project icon saved"
+msgstr "Icône du projet enregistrée"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:33
 msgid "Project linked to GitHub"
 msgstr "Projet lié à GitHub"
@@ -108,8 +128,8 @@ msgid "Project name"
 msgstr "Nom du projet"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:9
-#: extensions/scylla-base/src/features/project/project.module.ts:25
-#: extensions/scylla-base/src/features/project/project.module.ts:32
+#: extensions/scylla-base/src/features/project/project.module.ts:27
+#: extensions/scylla-base/src/features/project/project.module.ts:34
 msgid "Projects"
 msgstr "Projets"
 
@@ -137,7 +157,7 @@ msgstr "Sélectionnez un espace de travail dans la barre latérale pour voir ses
 msgid "Start a regular project"
 msgstr "Créer un projet standard"
 
-#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:23
+#: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:24
 msgid "This workspace has reached its project limit."
 msgstr "Cet espace de travail a atteint sa limite de projets."
 

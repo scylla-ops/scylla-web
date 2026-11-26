@@ -16,10 +16,13 @@ component or another feature runs with `createQuery`.
 ## Public API — `index.ts`
 
 ```typescript
-type ProjectEntity, ProjectList, ProjectLookupEntry
+type ProjectEntity, ProjectList, ProjectLookupEntry, ProjectIcon, ProjectIconChange
 projectQueries        byWorkspace (paginated) · lookup (org-wide) · byId (one project, or null) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
-projectMutations      create · update · remove
+projectMutations      create · update · setIcon · remove
+projectIconProps      ProjectIcon → the props of EntityIcon: the sidebar links of the shell use it
+recentColors, keepRecentColor   the user-state key `recent-colors`, for each icon color picker
+loadProjectTitle      a loader: the icon and the name at the top of the page of a project (pipeline)
 canListProjects
 PROJECTS_QUERY_KEY, PROJECTS_QUERY_ROOT, PROJECTS_LOOKUP_PAGE
 CREATE_PROJECT_MUTATION_KEY   // the key of projectMutations.create; onboarding follows it
@@ -41,6 +44,7 @@ Never add: `project.module.ts`, pages.
 | `getById(projectId)` | `ProjectEntity`, or `null` when the server refuses the id: see the rules below |
 | `create(name, workspaceId, description?)` | `ProjectEntity` |
 | `update(projectId, name?, description?)` | `ProjectEntity` |
+| `setIcon(projectId, icon)` | `ProjectEntity`: `UpdateProject` with the icon only. The server deletes the old image |
 | `delete(projectId)` | `void` |
 
 Reach it from `presentation/project.queries.ts` only, never from a component.
@@ -63,6 +67,11 @@ presentation/
   ui/ProjectList.svelte              keyed on the workspace — that is the page reset
   ui/ProjectHeader.svelte, ProjectCard.svelte
   ui/EditProjectDialog.svelte
+  ui/ProjectIcon/                    the one component that draws the icon of a project
+  ui/ProjectIconDialog/              the icon picker of @scylla/ui in a dialog; the form saves
+  ui/ProjectTitle/                   the icon (a button for an editor) and the name on a project page
+  presenters/project-icon.presenter.ts   ProjectIcon ↔ EntityIcon props, IconChoice, ProjectIconChange
+  recent-colors.user-state.ts        the key `recent-colors`; project.module.ts imports it
   ui/NewProject/                     the choice of the kind of project: ProjectKindCard per way
   ui/NewRegularProject/              the name and the description of a regular project
   messages/project.messages.ts
@@ -107,6 +116,15 @@ choice card links to it by its path only.
   and an English server text that names the workspace by id. The repository maps it to
   its own sentence in `create` and keeps the code; the global toast shows it.
 - The description is optional in the edit dialog and on the new project page (`optional: true`).
+- **Draw the icon of a project with `ProjectIcon` only** (the card, the page, the dialog), and the
+  sidebar link with `projectIconProps`. No icon is the folder in `primary`. An image comes from
+  `imageUrl(id)` of `@platform/grpc` (`GET /images/{id}`, no token); it falls back to the folder when
+  it does not load. A free color goes through `iconColors` of `@scylla/ui`: under 3:1 with the card
+  of the theme, the tile is solid. The saved color does not change.
+- **Only a person with `UPDATE_PROJECT` on the project changes its icon**: the icon of the page is
+  a button for this person only. The server checks it too (`UpdateProject`).
+- **The image goes as bytes in `UpdateProject`.** The picker refuses a file over 1 MB or of another
+  type than PNG, JPEG or WebP before the upload; the server makes it a square PNG of 256 px.
 - **A new project is a page, not a dialog.** "New project" in the header and the command of the
   search bar open `projects/new`. The GitHub card stays inert, with its reason, for a person
   without `MANAGE_REPOSITORY_LINK` on the workspace.

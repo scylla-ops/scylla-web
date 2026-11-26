@@ -10,3 +10,19 @@ export type {
   SegmentedSize,
 } from './SegmentedControl/segmented-control.ts';
 export { default as ShareLinkButton } from './ShareLinkButton/ShareLinkButton.svelte';
+export { default as ColorPicker } from './ColorPicker/ColorPicker.svelte';
+export {
+  contrastLines,
+  MAX_RECENT_COLORS,
+  withRecentColor,
+  type ContrastLine,
+} from './ColorPicker/color-picker.ts';
+export { default as IconPicker } from './IconPicker/IconPicker.svelte';
+export {
+  choiceIconProps,
+  IMAGE_TYPES,
+  imageFileProblem,
+  MAX_IMAGE_BYTES,
+  SWATCH_COLORS,
+  type IconChoice,
+} from './IconPicker/icon-picker.ts';

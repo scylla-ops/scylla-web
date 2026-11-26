@@ -5,8 +5,13 @@ import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
-import type { ProjectEntity, ProjectList } from '../domain/entities/project.entity.ts';
+import type {
+  ProjectEntity,
+  ProjectIconChange,
+  ProjectList,
+} from '../domain/entities/project.entity.ts';
 import type { ProjectModule } from '../project.module.ts';
+import { projectMessages } from './messages/project.messages.ts';
 
 // Resolved per call: tests swap the registry.
 const repository = () => getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
@@ -98,6 +103,10 @@ export const projectLookupQueries = (workspaceIds: string[], enabled = true) => 
 const invalidateProjects = () =>
   getQueryClient().invalidateQueries({ queryKey: PROJECTS_QUERY_ROOT });
 
+/** `all`: the dashboard, the sidebar and the menus read a list that nothing has mounted now. */
+const refetchEveryProjectList = () =>
+  getQueryClient().invalidateQueries({ queryKey: PROJECTS_QUERY_ROOT, refetchType: 'all' });
+
 /**
  * Only an entry that a read made: an entry that this write makes has no `queryFn`, and
  * `refetchType: 'all'` fails on it.
@@ -141,11 +150,19 @@ export const projectMutations = {
         const { project, setProject } = contextStore.getState();
         if (project.id === updated.id) setProject(updated.id, updated.name);
         writeReadOfProject(updated.id, updated);
-        // `all`: the dashboard and the menus read a list that nothing has mounted now.
-        return getQueryClient().invalidateQueries({
-          queryKey: PROJECTS_QUERY_ROOT,
-          refetchType: 'all',
-        });
+        return refetchEveryProjectList();
+      },
+    }),
+
+  /** The card, the sidebar and the page of the project show the new icon. */
+  setIcon: () =>
+    mutationOptions({
+      mutationFn: ({ projectId, icon }: { projectId: string; icon: ProjectIconChange }) =>
+        repository().setIcon(projectId, icon),
+      onSuccess: updated => {
+        toast.success(i18n._(projectMessages.iconSaved));
+        writeReadOfProject(updated.id, updated);
+        return refetchEveryProjectList();
       },
     }),
 

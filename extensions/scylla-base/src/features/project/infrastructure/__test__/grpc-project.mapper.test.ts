@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { toDomain, toDomainPage } from '../grpc-project.mapper.ts';
+import { fromIconChange, toDomain, toDomainPage } from '../grpc-project.mapper.ts';
 
 const project = (id: string) => ({
   id: { value: id },
@@ -17,6 +17,48 @@ describe('grpcProject.toDomain', () => {
       name: 'Project p-1',
       description: 'about it',
     });
+  });
+});
+
+describe('grpcProject.toDomain: the icon', () => {
+  it('reads a glyph with its color, and a glyph with the default color', () => {
+    const glyph = (color: string) => ({
+      ...project('p-1'),
+      icon: { kind: { oneofKind: 'glyph' as const, glyph: { name: 'rocket', color } } },
+    });
+
+    expect(toDomain(glyph('#e879f9')).icon).toEqual({
+      kind: 'glyph',
+      name: 'rocket',
+      color: '#e879f9',
+    });
+    expect(toDomain(glyph('')).icon).toEqual({ kind: 'glyph', name: 'rocket' });
+  });
+
+  it('reads the id of an image', () => {
+    const icon = { kind: { oneofKind: 'imageId' as const, imageId: { value: 'img-1' } } };
+
+    expect(toDomain({ ...project('p-1'), icon }).icon).toEqual({ kind: 'image', imageId: 'img-1' });
+  });
+
+  it('gives no icon for no icon, or a kind that it does not know', () => {
+    expect(toDomain(project('p-1'))).not.toHaveProperty('icon');
+    const icon = { kind: { oneofKind: undefined } };
+    expect(toDomain({ ...project('p-1'), icon })).not.toHaveProperty('icon');
+  });
+});
+
+describe('grpcProject.fromIconChange', () => {
+  it('sends a glyph, the bytes of an image, or no kind for the default icon', () => {
+    const data = new Uint8Array([137, 80, 78, 71]);
+
+    expect(fromIconChange({ kind: 'glyph', name: 'rocket', color: 'chart-2' })).toEqual({
+      kind: { oneofKind: 'glyph', glyph: { name: 'rocket', color: 'chart-2' } },
+    });
+    expect(fromIconChange({ kind: 'image', data })).toEqual({
+      kind: { oneofKind: 'image', image: data },
+    });
+    expect(fromIconChange({ kind: 'default' })).toEqual({ kind: { oneofKind: undefined } });
   });
 });
 

@@ -126,6 +126,15 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     exempt: true,
   },
   {
+    name: 'scylla.recent-colors',
+    type: 'local-storage',
+    provider: 'Scylla',
+    owner: `${BASE}/features/project/presentation/recent-colors.user-state.ts`,
+    purpose: msg`Keeps the last free colors that you chose for an icon.`,
+    lifetime: lifetimes.untilSignOut,
+    exempt: true,
+  },
+  {
     name: 'paneforge:scylla.blueprint.side-panel',
     type: 'local-storage',
     provider: 'Scylla',

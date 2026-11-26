@@ -1,4 +1,7 @@
 <script lang="ts">
+  import { repositoryLinkQueries } from '@base/features/integrations';
+  import { loadProjectTitle } from '@base/features/project';
+  import { createQuery } from '@scylla/core-sdk';
   import { ListSkeleton } from '@scylla/ui';
   import { ErrorState, PaginationSlot } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -21,10 +24,17 @@
   const dashboard = createPipelineDashboard(() => projectId ?? '');
   const runPipeline = createRunPipeline();
   const runRequest = createRunRequest({ projectId: () => projectId ?? '', runPipeline });
+  const repositoryLink = createQuery(() => repositoryLinkQueries.byProject(projectId ?? ''));
 </script>
 
 <!-- The frame renders first and stays on an error: the table area's height decides what to fetch. -->
 <div data-tour="pipelines" data-project-id={projectId} class="flex h-full min-h-0 w-full flex-col gap-4">
+  {#if projectId}
+    <!-- A loader from the barrel: the icon and the name of the project. -->
+    {#await loadProjectTitle() then title}
+      <title.default {projectId} repository={repositoryLink.data?.fullName} />
+    {/await}
+  {/if}
   <PipelineDashboardHeader
     numberOfPipelines={dashboard.pipelines ? dashboard.totalCount : undefined}
     pipelineIds={dashboard.pipelineIds}

@@ -14,6 +14,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 ### Added
 
 - Each password field has a button to show and hide the typed text.
+- Each project can have its own icon: a glyph of the icon set with a theme color or a free color, or
+  an uploaded image. The icon shows on the project card, in the projects of the sidebar and in the
+  project header, where a member that can edit the project opens the icon picker. A color with low
+  contrast shows as a solid tile.
 
 ### Fixed
 

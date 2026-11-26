@@ -37,6 +37,37 @@ describe('DefaultProjectRepository.create', () => {
   });
 });
 
+describe('DefaultProjectRepository.setIcon', () => {
+  it('sends only the icon in the update, and gives the project that the server answers', async () => {
+    const updateProject = vi.fn(() =>
+      unaryCall({
+        project: {
+          id: { value: 'p-1' },
+          workspaceId: { value: 'ws-1' },
+          name: 'web',
+          description: '',
+          icon: { kind: { oneofKind: 'glyph', glyph: { name: 'rocket', color: '#e879f9' } } },
+        },
+      }),
+    );
+    const repository = new DefaultProjectRepository({
+      updateProject,
+    } as unknown as IProjectServiceClient);
+
+    const project = await repository.setIcon('p-1', {
+      kind: 'glyph',
+      name: 'rocket',
+      color: '#E879F9',
+    });
+
+    expect(updateProject).toHaveBeenCalledWith({
+      projectId: { value: 'p-1' },
+      icon: { kind: { oneofKind: 'glyph', glyph: { name: 'rocket', color: '#E879F9' } } },
+    });
+    expect(project.icon).toEqual({ kind: 'glyph', name: 'rocket', color: '#e879f9' });
+  });
+});
+
 describe('DefaultProjectRepository.getById', () => {
   const repositoryWith = (getProject: () => unknown) =>
     new DefaultProjectRepository({ getProject } as unknown as IProjectServiceClient);

@@ -16,3 +16,10 @@ export { default as StatusShape } from './StatusShape/StatusShape.svelte';
 export { default as StatusTrail } from './StatusTrail/StatusTrail.svelte';
 export type { StatusTrailItem } from './StatusTrail/status-trail.ts';
 export type { StatusState } from './status-state.ts';
+export { default as EntityIcon } from './EntityIcon/EntityIcon.svelte';
+export {
+  ENTITY_ICON_SIZES,
+  type EntityIconProps,
+  type EntityIconSize,
+} from './EntityIcon/entity-icon.ts';
+export { ENTITY_GLYPHS, entityGlyph, type EntityGlyph } from './EntityIcon/entity-glyphs.ts';

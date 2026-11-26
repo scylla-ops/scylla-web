@@ -72,6 +72,20 @@ describe('projectLinks', () => {
     expect(repository.getByWorkspaceId).toHaveBeenCalledWith('org-1', expect.anything());
   });
 
+  it('gives each link the icon of its project', async () => {
+    repository.getByWorkspaceId.mockResolvedValue({
+      items: [
+        { ...project('p-1', 'feu'), icon: { kind: 'glyph', name: 'rocket', color: 'chart-2' } },
+        project('p-2', 'td'),
+      ],
+    });
+    const links = mount('projects');
+
+    await vi.waitFor(() => expect(links()).toHaveLength(2));
+    expect(links()[0]?.entityIcon).toMatchObject({ color: 'chart-2' });
+    expect(links()[1]?.entityIcon).toMatchObject({ color: 'primary' });
+  });
+
   it('reads nothing while another item shows', async () => {
     const links = mount('dashboard');
     await new Promise(resolve => setTimeout(resolve));

@@ -16,6 +16,7 @@ ScyllaGrpcTransport          the class
 grpcTransport                the shared singleton instance: the API, with the token
 marketplaceTransport         the marketplace that Scylla hosts: no token unless it is the API
 marketplaceUrl, marketplaceIsLocal   where the marketplace is, and whether it is the API
+imageUrl                     the URL of an image of the API (GET /images/{id}), for an <img>
 ```
 
 ## The session in an outage

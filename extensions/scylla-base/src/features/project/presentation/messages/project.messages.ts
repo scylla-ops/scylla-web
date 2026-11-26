@@ -39,4 +39,10 @@ export const projectMessages = {
   nameTitle: msg`Name the project`,
   regularDescription: msg`Draw its pipelines in the Scylla editor. Link a repository later in Settings.`,
   back: msg`Back`,
+
+  iconTitle: msg`Project icon`,
+  iconDescription: msg`It shows on the card, in the sidebar and at the top of the project page.`,
+  changeIcon: msg`Change the icon…`,
+  iconSaved: msg`Project icon saved`,
+  cancel: msg`Cancel`,
 };

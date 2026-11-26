@@ -1,5 +1,10 @@
 /** The list, the overview and the lookup share one cache entry through `projectQueries`. */
-export type { ProjectEntity, ProjectList } from './domain/entities/project.entity.ts';
+export type {
+  ProjectEntity,
+  ProjectIcon,
+  ProjectIconChange,
+  ProjectList,
+} from './domain/entities/project.entity.ts';
 export {
   CREATE_PROJECT_MUTATION_KEY,
   canListProjects,
@@ -11,3 +16,7 @@ export {
   PROJECTS_QUERY_KEY,
   PROJECTS_QUERY_ROOT,
 } from './presentation/project.queries.ts';
+export { projectIconProps } from './presentation/presenters/project-icon.presenter.ts';
+export { keepRecentColor, recentColors } from './presentation/recent-colors.user-state.ts';
+/** A loader: a barrel must not re-export a component. The icon and the name of a project page. */
+export const loadProjectTitle = () => import('./presentation/ui/ProjectTitle/ProjectTitle.svelte');
