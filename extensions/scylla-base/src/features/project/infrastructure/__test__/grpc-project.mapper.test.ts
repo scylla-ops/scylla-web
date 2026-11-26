@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { fromIconChange, toDomain, toDomainPage } from '../grpc-project.mapper.ts';
+import { fromIconChange, sectionToProto, toDomain, toDomainPage } from '../grpc-project.mapper.ts';
 
 const project = (id: string) => ({
   id: { value: id },
@@ -17,6 +17,21 @@ describe('grpcProject.toDomain', () => {
       name: 'Project p-1',
       description: 'about it',
     });
+  });
+});
+
+describe('grpcProject: the groups', () => {
+  it('reads the group of a project, and no group', () => {
+    expect(toDomain({ ...project('p-1'), groupId: { value: 'g-1' } }).groupId).toBe('g-1');
+    expect(toDomain(project('p-1'))).not.toHaveProperty('groupId');
+  });
+
+  it('sends a group, the projects with no group, or no section', () => {
+    expect(sectionToProto({ kind: 'group', groupId: 'g-1' })).toEqual({
+      groupId: { value: 'g-1' },
+    });
+    expect(sectionToProto({ kind: 'ungrouped' })).toEqual({});
+    expect(sectionToProto(undefined)).toBeUndefined();
   });
 });
 

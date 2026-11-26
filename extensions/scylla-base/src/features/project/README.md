@@ -15,6 +15,10 @@ This module owns the project entity itself — the list, the CRUD, and the card 
 - **The projects page** at `/:org/projects`: one card for each project, with its pipelines,
   its repository and its last job; a search, a filter by health and an order, all in the URL;
   "Show more" in place of page numbers.
+- **The sections of the page**: the pins of the person, then the groups of the workspace, then
+  the projects with no group. The members who edit the projects make the groups and set the
+  order: the custom order of the workspace, with « Move up » and « Move down » in the menu of a
+  card, or the reorder mode, where a person drags the cards.
 - **Creating, editing and deleting** a project.
 - **Project members** — the raw list of principals holding a project-scoped grant. The member
   *experience* is [membership](../membership/README.md)'s.

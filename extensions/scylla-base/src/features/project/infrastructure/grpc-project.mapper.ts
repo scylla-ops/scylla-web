@@ -9,15 +9,17 @@ import type {
   ProjectCounts,
   ProjectHealth,
   ProjectOrder,
+  ProjectSection,
 } from '@base/features/project/domain/structs/project-search.struct.ts';
 import type { Project } from '@base/generated/scylla/projects/v1/project.ts';
 import {
   ProjectHealth as GrpcProjectHealth,
   ProjectOrder as GrpcProjectOrder,
   type ProjectCounts as GrpcProjectCounts,
+  type ProjectSection as GrpcProjectSection,
 } from '@base/generated/scylla/projects/v1/project_service.ts';
 import type { PaginationParams } from '@scylla/ui/structs';
-import { idValue } from '@shared/infrastructure/grpc/wrappers.ts';
+import { idValue, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 /** An icon with no kind (a newer server) shows as the default icon. */
 export function toIcon(icon: Icon | undefined): ProjectIcon | undefined {
@@ -49,12 +51,14 @@ export function fromIconChange(change: ProjectIconChange): IconChange {
 
 export function toDomain(grpcProject: Project): ProjectEntity {
   const icon = toIcon(grpcProject.icon);
+  const groupId = idValue(grpcProject.groupId);
   return {
     id: idValue(grpcProject.id),
     workspaceId: idValue(grpcProject.workspaceId),
     name: grpcProject.name,
     description: grpcProject.description,
     ...(icon && { icon }),
+    ...(groupId && { groupId }),
   };
 }
 
@@ -97,6 +101,10 @@ const HEALTHS: Record<ProjectHealth, GrpcProjectHealth> = {
 export const orderToProto = (order: ProjectOrder): GrpcProjectOrder => ORDERS[order];
 
 export const healthToProto = (health: ProjectHealth): GrpcProjectHealth => HEALTHS[health];
+
+/** A section with no group: the projects with no group. No section: each project. */
+export const sectionToProto = (section?: ProjectSection): GrpcProjectSection | undefined =>
+  section && (section.kind === 'group' ? { groupId: wrapId(section.groupId) } : {});
 
 /** No counts: a server older than the counts, read as an empty list. */
 export const countsToDomain = (counts: GrpcProjectCounts | undefined): ProjectCounts => ({

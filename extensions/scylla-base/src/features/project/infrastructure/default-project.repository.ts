@@ -69,6 +69,7 @@ export class DefaultProjectRepository implements ProjectRepository {
         query: '',
         order: ProjectOrder.UNSPECIFIED,
         health: ProjectHealth.UNSPECIFIED,
+        projectIds: [],
       }).response;
       projects.push(...response.projects);
       token = response.page?.nextToken ?? '';
@@ -91,6 +92,8 @@ export class DefaultProjectRepository implements ProjectRepository {
         query: search.query,
         order: grpcProject.orderToProto(search.order),
         health: grpcProject.healthToProto(search.health),
+        section: grpcProject.sectionToProto(search.section),
+        projectIds: (search.projectIds ?? []).map(wrapId),
       }).response;
       projects.push(...response.projects);
       counts ??= grpcProject.countsToDomain(response.counts);

@@ -30,6 +30,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   admin of the workspace can set the icon of an agent on the agent page, with the icon picker of the
   projects: a glyph with a theme color or a free color, or an image. The icon shows in the list of
   the agents, on the agent page and in the member lists.
+- The projects page has groups, pins and a custom order. A member that can edit the projects creates
+  a group with "New group", and opens, closes, renames, moves or deletes each group section, which
+  shows its count and its health. Each person pins projects in a "Pinned" zone at the top. The menu
+  of a card has Pin, Change the icon, Move to group, Move up and Move down, Edit, Duplicate and
+  Delete. The sort has "Custom order", the default, and in this order the "Reorder" mode lets you
+  drag the cards to a group, to a place or to the pins: Done saves the order, Cancel or Escape
+  reverts it. On a phone, the page has no Reorder, no New group and no Select all.
 
 ### Changed
 

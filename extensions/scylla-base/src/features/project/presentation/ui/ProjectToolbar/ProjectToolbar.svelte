@@ -1,6 +1,7 @@
 <script lang="ts">
   import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
-  import { SegmentedControl, type SegmentedOption } from '@scylla/ui';
+  import MoveIcon from '@lucide/svelte/icons/move';
+  import { GatedButton, SegmentedControl, type SegmentedOption } from '@scylla/ui';
   import {
     buttonVariants,
     DropdownMenu,
@@ -39,9 +40,33 @@
     onClear: () => void;
     onHealth: (health: ProjectHealth) => void;
     onOrder: (order: PageOrder) => void;
+    /** « Reorder » shows: the person moves the projects, on a screen that is not a phone. */
+    canReorder: boolean;
+    onReorder: () => void;
   }
 
-  let { text, health, order, counts, phone, onType, onClear, onHealth, onOrder }: Props = $props();
+  let {
+    text,
+    health,
+    order,
+    counts,
+    phone,
+    onType,
+    onClear,
+    onHealth,
+    onOrder,
+    canReorder,
+    onReorder,
+  }: Props = $props();
+
+  // The reorder mode moves the cards of the custom order, with no search.
+  const reorderBlocked = $derived(
+    order !== 'position'
+      ? t(projectMessages.reorderNeedsCustom)
+      : text.trim()
+        ? t(projectMessages.reorderNeedsNoSearch)
+        : undefined,
+  );
 
   const healthOptions: SegmentedOption<ProjectHealth>[] = $derived([
     { value: 'all', label: t(projectMessages.healthAll), count: phone ? undefined : counts?.total },
@@ -126,7 +151,26 @@
             {t(ORDER_LABELS[item].item)}
           </SelectItem>
         {/each}
+        {#if canReorder}
+          <div class="-mx-1 my-1 h-px bg-border" role="separator"></div>
+          <p class="px-2 py-1 text-xs text-muted-foreground">
+            {t(projectMessages.reorderNeedsCustom)}
+          </p>
+        {/if}
       </SelectContent>
     </Select>
+    {#if canReorder}
+      <GatedButton
+        variant="outline"
+        allowed={!reorderBlocked}
+        deniedReason={reorderBlocked}
+        onclick={onReorder}
+        class="shrink-0"
+        data-part="project-reorder"
+      >
+        <MoveIcon aria-hidden="true" />
+        {t(projectMessages.reorder)}
+      </GatedButton>
+    {/if}
   </div>
 {/if}

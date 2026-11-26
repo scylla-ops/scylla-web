@@ -13,6 +13,9 @@ export type ProjectOrder = 'position' | 'name' | 'last-job' | 'failed-first';
  */
 export type ProjectHealth = 'all' | 'failed' | 'running';
 
+/** A section of the projects page: the projects of one group, or the projects with no group. */
+export type ProjectSection = { kind: 'group'; groupId: string } | { kind: 'ungrouped' };
+
 /** The counts of the projects that a search keeps, on all the pages. */
 export interface ProjectCounts {
   total: number;
@@ -29,6 +32,10 @@ export interface ProjectSearch {
   query: string;
   order: ProjectOrder;
   health: ProjectHealth;
+  /** Only the projects of this section. Unset: each project. */
+  section?: ProjectSection;
+  /** Only these projects, at most 100. Unset or empty: each project. */
+  projectIds?: readonly string[];
   /** The number of projects to read, from the first. */
   limit: number;
 }

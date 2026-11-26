@@ -33,13 +33,14 @@ describe('nextBatchSize', () => {
 });
 
 describe('the parameters of the URL', () => {
-  it('reads a known health or order, and falls back to each project by name', () => {
+  it('reads a known health or order, and falls back to each project in the custom order', () => {
     expect(healthOfParam('failed')).toBe('failed');
     expect(healthOfParam('running')).toBe('running');
     expect(healthOfParam('green')).toBe('all');
     expect(orderOfParam('last-job')).toBe('last-job');
     expect(orderOfParam('failed-first')).toBe('failed-first');
-    expect(orderOfParam('position')).toBe('name');
-    expect(orderOfParam('')).toBe('name');
+    expect(orderOfParam('name')).toBe('name');
+    expect(orderOfParam('position')).toBe('position');
+    expect(orderOfParam('')).toBe('position');
   });
 });

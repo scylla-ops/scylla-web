@@ -45,8 +45,9 @@ export const createProjectList = (workspaceId: () => string) => {
   const first = $derived(phone.current ? PHONE_FIRST_CARDS : FIRST_CARDS);
   const limit = $derived(first + moreClicks * MORE_CARDS);
 
+  // With no search, the sections of the page read the projects.
   const results = createQuery(() =>
-    projectQueries.search({ workspaceId: workspaceId(), query, order, health, limit }),
+    projectQueries.search({ workspaceId: workspaceId(), query, order, health, limit }, !!query),
   );
   // The header counts the whole workspace, also during a search.
   const whole = createQuery(() =>

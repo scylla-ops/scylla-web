@@ -2,7 +2,7 @@
 
 Projects: the unit that owns pipelines, secrets and its own member list.
 
-**Layer** `features/` · **id** `project` · **DI key** `projectRepository`
+**Layer** `features/` · **id** `project` · **DI keys** `projectRepository`, `projectGroupRepository`
 
 ## Import rules
 
@@ -53,6 +53,20 @@ Never add: `project.module.ts`, pages.
 
 Reach it from `presentation/project.queries.ts` only, never from a component.
 
+`ProjectGroupRepository` — `domain/repository/project-group.repository.ts`, the client of
+`ProjectGroupService`:
+
+| Method | Returns |
+|---|---|
+| `list(workspaceId)` | each `ProjectGroupEntity` of the workspace, in their order. It reads each page |
+| `create(workspaceId, name)` | the new group, after the other groups |
+| `rename(groupId, name)` | the group |
+| `reorder(groupId, position)` | the group at its new place, from 0 |
+| `delete(groupId)` | `void`. Its projects come after the projects with no group |
+| `move({ id, groupId?, beforeId? })` | the project, in the group (or in no group), before `beforeId` or last |
+
+Reach it from `presentation/project-group.queries.ts` only.
+
 ## Widget points
 
 `presentation/project.points.ts`, listed in `ProjectModule.points`. Each zone gets a
@@ -76,26 +90,43 @@ project.module.ts                    route + nav + DI wiring (private; registry 
 index.ts                             public API
 domain/
   entities/project.entity.ts         ProjectEntity, ProjectList
+  entities/project-group.entity.ts   ProjectGroupEntity, MoveProjectInput
   structs/project-search.struct.ts   ProjectSearch, ProjectOrder, ProjectHealth, ProjectCounts,
-                                     ProjectSearchResult, countOfHealth
+                                     ProjectSection, ProjectSearchResult, countOfHealth
+  structs/project-layout.struct.ts   placeBefore, withPin, withoutPin, MAX_PINS
   repository/project.repository.ts
+  repository/project-group.repository.ts
 infrastructure/
   default-project.repository.ts      ProjectServiceClient → ProjectEntity; the project cap
-  grpc-project.mapper.ts             also the order, the health and the counts
+  grpc-project.mapper.ts             also the order, the health, the section and the counts
+  default-project-group.repository.ts   ProjectGroupServiceClient → ProjectGroupEntity
+  grpc-project-group.mapper.ts
 presentation/
   project.commands.ts                "Create project...", for the search bar: it opens projects/new
   project.queries.ts                 every read and write, plus the key factories
+  project-group.queries.ts           the groups, the moves and « Duplicate »
+  project-layout.user-state.ts       the keys `project-pins` and `project-sections`
   project.points.ts                  projectPoints: the zones of a project card
   presenters/project-list.presenter.ts   the batches of cards, the orders of the page, the
                                      parameters of the URL
+  presenters/project-sections.presenter.ts   the section keys, applyMoves, movesToSave
   ui/Project.page.svelte             picks the workspace, or says there is none
   ui/ProjectList.svelte              keyed on the workspace — that is the page reset
   ui/project-list.state.svelte.ts    createProjectList: the search, the health and the order in
                                      the URL, the search delay, "Show more", the batches
-  ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New project"
-  ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order
+  ui/project-sections.state.svelte.ts   createProjectSections: one search for each section, the
+                                     pins, the closed sections, "Show more" for each section
+  ui/project-reorder.state.svelte.ts    createProjectReorder: the drops of the reorder mode
+  ui/project-layout.context.ts       what the menu of a card reads from the page
+  ui/ProjectSections/                the sections, their headers, the group menu, the group name
+                                     row, the grid with the drop slot
+  ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New group",
+                                     "New project"
+  ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order,
+                                     "Reorder", and the bar of the reorder mode
   ui/ProjectResults/                 the empty states, "Show more"
-  ui/ProjectCard/                    the card, its zones, its menu (Edit, Delete)
+  ui/ProjectCard/                    the card, its zones, its menu (Pin, Change the icon, Move to
+                                     group, Move up and down, Edit, Duplicate, Delete)
   ui/EditProjectDialog.svelte
   ui/ProjectIcon/                    the one component that draws the icon of a project
   ui/ProjectIconDialog/              the icon picker of @scylla/ui in a dialog; the form saves
@@ -193,6 +224,26 @@ choice card links to it by its path only.
   a pipeline of the deleted project for up to 30 seconds (`staleTime`). This module cannot invalidate
   it: `pipeline` reaches `project` through `apps`, so an import makes a module cycle. A click on this
   row goes to the list.
+
+- **The page has sections when there is no search**: the pins, the groups, then « No group ».
+  Each section is one `ListProjects` with `section` (or `project_ids` for the pins) and its own
+  "Show more". A search shows one flat list, as before. With no pin and no group, the page shows
+  one list with no header.
+- **The groups and the order belong to the workspace; the pins belong to the person.** The pins are
+  the user-state key `project-pins` (at most 100 for each workspace); the closed sections are
+  `project-sections`. In the custom order, the pins keep the order of the person.
+- **« Move up » and « Move down » swap a card with its neighbor** (`MoveProject` with
+  `before_project_id`), in the order of the page. They show only in the custom order, with no
+  search. In the pins, they change the order of the pins.
+- **The reorder mode keeps the drops on the page until « Done ».** `applyMoves` gives the page the
+  order after the drops; « Done » sends one `MoveProject` for each drop, in their order, and saves the
+  pins. The server places a project with the same rule as `placeBefore`, so the order stays the same.
+  « Cancel » or Escape forgets the drops. The mode needs the custom order, no search, a screen that
+  is not a phone and `UPDATE_PROJECT` on the workspace.
+- **The dragged card stays in the page, hidden.** The browser ends a drag on the element where it
+  started: a card that leaves the DOM loses its `dragend`.
+- **« Duplicate » copies the name, the description and a glyph icon**, just after the project in its
+  group. It does not copy an image icon, the pipelines, the secrets or the members.
 
 ## Before done
 

@@ -6,6 +6,7 @@ import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
 import { permissionsStore, PermissionScope } from '@platform/authz';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
+import type { ProjectGroupRepository } from '@base/features/project/domain/repository/project-group.repository.ts';
 import type { ProjectRepository } from '@base/features/project/domain/repository/project.repository.ts';
 import type {
   ProjectSearch,
@@ -32,6 +33,10 @@ const ALL = [
 let teardown: Array<() => void> = [];
 let search: ReturnType<typeof vi.fn<(input: ProjectSearch) => Promise<ProjectSearchResult>>>;
 let navigator: ReturnType<typeof installTestNavigator>;
+let groups: {
+  list: ReturnType<typeof vi.fn<ProjectGroupRepository['list']>>;
+  move: ReturnType<typeof vi.fn<ProjectGroupRepository['move']>>;
+};
 
 beforeEach(() => {
   contextStore.setState({
@@ -54,16 +59,26 @@ beforeEach(() => {
     });
   });
   const repository = { search } as unknown as ProjectRepository;
+  groups = {
+    list: vi.fn(() => Promise.resolve([])),
+    move: vi.fn(({ id }) => Promise.resolve(project(id.replace('id-', '')))),
+  };
+  const groupRepository = groups as unknown as ProjectGroupRepository;
   const cache = withQueryClient();
   navigator = installTestNavigator({ pathname: '/acme/projects' });
   teardown = [
     cache.restore,
-    withRegistry({ project: { projectRepository: repository } }),
+    withRegistry({
+      project: { projectRepository: repository, projectGroupRepository: groupRepository },
+    }),
     navigator.restore,
   ];
 });
 
-afterEach(() => teardown.forEach(restore => restore()));
+afterEach(() => {
+  teardown.forEach(restore => restore());
+  localStorage.clear();
+});
 
 const cards = () => document.querySelectorAll('[data-tour="project-card"]');
 
@@ -75,7 +90,7 @@ describe('ProjectList', () => {
     expect(await screen.findByText('6 of 43 projects')).toBeInTheDocument();
     expect(cards()).toHaveLength(6);
     expect(search).toHaveBeenCalledWith(
-      expect.objectContaining({ workspaceId: 'org-1', query: '', order: 'name', limit: 6 }),
+      expect.objectContaining({ workspaceId: 'org-1', query: '', order: 'position', limit: 6 }),
     );
 
     await userEvent.click(screen.getByRole('button', { name: 'Show 12 more' }));

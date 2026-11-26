@@ -1,4 +1,5 @@
 <script lang="ts">
+  import MoveIcon from '@lucide/svelte/icons/move';
   import { scyllaNavigate } from '@platform/context';
   import { WidgetZone } from '@scylla/core-sdk';
   import {
@@ -15,6 +16,7 @@
   import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import { projectPoints, type ProjectCardContext } from '../../project.points.ts';
+  import type { SectionKey } from '../../presenters/project-sections.presenter.ts';
   import ProjectIcon from '../ProjectIcon/ProjectIcon.svelte';
   import ProjectCardMenu from './ProjectCardMenu.svelte';
 
@@ -22,9 +24,13 @@
     project: ProjectEntity;
     /** The projects of the cards that came with this one: see `ProjectCardContext`. */
     batch?: readonly string[];
+    /** The section of the page that shows the card: « Move up » and « Move down » use it. */
+    section?: SectionKey;
+    /** The reorder mode: the whole card is the handle, and a click does not open it. */
+    reordering?: boolean;
   }
 
-  let { project, batch }: Props = $props();
+  let { project, batch, section, reordering = false }: Props = $props();
 
   const selection = createSelection('projects');
   const isSelected = $derived(selection.selectedIds.includes(project.id));
@@ -38,7 +44,7 @@
 
   /** A link or a button of a part of the card does its own action: the card does not open. */
   const open = (event: MouseEvent) => {
-    if ((event.target as Element | null)?.closest('a, button')) return;
+    if (reordering || (event.target as Element | null)?.closest('a, button')) return;
     scyllaNavigate.goToProject(project.id, project.name);
   };
 </script>
@@ -48,8 +54,9 @@
   data-project-id={project.id}
   onclick={open}
   class={cn(
-    'group flex h-full cursor-pointer flex-col justify-between gap-4 p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-lg active:scale-[0.98]',
-    isSelected && 'border-primary ring-2 ring-primary',
+    'group flex h-full flex-col justify-between gap-4 p-5 transition-all duration-200 hover:border-primary/50 hover:shadow-lg',
+    !reordering && 'cursor-pointer active:scale-[0.98]',
+    isSelected && !reordering && 'border-primary ring-2 ring-primary',
   )}
 >
   <div class="flex flex-col gap-4">
@@ -64,9 +71,15 @@
         </div>
         <WidgetZone point={projectPoints.cardSubtitle} {context} />
       </div>
+      {#if reordering}
+        <span class="flex size-8 shrink-0 items-center justify-center text-muted-foreground">
+          <MoveIcon class="size-4" aria-hidden="true" />
+        </span>
+      {:else}
       <!-- At rest, a mouse sees no menu: it shows on hover, on focus, and while it is open. -->
       <ProjectCardMenu
         {project}
+        {section}
         class="pointer-fine:opacity-0 pointer-fine:group-focus-within:opacity-100 pointer-fine:group-hover:opacity-100 pointer-fine:data-[state=open]:opacity-100"
       />
       <Tooltip>
@@ -87,6 +100,7 @@
           <p>{t(projectMessages.select)}</p>
         </TooltipContent>
       </Tooltip>
+      {/if}
     </div>
 
     <p class="line-clamp-2 text-sm text-muted-foreground">

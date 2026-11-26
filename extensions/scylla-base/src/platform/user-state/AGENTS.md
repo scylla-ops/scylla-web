@@ -48,6 +48,8 @@ userState.forget()             removes what this browser holds for a deleted acc
 | `node-appearance` | a style | `features/pipeline/presentation/node-appearance.user-state.ts` | no | yes |
 | `onboarding` | the status | `features/onboarding/infrastructure/default-onboarding.repository.ts` | `mergeStatuses` | yes |
 | `recent-colors` | up to 8 colors `#RRGGBB`, the most recent first | `features/project/presentation/recent-colors.user-state.ts` | this device first, then the other | yes |
+| `project-pins` | `{ workspaceId: [projectId…] }`, at most 100 for each workspace, in their order | `features/project/presentation/project-layout.user-state.ts` | no | yes |
+| `project-sections` | `{ workspaceId: [sectionKey…] }`: the closed sections of the projects page | `features/project/presentation/project-layout.user-state.ts` | no | yes |
 
 ## How to add a key
 

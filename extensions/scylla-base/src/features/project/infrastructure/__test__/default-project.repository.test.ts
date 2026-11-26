@@ -173,6 +173,7 @@ describe('DefaultProjectRepository.search', () => {
       query: 'web',
       order: ProjectOrder.FAILED_FIRST,
       health: ProjectHealth.RUNNING,
+      projectIds: [],
     });
     expect(listProjects).toHaveBeenNthCalledWith(
       2,

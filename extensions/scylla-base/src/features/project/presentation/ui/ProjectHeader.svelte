@@ -1,8 +1,10 @@
 <script lang="ts">
+  import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
   import { FeatureHeader } from '@scylla/ui';
+  import { Button } from '@scylla/ui/primitives';
   import { createFeatureSelection } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import type { ProjectCounts } from '@base/features/project/domain/structs/project-search.struct.ts';
@@ -14,9 +16,16 @@
     counts?: ProjectCounts;
     /** The projects of the cards on the page: "Select all" selects them. */
     projectIds: string[];
+    /** A phone has no « Select all » and no « New group ». */
+    phone: boolean;
+    /** The reorder mode keeps « New group » only. */
+    reordering: boolean;
+    /** « New group » shows: the person changes the groups. */
+    canManageGroups: boolean;
+    onNewGroup: () => void;
   }
 
-  let { counts, projectIds }: Props = $props();
+  let { counts, projectIds, phone, reordering, canManageGroups, onNewGroup }: Props = $props();
 
   const deleteProject = createMutation(() => projectMutations.remove());
 
@@ -27,7 +36,21 @@
   // Creating is an workspace capability; deleting is checked per project.
   const canCreate = $derived(can(Permission.CREATE_PROJECT));
   const canDelete = $derived(can(Permission.DELETE_PROJECT));
+  const headerProps = $derived(
+    phone || reordering
+      ? { ...selection.headerProps, onSelectAll: undefined }
+      : selection.headerProps,
+  );
 </script>
+
+{#snippet newGroup()}
+  {#if canManageGroups && !phone}
+    <Button variant="outline" onclick={onNewGroup} data-part="project-new-group">
+      <FolderPlusIcon aria-hidden="true" />
+      {t(projectMessages.newGroup)}
+    </Button>
+  {/if}
+{/snippet}
 
 {#snippet countsLine()}
   {#if counts}
@@ -42,8 +65,9 @@
   underLabel={countsLine}
   label={t(projectMessages.project)}
   pluralLabel={t(projectMessages.projects)}
-  {...selection.headerProps}
-  onNew={() => scyllaNavigate.goToWorkspaceRoute('/projects/new')}
+  {...headerProps}
+  extraActions={newGroup}
+  onNew={reordering ? undefined : () => scyllaNavigate.goToWorkspaceRoute('/projects/new')}
   newLabel={t(projectMessages.newProject)}
   canNew={canCreate}
   newDeniedReason={t(projectMessages.createDenied)}

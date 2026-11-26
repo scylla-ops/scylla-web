@@ -11,13 +11,19 @@ export const PHONE_FIRST_CARDS = 3;
 /** The cards that "Show more" adds. */
 export const MORE_CARDS = 12;
 
-/** The orders that the page offers, the default first. The custom order of the workspace is not here yet. */
-export const PAGE_ORDERS = ['name', 'last-job', 'failed-first'] as const satisfies readonly ProjectOrder[];
+/** The orders that the page offers, the default first: the custom order of the workspace. */
+export const PAGE_ORDERS = [
+  'position',
+  'name',
+  'last-job',
+  'failed-first',
+] as const satisfies readonly ProjectOrder[];
 export type PageOrder = (typeof PAGE_ORDERS)[number];
-export const DEFAULT_ORDER: PageOrder = 'name';
+export const DEFAULT_ORDER: PageOrder = 'position';
 
 /** The name of an order in the list of the orders, and on the button of the closed list. */
 export const ORDER_LABELS: Record<PageOrder, { item: MessageDescriptor; trigger: MessageDescriptor }> = {
+  position: { item: projectMessages.sortCustom, trigger: projectMessages.sortedByCustom },
   name: { item: projectMessages.sortName, trigger: projectMessages.sortedByName },
   'last-job': { item: projectMessages.sortLastJob, trigger: projectMessages.sortedByLastJob },
   'failed-first': {

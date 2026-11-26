@@ -20,6 +20,8 @@ export interface ProjectEntity {
   description?: string;
   /** Unset: the default icon, a folder in the main color. */
   icon?: ProjectIcon;
+  /** The group of the project in its workspace. Unset: no group. */
+  groupId?: string;
 }
 
 export type ProjectList = PaginatedList<ProjectEntity>;
