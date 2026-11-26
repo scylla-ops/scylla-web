@@ -10,6 +10,8 @@ import {
   formatDay,
   formatTime,
   formatUtcDay,
+  formatCoarseDuration,
+  formatUpcomingTime,
 } from '../date-utils';
 
 describe('calculateDuration', () => {
@@ -209,5 +211,30 @@ describe('the language of the UI', () => {
     expect(spaced(formatDay('2026-11-23T10:00:00.000Z'))).toBe('23 nov. 2026');
     expect(spaced(getRelativeTime('2026-11-23T10:00:00.000Z'))).toBe('il y a 33 min');
     expect(spaced(getRelativeTime('2026-11-20T10:00:00.000Z'))).toBe('il y a 3 j');
+  });
+});
+
+describe('getRelativeTime with the clock of the caller', () => {
+  it('measures from the given instant, not from the system clock', () => {
+    const now = Date.parse('2026-01-01T00:25:00.000Z');
+    expect(getRelativeTime('2026-01-01T00:00:00.000Z', now)).toBe('25 min. ago');
+  });
+});
+
+describe('formatCoarseDuration', () => {
+  it('keeps one unit: minutes, then hours, then days, and at least one minute', () => {
+    expect(formatCoarseDuration(20)).toBe('1 min');
+    expect(formatCoarseDuration(12 * 60 + 59)).toBe('12 min');
+    expect(formatCoarseDuration(3 * 3600 + 1800)).toBe('3 hr');
+    expect(formatCoarseDuration(2 * 86_400 + 3600)).toBe('2 days');
+  });
+});
+
+describe('formatUpcomingTime', () => {
+  it('gives the time only in the next 24 hours, then the day too', () => {
+    const now = Date.parse('2026-01-05T12:00:00');
+    expect(formatUpcomingTime('2026-01-06T03:00:00', now)).toBe('03:00 AM');
+    expect(formatUpcomingTime('2026-01-08T03:00:00', now)).toBe('Thu 03:00 AM');
+    expect(formatUpcomingTime('not-a-date', now)).toBe('-');
   });
 });

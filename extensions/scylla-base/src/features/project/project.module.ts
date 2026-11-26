@@ -3,19 +3,30 @@ import { msg } from '@lingui/core/macro';
 import WorkflowIcon from '@lucide/svelte/icons/workflow';
 import { Permission } from '@platform/authz';
 import { grpcTransport } from '@platform/grpc';
+import { ProjectGroupServiceClient } from '@base/generated/scylla/projects/v1/project_group_service.client.ts';
 import { ProjectServiceClient } from '@base/generated/scylla/projects/v1/project_service.client.ts';
+import { DefaultProjectGroupRepository } from './infrastructure/default-project-group.repository.ts';
 import { DefaultProjectRepository } from './infrastructure/default-project.repository.ts';
 import { projectCommands } from './presentation/project.commands.ts';
+// The key of the recent colors is defined before the read of the server.
+import './presentation/recent-colors.user-state.ts';
+import './presentation/project-layout.user-state.ts';
+import { projectPoints } from './presentation/project.points.ts';
 
 const transport = grpcTransport.getTransport();
 const projectRepository = new DefaultProjectRepository(new ProjectServiceClient(transport));
+const projectGroupRepository = new DefaultProjectGroupRepository(
+  new ProjectGroupServiceClient(transport),
+);
 
 export const ProjectModule = {
   id: 'project',
   domain: {
     projectRepository: projectRepository,
+    projectGroupRepository: projectGroupRepository,
   },
   commands: projectCommands,
+  points: projectPoints,
   routes: {
     workspace: [
       {

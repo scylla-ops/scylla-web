@@ -90,6 +90,8 @@ export enum Permission {
    * workspace only.
    */
   SET_PIPELINE_GIT_EVENTS = 80,
+  /** Give the icon of an agent: the admins of the workspace, not the creator of the agent. */
+  SET_APP_ICON = 81,
 }
 
 const SYSTEM_LEVEL = new Set<Permission>([
@@ -133,6 +135,7 @@ const WORKSPACE_LEVEL = new Set<Permission>([
   Permission.RENAME_APP_KEY,
   Permission.REVOKE_APP_KEY,
   Permission.SET_APP_LABELS,
+  Permission.SET_APP_ICON,
   Permission.LIST_APPS_BY_WORKSPACE,
   Permission.CREATE_AGENT,
   Permission.LIST_AGENTS,

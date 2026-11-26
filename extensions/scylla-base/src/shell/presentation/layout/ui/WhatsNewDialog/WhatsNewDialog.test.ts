@@ -26,17 +26,43 @@ describe('WhatsNewDialog', () => {
     expect(screen.queryByText(title)).not.toBeInTheDocument();
   });
 
-  it('shows the new highlights first, then the 0.7.0 ones', async () => {
+  it('has one tab per version, the newest selected', async () => {
     render(WhatsNewDialog);
 
-    const news = await screen.findByText('New in 0.7.1 and 0.7.2');
-    const old = screen.getByText('0.7.0');
-    expect(news.compareDocumentPosition(old) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    const first = screen.getByText('Scylla pipelines and file pipelines together');
-    const last = screen.getByText('A new look');
-    expect(news.compareDocumentPosition(first) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(old.compareDocumentPosition(last) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    expect(first.compareDocumentPosition(old) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    const tabs = await screen.findAllByRole('tab');
+    expect(tabs.map(tab => tab.textContent?.replace('New', '').trim())).toEqual([
+      '0.7.3',
+      '0.7.2',
+      '0.7.1',
+      '0.7.0',
+    ]);
+    expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByText('A new Projects page')).toBeInTheDocument();
+    expect(screen.getByText('A new look')).not.toBeVisible();
+  });
+
+  it('shows the highlights of the tab that the user picks', async () => {
+    render(WhatsNewDialog);
+
+    await userEvent.click(await screen.findByRole('tab', { name: /^0.7.0/ }));
+
+    expect(screen.getByText('A new look')).toBeVisible();
+    expect(screen.queryByText('Sign-up mail')).not.toBeInTheDocument();
+  });
+
+  it('puts a dot on each tab at first, and keeps only the new tab for a user of 0.7.2', async () => {
+    localStorage.setItem('whats-new-seen:0.7.2:release', '1');
+    render(WhatsNewDialog);
+
+    const tabs = await screen.findAllByRole('tab');
+    expect(tabs.map(tab => tab.textContent?.includes('New'))).toEqual([true, false, false, false]);
+  });
+
+  it('shows a dot on every tab for a new user', async () => {
+    render(WhatsNewDialog);
+
+    const tabs = await screen.findAllByRole('tab');
+    expect(tabs.every(tab => tab.textContent?.includes('New'))).toBe(true);
   });
 
   it('shows again for a user who dismissed the 0.7.0 dialog', async () => {

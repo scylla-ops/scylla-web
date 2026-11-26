@@ -64,8 +64,12 @@ export interface PipelineSummaryQuery {
   /** The recent jobs of each pipeline, at most 50. */
   runs: number;
   order: PipelineSummaryOrder;
-  /** The first page only, at most 100 pipelines. */
+  /** The size of a page, at most 100 pipelines. */
   limit: number;
+  /** Each page, not only the first: the pipelines of a few projects, all of them. */
+  allPages?: boolean;
+  /** Only the pipelines of these projects, at most 100. Unset or empty: each project. */
+  projectIds?: readonly string[];
   /** Only these pipelines, at most 100. Unset or empty: each pipeline. */
   pipelineIds?: readonly string[];
 }

@@ -40,6 +40,22 @@ describe('grpcUser.toDomain', () => {
     expect(user).not.toHaveProperty('displayName');
   });
 
+  it('gives the URL of the photo and the color of the initials', () => {
+    const user = grpcUser.toDomain(
+      baseUser({ avatar: { imageId: { value: 'img-1' }, color: 'chart-4' } }),
+    );
+
+    expect(user.avatarUrl).toBe('/images/img-1');
+    expect(user.avatarColor).toBe('chart-4');
+  });
+
+  it('leaves out the avatar that the user did not choose', () => {
+    const user = grpcUser.toDomain(baseUser({ avatar: { color: '' } }));
+
+    expect(user).not.toHaveProperty('avatarUrl');
+    expect(user).not.toHaveProperty('avatarColor');
+  });
+
   it('is active only for the status active', () => {
     expect(grpcUser.toDomain(baseUser({ status: 'disabled' })).isActive).toBe(false);
     expect(grpcUser.toDomain(baseUser({ status: 'pending' })).isActive).toBe(false);

@@ -41,6 +41,18 @@ describe('ForgotPasswordPage', () => {
     expect(screen.getByLabelText('Email')).toHaveAttribute('autocomplete', 'email');
   });
 
+  it('shows no error at load, and shows it when the empty form is sent', async () => {
+    setUp();
+    const user = userEvent.setup();
+
+    expect(screen.queryByText('Enter a valid email address.')).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Send the link' }));
+
+    expect(await screen.findByText('Enter a valid email address.')).toBeInTheDocument();
+    expect(requestPasswordReset).not.toHaveBeenCalled();
+  });
+
   it('refuses a value that is not an email, before any call', async () => {
     setUp();
 

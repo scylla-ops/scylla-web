@@ -11,6 +11,7 @@ export {
   userName,
   userSecondaryLine,
   type IdentityKind,
+  type AvatarLook,
   type MissingUser,
   type UserIdentityProfile,
 } from '../presenters/user-identity.presenter.ts';

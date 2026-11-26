@@ -15,6 +15,10 @@ const repository = () =>
 
 export const REPOSITORY_LINK_QUERY_KEY = (projectId: string) =>
   ['repository-link', projectId] as const;
+/** A root of its own: a write of one link refreshes the links of each workspace. */
+const REPOSITORY_LINKS_QUERY_ROOT = ['repository-links'] as const;
+const REPOSITORY_LINKS_QUERY_KEY = (workspaceId: string) =>
+  [...REPOSITORY_LINKS_QUERY_ROOT, workspaceId] as const;
 const GIT_REFS_QUERY_KEY = (input: ListRefsInput) =>
   [
     ...REPOSITORY_LINK_QUERY_KEY(input.projectId),
@@ -28,6 +32,7 @@ const GIT_REFS_QUERY_KEY = (input: ListRefsInput) =>
 const invalidate = (projectId: string) =>
   Promise.all([
     getQueryClient().invalidateQueries({ queryKey: REPOSITORY_LINK_QUERY_KEY(projectId) }),
+    getQueryClient().invalidateQueries({ queryKey: REPOSITORY_LINKS_QUERY_ROOT }),
     getQueryClient().invalidateQueries({ queryKey: MERGE_BLOCKS_QUERY_KEY(projectId) }),
     getQueryClient().invalidateQueries({ queryKey: ALL_VCS_CONNECTIONS_QUERY_KEY }),
   ]);
@@ -43,6 +48,18 @@ export const repositoryLinkQueries = {
       queryKey: REPOSITORY_LINK_QUERY_KEY(projectId),
       queryFn: () => repository().getByProject(projectId),
       enabled: canRead(projectId),
+      staleTime: 30 * 1000,
+    }),
+
+  /**
+   * The links of the projects of a workspace, in one call: the cards of the projects page. Scoped
+   * by the backend: a link that the caller cannot read is not in the list.
+   */
+  byWorkspace: (workspaceId: string) =>
+    queryOptions({
+      queryKey: REPOSITORY_LINKS_QUERY_KEY(workspaceId),
+      queryFn: () => repository().listByWorkspace(workspaceId),
+      enabled: !!workspaceId,
       staleTime: 30 * 1000,
     }),
 

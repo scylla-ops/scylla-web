@@ -1,5 +1,11 @@
 import { userState } from '@platform/user-state';
-import { WHATS_NEW, type Release } from '@base/shell/whats-new.ts';
+import {
+  HIGHLIGHT_VERSIONS,
+  WHATS_NEW,
+  type Release,
+  type ReleaseHighlight,
+  type TabVersion,
+} from '@base/shell/whats-new.ts';
 
 const RELEASE_ID = 'release';
 
@@ -62,6 +68,25 @@ export const isUnseen = (id: string): boolean => {
   void revision;
   return !hasFlag(id);
 };
+
+/**
+ * Reactive. A highlight is new in the dialog until the user dismissed a dialog of its version or
+ * of a later one, or opened its page. A user who saw 0.7.2 sees only the 0.7.3 highlights as new.
+ */
+export const isNewInRelease = (highlight: ReleaseHighlight): boolean => {
+  void revision;
+  if (hasFlag(highlight.id)) return false;
+  const from = HIGHLIGHT_VERSIONS.indexOf(highlight.since);
+  return !HIGHLIGHT_VERSIONS.slice(from).some(
+    version => localStorage.getItem(`whats-new-seen:${version}:${RELEASE_ID}`) !== null,
+  );
+};
+
+/** Reactive. The tab of a version gets a dot while one of its highlights is new. */
+export const tabHasNew = (version: TabVersion): boolean =>
+  WHATS_NEW.highlights.some(
+    highlight => highlight.version === version && isNewInRelease(highlight),
+  );
 
 export const highlightIdForNav = (navUrl: string): string | undefined =>
   WHATS_NEW.highlights.find(highlight => highlight.navUrl === navUrl)?.id;

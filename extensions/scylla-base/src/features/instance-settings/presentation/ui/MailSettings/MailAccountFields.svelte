@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '@scylla/ui/i18n';
+  import { PasswordInput } from '@scylla/ui';
   import { Badge, Input } from '@scylla/ui/primitives';
   import { mailSettingsMessages as messages } from '@base/features/instance-settings/presentation/messages/mail-settings.messages.ts';
   import MailField from './MailField.svelte';
@@ -42,9 +43,8 @@
       </Badge>
     {/snippet}
     {#snippet children(describedBy)}
-      <Input
+      <PasswordInput
         id={`${id}-password`}
-        type="password"
         value={form.shown.password}
         maxlength={1024}
         autocomplete="new-password"

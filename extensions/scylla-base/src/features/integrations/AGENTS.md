@@ -32,7 +32,7 @@ type RepositoryLink, ReportMode, PipelineSource, GitRef, GitRefKind
 type MergeBlock, MergeBlockState, VcsReport, ReportState, JobReports
 integrationsUrl(workspaceSlug, connectedId?)
 repositoryLinkQueries                 the link of a project and its refs, for the pipeline and
-                                      trigger pages
+                                      trigger pages; byWorkspace: the links of a workspace
 vcsReportQueries, vcsReportMutations  the reports of jobs and their retry, for the pages of `jobs`
 ```
 
@@ -68,7 +68,8 @@ One repository for each gRPC service of `scylla/integrations/v1`, and one for `V
 | `deleteById(id)` | `void` |
 | `listRepositories(ListProviderRepositoriesInput)` | `ProviderRepositoryPage` — one page, for a `projectId` or, before the project exists, a `workspaceId` |
 
-`RepositoryLinkRepository` — `getByProject` (`null` with no link), `link`, `update` (sends only
+`RepositoryLinkRepository` — `getByProject` (`null` with no link), `listByWorkspace` (the links
+that the caller can read, in one `ListRepositoryLinks`), `link`, `update` (sends only
 the fields that are set), `unlink`, `testDelivery`, `listRefs` (one page).
 `MergeBlockRepository` — `listByProject`, `set`. `VcsReportRepository` — `listByJobs` (at most
 100 jobs, no call for none), `retry`. `PipelineSourceRepository` — on `PipelineService`:
@@ -141,6 +142,8 @@ presentation/
                                        remove dialog, the post of the manifest to GitHub
   ui/GitHubManifestCallback/           the page where GitHub sends the browser after the creation
   ui/ProviderTile.svelte               the mark of a provider in a square
+  ui/ProjectRepositoryLine/            the repository of a project, on its card of the projects page
+widget-injections/project-card/        fills the zone `cardSubtitle` of `project`
 ```
 
 ## Routes & nav
@@ -252,6 +255,9 @@ which links to it by its path: that module cannot import this one.
 - **The App of the settings is read only.** On a server with `SCYLLA_GITHUB_APP_*` (the cloud),
   `GetVcsApp` gives the App with `managedBySettings`: the page shows it with no form and no
   Remove. The nav link cannot hide by data: only the instance admins see it.
+- **The repository of a project card is one read for the workspace.** `ProjectRepositoryLine`
+  runs `repositoryLinkQueries.byWorkspace`: each card of the page reads the same list. A write of
+  a link refreshes it (`invalidate` of `repository-link.queries.ts`).
 - **The ProviderMark of `@shared` draws the marks** (`github`, `gitlab`). Lucide has no brand
   icon.
 

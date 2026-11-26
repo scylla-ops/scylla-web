@@ -10,6 +10,7 @@ import type { AgentStats as GrpcAgentStats } from '@base/generated/scylla/agents
 import type { JobOutcomes as GrpcJobOutcomes } from '@base/generated/scylla/pipelines/v1/job_stats.ts';
 import type { Duration } from '@base/generated/google/protobuf/duration.ts';
 import type { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
+import { iconToDomain } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import { type Job, JobStatus as GrpcJobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
 import type {
   AgentCompatibility,
@@ -63,6 +64,7 @@ const COMPATIBILITY: Partial<Record<GrpcAgentCompatibility, AgentCompatibility>>
 };
 
 export function toDomain(app: App): AppEntity {
+  const icon = iconToDomain(app.icon);
   return {
     id: idValue(app.id),
     workspaceId: idValue(app.workspaceId),
@@ -86,6 +88,7 @@ export function toDomain(app: App): AppEntity {
     missingFeatures: [...app.missingFeatures],
     labels: [...app.labels],
     automaticLabels: [...app.automaticLabels],
+    ...(icon && { icon }),
   };
 }
 

@@ -1,4 +1,4 @@
-import type { LucideIcon } from '@scylla/ui';
+import type { EntityIconProps, LucideIcon } from '@scylla/ui';
 
 export interface NavItem {
   title: string;
@@ -7,6 +7,8 @@ export interface NavItem {
   /** The path of the link in its mount, e.g. `agents`: what `navBadge` and `onNavOpen` receive. */
   url: string;
   icon?: LucideIcon;
+  /** The icon of the entity that the link opens, in place of `icon`: a tile of 20 px. */
+  entityIcon?: EntityIconProps;
   /** Apart from the links before it, in red. */
   danger?: boolean;
   /** Apart from the links before it. */

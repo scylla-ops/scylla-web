@@ -1,5 +1,6 @@
 import { ScyllaGrpcTransport } from './scylla-grpc-transport.ts';
 import {
+  apiUrl,
   closeSession,
   forgetSession,
   marketplaceIsLocal,
@@ -25,6 +26,13 @@ export const marketplaceTransport = new ScyllaGrpcTransport({
 });
 
 export { marketplaceIsLocal, marketplaceUrl };
+
+/**
+ * The URL of an image that the API keeps (`GET /images/{id}`), e.g. the icon of a project. An
+ * `<img>` reads it with no token: the id is the secret, and an image never changes.
+ */
+export const imageUrl = (imageId: string): string =>
+  `${apiUrl()}/images/${encodeURIComponent(imageId)}`;
 
 /**
  * The token side of the browser session. Only `features/login` uses it: a sign-in opens it, a

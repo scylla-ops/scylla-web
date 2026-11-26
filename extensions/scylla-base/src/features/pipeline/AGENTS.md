@@ -42,7 +42,7 @@ not through the barrel.
 |---|---|
 | `getMetadataByProjectId(...)` | paginated `PipelineMetadata`, each with its `origin` |
 | `getMetadataByWorkspaceId(...)` | paginated `PipelineMetadata`, each with its `origin` |
-| `getSummaries(query)` | `PipelineSummaryList`: one page of `ListPipelineSummaries`, with the counts of all the pages. `pipelineIds` limits the page to these pipelines |
+| `getSummaries(query)` | `PipelineSummaryList`: one page of `ListPipelineSummaries`, with the counts of all the pages. `pipelineIds` and `projectIds` limit the page to these pipelines or projects; `allPages` reads each page |
 | `getById(id)` | `PipelineEntity` (full, with nodes) |
 | `getWithLayout(id)` | `PipelineWithLayout`: the entity, the places of its nodes and its `origin` |
 | `saveLayout(id, layout)` | `void`: the places only, with no new version of the pipeline |
@@ -161,7 +161,8 @@ infrastructure/
   grpc-pipeline-summary.mapper.ts            ListPipelineSummaries → PipelineSummaryList, healthOf
 presentation/
   pipeline.commands.ts                       create, jobs and edit, for the search bar
-  pipeline.queries.ts                        TanStack Query options factories
+  pipeline.queries.ts                        TanStack Query options factories (`ofProjects`: the
+                                             pipelines of a batch of project cards, in one call)
   fragment.queries.ts                        the library: fragmentQueries, fragmentMutations,
                                              (the links go with pipelineMutations.update)
   pipeline.query-keys.ts                     Query key factories (exported publicly)
@@ -181,6 +182,8 @@ presentation/
                                              pipelineKeyTakenText)
     git-events.presenter.ts                  gitEventsState: does the pipeline need the opt-in, and has it
     pipeline-feed.presenter.ts               asPipelineFeed
+    project-card.presenter.ts                the pipelines of one project card: its rows (status,
+                                             branch, time), the others, the failing ones, its footer
     pipeline-file.presenter.ts               a file pipeline: the rows of `on` and of the checkout,
                                              the place of an error, the note of a row of the list
                                              (originNote: a badge, its full text in a tooltip),
@@ -200,6 +203,9 @@ presentation/
     commit-ref.mapper.ts                     a CommitRef ↔ the value of a row of a picker
   ui/                                        Svelte only
     run-pipeline.state.svelte.ts             the Run action, shared by the dashboard and the jobs page
+    ProjectCardPipelines/                    the parts of a project card (zones of `project`): the
+                                             failing badge, the rows with Run, the last job, and
+                                             their state (one query for the batch of the card)
     GitEvents/                               the opt-in of the Git events: git-events.state.svelte.ts
                                              (createGitEvents), GitEventsDialog (the warning, or the
                                              confirm of a revoke), GitEventsNote (the state, Allow or Revoke)
@@ -342,6 +348,13 @@ and this module links to it with `scyllaNavigate.goToJobDetails(...)`, never by 
 the page.
 
 ## Rules that bite here
+
+- **The pipelines of a project card come from `widget-injections/project-card/`.** It fills the
+  zones `cardBadge`, `cardBody` and `cardFooter` of `project`. Each part runs
+  `pipelineQueries.ofProjects` with the `batch` of its card: the cards of a batch make one call.
+  A click on a row opens the jobs of the pipeline (an `<a>`, so a middle click opens a tab), and
+  writes the project and the pipeline in `contextStore`. The Run button runs at the head of the
+  default branch, with no dialog, and needs `RUN_PIPELINE` on the project.
 
 - **A block of the library is drawn, never saved.** The document always holds the nodes of a
   linked fragment, with the prefix of their block (`instantiate`), so the server runs them as any

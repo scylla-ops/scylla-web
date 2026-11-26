@@ -2,7 +2,17 @@ import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
 import {
   identityKindOf,
   type IdentityKind,
+  type UserIdentityProfile,
 } from '@shared/presentation/presenters/user-identity.presenter.ts';
+
+/** The photo or the color of a person, or the icon of an app. */
+type MemberAvatar = Pick<MemberEntity, 'avatarUrl' | 'avatarColor' | 'avatarGlyph'>;
+
+const avatarOf = ({ avatarUrl, avatarColor, avatarGlyph }: MemberAvatar): MemberAvatar => ({
+  ...(avatarUrl && { avatarUrl }),
+  ...(avatarColor && { avatarColor }),
+  ...(avatarGlyph && { avatarGlyph }),
+});
 
 export const OWNER_KEY = 'owner';
 
@@ -18,7 +28,7 @@ const ALL_PROJECTS_ROLES: readonly (readonly [string, string])[] = [
 export type MemberTab = 'people' | 'apps';
 
 /** One row of the members table of a workspace. */
-export interface MemberRow {
+export interface MemberRow extends MemberAvatar {
   actorId: string;
   tab: MemberTab;
   kind: IdentityKind;
@@ -33,10 +43,13 @@ export interface MemberRow {
   addedAt?: Date;
 }
 
-/** How a member shows in `Identity`. */
-export const memberProfile = (row: { name: string; handle: string }) => ({
+/** How a member shows in `Identity`: its name, its handle, and its photo or its icon. */
+export const memberProfile = (
+  row: { name: string; handle: string } & MemberAvatar,
+): UserIdentityProfile => ({
   displayName: row.name,
   username: row.handle,
+  ...avatarOf(row),
 });
 
 const oldest = (roles: readonly MemberRoleEntity[]): Date | undefined =>
@@ -60,6 +73,7 @@ export const buildMemberRows = (members: readonly MemberEntity[]): MemberRow[] =
       kind: identityKindOf(member),
       name: member.displayName,
       handle: member.handle,
+      ...avatarOf(member),
       workspaceRoles,
       projectRoles,
       ...(allProjectsRoleKey ? { allProjectsRoleKey } : {}),
@@ -81,7 +95,7 @@ export const filterMemberRows = (
 };
 
 /** The scope of the roles of one row of the members of a project, for the "Comes from" column. */
-export interface ProjectMemberRow {
+export interface ProjectMemberRow extends MemberAvatar {
   actorId: string;
   tab: MemberTab;
   kind: IdentityKind;
@@ -108,6 +122,7 @@ export const buildProjectMemberRows = (members: readonly MemberEntity[]): Projec
         kind: identityKindOf(member),
         name: member.displayName,
         handle: member.handle,
+        ...avatarOf(member),
         roles,
         scopes: kinds.map(kind => ({
           scopeKind: kind,

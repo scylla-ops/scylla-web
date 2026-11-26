@@ -160,6 +160,19 @@ describe('DefaultUserRepository', () => {
     expect(a.updateUser).not.toHaveBeenCalled();
   });
 
+  it('changes the own avatar with UpdateProfile, and sends empty bytes to remove the photo', async () => {
+    const { repo, p } = repository();
+    const image = new Uint8Array([1, 2, 3]);
+
+    await repo.updateAvatar({ image });
+    await repo.updateAvatar({ image: null });
+    await repo.updateAvatar({ color: 'chart-4' });
+
+    expect(p.updateProfile).toHaveBeenNthCalledWith(1, { avatarImage: image });
+    expect(p.updateProfile).toHaveBeenNthCalledWith(2, { avatarImage: new Uint8Array() });
+    expect(p.updateProfile).toHaveBeenNthCalledWith(3, { avatarColor: 'chart-4' });
+  });
+
   it('sends the status of an activation', async () => {
     const { repo, a } = repository();
 

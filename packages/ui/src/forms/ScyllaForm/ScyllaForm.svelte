@@ -13,6 +13,7 @@
     SelectValue,
   } from '../../primitives/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
+  import PasswordInput from '../../controls/PasswordInput/PasswordInput.svelte';
   import { createFormState } from '../form.state.svelte.ts';
   import { FormItemType, type FormItem, type FormValues } from '../scylla-form.struct.ts';
 
@@ -67,21 +68,38 @@
         <FieldLabel for={item.id}>{item.label}</FieldLabel>
 
         {#if item.type === FormItemType.Input}
-          <Input
-            id={item.id}
-            type={item.inputType}
-            autocomplete={item.autocomplete}
-            readonly={item.readonly}
-            disabled={isPending || item.disabled}
-            placeholder={item.placeholder}
-            class={item.class}
-            autofocus={autofocus && index === 0}
-            aria-invalid={error ? 'true' : undefined}
-            aria-describedby={describedBy(item, error)}
-            value={form.values[item.id]}
-            oninput={event => form.handleChange(item.id, event.currentTarget.value)}
-            onblur={() => form.touch(item.id)}
-          />
+          {#if item.inputType === 'password'}
+            <PasswordInput
+              id={item.id}
+              autocomplete={item.autocomplete}
+              readonly={item.readonly}
+              disabled={isPending || item.disabled}
+              placeholder={item.placeholder}
+              class={item.class}
+              autofocus={autofocus && index === 0}
+              aria-invalid={error ? 'true' : undefined}
+              aria-describedby={describedBy(item, error)}
+              value={form.values[item.id]}
+              oninput={event => form.handleChange(item.id, event.currentTarget.value)}
+              onblur={() => form.touch(item.id)}
+            />
+            {:else}
+            <Input
+              id={item.id}
+              type={item.inputType}
+              autocomplete={item.autocomplete}
+              readonly={item.readonly}
+              disabled={isPending || item.disabled}
+              placeholder={item.placeholder}
+              class={item.class}
+              autofocus={autofocus && index === 0}
+              aria-invalid={error ? 'true' : undefined}
+              aria-describedby={describedBy(item, error)}
+              value={form.values[item.id]}
+              oninput={event => form.handleChange(item.id, event.currentTarget.value)}
+              onblur={() => form.touch(item.id)}
+            />
+            {/if}
         {:else}
           <!-- Not `bind:value`: the form state owns the value, reset and validity. -->
           <Select

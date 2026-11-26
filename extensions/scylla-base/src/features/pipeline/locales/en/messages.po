@@ -47,6 +47,10 @@ msgstr "{count, plural, one {# missing} other {# missing}}"
 msgid "{count, plural, one {# node} other {# nodes}}"
 msgstr "{count, plural, one {# node} other {# nodes}}"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:9
+msgid "{count, plural, one {# other pipeline} other {# other pipelines}}"
+msgstr "{count, plural, one {# other pipeline} other {# other pipelines}}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:49
 msgid "{count, plural, one {# pins {key}={value} and keeps it: {names}.} other {# pin {key}={value} and keep it: {names}.}}"
 msgstr "{count, plural, one {# pins {key}={value} and keeps it: {names}.} other {# pin {key}={value} and keep it: {names}.}}"
@@ -94,6 +98,10 @@ msgstr "{count, plural, one {Turn the selected node into a reusable fragment, sh
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:99
 msgid "{count, plural, one {v{number} · # organization} other {v{number} · # organizations}}"
 msgstr "{count, plural, one {v{number} · # organization} other {v{number} · # organizations}}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:5
+msgid "{count} failing"
+msgstr "{count} failing"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:47
 msgid "{count} of {total} pipelines can switch as is."
@@ -594,6 +602,10 @@ msgstr "Couldn't load the pipeline"
 msgid "Create"
 msgstr "Create"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:11
+msgid "Create a pipeline"
+msgstr "Create a pipeline"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/pipeline.commands.ts:26
 msgid "create add workflow"
 msgstr "create add workflow"
@@ -908,6 +920,10 @@ msgstr "Fix these nodes before you save: {ids}"
 msgid "Flow"
 msgstr "Flow"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:6
+msgid "for {duration}"
+msgstr "for {duration}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:30
 msgid "Fork of {reference} v{number}"
 msgstr "Fork of {reference} v{number}"
@@ -1073,6 +1089,10 @@ msgstr "It is public: other workspaces link it. Deprecate its versions instead."
 msgid "Its push, pull request and tag triggers stay, but they start no run until an admin allows them again."
 msgstr "Its push, pull request and tag triggers stay, but they start no run until an admin allows them again."
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:13
+msgid "Job running for {duration}"
+msgstr "Job running for {duration}"
+
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:109
 msgid "Jobs"
 msgstr "Jobs"
@@ -1108,6 +1128,10 @@ msgstr "Kind of the right value"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:39
 msgid "Last failure"
 msgstr "Last failure"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:12
+msgid "Last job {ago}"
+msgstr "Last job {ago}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:31
 msgid "Last run {when}"
@@ -1270,6 +1294,14 @@ msgstr "New runs fail with \"Invalid pipeline file\" until the file is valid."
 msgid "New version published"
 msgstr "New version published"
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:7
+msgid "next {time}"
+msgstr "next {time}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:14
+msgid "Next job {time}"
+msgstr "Next job {time}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/run.messages.ts:10
 msgid "No branch or tag"
 msgstr "No branch or tag"
@@ -1289,6 +1321,10 @@ msgstr "No fragment of the marketplace yet. Browse the marketplace to add one, l
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:55
 msgid "No input link"
 msgstr "No input link"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:15
+msgid "No job yet"
+msgstr "No job yet"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/blueprint.messages.ts:7
 msgid "No node matches this search."
@@ -1313,6 +1349,10 @@ msgstr "No pipeline matches."
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/library.messages.ts:129
 msgid "No pipeline uses it. Its versions are lost."
 msgstr "No pipeline uses it. Its versions are lost."
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:10
+msgid "No pipeline yet"
+msgstr "No pipeline yet"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:133
 msgid "No reference to {workspace} in the nodes"
@@ -1443,6 +1483,10 @@ msgstr "Open in library"
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/scripting.messages.ts:24
 msgid "Open nodes"
 msgstr "Open nodes"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:16
+msgid "Open the jobs of {name}"
+msgstr "Open the jobs of {name}"
 
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/community.messages.ts:151
 msgid "Open the pipeline that holds the new nodes, select them, then save them to the library under the name {name}."

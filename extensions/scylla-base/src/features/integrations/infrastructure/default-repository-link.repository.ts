@@ -21,6 +21,14 @@ export class DefaultRepositoryLinkRepository implements RepositoryLinkRepository
     return response.link ? grpcRepositoryLink.toDomain(response.link) : null;
   }
 
+  public async listByWorkspace(workspaceId: string): Promise<RepositoryLink[]> {
+    const response = await this.client.listRepositoryLinks({
+      workspaceId: wrapId(workspaceId),
+      projectIds: [],
+    }).response;
+    return response.links.map(grpcRepositoryLink.toDomain);
+  }
+
   public async link(input: LinkRepositoryInput): Promise<RepositoryLink> {
     const response = await this.client.linkRepository({
       projectId: wrapId(input.projectId),
