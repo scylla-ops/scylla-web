@@ -13,6 +13,16 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ### Added
 
+- A Mail page in the administration of the server (Admin > Mail, after Settings) sets the SMTP relay
+  that sends the mails of Scylla, with no restart: host, port, security (TLS on connect, STARTTLS or
+  no encryption), user name, password or API key, and sender address and name. A provider list
+  fills the host, the port and the security for Scaleway TEM, LWS, Brevo, Postmark, Amazon SES and
+  Mailjet, and tells what to type as the user name and the password. The password is write-only:
+  the page shows only "Set" or "Not set", and an empty field keeps the saved password. "Send a test
+  mail" sends a mail at once through the saved settings and shows the answer of the mail server, or
+  its error. "Use the server default" removes the settings and the saved password after a
+  confirmation, and Scylla uses the mail server of its configuration again. The page needs the
+  permission to manage the settings of the instance.
 - Each password field has a button to show and hide the typed text.
 - Each project can have its own icon: a glyph of the icon set with a theme color or a free color, or
   an uploaded image. The icon shows on the project card, in the projects of the sidebar and in the
@@ -23,13 +33,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   cron. A click on a pipeline opens its jobs, and its Run button runs it in one click. The page has
   the counts of the workspace, a search ("/" goes to it, Escape clears it), the filters All, Failing
   and Running, and a sort by name, last job or failures first, all kept in the URL. "Show more"
-  replaces the page numbers: 6 cards (3 on a phone), then 12 more each time. The menu of a card has
-  Edit and Delete.
+  replaces the page numbers: 6 cards (3 on a phone), then 12 more each time.
 - Each user can set a profile photo in Account > Profile: an uploaded image, or the initials on a
   color. The photo shows in the account menu, in the account header and in the member lists. An
   admin of the workspace can set the icon of an agent on the agent page, with the icon picker of the
   projects: a glyph with a theme color or a free color, or an image. The icon shows in the list of
-  the agents, on the agent page and in the member lists.
+  the agents, on the agent page, on its jobs and in the member lists.
 - The projects page has groups, pins and a custom order. A member that can edit the projects creates
   a group with "New group", and opens, closes, renames, moves or deletes each group section, which
   shows its count and its health. Each person pins projects in a "Pinned" zone at the top. The menu
@@ -41,7 +50,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 ### Changed
 
 - What's new shows one tab for each version, an icon tile for each item, and new, clearer texts. It
-  also announces the Projects page and the project icons.
+  opens again one time for each user, and announces the new Projects page, the project icons, the
+  profile photo and the agent icons. The Projects link of the sidebar shows a "New" badge until you
+  open it.
 
 ### Fixed
 
