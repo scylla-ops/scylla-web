@@ -45,6 +45,8 @@
 
   // The groups and the order of the workspace: the right to edit its projects.
   const canManage = $derived(can(Permission.UPDATE_PROJECT, { workspaceId }));
+  // Each section offers a new project in it: the right to create a project in the workspace.
+  const canCreate = $derived(can(Permission.CREATE_PROJECT, { workspaceId }));
   let creating = $state(false);
 
   setProjectLayout({
@@ -193,7 +195,9 @@
       {reorder}
       phone={list.phone}
       {canManage}
+      {canCreate}
       {creating}
+      onNewGroup={() => (creating = true)}
       onCreated={() => (creating = false)}
     />
   {/if}

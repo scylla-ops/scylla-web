@@ -134,8 +134,11 @@ presentation/
                                        rules (card, row), the unlink dialog
   ui/LinkRepositoryDialog/             the link dialog of a project, on the picker
   ui/NewGitHubProject/                 the page projects/new/github: the repository step, the
-                                       details step (the icon, the name, the description), their
-                                       state (create with the icon, link, source, reports)
+                                       details step (the icon, the name, the description, the
+                                       group: `loadGroupField` of project), their state (create
+                                       with the icon and the group, link, source, reports). The
+                                       `?group=` of the page stays for « Back » and the GitHub
+                                       install
   ui/repository-picker.state.svelte.ts the picker: connection, search, repositories, choice
   ui/RepositorySearch.svelte           the connection select and the search field of the picker
   ui/RepositoryOptions.svelte          the radio list of the repositories of the picker

@@ -570,6 +570,48 @@ describe('the second sidebar', () => {
       expect(within(secondSidebar()).getByRole('button', { name: /runner-3/ })).toBeInTheDocument();
     });
 
+    it('gives a section its "+", which opens the URL of its action, and no "+" to the others', async () => {
+      const section = (key: string, title: string, href?: string) => ({
+        key,
+        title,
+        folded: false,
+        onToggle: () => {},
+        ...(href && { action: { label: `New machine in ${title}`, href } }),
+      });
+      const contributions: ShellContributions[] = [
+        {
+          linkParams: () => ({ workspaceSlug: 'acme-corp' }),
+          secondSidebarLinks: shown => () =>
+            shown() === 'machines'
+              ? [
+                  {
+                    title: 'runner-1',
+                    href: '/acme-corp/agents/1',
+                    section: section('g-1', 'Build', '/acme-corp/agents/new?group=g-1'),
+                  },
+                  { title: 'runner-2', href: '/acme-corp/agents/2', section: section('g-2', 'Deploy') },
+                ]
+              : [],
+        },
+      ];
+      render(AppSidebarFixture, { config: configWith({ entries: groupEntries, contributions }) });
+
+      const add = within(secondSidebar()).getByRole('button', { name: 'New machine in Build' });
+      // Out of the button that folds the section: a click on the "+" does not fold it.
+      expect(add.closest('[aria-expanded]')).toBeNull();
+      expect(
+        within(secondSidebar()).queryByRole('button', { name: 'New machine in Deploy' }),
+      ).not.toBeInTheDocument();
+
+      await userEvent.click(add);
+
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/agents/new?group=g-1', undefined);
+      expect(within(secondSidebar()).getByRole('button', { name: 'Build' })).toHaveAttribute(
+        'aria-expanded',
+        'true',
+      );
+    });
+
     it('opens the URL of a link', async () => {
       render(AppSidebarFixture, {
         config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),

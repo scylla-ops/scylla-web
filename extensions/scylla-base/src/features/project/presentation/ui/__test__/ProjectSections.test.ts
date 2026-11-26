@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
-import { permissionsStore, PermissionScope } from '@platform/authz';
+import { Permission, permissionsStore, PermissionScope } from '@platform/authz';
 import type { ProjectGroupEntity } from '@base/features/project/domain/entities/project-group.entity.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
 import type { ProjectGroupRepository } from '@base/features/project/domain/repository/project-group.repository.ts';
@@ -112,6 +112,8 @@ const cardsOf = (name: string) =>
   [...section(name).querySelectorAll('[data-tour="project-card"]')].map(card =>
     card.getAttribute('data-project-id'),
   );
+/** « New group » of the header of the page: the end of the page and « No group » have one too. */
+const newGroupOfHeader = () => screen.getAllByRole('button', { name: 'New group' })[0];
 const headerOf = (name: string, expanded = true) =>
   within(section(name)).getByRole('button', { expanded, name: new RegExp(`^${name}`) });
 
@@ -297,7 +299,7 @@ describe('the sections of the projects page', () => {
     render(ProjectList, { workspaceId: 'org-1' });
     await screen.findByRole('region', { name: 'Deploys' });
 
-    await userEvent.click(screen.getByRole('button', { name: 'New group' }));
+    await userEvent.click(newGroupOfHeader());
     await userEvent.type(screen.getByRole('textbox', { name: 'Group name' }), 'Releases{Enter}');
 
     await waitFor(() => expect(groups.create).toHaveBeenCalledWith('org-1', 'Releases', undefined));
@@ -310,7 +312,7 @@ describe('the sections of the projects page', () => {
     render(ProjectList, { workspaceId: 'org-1' });
     await screen.findByRole('region', { name: 'Deploys' });
 
-    await userEvent.click(screen.getByRole('button', { name: 'New group' }));
+    await userEvent.click(newGroupOfHeader());
     await userEvent.click(screen.getByRole('button', { name: 'Folder color of the new group' }));
     await userEvent.click(await floatingButton('Color 2'));
     await userEvent.keyboard('{Escape}');
@@ -593,5 +595,189 @@ describe('the drag of the reorder mode', () => {
     await waitFor(() => expect(gridOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']));
     expect(screen.getByText('“status” is back at its place')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
+  });
+});
+
+describe('the calls to action of the sections', () => {
+  const grant = (permissions: Permission[]) =>
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.WORKSPACE,
+            scopeId: 'org-1',
+            access: { kind: 'restricted', permissions },
+          },
+        ],
+      },
+    });
+  const link = (sectionName: string, name: string) =>
+    within(section(sectionName)).getByRole('link', { name });
+
+  it('offers a new project in each group, with the group: its "+", its menu and a ghost card', async () => {
+    const { navigate } = installTestNavigator({ pathname: '/acme/projects' });
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    expect(link('Deploys', 'New project in Deploys')).toHaveAttribute(
+      'href',
+      '/acme/projects/new?group=g-1',
+    );
+    expect(link('Deploys', 'New project')).toHaveAttribute('href', '/acme/projects/new?group=g-1');
+    expect(link('No group', 'New project with no group')).toHaveAttribute(
+      'href',
+      '/acme/projects/new',
+    );
+    expect(link('No group', 'New project')).toHaveAttribute('href', '/acme/projects/new');
+    // The ghost card is not a card: no drag, no project id.
+    expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
+
+    await userEvent.click(within(section('Deploys')).getByRole('button', { name: 'Group menu' }));
+    await userEvent.click(await findFloating('menuitem', 'New project here'));
+
+    expect(navigate).toHaveBeenCalledWith('/acme/projects/new?group=g-1', undefined);
+  });
+
+  it('hides the "+" and the ghost card in the reorder mode', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
+
+    expect(within(section('Deploys')).queryAllByRole('link')).toEqual([]);
+    expect(within(section('No group')).queryAllByRole('link')).toEqual([]);
+  });
+
+  it('offers no new project to a person who cannot create one', async () => {
+    grant([Permission.READ_WORKSPACE, Permission.UPDATE_PROJECT]);
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    expect(within(section('Deploys')).queryAllByRole('link')).toEqual([]);
+    expect(within(section('No group')).queryAllByRole('link')).toEqual([]);
+    await userEvent.click(within(section('Deploys')).getByRole('button', { name: 'Group menu' }));
+    await findFloating('menuitem', 'Rename');
+    expect(screen.queryByRole('menuitem', { name: 'New project here', hidden: true })).toBeNull();
+  });
+
+  it('gives an empty group one line of text and its « New project »', async () => {
+    groups.list.mockResolvedValue([DEPLOYS, { id: 'g-2', workspaceId: 'org-1', name: 'Releases' }]);
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Releases' });
+
+    await waitFor(() =>
+      expect(section('Releases')).toHaveTextContent(
+        'No project in this group yet. Create one here, or move a card into it.',
+      ),
+    );
+    expect(link('Releases', 'New project')).toHaveAttribute('href', '/acme/projects/new?group=g-2');
+  });
+
+  it('opens the « New group » row from the end of the page and from « No group »', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    const ofUngrouped = within(section('No group')).getByRole('button', { name: 'New group' });
+    const end = document.querySelector<HTMLElement>('[data-part="project-new-group-end"]')!;
+    expect(end).toHaveAccessibleName('New group');
+    await userEvent.click(end);
+
+    expect(screen.getByRole('textbox', { name: 'Group name' })).toHaveFocus();
+    expect(document.querySelector('[data-part="project-new-group-end"]')).toBeNull();
+    expect(ofUngrouped).not.toBeInTheDocument();
+
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(within(section('No group')).getByRole('button', { name: 'New group' }));
+    expect(screen.getByRole('textbox', { name: 'Group name' })).toBeInTheDocument();
+  });
+});
+
+describe('a folded section', () => {
+  const fold = (keys: string[]) =>
+    localStorage.setItem(PROJECT_SECTIONS_KEY, JSON.stringify({ 'org-1': keys }));
+  const lineOf = (sectionName: string) =>
+    within(section(sectionName)).getByRole('group', { name: /folded$/ });
+  const chipsOf = (line: HTMLElement) =>
+    within(line)
+      .getAllByRole('button')
+      .map(chip => chip.textContent?.trim());
+
+  it('shows one line with a chip for each project, in the order of the group', async () => {
+    fold(['g-1']);
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    const line = await waitFor(() => lineOf('Deploys'));
+    expect(line).toHaveAccessibleName('2 projects in Deploys, folded');
+    expect(chipsOf(line)).toEqual(['web', 'api']);
+    expect(cardsOf('Deploys')).toEqual([]);
+  });
+
+  it('ends the line with "+N" for the projects with no chip', async () => {
+    const read = search.getMockImplementation()!;
+    search.mockImplementation(async input => {
+      const result = await read(input);
+      return input.section?.kind === 'ungrouped'
+        ? { ...result, counts: { ...result.counts, total: result.counts.total + 4 } }
+        : result;
+    });
+    fold(['ungrouped']);
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    const line = await waitFor(() => lineOf('No group'));
+    expect(line).toHaveAccessibleName('7 projects in No group, folded');
+    expect(within(line).getByRole('button', { name: '4 more projects' })).toHaveTextContent('+4');
+  });
+
+  it('opens the group at the card of a chip, and scrolls to it', async () => {
+    const scroll = vi.mocked(Element.prototype.scrollIntoView);
+    scroll.mockClear();
+    fold(['g-1']);
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    const line = await waitFor(() => lineOf('Deploys'));
+    await userEvent.click(within(line).getByRole('button', { name: 'api' }));
+
+    expect(headerOf('Deploys')).toHaveAttribute('aria-expanded', 'true');
+    expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
+    expect(JSON.parse(localStorage.getItem(PROJECT_SECTIONS_KEY)!)).toEqual({});
+    await waitFor(() => expect(scroll).toHaveBeenCalled());
+    expect(scroll.mock.contexts[0]).toBe(section('Deploys').querySelector('[data-card="id-api"]'));
+  });
+
+  it('opens the group with "+N" and with the free part of the line', async () => {
+    fold(['g-1']);
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(await waitFor(() => lineOf('Deploys')));
+
+    expect(headerOf('Deploys')).toHaveAttribute('aria-expanded', 'true');
+    expect(within(section('Deploys')).queryByRole('group', { name: /folded$/ })).toBeNull();
+  });
+
+  it('folds the pins to a line of chips too', async () => {
+    localStorage.setItem(PROJECT_PINS_KEY, JSON.stringify({ 'org-1': ['id-cli', 'id-web'] }));
+    fold(['pins']);
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Pinned' });
+
+    const line = await waitFor(() => lineOf('Pinned'));
+    expect(line).toHaveAccessibleName('2 projects in Pinned, folded');
+    expect(chipsOf(line)).toEqual(['cli', 'web']);
+  });
+
+  it('folds an open group to its line, and the header opens it again', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(headerOf('Deploys'));
+    expect(chipsOf(lineOf('Deploys'))).toEqual(['web', 'api']);
+
+    await userEvent.click(headerOf('Deploys', false));
+    expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
+    expect(within(section('Deploys')).queryByRole('group', { name: /folded$/ })).toBeNull();
   });
 });

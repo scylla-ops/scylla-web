@@ -145,6 +145,43 @@ describe('projectLinks', () => {
     expect(links()[2]?.section?.color).toBeUndefined();
   });
 
+  it('gives each group and « No group » a "+" for a new project there, and none to the pins', async () => {
+    all = [project('p-1', 'web', 'g-1'), project('p-2', 'cli')];
+    groups.list.mockResolvedValue([group('g-1', 'Deploys')]);
+    localStorage.setItem(PINS_KEY, JSON.stringify({ 'org-1': ['p-2'] }));
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.WORKSPACE,
+            scopeId: 'org-1',
+            access: {
+              kind: 'restricted',
+              permissions: [Permission.LIST_PROJECTS_BY_WORKSPACE, Permission.CREATE_PROJECT],
+            },
+          },
+        ],
+      },
+    });
+    const links = mount('projects');
+
+    await vi.waitFor(() => expect(links()).toHaveLength(3));
+    expect(links().map(link => link.section?.action)).toEqual([
+      undefined,
+      { label: 'New project in Deploys', href: '/acme/projects/new?group=g-1' },
+      { label: 'New project with no group', href: '/acme/projects/new' },
+    ]);
+  });
+
+  it('gives no "+" to a person who cannot create a project', async () => {
+    all = [project('p-1', 'web', 'g-1'), project('p-2', 'cli')];
+    groups.list.mockResolvedValue([group('g-1', 'Deploys')]);
+    const links = mount('projects');
+
+    await vi.waitFor(() => expect(links()).toHaveLength(2));
+    expect(links().map(link => link.section?.action)).toEqual([undefined, undefined]);
+  });
+
   it('folds a section as the projects page does, in the same key', async () => {
     all = [project('p-1', 'web', 'g-1'), project('p-2', 'cli')];
     groups.list.mockResolvedValue([group('g-1', 'Deploys')]);

@@ -3,7 +3,12 @@
   import type { Component } from 'svelte';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import FolderIcon from '@lucide/svelte/icons/folder';
-  import type { SecondSidebarSearch } from '@scylla/core-sdk';
+  import PlusIcon from '@lucide/svelte/icons/plus';
+  import {
+    navigateTo,
+    type SecondSidebarSearch,
+    type SecondSidebarSectionAction,
+  } from '@scylla/core-sdk';
   import {
     ColorGlyph,
     EntityIcon,
@@ -12,7 +17,13 @@
     prefersReducedMotion,
     unfold,
   } from '@scylla/ui';
-  import { Input, Skeleton } from '@scylla/ui/primitives';
+  import {
+    Input,
+    Skeleton,
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+  } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import type { NavItem, SecondSidebarContent } from '../structs/nav-section.struct.ts';
   import { NAV_DANGER_APART_CLASS, NAV_HEADING_CLASS } from './nav-classes.ts';
@@ -93,6 +104,23 @@
   </button>
 {/snippet}
 
+{#snippet sectionAction(action: SecondSidebarSectionAction)}
+  <!-- At rest, a mouse sees no "+": it shows on hover and on focus. A touch screen always shows it. -->
+  <Tooltip>
+    <TooltipTrigger
+      class="mr-1 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md text-muted-foreground transition-[opacity,color,background-color] outline-hidden hover:bg-background hover:text-foreground focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:group-hover/section:opacity-100"
+      data-part="second-sidebar-section-action"
+      onclick={() => navigateTo(action.href)}
+    >
+      <PlusIcon class="size-3.5" aria-hidden="true" />
+      <span class="sr-only">{action.label}</span>
+    </TooltipTrigger>
+    <TooltipContent>
+      <p>{action.label}</p>
+    </TooltipContent>
+  </Tooltip>
+{/snippet}
+
 <aside
   {id}
   data-slot="sidebar"
@@ -156,34 +184,41 @@
                 data-part="second-sidebar-section"
               >
                 <!-- The title of a section of links, e.g. a group of projects: it folds them. -->
-                <button
-                  type="button"
-                  class="flex h-8 w-full items-center gap-2 rounded-lg px-2 text-left text-xs font-semibold text-muted-foreground transition-colors outline-hidden hover:bg-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none"
-                  aria-expanded={!section.folded}
-                  onclick={() => section.onToggle(!section.folded)}
+                <div
+                  class="group/section flex h-8 items-center rounded-lg transition-colors hover:bg-accent motion-reduce:transition-none"
                 >
-                  <ChevronRightIcon
-                    class={cn(
-                      'size-3.5 shrink-0 transition-transform duration-200 motion-reduce:transition-none',
-                      !section.folded && 'rotate-90',
-                    )}
-                    aria-hidden="true"
-                  />
-                  {#if section.icon}
-                    <section.icon class="size-4 shrink-0" aria-hidden="true" />
-                  {:else}
-                    <ColorGlyph icon={FolderIcon} color={section.color} />
+                  <button
+                    type="button"
+                    class="flex h-8 min-w-0 flex-1 items-center gap-2 rounded-lg px-2 text-left text-xs font-semibold text-muted-foreground outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring"
+                    aria-expanded={!section.folded}
+                    onclick={() => section.onToggle(!section.folded)}
+                  >
+                    <ChevronRightIcon
+                      class={cn(
+                        'size-3.5 shrink-0 transition-transform duration-200 motion-reduce:transition-none',
+                        !section.folded && 'rotate-90',
+                      )}
+                      aria-hidden="true"
+                    />
+                    {#if section.icon}
+                      <section.icon class="size-4 shrink-0" aria-hidden="true" />
+                    {:else}
+                      <ColorGlyph icon={FolderIcon} color={section.color} />
+                    {/if}
+                    <span class="min-w-0 flex-1 truncate" title={section.title}>{section.title}</span>
+                    {#if section.folded}
+                      <span
+                        class="shrink-0 tabular-nums"
+                        transition:fade={{ duration: motionDuration(COUNT_FADE_MS) }}
+                      >
+                        {run.pages.length}
+                      </span>
+                    {/if}
+                  </button>
+                  {#if section.action}
+                    {@render sectionAction(section.action)}
                   {/if}
-                  <span class="min-w-0 flex-1 truncate" title={section.title}>{section.title}</span>
-                  {#if section.folded}
-                    <span
-                      class="shrink-0 tabular-nums"
-                      transition:fade={{ duration: motionDuration(COUNT_FADE_MS) }}
-                    >
-                      {run.pages.length}
-                    </span>
-                  {/if}
-                </button>
+                </div>
                 {#if !section.folded}
                   <!-- Indented under the title: the links belong to the section. -->
                   <ul class="flex flex-col gap-0.5 pt-0.5 pl-3" in:unfold out:fold>

@@ -233,9 +233,11 @@ module gives an access policy.
   (the dashboards set `false`, and `true` on "New dashboard"). `DoubleSidebar` calls each source once, when it mounts,
   thus a source can create a query: read it only while `shown` is the id of its item. The sheet of a
   phone does not show them. A link can have a `section` (`SecondSidebarSection`: a key, a title,
-  a pin `icon` or a folder `color`, `folded`, `onToggle`): the next links of one section show under
-  its title, which folds them (`unfold`/`fold`) and shows their number while they are folded
-  (`pageRuns`). The module keeps the folded state. A link can have one `status`, a small dot with
+  a pin `icon` or a folder `color`, `folded`, `onToggle`, an `action`): the next links of one section
+  show under its title, which folds them (`unfold`/`fold`) and shows their number while they are
+  folded (`pageRuns`). The module keeps the folded state. An `action` (`{ label, href }`) is a "+"
+  at the end of the title, e.g. a new project in this group: on a mouse screen it shows on hover and
+  focus. The module gives it only to a person who can do it. A link can have one `status`, a small dot with
   its accessible name, e.g. a job that runs.
 - **A module can add a search field to the second sidebar** (`shell.secondSidebarSearch`, same
   call as `secondSidebarLinks`). It sits between the title and the links. The module keeps the

@@ -15,6 +15,7 @@ const input = (overrides: Partial<RowsInput> = {}): RowsInput => ({
     { id: 'p1', name: 'web-api' },
     { id: 'p2', name: 'mobile-app' },
   ],
+  groups: [],
   pipelines: [],
   apps: [],
   members: [],
@@ -26,6 +27,39 @@ const input = (overrides: Partial<RowsInput> = {}): RowsInput => ({
 });
 
 describe('buildCommandRows', () => {
+  it('gives a new project in each group to a person who can create a project', () => {
+    const groups = [
+      { id: 'g-1', name: 'Deploys' },
+      { id: 'g-2', name: 'Backend' },
+    ];
+    const rows = buildCommandRows(input({ groups })).filter(row =>
+      row.id.startsWith('new-project-in:'),
+    );
+
+    expect(rows.map(({ name, group, verb, effect }) => ({ name, group, verb, effect }))).toEqual([
+      {
+        name: 'New project in Deploys',
+        group: 'actions',
+        verb: 'Create…',
+        effect: { kind: 'go', href: '/acme/projects/new?group=g-1' },
+      },
+      {
+        name: 'New project in Backend',
+        group: 'actions',
+        verb: 'Create…',
+        effect: { kind: 'go', href: '/acme/projects/new?group=g-2' },
+      },
+    ]);
+    expect(rows[0]?.sentence).toBe(
+      'Open the form: New project in Deploys. Nothing changes until you submit it.',
+    );
+    expect(
+      buildCommandRows(input({ groups, can: () => false })).some(row =>
+        row.id.startsWith('new-project-in:'),
+      ),
+    ).toBe(false);
+  });
+
   it('tells two pipelines of two projects by their place', () => {
     const rows = buildCommandRows(
       input({

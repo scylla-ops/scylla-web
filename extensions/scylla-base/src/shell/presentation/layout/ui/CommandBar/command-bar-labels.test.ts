@@ -78,6 +78,7 @@ const rowsIn = (locale: SupportedLocale, context: { pipelineId?: string } = {}):
       { id: 'p2', name: 'mobile-app' },
       { id: 'p3', name: 'infrastructure' },
     ],
+    groups: [],
     pipelines: [
       { id: 'l1', name: 'Deploy', projectId: 'p1' },
       { id: 'l2', name: 'Deploy', projectId: 'p2' },

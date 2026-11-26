@@ -3,7 +3,9 @@
   import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
   import PencilIcon from '@lucide/svelte/icons/pencil';
+  import PlusIcon from '@lucide/svelte/icons/plus';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import { navigateTo } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
   import { ConfirmOperationAlertDialog } from '@scylla/ui';
   import {
@@ -25,10 +27,12 @@
     /** The place of the group in the order of the groups, from 0. */
     index: number;
     count: number;
+    /** « New project here » opens it. Unset: the person cannot create a project. */
+    newProjectHref?: string;
     onRename: () => void;
   }
 
-  let { group, index, count, onRename }: Props = $props();
+  let { group, index, count, newProjectHref, onRename }: Props = $props();
 
   const reorder = createMutation(() => projectGroupMutations.reorder());
   const remove = createMutation(() => projectGroupMutations.remove());
@@ -47,6 +51,14 @@
     <span class="sr-only">{t(projectMessages.groupMenu)}</span>
   </DropdownMenuTrigger>
   <DropdownMenuContent align="end" class="w-60">
+    {#if newProjectHref}
+      {@const href = newProjectHref}
+      <DropdownMenuItem onSelect={() => navigateTo(href)}>
+        <PlusIcon class="size-4" aria-hidden="true" />
+        {t(projectMessages.newProjectHere)}
+      </DropdownMenuItem>
+      <DropdownMenuSeparator />
+    {/if}
     <DropdownMenuItem onSelect={onRename}>
       <PencilIcon class="size-4" aria-hidden="true" />
       {t(projectMessages.rename)}

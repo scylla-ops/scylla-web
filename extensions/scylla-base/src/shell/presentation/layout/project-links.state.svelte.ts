@@ -1,5 +1,6 @@
 import FolderIcon from '@lucide/svelte/icons/folder';
 import PinIcon from '@lucide/svelte/icons/pin';
+import { can, Permission } from '@platform/authz';
 import { contextStore, workspaceUrl } from '@platform/context';
 import {
   createQuery,
@@ -11,6 +12,7 @@ import { toRune } from '@scylla/ui/stores';
 import {
   canListProjects,
   closedSections,
+  newProjectPath,
   PINS,
   projectGroupQueries,
   projectIconProps,
@@ -36,6 +38,8 @@ const RUNNING_PROJECTS = 100;
  * group. With no pin and no group, one list with no section. A section folds as on the page: the
  * two share the closed sections of the person. A project with a job that runs has a dot. It reads
  * only while the projects show: the projects in their order, their groups and the running ones.
+ * A person who can create a project has a "+" on each group and on « No group »: a new project
+ * there.
  */
 export const projectLinks = (
   shown: () => string | undefined,
@@ -76,7 +80,7 @@ export const projectLinks = (
   const sectionOf = (
     key: string,
     title: string,
-    look: Pick<SecondSidebarSection, 'icon' | 'color'> = {},
+    look: Pick<SecondSidebarSection, 'icon' | 'color' | 'action'> = {},
   ): SecondSidebarSection => ({
     key,
     title,
@@ -90,6 +94,9 @@ export const projectLinks = (
     if (!open || !slug) return [];
     const items = projects.data?.items ?? [];
     const runningIds = running.data?.items.map(project => project.id) ?? [];
+    const canCreate = can(Permission.CREATE_PROJECT, { workspaceId });
+    const newProject = (label: string, groupId?: string) =>
+      canCreate ? { action: { label, href: workspaceUrl(slug, newProjectPath(groupId)) } } : {};
     const linkOf = (project: ProjectEntity, section?: SecondSidebarSection): SecondSidebarLink => ({
       title: project.name,
       href: workspaceUrl(slug, `projects/${project.id}`),
@@ -107,11 +114,18 @@ export const projectLinks = (
 
     const pinSection = sectionOf(PINS, t(layoutMessages.pinned), { icon: PinIcon });
     const groupIds = groupList.map(group => group.id);
-    const ungrouped = sectionOf(UNGROUPED, t(layoutMessages.noGroup));
+    const ungrouped = sectionOf(
+      UNGROUPED,
+      t(layoutMessages.noGroup),
+      newProject(t(layoutMessages.newProjectNoGroup)),
+    );
     return [
       ...pinned.map(project => linkOf(project, pinSection)),
       ...groupList.flatMap(group => {
-        const section = sectionOf(group.id, group.name, { color: group.color });
+        const section = sectionOf(group.id, group.name, {
+          color: group.color,
+          ...newProject(t(layoutMessages.newProjectIn(group.name)), group.id),
+        });
         return items
           .filter(project => project.groupId === group.id)
           .map(project => linkOf(project, section));

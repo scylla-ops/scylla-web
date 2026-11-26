@@ -7,7 +7,7 @@ import { toRune } from '@scylla/ui/stores';
 import { accessQueries, workspaceRef } from '@base/features/access';
 import { appQueries } from '@base/features/apps';
 import { pipelineQueries } from '@base/features/pipeline';
-import { projectQueries } from '@base/features/project';
+import { projectGroupQueries, projectQueries } from '@base/features/project';
 import { roleQueries } from '@base/features/roles';
 import { secretQueries } from '@base/features/secret';
 import { userQueries } from '@base/features/user';
@@ -34,6 +34,13 @@ export const createCommandSources = () => {
     allChanges({
       ...projectQueries.lookup(workspaceId),
       enabled: !!workspaceId && can(Permission.LIST_PROJECTS_BY_WORKSPACE, target),
+    }),
+  );
+  // The groups give "New project in <group>": they read only for a person who can create one.
+  const groups = createQuery(() =>
+    allChanges({
+      ...projectGroupQueries.list(workspaceId ?? ''),
+      enabled: !!workspaceId && can(Permission.CREATE_PROJECT, target),
     }),
   );
   const pipelines = createQuery(() =>
@@ -82,6 +89,7 @@ export const createCommandSources = () => {
 
   const data = $derived<CommandSourcesData>({
     projects: projects.data?.items ?? [],
+    groups: groups.data ?? [],
     pipelines: pipelines.data?.items ?? [],
     apps: apps.data ?? [],
     members: members.data ?? [],

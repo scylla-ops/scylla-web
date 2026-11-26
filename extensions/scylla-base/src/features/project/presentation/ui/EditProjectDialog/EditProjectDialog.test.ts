@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
-import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
+import { findFloating, focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { contextStore } from '@platform/context';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
+import type { ProjectGroupRepository } from '@base/features/project/domain/repository/project-group.repository.ts';
 import type {
   ProjectRepository,
 } from '@base/features/project/domain/repository/project.repository.ts';
@@ -26,6 +27,12 @@ const project = (overrides: Partial<ProjectEntity> = {}): ProjectEntity => ({
 let teardown: Array<() => void> = [];
 let update: ReturnType<typeof vi.fn>;
 let setIcon: ReturnType<typeof vi.fn>;
+let move: ReturnType<typeof vi.fn>;
+
+const GROUPS = [
+  { id: 'g-1', workspaceId: 'org-1', name: 'Deploys', color: 'chart-3' },
+  { id: 'g-2', workspaceId: 'org-1', name: 'Backend' },
+];
 
 const install = (saved: ProjectEntity = project()) => {
   update = vi.fn().mockResolvedValue(saved);
@@ -38,8 +45,19 @@ const install = (saved: ProjectEntity = project()) => {
     delete: vi.fn(),
   } as unknown as ProjectRepository;
 
+  move = vi.fn(({ id, groupId }: { id: string; groupId?: string }) =>
+    Promise.resolve({ ...saved, id, groupId }),
+  );
+  const groups = {
+    list: vi.fn().mockResolvedValue(GROUPS),
+    move,
+  } as unknown as ProjectGroupRepository;
+
   const cache = withQueryClient();
-  teardown = [cache.restore, withRegistry({ project: { projectRepository: repository } })];
+  teardown = [
+    cache.restore,
+    withRegistry({ project: { projectRepository: repository, projectGroupRepository: groups } }),
+  ];
 };
 
 const iconField = () => screen.getByRole('group', { name: 'Icon' });
@@ -201,5 +219,52 @@ describe('EditProjectDialog', () => {
     expect(within(iconField()).getByRole('button', { name: 'Reset' })).toBeDisabled();
     expect(update).not.toHaveBeenCalled();
     expect(setIcon).not.toHaveBeenCalled();
+  });
+
+  it('starts on the group of the project, and moves it only to another group', async () => {
+    const setOpen = vi.fn();
+    install(project({ groupId: 'g-1' }));
+    render(EditProjectDialog, { open: true, setOpen, project: project({ groupId: 'g-1' }) });
+    await focusSettled();
+
+    const field = screen.getByRole('combobox', { name: 'Group' });
+    await waitFor(() => expect(field).toHaveTextContent('Deploys'));
+    await userEvent.click(field);
+    await userEvent.click(await findFloating('option', 'Backend'));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(move).toHaveBeenCalledWith({ id: 'project-1', groupId: 'g-2' }));
+    expect(update).toHaveBeenCalledWith('project-1', 'web', 'the web app', undefined);
+    await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
+  });
+
+  it('does not move a project that keeps its group', async () => {
+    const setOpen = vi.fn();
+    install(project({ groupId: 'g-1' }));
+    render(EditProjectDialog, { open: true, setOpen, project: project({ groupId: 'g-1' }) });
+    await focusSettled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
+    expect(move).not.toHaveBeenCalled();
+  });
+
+  it('takes a project out of its group with « No group »', async () => {
+    install(project({ groupId: 'g-1' }));
+    render(EditProjectDialog, {
+      open: true,
+      setOpen: vi.fn(),
+      project: project({ groupId: 'g-1' }),
+    });
+    await focusSettled();
+
+    await userEvent.click(screen.getByRole('combobox', { name: 'Group' }));
+    await userEvent.click(await findFloating('option', 'No group'));
+    await userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(move).toHaveBeenCalledWith({ id: 'project-1', groupId: undefined }),
+    );
   });
 });

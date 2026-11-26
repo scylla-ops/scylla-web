@@ -1,6 +1,8 @@
 <script lang="ts">
   import PinIcon from '@lucide/svelte/icons/pin';
-  import { reflow, unfold } from '@scylla/ui';
+  import PlusIcon from '@lucide/svelte/icons/plus';
+  import { enter, exit, reflow, unfold } from '@scylla/ui';
+  import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
@@ -14,6 +16,7 @@
   import type { ProjectReorderState } from '../project-reorder.state.svelte.ts';
   import type { ProjectSectionsState, SectionView } from '../project-sections.state.svelte.ts';
   import { arrive, foldZone, leave } from '../reorder.transition.ts';
+  import { revealCard, staggerCards } from './section-open.attachments.ts';
 
   interface Props {
     section: SectionView;
@@ -21,9 +24,26 @@
     reorder: ProjectReorderState;
     phone: boolean;
     grid: string;
+    /** The ghost card and the empty group open it. Unset: no new project here. */
+    newProjectHref?: string;
+    /** The person opened the section now: the cards fade in one after the other. */
+    stagger?: boolean;
+    /** The card that a chip of the folded section opened: the page scrolls to it. */
+    reveal?: string | null;
+    onRevealed?: () => void;
   }
 
-  let { section, sections, reorder, phone, grid }: Props = $props();
+  let {
+    section,
+    sections,
+    reorder,
+    phone,
+    grid,
+    newProjectHref,
+    stagger = false,
+    reveal = null,
+    onRevealed = () => {},
+  }: Props = $props();
 
   const ZONE =
     'flex items-center justify-center gap-2 rounded-xl border border-dashed px-6 text-center text-muted-foreground';
@@ -49,6 +69,8 @@
       : [...cards.slice(0, at), { kind: 'slot' }, ...cards.slice(at)];
   });
   const cells = $derived(entries.filter(entry => entry.kind === 'slot' || !entry.lifted).length);
+  // The ghost card is not a card: no drag, and no place in the reorder mode.
+  const ghost = $derived(!!newProjectHref && !reorder.active && section.key !== PINS);
   const keyOf = (entry: Entry) => (entry.kind === 'slot' ? SLOT_KEY : entry.project.id);
 </script>
 
@@ -67,6 +89,19 @@
 {#if entries.length === 0}
   {#if section.key === PINS}
     {@render zone(t(reorder.active ? projectMessages.pinsDrop : projectMessages.pinsEmpty), 'py-4', true)}
+  {:else if section.key !== UNGROUPED && ghost && newProjectHref}
+    <div
+      class={cn(ZONE, 'flex-col py-5 text-sm')}
+      data-part="project-empty-group"
+      in:unfold
+      out:foldZone={{ now: !!reorder.drag }}
+    >
+      <p class="font-medium">{t(projectMessages.emptyGroupCreate)}</p>
+      <Button href={newProjectHref} variant="outline" size="sm">
+        <PlusIcon aria-hidden="true" />
+        {t(projectMessages.newProject)}
+      </Button>
+    </div>
   {:else if section.key !== UNGROUPED}
     {@render zone(t(projectMessages.emptyGroup), 'py-6')}
   {:else if reorder.active}
@@ -78,6 +113,7 @@
   class={cn(grid, 'relative', entries.length === 0 && 'hidden')}
   role="list"
   data-part="project-grid"
+  {@attach stagger && staggerCards}
 >
   {#each entries as entry (keyOf(entry))}
     <!-- In the reorder mode, the whole card is the handle: its parts take no click. -->
@@ -107,6 +143,7 @@
         id: entry.kind === 'card' ? entry.project.id : undefined,
         fade: !!reorder.drag,
       }}
+      {@attach entry.kind === 'card' && entry.project.id === reveal && revealCard(onRevealed)}
     >
       {#if entry.kind === 'card'}
         <ProjectCard
@@ -118,6 +155,19 @@
       {/if}
     </div>
   {/each}
+  {#if ghost && newProjectHref && entries.length > 0}
+    <!-- After the last card: a new project in this section, with no drag. -->
+    <div class="h-full" role="listitem" in:enter out:exit>
+      <a
+        href={newProjectHref}
+        class="flex h-full min-h-40 flex-col items-center justify-center gap-2 rounded-xl border border-dashed text-sm font-medium text-muted-foreground transition-colors outline-none hover:border-primary/50 hover:bg-primary/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none"
+        data-part="project-ghost-card"
+      >
+        <PlusIcon class="size-5" aria-hidden="true" />
+        {t(projectMessages.newProject)}
+      </a>
+    </div>
+  {/if}
   {#if section.key === PINS && !phone && entries.length > 0}
     <!-- The free cell of the last row of the pins, when there is one. -->
     <div

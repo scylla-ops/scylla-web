@@ -101,7 +101,7 @@ describe('ProjectCard', () => {
 
     expect(testNavigator.navigate).not.toHaveBeenCalled();
     expect(
-      await screen.findByText('Update the icon, the name and the description of the project.'),
+      await screen.findByText('Update the icon, the name, the description and the group of the project.'),
     ).toBeInTheDocument();
     expect(screen.getByRole('group', { name: 'Icon' })).toBeInTheDocument();
   });

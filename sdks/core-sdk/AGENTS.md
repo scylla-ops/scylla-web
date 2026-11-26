@@ -19,7 +19,7 @@ its routes and its shell parts, and the runtime API the core installs at start-u
 |---|---|
 | Extension | `Extension` (the class decorator), `extensionOf`, `ExtensionManifest`, `ExtensionClass`, `installedExtensions`, `setInstalledExtensions` |
 | Module | `ScyllaModule`, `ModuleRoute`, `ModuleRoutes`, `NavLink`, `NavGroup`, `PageLoader`, `PageComponent`, `RouteMount`, `RouteParams`, `RouteShare` (the share button of the top bar), `RouteSource` |
-| Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `SecondSidebarLink` (with its `SecondSidebarSection` and `SecondSidebarStatus`), `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
+| Shell parts of a module | `AccessPolicy`, `NavSectionDefinition`, `ShellContributions`, `SecondSidebarLink` (with its `SecondSidebarSection`, `SecondSidebarSectionAction` and `SecondSidebarStatus`), `QueryErrorHandler`, `QueryRetryPolicy`, `MountDefinition`, `LayoutComponent`, `RouteWrapper` |
 | Crumbs | `BreadcrumbFn`, `BreadcrumbParams`, `Crumb`, `TrailCrumb` |
 | Permission type | `Register` (augmented by one extension), `RoutePermission` |
 | Navigation | `navigateTo`, `navigateBack`, `currentPathname`, `currentSearch`, `hasPage`, `routePathname`, `routeParams`, `routeShare`, `routeTrail`, `setAppNavigator`, `AppNavigator`, `Redirect`, `navLinks`, `setNavLinks`, `AppNavLink`, `guardLeave`, `holdsLeave`, `LeaveGuard` |
@@ -36,7 +36,7 @@ src/
   index.ts
   extension/  extension.decorator.ts   @Extension, extensionOf, ExtensionManifest
               installed-extensions.ts  the manifests the core loaded, for a page that lists them
-              contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, SecondSidebarLink, SecondSidebarSection, SecondSidebarStatus, QueryErrorHandler, QueryRetryPolicy
+              contributions.struct.ts  AccessPolicy, NavSectionDefinition, ShellContributions, SecondSidebarLink, SecondSidebarSection, SecondSidebarSectionAction, SecondSidebarStatus, QueryErrorHandler, QueryRetryPolicy
               register.struct.ts       Register, RoutePermission
               command.struct.ts        the commands of the search bar, one type per kind
   routing/    scylla-module.struct.ts  ScyllaModule, ModuleRoute, NavLink, NavGroup (links of one group fold under one item)

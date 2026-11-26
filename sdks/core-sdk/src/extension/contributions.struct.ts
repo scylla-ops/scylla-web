@@ -75,6 +75,18 @@ export interface SecondSidebarSection {
   folded: boolean;
   /** A click on the title folds or unfolds the section: the module saves the new state. */
   onToggle: (folded: boolean) => void;
+  /**
+   * A "+" at the end of the title, e.g. a new project in this group. It shows on hover and on
+   * focus with a mouse, always on a touch screen. Unset: no "+".
+   */
+  action?: SecondSidebarSectionAction;
+}
+
+/** The "+" of a section of the second sidebar: it opens `href`. */
+export interface SecondSidebarSectionAction {
+  /** The accessible name and the tooltip, e.g. `New project in Deploys`. */
+  label: string;
+  href: string;
 }
 
 /** A small live mark of a link: a dot in the color of the tone, with its accessible name. */

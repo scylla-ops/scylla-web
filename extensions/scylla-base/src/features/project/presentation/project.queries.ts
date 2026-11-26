@@ -1,12 +1,17 @@
 import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '@scylla/core-sdk';
 import { Permission, authorizationReady, can } from '@platform/authz';
 import { contextStore } from '@platform/context';
-import { i18n } from '@lingui/core';
+import { i18n, type MessageDescriptor } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { DEFAULT_PAGE_SIZE, type PaginationParams } from '@scylla/ui/structs';
+import {
+  movesProject,
+  type ProjectGroupChoice,
+} from '../domain/entities/project-group.entity.ts';
 import type {
+  CreateProjectInput,
   ProjectEntity,
   ProjectIconChange,
   ProjectList,
@@ -17,7 +22,8 @@ import { projectMessages } from './messages/project.messages.ts';
 import { keepRecentColor } from './recent-colors.user-state.ts';
 
 // Resolved per call: tests swap the registry.
-const repository = () => getModuleDomain<typeof ProjectModule.domain>('project').projectRepository;
+const domain = () => getModuleDomain<typeof ProjectModule.domain>('project');
+const repository = () => domain().projectRepository;
 
 export const PROJECTS_QUERY_KEY = (workspaceId: string | null, pagination?: PaginationParams) =>
   ['projects', workspaceId, pagination] as const;
@@ -149,40 +155,67 @@ const keepColorOf = (icon: ProjectIconChange | undefined) => {
 };
 
 /**
- * `CreateProject` has no icon: it goes in an `UpdateProject` just after. The project stays when
- * only the icon fails, and a toast tells it.
+ * `CreateProject` and `UpdateProject` have no group: the project moves to it just after, last in
+ * the group. A new group is created first, after the other groups.
  */
-const createWithIcon = async (
-  name: string,
-  workspaceId: string,
-  description?: string,
-  icon?: ProjectIconChange,
+const placeInGroup = async (
+  project: ProjectEntity,
+  choice: ProjectGroupChoice,
 ): Promise<ProjectEntity> => {
-  const created = await repository().create(name, workspaceId, description);
-  if (!icon) return created;
+  const groups = domain().projectGroupRepository;
+  const groupId =
+    choice.kind === 'new'
+      ? (await groups.create(project.workspaceId, choice.name.trim(), choice.color)).id
+      : choice.kind === 'group'
+        ? choice.id
+        : undefined;
+  const moved = await groups.move({ id: project.id, groupId });
+  if (choice.kind === 'new' && choice.color) keepRecentColor(choice.color);
+  return moved;
+};
+
+/** The project stays when only its group fails: a toast tells it, with `text`. */
+const withGroup = async (
+  project: ProjectEntity,
+  choice: ProjectGroupChoice | undefined,
+  text: (reason: string) => MessageDescriptor,
+): Promise<ProjectEntity> => {
+  if (!choice || !movesProject(choice, project.groupId)) return project;
   try {
-    return await repository().setIcon(created.id, icon);
+    return await placeInGroup(project, choice);
   } catch (error) {
-    toast.error(i18n._(projectMessages.iconNotSaved(ScyllaError.from(error).userMessage())));
-    return created;
+    toast.error(i18n._(text(ScyllaError.from(error).userMessage())));
+    return project;
   }
+};
+
+/**
+ * `CreateProject` has no icon: it goes in an `UpdateProject` just after, then the group. The
+ * project stays when only the icon or the group fails, and a toast tells it.
+ */
+const createProject = async ({
+  name,
+  workspaceId,
+  description,
+  icon,
+  group,
+}: CreateProjectInput): Promise<ProjectEntity> => {
+  let project = await repository().create(name, workspaceId, description);
+  if (icon) {
+    try {
+      project = await repository().setIcon(project.id, icon);
+    } catch (error) {
+      toast.error(i18n._(projectMessages.iconNotSaved(ScyllaError.from(error).userMessage())));
+    }
+  }
+  return withGroup(project, group, projectMessages.groupNotSaved);
 };
 
 export const projectMutations = {
   create: () =>
     mutationOptions({
       mutationKey: CREATE_PROJECT_MUTATION_KEY,
-      mutationFn: ({
-        name,
-        workspaceId,
-        description,
-        icon,
-      }: {
-        name: string;
-        workspaceId: string;
-        description?: string;
-        icon?: ProjectIconChange;
-      }) => createWithIcon(name, workspaceId, description, icon),
+      mutationFn: (input: CreateProjectInput) => createProject(input),
       onSuccess: (created, { icon }) => {
         toast.success(i18n._(ToastMessages.PROJECT_CREATE));
         if (created.icon) keepColorOf(icon);
@@ -190,20 +223,30 @@ export const projectMutations = {
       },
     }),
 
-  /** The icon goes in the same `UpdateProject` as the name and the description. */
+  /**
+   * The icon goes in the same `UpdateProject` as the name and the description. A new group moves
+   * the project just after, last in that group, as « Move to group ».
+   */
   update: () =>
     mutationOptions({
-      mutationFn: ({
+      mutationFn: async ({
         projectId,
         name,
         description,
         icon,
+        group,
       }: {
         projectId: string;
         name?: string;
         description?: string;
         icon?: ProjectIconChange;
-      }) => repository().update(projectId, name, description, icon),
+        group?: ProjectGroupChoice;
+      }) =>
+        withGroup(
+          await repository().update(projectId, name, description, icon),
+          group,
+          projectMessages.groupNotMoved,
+        ),
       onSuccess: (updated, { icon }) => {
         toast.success(i18n._(ToastMessages.PROJECT_UPDATE));
         keepColorOf(icon);

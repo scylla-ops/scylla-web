@@ -23,6 +23,19 @@ export {
 } from './presentation/presenters/project-icon.presenter.ts';
 export { keepRecentColor, recentColors } from './presentation/recent-colors.user-state.ts';
 export type { ProjectGroupEntity } from './domain/entities/project-group.entity.ts';
+/** The group of a new project: the forms of a new project choose it, and the creation sets it. */
+export {
+  groupChoiceComplete,
+  groupChoiceOf,
+  type ProjectGroupChoice,
+} from './domain/entities/project-group.entity.ts';
+export {
+  newProjectGroupIn,
+  newProjectPath,
+  withNewProjectGroup,
+} from './presentation/presenters/new-project.presenter.ts';
+/** A loader: the field « Group » of a project form. */
+export const loadGroupField = () => import('./presentation/ui/GroupField/GroupField.svelte');
 export { projectGroupQueries } from './presentation/project-group.queries.ts';
 /** The pins and the closed sections of the person: the projects page and the sidebar share them. */
 export { closedSections, projectPins } from './presentation/project-layout.user-state.ts';

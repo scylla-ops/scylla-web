@@ -129,6 +129,7 @@ const reads = () => ({
       ],
     }),
   ),
+  listGroups: vi.fn(() => Promise.resolve([{ id: 'g-1', workspaceId: 'w1', name: 'Deploys' }])),
   getMetadataByWorkspaceId: vi.fn(() =>
     Promise.resolve({ items: [{ id: 'l1', name: 'Build web', projectId: 'p1' }] }),
   ),
@@ -229,7 +230,10 @@ beforeEach(() => {
   teardown = [
     cache.restore,
     withRegistry({
-      project: { projectRepository: { getByWorkspaceId: fakes.getByWorkspaceId } },
+      project: {
+        projectRepository: { getByWorkspaceId: fakes.getByWorkspaceId },
+        projectGroupRepository: { list: fakes.listGroups },
+      },
       pipeline: {
         pipelineRepository: {
           getMetadataByWorkspaceId: fakes.getMetadataByWorkspaceId,
@@ -324,6 +328,13 @@ describe('CommandBar', () => {
     it('goes to a project', () =>
       go('web-api', 'Go to the project web-api.', '/acme/projects/p1'));
 
+    it('opens the form of a new project in a group, with the group', () =>
+      go(
+        'new project deploys',
+        'Open the form: New project in Deploys. Nothing changes until you submit it.',
+        '/acme/projects/new?group=g-1',
+      ));
+
     it('goes to a pipeline, and names its project', () =>
       go(
         'build web',
@@ -368,8 +379,9 @@ describe('CommandBar', () => {
       const input = await open();
       const typing = user();
       await typing.type(input, 'new project');
-      await option(/New project/);
-      await waitFor(() => expect(selected()).toMatch(/New project/));
+      // « New project in Deploys » matches too: the form of the command comes first.
+      await option(/New project\./);
+      await waitFor(() => expect(selected()).toMatch(/New project\./));
       await typing.keyboard('{Enter}');
 
       await waitFor(() => expect(openForm).toHaveBeenCalledOnce());

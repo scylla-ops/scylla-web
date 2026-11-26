@@ -25,6 +25,8 @@
     isPending?: boolean;
     /** A field before the items that is not text or a choice, e.g. an `IconField`. */
     leading?: Snippet;
+    /** A field after the items that is not text or a choice of plain labels, e.g. a group picker. */
+    trailing?: Snippet;
     footer?: Snippet<[{ isValid: boolean; isPending: boolean }]>;
     buttonLabel?: string;
     /** Messages from the server, shown under their field when the field has no message of its own. */
@@ -39,6 +41,7 @@
     onSubmit,
     isPending = false,
     leading,
+    trailing,
     footer,
     buttonLabel,
     errors,
@@ -139,6 +142,7 @@
         {/if}
       </Field>
     {/each}
+    {@render trailing?.()}
   </FieldGroup>
 
   {#if footer}

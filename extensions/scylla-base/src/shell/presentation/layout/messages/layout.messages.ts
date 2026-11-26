@@ -13,6 +13,8 @@ export const layoutMessages = {
   workspaces: msg`Workspaces`,
   pinned: msg`Pinned`,
   noGroup: msg`No group`,
+  newProjectIn: (group: string) => msg`New project in ${group}`,
+  newProjectNoGroup: msg`New project with no group`,
   jobRuns: msg`A job runs`,
   language: msg`Language`,
   search: msg`Search`,

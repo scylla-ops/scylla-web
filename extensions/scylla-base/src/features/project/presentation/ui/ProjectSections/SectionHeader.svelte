@@ -25,12 +25,25 @@
     counts?: ProjectCounts;
     /** A dragged card is over the header: the text of the drop. */
     dropText?: string;
+    /** The small actions before the menu, e.g. a new project in this group. */
+    actions?: Snippet;
     menu?: Snippet;
     onToggle: () => void;
   }
 
-  let { name, count, pins, color, folder, open, counts, dropText, menu, onToggle }: Props =
-    $props();
+  let {
+    name,
+    count,
+    pins,
+    color,
+    folder,
+    open,
+    counts,
+    dropText,
+    actions,
+    menu,
+    onToggle,
+  }: Props = $props();
 
   const health = $derived(sectionHealth(counts));
   const Chevron = $derived(open ? ChevronDownIcon : ChevronRightIcon);
@@ -38,7 +51,7 @@
 
 <div
   class={cn(
-    'flex min-h-8 items-center gap-3 rounded-lg transition-[background-color,padding] duration-150 motion-reduce:transition-none',
+    'group/header flex min-h-8 items-center gap-3 rounded-lg transition-[background-color,padding] duration-150 motion-reduce:transition-none',
     dropText && 'border-[1.5px] border-primary bg-primary/8 py-1 pr-3 pl-2',
   )}
   data-part="project-section-header"
@@ -91,7 +104,10 @@
   </div>
   {#if dropText}
     <span class="shrink-0 text-sm font-medium text-primary" in:reorderIn>{dropText}</span>
-  {:else if menu}
-    {@render menu()}
+  {:else if actions || menu}
+    <div class="flex shrink-0 items-center gap-1">
+      {@render actions?.()}
+      {@render menu?.()}
+    </div>
   {/if}
 </div>

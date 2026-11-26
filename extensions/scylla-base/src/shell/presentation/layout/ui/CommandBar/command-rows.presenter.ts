@@ -3,6 +3,7 @@ import BlocksIcon from '@lucide/svelte/icons/blocks';
 import Building2Icon from '@lucide/svelte/icons/building-2';
 import FileTextIcon from '@lucide/svelte/icons/file-text';
 import FolderIcon from '@lucide/svelte/icons/folder';
+import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
 import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import PlayIcon from '@lucide/svelte/icons/play';
 import ServerIcon from '@lucide/svelte/icons/server';
@@ -25,7 +26,7 @@ import type { EntityIconProps, LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { prepareFuzzyText, type FuzzyFields } from '@scylla/ui/utils';
 import { agentProfile, type AppEntity } from '@base/features/apps';
-import { projectIconProps, type ProjectIcon } from '@base/features/project';
+import { newProjectPath, projectIconProps, type ProjectIcon } from '@base/features/project';
 import { roleName, type RoleEntity } from '@base/features/roles';
 import type {
   IdentityKind,
@@ -97,6 +98,8 @@ export interface CommandRow {
 
 export interface CommandSourcesData {
   projects: readonly { id: string; name: string; icon?: ProjectIcon }[];
+  /** The groups of the projects: a new project in each one. */
+  groups: readonly { id: string; name: string }[];
   pipelines: readonly { id: string; name: string; projectId: string }[];
   apps: readonly ({ id: string; name: string; runner: boolean } & Partial<Pick<AppEntity, 'icon'>>)[];
   members: readonly {
@@ -372,6 +375,22 @@ const roleDrafts = (
     say: messages.sayRole,
   }));
 
+/** A new project in each group, as the "+" of the group on the projects page. */
+const newProjectDrafts = ({ slug, workspaceId, groups, can }: RowsInput): Draft[] =>
+  slug && can(Permission.CREATE_PROJECT, { workspaceId: workspaceId ?? undefined })
+    ? groups.map(({ id, name }) => ({
+        id: `new-project-in:${id}`,
+        uid: id,
+        group: 'actions',
+        name: t(layoutMessages.newProjectIn(name)),
+        type: t(messages.typeAction),
+        verb: t(messages.verbCreate),
+        icon: FolderPlusIcon,
+        effect: { kind: 'go', href: workspaceUrl(slug, newProjectPath(id)) },
+        say: messages.sayForm,
+      }))
+    : [];
+
 const entityDrafts = (input: RowsInput): Draft[] => {
   const { slug, project, workspaceId } = input;
   const workspaces = input.workspaces.map(
@@ -472,7 +491,12 @@ const identityOf = (draft: Draft): string => `${draft.name}\n${draft.type}\n${dr
  * id: two rows must not read the same.
  */
 export const buildCommandRows = (input: RowsInput): CommandRow[] => {
-  const drafts = [...pageDrafts(input), ...commandDrafts(input), ...entityDrafts(input)];
+  const drafts = [
+    ...pageDrafts(input),
+    ...commandDrafts(input),
+    ...newProjectDrafts(input),
+    ...entityDrafts(input),
+  ];
 
   const counts = new Map<string, number>();
   for (const draft of drafts) {

@@ -57,6 +57,7 @@ let connections: Record<string, ReturnType<typeof vi.fn>>;
 let links: Record<string, ReturnType<typeof vi.fn>>;
 let sources: Record<string, ReturnType<typeof vi.fn>>;
 let projects: Record<string, ReturnType<typeof vi.fn>>;
+let groups: Record<string, ReturnType<typeof vi.fn>>;
 
 const open = ({
   permissions = ALL,
@@ -99,6 +100,10 @@ const open = ({
     setIcon: vi.fn().mockResolvedValue({ id: 'p-1', workspaceId: 'ws-1', name: 'api' }),
     getByWorkspaceId: vi.fn().mockResolvedValue({ items: [] }),
   };
+  groups = {
+    list: vi.fn().mockResolvedValue([{ id: 'g-1', workspaceId: 'ws-1', name: 'Deploys' }]),
+    move: vi.fn().mockResolvedValue({ id: 'p-1', workspaceId: 'ws-1', name: 'api', groupId: 'g-1' }),
+  };
   const cache = withQueryClient();
   const navigator = installTestNavigator({ pathname: '/acme/projects/new/github', search });
   teardown = [
@@ -110,7 +115,7 @@ const open = ({
         repositoryLinkRepository: links,
         pipelineSourceRepository: sources,
       },
-      project: { projectRepository: projects },
+      project: { projectRepository: projects, projectGroupRepository: groups },
     }),
   ];
   render(NewGitHubProjectPage);
@@ -179,6 +184,35 @@ describe('NewGitHubProjectPage', () => {
     expect(sources.setSource).not.toHaveBeenCalled();
     expect(links.update).not.toHaveBeenCalled();
     expect(projects.setIcon).not.toHaveBeenCalled();
+  });
+
+  it('puts the new project in the group of the button that opened the page', async () => {
+    const { navigate } = open({ search: '?group=g-1' });
+
+    await screen.findByRole('radio', { name: 'acme/api' });
+    expect(screen.getByRole('link', { name: 'Back' })).toHaveAttribute(
+      'href',
+      '/acme/projects/new?group=g-1',
+    );
+    await pick('acme/api');
+    const field = await screen.findByRole('combobox', { name: 'Group' });
+    await waitFor(() => expect(field).toHaveTextContent('Deploys'));
+    await userEvent.click(screen.getByRole('button', { name: 'Create project' }));
+
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/projects/p-1', undefined));
+    expect(groups.move).toHaveBeenCalledWith({ id: 'p-1', groupId: 'g-1' });
+    expect(links.link).toHaveBeenCalledWith(expect.objectContaining({ projectId: 'p-1' }));
+  });
+
+  it('creates the project in no group when no group opened the page', async () => {
+    const { navigate } = open();
+
+    await pick('acme/api');
+    expect(await screen.findByRole('combobox', { name: 'Group' })).toHaveTextContent('No group');
+    await userEvent.click(screen.getByRole('button', { name: 'Create project' }));
+
+    await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/projects/p-1', undefined));
+    expect(groups.move).not.toHaveBeenCalled();
   });
 
   it('gives the chosen icon to the new project before the link', async () => {

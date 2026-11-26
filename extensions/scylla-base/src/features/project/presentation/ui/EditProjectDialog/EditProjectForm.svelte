@@ -10,6 +10,11 @@
   } from '@scylla/ui';
   import { Button, DialogFooter } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
+  import {
+    groupChoiceComplete,
+    groupChoiceOf,
+    type ProjectGroupChoice,
+  } from '@base/features/project/domain/entities/project-group.entity.ts';
   import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
   import { projectMessages } from '../../messages/project.messages.ts';
   import {
@@ -19,6 +24,7 @@
   } from '../../presenters/project-icon.presenter.ts';
   import { projectMutations } from '../../project.queries.ts';
   import { recentColors } from '../../recent-colors.user-state.ts';
+  import GroupField from '../GroupField/GroupField.svelte';
 
   interface Props {
     project: ProjectEntity;
@@ -30,6 +36,9 @@
   const updateProject = createMutation(() => projectMutations.update());
   // svelte-ignore state_referenced_locally
   let icon = $state<IconChoice>(projectIconChoice(project.icon));
+  // The same group as « Move to group » of the card: a change moves the project last in the group.
+  // svelte-ignore state_referenced_locally
+  let group = $state<ProjectGroupChoice>(groupChoiceOf(project.groupId));
   const recent = recentColors();
 
   // Prefilled: Save is enabled on an untouched form.
@@ -60,6 +69,7 @@
         name: name.trim() || undefined,
         description: description.trim() || undefined,
         icon: await iconChangeOf(icon, project.icon),
+        group,
       },
       { onSuccess: close },
     );
@@ -76,6 +86,14 @@
       disabled={updateProject.isPending}
     />
   {/snippet}
+  {#snippet trailing()}
+    <GroupField
+      workspaceId={project.workspaceId}
+      value={group}
+      onchange={next => (group = next)}
+      disabled={updateProject.isPending}
+    />
+  {/snippet}
   {#snippet footer({ isValid, isPending })}
     <DialogFooter>
       <Button
@@ -87,7 +105,7 @@
       >
         {t(projectMessages.cancel)}
       </Button>
-      <Button type="submit" disabled={!isValid || isPending}>
+      <Button type="submit" disabled={!isValid || isPending || !groupChoiceComplete(group)}>
         {isPending ? t(projectMessages.saving) : t(projectMessages.save)}
       </Button>
     </DialogFooter>

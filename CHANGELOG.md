@@ -117,6 +117,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   palette and the activity of the dashboard. The palette and the dashboard also show the icon of
   each project and agent. A click on your own avatar (the account menu, the account header) opens
   the editor of your photo.
+- Projects page: each group now has a "+" in its header, "New project here" in its menu and a ghost
+  card to create a project in this group, and the project forms have a Group field. The sidebar and
+  the search bar also open a new project in a group. A folded group shows one line with its first
+  projects and "+N".
 
 ## [0.7.2] - 2026-11-25
 

@@ -20,12 +20,17 @@ type ProjectEntity, ProjectList, ProjectLookupEntry, ProjectIcon, ProjectIconCha
 projectQueries        byWorkspace (paginated) · lookup (org-wide) · search (the projects page) ·
                       byId (one project, or null) · members
 projectLookupQueries  the batched fan-out: { queries, combine } for useQueries/createQueries
-projectMutations      create (with an icon: a second UpdateProject) · update (with the icon) ·
-                      setIcon · remove
+projectMutations      create (with an icon: a second UpdateProject; with a group: a MoveProject) ·
+                      update (with the icon, and the group) · setIcon · remove
 projectIconProps      ProjectIcon → the props of EntityIcon: the sidebar links of the shell use it
 projectIconChange     IconChoice of an IconField → ProjectIconChange, for a form of another module
 recentColors, keepRecentColor   the user-state key `recent-colors`, for each icon color picker
 type ProjectGroupEntity, projectGroupQueries   the groups of a workspace (with their folder color)
+type ProjectGroupChoice, groupChoiceOf, groupChoiceComplete   the group of a project form: no
+                      group, a group, or a new group with its name and its color
+loadGroupField        a loader: the field « Group » of a project form (projects/new/github)
+newProjectPath, newProjectGroupIn, withNewProjectGroup   `projects/new?group=<id>`: the group that
+                      a new project form chooses first (the "+" of the sidebar, the palette)
 projectPins, closedSections   the user-state keys of the pins and of the closed sections, with
                       `onChange`: the sidebar of the shell shows and folds the same sections
 PINS, UNGROUPED       the keys of the sections « Pinned » and « No group »
@@ -95,8 +100,8 @@ on the card with no import back.
 project.module.ts                    route + nav + DI wiring (private; registry only)
 index.ts                             public API
 domain/
-  entities/project.entity.ts         ProjectEntity, ProjectList
-  entities/project-group.entity.ts   ProjectGroupEntity, MoveProjectInput
+  entities/project.entity.ts         ProjectEntity, ProjectList, CreateProjectInput
+  entities/project-group.entity.ts   ProjectGroupEntity, MoveProjectInput, ProjectGroupChoice
   structs/project-search.struct.ts   ProjectSearch, ProjectOrder, ProjectHealth, ProjectCounts,
                                      ProjectSection, ProjectSearchResult, countOfHealth
   structs/project-layout.struct.ts   placeBefore, withPin, withoutPin, MAX_PINS
@@ -117,6 +122,8 @@ presentation/
                                      parameters of the URL
   presenters/project-sections.presenter.ts   the section keys, applyMoves, movesToSave, the
                                      target of a dragged card (cardTargetAt), the texts of a drag
+  presenters/new-project.presenter.ts   `?group=` of `projects/new` and of its steps
+  presenters/folded-preview.presenter.ts   how many chips of a folded section fit before "+N"
   presenters/sortable.presenter.ts   the drag of a grid: the nearest cell, the free cell after the
                                      last one, the scroll at the edges, the style of the lifted item
   ui/Project.page.svelte             picks the workspace, or says there is none
@@ -130,9 +137,14 @@ presentation/
   ui/reorder.transition.ts           the transitions of the reorder mode, and a card that moves to
                                      another section
   ui/project-layout.context.ts       what the menu of a card reads from the page
-  ui/ProjectSections/                the sections, their headers, the group menu, the group name
-                                     row, the grid with the drop slot, the pointer drag of the cards
-                                     (card-drag.attachments.ts)
+  ui/ProjectSections/                the sections, their headers (with "+" and « New group »), the
+                                     group menu, the group name row, the grid with the drop slot and
+                                     the ghost card, the line of chips of a folded section
+                                     (FoldedPreview, folded-chips.attachments.ts), the stagger of the
+                                     cards and the highlight of a card (section-open.attachments.ts),
+                                     the pointer drag of the cards (card-drag.attachments.ts)
+  ui/GroupField/                     the field « Group » of a project form: no group, each group with
+                                     its folder, « New group… » with its name and its color
   ui/GroupColor/                     the folder color of a group: the colors (`ColorSwatches` of
                                      `@scylla/ui`, as the icons and the initials), the folder as a
                                      button with its colors in a popover, the field of a form, and
@@ -146,14 +158,15 @@ presentation/
   ui/ProjectCard/                    the card, its zones, its menu (Pin, Change the icon, Move to
                                      group, Move up and down, Edit, Duplicate, Delete)
   ui/EditProjectDialog/               the dialog of « Edit »; its form: the icon, the name, the
-                                     description, saved by one UpdateProject
+                                     description, saved by one UpdateProject, and the group
   ui/ProjectIcon/                    the one component that draws the icon of a project
   ui/ProjectIconDialog/              the icon picker of @scylla/ui in a dialog; the form saves
   ui/ProjectTitle/                   the icon (a button for an editor) and the name on a project page
   presenters/project-icon.presenter.ts   ProjectIcon ↔ EntityIcon props, IconChoice, ProjectIconChange
   recent-colors.user-state.ts        the key `recent-colors`; project.module.ts imports it
   ui/NewProject/                     the choice of the kind of project: ProjectKindCard per way
-  ui/NewRegularProject/              the icon, the name and the description of a regular project
+  ui/NewRegularProject/              the icon, the name, the description and the group of a
+                                     regular project
   messages/project.messages.ts
 ```
 
@@ -289,6 +302,27 @@ choice card links to it by its path only.
   of a section stays with no card, for these transitions.
 - **A section keeps its newest cards while a new read of it loads** (the reorder mode, "Show more",
   « Done »): each read is a new query with no data, so the page shows no skeleton and no old order.
+- **Each group has its calls to action for a new project**, for a person with `CREATE_PROJECT` on
+  the workspace: the "+" of its header (on a mouse screen it shows on hover and focus), « New
+  project here » in the group menu, and a ghost card after the last card. An empty group shows one
+  line and « New project ». « No group » has its "+" too; the pins have none. The ghost card and
+  the "+" hide in the reorder mode. They open `projects/new?group=<id>`: the page of the kind
+  keeps `?group=` for `regular` and `github`, and the form chooses this group first. The sidebar
+  of the shell (the "+" of a section) and the palette (« New project in <group> ») open the same
+  path. « New group » is in the header of the page, at the end of the page and in the header of
+  « No group », for a person who manages the groups.
+- **A project form has the field « Group »** (`GroupField`): « Edit », `projects/new/regular` and
+  `projects/new/github`. `CreateProject` and `UpdateProject` have no group: the mutation sends a
+  `MoveProject` just after, in the same action, and first a `CreateProjectGroup` for « New
+  group… ». When only the group fails, the project stays: the success toast shows, and one error
+  toast says that the project is not in its group. « New group… » shows only for a person with
+  `UPDATE_PROJECT` (the server asks it for `CreateProjectGroup`).
+- **A folded section shows one line of chips**, a chip for each first project that fits, then
+  "+N". A chip opens the section, scrolls to its card and shows a ring that fades out. "+N" and the
+  free part of the line open the section. A closed section thus reads its first cards, as an open
+  one. The line measures its chips (`fitChips`): a phone shows fewer chips. The fold and the unfold
+  of a section, the chips, the cards that come in (one after the other) and the ring have a
+  transition, and none with a reduced motion; the first paint has none.
 - **« Duplicate » copies the name, the description and a glyph icon**, just after the project in its
   group. It does not copy an image icon, the pipelines, the secrets or the members.
 

@@ -58,7 +58,9 @@ presentation/
                                         pins, each group with its folder color, then no group, in
                                         folding sections that share the closed sections of the page,
                                         and a dot on a project with a job that runs. It reads them
-                                        only while they show: 3 reads, none for each group
+                                        only while they show: 3 reads, none for each group. Each
+                                        group and « No group » has a "+" (a new project there) for
+                                        a person with CREATE_PROJECT
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
@@ -159,6 +161,8 @@ Rules:
 - A form stays open after the bar closes, so `GlobalSearch` keeps it, not the bar.
 - A row of a person, an agent, an app or a project shows its `look`, as everywhere else: the photo or
   the initials color (`IdentityAvatar`, solid for the reader), or the icon (`EntityIcon`), at 20 px.
+- « New project in <group> » is a row of each group of the projects, for a person with
+  `CREATE_PROJECT`: it opens `projects/new?group=<id>`. The groups read only for this person.
 
 ## The wrappers
 

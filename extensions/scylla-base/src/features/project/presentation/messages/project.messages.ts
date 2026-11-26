@@ -22,7 +22,7 @@ export const projectMessages = {
   addDescription: msg`Add a description...`,
   createSubmit: msg`Create project`,
   editTitle: msg`Edit project`,
-  editDescription: msg`Update the icon, the name and the description of the project.`,
+  editDescription: msg`Update the icon, the name, the description and the group of the project.`,
   save: msg`Save`,
   saving: msg`Saving...`,
 
@@ -125,6 +125,20 @@ export const projectMessages = {
   pinsDrop: msg`Drop a card here to pin it.`,
   dropHere: msg`Drop a card here.`,
   currentGroup: msg`Current group`,
+  newProjectIn: (group: string) => msg`New project in ${group}`,
+  newProjectHere: msg`New project here`,
+  newProjectNoGroup: msg`New project with no group`,
+  emptyGroupCreate: msg`No project in this group yet. Create one here, or move a card into it.`,
+  group: msg`Group`,
+  newGroupName: msg`Name of the new group`,
+  groupNotSaved: (reason: string) =>
+    msg`The project is created, but it is not in its group: ${reason}`,
+  groupNotMoved: (reason: string) =>
+    msg`The project is saved, but it did not move to its group: ${reason}`,
+  foldedLine: (count: number, group: string) =>
+    msg`${plural(count, { one: '# project', other: '# projects' })} in ${group}, folded`,
+  moreProjects: (count: number) =>
+    msg`${plural(count, { one: '# more project', other: '# more projects' })}`,
   releaseInto: (project: string, group: string) => msg`Release to move “${project}” into ${group}`,
   releaseToPin: (project: string) => msg`Release to pin “${project}”`,
   slotPlace: (project: string, place: number, count: number, section: string) =>

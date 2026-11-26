@@ -17,6 +17,7 @@ export type {
   SecondSidebarLink,
   SecondSidebarSearch,
   SecondSidebarSection,
+  SecondSidebarSectionAction,
   SecondSidebarStatus,
   ShellContributions,
 } from './extension/contributions.struct.ts';

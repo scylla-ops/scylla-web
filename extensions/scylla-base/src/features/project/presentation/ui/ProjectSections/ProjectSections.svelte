@@ -1,6 +1,10 @@
 <script lang="ts">
+  import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
+  import { activeWorkspaceSlug, contextStore, workspaceUrl } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
+  import { fold, unfold } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { toRune } from '@scylla/ui/stores';
   import { cn } from '@scylla/ui/utils';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import {
@@ -9,6 +13,7 @@
     UNGROUPED,
     type SectionKey,
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
+  import { newProjectPath } from '@base/features/project/presentation/presenters/new-project.presenter.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
   import type { ProjectReorderState } from '../project-reorder.state.svelte.ts';
   import type { ProjectSectionsState, SectionView } from '../project-sections.state.svelte.ts';
@@ -23,12 +28,35 @@
     phone: boolean;
     /** The person changes the groups: each group has its menu. */
     canManage: boolean;
+    /** The person creates projects in the workspace: each section offers a new project. */
+    canCreate: boolean;
     /** « New group » shows its row, after the other groups. */
     creating: boolean;
+    onNewGroup: () => void;
     onCreated: () => void;
   }
 
-  let { workspaceId, sections, reorder, phone, canManage, creating, onCreated }: Props = $props();
+  let {
+    workspaceId,
+    sections,
+    reorder,
+    phone,
+    canManage,
+    canCreate,
+    creating,
+    onNewGroup,
+    onCreated,
+  }: Props = $props();
+
+  const context = toRune(contextStore);
+  const slug = $derived(context().workspace.slug ?? activeWorkspaceSlug() ?? '');
+  /** The new project page, with the group of the section. The pins are no group: no link. */
+  const newProjectHrefOf = (section: SectionView) =>
+    canCreate && slug && section.key !== PINS
+      ? workspaceUrl(slug, newProjectPath(section.group?.id))
+      : undefined;
+  // A phone has no « New group », as in the header of the page.
+  const newGroups = $derived(canManage && !phone && !creating);
 
   const createGroup = createMutation(() => projectGroupMutations.create());
 
@@ -78,6 +106,8 @@
     {phone}
     {headless}
     place={placeOf(section)}
+    newProjectHref={newProjectHrefOf(section)}
+    onNewGroup={section.key === UNGROUPED && !headless && newGroups ? onNewGroup : undefined}
   />
 {/snippet}
 
@@ -90,8 +120,22 @@
   {#each groups as section (section.key)}
     {@render one(section)}
   {/each}
+  {#if !headless && newGroups}
+    <!-- After the last group: one more group. The header has the same action. -->
+    <div class="pb-4" in:unfold out:fold>
+      <button
+        type="button"
+        class="flex h-10 w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed text-sm font-medium text-muted-foreground transition-colors outline-none hover:border-primary/50 hover:bg-primary/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none"
+        data-part="project-new-group-end"
+        onclick={onNewGroup}
+      >
+        <FolderPlusIcon class="size-4" aria-hidden="true" />
+        {t(projectMessages.newGroup)}
+      </button>
+    </div>
+  {/if}
   {#if creating}
-    <div class="flex flex-col gap-3 pb-4">
+    <div class="flex flex-col gap-3 pb-4" in:unfold out:fold>
       <GroupNameRow busy={createGroup.isPending} onSubmit={create} onCancel={onCreated} />
       <div
         class="flex items-center justify-center rounded-xl border border-dashed px-6 py-6 text-center text-sm font-medium text-muted-foreground"

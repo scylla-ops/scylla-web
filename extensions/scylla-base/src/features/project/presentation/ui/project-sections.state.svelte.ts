@@ -110,16 +110,11 @@ export const createProjectSections = (options: SectionsOptions) => {
     ...groupList.map(group => group.id),
     UNGROUPED,
   ]);
+  // A closed section reads its first cards too: its line of chips shows them, and it opens at once.
   const results = createQueries(() => ({
     queries: groups.data
       ? readKeys.map(key => {
-          const limit = reordering
-            ? REORDER_LIMIT
-            : key === PINS
-              ? MAX_PINS
-              : closed.includes(key)
-                ? 1
-                : limitOf(key);
+          const limit = reordering ? REORDER_LIMIT : key === PINS ? MAX_PINS : limitOf(key);
           return projectQueries.search({
             workspaceId,
             query: '',

@@ -13,21 +13,29 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:135
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:149
 msgid "“{project}” is back at its place"
 msgstr "“{project}” is back at its place"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:133
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:147
 msgid "“{project}” is now at place {place} of {count} in {section}"
 msgstr "“{project}” is now at place {place} of {count} in {section}"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:134
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:148
 msgid "“{project}” is now in {section}"
 msgstr "“{project}” is now in {section}"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:131
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:145
 msgid "“{project}”: place {place} of {count} in {section}"
 msgstr "“{project}”: place {place} of {count} in {section}"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:141
+msgid "{count, plural, one {# more project} other {# more projects}}"
+msgstr "{count, plural, one {# more project} other {# more projects}}"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:139
+msgid "{count, plural, one {# project} other {# projects}} in {group}, folded"
+msgstr "{count, plural, one {# project} other {# projects}} in {group}, folded"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:74
 msgid "{count, plural, one {# result} other {# results}} for “{query}” · names, descriptions, repositories and pipelines"
@@ -217,6 +225,10 @@ msgstr "Folder color"
 msgid "Folder color of the new group"
 msgstr "Folder color of the new group"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:132
+msgid "Group"
+msgstr "Group"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:121
 msgid "Group deleted"
 msgstr "Group deleted"
@@ -265,6 +277,10 @@ msgstr "Moved to {group}"
 msgid "Name (A → Z)"
 msgstr "Name (A → Z)"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:133
+msgid "Name of the new group"
+msgstr "Name of the new group"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:39
 msgid "Name the project"
 msgstr "Name the project"
@@ -287,6 +303,18 @@ msgstr "New project"
 msgid "New project · Regular project"
 msgstr "New project · Regular project"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:129
+msgid "New project here"
+msgstr "New project here"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:128
+msgid "New project in {group}"
+msgstr "New project in {group}"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:130
+msgid "New project with no group"
+msgstr "New project with no group"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:16
 msgid "No description"
 msgstr "No description"
@@ -302,6 +330,10 @@ msgstr "No pinned project. Choose “Pin” in the … menu of a card to keep it
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:76
 msgid "No project found"
 msgstr "No project found"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:131
+msgid "No project in this group yet. Create one here, or move a card into it."
+msgstr "No project in this group yet. Create one here, or move a card into it."
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:79
 msgid "No project is failing."
@@ -373,11 +405,11 @@ msgstr "Projects"
 msgid "Regular project"
 msgstr "Regular project"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:128
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:142
 msgid "Release to move “{project}” into {group}"
 msgstr "Release to move “{project}” into {group}"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:129
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:143
 msgid "Release to pin “{project}”"
 msgstr "Release to pin “{project}”"
 
@@ -461,9 +493,17 @@ msgstr "Sort: name (A → Z)"
 msgid "Start a regular project"
 msgstr "Start a regular project"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:135
+msgid "The project is created, but it is not in its group: {reason}"
+msgstr "The project is created, but it is not in its group: {reason}"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:48
 msgid "The project is created, but its icon is not saved: {reason}"
 msgstr "The project is created, but its icon is not saved: {reason}"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:137
+msgid "The project is saved, but it did not move to its group: {reason}"
+msgstr "The project is saved, but it did not move to its group: {reason}"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:106
 msgid "The project moves into the new group."
@@ -486,8 +526,8 @@ msgid "Unpin"
 msgstr "Unpin"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:25
-msgid "Update the icon, the name and the description of the project."
-msgstr "Update the icon, the name and the description of the project."
+msgid "Update the icon, the name, the description and the group of the project."
+msgstr "Update the icon, the name, the description and the group of the project."
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:36
 msgid "You cannot link a repository in this workspace."
