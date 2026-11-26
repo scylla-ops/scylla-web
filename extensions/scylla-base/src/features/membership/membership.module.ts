@@ -28,7 +28,8 @@ export const MembershipModule = {
           {
             path: ':actorId',
             permission: Permission.LIST_WORKSPACE_MEMBERS,
-            breadcrumb: () => ({ label: memberCrumbName() ?? msg`Member` }),
+            breadcrumb: ({ actorId }) =>
+              actorId === '' ? null : { label: memberCrumbName() ?? msg`Member` },
             page: () => import('./presentation/ui/MemberAccess/MemberAccess.page.svelte'),
           },
         ],

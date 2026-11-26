@@ -1,4 +1,4 @@
-import type { NavGroup, ScyllaModule } from '@scylla/core-sdk';
+import type { BreadcrumbParams, NavGroup, ScyllaModule } from '@scylla/core-sdk';
 import { msg } from '@lingui/core/macro';
 import BlocksIcon from '@lucide/svelte/icons/blocks';
 import ServerIcon from '@lucide/svelte/icons/server';
@@ -29,7 +29,8 @@ const MACHINES: NavGroup = { id: 'machines', title: msg`Machines`, icon: ServerI
 const agentDetails = {
   path: ':appId',
   permission: Permission.READ_APP,
-  breadcrumb: () => ({ label: appCrumbName() ?? msg`Agent` }),
+  // '' when the id has a wrong form: no crumb for an entity that cannot exist.
+  breadcrumb: ({ appId }: BreadcrumbParams) => (appId === '' ? null : { label: appCrumbName() ?? msg`Agent` }),
   page: () => import('./presentation/ui/AgentDetails/AgentDetails.page.svelte'),
   share: true as const,
 };
@@ -56,7 +57,7 @@ const connectAgent = {
 const appDetails = {
   path: ':appId',
   permission: Permission.READ_APP,
-  breadcrumb: () => ({ label: appCrumbName() ?? msg`App` }),
+  breadcrumb: ({ appId }: BreadcrumbParams) => (appId === '' ? null : { label: appCrumbName() ?? msg`App` }),
   page: () => import('./presentation/ui/AppDetails/AppDetails.page.svelte'),
   share: true as const,
 };

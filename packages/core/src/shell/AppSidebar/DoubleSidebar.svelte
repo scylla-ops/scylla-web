@@ -122,7 +122,7 @@
     class="absolute inset-x-0 top-0 z-30 flex h-17 items-center justify-center border-r border-b border-sidebar-border bg-background"
   >
     {#if Brand}
-      <Brand />
+      <Brand {collapsed} />
     {/if}
   </div>
   <Rail

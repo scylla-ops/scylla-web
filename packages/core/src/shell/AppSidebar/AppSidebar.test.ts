@@ -206,7 +206,11 @@ describe('the rail', () => {
 
   it('closes on a click anywhere but its free room and its separator, also on the logo or between its rows', async () => {
     const contributions: ShellContributions[] = [
-      { linkParams: () => ({ workspaceSlug: 'acme-corp' }), brand: Stub, sidebarFooter: [Stub] },
+      {
+        linkParams: () => ({ workspaceSlug: 'acme-corp' }),
+        brand: Stub as ShellContributions['brand'],
+        sidebarFooter: [Stub],
+      },
     ];
     render(AppSidebarFixture, { config: configWith({ contributions }) });
     const rail = railOf();

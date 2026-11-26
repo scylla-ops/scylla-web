@@ -47,7 +47,8 @@ export const UserModule = {
             // No `permission`: the page sends the own id to `account` before it checks READ_USER,
             // so an old link to the own settings works without that permission.
             path: ':userId',
-            breadcrumb: () => ({ label: msg`User`, detail: msg`Detail` }),
+            breadcrumb: ({ userId }) =>
+              userId === '' ? null : { label: msg`User`, detail: msg`Detail` },
             page: () => import('./presentation/ui/user-detail/UserDetail/UserDetail.page.svelte'),
           },
         ],

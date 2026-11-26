@@ -98,8 +98,11 @@ export interface SecondSidebarSearch {
 export interface ShellContributions {
   /** Below the sidebar links, e.g. the user menu. */
   sidebarFooter?: readonly Component[];
-  /** Above the sidebars, e.g. the logo of the product. The last extension wins. */
-  brand?: Component;
+  /**
+   * Above the sidebars, e.g. the logo of the product. The last extension wins. `collapsed`: only the
+   * 56 px rail column is there (no second sidebar), so the brand shows its mark, not its wordmark.
+   */
+  brand?: Component<{ collapsed: boolean }>;
   /** At the right end of the top bar, e.g. a context switcher. */
   topBarEnd?: readonly Component[];
   /** Rendered once over the shell, e.g. a dialog. */

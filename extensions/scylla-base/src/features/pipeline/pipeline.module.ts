@@ -58,7 +58,8 @@ export const PipelineModule = {
           {
             path: ':fragmentId',
             permission: Permission.LIST_PIPELINES_BY_WORKSPACE,
-            breadcrumb: () => ({ label: fragmentCrumbName() ?? msg`Fragment` }),
+            breadcrumb: ({ fragmentId }) =>
+              fragmentId === '' ? null : { label: fragmentCrumbName() ?? msg`Fragment` },
             page: () => import('./presentation/ui/library/FragmentDetail/FragmentDetail.page.svelte'),
             share: true,
           },
@@ -82,11 +83,12 @@ export const PipelineModule = {
       {
         path: 'edit/:pipelineId',
         permission: Permission.UPDATE_PIPELINE,
-        breadcrumb: ({ pipelineName }) => ({
+        breadcrumb: ({ pipelineId, pipelineName }) =>
+          pipelineId === '' ? null : {
           label: msg`Pipeline`,
           highlight: pipelineName,
           detail: msg`Edit`,
-        }),
+        },
         page: () => import('./presentation/ui/editor/PipelineUpdate/PipelineUpdate.page.svelte'),
         share: true,
       },
@@ -94,10 +96,11 @@ export const PipelineModule = {
         // A file pipeline: the editor page, read only. An editor pipeline redirects to `edit/:pipelineId`.
         path: 'pipelines/:pipelineId',
         permission: Permission.READ_PIPELINE,
-        breadcrumb: ({ pipelineName }) => ({
+        breadcrumb: ({ pipelineId, pipelineName }) =>
+          pipelineId === '' ? null : {
           label: msg`Pipeline`,
           highlight: pipelineName,
-        }),
+        },
         page: () => import('./presentation/ui/file/FilePipeline/FilePipeline.page.svelte'),
         share: true,
       },

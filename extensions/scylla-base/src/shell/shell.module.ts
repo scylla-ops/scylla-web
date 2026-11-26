@@ -65,7 +65,9 @@ export const ShellModule = {
       parent: 'workspace',
       path: 'projects/:projectId',
       wrapper: ContextCleanerWrapper,
-      breadcrumb: ({ projectName }) => ({ label: projectName ?? layoutMessages.project }),
+      // `projectId` is '' while the project is gone (see `goneProject`): no crumb, none below it.
+      breadcrumb: ({ projectId, projectName }) =>
+        projectId === '' ? null : { label: projectName ?? layoutMessages.project },
     },
   },
   routes: {

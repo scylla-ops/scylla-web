@@ -158,7 +158,10 @@ describe('ShellFrame', () => {
 
     it('copies the link of the page, with the hint of the last module that gives one', async () => {
       const writeText = vi.fn(() => Promise.resolve());
-      Object.defineProperty(window.navigator, 'clipboard', { value: { writeText }, configurable: true });
+      Object.defineProperty(window.navigator, 'clipboard', {
+        value: { writeText },
+        configurable: true,
+      });
       onPage({ url: () => 'https://scylla.test/acme/dashboards/dash-7' });
 
       await userEvent.click(screen.getByRole('button', { name: 'Copy link' }));
@@ -194,7 +197,7 @@ describe('ShellFrame', () => {
             space: { icon: ShieldCheckIcon, bar: Bar },
           },
         ],
-        contributions: [{ sidebarFooter: [Stub], topBarEnd: [Bar], brand: Bar }],
+        contributions: [{ sidebarFooter: [Stub], topBarEnd: [Bar], brand: Bar as never }],
       });
     });
 
@@ -203,16 +206,15 @@ describe('ShellFrame', () => {
 
       const title = container.querySelector('[data-slot="space-title"]');
       expect(title).toHaveClass('md:w-64', 'items-center', 'border-b', 'md:border-r');
-      expect(within(title as HTMLElement).getByRole('heading')).toHaveTextContent(
-        'Administration',
-      );
+      expect(within(title as HTMLElement).getByRole('heading')).toHaveTextContent('Administration');
       expect(container.querySelector('[data-slot="space-bar"]')).toHaveTextContent('bar');
       const column = container.querySelector('[data-slot="space-nav"]') as HTMLElement;
       expect(column).toHaveClass('w-64', 'border-r', 'bg-second-sidebar');
-      expect(within(column).getAllByRole('button').map(link => link.textContent?.trim())).toEqual([
-        'Users',
-        'Roles',
-      ]);
+      expect(
+        within(column)
+          .getAllByRole('button')
+          .map(link => link.textContent?.trim()),
+      ).toEqual(['Users', 'Roles']);
       expect(within(column).getByText('stub')).toBeInTheDocument();
     });
 

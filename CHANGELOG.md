@@ -108,6 +108,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   opens shows no motion of its parts. With the reduced motion setting of the system, each change is
   instant.
 - In the dark theme, the rail and the second sidebar are now lighter than the page.
+- The corner logo is larger. A missing project or an id with a wrong form shows the not-found page
+  with no sidebar, no crumb and no error toast.
 
 ## [0.7.2] - 2026-11-25
 

@@ -36,7 +36,7 @@ export const TriggersModule = {
           {
             path: ':triggerId/edit',
             permission: Permission.MANAGE_TRIGGERS,
-            breadcrumb: () => ({ label: msg`Edit trigger` }),
+            breadcrumb: ({ triggerId }) => (triggerId === '' ? null : { label: msg`Edit trigger` }),
             page: () => import('./presentation/ui/TriggerEditor/TriggerEditor.page.svelte'),
           },
         ],
