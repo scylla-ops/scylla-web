@@ -217,6 +217,17 @@ describe('integrations queries', () => {
   });
 });
 
+describe('vcsReportQueries.byJobs placeholder', () => {
+  it('keeps the reports of the old version on screen during the read of the new one', () => {
+    const old = [{ jobId: 'j-1', reports: [] }];
+    const options = vcsReportQueries.byJobs(['j-1'], true, 'completed');
+    const placeholder = options.placeholderData as (previous: unknown) => unknown;
+
+    expect(placeholder(old)).toBe(old);
+    expect(placeholder(undefined)).toBeUndefined();
+  });
+});
+
 describe('the link queries that the pipeline pages read', () => {
   const grant = (permissions: Permission[]) =>
     permissionsStore.setState({

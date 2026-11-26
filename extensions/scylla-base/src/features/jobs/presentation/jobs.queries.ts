@@ -78,7 +78,10 @@ export const jobQueries = {
           ? previous
           : undefined,
       staleTime: 0,
-      refetchInterval: query => (hasActive(query.state.data?.items ?? []) ? 5000 : false),
+      // The first page polls always: a job that starts elsewhere shows at its top. Other pages
+      // poll only while a job runs, so no row moves under the user.
+      refetchInterval: query =>
+        pagination.page <= 1 || hasActive(query.state.data?.items ?? []) ? 5000 : false,
     }),
 
   /** Polls while a job of the window is running. */
