@@ -1,6 +1,6 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
-import { iconChangeToProto, iconToDomain } from '../icon.mapper.ts';
+import { actorLookToDomain, iconChangeToProto, iconToDomain } from '../icon.mapper.ts';
 
 describe('iconToDomain', () => {
   it('reads a glyph, its color, and an image', () => {
@@ -32,5 +32,26 @@ describe('iconChangeToProto', () => {
       kind: { oneofKind: 'image', image: data },
     });
     expect(iconChangeToProto({ kind: 'default' })).toEqual({ kind: { oneofKind: undefined } });
+  });
+});
+
+describe('actorLookToDomain', () => {
+  const url = (id: string) => `/images/${id}`;
+
+  it('gives the photo and the initials color of a person, and the icon of an app', () => {
+    expect(actorLookToDomain({ avatar: { imageId: { value: 'img-1' }, color: '#3366cc' } }, url)).toEqual({
+      avatarUrl: '/images/img-1',
+      avatarColor: '#3366cc',
+    });
+    expect(
+      actorLookToDomain(
+        { icon: { kind: { oneofKind: 'glyph', glyph: { name: 'server', color: 'chart-3' } } } },
+        url,
+      ),
+    ).toEqual({ avatarGlyph: 'server', avatarColor: 'chart-3' });
+    expect(
+      actorLookToDomain({ icon: { kind: { oneofKind: 'imageId', imageId: { value: 'img-2' } } } }, url),
+    ).toEqual({ avatarUrl: '/images/img-2' });
+    expect(actorLookToDomain({}, url)).toEqual({});
   });
 });

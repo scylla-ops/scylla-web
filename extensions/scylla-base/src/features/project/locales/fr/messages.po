@@ -13,19 +13,19 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:139
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:135
 msgid "“{project}” is back at its place"
 msgstr "« {project} » est revenu à sa place"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:137
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:133
 msgid "“{project}” is now at place {place} of {count} in {section}"
 msgstr "« {project} » est maintenant à la place {place} sur {count} dans {section}"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:138
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:134
 msgid "“{project}” is now in {section}"
 msgstr "« {project} » est maintenant dans {section}"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:135
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:131
 msgid "“{project}”: place {place} of {count} in {section}"
 msgstr "« {project} » : place {place} sur {count} dans {section}"
 
@@ -85,7 +85,7 @@ msgstr "Changer la couleur du dossier de {group}"
 msgid "Change the icon…"
 msgstr "Changer l'icône…"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:128
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:124
 msgid "Choose “Pin” in the … menu of a card, or drag it here in the reorder mode."
 msgstr "Choisissez « Épingler » dans le menu … d'une carte, ou glissez-la ici en mode Réorganiser."
 
@@ -101,11 +101,7 @@ msgstr "Effacer la recherche"
 msgid "Clear the search to reorder."
 msgstr "Effacez la recherche pour réorganiser."
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:114
-msgid "Color {index}"
-msgstr "Couleur {index}"
-
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:117
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:113
 msgid "Create"
 msgstr "Créer"
 
@@ -117,7 +113,7 @@ msgstr "créer ajouter"
 msgid "Create project"
 msgstr "Créer le projet"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:131
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:127
 msgid "Current group"
 msgstr "Groupe actuel"
 
@@ -129,11 +125,11 @@ msgstr "Ordre personnalisé"
 msgid "Delete"
 msgstr "Supprimer"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:122
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:118
 msgid "Delete the group"
 msgstr "Supprimer le groupe"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:123
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:119
 msgid "Delete the group “{name}”?"
 msgstr "Supprimer le groupe « {name} » ?"
 
@@ -161,11 +157,11 @@ msgstr "Dessinez ses pipelines dans l'éditeur Scylla. Liez un dépôt plus tard
 msgid "Draw the pipelines in the Scylla editor. Run them by hand, on a schedule or on a webhook."
 msgstr "Dessinez les pipelines dans l'éditeur Scylla. Lancez-les à la main, selon un horaire ou depuis un webhook."
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:129
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:125
 msgid "Drop a card here to pin it."
 msgstr "Déposez une carte ici pour l'épingler."
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:130
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:126
 msgid "Drop a card here."
 msgstr "Déposez une carte ici."
 
@@ -193,15 +189,15 @@ msgstr "Modifier"
 msgid "Edit project"
 msgstr "Modifier le projet"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:126
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:122
 msgid "Empty group. Choose “Move to group” in the … menu of a card, or drag cards here in the reorder mode."
 msgstr "Groupe vide. Choisissez « Déplacer vers le groupe » dans le menu … d'une carte, ou glissez des cartes ici en mode Réorganiser."
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:118
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:114
 msgid "Enter to create · Escape to cancel"
 msgstr "Entrée pour créer · Échap pour annuler"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:119
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:115
 msgid "Enter to save · Escape to cancel"
 msgstr "Entrée pour enregistrer · Échap pour annuler"
 
@@ -221,19 +217,11 @@ msgstr "Couleur du dossier"
 msgid "Folder color of the new group"
 msgstr "Couleur du dossier du nouveau groupe"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:116
-msgid "Free color"
-msgstr "Couleur libre"
-
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:115
-msgid "Grey"
-msgstr "Gris"
-
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:125
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:121
 msgid "Group deleted"
 msgstr "Groupe supprimé"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:120
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:116
 msgid "Group menu"
 msgstr "Menu du groupe"
 
@@ -245,7 +233,7 @@ msgstr "Nom du groupe"
 msgid "It shows on the card, in the sidebar and at the top of the project page."
 msgstr "Elle s'affiche sur la carte, dans la barre latérale et en tête de la page du projet."
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:124
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:120
 msgid "Its projects move to “No group”. No project is deleted."
 msgstr "Ses projets passent dans « Sans groupe ». Aucun projet n'est supprimé."
 
@@ -256,10 +244,6 @@ msgstr "Dernier job"
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:35
 msgid "Link a GitHub repository"
 msgstr "Lier un dépôt GitHub"
-
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:113
-msgid "Main color"
-msgstr "Couleur principale"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:97
 msgid "Move down"
@@ -311,7 +295,7 @@ msgstr "Aucune description"
 msgid "No group"
 msgstr "Sans groupe"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:127
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:123
 msgid "No pinned project. Choose “Pin” in the … menu of a card to keep it here. Your pins are personal."
 msgstr "Aucun projet épinglé. Choisissez « Épingler » dans le menu … d'une carte pour le garder ici. Vos épingles sont personnelles."
 
@@ -389,15 +373,15 @@ msgstr "Projets"
 msgid "Regular project"
 msgstr "Projet standard"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:132
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:128
 msgid "Release to move “{project}” into {group}"
 msgstr "Relâchez pour déplacer « {project} » dans {group}"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:133
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:129
 msgid "Release to pin “{project}”"
 msgstr "Relâchez pour épingler « {project} »"
 
-#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:121
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:117
 msgid "Rename"
 msgstr "Renommer"
 

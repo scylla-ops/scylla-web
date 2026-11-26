@@ -133,10 +133,11 @@ presentation/
   ui/ProjectSections/                the sections, their headers, the group menu, the group name
                                      row, the grid with the drop slot, the pointer drag of the cards
                                      (card-drag.attachments.ts)
-  ui/GroupColor/                     the folder color of a group: the colors (GroupColorSwatches),
-                                     the folder as a button with its colors in a popover, the field of
-                                     a form, and the folder of a header, which saves at the close
-  presenters/group-color.presenter.ts   the names of the colors, the change that a write sends
+  ui/GroupColor/                     the folder color of a group: the colors (`ColorSwatches` of
+                                     `@scylla/ui`, as the icons and the initials), the folder as a
+                                     button with its colors in a popover, the field of a form, and
+                                     the folder of a header, which saves at the close
+  presenters/group-color.presenter.ts   the change that a write sends
   ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New group",
                                      "New project"
   ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order,

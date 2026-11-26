@@ -1,6 +1,6 @@
 // The custom icons of the things of a workspace share one message: `scylla.common.v1.Icon`.
 
-import type { Icon, IconChange } from '@base/generated/scylla/common/v1/icon.ts';
+import type { Avatar, Icon, IconChange } from '@base/generated/scylla/common/v1/icon.ts';
 import type {
   CustomIcon,
   CustomIconChange,
@@ -33,4 +33,32 @@ export function iconChangeToProto(change: CustomIconChange): IconChange {
     default:
       return { kind: { oneofKind: undefined } };
   }
+}
+
+/** How an actor shows, in the fields of `AvatarLook` (`@shared/presentation/ui`). */
+export interface ActorLook {
+  avatarUrl?: string;
+  avatarColor?: string;
+  avatarGlyph?: string;
+}
+
+/**
+ * The photo or the color of the initials of a person, or the icon of an app, of an actor of a
+ * list (`avatar` and `icon` of a member or of a holder of a role). `imageUrl` gives the URL of an
+ * image id (`@platform/grpc`, which `shared/` cannot import).
+ */
+export function actorLookToDomain(
+  { avatar, icon }: { avatar?: Avatar; icon?: Icon },
+  imageUrl: (id: string) => string,
+): ActorLook {
+  const custom = iconToDomain(icon);
+  return {
+    ...(avatar?.imageId?.value && { avatarUrl: imageUrl(avatar.imageId.value) }),
+    ...(avatar?.color && { avatarColor: avatar.color }),
+    ...(custom?.kind === 'image' && { avatarUrl: imageUrl(custom.imageId) }),
+    ...(custom?.kind === 'glyph' && {
+      avatarGlyph: custom.name,
+      ...(custom.color && { avatarColor: custom.color }),
+    }),
+  };
 }

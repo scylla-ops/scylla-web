@@ -107,7 +107,9 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   `SET_APP_ICON` (`set_app_icon`, the admins of the workspace). It opens the `IconPicker` of the
   projects, with the default icon of an agent (`bot` on `info`) and the recent colors of
   `features/project`. The page of another app shows the same card, with the default icon of an
-  app (`blocks` in grey, `defaultAppIcon`).
+  app (`blocks` in grey, `defaultAppIcon`). On the agent page and on the app page, with the same
+  permission, the icon of the header is a button that opens the dialog of this card too (`open`
+  of `AppIconCard`).
   `agentProfile` (`presenters/agent-icon.presenter.ts`) gives the icon to `IdentityAvatar`: the
   header, the rows of the list and the cards of a phone. The barrel exports it for the job page
   (`features/jobs`), which shows the icon of the agent of the job.

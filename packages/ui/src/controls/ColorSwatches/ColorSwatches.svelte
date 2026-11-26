@@ -1,11 +1,11 @@
 <script lang="ts">
-  import FolderIcon from '@lucide/svelte/icons/folder';
-  import { ColorGlyph, ColorPicker, SWATCH_COLORS } from '@scylla/ui';
-  import { Popover, PopoverContent, PopoverTrigger } from '@scylla/ui/primitives';
-  import { t } from '@scylla/ui/i18n';
-  import { cn, isHexColor } from '@scylla/ui/utils';
-  import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
-  import { DEFAULT_FREE_COLOR, swatchName } from '../../presenters/group-color.presenter.ts';
+  import type { Snippet } from 'svelte';
+  import { t } from '../../i18n/index.ts';
+  import { Popover, PopoverContent, PopoverTrigger } from '../../primitives/index.ts';
+  import { cn, isHexColor } from '../../utils/index.ts';
+  import ColorPicker from '../ColorPicker/ColorPicker.svelte';
+  import { colorSwatchesMessages as m } from './color-swatches.messages.ts';
+  import { DEFAULT_FREE_COLOR, SWATCH_COLORS, swatchName } from './color-swatches.ts';
 
   interface Props {
     /** The chosen color: a color of the theme (`chart-2`) or a free color (`#RRGGBB`). */
@@ -14,6 +14,8 @@
     onchange: (color: string) => void;
     /** The recent free colors, the most recent first. */
     recent?: readonly string[];
+    /** The live preview of the free color, in its picker. */
+    preview?: Snippet<[string]>;
     /** The element that the free color picker opens beside. Default: its button. */
     anchor?: HTMLElement | null;
     side?: 'top' | 'right' | 'bottom' | 'left';
@@ -21,17 +23,20 @@
     disabled?: boolean;
     /** The id of the label of the colors. */
     labelledby?: string;
+    class?: string;
   }
 
   let {
     value,
     onchange,
     recent = [],
+    preview,
     anchor,
     side = 'bottom',
     sideOffset = 8,
     disabled = false,
     labelledby,
+    class: className,
   }: Props = $props();
 
   let open = $state(false);
@@ -48,12 +53,11 @@
     'focus-visible:ring-ring/50 flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full outline-none transition-shadow duration-150 focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 motion-reduce:transition-none';
 </script>
 
-<!-- The colors of the icon pickers, for a color with no glyph. -->
 <div
-  data-part="group-color-swatches"
+  data-slot="color-swatches"
   role="group"
   aria-labelledby={labelledby}
-  class="flex flex-wrap items-center gap-2"
+  class={cn('flex flex-wrap items-center gap-2', className)}
 >
   {#each SWATCH_COLORS as token (token)}
     {@const selected = value === token}
@@ -71,8 +75,8 @@
   {/each}
   <Popover {open} onOpenChange={openFreeColor}>
     <PopoverTrigger
-      aria-label={t(projectMessages.freeColor)}
-      title={t(projectMessages.freeColor)}
+      aria-label={t(m.freeColor)}
+      title={t(m.freeColor)}
       aria-pressed={free}
       {disabled}
       class={cn(ITEM, free && 'ring-foreground ring-2')}
@@ -85,14 +89,14 @@
         ></span>
       </span>
     </PopoverTrigger>
-    <PopoverContent {side} align="start" {sideOffset} customAnchor={anchor ?? null} class="w-auto p-3">
-      <ColorPicker value={freeColor} {onchange} {recent}>
-        {#snippet preview(hex)}
-          <span class="flex size-9 items-center justify-center rounded-lg border">
-            <ColorGlyph icon={FolderIcon} color={hex} class="size-5" />
-          </span>
-        {/snippet}
-      </ColorPicker>
+    <PopoverContent
+      {side}
+      align="start"
+      {sideOffset}
+      customAnchor={anchor ?? null}
+      class="w-auto p-3"
+    >
+      <ColorPicker value={freeColor} {onchange} {recent} {preview} />
     </PopoverContent>
   </Popover>
 </div>

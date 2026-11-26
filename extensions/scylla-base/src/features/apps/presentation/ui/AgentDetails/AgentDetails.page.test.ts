@@ -569,7 +569,10 @@ describe('AgentDetails', () => {
     await waitFor(() =>
       expect(apps.setIcon).toHaveBeenCalledWith('01JBX7AAAAAAAAAAAAAAAAK2M', { kind: 'default' }),
     );
-    await user.click(screen.getByRole('button', { name: 'Change the icon…' }));
+    const card = screen.getByRole('heading', { name: 'Agent icon' }).closest<HTMLElement>(
+      '[data-slot="card"]',
+    )!;
+    await user.click(within(card).getByRole('button', { name: 'Change the icon…' }));
     const dialog = await screen.findByRole('dialog');
     await user.click(within(dialog).getByRole('button', { name: 'Save' }));
 
@@ -582,11 +585,26 @@ describe('AgentDetails', () => {
     );
   });
 
+  it('opens the icon from the avatar of the header, for an admin of the workspace', async () => {
+    setUp(agent(), [...ALL, Permission.SET_APP_ICON]);
+    const user = userEvent.setup();
+
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
+    const avatar = within(header).getByRole('button', { name: 'Change the icon…' });
+    expect(avatar).toHaveClass('cursor-pointer');
+    avatar.focus();
+    await user.keyboard('{Enter}');
+
+    expect(await screen.findByRole('dialog', { name: 'Agent icon' })).toBeInTheDocument();
+  });
+
   it('gives the change of the icon only to an admin of the workspace', async () => {
     setUp(agent());
 
     expect(await screen.findByRole('heading', { name: 'Labels' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Agent icon' })).not.toBeInTheDocument();
+    const header = screen.getByRole('heading', { level: 1 }).closest('header')!;
+    expect(within(header).queryByRole('button', { name: 'Change the icon…' })).toBeNull();
   });
 
   it('renames a key', async () => {

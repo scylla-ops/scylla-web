@@ -21,10 +21,16 @@ import type {
   CreateCommand,
   ToggleCommand,
 } from '@scylla/core-sdk';
-import type { LucideIcon } from '@scylla/ui';
+import type { EntityIconProps, LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
 import { prepareFuzzyText, type FuzzyFields } from '@scylla/ui/utils';
+import { agentProfile, type AppEntity } from '@base/features/apps';
+import { projectIconProps, type ProjectIcon } from '@base/features/project';
 import { roleName, type RoleEntity } from '@base/features/roles';
+import type {
+  IdentityKind,
+  UserIdentityProfile,
+} from '@shared/presentation/presenters/user-identity.presenter.ts';
 import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
 import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
 
@@ -61,6 +67,11 @@ export type RowEffect =
   | { kind: 'run'; pipelineId: string; verb: string; question: string; detail: string }
   | { kind: 'switch'; workspace: { id: string; name: string; slug: string } };
 
+/** The own avatar of an entity row, in place of the icon of its kind. */
+export type RowLook =
+  | { kind: IdentityKind; profile: UserIdentityProfile; self?: boolean }
+  | { kind: 'project'; icon: EntityIconProps };
+
 export interface CommandRow {
   /** Stable from a session to the next one: the list of the recent rows stores it. */
   id: string;
@@ -73,6 +84,8 @@ export interface CommandRow {
   /** The full text of what Enter does, for the footer and for a screen reader. */
   sentence: string;
   icon: LucideIcon;
+  /** A person, an agent, an app or a project shows as everywhere else: its photo or its icon. */
+  look?: RowLook;
   effect: RowEffect;
   /** `true`: the row acts on the current page. */
   here?: boolean;
@@ -83,10 +96,19 @@ export interface CommandRow {
 }
 
 export interface CommandSourcesData {
-  projects: readonly { id: string; name: string }[];
+  projects: readonly { id: string; name: string; icon?: ProjectIcon }[];
   pipelines: readonly { id: string; name: string; projectId: string }[];
-  apps: readonly { id: string; name: string; runner: boolean }[];
-  members: readonly { actorId: string; actorKind: string; displayName: string; handle: string }[];
+  apps: readonly ({ id: string; name: string; runner: boolean } & Partial<Pick<AppEntity, 'icon'>>)[];
+  members: readonly {
+    actorId: string;
+    actorKind: string;
+    displayName: string;
+    handle: string;
+    avatarUrl?: string;
+    avatarColor?: string;
+  }[];
+  /** The account of the session: its row shows the avatar of the reader. */
+  selfId?: string;
   workspaceRoles: readonly RoleEntity[];
   instanceRoles: readonly RoleEntity[];
   secrets: readonly { name: string }[];
@@ -369,7 +391,7 @@ const entityDrafts = (input: RowsInput): Draft[] => {
 
   return [
     ...input.projects.map(
-      ({ id, name }): Draft => ({
+      ({ id, name, icon }): Draft => ({
         id: `project:${id}`,
         uid: id,
         group: 'projects',
@@ -377,6 +399,7 @@ const entityDrafts = (input: RowsInput): Draft[] => {
         type: t(messages.typeProject),
         verb: t(messages.verbGo),
         icon: FolderIcon,
+        look: { kind: 'project', icon: projectIconProps(icon) },
         effect: { kind: 'go', href: workspaceUrl(slug, `projects/${id}`) },
         projectId: id,
         say: messages.sayProject,
@@ -384,7 +407,7 @@ const entityDrafts = (input: RowsInput): Draft[] => {
     ),
     ...pipelineDrafts(input),
     ...input.apps.map(
-      ({ id, name, runner }): Draft => ({
+      ({ id, name, runner, icon }): Draft => ({
         id: `app:${id}`,
         uid: id,
         group: 'machines',
@@ -392,6 +415,7 @@ const entityDrafts = (input: RowsInput): Draft[] => {
         type: t(runner ? messages.typeAgent : messages.typeApp),
         verb: t(messages.verbGo),
         icon: runner ? ServerIcon : BlocksIcon,
+        look: { kind: runner ? 'agent' : 'app', profile: agentProfile({ name, icon }) },
         effect: { kind: 'go', href: workspaceUrl(slug, `${runner ? 'agents' : 'apps'}/${id}`) },
         say: runner ? messages.sayAgent : messages.sayApp,
       }),
@@ -399,7 +423,7 @@ const entityDrafts = (input: RowsInput): Draft[] => {
     ...input.members
       .filter(member => member.actorKind === 'user')
       .map(
-        ({ actorId, displayName, handle }): Draft => ({
+        ({ actorId, displayName, handle, avatarUrl, avatarColor }): Draft => ({
           id: `member:${actorId}`,
           uid: actorId,
           group: 'people',
@@ -408,6 +432,11 @@ const entityDrafts = (input: RowsInput): Draft[] => {
           place: displayName ? handle : undefined,
           verb: t(messages.verbGo),
           icon: UserRoundIcon,
+          look: {
+            kind: 'person',
+            profile: { displayName, username: handle, avatarUrl, avatarColor },
+            self: actorId === input.selfId,
+          },
           effect: { kind: 'go', href: workspaceUrl(slug, `access/members/${actorId}`) },
           say: messages.sayMember,
         }),

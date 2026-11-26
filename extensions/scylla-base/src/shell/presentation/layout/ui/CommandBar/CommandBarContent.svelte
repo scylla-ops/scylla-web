@@ -9,6 +9,7 @@
     type CommandDefinition,
     type CommandForm,
   } from '@scylla/core-sdk';
+  import { EntityIcon } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     Command,
@@ -22,6 +23,7 @@
   import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import { linkParams } from '@base/shell/presentation/shell-params.ts';
+  import IdentityAvatar from '@shared/presentation/ui/data-display/IdentityAvatar/IdentityAvatar.svelte';
   import { modifierKey } from '../GlobalSearch/modifier-key.ts';
   import CommandConfirm from './CommandConfirm.svelte';
   import { addRecent, readRecent } from './command-recent.ts';
@@ -306,7 +308,20 @@
                 aria-label={row.sentence}
                 onSelect={() => pick(row)}
               >
-                <Icon class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+                <span class="flex size-5 shrink-0 items-center justify-center" aria-hidden="true">
+                  {#if row.look?.kind === 'project'}
+                    <EntityIcon {...row.look.icon} size={20} />
+                  {:else if row.look}
+                    <IdentityAvatar
+                      profile={row.look.profile}
+                      kind={row.look.kind}
+                      self={row.look.self}
+                      size={20}
+                    />
+                  {:else}
+                    <Icon class="size-4 text-muted-foreground" />
+                  {/if}
+                </span>
                 <span class="flex min-w-0 flex-1 flex-col">
                   <span class="truncate">
                     {#each nameParts(row.name, item.ranges) as part, index (index)}

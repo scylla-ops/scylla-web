@@ -3,7 +3,7 @@
   import PowerIcon from '@lucide/svelte/icons/power';
   import PowerOffIcon from '@lucide/svelte/icons/power-off';
   import { swapIn, swapOut } from '@scylla/ui';
-  import { Badge, Button } from '@scylla/ui/primitives';
+  import { Badge, Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { copyToClipboard } from '@scylla/ui/utils';
   import { IdentityAvatar } from '@shared/presentation/ui';
@@ -20,9 +20,11 @@
     onDisable?: () => void;
     onEnable?: () => void;
     enabling?: boolean;
+    /** Absent: the user may not change the icon (`set_app_icon`). */
+    onChangeIcon?: () => void;
   }
 
-  let { app, onDisable, onEnable, enabling = false }: Props = $props();
+  let { app, onDisable, onEnable, enabling = false, onChangeIcon }: Props = $props();
 
   const iconKey = $derived(JSON.stringify(app.icon ?? null));
   const shortId = $derived(
@@ -30,7 +32,7 @@
   );
 </script>
 
-<header class="flex flex-wrap items-start gap-4">
+{#snippet avatar()}
   <!-- The icon that an admin chose; a new one fades in over the old one. -->
   <span class="grid shrink-0 place-items-center">
     {#key iconKey}
@@ -39,6 +41,24 @@
       </span>
     {/key}
   </span>
+{/snippet}
+
+<!-- A click on the icon changes it, for an admin, as on the page of an agent. -->
+<header class="flex flex-wrap items-start gap-4">
+  {#if onChangeIcon}
+    <Tooltip>
+      <TooltipTrigger
+        aria-label={t(agentPageMessages.changeIcon)}
+        class="focus-visible:ring-ring/50 flex shrink-0 cursor-pointer items-center justify-center rounded-[25%] transition-opacity outline-none hover:opacity-80 focus-visible:ring-[3px]"
+        onclick={onChangeIcon}
+      >
+        {@render avatar()}
+      </TooltipTrigger>
+      <TooltipContent side="top">{t(agentPageMessages.changeIcon)}</TooltipContent>
+    </Tooltip>
+  {:else}
+    {@render avatar()}
+  {/if}
   <div class="flex min-w-0 flex-1 flex-col gap-1">
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="truncate">{app.name}</h1>

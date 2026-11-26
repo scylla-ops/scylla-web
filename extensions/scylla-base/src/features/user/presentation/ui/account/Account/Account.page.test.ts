@@ -126,6 +126,22 @@ describe('AccountPage', () => {
     expect(await within(header).findByText('Instance admin')).toHaveAttribute('data-slot', 'badge');
   });
 
+  it('opens the editor of the photo from the avatar of the header', async () => {
+    setUp('security');
+    const user = userEvent.setup();
+
+    const avatar = await screen.findByRole('button', { name: 'Change your photo' });
+    expect(avatar).toHaveClass('cursor-pointer');
+    expect(avatar.querySelector('[data-kind]')).toHaveAttribute('data-kind', 'self');
+    avatar.focus();
+    await user.keyboard('{Enter}');
+
+    const dialog = await screen.findByRole('dialog', { name: 'Profile photo' });
+    expect(within(dialog).getByRole('button', { name: 'Upload an image' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Remove the image' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Free color' })).toBeInTheDocument();
+  });
+
   it('shows no role badge for a user who is not an instance admin', async () => {
     setUp('profile');
 

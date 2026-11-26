@@ -173,6 +173,10 @@ msgstr "Changer le mot de passe"
 msgid "Change your email"
 msgstr "Changer votre e-mail"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:19
+msgid "Change your photo"
+msgstr "Changer votre photo"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:72
 msgid "Changing your email…"
 msgstr "Changement de votre e-mail…"
@@ -180,10 +184,6 @@ msgstr "Changement de votre e-mail…"
 #: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:35
 msgid "Close"
 msgstr "Fermer"
-
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:12
-msgid "Color {index}"
-msgstr "Couleur {index}"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:48
 msgid "Confirm password"
@@ -366,10 +366,6 @@ msgstr "Obtenez une copie des données de votre compte, dans un format que d'aut
 msgid "Give these versions when you report a problem."
 msgstr "Donnez ces versions quand vous signalez un problème."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:13
-msgid "Grey"
-msgstr "Gris"
-
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:138
 msgid "Help this user sign in again, or stop the sign-in."
 msgstr "Aidez cet utilisateur à se connecter de nouveau, ou bloquez la connexion."
@@ -446,10 +442,6 @@ msgstr "Associer {provider}"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:80
 msgid "Linked {date}"
 msgstr "Associée le {date}"
-
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:11
-msgid "Main color"
-msgstr "Couleur principale"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:84
 msgid "Make instance admin"
@@ -629,11 +621,11 @@ msgstr "Retirer l'admin de l'instance"
 msgid "Remove the image"
 msgstr "Retirer l'image"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:19
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:16
 msgid "Replace"
 msgstr "Remplacer"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:16
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:13
 msgid "Replace your profile photo?"
 msgstr "Remplacer votre photo de profil ?"
 
@@ -730,7 +722,7 @@ msgstr "Conditions générales d'utilisation"
 msgid "Terms of service · version {version}"
 msgstr "Conditions générales d'utilisation · version {version}"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:21
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:18
 msgid "The {provider} photo could not be imported. Try again later."
 msgstr "Impossible d'importer la photo {provider}. Réessayez plus tard."
 
@@ -867,7 +859,7 @@ msgstr "Dissocier"
 msgid "Upload an image"
 msgstr "Importer une image"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:14
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:11
 msgid "Use my {provider} photo"
 msgstr "Utiliser ma photo {provider}"
 
@@ -946,11 +938,11 @@ msgstr "Vous n'avez pas la permission de supprimer des utilisateurs."
 msgid "You sign in with a provider. Set a password to also sign in with your email. This signs out your other sessions."
 msgstr "Vous vous connectez avec un fournisseur. Définissez un mot de passe pour vous connecter aussi avec votre e-mail. Cela déconnecte vos autres sessions."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:15
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:12
 msgid "Your {provider} photo is your profile photo"
 msgstr "Votre photo {provider} est désormais votre photo de profil"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:18
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:15
 msgid "Your {provider} photo replaces the current photo. The current photo is deleted."
 msgstr "Votre photo {provider} remplace la photo actuelle, qui sera supprimée."
 

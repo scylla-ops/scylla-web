@@ -22,12 +22,13 @@
   interface Props {
     /** Only the admins of the workspace see the card: `set_app_icon`. */
     app: Pick<AppEntity, 'id' | 'name' | 'icon' | 'runner'>;
+    /** The dialog of the icon: the avatar of the header of the agent page opens it too. */
+    open?: boolean;
   }
 
-  let { app }: Props = $props();
+  let { app, open = $bindable(false) }: Props = $props();
 
   const reset = createMutation(() => appMutations.setIcon());
-  let open = $state(false);
   const title = $derived(t(app.runner ? messages.icon : appPageMessages.icon));
   const iconKey = $derived(JSON.stringify(app.icon ?? null));
 </script>

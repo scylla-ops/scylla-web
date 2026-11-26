@@ -36,7 +36,7 @@ const grant = (actorId: string, displayName: string, over: Partial<RoleHolderEnt
 });
 
 const holders = [
-  grant('u-1', 'Marie Dupont'),
+  grant('u-1', 'Marie Dupont', { avatarColor: '#3366cc' }),
   grant('a-1', 'build-agent-01', {
     actorKind: 'app',
     runner: true,
@@ -91,6 +91,18 @@ describe('HolderStack', () => {
       '/acme/access/members',
     );
     expect(screen.getByText('+3 more')).toBeInTheDocument();
+  });
+
+  it('shows each holder with the avatar that it chose, and the reader as the reader', async () => {
+    localStorage.setItem('userId', 'u-1');
+    const { container } = render(HolderStack, { role, workspaceId: 'w-1', canSeeHolders: true });
+
+    await screen.findByRole('button', { name: /^\+6\s*9 holders$/ });
+    const [marie, agent] = container.querySelectorAll<HTMLElement>('[data-kind]');
+    expect(marie).toHaveAttribute('data-kind', 'self');
+    expect(marie.style.getPropertyValue('--avatar-tile')).toBe('#3366CC');
+    expect(agent).toHaveAttribute('data-kind', 'agent');
+    localStorage.clear();
   });
 
   it('shows the count only, with no card, to a reader who cannot see the holders', async () => {

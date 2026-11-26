@@ -76,6 +76,7 @@
   const usersQuery = createQuery(() =>
     userQueries.list({ enabled: adding && can(Permission.LIST_USERS) }),
   );
+  const meQuery = createQuery(() => userQueries.me());
 
   /** A person with a role in the workspace, or an app of the workspace, with no role here yet. */
   const candidates = $derived([
@@ -172,7 +173,11 @@
             {#each rows as row (row.actorId)}
               <TableRow class={row.inheritedOnly ? '[&>td]:bg-muted/50' : ''}>
                 <TableCell>
-                  <Identity profile={memberProfile(row)} kind={row.kind} />
+                  <Identity
+                    profile={memberProfile(row)}
+                    kind={row.kind}
+                    self={row.actorId === meQuery.data?.id}
+                  />
                 </TableCell>
                 <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-1.5">

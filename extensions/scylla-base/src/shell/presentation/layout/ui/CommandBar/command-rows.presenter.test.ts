@@ -70,6 +70,37 @@ describe('buildCommandRows', () => {
     expect(people[0].place).toBeUndefined();
   });
 
+  it('shows a person, an agent, an app and a project as everywhere else: its photo or its icon', () => {
+    const rows = buildCommandRows(
+      input({
+        projects: [{ id: 'p1', name: 'web-api', icon: { kind: 'glyph', name: 'rocket', color: '#3366cc' } }],
+        apps: [
+          { id: 'a1', name: 'prod-runner', runner: true, icon: { kind: 'glyph', name: 'cpu', color: 'chart-2' } },
+          { id: 'a2', name: 'release-bot', runner: false },
+        ],
+        members: [
+          { actorId: 'u1', actorKind: 'user', displayName: 'Marie', handle: 'marie', avatarColor: '#aa3322' },
+          { actorId: 'u2', actorKind: 'user', displayName: 'Paul', handle: 'paul', avatarUrl: '/p.png' },
+        ],
+        selfId: 'u1',
+      }),
+    );
+    const look = (id: string) => rows.find(row => row.id === id)?.look;
+
+    expect(look('project:p1')).toMatchObject({ kind: 'project', icon: { color: '#3366cc' } });
+    expect(look('app:a1')).toMatchObject({
+      kind: 'agent',
+      profile: { displayName: 'prod-runner', avatarGlyph: 'cpu', avatarColor: 'chart-2' },
+    });
+    expect(look('app:a2')).toMatchObject({ kind: 'app', profile: { displayName: 'release-bot' } });
+    expect(look('member:u1')).toEqual({
+      kind: 'person',
+      profile: { displayName: 'Marie', username: 'marie', avatarColor: '#aa3322', avatarUrl: undefined },
+      self: true,
+    });
+    expect(look('member:u2')).toMatchObject({ profile: { avatarUrl: '/p.png' }, self: false });
+  });
+
   it('shows the secrets only with an open project', () => {
     const rows = buildCommandRows(
       input({ project: { id: null, name: null }, secrets: [{ name: 'TOKEN' }] }),

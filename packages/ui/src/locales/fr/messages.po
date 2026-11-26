@@ -41,7 +41,7 @@ msgstr "Êtes-vous absolument sûr ?"
 msgid "Ask an admin for access."
 msgstr "Demandez l'accès à un admin."
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:15
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:11
 msgid "browse"
 msgstr "parcourir"
 
@@ -70,7 +70,7 @@ msgstr "Couleur"
 msgid "Color {hex}"
 msgstr "Couleur {hex}"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:11
+#: packages/ui/src/controls/ColorSwatches/color-swatches.messages.ts:5
 msgid "Color {index}"
 msgstr "Couleur {index}"
 
@@ -143,7 +143,7 @@ msgstr "Affiche la barre latérale mobile."
 msgid "Done"
 msgstr "Terminé"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:14
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:10
 msgid "Drop an image here, or"
 msgstr "Glissez une image ici, ou"
 
@@ -151,7 +151,7 @@ msgstr "Glissez une image ici, ou"
 msgid "Error"
 msgstr "Erreur"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:13
+#: packages/ui/src/controls/ColorSwatches/color-swatches.messages.ts:7
 msgid "Free color"
 msgstr "Couleur libre"
 
@@ -163,7 +163,7 @@ msgstr "Aller à la page suivante"
 msgid "Go to previous page"
 msgstr "Aller à la page précédente"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:12
+#: packages/ui/src/controls/ColorSwatches/color-swatches.messages.ts:6
 msgid "Grey"
 msgstr "Gris"
 
@@ -224,7 +224,7 @@ msgstr "Chargement"
 msgid "Loading…"
 msgstr "Chargement…"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:10
+#: packages/ui/src/controls/ColorSwatches/color-swatches.messages.ts:4
 msgid "Main color"
 msgstr "Couleur principale"
 
@@ -268,7 +268,7 @@ msgstr "Pagination"
 msgid "Pick a color on the screen"
 msgstr "Prendre une couleur à l'écran"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:16
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:12
 msgid "PNG, JPEG or WebP · 1 MB max · cropped to a square (256 × 256)"
 msgstr "PNG, JPEG ou WebP · 1 Mo max · recadrée en carré (256 × 256)"
 
@@ -346,7 +346,7 @@ msgstr "Le serveur n'a pas répondu. Scylla réessaie dans {time}."
 msgid "This action cannot be undone."
 msgstr "Cette action ne peut pas être annulée."
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:17
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:13
 msgid "This file is too large: 1 MB max."
 msgstr "Ce fichier est trop lourd : 1 Mo max."
 
@@ -354,7 +354,7 @@ msgstr "Ce fichier est trop lourd : 1 Mo max."
 msgid "This item is gone"
 msgstr "Cet élément n'existe plus"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:18
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:14
 msgid "This type of file is not accepted: use PNG, JPEG or WebP."
 msgstr "Ce type de fichier n'est pas accepté : utilisez PNG, JPEG ou WebP."
 

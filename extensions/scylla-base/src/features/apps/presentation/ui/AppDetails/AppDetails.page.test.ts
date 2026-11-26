@@ -226,6 +226,8 @@ describe('AppDetails', () => {
     expect(screen.queryByRole('button', { name: 'Delete app' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Disable' })).not.toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'App icon' })).not.toBeInTheDocument();
+    const header = screen.getByRole('heading', { level: 1 }).closest('header')!;
+    expect(within(header).queryByRole('button', { name: 'Change the icon…' })).toBeNull();
   });
 
   it('gives the icon of the app to an admin of the workspace, as for an agent', async () => {
@@ -233,7 +235,10 @@ describe('AppDetails', () => {
     const user = userEvent.setup();
 
     expect(await screen.findByRole('heading', { name: 'App icon' })).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Change the icon…' }));
+    const card = screen.getByRole('heading', { name: 'App icon' }).closest<HTMLElement>(
+      '[data-slot="card"]',
+    )!;
+    await user.click(within(card).getByRole('button', { name: 'Change the icon…' }));
     const dialog = await screen.findByRole('dialog', { name: 'App icon' });
     await user.click(within(dialog).getByRole('button', { name: 'key' }));
     await user.click(within(dialog).getByRole('button', { name: 'Save' }));
@@ -245,6 +250,19 @@ describe('AppDetails', () => {
         color: 'muted-foreground',
       }),
     );
+  });
+
+  it('opens the icon from the avatar of the header, for an admin of the workspace', async () => {
+    setUp([...ALL, Permission.SET_APP_ICON]);
+    const user = userEvent.setup();
+
+    const header = (await screen.findByRole('heading', { level: 1 })).closest('header')!;
+    const avatar = within(header).getByRole('button', { name: 'Change the icon…' });
+    expect(avatar).toHaveClass('cursor-pointer');
+    avatar.focus();
+    await user.keyboard('{Enter}');
+
+    expect(await screen.findByRole('dialog', { name: 'App icon' })).toBeInTheDocument();
   });
 });
 

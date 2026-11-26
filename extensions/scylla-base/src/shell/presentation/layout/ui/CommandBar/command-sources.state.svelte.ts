@@ -10,6 +10,7 @@ import { pipelineQueries } from '@base/features/pipeline';
 import { projectQueries } from '@base/features/project';
 import { roleQueries } from '@base/features/roles';
 import { secretQueries } from '@base/features/secret';
+import { userQueries } from '@base/features/user';
 import { workspaceQueries } from '@base/features/workspace';
 import type { CommandSourcesData, CommandGroupId } from './command-rows.presenter.ts';
 
@@ -65,6 +66,7 @@ export const createCommandSources = () => {
     }),
   );
   const workspaces = createQuery(() => allChanges(workspaceQueries.mine()));
+  const me = createQuery(() => userQueries.me());
 
   const reads: readonly { group: CommandGroupId; query: { isLoading: boolean; isError: boolean } }[] =
     [
@@ -87,6 +89,7 @@ export const createCommandSources = () => {
     instanceRoles: instanceRoles.data ?? [],
     secrets: secrets.data ?? [],
     workspaces: workspaces.data ?? [],
+    selfId: me.data?.id,
   });
 
   let otherCatalog = $state.raw<Messages>({});

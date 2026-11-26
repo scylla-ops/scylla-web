@@ -1,15 +1,5 @@
 import { t } from '@scylla/ui/i18n';
-import {
-  contrastRatio,
-  DARK_GLYPH,
-  iconColors,
-  isHexColor,
-  LIGHT_GLYPH,
-  parseHex,
-  toHex,
-  type ColorTheme,
-  type Rgb,
-} from '@scylla/ui/utils';
+import { colorIn, glyphOn, iconColors, isHexColor, toHex, type ColorTheme } from '@scylla/ui/utils';
 import { userIdentityMessages } from '../messages/user-identity.messages.ts';
 
 /** What it takes to show a person. A `UserEntity` of `features/user` is one. */
@@ -40,20 +30,18 @@ export interface AvatarColors {
 
 /**
  * The colors of an avatar in a chosen color. On its tint, as an entity icon (`iconColors`: a free
- * color under 3:1 with the card gets a solid tile). Solid for the reader: the color, with the
- * initials in the foreground of the main color, or white or near-black on a free color, the one
- * that contrasts more.
+ * color under 3:1 with the card gets a solid tile). Solid for the reader: the color, with white or
+ * near-black initials, the one that contrasts more with the color in this theme. A color of the
+ * theme that `THEME_COLORS` does not know keeps the foreground of the main color.
  */
 export const avatarColors = (color: string, solid: boolean, theme: ColorTheme): AvatarColors => {
   if (!solid) {
     const { tile, glyph } = iconColors(color, theme);
     return { tile, ink: glyph };
   }
-  const rgb = isHexColor(color) ? parseHex(color) : null;
-  if (!rgb) return { tile: `var(--${color})`, ink: 'var(--primary-foreground)' };
-  const onLight = contrastRatio(rgb, parseHex(LIGHT_GLYPH) as Rgb);
-  const onDark = contrastRatio(rgb, parseHex(DARK_GLYPH) as Rgb);
-  return { tile: toHex(rgb), ink: onLight >= onDark ? LIGHT_GLYPH : DARK_GLYPH };
+  const rgb = colorIn(color, theme);
+  const tile = isHexColor(color) && rgb ? toHex(rgb) : `var(--${color})`;
+  return { tile, ink: rgb ? glyphOn(rgb) : 'var(--primary-foreground)' };
 };
 
 /**

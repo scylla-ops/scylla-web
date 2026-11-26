@@ -179,6 +179,7 @@ beforeEach(() => {
     },
     workspace: { workspaceRepository: { getMine: getWorkspaces } },
     project: { projectRepository: { getByWorkspaceId: getProjects } },
+    user: { userRepository: { getMe: vi.fn().mockResolvedValue({ id: 'user-1', username: 'marie' }) } },
   });
 
   navigate = installTestNavigator().navigate;

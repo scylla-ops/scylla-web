@@ -52,6 +52,7 @@
 
   let disabling = $state(false);
   let adding = $state(false);
+  let iconOpen = $state(false);
 </script>
 
 {#if details.isError}
@@ -72,6 +73,7 @@
       onDisable={canManage ? () => (disabling = true) : undefined}
       onEnable={canManage ? () => enable.mutate(app.id) : undefined}
       enabling={enable.isPending}
+      onChangeIcon={canSetIcon ? () => (iconOpen = true) : undefined}
     />
 
     {#if app.disabledAt}
@@ -98,7 +100,7 @@
       <div class="flex flex-col gap-4">
         <AppActivityCard latest={lastUsedOf(rows)} />
         {#if canSetIcon}
-          <AppIconCard {app} />
+          <AppIconCard {app} bind:open={iconOpen} />
         {/if}
       </div>
     </div>

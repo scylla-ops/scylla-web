@@ -173,6 +173,10 @@ msgstr "Change the password"
 msgid "Change your email"
 msgstr "Change your email"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:19
+msgid "Change your photo"
+msgstr "Change your photo"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:72
 msgid "Changing your email…"
 msgstr "Changing your email…"
@@ -180,10 +184,6 @@ msgstr "Changing your email…"
 #: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:35
 msgid "Close"
 msgstr "Close"
-
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:12
-msgid "Color {index}"
-msgstr "Color {index}"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:48
 msgid "Confirm password"
@@ -366,10 +366,6 @@ msgstr "Get a copy of the data of your account, in a format that other tools can
 msgid "Give these versions when you report a problem."
 msgstr "Give these versions when you report a problem."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:13
-msgid "Grey"
-msgstr "Grey"
-
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:138
 msgid "Help this user sign in again, or stop the sign-in."
 msgstr "Help this user sign in again, or stop the sign-in."
@@ -446,10 +442,6 @@ msgstr "Link {provider}"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:80
 msgid "Linked {date}"
 msgstr "Linked {date}"
-
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:11
-msgid "Main color"
-msgstr "Main color"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:84
 msgid "Make instance admin"
@@ -629,11 +621,11 @@ msgstr "Remove instance admin"
 msgid "Remove the image"
 msgstr "Remove the image"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:19
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:16
 msgid "Replace"
 msgstr "Replace"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:16
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:13
 msgid "Replace your profile photo?"
 msgstr "Replace your profile photo?"
 
@@ -730,7 +722,7 @@ msgstr "Terms of service"
 msgid "Terms of service · version {version}"
 msgstr "Terms of service · version {version}"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:21
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:18
 msgid "The {provider} photo could not be imported. Try again later."
 msgstr "The {provider} photo could not be imported. Try again later."
 
@@ -867,7 +859,7 @@ msgstr "Unlink"
 msgid "Upload an image"
 msgstr "Upload an image"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:14
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:11
 msgid "Use my {provider} photo"
 msgstr "Use my {provider} photo"
 
@@ -946,11 +938,11 @@ msgstr "You don't have permission to delete users."
 msgid "You sign in with a provider. Set a password to also sign in with your email. This signs out your other sessions."
 msgstr "You sign in with a provider. Set a password to also sign in with your email. This signs out your other sessions."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:15
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:12
 msgid "Your {provider} photo is your profile photo"
 msgstr "Your {provider} photo is your profile photo"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:18
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:15
 msgid "Your {provider} photo replaces the current photo. The current photo is deleted."
 msgstr "Your {provider} photo replaces the current photo. The current photo is deleted."
 

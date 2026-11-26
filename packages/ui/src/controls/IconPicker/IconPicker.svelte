@@ -10,24 +10,16 @@
   import {
     Button,
     Input,
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
     Tabs,
     TabsContent,
     TabsList,
     TabsTrigger,
   } from '../../primitives/index.ts';
   import { cn, isHexColor } from '../../utils/index.ts';
-  import ColorPicker from '../ColorPicker/ColorPicker.svelte';
+  import ColorSwatches from '../ColorSwatches/ColorSwatches.svelte';
   import ChoicePreview from './ChoicePreview.svelte';
   import IconImageDrop from './IconImageDrop.svelte';
-  import {
-    choiceIconProps,
-    searchGlyphs,
-    SWATCH_COLORS,
-    type IconChoice,
-  } from './icon-picker.ts';
+  import { choiceIconProps, searchGlyphs, type IconChoice } from './icon-picker.ts';
   import { iconPickerMessages as m } from './icon-picker.messages.ts';
 
   interface Props {
@@ -62,7 +54,7 @@
   // svelte-ignore state_referenced_locally
   let tab = $state(value.kind === 'image' ? 'image' : 'icon');
   let search = $state('');
-  let colorOpen = $state(false);
+  const colorLabel = $props.id();
   let root = $state<HTMLElement | null>(null);
 
   // The glyph and the color stay while an image is chosen, for a return to the glyph.
@@ -72,7 +64,6 @@
   let color = $state(value.kind === 'glyph' ? value.color : defaultColor);
 
   const glyphs = $derived(searchGlyphs(search));
-  const freeColor = $derived(isHexColor(color) ? color : (recent[0] ?? '#E879F9'));
   // The default icon is the default glyph in the default color.
   const selectedGlyph = $derived(
     value.kind === 'glyph' ? value.name : value.kind === 'default' ? defaultGlyph : undefined,
@@ -92,9 +83,6 @@
     onchange({ kind: 'glyph', name: glyph, color: next });
   };
 
-  const swatchName = (token: string, index: number) =>
-    token === 'primary' ? t(m.mainColor) : token === 'muted-foreground' ? t(m.grey) : t(m.chartColor(index + 1));
-
   const reset = () => {
     glyph = defaultGlyph;
     color = defaultColor;
@@ -112,11 +100,6 @@
     revoke();
     objectUrl = URL.createObjectURL(file);
     onchange({ kind: 'image', url: objectUrl, file });
-  };
-
-  const openFreeColor = (open: boolean) => {
-    colorOpen = open;
-    if (open && !isHexColor(color)) chooseColor(freeColor);
   };
 </script>
 
@@ -203,57 +186,24 @@
         </div>
 
         <div class="flex flex-col gap-2">
-          <span class="text-muted-foreground text-xs font-medium">{t(m.color)}</span>
-          <div class="flex flex-wrap items-center gap-2">
-            {#each SWATCH_COLORS as token, index (token)}
-              {@const selected = selectedColor === token}
-              <button
-                type="button"
-                aria-label={swatchName(token, index)}
-                aria-pressed={selected}
-                class={cn(
-                  'focus-visible:ring-ring/50 flex size-8 cursor-pointer items-center justify-center rounded-full transition-shadow duration-150 outline-none motion-reduce:transition-none focus-visible:ring-[3px]',
-                  selected && 'ring-foreground ring-2',
-                )}
-                onclick={() => chooseColor(token)}
-              >
-                <span class="size-[22px] rounded-full" style:background="var(--{token})"></span>
-              </button>
-            {/each}
-            <Popover open={colorOpen} onOpenChange={openFreeColor}>
-              <PopoverTrigger
-                aria-label={t(m.freeColor)}
-                aria-pressed={value.kind === 'glyph' && isHexColor(value.color)}
-                class={cn(
-                  'focus-visible:ring-ring/50 flex size-8 cursor-pointer items-center justify-center rounded-full transition-shadow duration-150 outline-none motion-reduce:transition-none focus-visible:ring-[3px]',
-                  value.kind === 'glyph' && isHexColor(value.color) && 'ring-foreground ring-2',
-                )}
-              >
-                <span
-                  class="flex size-[22px] items-center justify-center rounded-full"
-                  style:background="conic-gradient(#f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00)"
-                >
-                  <span
-                    class="ring-background size-3.5 rounded-full ring-2"
-                    style:background={freeColor}
-                  ></span>
-                </span>
-              </PopoverTrigger>
-              <PopoverContent
-                side="right"
-                align="start"
-                sideOffset={32}
-                customAnchor={root}
-                class="w-auto p-3"
-              >
-                <ColorPicker value={freeColor} onchange={chooseColor} {recent}>
-                  {#snippet preview(hex)}
-                    <EntityIcon size={36} icon={choiceIconProps({ kind: 'glyph', name: glyph, color: hex }, defaultGlyph).icon} color={hex} />
-                  {/snippet}
-                </ColorPicker>
-              </PopoverContent>
-            </Popover>
-          </div>
+          <span id={colorLabel} class="text-muted-foreground text-xs font-medium">{t(m.color)}</span>
+          <ColorSwatches
+            labelledby={colorLabel}
+            value={selectedColor}
+            onchange={chooseColor}
+            {recent}
+            anchor={root}
+            side="right"
+            sideOffset={32}
+          >
+            {#snippet preview(hex)}
+              <EntityIcon
+                size={36}
+                icon={choiceIconProps({ kind: 'glyph', name: glyph, color: hex }, defaultGlyph).icon}
+                color={hex}
+              />
+            {/snippet}
+          </ColorSwatches>
         </div>
       </div>
     </TabsContent>

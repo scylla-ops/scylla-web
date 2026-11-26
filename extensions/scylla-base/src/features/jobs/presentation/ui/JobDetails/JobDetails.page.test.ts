@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { flushSync } from 'svelte';
-import { render, withQueryClient, withRegistry } from '@test/render.ts';
+import { endTransitions, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -287,7 +287,11 @@ describe('JobDetailsPage', () => {
 
     const facts = screen.getByRole('list', { name: 'Facts of the job' });
     await within(facts).findByRole('link', { name: 'pc-windows' });
-    expect(agentAvatar(facts)?.querySelector('svg')).toHaveClass('lucide-server');
+    // The chosen icon cross-fades with the default one, which leaves at the end of its fade.
+    endTransitions();
+    await vi.waitFor(() =>
+      expect(agentAvatar(facts)?.querySelector('svg')).toHaveClass('lucide-server'),
+    );
 
     await userEvent.click(screen.getByRole('button', { name: 'Details' }));
 

@@ -32,8 +32,11 @@
   import { activeLocale, t, type SupportedLocale } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { signOut } from '@base/features/login';
-  import { userQueries } from '@base/features/user';
-  import { userName } from '@base/shared/presentation/presenters/user-identity.presenter.ts';
+  import { openProfilePhoto, userQueries } from '@base/features/user';
+  import {
+    userName,
+    userSecondaryLine,
+  } from '@base/shared/presentation/presenters/user-identity.presenter.ts';
   // By path, not the barrel: this file is in the entry chunk, the other components are not.
   import IdentityAvatar from '@shared/presentation/ui/data-display/IdentityAvatar/IdentityAvatar.svelte';
   import { adminHome, isAdminPath } from '@base/shell/presentation/admin-space.ts';
@@ -96,11 +99,8 @@
         >
           <!-- A failed read shows the menu all the same: signing out must stay possible. -->
           {#if meQuery.data}
-            <IdentityAvatar
-              profile={meQuery.data}
-              size={24}
-              class={cn(onAccount && 'bg-transparent text-sidebar-primary-foreground')}
-            />
+            <!-- The reader: the photo, else the initials on the chosen color, on each row. -->
+            <IdentityAvatar profile={meQuery.data} self size={24} />
             <span class={cn('min-w-0 flex-1 truncate', SIDEBAR_FADE)}>
               {userName(meQuery.data, 'deleted')}
             </span>
@@ -123,6 +123,26 @@
       align="end"
       sideOffset={4}
     >
+      {#if meQuery.data}
+        <!-- The own avatar opens the card of the photo on Account > Profile. -->
+        <DropdownMenuItem
+          class="gap-2.5 text-foreground hover:bg-accent"
+          aria-label={t(layoutMessages.changePhoto)}
+          title={t(layoutMessages.changePhoto)}
+          onSelect={openProfilePhoto}
+        >
+          <IdentityAvatar profile={meQuery.data} self size={32} />
+          <span class="flex min-w-0 flex-1 flex-col">
+            <span class="truncate text-sm font-medium">{userName(meQuery.data, 'deleted')}</span>
+            {#if userSecondaryLine(meQuery.data)}
+              <span class="truncate text-xs text-muted-foreground">
+                {userSecondaryLine(meQuery.data)}
+              </span>
+            {/if}
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+      {/if}
       <DropdownMenuItem
         class="text-foreground hover:bg-accent"
         onSelect={scyllaNavigate.goToAccount}

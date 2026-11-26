@@ -64,6 +64,12 @@ export const canSeePeople = (workspaceId?: string): boolean =>
     ? can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId })
     : can(Permission.LIST_USERS);
 
+/**
+ * The account of the session: its avatar is solid in the holders. `features/user` imports this
+ * module, so this module cannot read `userQueries.me`.
+ */
+export const sessionUserId = (): string => localStorage.getItem('userId') ?? '';
+
 const invalidateRoles = () => getQueryClient().invalidateQueries({ queryKey: [ROLES_ROOT] });
 
 export const roleMutations = {

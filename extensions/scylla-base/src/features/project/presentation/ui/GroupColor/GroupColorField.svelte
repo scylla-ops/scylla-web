@@ -1,12 +1,11 @@
 <script lang="ts">
   import FolderIcon from '@lucide/svelte/icons/folder';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
-  import { ColorGlyph, swapIn, swapOut } from '@scylla/ui';
+  import { ColorGlyph, ColorSwatches, swapIn, swapOut } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { recentColors } from '@base/features/project/presentation/recent-colors.user-state.ts';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
-  import GroupColorSwatches from './GroupColorSwatches.svelte';
 
   interface Props {
     /** The color of the folder. Unset: the default folder, in grey. */
@@ -32,7 +31,13 @@
         </span>
       {/key}
     </span>
-    <GroupColorSwatches {value} onchange={color => onchange(color)} {recent} {disabled} />
+    <ColorSwatches {value} onchange={color => onchange(color)} {recent} {disabled}>
+      {#snippet preview(hex)}
+        <span class="flex size-9 items-center justify-center rounded-lg border">
+          <ColorGlyph icon={FolderIcon} color={hex} class="size-5" />
+        </span>
+      {/snippet}
+    </ColorSwatches>
     <Button
       type="button"
       variant="ghost"

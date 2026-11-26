@@ -8,6 +8,8 @@ import {
   userName,
   userSecondaryLine,
 } from '../user-identity.presenter.ts';
+import { SWATCH_COLORS } from '@scylla/ui';
+import { colorIn, contrastRatio, parseHex } from '@scylla/ui/utils';
 
 const ada = { username: 'ada', displayName: 'Ada Lovelace', email: 'ada@example.com' };
 
@@ -76,13 +78,30 @@ describe('identitySecondaryLine', () => {
 });
 
 describe('avatarColors', () => {
-  it('shows a color of the theme on its tint, or solid with the foreground of the main color', () => {
+  it('shows a color of the theme on its tint, or solid with initials that contrast with it', () => {
     expect(avatarColors('chart-4', false, 'dark')).toEqual({
       tile: 'color-mix(in srgb, var(--chart-4) 10%, transparent)',
       ink: 'var(--chart-4)',
     });
-    expect(avatarColors('chart-4', true, 'dark')).toEqual({
-      tile: 'var(--chart-4)',
+    expect(avatarColors('chart-4', true, 'dark')).toEqual({ tile: 'var(--chart-4)', ink: '#171715' });
+  });
+
+  it('keeps the initials readable on each solid color of the picker, in each theme', () => {
+    // The light foreground of the main color was 1.9:1 on the amber of the light theme.
+    expect(avatarColors('chart-4', true, 'light').ink).toBe('#171715');
+    expect(avatarColors('chart-3', true, 'light').ink).toBe('#FFFFFF');
+    expect(avatarColors('chart-3', true, 'dark').ink).toBe('#171715');
+    for (const theme of ['light', 'dark'] as const) {
+      for (const token of SWATCH_COLORS) {
+        const { ink } = avatarColors(token, true, theme);
+        expect(contrastRatio(colorIn(token, theme)!, parseHex(ink)!), `${token} ${theme}`).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
+  it('keeps the foreground of the main color on a color of the theme that it does not know', () => {
+    expect(avatarColors('accent', true, 'dark')).toEqual({
+      tile: 'var(--accent)',
       ink: 'var(--primary-foreground)',
     });
   });

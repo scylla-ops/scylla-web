@@ -24,9 +24,12 @@
     onChangeRoles: (user: UserEntity) => void;
     onDelete: (user: UserEntity) => void;
     onView: (user: UserEntity) => void;
+    /** The account of the session: its row shows the avatar of the reader. */
+    selfId?: string;
   }
 
-  let { data, canChangeRoles, canDelete, onChangeRoles, onDelete, onView }: Props = $props();
+  let { data, canChangeRoles, canDelete, onChangeRoles, onDelete, onView, selfId }: Props =
+    $props();
 
   const columns = $derived(
     userColumns({
@@ -40,7 +43,7 @@
 </script>
 
 {#snippet identityCell(user: UserEntity)}
-  <Identity profile={user} class="w-full" />
+  <Identity profile={user} self={user.id === selfId} class="w-full" />
 {/snippet}
 
 {#snippet rolesCell(user: UserEntity)}

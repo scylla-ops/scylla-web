@@ -144,8 +144,9 @@ user (a grant never outlives its user, so a holder that the page cannot look up 
 | `row` (the default) | 32 px | Two lines, for a table. |
 | `header` | 48 px | The `h1` of a detail page, with a badge: "You", the kind of a machine, else `@username`. The email of a person under it. |
 
-`IdentityAvatar` is the avatar alone, at 16 (one letter), 24 (a stack of avatars), 32, 48 or
-72 px (a card). `online` puts a dot on an agent. The prop type, `UserIdentityProfile`, is structural: `shared/` cannot import
+`IdentityAvatar` is the avatar alone, at 16 (one letter), 20 (a row of the command bar), 24 (a
+stack of avatars), 32, 48 or 72 px (a card). A new photo, new initials or a new glyph cross-fades
+with the old one, and a new color fades in CSS. `online` puts a dot on an agent. The prop type, `UserIdentityProfile`, is structural: `shared/` cannot import
 `features/user`, and a `UserSummary` or a `UserEntity` of that module fits it. An app gives its
 name as `displayName` and an empty `username`.
 

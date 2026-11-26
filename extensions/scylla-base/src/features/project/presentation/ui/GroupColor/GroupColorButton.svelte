@@ -1,13 +1,12 @@
 <script lang="ts">
   import FolderIcon from '@lucide/svelte/icons/folder';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
-  import { ColorGlyph, swapIn, swapOut } from '@scylla/ui';
+  import { ColorGlyph, ColorSwatches, swapIn, swapOut } from '@scylla/ui';
   import { Button, Popover, PopoverContent, PopoverTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { recentColors } from '@base/features/project/presentation/recent-colors.user-state.ts';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
-  import GroupColorSwatches from './GroupColorSwatches.svelte';
 
   interface Props {
     /** The color of the folder. Unset: the default folder, in grey. */
@@ -85,7 +84,7 @@
           {t(projectMessages.resetColor)}
         </Button>
       </div>
-      <GroupColorSwatches
+      <ColorSwatches
         {value}
         onchange={color => onchange(color)}
         {recent}
@@ -93,7 +92,13 @@
         side="right"
         sideOffset={12}
         labelledby="{id}-label"
-      />
+      >
+        {#snippet preview(hex)}
+          <span class="flex size-9 items-center justify-center rounded-lg border">
+            <ColorGlyph icon={FolderIcon} color={hex} class="size-5" />
+          </span>
+        {/snippet}
+      </ColorSwatches>
     </div>
   </PopoverContent>
 </Popover>

@@ -2,9 +2,11 @@ import { Permission, can } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
+import { accessQueries, workspaceRef } from '@base/features/access';
 import { appQueries } from '@base/features/apps';
 import { jobQueries, type JobEntity, type PeriodScope } from '@base/features/jobs';
 import { pipelineQueries } from '@base/features/pipeline';
+import { userQueries } from '@base/features/user';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { attentionQueries, visitSince } from '@base/features/dashboard/presentation/attention.queries.ts';
 import { slotUsageQueries } from '@base/features/dashboard/presentation/slot-usage.queries.ts';
@@ -15,6 +17,7 @@ import type { DashboardPeriodState } from '@base/features/dashboard/presentation
 import type { PeriodRange } from '@base/features/dashboard/presentation/presenters/period.presenter.ts';
 import { currentInstant, dayIn, startOfDayIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
 import { pipelinesById } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
+import type { ActivityActors } from '@base/features/dashboard/presentation/presenters/activity.presenter.ts';
 
 /** The last jobs of each pipeline that the Pipelines widget shows. */
 export const PIPELINE_RUNS = 20;
@@ -131,6 +134,17 @@ export const createDashboardWidgets = (
     deliveries.isError && ScyllaError.from(deliveries.error).code === 'PERMISSION_DENIED',
   );
   const activityFeed = createQuery(() => activityQueries.feed(workspaceId, since));
+  const members = createQuery(() =>
+    accessQueries.members(workspaceId ? workspaceRef(workspaceId) : null, {
+      enabled: can(Permission.LIST_WORKSPACE_MEMBERS, { workspaceId: workspaceId ?? undefined }),
+    }),
+  );
+  const me = createQuery(() => userQueries.me());
+  const actors = $derived<ActivityActors>({
+    agents: agents.data ?? [],
+    members: members.data ?? [],
+    self: me.data,
+  });
   const activityLocked = $derived(
     activityFeed.isError && ScyllaError.from(activityFeed.error).code === 'PERMISSION_DENIED',
   );
@@ -206,6 +220,10 @@ export const createDashboardWidgets = (
     activityFeed,
     get activityLocked() {
       return activityLocked;
+    },
+    /** The agents, the members and the reader: the avatars of the activity. */
+    get actors() {
+      return actors;
     },
     /** The cron triggers, their next fires and their last fires. */
     schedules,

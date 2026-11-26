@@ -25,6 +25,8 @@ canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_K
 USER_SESSIONS_QUERY_KEY
 loadAccountDeletion   // loader of AccountDeletion (props `open`, `onOpenChange`): the auth guard
                       // opens it from the terms step of `login`
+openProfilePhoto      // Account > Profile, with the photo card in view: a click on the own
+                      // avatar in the user menu of the shell
 ```
 
 `roles`, `membership`, `workspace`, `project` and `shell` use this barrel. The shell runs
@@ -121,7 +123,10 @@ presentation/
     UserDetailContent.svelte, UserDetailHeader.svelte (the identity card with status, date and id),
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
-                                     UserAvatarCard/ (own page only, with ProviderPhotoButtons),
+                                     UserAvatarCard/ (own page only: UserAvatarEditor, the
+                                     photo, ProviderPhotoButtons and the color;
+                                     photo-focus.state.svelte.ts, the scroll to the card from
+                                     `openProfilePhoto`),
                                      UserAccessList/, UserIdentityCard, SessionList,
                                      SessionRow/ (both pages),
                                      ThemePicker/ (own page only)
@@ -162,16 +167,19 @@ user who has no workspace.
 
 - **The section `profile` has the photo of the user** (`UserAvatarCard`): an image (PNG, JPEG
   or WebP, 1 MB at most, checked with `imageFileProblem` before the upload), or the initials on a
-  color of `SWATCH_COLORS`. Each action sends `UpdateProfile` at once (`updateAvatar`): empty
+  color: a swatch of `SWATCH_COLORS` or a free `#RRGGBB` color (`ColorSwatches` of `@scylla/ui`,
+  the control of the icon picker; a free color is sent 400 ms after the last change). Each action sends `UpdateProfile` at once (`updateAvatar`): empty
   bytes remove the image, an empty color gives the main color. The mapper gives the URL of the
   image (`imageUrl`), so `IdentityAvatar` shows the photo wherever it gets a `UserEntity`: the
-  user menu of the shell, the account header, the member lists.
+  user menu of the shell, the account header, the member lists. The avatar of the account header
+  opens `UserAvatarEditor` in a dialog ("Change your photo"): the card and the dialog show the
+  same editor. The avatar of another person is never an edit control.
   `ProviderPhotoButtons` adds "Use my <provider> photo" for each identity whose provider gave a
   photo (`hasPicture` of `listSignInMethods`): `importAvatar` downloads it on the server. A photo
   that the user has goes only after a confirmation. The button shows its states (a spinner, then a
-  check) in one icon box, the card shows the result or the refusal under the buttons
-  (`showsOwnError`), and a new photo cross-fades with the old one. The server imports this photo
-  one time at the sign-up with a provider.
+  check) in one icon box, the editor shows the result or the refusal under the buttons
+  (`showsOwnError`), and a new photo cross-fades with the old one (`IdentityAvatar`). The server
+  imports this photo one time at the sign-up with a provider.
 
 - **The section `tokens` of the account page is the personal tokens.** `PersonalTokenService` needs
   no right: it is the account of the session. A token acts as its user. The server can turn them

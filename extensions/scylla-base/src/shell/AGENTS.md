@@ -157,6 +157,8 @@ Rules:
 - A list of the bar uses `notifyOnChangeProps: 'all'`. TanStack tells only the changes of the fields that
   were read, and the bar reads the state of a list at the first key.
 - A form stays open after the bar closes, so `GlobalSearch` keeps it, not the bar.
+- A row of a person, an agent, an app or a project shows its `look`, as everywhere else: the photo or
+  the initials color (`IdentityAvatar`, solid for the reader), or the icon (`EntityIcon`), at 20 px.
 
 ## The wrappers
 

@@ -110,6 +110,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - In the dark theme, the rail and the second sidebar are now lighter than the page.
 - The corner logo is larger. A missing project or an id with a wrong form shows the not-found page
   with no sidebar, no crumb and no error toast.
+- The profile initials take a free color, as the icons of the projects and the agents: the theme
+  colors, or a color picker with a hex field. The initials stay readable on each color, in the light
+  and the dark theme. The photo or the initials color of a person now shows in each place: the rail
+  button and the account menu, the account header, the member lists, the role holders, the command
+  palette and the activity of the dashboard. The palette and the dashboard also show the icon of
+  each project and agent. A click on your own avatar (the account menu, the account header) opens
+  the editor of your photo.
 
 ## [0.7.2] - 2026-11-25
 

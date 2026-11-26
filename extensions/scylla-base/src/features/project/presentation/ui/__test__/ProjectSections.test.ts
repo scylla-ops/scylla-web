@@ -341,6 +341,18 @@ describe('the sections of the projects page', () => {
     );
   });
 
+  it('offers the free color of the icons for a folder, with its hex field', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(
+      within(section('Deploys')).getByRole('button', { name: 'Change the folder color of Deploys' }),
+    );
+    await userEvent.click(await floatingButton('Free color'));
+
+    expect(await screen.findByLabelText('Hex color')).toBeInTheDocument();
+  });
+
   it('resets the folder color of a group to the default folder', async () => {
     render(ProjectList, { workspaceId: 'org-1' });
     await screen.findByRole('region', { name: 'Deploys' });
