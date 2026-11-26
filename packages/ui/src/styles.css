@@ -170,12 +170,12 @@
   --sidebar-foreground: #F4F7EC;
   --sidebar-primary: #5D9972;
   --sidebar-primary-foreground: #171715;
-  --sidebar-accent: #363735;
+  --sidebar-accent: #3D3E3B;
   --sidebar-accent-foreground: #F4F7EC;
-  --sidebar-border: #41413F;
+  --sidebar-border: #4A4A47;
   --sidebar-ring: #5D9972;
-  --rail: #080808;
-  --second-sidebar: #0F0F0E;
+  --rail: #252523;
+  --second-sidebar: #1E1E1C;
 
   --code-editor-bg: #1D1E1C;
   /* Translucent — see the light-theme note above. */

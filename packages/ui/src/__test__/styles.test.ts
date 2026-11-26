@@ -30,8 +30,20 @@ describe.each([
     return luminance(hex);
   };
 
-  it('puts the double sidebar below the page: the rail is the darkest, then the second sidebar', () => {
-    expect(surface('rail')).toBeLessThan(surface('second-sidebar'));
-    expect(surface('second-sidebar')).toBeLessThan(surface('background'));
-  });
+  it.runIf(selector === ':root')(
+    'puts the double sidebar below the page: the rail is the darkest, then the second sidebar',
+    () => {
+      expect(surface('rail')).toBeLessThan(surface('second-sidebar'));
+      expect(surface('second-sidebar')).toBeLessThan(surface('background'));
+    },
+  );
+
+  it.runIf(selector === '\\.dark')(
+    'lifts the double sidebar above the page and keeps the cards above the page',
+    () => {
+      expect(surface('background')).toBeLessThan(surface('second-sidebar'));
+      expect(surface('second-sidebar')).toBeLessThan(surface('rail'));
+      expect(surface('background')).toBeLessThan(surface('card'));
+    },
+  );
 });

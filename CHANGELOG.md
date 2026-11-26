@@ -107,6 +107,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   count. A fade or a fold takes 150 to 250 ms, the exit is shorter than the entry, and a page that
   opens shows no motion of its parts. With the reduced motion setting of the system, each change is
   instant.
+- In the dark theme, the rail and the second sidebar are now lighter than the page.
 
 ## [0.7.2] - 2026-11-25
 
