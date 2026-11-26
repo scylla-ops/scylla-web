@@ -1,6 +1,6 @@
 import { Permission, can } from '@platform/authz';
 import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
-import type { RetryJobReportInput } from '../domain/entities/vcs-report.entity.ts';
+import type { JobReports, RetryJobReportInput } from '../domain/entities/vcs-report.entity.ts';
 import type { IntegrationsModule } from '../integrations.module.ts';
 
 // Resolved per call: tests swap the registry.
@@ -26,6 +26,8 @@ export const vcsReportQueries = {
       queryFn: () => repository().listByJobs(ids),
       enabled: enabled && ids.length > 0 && can(Permission.READ_JOB),
       staleTime: 10 * 1000,
+      // A new version has no data yet: the old reports stay on screen until the new read.
+      placeholderData: (previous: JobReports[] | undefined) => previous,
     });
   },
 };
