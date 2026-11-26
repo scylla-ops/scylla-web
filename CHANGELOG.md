@@ -11,6 +11,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+### Added
+
+- Each password field has a button to show and hide the typed text.
+
 ### Fixed
 
 - Job page: the job title row now wraps on narrow screens, so the page does not scroll sideways.

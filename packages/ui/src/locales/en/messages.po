@@ -123,6 +123,10 @@ msgstr "Go to next page"
 msgid "Go to previous page"
 msgstr "Go to previous page"
 
+#: packages/ui/src/controls/PasswordInput/password-input.messages.ts:5
+msgid "Hide password"
+msgstr "Hide password"
+
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:14
 msgid "It needs {permission}. Ask a workspace admin."
 msgstr "It needs {permission}. Ask a workspace admin."
@@ -202,6 +206,10 @@ msgstr "Select all"
 #: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:5
 msgid "Share link"
 msgstr "Share link"
+
+#: packages/ui/src/controls/PasswordInput/password-input.messages.ts:4
+msgid "Show password"
+msgstr "Show password"
 
 #: packages/ui/src/controls/SearchSelect/search-select.messages.ts:6
 msgid "Show the options"

@@ -1,10 +1,10 @@
 <script lang="ts">
   import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
+  import { PasswordInput } from '@scylla/ui';
   import {
     Badge,
     Button,
     DialogFooter,
-    Input,
     Label,
     RadioGroup,
     RadioGroupItem,
@@ -97,9 +97,8 @@
 
   <div class="flex flex-col gap-2">
     <Label for={fieldId}>{t(messages.token)}</Label>
-    <Input
+    <PasswordInput
       id={fieldId}
-      type="password"
       autocomplete="off"
       spellcheck={false}
       class="font-mono"

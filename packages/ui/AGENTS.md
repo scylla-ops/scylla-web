@@ -35,7 +35,7 @@ src/
   index.ts                 `@scylla/ui` — re-exports the groups below
   chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
                            ChartSlot, ChartRing: the marks of the charts of a widget
-  controls/                IconButton, GatedButton, SearchSelect, SegmentedControl, ShareLinkButton
+  controls/                IconButton, GatedButton, PasswordInput, SearchSelect, SegmentedControl, ShareLinkButton
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
                            CopyableText, TruncatedText
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
@@ -98,6 +98,7 @@ they use the language of the browser or no language.
 | The pages of a table | `PaginationSlot` under the table, outside its frame: the range on the left, `‹ page / pages ›` on the right |
 | The status of one run | `StatusShape` (`state`, `label`, `size`): the four dots of the logo take the form of the state. See "`StatusShape`" |
 | A row of statuses in time (the last runs) | `StatusTrail`: one dot per item, oldest first, linked by lines; the last dot is a little bigger. Each dot has `data-item-id`; with `onSelect` it is a button |
+| A password field | `PasswordInput`: an `Input` with a show / hide button (`aria-pressed`), hidden again after a submit. `ScyllaForm` uses it for `inputType: 'password'`. Never `<Input type="password">` |
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | Give the link of a page to another person | `ShareLinkButton` (`url`, `hint`). The top bar of the core renders it for a route with `share`: a page does not render it |
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
