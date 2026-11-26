@@ -7,7 +7,7 @@ Pipeline runs: their status, their logs, and the live tail of both.
 ## Import rules
 
 - May import: `@platform/*` barrels, `@shared/*`, other features' `index.ts` (`apps` for the
-  agent of a job, `integrations` for the reports of a job and the Integrations URL, `user` for
+  agent of a job and its icon, `integrations` for the reports of a job and the Integrations URL, `user` for
   the name of the person who approved a job).
 - Must never import: `shell/`, `@scylla/core`, another feature's internals.
 - Outside code reaches this module **only** through `index.ts`.
@@ -108,7 +108,7 @@ presentation/
     JobDetailsFact.svelte                  a fact of a group: its label and its value on one line
     JobRunFacts.svelte                     the group Run: status, duration, times, agent, labels
     JobAlerts.svelte                       the approval, the unfit agents, the invalid file or the error
-    job-agent.state.svelte.ts              the name and the link of the agent of a job
+    job-agent.state.svelte.ts              the name, the icon and the link of the agent of a job
     job-log-place.state.svelte.ts          the node of the log and the full screen, in the URL
     JobLogWorkspace/                       the split view: the list of the nodes (or its select under
                                            768 px), the handle, the viewer; the full screen
@@ -237,6 +237,10 @@ paths.
   and its value on one line; a long value is cut, with the whole value in its `title`. A fact with
   no value is not shown. Under 640 px, each fact is on its own line. A new fact goes in a
   `JobDetailsFact` of its group.
+- **The agent of a job shows with its icon**, in the facts and in the group Run of Details:
+  `IdentityAvatar` at 16 px with `agentProfile` of `apps` (the icon of an admin, else `bot` on
+  `info`), never a generic server icon. The icon needs `READ_APP`, as the name: without it, the
+  default icon.
 - **One node at a time.** The list (or the graph, as the display settings say) selects one node,
   or the whole job; the viewer shows its lines. The checkout and a skipped node are entries too:
   a skipped node shows why it did not run in place of its log.

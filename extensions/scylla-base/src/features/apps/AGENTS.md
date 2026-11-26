@@ -106,7 +106,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   (`set_app_icon`, the admins of the workspace). It opens the `IconPicker` of the projects, with
   the default icon of an agent (`bot` on `info`) and the recent colors of `features/project`.
   `agentProfile` (`presenters/agent-icon.presenter.ts`) gives the icon to `IdentityAvatar`: the
-  header, the rows of the list and the cards of a phone.
+  header, the rows of the list and the cards of a phone. The barrel exports it for the job page
+  (`features/jobs`), which shows the icon of the agent of the job.
   `AgentCompatibilityBadge` shows "Update needed" or "Incompatible" in the list and in the header.
   The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
   `linux`, so Linux also shows the Docker command. The success rate and the memory follow the

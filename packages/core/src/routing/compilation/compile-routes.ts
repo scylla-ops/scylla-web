@@ -68,6 +68,8 @@ export interface CompiledRoute {
 export interface RouteTable {
   routes: readonly CompiledRoute[];
   fallback: Component;
+  /** The layout of the root mount of the shell: the fallback inside the shell needs it too. */
+  shellLayout?: LayoutComponent;
   shell?: ShellComponent;
   guard?: AccessPolicy['guard'];
 }
@@ -194,5 +196,6 @@ export const compileRoutes = ({
 
   assertUnique(routes);
   assertGuarded(routes, guard);
-  return { routes, fallback, shell, guard };
+  const shellLayout = routes.find(route => route.shell && route.layout)?.layout;
+  return { routes, fallback, ...(shellLayout && { shellLayout }), shell, guard };
 };

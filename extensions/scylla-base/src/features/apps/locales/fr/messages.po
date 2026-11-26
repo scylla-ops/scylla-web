@@ -805,8 +805,8 @@ msgid "It never said hello."
 msgstr "Il ne s'est jamais connecté."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:106
-msgid "It shows in the list of the agents and at the top of the agent page."
-msgstr "Elle s'affiche dans la liste des agents et en haut de la page de l'agent."
+msgid "It shows in the list of the agents, on the agent page and on its jobs."
+msgstr "Elle s'affiche dans la liste des agents, sur la page de l'agent et sur ses jobs."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:78
 msgid "It takes jobs from all projects."
@@ -825,8 +825,8 @@ msgid "It takes the pending jobs of these projects only."
 msgstr "Il prend uniquement les jobs en attente de ces projets."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/agent-page.messages.ts:102
-msgid "It tells the agent apart in the list of the agents, the jobs and the logs. Only the admins of the workspace change it."
-msgstr "Distingue l'agent dans la liste des agents, les jobs et les journaux. Seuls les admins de l'espace la changent."
+msgid "It tells the agent apart in the list of the agents, on its page and on its jobs. Only the admins of the workspace change it."
+msgstr "Distingue l'agent dans la liste des agents, sur sa page et sur ses jobs. Seuls les admins de l'espace la changent."
 
 #: extensions/scylla-base/src/features/apps/presentation/messages/add-agent.messages.ts:91
 msgid "It waits for a machine. Finish its setup when you are ready."

@@ -25,12 +25,12 @@
     onOpenChange={open => {
       if (!open) dismissRelease();
     }}
-    class="sm:max-w-lg"
+    class="h-[min(40rem,calc(100dvh-2rem))] grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden sm:max-w-lg"
     title={t(layoutMessages.whatsNew(release.line))}
     description={t(layoutMessages.whatsNewDescription)}
   >
-    <Tabs value={release.tabs[0]} class="min-w-0 gap-3">
-      <div class="relative overflow-x-auto">
+    <Tabs value={release.tabs[0]} class="min-h-0 min-w-0 gap-3">
+      <div class="relative shrink-0 overflow-x-auto">
         <TabsList class="mx-auto">
           {#each release.tabs as version (version)}
             <TabsTrigger value={version} class="relative px-3">
@@ -44,7 +44,7 @@
         </TabsList>
       </div>
       {#each release.tabs as version (version)}
-        <TabsContent value={version} class="relative h-[min(26rem,55vh)] overflow-y-auto py-2">
+        <TabsContent value={version} class="relative min-h-0 overflow-y-auto py-2">
           <ul class="flex flex-col gap-4">
             {#each release.highlights.filter(highlight => highlight.version === version) as highlight (highlight.id)}
               <li class="flex items-center gap-3">
