@@ -71,7 +71,7 @@ msgstr "Un nouveau job démarre maintenant."
 
 #: extensions/scylla-base/src/shell/whats-new.ts:96
 msgid "A new log viewer"
-msgstr "Un nouveau lecteur de logs"
+msgstr "Un nouveau viewer de logs"
 
 #: extensions/scylla-base/src/shell/whats-new.ts:195
 msgid "A new look"

@@ -46,7 +46,8 @@ presentation/
     AdminColumn.wrapper.svelte          wrapper of the `admin` mount: the column of `max-w-3xl` of its pages
     ContextCleaner.wrapper.svelte       URL project → context store, drops stale project/pipeline context,
                                         names the pipeline of the URL (context-cleaner.effect.svelte.ts)
-    NotFound/                           the fallback for a URL that no route matches: a text and a link to /.
+    NotFound/                           the fallback for a URL that no route matches: a text and a link to /. Inside a workspace
+                                        (two segments or more) it shows in the layout and the shell, and syncs the workspace of the URL
                                         It has no session check: / goes through AuthGuard
   layout/
     shell.state.svelte.ts               workspaces query, permission sync, first workspace

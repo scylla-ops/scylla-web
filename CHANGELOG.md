@@ -56,6 +56,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The report icons of the jobs list stay on screen when a job changes status, and a new job shows in
   the list with no refresh.
 - The forgot password and sign-up pages no longer show a form error before the user types.
+- The What's new dialog keeps the same height on each tab, and only the tab panel scrolls.
+- The page not found inside a workspace now shows the navigation of the workspace, not endless
+  loading placeholders.
+- Job page: the agent of the job shows with its own icon in the header and in Details, in place of a
+  generic server icon. An agent with no icon shows the default agent icon. The agent icon card and
+  its dialog now name the same places: the list of the agents, the agent page and the jobs.
 
 ## [0.7.2] - 2026-11-25
 

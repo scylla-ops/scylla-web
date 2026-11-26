@@ -41,6 +41,14 @@ describe('WhatsNewDialog', () => {
     expect(screen.getByText('A new look')).not.toBeVisible();
   });
 
+  it('scrolls the tab panel, not the dialog, so the tab list stays in view', async () => {
+    render(WhatsNewDialog);
+
+    const panel = (await screen.findAllByRole('tabpanel'))[0];
+    expect(panel).toHaveClass('overflow-y-auto');
+    expect(panel.closest('[data-slot="dialog-content"]')).toHaveClass('overflow-hidden');
+  });
+
   it('shows the highlights of the tab that the user picks', async () => {
     render(WhatsNewDialog);
 

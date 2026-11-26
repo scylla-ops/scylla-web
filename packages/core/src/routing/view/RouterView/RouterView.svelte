@@ -1,6 +1,6 @@
 <script lang="ts">
   import { listenToLocation } from '../../runtime/location.state.svelte.ts';
-  import { currentMatch, routeFallback, routeShell } from '../../runtime/route.state.svelte.ts';
+  import { currentMatch, routeFallback, routeShell, routeShellLayout } from '../../runtime/route.state.svelte.ts';
   import { splitPath } from '../../compilation/route-path.ts';
   import { location } from '../../runtime/location.state.svelte.ts';
   import RoutePage from './RoutePage.svelte';
@@ -14,6 +14,7 @@
   const Fallback = $derived(routeFallback());
   // An unknown page inside a workspace (`/<workspace>/xyz`) keeps the shell around it.
   const fallbackShell = $derived(splitPath(location.pathname).length > 1 ? routeShell() : undefined);
+  const fallbackLayout = $derived(fallbackShell ? routeShellLayout() : undefined);
 </script>
 
 {#snippet framed()}
@@ -28,10 +29,20 @@
 
 {#if !matched}
   {#if fallbackShell}
-    {@const FallbackShell = fallbackShell}
-    <FallbackShell>
-      <Fallback />
-    </FallbackShell>
+    {#snippet fallbackFramed()}
+      {@const FallbackShell = fallbackShell}
+      <FallbackShell>
+        <Fallback />
+      </FallbackShell>
+    {/snippet}
+    {#if fallbackLayout}
+      {@const FallbackLayout = fallbackLayout}
+      <FallbackLayout>
+        {@render fallbackFramed()}
+      </FallbackLayout>
+    {:else}
+      {@render fallbackFramed()}
+    {/if}
   {:else}
     <Fallback />
   {/if}

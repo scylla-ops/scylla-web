@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createNow } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { AgentLabels } from '@shared/presentation/ui';
+  import { AgentLabels, IdentityAvatar } from '@shared/presentation/ui';
   import { calculateExecutionDuration, formatDuration } from '@shared/utils/date-utils.ts';
   import { isActiveStatus } from '@shared/domain/structs/job-status.struct.ts';
   import type { JobEntity } from '@base/features/jobs/domain/entities/job.entity.ts';
@@ -53,6 +53,7 @@
   {/each}
   {#if job.agentId}
     <JobDetailsFact label={t(jobsMessages.agent)}>
+      <IdentityAvatar profile={agent.profile} kind="agent" size={16} />
       {#if agent.href}
         <a class="truncate font-mono underline-offset-4 hover:underline" href={agent.href}>
           {agent.name}
