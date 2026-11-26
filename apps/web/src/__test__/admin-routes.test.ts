@@ -14,6 +14,7 @@ const ADMIN_PAGES = [
   '/admin/extensions',
   '/admin/git-providers',
   '/admin/settings',
+  '/admin/mail',
   '/admin/legal',
 ];
 
@@ -35,6 +36,7 @@ describe('the administration of the server', () => {
       'extensions',
       'git-providers',
       'settings',
+      'mail',
       'legal',
     ]);
     expect(links.map(link => link.heading?.message)).toEqual([
@@ -43,6 +45,7 @@ describe('the administration of the server', () => {
       'Integrations',
       undefined,
       'Server',
+      undefined,
       undefined,
     ]);
   });

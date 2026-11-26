@@ -17,6 +17,52 @@ msgstr ""
 msgid "{count, plural, =0 {No active token stops.} one {# token stops working at once.} other {# tokens stop working at once.}} Scripts that use them get \"401 Unauthorized\". Users cannot make new tokens. App tokens and CI identities do not change. You can turn them on again: the tokens that did not expire then work again."
 msgstr "{count, plural, =0 {No active token stops.} one {# token stops working at once.} other {# tokens stop working at once.}} Scripts that use them get \"401 Unauthorized\". Users cannot make new tokens. App tokens and CI identities do not change. You can turn them on again: the tokens that did not expire then work again."
 
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:66
+msgid "Answer"
+msgstr "Answer"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:21
+msgid "Change eu-west-3 in the host to the region of your Amazon SES account. User name and password: the SMTP credentials of Amazon SES, not the access keys of IAM."
+msgstr "Change eu-west-3 in the host to the region of your Amazon SES account. User name and password: the SMTP credentials of Amazon SES, not the access keys of IAM."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:24
+msgid "Host"
+msgstr "Host"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:39
+msgid "Leave it empty for a relay that asks for no authentication."
+msgstr "Leave it empty for a relay that asks for no authentication."
+
+#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:42
+#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:44
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:4
+msgid "Mail"
+msgstr "Mail"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:7
+msgid "Mail server"
+msgstr "Mail server"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:31
+msgid "No encryption"
+msgstr "No encryption"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:47
+msgid "no-reply@example.com"
+msgstr "no-reply@example.com"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:42
+msgid "Not set"
+msgstr "Not set"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:14
+msgid "Other SMTP server"
+msgstr "Other SMTP server"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:40
+msgid "Password or API key"
+msgstr "Password or API key"
+
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:10
 msgid "Personal tokens"
 msgstr "Personal tokens"
@@ -29,12 +75,97 @@ msgstr "Personal tokens turned off"
 msgid "Personal tokens turned on"
 msgstr "Personal tokens turned on"
 
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:26
+msgid "Port"
+msgstr "Port"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:13
+msgid "Provider"
+msgstr "Provider"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:67
+msgid "Queue ID"
+msgstr "Queue ID"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:70
+msgid "Removes these settings and the saved password. Scylla then uses the mail server of its configuration (SCYLLA_SMTP_URL), or writes the mails to its log."
+msgstr "Removes these settings and the saved password. Scylla then uses the mail server of its configuration (SCYLLA_SMTP_URL), or writes the mails to its log."
+
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:7
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:50
 msgid "Save"
 msgstr "Save"
 
-#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:22
-#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:26
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:49
+msgid "Scylla"
+msgstr "Scylla"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:11
+msgid "Scylla has no mail server: it writes the mails to its log and sends none. Set a server here to send them, with no restart."
+msgstr "Scylla has no mail server: it writes the mails to its log and sends none. Set a server here to send them, with no restart."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:44
+msgid "Scylla keeps it encrypted and never shows it again."
+msgstr "Scylla keeps it encrypted and never shows it again."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:73
+msgid "Scylla removes the settings of this page and its saved password. The next mails go through the mail server of the configuration of the server. To use this server again, you must type its password again."
+msgstr "Scylla removes the settings of this page and its saved password. The next mails go through the mail server of the configuration of the server. To use this server again, you must type its password again."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:8
+msgid "Scylla sends its mails through this SMTP server. A change applies to the next mail at once, also to the mails that wait."
+msgstr "Scylla sends its mails through this SMTP server. A change applies to the next mail at once, also to the mails that wait."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:74
+msgid "Scylla uses the mail server of its configuration"
+msgstr "Scylla uses the mail server of its configuration"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:10
+msgid "Scylla uses the mail server of its configuration: {host}. Set a server here to replace it, with no restart."
+msgstr "Scylla uses the mail server of its configuration: {host}. Set a server here to replace it, with no restart."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:27
+msgid "Security"
+msgstr "Security"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:62
+msgid "Send a test mail"
+msgstr "Send a test mail"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:60
+msgid "Send to"
+msgstr "Send to"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:45
+msgid "Sender address"
+msgstr "Sender address"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:48
+msgid "Sender name"
+msgstr "Sender name"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:58
+msgid "Sends a mail at once through the saved settings, and shows the answer of the mail server."
+msgstr "Sends a mail at once through the saved settings, and shows the answer of the mail server."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:65
+msgid "Server"
+msgstr "Server"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:69
+msgid "Server default"
+msgstr "Server default"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:41
+msgid "Set"
+msgstr "Set"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:59
+msgid "Set a mail server first: Scylla has none to send the test mail."
+msgstr "Set a mail server first: Scylla has none to send the test mail."
+
+#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:29
+#: extensions/scylla-base/src/features/instance-settings/instance-settings.module.ts:33
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:4
 msgid "Settings"
 msgstr "Settings"
@@ -43,13 +174,57 @@ msgstr "Settings"
 msgid "Settings of this Scylla server. Only instance admins see this page."
 msgstr "Settings of this Scylla server. Only instance admins see this page."
 
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:25
+msgid "smtp.example.com"
+msgstr "smtp.example.com"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:30
+msgid "STARTTLS"
+msgstr "STARTTLS"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:57
+msgid "Test mail"
+msgstr "Test mail"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:34
+msgid "The connection is encrypted from the start. Usually port 465."
+msgstr "The connection is encrypted from the start. Usually port 465."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:36
+msgid "The connection is not encrypted. Use it only for a relay on the same host or on a private network."
+msgstr "The connection is not encrypted. Use it only for a relay on the same host or on a private network."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:35
+msgid "The connection starts plain, then STARTTLS encrypts it. Usually port 587."
+msgstr "The connection starts plain, then STARTTLS encrypts it. Usually port 587."
+
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:8
 msgid "The limit of the workspaces is saved"
 msgstr "The limit of the workspaces is saved"
 
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:63
+msgid "The mail server accepted the mail"
+msgstr "The mail server accepted the mail"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:5
+msgid "The mail server that sends the mails of Scylla: the sign-in links, the invitations and the alerts. Only instance admins see this page."
+msgstr "The mail server that sends the mails of Scylla: the sign-in links, the invitations and the alerts. Only instance admins see this page."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:51
+msgid "The mail settings are saved"
+msgstr "The mail settings are saved"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:64
+msgid "The mail was not sent"
+msgstr "The mail was not sent"
+
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:6
 msgid "The number of workspaces that one user can create. The personal workspace does not count, and an instance admin has no limit. A lower number removes no workspace."
 msgstr "The number of workspaces that one user can create. The personal workspace does not count, and an instance admin has no limit. A lower number removes no workspace."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:29
+msgid "TLS on connect"
+msgstr "TLS on connect"
 
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:20
 msgid "Turn off"
@@ -63,6 +238,58 @@ msgstr "Turn off personal tokens?"
 msgid "Turning it off asks for a confirmation and shows how many tokens stop. Workspace admins can also turn personal tokens off in their own workspace."
 msgstr "Turning it off asks for a confirmation and shows how many tokens stop. Workspace admins can also turn personal tokens off in their own workspace."
 
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:43
+msgid "Type a new one to replace it"
+msgstr "Type a new one to replace it"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:54
+msgid "Type a port from 1 to 65535."
+msgstr "Type a port from 1 to 65535."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:53
+msgid "Type the host of the mail server."
+msgstr "Type the host of the mail server."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:18
+msgid "Type the outgoing server that LWS Panel shows in the settings of your mail address (for example mail26.lwspanel.com). User name: the full mail address. Password: the password of this address."
+msgstr "Type the outgoing server that LWS Panel shows in the settings of your mail address (for example mail26.lwspanel.com). User name: the full mail address. Password: the password of this address."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:55
+msgid "Type the password: a user name needs one."
+msgstr "Type the password: a user name needs one."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:16
+msgid "Type the settings that your mail provider gives."
+msgstr "Type the settings that your mail provider gives."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:71
+msgid "Use the server default"
+msgstr "Use the server default"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:72
+msgid "Use the server default?"
+msgstr "Use the server default?"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:38
+msgid "User name"
+msgstr "User name"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:20
+msgid "User name and password: the same Server API token of your Postmark server."
+msgstr "User name and password: the same Server API token of your Postmark server."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:17
+msgid "User name: the ID of your Scaleway project. Password: an API secret key with the permission to send mails. The sender domain must be verified in Transactional Email."
+msgstr "User name: the ID of your Scaleway project. Password: an API secret key with the permission to send mails. The sender domain must be verified in Transactional Email."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:19
+msgid "User name: the SMTP login that Brevo shows in SMTP & API. Password: an SMTP key, not an API key."
+msgstr "User name: the SMTP login that Brevo shows in SMTP & API. Password: an SMTP key, not an API key."
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:22
+msgid "User name: your Mailjet API key. Password: your Mailjet secret key."
+msgstr "User name: your Mailjet API key. Password: your Mailjet secret key."
+
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:11
 msgid "Users can make tokens that act as themselves. When off, every personal token stops working at once. App tokens are not affected."
 msgstr "Users can make tokens that act as themselves. When off, every personal token stops working at once. App tokens are not affected."
@@ -70,3 +297,11 @@ msgstr "Users can make tokens that act as themselves. When off, every personal t
 #: extensions/scylla-base/src/features/instance-settings/presentation/messages/instance-settings.messages.ts:5
 msgid "Workspaces per user"
 msgstr "Workspaces per user"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:61
+msgid "you@example.com"
+msgstr "you@example.com"
+
+#: extensions/scylla-base/src/features/instance-settings/presentation/messages/mail-settings.messages.ts:46
+msgid "Your provider must allow this address or its domain."
+msgstr "Your provider must allow this address or its domain."
