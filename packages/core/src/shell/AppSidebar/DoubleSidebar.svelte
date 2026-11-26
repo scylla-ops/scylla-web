@@ -43,6 +43,10 @@
   const content = $derived<SecondSidebarContent | undefined>(
     selected && secondSidebarFor(selected, sections, params),
   );
+  // No section matches the URL (the not-found page): no empty column, the rail stays alone.
+  const collapsed = $derived(ready && !content);
+  const containerWidth = $derived(collapsed ? RAIL_SLOT_PX : sidebarWidth);
+
   // Once, in this component: a source can create a query.
   const linkSources = untrack(() =>
     contributions.flatMap(shell => shell.secondSidebarLinks?.(() => content?.id) ?? []),
@@ -108,7 +112,7 @@
   bind:this={root}
   data-slot="sidebar-container"
   class="relative h-svh shrink-0"
-  style:width="{sidebarWidth}px"
+  style:width="{containerWidth}px"
 >
   <div
     data-slot="sidebar-brand"
@@ -129,17 +133,19 @@
     onOpenItem={openItem}
     class={cn('absolute top-17 bottom-0 left-0 z-20', width.dragging && 'transition-none')}
   />
-  <SecondSidebar
-    id={SECOND_SIDEBAR_ID}
-    content={shown}
-    {panel}
-    {search}
-    {pathname}
-    {ready}
-    {badges}
-    onOpenPage={openPage}
-    class="absolute top-17 right-0 bottom-0 left-14"
-  />
+  {#if !collapsed}
+    <SecondSidebar
+      id={SECOND_SIDEBAR_ID}
+      content={shown}
+      {panel}
+      {search}
+      {pathname}
+      {ready}
+      {badges}
+      onOpenPage={openPage}
+      class="absolute top-17 right-0 bottom-0 left-14"
+    />
+  {/if}
   {#if ready && content}
     <SecondSidebarHandle
       {width}

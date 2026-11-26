@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/svelte';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import { pipelineQueries } from '@base/features/pipeline';
+import { workspaceQueries } from '@base/features/workspace';
 import { projectQueries, type ProjectEntity } from '@base/features/project';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -187,7 +188,7 @@ describe('cleanContext', () => {
     expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
-  it('clears the project and the pipeline and goes to the dashboard when the project is gone', async () => {
+  it('clears the project and the pipeline and does not leave the URL when the project is gone', async () => {
     repository.getById.mockResolvedValue(null);
     contextStore.setState({ pipeline: { id: 'pipeline-1', name: 'ci' } });
 
@@ -195,7 +196,7 @@ describe('cleanContext', () => {
 
     expect(contextStore.getState().project).toEqual({ id: null, name: null });
     expect(contextStore.getState().pipeline).toEqual({ id: null, name: null });
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
+    expect(navigator.navigate).not.toHaveBeenCalled();
     expect(cleaner.gone).toBe(true);
   });
 
@@ -206,16 +207,7 @@ describe('cleanContext', () => {
     const cleaner = mount('deleted-project');
 
     expect(cleaner.gone).toBe(true);
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
-  });
-
-  it('goes to "/" when there is no workspace name to make a slug from', async () => {
-    repository.getById.mockResolvedValue(null);
-    contextStore.setState({ workspace: { id: 'org-1', name: null, slug: null } });
-
-    await run('deleted-project');
-
-    expect(navigator.navigate).toHaveBeenCalledWith('/', { replace: true });
+    expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('counts a project of another workspace as gone', async () => {
@@ -225,7 +217,7 @@ describe('cleanContext', () => {
 
     expect(cleaner.gone).toBe(true);
     expect(contextStore.getState().project).toEqual({ id: null, name: null });
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
+    expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('stays when a person who cannot list the workspace is refused: it proves nothing', async () => {
@@ -249,7 +241,7 @@ describe('cleanContext', () => {
     grantProjectList();
     flushSync();
 
-    expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/dashboard', { replace: true });
+    expect(navigator.navigate).not.toHaveBeenCalled();
   });
 
   it('waits for the workspace of the URL before it compares', async () => {
@@ -416,5 +408,23 @@ describe('ContextCleaner.wrapper', () => {
     expect(screen.getByText('the page')).toBeTruthy();
 
     await vi.waitFor(() => expect(screen.queryByText('the page')).toBeNull());
+  });
+
+  it('shows the not-found page, and does not redirect, for a project that is gone', async () => {
+    repository.getById.mockResolvedValue(null);
+    cache.queryClient.setQueryData(workspaceQueries.mine().queryKey, [
+      {
+        id: 'org-1',
+        name: 'Acme Corp',
+        slug: 'acme',
+        personalTokensEnabled: false,
+        timeZone: 'UTC',
+      },
+    ]);
+
+    renderWrapper('deleted-project');
+
+    expect(await screen.findByRole('heading', { name: 'Page not found' })).toBeInTheDocument();
+    expect(navigator.navigate).not.toHaveBeenCalled();
   });
 });

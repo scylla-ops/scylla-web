@@ -62,6 +62,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - Job page: the agent of the job shows with its own icon in the header and in Details, in place of a
   generic server icon. An agent with no icon shows the default agent icon. The agent icon card and
   its dialog now name the same places: the list of the agents, the agent page and the jobs.
+- A project URL with an unknown project id now shows the "Page not found" page and no longer sends
+  the user to the dashboard. The not-found page no longer shows an empty second sidebar.
 
 ## [0.7.2] - 2026-11-25
 

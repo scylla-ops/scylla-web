@@ -1,11 +1,5 @@
 import { untrack } from 'svelte';
-import {
-  activeWorkspaceSlug,
-  currentPathname,
-  navigateTo,
-  contextStore,
-  workspaceUrl,
-} from '@platform/context';
+import { currentPathname, contextStore } from '@platform/context';
 import { Permission, can } from '@platform/authz';
 import { createQuery, routeParams } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
@@ -16,8 +10,9 @@ const isPipelinePath = (pathname: string): boolean =>
   pathname.includes('/edit/') || pathname.includes('/pipelines/');
 
 /**
- * Keeps the store on the project of the URL, with the name of the server. Leaves a project that no
- * longer exists, and clears the pipeline outside the pipeline pages. `gone`: do not show the page.
+ * Keeps the store on the project of the URL, with the name of the server. Clears a project that no
+ * longer exists, and the pipeline outside the pipeline pages. `gone`: show the not-found page, not
+ * the page.
  */
 export const cleanContext = (projectId: string | undefined): { readonly gone: boolean } => {
   const pathname = currentPathname();
@@ -50,8 +45,6 @@ export const cleanContext = (projectId: string | undefined): { readonly gone: bo
       if (!current) {
         store.setProject(null, null);
         store.setPipeline(null, null);
-        const slug = activeWorkspaceSlug();
-        navigateTo(slug ? workspaceUrl(slug) : '/', { replace: true });
         return;
       }
 
