@@ -37,6 +37,8 @@ export const layoutMessages = {
   whatsNewMenu: msg`What's new`,
   whatsNewDescription: msg`Here is what landed in this version.`,
   gotIt: msg`Got it`,
+  pauseAutoplay: msg`Pause the tour`,
+  playAutoplay: msg`Resume the tour`,
   openDashboard: msg`Scylla: open the dashboard`,
   shareHint: (workspace: string) => msg`Only members of ${workspace} with access can open it.`,
 };

@@ -46,6 +46,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   Delete. The sort has "Custom order", the default, and in this order the "Reorder" mode lets you
   drag the cards to a group, to a place or to the pins: Done saves the order, Cancel or Escape
   reverts it. On a phone, the page has no Reorder, no New group and no Select all.
+- The What's new dialog now moves to the next version by itself, with a progress bar and a slow
+  scroll. Any input pauses it.
 
 ### Changed
 

@@ -342,7 +342,7 @@ msgstr "Maintenant : {name}"
 msgid "On this pipeline"
 msgstr "Sur cette pipeline"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:41
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:43
 msgid "Only members of {workspace} with access can open it."
 msgstr "Seuls les membres de {workspace} qui y ont accès peuvent l'ouvrir."
 
@@ -373,6 +373,10 @@ msgstr "Page introuvable"
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:8
 msgid "Pages"
 msgstr "Pages"
+
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:40
+msgid "Pause the tour"
+msgstr "Mettre la visite en pause"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:15
 msgid "People"
@@ -415,6 +419,10 @@ msgstr "notes de version nouveautés changements mises à jour"
 msgid "Results: {count}"
 msgstr "Résultats : {count}"
 
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:41
+msgid "Resume the tour"
+msgstr "Reprendre la visite"
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:29
 msgid "Role"
 msgstr "Rôle"
@@ -447,7 +455,7 @@ msgstr "Lancer…"
 msgid "Scylla pipelines and file pipelines, together"
 msgstr "Pipelines Scylla et pipelines fichier, ensemble"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:40
+#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:42
 msgid "Scylla: open the dashboard"
 msgstr "Scylla : ouvrir le tableau de bord"
 
