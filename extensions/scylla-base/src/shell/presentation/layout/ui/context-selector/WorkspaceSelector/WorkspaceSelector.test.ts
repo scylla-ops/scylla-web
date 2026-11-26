@@ -64,6 +64,40 @@ afterEach(() => {
 });
 
 describe('WorkspaceSelector', () => {
+  describe('the icons of the workspaces', () => {
+    it('shows the icon of the active workspace on the switcher, and the icon of each row', async () => {
+      mine = [
+        {
+          ...TWO[0],
+          icon: { kind: 'glyph', name: 'rocket', color: 'chart-2' },
+        } as (typeof TWO)[number],
+        TWO[1],
+      ];
+      const user = userEvent.setup();
+      render(InSidebar, { component: WorkspaceSelector });
+
+      const switcher = screen.getByRole('button', { name: /Acme Corp/ });
+      // A new icon grows in over the old one: the last one is the icon of now.
+      await waitFor(() =>
+        expect(
+          [...switcher.querySelectorAll('[data-slot="entity-icon"] svg')].at(-1)?.getAttribute('stroke'),
+        ).toBe('var(--chart-2)'),
+      );
+      await user.click(switcher);
+      const acme = await findMenuItem('Acme Corp');
+      const globex = await findMenuItem('Globex Inc');
+      expect(acme.querySelector('[data-slot="entity-icon"] svg')).toHaveAttribute(
+        'stroke',
+        'var(--chart-2)',
+      );
+      // No icon: a building in grey.
+      expect(globex.querySelector('[data-slot="entity-icon"] svg')).toHaveAttribute(
+        'stroke',
+        'var(--muted-foreground)',
+      );
+    });
+  });
+
   describe('the filter field', () => {
     const SIX = [
       ...TWO,

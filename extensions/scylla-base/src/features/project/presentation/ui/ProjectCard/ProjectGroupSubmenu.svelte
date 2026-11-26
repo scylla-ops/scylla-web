@@ -4,6 +4,7 @@
   import FolderInputIcon from '@lucide/svelte/icons/folder-input';
   import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
   import { createMutation } from '@scylla/core-sdk';
+  import { ColorGlyph } from '@scylla/ui';
   import {
     DropdownMenuItem,
     DropdownMenuSeparator,
@@ -38,9 +39,10 @@
   };
 </script>
 
-{#snippet target(groupId: string | undefined, name: string)}
+{#snippet target(groupId: string | undefined, name: string, color?: string)}
   <DropdownMenuItem onSelect={() => moveTo(groupId, name)}>
-    <FolderIcon class="size-4" aria-hidden="true" />
+    <!-- The folder of each group in its color, as on the page and in the sidebar. -->
+    <ColorGlyph icon={FolderIcon} {color} />
     <span class="min-w-0 flex-1 truncate">{name}</span>
     {#if groupId === project.groupId}
       <CheckIcon class="size-4" aria-label={t(projectMessages.currentGroup)} />
@@ -55,7 +57,7 @@
   </DropdownMenuSubTrigger>
   <DropdownMenuSubContent class="w-[200px]">
     {#each groups as group (group.id)}
-      {@render target(group.id, group.name)}
+      {@render target(group.id, group.name, group.color)}
     {/each}
     {@render target(undefined, t(projectMessages.ungrouped))}
     <DropdownMenuSeparator />

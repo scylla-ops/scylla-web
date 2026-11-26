@@ -17,7 +17,7 @@ msgstr ""
 msgid "{workspace} refuses them at once: scripts that use them get \"403 Permission denied\" here. They still work in other workspaces. App tokens and CI identities do not change. You can turn them on again at any time."
 msgstr "{workspace} refuses them at once: scripts that use them get \"403 Permission denied\" here. They still work in other workspaces. App tokens and CI identities do not change. You can turn them on again at any time."
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:18
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:19
 #: extensions/scylla-base/src/features/workspace/presentation/presenters/workspace-form.presenter.ts:14
 msgid "Address"
 msgstr "Address"
@@ -25,6 +25,14 @@ msgstr "Address"
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:11
 msgid "An instance admin turned personal tokens off on this server, so this switch is off and locked."
 msgstr "An instance admin turned personal tokens off on this server, so this switch is off and locked."
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:20
+msgid "Cancel"
+msgstr "Cancel"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:23
+msgid "Change the icon…"
+msgstr "Change the icon…"
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:9
 msgid "Create a new workspace"
@@ -37,6 +45,10 @@ msgstr "create add organization"
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:11
 msgid "Create Workspace"
 msgstr "Create Workspace"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:12
+msgid "Creating..."
+msgstr "Creating..."
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:5
 msgid "Current workspace"
@@ -58,7 +70,7 @@ msgstr "e.g., my-workspace"
 msgid "Edit"
 msgstr "Edit"
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:13
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:14
 msgid "Edit workspace"
 msgstr "Edit workspace"
 
@@ -70,7 +82,7 @@ msgstr "Enter a name for your new workspace, and an address if you want to choos
 msgid "Find a time zone"
 msgstr "Find a time zone"
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:19
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:27
 msgid "Find a workspace"
 msgstr "Find a workspace"
 
@@ -78,6 +90,14 @@ msgstr "Find a workspace"
 #: extensions/scylla-base/src/features/workspace/workspace.module.ts:33
 msgid "General"
 msgstr "General"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:24
+msgid "Icon saved"
+msgstr "Icon saved"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:22
+msgid "It shows in the workspace switcher, in the list of the workspaces and at the top of the settings."
+msgstr "It shows in the workspace switcher, in the list of the workspaces and at the top of the settings."
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:4
 msgid "Members"
@@ -91,7 +111,7 @@ msgstr "Members can use their personal tokens on the projects, pipelines and sec
 msgid "New workspace"
 msgstr "New workspace"
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:20
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:28
 msgid "No workspace matches this search."
 msgstr "No workspace matches this search."
 
@@ -107,11 +127,11 @@ msgstr "Personal tokens in {workspace}"
 msgid "Personal tokens refused in this workspace"
 msgstr "Personal tokens refused in this workspace"
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:15
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:16
 msgid "Save"
 msgstr "Save"
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:16
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:17
 msgid "Saving..."
 msgstr "Saving..."
 
@@ -127,6 +147,10 @@ msgstr "Settings of the workspace {workspace}. Only admins of {workspace} see th
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:21
 msgid "The stats of {workspace} count their days and hours in this zone. This browser is in {browser}."
 msgstr "The stats of {workspace} count their days and hours in this zone. This browser is in {browser}."
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:26
+msgid "The workspace is created, but its icon is not saved: {reason}"
+msgstr "The workspace is created, but its icon is not saved: {reason}"
 
 #: extensions/scylla-base/src/features/workspace/presentation/messages/workspace-settings.messages.ts:22
 msgid "This browser"
@@ -156,11 +180,15 @@ msgstr "Turn off personal tokens in {workspace}?"
 msgid "Turning it off asks for a confirmation. The instance switch comes first: when an instance admin turns personal tokens off on the server, this switch is off and locked."
 msgstr "Turning it off asks for a confirmation. The instance switch comes first: when an instance admin turns personal tokens off on the server, this switch is off and locked."
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:14
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:15
 msgid "Update the name and the address of the workspace."
 msgstr "Update the name and the address of the workspace."
 
-#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:17
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:21
+msgid "Workspace icon"
+msgstr "Workspace icon"
+
+#: extensions/scylla-base/src/features/workspace/presentation/messages/workspace.messages.ts:18
 #: extensions/scylla-base/src/features/workspace/presentation/presenters/workspace-form.presenter.ts:7
 msgid "Workspace name"
 msgstr "Workspace name"

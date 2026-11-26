@@ -22,6 +22,11 @@ export {
   projectIconProps,
 } from './presentation/presenters/project-icon.presenter.ts';
 export { keepRecentColor, recentColors } from './presentation/recent-colors.user-state.ts';
+export type { ProjectGroupEntity } from './domain/entities/project-group.entity.ts';
+export { projectGroupQueries } from './presentation/project-group.queries.ts';
+/** The pins and the closed sections of the person: the projects page and the sidebar share them. */
+export { closedSections, projectPins } from './presentation/project-layout.user-state.ts';
+export { PINS, UNGROUPED } from './presentation/presenters/project-sections.presenter.ts';
 /** A loader: a barrel must not re-export a component. The icon and the name of a project page. */
 export const loadProjectTitle = () => import('./presentation/ui/ProjectTitle/ProjectTitle.svelte');
 // The zones of the project card: the pipelines and the repository of a project show there.

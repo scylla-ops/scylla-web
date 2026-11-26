@@ -26,4 +26,16 @@ describe('grpcWorkspace.toDomain', () => {
       toDomain({ name: 'Acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'UTC' }).id,
     ).toBe('');
   });
+
+  it('maps the icon of the workspace, and none for a workspace with the default icon', () => {
+    const base = { name: 'Acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'UTC' };
+
+    expect(
+      toDomain({
+        ...base,
+        icon: { kind: { oneofKind: 'glyph', glyph: { name: 'rocket', color: 'chart-2' } } },
+      }).icon,
+    ).toEqual({ kind: 'glyph', name: 'rocket', color: 'chart-2' });
+    expect(toDomain(base)).not.toHaveProperty('icon');
+  });
 });

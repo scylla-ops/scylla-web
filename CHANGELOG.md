@@ -48,6 +48,16 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   reverts it. On a phone, the page has no Reorder, no New group and no Select all.
 - The What's new dialog now moves to the next version by itself, with a progress bar and a slow
   scroll. Any input pauses it.
+- Each workspace can have its own icon, with the icon picker of the projects: a glyph with a theme
+  color or a free color, or an uploaded image. A new workspace shows a building on a grey tile. The
+  icon is in the forms that create or edit a workspace, in the workspace switcher and its list, and
+  in the header of the workspace settings, where a member that can edit the workspace opens the icon
+  picker. Each project group can have a folder color: a theme color or a free color. The color is in
+  the forms that create or rename a group, on the folder of the group header (a click opens the
+  colors) and in "Move to group" of a card. The sidebar of the projects shows the structure of the
+  projects page: the pinned projects, each group with its folder color, then the projects with no
+  group, in folding sections that the page and the sidebar share. A dot shows on a project with a
+  job that runs.
 
 ### Changed
 

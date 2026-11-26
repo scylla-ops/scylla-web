@@ -5,6 +5,8 @@ import type { IAccessServiceClient } from '@base/generated/scylla/access/v1/acce
 import type { AccessEntry } from '@base/generated/scylla/access/v1/access_service.ts';
 import type { Workspace } from '@base/generated/scylla/workspaces/v1/workspace.ts';
 import type { UserSummary } from '@base/features/user';
+import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
+import { iconChangeToProto } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import { required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcWorkspace from './grpc-workspace.mapper.ts';
 import * as grpcWorkspaceMember from './grpc-workspace-member.mapper.ts';
@@ -60,11 +62,17 @@ export class DefaultWorkspaceRepository implements WorkspaceRepository {
     return requireWorkspace(response.workspace);
   }
 
-  public async update(workspaceId: string, name?: string, slug?: string): Promise<WorkspaceEntity> {
+  public async update(
+    workspaceId: string,
+    name?: string,
+    slug?: string,
+    icon?: CustomIconChange,
+  ): Promise<WorkspaceEntity> {
     const response = await this.workspaces.updateWorkspace({
       workspaceId: wrapId(workspaceId),
       ...(name !== undefined && { name }),
       ...(slug !== undefined && { slug }),
+      ...(icon && { icon: iconChangeToProto(icon) }),
     }).response;
     return requireWorkspace(response.workspace);
   }

@@ -4,9 +4,14 @@
   import scyllaLogoDark from '@scylla/ui/assets/logo_scylla_dark.svg';
   import { authorizationReady, can, Permission } from '@platform/authz';
   import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
-  import { ScyllaForm, type FormValues } from '@scylla/ui';
+  import { IconField, ScyllaForm, type FormValues, type IconChoice } from '@scylla/ui';
   import { activeLocale, t } from '@scylla/ui/i18n';
-  import { createWorkspaceItems } from '@base/features/workspace';
+  import { recentColors } from '@base/features/project';
+  import {
+    createWorkspaceItems,
+    DEFAULT_WORKSPACE_COLOR,
+    DEFAULT_WORKSPACE_GLYPH,
+  } from '@base/features/workspace';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
   import NotificationsMenu from '../NotificationsMenu/NotificationsMenu.svelte';
   import SessionLine from '../SessionLine/SessionLine.svelte';
@@ -14,7 +19,7 @@
 
   interface Props {
     isPending: boolean;
-    onSubmit: (values: FormValues<'name' | 'slug'>) => void;
+    onSubmit: (values: FormValues<'name' | 'slug'>, icon: IconChoice) => void;
   }
 
   let { isPending, onSubmit }: Props = $props();
@@ -22,6 +27,9 @@
   const items = $derived((activeLocale(), createWorkspaceItems()));
   // A system permission: no workspace to check it on.
   const canCreate = $derived(can(Permission.CREATE_WORKSPACE));
+  // The same icon field as the dialog of the switcher.
+  let icon = $state<IconChoice>({ kind: 'default' });
+  const recent = recentColors();
 </script>
 
 <main in:welcomeIn class="flex h-full w-full flex-col p-2">
@@ -42,7 +50,23 @@
       </CardHeader>
       {#if canCreate}
         <CardContent>
-          <ScyllaForm {items} {isPending} {onSubmit} buttonLabel={t(layoutMessages.create)} />
+          <ScyllaForm
+            {items}
+            {isPending}
+            onSubmit={values => onSubmit(values, icon)}
+            buttonLabel={t(layoutMessages.create)}
+          >
+            {#snippet leading()}
+              <IconField
+                value={icon}
+                onchange={next => (icon = next)}
+                {recent}
+                defaultGlyph={DEFAULT_WORKSPACE_GLYPH}
+                defaultColor={DEFAULT_WORKSPACE_COLOR}
+                disabled={isPending}
+              />
+            {/snippet}
+          </ScyllaForm>
         </CardContent>
       {:else if !authorizationReady()}
         <CardContent class="flex justify-center">

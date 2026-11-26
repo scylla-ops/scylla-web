@@ -1,7 +1,6 @@
 <script lang="ts">
   import type { Component, Snippet } from 'svelte';
   import type { Attachment } from 'svelte/attachments';
-  import Building2Icon from '@lucide/svelte/icons/building-2';
   import CheckIcon from '@lucide/svelte/icons/check';
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import TrashIcon from '@lucide/svelte/icons/trash';
@@ -18,8 +17,10 @@
     workspaceMutations,
     workspaceQueries,
   } from '@base/features/workspace/presentation/workspace.queries.ts';
+  import type { WorkspaceEntity } from '@base/features/workspace/domain/entities/workspace.entity.ts';
   import { workspaceMessages } from '@base/features/workspace/presentation/messages/workspace.messages.ts';
   import EditWorkspaceDialog from '../EditWorkspaceDialog/EditWorkspaceDialog.svelte';
+  import WorkspaceIcon from '../WorkspaceIcon/WorkspaceIcon.svelte';
   import WorkspaceRow from './WorkspaceRow.svelte';
   import { createWorkspacePermissions } from './workspace-permissions.state.svelte.ts';
 
@@ -69,7 +70,7 @@
   const context = toRune(contextStore);
   const currentWorkspaceId = $derived(context().workspace.id);
 
-  let editWorkspace = $state<{ id: string; name: string; slug: string } | null>(null);
+  let editWorkspace = $state<WorkspaceEntity | null>(null);
   let deleteWorkspaceId = $state<string | null>(null);
 
   const selectWorkspace = (id: string, name: string, slug: string) => {
@@ -99,7 +100,7 @@
   {#each Array.from({ length: 3 }) as _, index (index)}
     <Row class="group">
       <div class="flex h-7 items-center gap-2 px-2">
-        <Skeleton class="size-4 rounded" />
+        <Skeleton class="size-5 rounded-md" />
         <Skeleton class="h-4 w-24" />
       </div>
     </Row>
@@ -126,7 +127,7 @@
         onSelect={() => selectWorkspace(workspace.id, workspace.name, workspace.slug)}
       >
         <div class="flex w-full min-w-0 items-center gap-2">
-          <Building2Icon class="size-4 shrink-0 text-muted-foreground" />
+          <WorkspaceIcon icon={workspace.icon} size={20} />
           <span class="min-w-0 flex-1 truncate text-sm" title={workspace.name}>{workspace.name}</span>
           {#if workspace.id === currentWorkspaceId}
             <CheckIcon
@@ -158,11 +159,7 @@
                 tooltip={t(workspaceMessages.edit)}
                 onclick={event => {
                   event.stopPropagation();
-                  editWorkspace = {
-                    id: workspace.id,
-                    name: workspace.name,
-                    slug: workspace.slug,
-                  };
+                  editWorkspace = workspace;
                 }}
                 class="size-6"
                 iconClass="size-3.5"

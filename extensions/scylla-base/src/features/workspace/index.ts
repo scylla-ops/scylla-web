@@ -8,6 +8,12 @@ export {
   WORKSPACE_MEMBERS_QUERY_KEY,
 } from './presentation/workspace.queries.ts';
 export { createWorkspaceItems } from './presentation/presenters/workspace-form.presenter.ts';
+export {
+  DEFAULT_WORKSPACE_COLOR,
+  DEFAULT_WORKSPACE_GLYPH,
+  workspaceIconChange,
+  workspaceIconProps,
+} from './presentation/presenters/workspace-icon.presenter.ts';
 /** Loaders: a barrel must not re-export a component. */
 export const loadAddWorkspaceDialog = () =>
   import('./presentation/ui/AddWorkspaceDialog/AddWorkspaceDialog.svelte');

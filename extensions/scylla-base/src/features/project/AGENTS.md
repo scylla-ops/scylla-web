@@ -25,6 +25,10 @@ projectMutations      create (with an icon: a second UpdateProject) · update (w
 projectIconProps      ProjectIcon → the props of EntityIcon: the sidebar links of the shell use it
 projectIconChange     IconChoice of an IconField → ProjectIconChange, for a form of another module
 recentColors, keepRecentColor   the user-state key `recent-colors`, for each icon color picker
+type ProjectGroupEntity, projectGroupQueries   the groups of a workspace (with their folder color)
+projectPins, closedSections   the user-state keys of the pins and of the closed sections, with
+                      `onChange`: the sidebar of the shell shows and folds the same sections
+PINS, UNGROUPED       the keys of the sections « Pinned » and « No group »
 loadProjectTitle      a loader: the icon and the name at the top of the page of a project (pipeline)
 canListProjects
 PROJECTS_QUERY_KEY, PROJECTS_QUERY_ROOT, PROJECTS_LOOKUP_PAGE
@@ -61,8 +65,8 @@ Reach it from `presentation/project.queries.ts` only, never from a component.
 | Method | Returns |
 |---|---|
 | `list(workspaceId)` | each `ProjectGroupEntity` of the workspace, in their order. It reads each page |
-| `create(workspaceId, name)` | the new group, after the other groups |
-| `rename(groupId, name)` | the group |
+| `create(workspaceId, name, color?)` | the new group, after the other groups. No color: the default folder |
+| `update(groupId, { name?, color? })` | the group. An absent field stays; an empty color goes back to the default folder |
 | `reorder(groupId, position)` | the group at its new place, from 0 |
 | `delete(groupId)` | `void`. Its projects come after the projects with no group |
 | `move({ id, groupId?, beforeId? })` | the project, in the group (or in no group), before `beforeId` or last |
@@ -129,6 +133,10 @@ presentation/
   ui/ProjectSections/                the sections, their headers, the group menu, the group name
                                      row, the grid with the drop slot, the pointer drag of the cards
                                      (card-drag.attachments.ts)
+  ui/GroupColor/                     the folder color of a group: the colors (GroupColorSwatches),
+                                     the folder as a button with its colors in a popover, the field of
+                                     a form, and the folder of a header, which saves at the close
+  presenters/group-color.presenter.ts   the names of the colors, the change that a write sends
   ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New group",
                                      "New project"
   ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order,
@@ -250,7 +258,16 @@ choice card links to it by its path only.
   one list with no header.
 - **The groups and the order belong to the workspace; the pins belong to the person.** The pins are
   the user-state key `project-pins` (at most 100 for each workspace); the closed sections are
-  `project-sections`. In the custom order, the pins keep the order of the person.
+  `project-sections`. In the custom order, the pins keep the order of the person. The sidebar of
+  the shell reads the same keys: each write calls the `onChange` listeners, so the page and the
+  sidebar fold the same sections and show the same pins at once.
+- **A group has a folder color, no glyph.** The same colors as the icon pickers: the colors of the
+  theme, the free color with `ColorPicker`, and Reset (the default folder, in grey). `ColorGlyph`
+  of `@scylla/ui` draws the folder, with the contrast rules of `EntityIcon`. The « New group » row,
+  the rename row and the dialog « New group… » of a card choose it with the name, in one write. A
+  click on the folder of a group header opens the colors, for a person who manages the groups: the
+  folder shows each change at once, and the color is saved when the colors close. The header, the
+  « Move to group » menu of a card and the sidebar of the shell show the color.
 - **« Move up » and « Move down » swap a card with its neighbor** (`MoveProject` with
   `before_project_id`), in the order of the page. They show only in the custom order, with no
   search. In the pins, they change the order of the pins.

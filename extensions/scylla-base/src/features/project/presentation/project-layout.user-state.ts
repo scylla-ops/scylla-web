@@ -30,8 +30,12 @@ const defineIdsByWorkspace = (key: string, localKey: string, max: number) => {
       return {};
     }
   };
-  const write = (value: IdsByWorkspace) =>
+  // The projects page and the sidebar read the same key: each write tells the other one.
+  const listeners = new Set<() => void>();
+  const write = (value: IdsByWorkspace) => {
     globalThis.localStorage?.setItem(localKey, JSON.stringify(value));
+    listeners.forEach(listener => listener());
+  };
 
   // `project.module.ts` imports this file: the key is defined before the read of the server.
   const state = userState.define<IdsByWorkspace>({
@@ -53,6 +57,11 @@ const defineIdsByWorkspace = (key: string, localKey: string, max: number) => {
       );
       write(next);
       state.save(next);
+    },
+    /** Called after each write, also the value of the server. Returns the end of the listen. */
+    onChange: (listener: () => void): (() => void) => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
     },
   };
 };

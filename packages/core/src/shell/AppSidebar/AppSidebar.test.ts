@@ -520,6 +520,52 @@ describe('the second sidebar', () => {
       expect(tile?.querySelector('img')).toHaveAttribute('src', '/images/1');
     });
 
+    it('shows the sections of the links, folds one and shows its number of links', async () => {
+      const folded = new SvelteMap<string, boolean>([['g-1', false]]);
+      const section = (key: string, title: string) => ({
+        key,
+        title,
+        color: 'chart-2',
+        folded: folded.get(key) ?? false,
+        onToggle: (next: boolean) => folded.set(key, next),
+      });
+      const contributions: ShellContributions[] = [
+        {
+          linkParams: () => ({ workspaceSlug: 'acme-corp' }),
+          secondSidebarLinks: shown => () =>
+            shown() === 'machines'
+              ? [
+                  { title: 'runner-1', href: '/acme-corp/agents/1', section: section('g-1', 'Build') },
+                  { title: 'runner-2', href: '/acme-corp/agents/2', section: section('g-1', 'Build') },
+                  {
+                    title: 'runner-3',
+                    href: '/acme-corp/agents/3',
+                    section: section('g-2', 'Deploy'),
+                    status: { tone: 'running' as const, label: 'A job runs' },
+                  },
+                ]
+              : [],
+        },
+      ];
+      render(AppSidebarFixture, { config: configWith({ entries: groupEntries, contributions }) });
+
+      const build = within(secondSidebar()).getByRole('button', { name: 'Build' });
+      expect(build).toHaveAttribute('aria-expanded', 'true');
+      expect(build.closest('li')).toHaveClass('border-t');
+      expect(build.querySelector('[data-slot="color-glyph"] svg')).toHaveAttribute(
+        'stroke',
+        'var(--chart-2)',
+      );
+      expect(within(secondSidebar()).getByRole('img', { name: 'A job runs' })).toBeInTheDocument();
+
+      await userEvent.click(build);
+
+      expect(folded.get('g-1')).toBe(true);
+      const closed = within(secondSidebar()).getByRole('button', { name: 'Build 2' });
+      expect(closed).toHaveAttribute('aria-expanded', 'false');
+      expect(within(secondSidebar()).getByRole('button', { name: /runner-3/ })).toBeInTheDocument();
+    });
+
     it('opens the URL of a link', async () => {
       render(AppSidebarFixture, {
         config: configWith({ entries: groupEntries, contributions: withMachineLinks() }),

@@ -3,8 +3,13 @@ import { contextStore } from '@platform/context';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
+import { keepRecentColor } from '@base/features/project';
 import { PERSONAL_TOKENS_QUERY_KEY } from '@base/features/user';
+import type { WorkspaceEntity } from '../domain/entities/workspace.entity.ts';
 import type { WorkspaceModule } from '../workspace.module.ts';
+import { workspaceMessages } from './messages/workspace.messages.ts';
 import { workspaceSettingsMessages } from './messages/workspace-settings.messages.ts';
 
 // Resolved per call: tests swap the registry.
@@ -45,15 +50,40 @@ export const invalidateWorkspaceMembers = (workspaceId: string | null): void => 
 const invalidateWorkspaces = () =>
   getQueryClient().invalidateQueries({ queryKey: WORKSPACES_QUERY_KEY() });
 
+/** A free color of a saved icon goes first in the recent colors. */
+const keepColorOf = (icon: CustomIconChange | undefined) => {
+  if (icon?.kind === 'glyph') keepRecentColor(icon.color);
+};
+
+/**
+ * `CreateWorkspace` has no icon: it goes in an `UpdateWorkspace` just after. The workspace stays
+ * when only the icon fails, and a toast tells it.
+ */
+const createWithIcon = async (
+  name: string,
+  slug?: string,
+  icon?: CustomIconChange,
+): Promise<WorkspaceEntity> => {
+  const created = await repository().create(name, slug);
+  if (!icon) return created;
+  try {
+    return await repository().update(created.id, undefined, undefined, icon);
+  } catch (error) {
+    toast.error(i18n._(workspaceMessages.iconNotSaved(ScyllaError.from(error).userMessage())));
+    return created;
+  }
+};
+
 export const workspaceMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: ({ name, slug }: { name: string; slug?: string }) =>
-        repository().create(name, slug),
-      onSuccess: data => {
+      mutationFn: ({ name, slug, icon }: { name: string; slug?: string; icon?: CustomIconChange }) =>
+        createWithIcon(name, slug, icon),
+      onSuccess: (data, { icon }) => {
         // The new workspace becomes the active one.
         contextStore.getState().setWorkspace(data.id, data.name, data.slug);
         toast.success(i18n._(ToastMessages.WORKSPACE_CREATE));
+        if (data.icon) keepColorOf(icon);
         return invalidateWorkspaces();
       },
     }),
@@ -64,15 +94,30 @@ export const workspaceMutations = {
         workspaceId,
         name,
         slug,
+        icon,
       }: {
         workspaceId: string;
         name?: string;
         slug?: string;
-      }) => repository().update(workspaceId, name, slug),
-      onSuccess: () => {
+        icon?: CustomIconChange;
+      }) => repository().update(workspaceId, name, slug, icon),
+      onSuccess: (_workspace, { icon }) => {
         toast.success(i18n._(ToastMessages.WORKSPACE_UPDATE));
+        keepColorOf(icon);
         // The data of other features also holds the name: members, roles, apps, notifications.
         return getQueryClient().invalidateQueries();
+      },
+    }),
+
+  /** The switcher, the list of the workspaces and the settings show the new icon. */
+  setIcon: () =>
+    mutationOptions({
+      mutationFn: ({ workspaceId, icon }: { workspaceId: string; icon: CustomIconChange }) =>
+        repository().update(workspaceId, undefined, undefined, icon),
+      onSuccess: (_workspace, { icon }) => {
+        toast.success(i18n._(workspaceMessages.iconSaved));
+        keepColorOf(icon);
+        return invalidateWorkspaces();
       },
     }),
 

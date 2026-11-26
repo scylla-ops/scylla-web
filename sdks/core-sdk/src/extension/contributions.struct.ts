@@ -53,6 +53,34 @@ export interface SecondSidebarLink {
   entityIcon?: EntityIconProps;
   /** Apart from the links before it. By default, only the first link of a module is apart. */
   apart?: boolean;
+  /**
+   * The folding section of the link, e.g. a group of projects. The links of one section come one
+   * after the other; its title shows once, before the first of them. Unset: no section.
+   */
+  section?: SecondSidebarSection;
+  /** A small live mark at the end of the row, e.g. a job that runs. At most one per link. */
+  status?: SecondSidebarStatus;
+}
+
+/** A folding section of the links of a module in the second sidebar. */
+export interface SecondSidebarSection {
+  /** Unique in the links of the module, e.g. the id of a group. */
+  key: string;
+  title: string;
+  /** Before the title, e.g. a pin. Unset: a folder, in `color`. */
+  icon?: LucideIcon;
+  /** The color of the folder: a color of the theme (`chart-2`) or `#RRGGBB`. Unset: grey. */
+  color?: string;
+  /** The links of the section are hidden; the title shows their number. */
+  folded: boolean;
+  /** A click on the title folds or unfolds the section: the module saves the new state. */
+  onToggle: (folded: boolean) => void;
+}
+
+/** A small live mark of a link: a dot in the color of the tone, with its accessible name. */
+export interface SecondSidebarStatus {
+  tone: 'running' | 'failed';
+  label: string;
 }
 
 /** A search field above the links of the second sidebar. The module filters its own links. */

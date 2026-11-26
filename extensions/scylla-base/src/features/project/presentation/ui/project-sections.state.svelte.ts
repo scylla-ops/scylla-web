@@ -79,6 +79,17 @@ export const createProjectSections = (options: SectionsOptions) => {
   const groups = createQuery(() => projectGroupQueries.list(workspaceId));
   let pins = $state(projectPins.read(options.workspaceId()));
   let closed = $state(closedSections.read(options.workspaceId()));
+  // The sidebar folds the same sections and shows the same pins.
+  $effect(() =>
+    closedSections.onChange(() => {
+      closed = closedSections.read(workspaceId);
+    }),
+  );
+  $effect(() =>
+    projectPins.onChange(() => {
+      pins = projectPins.read(workspaceId);
+    }),
+  );
 
   const reordering = $derived(options.moves() !== null);
   const groupList = $derived(groups.data ?? []);

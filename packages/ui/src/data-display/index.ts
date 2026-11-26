@@ -17,6 +17,7 @@ export { default as StatusTrail } from './StatusTrail/StatusTrail.svelte';
 export type { StatusTrailItem } from './StatusTrail/status-trail.ts';
 export type { StatusState } from './status-state.ts';
 export { default as EntityIcon } from './EntityIcon/EntityIcon.svelte';
+export { default as ColorGlyph } from './ColorGlyph/ColorGlyph.svelte';
 export {
   ENTITY_ICON_SIZES,
   type EntityIconProps,

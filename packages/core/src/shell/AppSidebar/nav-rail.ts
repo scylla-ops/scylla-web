@@ -1,4 +1,4 @@
-import type { SecondSidebarLink } from '@scylla/core-sdk';
+import type { SecondSidebarLink, SecondSidebarSection } from '@scylla/core-sdk';
 import {
   isNavGroup,
   isNavItemActive,
@@ -98,13 +98,38 @@ export const withModuleLinks = (
         ...content,
         pages: [
           ...content.pages,
-          ...links.map(({ title, href, icon, entityIcon, apart }, index) => ({
+          ...links.map(({ title, href, icon, entityIcon, apart, section, status }, index) => ({
             title,
             href,
             url: href,
             icon,
             entityIcon,
             apart: apart ?? index === 0,
+            section,
+            status,
           })),
         ],
       };
+
+/** A run of pages of the second sidebar: pages with no section, or the pages of one section. */
+export interface PageRun {
+  /** Unique in the list of the runs. */
+  key: string;
+  section?: SecondSidebarSection;
+  pages: NavItem[];
+}
+
+/** The pages in runs: the next pages of one section are one run, under the title of the section. */
+export const pageRuns = (pages: readonly NavItem[]): PageRun[] => {
+  const runs: PageRun[] = [];
+  for (const page of pages) {
+    const last = runs.at(-1);
+    if (last && last.section?.key === page.section?.key) {
+      last.pages.push(page);
+    } else {
+      const key = page.section ? `section:${page.section.key}` : `pages:${runs.length}`;
+      runs.push({ key, section: page.section, pages: [page] });
+    }
+  }
+  return runs;
+};

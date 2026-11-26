@@ -38,7 +38,7 @@ src/
   controls/                IconButton, GatedButton, PasswordInput, SearchSelect, SegmentedControl,
                            ShareLinkButton, ColorPicker, IconPicker, IconField
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
-                           CopyableText, TruncatedText, EntityIcon
+                           CopyableText, TruncatedText, EntityIcon, ColorGlyph
   feedback/                ScyllaDialog, ErrorState, ConfirmOperationAlertDialog, SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
   layout/                  FeatureHeader, ContextItem, DangerZone, PageTransition,
@@ -106,6 +106,7 @@ they use the language of the browser or no language.
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | Give the link of a page to another person | `ShareLinkButton` (`url`, `hint`). The top bar of the core renders it for a route with `share`: a page does not render it |
 | The icon of an entity (a project, an agent): a glyph in a color, or an image | `EntityIcon` (`icon`, `color`, `image`, `size` 20, 36 or 48). A free color `#RRGGBB` goes through `iconColors` (`utils/color.ts`): under 3:1 with the card of the theme, the tile is solid with a white or near-black glyph. The glyphs of a picker are `ENTITY_GLYPHS` |
+| A glyph in a color with no tile (the folder of a group of projects) | `ColorGlyph` (`icon`, `color`, `label`, `class` for the size, 16 px by default): the outline in the color on its tint. A free color under 3:1 with the card fills the glyph, with a white or near-black outline (`iconColors`). No color: grey, with no fill |
 | Choose the icon of an entity | `IconPicker` (`value`: an `IconChoice`, `onchange`, `title`, `recent`, and the default icon of the entity: `defaultGlyph`, `defaultColor`): the glyphs with a search, the colors of the theme, the free color, the image tab. The owner puts it in a `ScyllaDialog` and saves. The free color is `ColorPicker`, which also works alone |
 | The icon in a form that creates or edits an entity | `IconField` (`value`, `onchange`, `recent`, `defaultGlyph`, `defaultColor`, `disabled`): the label, the preview, "Change the icon" and Reset on one line; the button unfolds the `IconPicker` (with no header) under them. Nothing is saved: the owner sends the choice with the other fields at the submit. The field keeps the URL of a new image while the picker is closed, and frees it when it goes away. Every create and edit form of an entity with an icon has it |
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |

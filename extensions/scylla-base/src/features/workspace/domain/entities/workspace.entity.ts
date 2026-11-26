@@ -1,3 +1,5 @@
+import type { CustomIcon } from '@shared/domain/structs/custom-icon.struct.ts';
+
 /** A workspace of the server. The rename of the code to `workspace` comes in its own change. */
 export interface WorkspaceEntity {
   id: string;
@@ -8,4 +10,6 @@ export interface WorkspaceEntity {
   personalTokensEnabled: boolean;
   /** An IANA name, `UTC` for a new workspace: the days and the hours of the workspace. */
   timeZone: string;
+  /** Undefined: the default icon, a building in grey. */
+  icon?: CustomIcon;
 }

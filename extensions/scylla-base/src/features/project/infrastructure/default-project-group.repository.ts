@@ -1,6 +1,7 @@
 import type { ProjectGroupRepository } from '@base/features/project/domain/repository/project-group.repository.ts';
 import type {
   MoveProjectInput,
+  ProjectGroupChange,
   ProjectGroupEntity,
 } from '@base/features/project/domain/entities/project-group.entity.ts';
 import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
@@ -33,17 +34,21 @@ export class DefaultProjectGroupRepository implements ProjectGroupRepository {
     return groups.map(grpcProjectGroup.toDomain);
   }
 
-  public async create(workspaceId: string, name: string): Promise<ProjectGroupEntity> {
+  public async create(workspaceId: string, name: string, color?: string): Promise<ProjectGroupEntity> {
     const response = await this.client.createProjectGroup({
       workspaceId: wrapId(workspaceId),
       name,
+      color: color ?? '',
     }).response;
     return requireGroup(response.group);
   }
 
-  public async rename(groupId: string, name: string): Promise<ProjectGroupEntity> {
-    const response = await this.client.updateProjectGroup({ groupId: wrapId(groupId), name })
-      .response;
+  public async update(groupId: string, { name, color }: ProjectGroupChange): Promise<ProjectGroupEntity> {
+    const response = await this.client.updateProjectGroup({
+      groupId: wrapId(groupId),
+      ...(name !== undefined && { name }),
+      ...(color !== undefined && { color }),
+    }).response;
     return requireGroup(response.group);
   }
 

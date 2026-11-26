@@ -6,6 +6,17 @@ export interface ProjectGroupEntity {
   id: string;
   workspaceId: string;
   name: string;
+  /**
+   * The color of the folder of the group: a color of the theme (`chart-2`) or a free color
+   * (`#rrggbb`). Unset: the default folder, in grey.
+   */
+  color?: string;
+}
+
+/** A change of a group. An absent field stays; an empty color goes back to the default folder. */
+export interface ProjectGroupChange {
+  name?: string;
+  color?: string;
 }
 
 /** A move of a project to a group and to a place there. */

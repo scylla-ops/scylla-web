@@ -35,7 +35,12 @@ const ALL = [
   project('cli'),
   project('status'),
 ];
-const DEPLOYS: ProjectGroupEntity = { id: 'g-1', workspaceId: 'org-1', name: 'Deploys' };
+const DEPLOYS: ProjectGroupEntity = {
+  id: 'g-1',
+  workspaceId: 'org-1',
+  name: 'Deploys',
+  color: 'chart-3',
+};
 
 let teardown: Array<() => void> = [];
 let search: ReturnType<typeof vi.fn<(input: ProjectSearch) => Promise<ProjectSearchResult>>>;
@@ -67,10 +72,12 @@ beforeEach(() => {
   });
   groups = {
     list: vi.fn(() => Promise.resolve([DEPLOYS])),
-    create: vi.fn((_: string, name: string) =>
-      Promise.resolve({ id: 'g-2', workspaceId: 'org-1', name }),
+    create: vi.fn((_: string, name: string, color?: string) =>
+      Promise.resolve({ id: 'g-2', workspaceId: 'org-1', name, ...(color && { color }) }),
     ),
-    rename: vi.fn(),
+    update: vi.fn((id: string, change: Partial<ProjectGroupEntity>) =>
+      Promise.resolve({ ...DEPLOYS, id, ...change }),
+    ),
     reorder: vi.fn(),
     delete: vi.fn(),
     move: vi.fn(({ id }: { id: string }) => Promise.resolve(ALL.find(item => item.id === id))),
@@ -107,6 +114,19 @@ const cardsOf = (name: string) =>
   );
 const headerOf = (name: string, expanded = true) =>
   within(section(name)).getByRole('button', { expanded, name: new RegExp(`^${name}`) });
+
+/**
+ * A button of a popover, by its label or its text. The floating layer is not placed in jsdom: it
+ * stays hidden, and the role queries give no name to its buttons.
+ */
+const floatingButton = (name: string) =>
+  waitFor(() => {
+    const found = [...document.querySelectorAll('[data-popover-content] button')].find(
+      button => button.getAttribute('aria-label') === name || button.textContent?.trim() === name,
+    );
+    expect(found).toBeDefined();
+    return found as HTMLElement;
+  });
 
 const openMenuOf = async (name: string, sectionName: string) => {
   const card = await waitFor(() => {
@@ -280,9 +300,107 @@ describe('the sections of the projects page', () => {
     await userEvent.click(screen.getByRole('button', { name: 'New group' }));
     await userEvent.type(screen.getByRole('textbox', { name: 'Group name' }), 'Releases{Enter}');
 
-    await waitFor(() => expect(groups.create).toHaveBeenCalledWith('org-1', 'Releases'));
+    await waitFor(() => expect(groups.create).toHaveBeenCalledWith('org-1', 'Releases', undefined));
     await waitFor(() =>
       expect(screen.queryByRole('textbox', { name: 'Group name' })).not.toBeInTheDocument(),
+    );
+  });
+
+  it('creates a group with the folder color chosen in its row', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'New group' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Folder color of the new group' }));
+    await userEvent.click(await floatingButton('Color 2'));
+    await userEvent.keyboard('{Escape}');
+    await userEvent.type(screen.getByRole('textbox', { name: 'Group name' }), 'Releases{Enter}');
+
+    await waitFor(() => expect(groups.create).toHaveBeenCalledWith('org-1', 'Releases', 'chart-2'));
+  });
+
+  it('changes the folder color from the header, and saves it when the colors close', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    const folder = within(section('Deploys')).getByRole('button', {
+      name: 'Change the folder color of Deploys',
+    });
+    await userEvent.click(folder);
+    expect(await floatingButton('Color 3')).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await userEvent.click(await floatingButton('Color 4'));
+    expect(groups.update).not.toHaveBeenCalled();
+
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() =>
+      expect(groups.update).toHaveBeenCalledWith('g-1', { name: undefined, color: 'chart-4' }),
+    );
+  });
+
+  it('resets the folder color of a group to the default folder', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(
+      within(section('Deploys')).getByRole('button', {
+        name: 'Change the folder color of Deploys',
+      }),
+    );
+    await userEvent.click(await floatingButton('Reset'));
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() =>
+      expect(groups.update).toHaveBeenCalledWith('g-1', { name: undefined, color: '' }),
+    );
+  });
+
+  it('changes the folder color in the rename row, with no new name', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(within(section('Deploys')).getByRole('button', { name: 'Group menu' }));
+    await userEvent.click(await findFloating('menuitem', 'Rename'));
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(save).toBeDisabled();
+
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Change the folder color of Deploys' }),
+    );
+    await userEvent.click(await floatingButton('Main color'));
+    await userEvent.keyboard('{Escape}');
+    await userEvent.click(save);
+
+    await waitFor(() =>
+      expect(groups.update).toHaveBeenCalledWith('g-1', { name: undefined, color: 'primary' }),
+    );
+  });
+
+  it('shows the folder colors in « Move to group », and creates a colored group from there', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await openMenuOf('docs', 'No group');
+    await userEvent.click(await findFloating('menuitem', 'Move to group'));
+    const deploys = await findFloating('menuitem', 'Deploys');
+    expect(deploys.querySelector('[data-slot="color-glyph"] svg')).toHaveAttribute(
+      'stroke',
+      'var(--chart-3)',
+    );
+    await userEvent.click(await findFloating('menuitem', 'New group…'));
+
+    const dialog = await screen.findByRole('dialog', { name: 'New group' });
+    const field = within(dialog).getByRole('group', { name: 'Folder color' });
+    await userEvent.click(within(field).getByRole('button', { name: 'Color 5' }));
+    await userEvent.type(within(dialog).getByLabelText('Group name'), 'Releases');
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Create' }));
+
+    await waitFor(() => expect(groups.create).toHaveBeenCalledWith('org-1', 'Releases', 'chart-5'));
+    await waitFor(() =>
+      expect(groups.move).toHaveBeenCalledWith({ id: 'id-docs', groupId: 'g-2' }),
     );
   });
 });

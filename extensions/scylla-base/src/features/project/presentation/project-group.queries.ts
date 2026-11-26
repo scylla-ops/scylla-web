@@ -1,11 +1,15 @@
 import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '@scylla/core-sdk';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
-import type { MoveProjectInput } from '../domain/entities/project-group.entity.ts';
+import type {
+  MoveProjectInput,
+  ProjectGroupChange,
+} from '../domain/entities/project-group.entity.ts';
 import type { ProjectEntity } from '../domain/entities/project.entity.ts';
 import type { ProjectModule } from '../project.module.ts';
 import { projectMessages } from './messages/project.messages.ts';
 import { PROJECTS_QUERY_ROOT } from './project.queries.ts';
+import { keepRecentColor } from './recent-colors.user-state.ts';
 
 // Resolved per call: tests swap the registry.
 const domain = () => getModuleDomain<typeof ProjectModule.domain>('project');
@@ -37,30 +41,46 @@ const moveEach = async (moves: readonly MoveProjectInput[]) => {
 export const projectGroupMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: ({ workspaceId, name }: { workspaceId: string; name: string }) =>
-        groups().create(workspaceId, name.trim()),
-      onSuccess: () => refresh(),
+      mutationFn: ({ workspaceId, name, color }: { workspaceId: string; name: string; color?: string }) =>
+        groups().create(workspaceId, name.trim(), color),
+      onSuccess: (_group, { color }) => {
+        if (color) keepRecentColor(color);
+        return refresh();
+      },
     }),
 
   /** Creates a group after the others, and moves a project into it. */
   createWith: () =>
     mutationOptions({
-      mutationFn: async ({ project, name }: { project: ProjectEntity; name: string }) => {
-        const group = await groups().create(project.workspaceId, name.trim());
+      mutationFn: async ({
+        project,
+        name,
+        color,
+      }: {
+        project: ProjectEntity;
+        name: string;
+        color?: string;
+      }) => {
+        const group = await groups().create(project.workspaceId, name.trim(), color);
         await groups().move({ id: project.id, groupId: group.id });
         return group;
       },
-      onSuccess: group => {
+      onSuccess: (group, { color }) => {
         toast.success(i18n._(projectMessages.movedTo(group.name)));
+        if (color) keepRecentColor(color);
         return refresh();
       },
     }),
 
-  rename: () =>
+  /** The name and the color of a group, in one write. An empty color: the default folder. */
+  update: () =>
     mutationOptions({
-      mutationFn: ({ groupId, name }: { groupId: string; name: string }) =>
-        groups().rename(groupId, name.trim()),
-      onSuccess: () => refresh(),
+      mutationFn: ({ groupId, name, color }: { groupId: string } & ProjectGroupChange) =>
+        groups().update(groupId, { name: name?.trim(), color }),
+      onSuccess: (_group, { color }) => {
+        if (color) keepRecentColor(color);
+        return refresh();
+      },
     }),
 
   /** `position`: the new place in the order of the groups, from 0. */

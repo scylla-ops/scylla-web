@@ -232,7 +232,11 @@ module gives an access policy.
   open like the pages (`withModuleLinks`). Only the first link is apart, unless a link sets `apart`
   (the dashboards set `false`, and `true` on "New dashboard"). `DoubleSidebar` calls each source once, when it mounts,
   thus a source can create a query: read it only while `shown` is the id of its item. The sheet of a
-  phone does not show them.
+  phone does not show them. A link can have a `section` (`SecondSidebarSection`: a key, a title,
+  a pin `icon` or a folder `color`, `folded`, `onToggle`): the next links of one section show under
+  its title, which folds them (`unfold`/`fold`) and shows their number while they are folded
+  (`pageRuns`). The module keeps the folded state. A link can have one `status`, a small dot with
+  its accessible name, e.g. a job that runs.
 - **A module can add a search field to the second sidebar** (`shell.secondSidebarSearch`, same
   call as `secondSidebarLinks`). It sits between the title and the links. The module keeps the
   value and filters its own links. It returns `undefined` while it has no field.

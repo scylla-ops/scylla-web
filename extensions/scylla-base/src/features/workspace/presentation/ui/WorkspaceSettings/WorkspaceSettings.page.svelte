@@ -2,6 +2,7 @@
   import { contextStore } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { ConfirmOperationAlertDialog, ErrorState, ListSkeleton } from '@scylla/ui';
+  import { Skeleton } from '@scylla/ui/primitives';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { ApiAccessCard } from '@shared/presentation/ui';
@@ -12,6 +13,7 @@
   } from '@base/features/workspace/presentation/workspace.queries.ts';
   import { workspaceSettingsMessages as messages } from '@base/features/workspace/presentation/messages/workspace-settings.messages.ts';
   import TimeZoneCard from './TimeZoneCard.svelte';
+  import WorkspaceTitleIcon from './WorkspaceTitleIcon.svelte';
 
   const context = toRune(contextStore);
   const workspaceId = $derived(context().workspace.id ?? '');
@@ -35,9 +37,16 @@
 </script>
 
 <div class="mx-auto flex w-full max-w-4xl flex-col gap-4 pb-20">
-  <div>
-    <h1>{t(messages.title)}</h1>
-    <p class="text-sm text-muted-foreground">{t(messages.description(name))}</p>
+  <div class="flex min-w-0 items-center gap-4">
+    {#if workspace}
+      <WorkspaceTitleIcon {workspace} />
+    {:else if mine.isPending}
+      <Skeleton class="size-12 shrink-0 rounded-xl" />
+    {/if}
+    <div class="flex min-w-0 flex-col justify-center gap-1">
+      <h1>{t(messages.title)}</h1>
+      <p class="text-sm text-muted-foreground">{t(messages.description(name))}</p>
+    </div>
   </div>
 
   {#if mine.isError}

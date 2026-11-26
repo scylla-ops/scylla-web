@@ -35,10 +35,14 @@ ArrowDown goes to the first row. Enter opens the first row when the field has te
 ```typescript
 type WorkspaceEntity
 workspaceQueries        mine · members
-workspaceMutations      create · update · setPersonalTokens · setTimeZone · remove
+workspaceMutations      create (with an icon: a second UpdateWorkspace) · update (with the icon) ·
+                        setIcon · setPersonalTokens · setTimeZone · remove
 invalidateWorkspaceMembers
 WORKSPACES_QUERY_KEY, MY_WORKSPACES_QUERY_KEY, WORKSPACE_MEMBERS_QUERY_KEY
 createWorkspaceItems
+workspaceIconProps      the icon of a workspace → the props of EntityIcon (the switcher of the shell)
+workspaceIconChange     IconChoice of an IconField → CustomIconChange (the first-workspace screen)
+DEFAULT_WORKSPACE_GLYPH, DEFAULT_WORKSPACE_COLOR   a building in grey
 loadWorkspaceList         () => import(WorkspaceList.svelte)       ← the shell's selector
 loadAddWorkspaceDialog    () => import(AddWorkspaceDialog.svelte)  ← the shell's selector
 ```
@@ -76,7 +80,12 @@ presentation/
   workspace.commands.ts           "Create workspace...", for the search bar
   workspace.queries.ts            every read and write, plus the key factories
   ui/WorkspaceList/               the list; the shell's selector gives it its rows
-  ui/AddWorkspaceDialog.svelte, EditWorkspaceDialog.svelte
+  ui/AddWorkspaceDialog/, EditWorkspaceDialog/   the dialogs; their forms: the icon, the name,
+                                    the address
+  ui/WorkspaceIcon/               the one component of this module that draws the icon of a workspace
+  ui/WorkspaceIconDialog/         the icon picker of @scylla/ui in a dialog; the form saves
+  presenters/workspace-icon.presenter.ts   the default icon, the props of EntityIcon, the choice and
+                                    the change of the picker
   messages/workspace.messages.ts
   presenters/workspace-form.presenter.ts   the items of the form
   presenters/time-zone.presenter.ts        the rows of the time zone field
@@ -103,7 +112,13 @@ from `ListUserAccess`; that module does not import this one for them.
   list: a full invalidation after a delete refetches the pages of the deleted workspace, and these
   give error toasts.
 - A blank field of `EditWorkspaceDialog` means no change, so a rename does not need a new address.
-  When both fields are blank, the dialog closes with no call.
+  When both fields are blank and the icon stays, the dialog closes with no call.
+- **A workspace has an icon**, as a project: a glyph in a color, or an image (`IconField` and
+  `IconPicker` of `@scylla/ui`). No icon: a building in grey. The create dialog of the switcher, the
+  first-workspace screen of the shell and `EditWorkspaceDialog` have the field. `CreateWorkspace`
+  has no icon: `workspaceMutations.create` sends it in an `UpdateWorkspace` just after, and a toast
+  tells when only the icon fails. A click on the icon at the top of the settings opens the picker,
+  for a member with `UPDATE_WORKSPACE`. The switcher, its rows and the settings show the icon.
 - `AddWorkspaceDialog` does not set the context: `workspaceMutations.create` makes the new
   workspace active, then the dialog lands on its dashboard. The description is optional
   (`optional: true` in `createWorkspaceItems`), on the first-workspace screen too.

@@ -5,10 +5,12 @@
   import { cn } from '@scylla/ui/utils';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import { PINS } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
+  import { colorChange } from '@base/features/project/presentation/presenters/group-color.presenter.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
   import ProjectShowMore from '../ProjectResults/ProjectShowMore.svelte';
   import type { ProjectReorderState } from '../project-reorder.state.svelte.ts';
   import type { ProjectSectionsState, SectionView } from '../project-sections.state.svelte.ts';
+  import GroupFolderColor from '../GroupColor/GroupFolderColor.svelte';
   import GroupMenu from './GroupMenu.svelte';
   import GroupNameRow from './GroupNameRow.svelte';
   import SectionGrid from './SectionGrid.svelte';
@@ -32,7 +34,7 @@
   const GRID = 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3';
   const OPEN_AFTER_MS = 600;
 
-  const renameGroup = createMutation(() => projectGroupMutations.rename());
+  const updateGroup = createMutation(() => projectGroupMutations.update());
   let renaming = $state(false);
 
   const drag = $derived(reorder.drag);
@@ -57,10 +59,17 @@
     return () => clearTimeout(timer);
   });
 
-  const rename = (next: string) => {
+  const rename = (next: string, color: string | undefined) => {
     if (!section.group) return;
-    const groupId = section.group.id;
-    renameGroup.mutate({ groupId, name: next }, { onSuccess: () => (renaming = false) });
+    const { id: groupId, name: current, color: currentColor } = section.group;
+    updateGroup.mutate(
+      {
+        groupId,
+        name: next.trim() === current ? undefined : next,
+        color: colorChange(color, currentColor),
+      },
+      { onSuccess: () => (renaming = false) },
+    );
   };
 </script>
 
@@ -72,6 +81,12 @@
       count={place.count}
       onRename={() => (renaming = true)}
     />
+  {/if}
+{/snippet}
+
+{#snippet folder()}
+  {#if section.group}
+    <GroupFolderColor group={section.group} class="max-md:size-8" />
   {/if}
 {/snippet}
 
@@ -88,7 +103,8 @@
       {#if renaming && section.group}
         <GroupNameRow
           initial={section.group.name}
-          busy={renameGroup.isPending}
+          initialColor={section.group.color}
+          busy={updateGroup.isPending}
           onSubmit={rename}
           onCancel={() => (renaming = false)}
         />
@@ -97,6 +113,8 @@
           {name}
           count={section.total}
           pins={section.key === PINS}
+          color={section.group?.color}
+          folder={place && section.group ? folder : undefined}
           open={section.open}
           counts={section.counts}
           {dropText}

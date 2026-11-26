@@ -54,7 +54,11 @@ presentation/
     admin-exit.state.svelte.ts          the way out of the administration: label and href
                                         (rememberWorkspacePage, from WorkspaceSync)
     project-links.state.svelte.ts       projectLinks: the projects of the workspace after "All projects"
-                                        (secondSidebarLinks); it reads them only while they show
+                                        (secondSidebarLinks), as the projects page shows them: the
+                                        pins, each group with its folder color, then no group, in
+                                        folding sections that share the closed sections of the page,
+                                        and a dot on a project with a job that runs. It reads them
+                                        only while they show: 3 reads, none for each group
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace

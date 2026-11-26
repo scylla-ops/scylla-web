@@ -1,4 +1,5 @@
 import type { UserSummary } from '@base/features/user';
+import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
 import type { WorkspaceEntity } from '@base/features/workspace/domain/entities/workspace.entity.ts';
 
 export interface WorkspaceRepository {
@@ -8,8 +9,13 @@ export interface WorkspaceRepository {
   listMembers(workspaceId: string): Promise<UserSummary[]>;
   /** An absent slug: the server makes one from the name. */
   create: (name: string, slug?: string) => Promise<WorkspaceEntity>;
-  /** An absent field stays unchanged. */
-  update: (workspaceId: string, name?: string, slug?: string) => Promise<WorkspaceEntity>;
+  /** An absent field stays unchanged. INVALID_ARGUMENT on `icon.*` for a bad icon. */
+  update: (
+    workspaceId: string,
+    name?: string,
+    slug?: string,
+    icon?: CustomIconChange,
+  ) => Promise<WorkspaceEntity>;
   /** Allows or refuses the personal tokens of the users in this workspace. */
   setPersonalTokens: (workspaceId: string, enabled: boolean) => Promise<WorkspaceEntity>;
   /** An IANA name. INVALID_ARGUMENT on `time_zone` for an unknown name. */

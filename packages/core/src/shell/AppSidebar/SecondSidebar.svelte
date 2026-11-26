@@ -1,13 +1,22 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import type { Component } from 'svelte';
+  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
+  import FolderIcon from '@lucide/svelte/icons/folder';
   import type { SecondSidebarSearch } from '@scylla/core-sdk';
-  import { EntityIcon, prefersReducedMotion } from '@scylla/ui';
+  import {
+    ColorGlyph,
+    EntityIcon,
+    fold,
+    motionDuration,
+    prefersReducedMotion,
+    unfold,
+  } from '@scylla/ui';
   import { Input, Skeleton } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import type { NavItem, SecondSidebarContent } from '../structs/nav-section.struct.ts';
   import { NAV_DANGER_APART_CLASS, NAV_HEADING_CLASS } from './nav-classes.ts';
-  import { activePageOf } from './nav-rail.ts';
+  import { activePageOf, pageRuns } from './nav-rail.ts';
 
   interface Props {
     id?: string;
@@ -39,8 +48,50 @@
   }: Props = $props();
 
   const active = $derived(content ? activePageOf(content.pages, pathname) : undefined);
+  const runs = $derived(content ? pageRuns(content.pages) : []);
   const SECTION_FADE_MS = 120;
+  const COUNT_FADE_MS = 150;
 </script>
+
+{#snippet row(page: NavItem)}
+  {@const current = page.href === active?.href}
+  <button
+    type="button"
+    class={cn(
+      'flex h-8 w-full items-center gap-2 rounded-lg px-2 text-left text-sm transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none',
+      current ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-accent',
+      page.danger && 'text-destructive',
+    )}
+    aria-current={current ? 'page' : undefined}
+    data-nav-url={page.url}
+    onclick={() => onOpenPage(page)}
+  >
+    {#if page.entityIcon}
+      <EntityIcon {...page.entityIcon} size={20} />
+    {:else if page.icon}
+      <page.icon class="size-4 shrink-0" />
+    {/if}
+    <span class="min-w-0 flex-1 truncate" title={page.title}>{page.title}</span>
+    {#if page.status}
+      <!-- One live mark at most, e.g. a job that runs. -->
+      <span
+        role="img"
+        aria-label={page.status.label}
+        title={page.status.label}
+        class={cn(
+          'size-2 shrink-0 rounded-full',
+          page.status.tone === 'failed'
+            ? 'bg-destructive'
+            : 'animate-pulse bg-warning motion-reduce:animate-none',
+        )}
+        transition:fade={{ duration: motionDuration(COUNT_FADE_MS) }}
+      ></span>
+    {/if}
+    {#each badges as Badge, index (index)}
+      <Badge url={page.url} />
+    {/each}
+  </button>
+{/snippet}
 
 <aside
   {id}
@@ -97,34 +148,61 @@
           {#if search?.empty}
             <li class="px-2 py-3 text-center text-sm text-muted-foreground">{search.empty}</li>
           {/if}
-          {#each content.pages as page (page.href)}
-            {@const current = page.href === active?.href}
-            <li class={cn((page.danger || page.apart) && NAV_DANGER_APART_CLASS)}>
-              {#if page.heading}
-                <p class={NAV_HEADING_CLASS}>{page.heading}</p>
-              {/if}
-              <button
-                type="button"
-                class={cn(
-                  'flex h-8 w-full items-center gap-2 rounded-lg px-2 text-left text-sm transition-colors outline-hidden focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none',
-                  current ? 'bg-sidebar-accent text-sidebar-accent-foreground' : 'hover:bg-accent',
-                  page.danger && 'text-destructive',
-                )}
-                aria-current={current ? 'page' : undefined}
-                data-nav-url={page.url}
-                onclick={() => onOpenPage(page)}
+          {#each runs as run (run.key)}
+            {#if run.section}
+              {@const section = run.section}
+              <li
+                class={cn(run.pages[0]?.apart && NAV_DANGER_APART_CLASS)}
+                data-part="second-sidebar-section"
               >
-                {#if page.entityIcon}
-                  <EntityIcon {...page.entityIcon} size={20} />
-                {:else if page.icon}
-                  <page.icon class="size-4 shrink-0" />
+                <!-- The title of a section of links, e.g. a group of projects: it folds them. -->
+                <button
+                  type="button"
+                  class="flex h-8 w-full items-center gap-2 rounded-lg px-2 text-left text-xs font-semibold text-muted-foreground transition-colors outline-hidden hover:bg-accent focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none"
+                  aria-expanded={!section.folded}
+                  onclick={() => section.onToggle(!section.folded)}
+                >
+                  <ChevronRightIcon
+                    class={cn(
+                      'size-3.5 shrink-0 transition-transform duration-200 motion-reduce:transition-none',
+                      !section.folded && 'rotate-90',
+                    )}
+                    aria-hidden="true"
+                  />
+                  {#if section.icon}
+                    <section.icon class="size-4 shrink-0" aria-hidden="true" />
+                  {:else}
+                    <ColorGlyph icon={FolderIcon} color={section.color} />
+                  {/if}
+                  <span class="min-w-0 flex-1 truncate" title={section.title}>{section.title}</span>
+                  {#if section.folded}
+                    <span
+                      class="shrink-0 tabular-nums"
+                      transition:fade={{ duration: motionDuration(COUNT_FADE_MS) }}
+                    >
+                      {run.pages.length}
+                    </span>
+                  {/if}
+                </button>
+                {#if !section.folded}
+                  <!-- Indented under the title: the links belong to the section. -->
+                  <ul class="flex flex-col gap-0.5 pt-0.5 pl-3" in:unfold out:fold>
+                    {#each run.pages as page (page.href)}
+                      <li>{@render row(page)}</li>
+                    {/each}
+                  </ul>
                 {/if}
-                <span class="min-w-0 flex-1 truncate" title={page.title}>{page.title}</span>
-                {#each badges as Badge, index (index)}
-                  <Badge url={page.url} />
-                {/each}
-              </button>
-            </li>
+              </li>
+            {:else}
+              {#each run.pages as page (page.href)}
+                <li class={cn((page.danger || page.apart) && NAV_DANGER_APART_CLASS)}>
+                  {#if page.heading}
+                    <p class={NAV_HEADING_CLASS}>{page.heading}</p>
+                  {/if}
+                  {@render row(page)}
+                </li>
+              {/each}
+            {/if}
           {/each}
         </ul>
       </div>

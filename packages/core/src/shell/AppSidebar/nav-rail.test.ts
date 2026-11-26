@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { NavItem, NavSection } from '../structs/nav-section.struct.ts';
 import {
   activePageOf,
+  pageRuns,
   railFor,
   secondSidebarFor,
   selectedRailItem,
@@ -134,5 +135,31 @@ describe('secondSidebarFor', () => {
 
   it('uses the title of the section until the name is known', () => {
     expect(secondSidebarFor(projects, sections, {}).title).toBe('Inner');
+  });
+});
+
+describe('pageRuns', () => {
+  const sectionOf = (key: string) => ({ key, title: key, folded: false, onToggle: () => {} });
+  const inSection = (url: string, key: string): NavItem => ({ ...page(url), section: sectionOf(key) });
+
+  it('puts the next pages of one section in one run, and the pages with no section apart', () => {
+    const runs = pageRuns([
+      page('all'),
+      inSection('web', 'pins'),
+      inSection('api', 'g-1'),
+      inSection('docs', 'g-1'),
+      inSection('cli', 'ungrouped'),
+    ]);
+
+    expect(runs.map(run => [run.key, run.pages.map(item => item.url)])).toEqual([
+      ['pages:0', ['all']],
+      ['section:pins', ['web']],
+      ['section:g-1', ['api', 'docs']],
+      ['section:ungrouped', ['cli']],
+    ]);
+  });
+
+  it('gives one run to pages with no section', () => {
+    expect(pageRuns([page('a'), page('b')]).map(run => run.pages.length)).toEqual([2]);
   });
 });

@@ -65,8 +65,8 @@
     }),
   );
 
-  const create = (name: string) =>
-    createGroup.mutate({ workspaceId, name }, { onSuccess: () => onCreated() });
+  const create = (name: string, color: string | undefined) =>
+    createGroup.mutate({ workspaceId, name, color }, { onSuccess: () => onCreated() });
 </script>
 
 {#snippet one(section: SectionView)}
