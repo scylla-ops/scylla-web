@@ -110,7 +110,10 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   `features/project`. The page of another app shows the same card, with the default icon of an
   app (`blocks` in grey, `defaultAppIcon`). On the agent page and on the app page, with the same
   permission, the icon of the header is a button that opens the dialog of this card too (`open`
-  of `AppIconCard`).
+  of `AppIconCard`). The picker of an app has the Avatar tab (`avatar` of `IconPicker` and
+  `IconField`): a glyph avatar that the server draws as an SVG image. "Make an avatar" of the
+  card opens the dialog on this tab with a random avatar. `agentIconChoice` opens an image with
+  `glyph` on its options, and `agentIconChange` sends nothing for the same avatar.
   `agentProfile` (`presenters/agent-icon.presenter.ts`) gives the icon to `IdentityAvatar`: the
   header, the rows of the list and the cards of a phone. The barrel exports it for the job page
   (`features/jobs`), which shows the icon of the agent of the job.

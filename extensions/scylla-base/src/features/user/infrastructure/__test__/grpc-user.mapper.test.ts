@@ -20,6 +20,35 @@ const baseUser = (overrides: Partial<User> = {}): User => ({
 });
 
 describe('grpcUser.toDomain', () => {
+  it('reads the options of a photo that the server drew as a glyph avatar', () => {
+    const user = grpcUser.toDomain(
+      baseUser({
+        avatar: {
+          imageId: { value: 'img-1' },
+          color: '',
+          glyphAvatar: {
+            shape: 'scylla',
+            glyph: { colors: ['#5d9972'], fill: 0, angle: 0 },
+            background: { colors: ['#ffffff'], fill: 0, angle: 0 },
+            flip: 0,
+            rotate: 0,
+            scale: 100,
+          },
+        },
+      }),
+    );
+
+    expect(user.avatarUrl).toBe('/images/img-1');
+    expect(user.glyphAvatar).toEqual({
+      shape: 'scylla',
+      glyph: { colors: ['#5d9972'], fill: 'solid', angle: 0 },
+      background: { colors: ['#ffffff'], fill: 'solid', angle: 0 },
+      flip: 'none',
+      rotate: 0,
+      scale: 100,
+    });
+  });
+
   it('unwraps the id, takes the handle as the username, and formats the time', () => {
     expect(grpcUser.toDomain(baseUser())).toEqual({
       id: 'user-1',

@@ -6,6 +6,7 @@
   import LogOutIcon from '@lucide/svelte/icons/log-out';
   import ScaleIcon from '@lucide/svelte/icons/scale';
   import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
+  import SmileIcon from '@lucide/svelte/icons/smile';
   import SparklesIcon from '@lucide/svelte/icons/sparkles';
   import UserRoundIcon from '@lucide/svelte/icons/user-round';
   import { consentFrame, consentMessages, cookieSettings } from '@platform/consent';
@@ -32,7 +33,7 @@
   import { activeLocale, t, type SupportedLocale } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { signOut } from '@base/features/login';
-  import { openProfilePhoto, userQueries } from '@base/features/user';
+  import { openGlyphAvatar, openProfilePhoto, userQueries } from '@base/features/user';
   import {
     userName,
     userSecondaryLine,
@@ -150,6 +151,13 @@
         <UserRoundIcon />
         {t(layoutMessages.account)}
       </DropdownMenuItem>
+      {#if meQuery.data}
+        <!-- The editor of the glyph avatar, on the card of the photo. -->
+        <DropdownMenuItem class="text-foreground hover:bg-accent" onSelect={openGlyphAvatar}>
+          <SmileIcon />
+          {t(layoutMessages.makeAvatar)}
+        </DropdownMenuItem>
+      {/if}
       <DropdownMenuItem
         class="text-foreground hover:bg-accent"
         onSelect={() => scyllaNavigate.goToWorkspaceRoute('/help')}

@@ -16,6 +16,7 @@ import type { PasswordResetDelivery } from '@base/features/login';
 import type { PaginatedList } from '@scylla/ui/structs';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
+import { glyphAvatarToProto } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import {
   apiTokenToDomain,
   expiryToProto,
@@ -118,6 +119,7 @@ export class DefaultUserRepository implements UserRepository {
   public async updateAvatar(input: UpdateAvatarInput): Promise<UserEntity> {
     const response = await this.profiles.updateProfile({
       ...(input.image !== undefined && { avatarImage: input.image ?? new Uint8Array() }),
+      ...(input.glyph && { avatarGlyph: glyphAvatarToProto(input.glyph) }),
       ...(input.color !== undefined && { avatarColor: input.color }),
     }).response;
     return requireUser(response.user);

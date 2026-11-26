@@ -17,7 +17,10 @@ export {
   USER_SESSIONS_QUERY_KEY,
 } from './presentation/user.queries.ts';
 /** Account > Profile, with the card of the photo in view: a click on the own avatar elsewhere. */
-export { openProfilePhoto } from './presentation/ui/components/UserAvatarCard/photo-focus.state.svelte.ts';
+export {
+  openGlyphAvatar,
+  openProfilePhoto,
+} from './presentation/ui/components/UserAvatarCard/photo-focus.state.svelte.ts';
 export type { PersonalTokens } from './domain/entities/personal-tokens.entity.ts';
 export {
   personalTokenQueries,

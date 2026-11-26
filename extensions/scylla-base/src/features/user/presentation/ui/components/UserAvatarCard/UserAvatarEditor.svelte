@@ -12,15 +12,18 @@
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import { avatarMessages as m } from '../../../messages/avatar.messages.ts';
   import { userMutations } from '../../../user.queries.ts';
+  import GlyphAvatarRow from './GlyphAvatarRow.svelte';
   import type { PhotoFeedback } from './photo-feedback.ts';
   import ProviderPhotoButtons from './ProviderPhotoButtons.svelte';
 
   interface Props {
     /** The account of the session. */
     user: UserEntity;
+    /** The editor of the glyph avatar. */
+    glyphOpen?: boolean;
   }
 
-  let { user }: Props = $props();
+  let { user, glyphOpen = $bindable(false) }: Props = $props();
 
   /** The free color moves with the pointer: the server gets it when it stops for this time. */
   const FREE_COLOR_DELAY_MS = 400;
@@ -150,6 +153,10 @@
       }}
     />
   </div>
+
+  <Separator />
+
+  <GlyphAvatarRow {user} bind:open={glyphOpen} disabled={change.isPending} />
 
   <Separator />
 

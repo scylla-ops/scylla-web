@@ -1,5 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import type { ActivityEvent } from '@base/features/dashboard/domain/structs/activity.struct.ts';
+import { glyphDataUri } from '@scylla/ui';
+import { SCYLLA_GLYPH_AVATAR } from '@scylla/ui/structs';
 import { activityLine, activityLook, type ActivityActors } from '../activity.presenter.ts';
 
 const event = (overrides: Partial<ActivityEvent> = {}): ActivityEvent => ({
@@ -101,8 +103,19 @@ describe('activityLook', () => {
 
   it('keeps the initial for an actor that the dashboard does not know', () => {
     expect(lookOf({ actorId: 'u9' })).toBeUndefined();
-    expect(lookOf({ actorId: undefined })).toBeUndefined();
     expect(lookOf({}, { agents: [], members: [] })).toBeUndefined();
+  });
+
+  it('shows the Scylla head for a change with no actor: Scylla made it', () => {
+    expect(lookOf({ actorId: undefined, actorName: '' })).toEqual({
+      kind: 'person',
+      profile: {
+        username: '',
+        displayName: 'Scylla',
+        avatarUrl: glyphDataUri(SCYLLA_GLYPH_AVATAR),
+      },
+      self: false,
+    });
   });
 
   it('shows no avatar for a job line: its mark is the status', () => {

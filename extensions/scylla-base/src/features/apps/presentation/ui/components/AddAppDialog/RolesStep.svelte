@@ -69,6 +69,7 @@
       {recent}
       defaultGlyph={DEFAULT_APP_GLYPH}
       defaultColor={DEFAULT_APP_COLOR}
+      avatar
     />
   {/if}
 

@@ -7,6 +7,7 @@ import { shortJobId } from '@base/features/dashboard/presentation/presenters/job
 import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
 import {
   identityKindOf,
+  systemActorProfile,
   type AvatarLook,
   type IdentityKind,
   type UserIdentityProfile,
@@ -167,7 +168,9 @@ export const activityLook = (
     const agent = actors.agents.find(item => item.id === event.subjectId);
     return agent && { kind: 'agent', profile: agentProfile(agent), self: false };
   }
-  if (mark.kind !== 'person' || !event.actorId) return undefined;
+  if (mark.kind !== 'person') return undefined;
+  // A change with no actor is a change of Scylla itself.
+  if (!event.actorId) return { kind: 'person', profile: systemActorProfile(), self: false };
   if (event.actorId === actors.self?.id) return { kind: 'person', profile: actors.self, self: true };
   const member = actors.members.find(item => item.actorId === event.actorId);
   if (!member) return undefined;

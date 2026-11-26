@@ -22,6 +22,8 @@
     defaultColor?: string;
     /** The label above the field. By default: Icon. */
     label?: string;
+    /** Offers the tab of the glyph avatars: for a person or an App only. */
+    avatar?: boolean;
     disabled?: boolean;
     class?: string;
   }
@@ -33,6 +35,7 @@
     defaultGlyph = 'folder',
     defaultColor = 'primary',
     label,
+    avatar = false,
     disabled = false,
     class: className,
   }: Props = $props();
@@ -118,6 +121,7 @@
           {recent}
           {defaultGlyph}
           {defaultColor}
+          {avatar}
         />
       {/key}
     </div>

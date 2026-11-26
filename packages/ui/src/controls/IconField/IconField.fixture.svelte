@@ -5,11 +5,18 @@
   interface Props {
     initial?: IconChoice;
     disabled?: boolean;
+    avatar?: boolean;
     onchange?: (choice: IconChoice) => void;
     onsubmit?: () => void;
   }
 
-  let { initial = { kind: 'default' }, disabled = false, onchange, onsubmit }: Props = $props();
+  let {
+    initial = { kind: 'default' },
+    disabled = false,
+    avatar = false,
+    onchange,
+    onsubmit,
+  }: Props = $props();
 
   // svelte-ignore state_referenced_locally
   let value = $state<IconChoice>(initial);
@@ -24,6 +31,7 @@
   <IconField
     {value}
     {disabled}
+    {avatar}
     defaultGlyph="bot"
     defaultColor="info"
     onchange={choice => {

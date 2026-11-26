@@ -1,11 +1,12 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import { contextStore } from '@platform/context';
 import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
-import { openProfilePhoto, photoFocus } from './photo-focus.state.svelte.ts';
+import { seededGlyphAvatar } from '@scylla/ui';
+import { openGlyphAvatar, openProfilePhoto, photoFocus } from './photo-focus.state.svelte.ts';
 import UserAvatarCard from './UserAvatarCard.svelte';
 
 const me: UserEntity = {
@@ -55,6 +56,7 @@ afterEach(() => {
   vi.useRealTimers();
   localStorage.clear();
   photoFocus.pending = false;
+  photoFocus.glyph = false;
 });
 
 /** The picker of the free color opens in a floating layer, which jsdom does not lay out. */
@@ -206,5 +208,42 @@ describe('UserAvatarCard', () => {
     );
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
     expect(photoFocus.pending).toBe(false);
+  });
+});
+
+describe('the glyph avatar of the profile card', () => {
+  it('saves the avatar of the editor as the photo', async () => {
+    const repository = setUp();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Make an avatar' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Make an avatar' });
+    await userEvent.click(within(dialog).getByRole('button', { name: 'Save the avatar' }));
+
+    await waitFor(() =>
+      expect(repository.updateAvatar).toHaveBeenCalledWith({ glyph: seededGlyphAvatar('user-1') }),
+    );
+  });
+
+  it('opens the editor on the avatar that the person has', async () => {
+    const glyphAvatar = { ...seededGlyphAvatar('other'), rotate: 45 };
+    setUp({ ...me, avatarUrl: '/images/img-3', glyphAvatar });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Edit the avatar' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Make an avatar' });
+
+    expect(within(dialog).getByRole('button', { name: 'Reset' })).toBeDisabled();
+  });
+
+  it('opens the editor from the account menu and the command palette', async () => {
+    const navigator = installTestNavigator();
+    contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: 'acme' } });
+    teardown.push(navigator.restore);
+
+    openGlyphAvatar();
+    setUp();
+
+    expect(navigator.navigate).toHaveBeenCalledWith('/acme/account/profile', undefined);
+    expect(await screen.findByRole('dialog', { name: 'Make an avatar' })).toBeInTheDocument();
+    expect(photoFocus).toEqual({ pending: false, glyph: false });
   });
 });

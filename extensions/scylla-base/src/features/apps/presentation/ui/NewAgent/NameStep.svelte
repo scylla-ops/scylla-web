@@ -52,6 +52,7 @@
       {recent}
       defaultGlyph={DEFAULT_AGENT_GLYPH}
       defaultColor={DEFAULT_AGENT_COLOR}
+      avatar
     />
   {/if}
 

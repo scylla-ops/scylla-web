@@ -4,6 +4,7 @@ export const iconPickerMessages = {
   reset: msg`Reset`,
   iconTab: msg`Icon`,
   imageTab: msg`Image`,
+  avatarTab: msg`Avatar`,
   search: msg`Search for an icon (rocket, server, database…)`,
   noGlyph: msg`No icon matches this search.`,
   color: msg`Color`,

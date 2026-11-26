@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createMutation } from '@scylla/core-sdk';
-  import { IconPicker, type IconChoice } from '@scylla/ui';
+  import { IconPicker, randomGlyphAvatar, type IconChoice } from '@scylla/ui';
   import { Button, DialogFooter } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { keepRecentColor, recentColors } from '@base/features/project';
@@ -16,14 +16,20 @@
   interface Props {
     app: Pick<AppEntity, 'id' | 'name' | 'icon' | 'runner'>;
     close: () => void;
+    /** "Make an avatar": the picker opens on the Avatar tab, with a random avatar. */
+    avatar?: boolean;
   }
 
-  let { app, close }: Props = $props();
+  let { app, close, avatar = false }: Props = $props();
 
   const setIcon = createMutation(() => appMutations.setIcon());
   const defaults = $derived(defaultAppIcon(app.runner));
   // svelte-ignore state_referenced_locally
-  let choice = $state<IconChoice>(agentIconChoice(app.icon, defaultAppIcon(app.runner).color));
+  const opening = agentIconChoice(app.icon, defaultAppIcon(app.runner).color);
+  // svelte-ignore state_referenced_locally
+  let choice = $state<IconChoice>(
+    avatar && opening.kind !== 'avatar' ? { kind: 'avatar', avatar: randomGlyphAvatar() } : opening,
+  );
   const recent = recentColors();
 
   const save = async () => {
@@ -48,6 +54,7 @@
   {recent}
   defaultGlyph={defaults.glyph}
   defaultColor={defaults.color}
+  avatar
 />
 <DialogFooter>
   <Button variant="outline" data-dialog-dismiss onclick={close}>

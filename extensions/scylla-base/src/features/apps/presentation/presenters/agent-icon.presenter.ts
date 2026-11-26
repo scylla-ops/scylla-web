@@ -1,5 +1,6 @@
 import { imageUrl } from '@platform/grpc';
 import type { IconChoice } from '@scylla/ui';
+import { glyphAvatarKey } from '@scylla/ui/structs';
 import type {
   CustomIcon,
   CustomIconChange,
@@ -50,7 +51,10 @@ export const agentIconChoice = (
 ): IconChoice => {
   switch (icon?.kind) {
     case 'image':
-      return { kind: 'image', url: imageUrl(icon.imageId) };
+      // A glyph avatar opens on its options, for a new edit.
+      return icon.glyph
+        ? { kind: 'avatar', avatar: icon.glyph }
+        : { kind: 'image', url: imageUrl(icon.imageId) };
     case 'glyph':
       return { kind: 'glyph', name: icon.name, color: icon.color ?? defaultColor };
     default:
@@ -60,7 +64,7 @@ export const agentIconChoice = (
 
 /**
  * The change that a choice of the picker makes. Undefined when the icon stays: the image that the
- * agent has, or the default icon of an agent that has no icon.
+ * agent has, the same glyph avatar, or the default icon of an agent that has no icon.
  */
 export const agentIconChange = async (
   choice: IconChoice,
@@ -71,6 +75,12 @@ export const agentIconChange = async (
       return choice.file
         ? { kind: 'image', data: new Uint8Array(await choice.file.arrayBuffer()) }
         : undefined;
+    case 'avatar':
+      return current?.kind === 'image' &&
+        current.glyph &&
+        glyphAvatarKey(current.glyph) === glyphAvatarKey(choice.avatar)
+        ? undefined
+        : { kind: 'avatar', avatar: choice.avatar };
     case 'glyph':
       return { kind: 'glyph', name: choice.name, color: choice.color };
     default:

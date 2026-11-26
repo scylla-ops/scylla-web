@@ -1,4 +1,4 @@
-import type { PaginatedList } from '@scylla/ui/structs';
+import type { GlyphAvatar, PaginatedList } from '@scylla/ui/structs';
 import type { CustomIcon } from '@shared/domain/structs/custom-icon.struct.ts';
 
 export interface UserEntity {
@@ -10,6 +10,8 @@ export interface UserEntity {
   displayName?: string;
   /** The URL of the photo that the user chose. */
   avatarUrl?: string;
+  /** The options of the photo when the server drew it as a glyph avatar, for a new edit. */
+  glyphAvatar?: GlyphAvatar;
   /** The color of the initials that the user chose: a color of the theme or `#RRGGBB`. */
   avatarColor?: string;
   /** False blocks the sign-in. */
@@ -77,6 +79,8 @@ export interface CreateUserInput {
 export interface UpdateAvatarInput {
   /** The bytes of a PNG, JPEG or WebP file of 1 MB at most. */
   image?: Uint8Array | null;
+  /** A glyph avatar: the server draws it and keeps it as the photo. Not with `image`. */
+  glyph?: GlyphAvatar;
   color?: string;
 }
 

@@ -132,7 +132,7 @@ msgstr "api key personal token"
 msgid "Appearance"
 msgstr "Appearance"
 
-#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:35
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:48
 msgid "auto os device"
 msgstr "auto os device"
 
@@ -140,7 +140,7 @@ msgstr "auto os device"
 msgid "Back to your account"
 msgstr "Back to your account"
 
-#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:33
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:46
 msgid "bright day white"
 msgstr "bright day white"
 
@@ -242,7 +242,7 @@ msgctxt "theme"
 msgid "Dark"
 msgstr "Dark"
 
-#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:34
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:47
 msgid "Dark theme"
 msgstr "Dark theme"
 
@@ -314,6 +314,10 @@ msgstr "e.g., john.doe"
 msgid "Edit"
 msgstr "Edit"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:22
+msgid "Edit the avatar"
+msgstr "Edit the avatar"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:124
 msgid "Edition"
 msgstr "Edition"
@@ -365,6 +369,10 @@ msgstr "Get a copy of the data of your account, in a format that other tools can
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:123
 msgid "Give these versions when you report a problem."
 msgstr "Give these versions when you report a problem."
+
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:40
+msgid "glyph dicebear profile photo picture figure"
+msgstr "glyph dicebear profile photo picture figure"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:140
 msgid "Help this user sign in again, or stop the sign-in."
@@ -423,7 +431,7 @@ msgctxt "theme"
 msgid "Light"
 msgstr "Light"
 
-#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:33
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:46
 msgid "Light theme"
 msgstr "Light theme"
 
@@ -442,6 +450,10 @@ msgstr "Link {provider}"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:82
 msgid "Linked {date}"
 msgstr "Linked {date}"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:21
+msgid "Make an avatar"
+msgstr "Make an avatar"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:86
 msgid "Make instance admin"
@@ -484,7 +496,7 @@ msgstr "New token"
 msgid "New user"
 msgstr "New user"
 
-#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:34
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:47
 msgid "night black"
 msgstr "night black"
 
@@ -527,6 +539,10 @@ msgstr "Open"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:24
 msgid "Open a workspace, then Access › Members. An app never gets an instance role: an app always belongs to one workspace."
 msgstr "Open a workspace, then Access › Members. An app never gets an instance role: an app always belongs to one workspace."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:20
+msgid "Or a glyph avatar: a figure in the colors you choose"
+msgstr "Or a glyph avatar: a figure in the colors you choose"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:16
 msgid "Owner"
@@ -714,7 +730,7 @@ msgctxt "theme"
 msgid "System"
 msgstr "System"
 
-#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:35
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:48
 msgid "System theme"
 msgstr "System theme"
 
@@ -794,7 +810,7 @@ msgstr "The work that you did in a workspace stays in that workspace"
 msgid "The workspaces that you share stay with their other owners"
 msgstr "The workspaces that you share stay with their other owners"
 
-#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:14
+#: extensions/scylla-base/src/features/user/presentation/user.commands.ts:17
 msgid "Theme"
 msgstr "Theme"
 

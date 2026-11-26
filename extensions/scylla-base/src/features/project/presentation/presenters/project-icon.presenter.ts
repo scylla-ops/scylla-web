@@ -49,6 +49,9 @@ export const iconChangeOf = async (
       return choice.file
         ? { kind: 'image', data: new Uint8Array(await choice.file.arrayBuffer()) }
         : undefined;
+    case 'avatar':
+      // Only a person or an App takes a glyph avatar: this picker has no Avatar tab.
+      return undefined;
     case 'glyph':
       return { kind: 'glyph', name: choice.name, color: choice.color };
     default:

@@ -20,6 +20,7 @@
 
   let root = $state<HTMLElement | null>(null);
   let highlight = $state(false);
+  let glyphOpen = $state(false);
   let timer: ReturnType<typeof setTimeout> | undefined;
 
   // A click on the own avatar elsewhere (`openProfilePhoto`) scrolls to the card, puts the focus
@@ -27,6 +28,10 @@
   $effect(() => {
     if (!photoFocus.pending || !root) return;
     photoFocus.pending = false;
+    if (photoFocus.glyph) {
+      photoFocus.glyph = false;
+      glyphOpen = true;
+    }
     root.scrollIntoView?.({ block: 'center', behavior: prefersReducedMotion() ? 'auto' : 'smooth' });
     root.querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus({ preventScroll: true });
     highlight = true;
@@ -46,6 +51,6 @@
   )}
 >
   <SettingsSection title={t(m.title)} description={t(m.description)}>
-    <UserAvatarEditor {user} />
+    <UserAvatarEditor {user} bind:glyphOpen />
   </SettingsSection>
 </div>

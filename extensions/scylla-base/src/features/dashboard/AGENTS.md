@@ -73,7 +73,7 @@ The ViewModels of the page read, through public APIs only:
 | `features/pipeline` | `pipelineQueries.summaries` (ListPipelineSummaries; with `pipelineIds` for the Pipeline widget), `createRunPipeline` (Quick actions, Pipeline) |
 | `features/jobs` (Pipeline) | `jobQueries.byPipeline` (ListPipelineJobs): the nodes of the newest job |
 | `features/apps` | `appQueries.runners` (the agents, the picker), `appQueries.agentStatsOf` (GetAgentStats), `appQueries.jobs` (the last jobs of one agent), `agentProfile` (the icon of an agent in Agents and Activity) |
-| `features/access` | `accessQueries.members` (with `LIST_WORKSPACE_MEMBERS`): the photo or the initials color of an actor of Activity (`activityLook`) |
+| `features/access` | `accessQueries.members` (with `LIST_WORKSPACE_MEMBERS`): the photo or the initials color of an actor of Activity (`activityLook`). A change with no actor shows Scylla with the Scylla head (`systemActorProfile` of `shared/`) |
 | `features/user` | `userQueries.me`: the reader in Activity, as a solid avatar |
 
 All these reads are `queryOptions` objects, so this module shares one cache entry per resource

@@ -2,6 +2,7 @@
   import PaletteIcon from '@lucide/svelte/icons/palette';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
   import SearchIcon from '@lucide/svelte/icons/search';
+  import SmileIcon from '@lucide/svelte/icons/smile';
   import UploadIcon from '@lucide/svelte/icons/upload';
   import { fade } from 'svelte/transition';
   import EntityIcon from '../../data-display/EntityIcon/EntityIcon.svelte';
@@ -17,6 +18,8 @@
   } from '../../primitives/index.ts';
   import { cn, isHexColor } from '../../utils/index.ts';
   import ColorSwatches from '../ColorSwatches/ColorSwatches.svelte';
+  import { randomGlyphAvatar } from '../GlyphAvatar/glyph-avatar.ts';
+  import GlyphAvatarEditor from '../GlyphAvatar/GlyphAvatarEditor.svelte';
   import ChoicePreview from './ChoicePreview.svelte';
   import IconImageDrop from './IconImageDrop.svelte';
   import { choiceIconProps, searchGlyphs, type IconChoice } from './icon-picker.ts';
@@ -36,6 +39,8 @@
     defaultColor?: string;
     /** Off in a field that shows the preview and Reset itself (`IconField`). */
     header?: boolean;
+    /** Offers the tab of the glyph avatars: for a person or an App only. */
+    avatar?: boolean;
     class?: string;
   }
 
@@ -48,11 +53,12 @@
     defaultGlyph = 'folder',
     defaultColor = 'primary',
     header = true,
+    avatar = false,
     class: className,
   }: Props = $props();
 
   // svelte-ignore state_referenced_locally
-  let tab = $state(value.kind === 'image' ? 'image' : 'icon');
+  let tab = $state(value.kind === 'image' || value.kind === 'avatar' ? value.kind : 'icon');
   let search = $state('');
   const colorLabel = $props.id();
   let root = $state<HTMLElement | null>(null);
@@ -62,6 +68,10 @@
   let glyph = $state(value.kind === 'glyph' ? value.name : defaultGlyph);
   // svelte-ignore state_referenced_locally
   let color = $state(value.kind === 'glyph' ? value.color : defaultColor);
+
+  // The avatar of the tab: the avatar of the entity, else a random one, which the first change takes.
+  // svelte-ignore state_referenced_locally
+  const avatarStart = value.kind === 'avatar' ? value.avatar : randomGlyphAvatar();
 
   const glyphs = $derived(searchGlyphs(search));
   // The default icon is the default glyph in the default color.
@@ -130,6 +140,9 @@
     <TabsList class="w-full">
       <TabsTrigger value="icon"><PaletteIcon aria-hidden="true" />{t(m.iconTab)}</TabsTrigger>
       <TabsTrigger value="image"><UploadIcon aria-hidden="true" />{t(m.imageTab)}</TabsTrigger>
+      {#if avatar}
+        <TabsTrigger value="avatar"><SmileIcon aria-hidden="true" />{t(m.avatarTab)}</TabsTrigger>
+      {/if}
     </TabsList>
 
     <TabsContent value="icon">
@@ -213,5 +226,20 @@
         <IconImageDrop onfile={chooseImage} />
       </div>
     </TabsContent>
+
+    {#if avatar}
+      <TabsContent value="avatar">
+        <!-- The preview of the picker shows the avatar: the editor has no preview of its own. -->
+        <div in:fade={{ duration: motionDuration(150) }}>
+          <GlyphAvatarEditor
+            value={avatarStart}
+            onchange={next => onchange({ kind: 'avatar', avatar: next })}
+            preview={false}
+            square
+            {recent}
+          />
+        </div>
+      </TabsContent>
+    {/if}
   </Tabs>
 </div>

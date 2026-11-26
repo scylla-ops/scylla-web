@@ -1,5 +1,6 @@
 <script lang="ts">
   import PaletteIcon from '@lucide/svelte/icons/palette';
+  import SmileIcon from '@lucide/svelte/icons/smile';
   import { createMutation } from '@scylla/core-sdk';
   import { ScyllaDialog, swapIn, swapOut } from '@scylla/ui';
   import {
@@ -28,6 +29,10 @@
 
   let { app, open = $bindable(false) }: Props = $props();
 
+  /** The dialog opens on the Avatar tab: "Make an avatar". */
+  let avatar = $state(false);
+  const glyphAvatar = $derived(app.icon?.kind === 'image' && !!app.icon.glyph);
+
   const reset = createMutation(() => appMutations.setIcon());
   const title = $derived(t(app.runner ? messages.icon : appPageMessages.icon));
   const iconKey = $derived(JSON.stringify(app.icon ?? null));
@@ -55,10 +60,30 @@
     </span>
     <div class="flex min-w-0 flex-col gap-1.5">
       <div class="flex flex-wrap items-center gap-2">
-        <Button variant="outline" size="sm" onclick={() => (open = true)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onclick={() => {
+            avatar = false;
+            open = true;
+          }}
+        >
           <PaletteIcon class="size-4" aria-hidden="true" />
           {t(messages.changeIcon)}
         </Button>
+        {#if !glyphAvatar}
+          <Button
+            variant="outline"
+            size="sm"
+            onclick={() => {
+              avatar = true;
+              open = true;
+            }}
+          >
+            <SmileIcon class="size-4" aria-hidden="true" />
+            {t(messages.makeAvatar)}
+          </Button>
+        {/if}
         <Button
           variant="ghost"
           size="sm"
@@ -81,5 +106,5 @@
   description={t(app.runner ? messages.iconDialogDescription : appPageMessages.iconDialogDescription)}
   class="sm:max-w-lg"
 >
-  <AppIconForm {app} close={() => (open = false)} />
+  <AppIconForm {app} {avatar} close={() => (open = false)} />
 </ScyllaDialog>

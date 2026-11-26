@@ -27,6 +27,8 @@ loadAccountDeletion   // loader of AccountDeletion (props `open`, `onOpenChange`
                       // opens it from the terms step of `login`
 openProfilePhoto      // Account > Profile, with the photo card in view: a click on the own
                       // avatar in the user menu of the shell
+openGlyphAvatar       // the same, with the editor of the glyph avatar open: "Make an avatar"
+                      // of the user menu and of the command palette (`userCommands`)
 ```
 
 `roles`, `membership`, `workspace`, `project` and `shell` use this barrel. The shell runs
@@ -125,9 +127,9 @@ presentation/
     UserSecurity.svelte
   ui/components/                     SettingsSection, UserStatusBadge, UserProfileForm/,
                                      UserAvatarCard/ (own page only: UserAvatarEditor, the
-                                     photo, ProviderPhotoButtons and the color;
+                                     photo, ProviderPhotoButtons, GlyphAvatarRow and the color;
                                      photo-focus.state.svelte.ts, the scroll to the card from
-                                     `openProfilePhoto`),
+                                     `openProfilePhoto` and `openGlyphAvatar`),
                                      UserAccessList/, UserIdentityCard, SessionList,
                                      SessionRow/ (both pages),
                                      ThemePicker/ (own page only)
@@ -175,6 +177,12 @@ user who has no workspace.
   user menu of the shell, the account header, the member lists. The avatar of the account header
   opens `UserAvatarEditor` in a dialog ("Change your photo"): the card and the dialog show the
   same editor. The avatar of another person is never an edit control.
+  `GlyphAvatarRow` adds a glyph avatar (DiceBear "Glyphs"): "Make an avatar" (or "Edit the
+  avatar") opens `GlyphAvatarDialog` of `@scylla/ui`, and Save sends `{ glyph }` to
+  `updateAvatar`. The server draws the SVG and keeps it as the photo, thus `avatarUrl` shows it
+  everywhere. `glyphAvatar` of `UserEntity` holds its options for a new edit; with none, the row
+  shows `seededGlyphAvatar(user.id)`, the first avatar that the editor offers. A new photo or
+  "Remove the image" removes the glyph avatar.
   `ProviderPhotoButtons` adds "Use my <provider> photo" for each identity whose provider gave a
   photo (`hasPicture` of `listSignInMethods`): `importAvatar` downloads it on the server. A photo
   that the user has goes only after a confirmation. The button shows its states (a spinner, then a

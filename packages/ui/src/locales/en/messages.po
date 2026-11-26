@@ -25,6 +25,14 @@ msgstr "{selectedCount, plural, one {# selected} other {# selected}}"
 msgid "{start}–{end} of {totalCount}"
 msgstr "{start}–{end} of {totalCount}"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:25
+msgid "{value} %"
+msgstr "{value} %"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:24
+msgid "{value}°"
+msgstr "{value}°"
+
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:10
 msgid "All clear"
 msgstr "All clear"
@@ -32,6 +40,10 @@ msgstr "All clear"
 #: packages/ui/src/feedback/ErrorState/error-state.messages.ts:5
 msgid "An error occurred"
 msgstr "An error occurred"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:15
+msgid "Angle"
+msgstr "Angle"
 
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:4
 msgid "Are you absolutely sure?"
@@ -41,18 +53,43 @@ msgstr "Are you absolutely sure?"
 msgid "Ask an admin for access."
 msgstr "Ask an admin for access."
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:11
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:7
+msgid "Avatar"
+msgstr "Avatar"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:8
+msgid "Background"
+msgstr "Background"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:21
+msgid "Both"
+msgstr "Both"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:12
 msgid "browse"
 msgstr "browse"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:30
+msgid "by Matt Houser"
+msgstr "by Matt Houser"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:35
 #: packages/ui/src/feedback/ConfirmOperationAlertDialog/confirm-operation.messages.ts:6
 #: packages/ui/src/forms/FormDialog/form-dialog.messages.ts:4
 msgid "Cancel"
 msgstr "Cancel"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:31
+msgid "CC BY 4.0"
+msgstr "CC BY 4.0"
+
 #: packages/ui/src/controls/IconField/icon-field.messages.ts:5
 msgid "Change the icon"
 msgstr "Change the icon"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:34
+msgid "Choose a figure and its colors. The preview is the image that others see."
+msgstr "Choose a figure and its colors. The preview is the image that others see."
 
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:6
 msgid "Clear"
@@ -62,7 +99,7 @@ msgstr "Clear"
 msgid "Close"
 msgstr "Close"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:9
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:10
 msgid "Color"
 msgstr "Color"
 
@@ -143,7 +180,7 @@ msgstr "Displays the mobile sidebar."
 msgid "Done"
 msgstr "Done"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:10
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:11
 msgid "Drop an image here, or"
 msgstr "Drop an image here, or"
 
@@ -151,9 +188,21 @@ msgstr "Drop an image here, or"
 msgid "Error"
 msgstr "Error"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:7
+msgid "Figure color"
+msgstr "Figure color"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:10
+msgid "Fill"
+msgstr "Fill"
+
 #: packages/ui/src/controls/ColorSwatches/color-swatches.messages.ts:7
 msgid "Free color"
 msgstr "Free color"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:29
+msgid "Glyphs"
+msgstr "Glyphs"
 
 #: packages/ui/src/primitives/pagination/pagination.messages.ts:13
 msgid "Go to next page"
@@ -174,6 +223,10 @@ msgstr "Hex color"
 #: packages/ui/src/controls/PasswordInput/password-input.messages.ts:5
 msgid "Hide password"
 msgstr "Hide password"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:19
+msgid "Horizontal"
+msgstr "Horizontal"
 
 #: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:5
 msgid "Hue"
@@ -208,6 +261,10 @@ msgstr "Light theme {ratio}:1: set as a solid tile, light glyph ({glyph}:1)"
 msgid "Light theme {ratio}:1: the color on its tint"
 msgstr "Light theme {ratio}:1: the color on its tint"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:12
+msgid "Linear"
+msgstr "Linear"
+
 #: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:6
 msgid "Link copied"
 msgstr "Link copied"
@@ -228,6 +285,18 @@ msgstr "Loading…"
 msgid "Main color"
 msgstr "Main color"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:33
+msgid "Make an avatar"
+msgstr "Make an avatar"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:17
+msgid "Mirror"
+msgstr "Mirror"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:16
+msgid "More"
+msgstr "More"
+
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:9
 msgid "New {label}"
 msgstr "New {label}"
@@ -236,7 +305,7 @@ msgstr "New {label}"
 msgid "No data matches the period or the scope of this widget."
 msgstr "No data matches the period or the scope of this widget."
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:8
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:9
 msgid "No icon matches this search."
 msgstr "No icon matches this search."
 
@@ -247,6 +316,10 @@ msgstr "No match"
 #: packages/ui/src/data-display/DataTable/data-table.messages.ts:4
 msgid "No results."
 msgstr "No results."
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:18
+msgid "None"
+msgstr "None"
 
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:11
 msgid "Nothing needs you now."
@@ -268,15 +341,28 @@ msgstr "Pagination"
 msgid "Pick a color on the screen"
 msgstr "Pick a color on the screen"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:12
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:13
 msgid "PNG, JPEG or WebP · 1 MB max · cropped to a square (256 × 256)"
 msgstr "PNG, JPEG or WebP · 1 MB max · cropped to a square (256 × 256)"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:28
+msgid "Preview of the avatar"
+msgstr "Preview of the avatar"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:13
+msgid "Radial"
+msgstr "Radial"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:26
+msgid "Random"
+msgstr "Random"
 
 #: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:8
 msgctxt "colors"
 msgid "Recent"
 msgstr "Recent"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:27
 #: packages/ui/src/controls/IconField/icon-field.messages.ts:6
 #: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:4
 msgid "Reset"
@@ -294,13 +380,29 @@ msgstr "Reveal"
 msgid "Reveal the secret first"
 msgstr "Reveal the secret first"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:22
+msgid "Rotation"
+msgstr "Rotation"
+
 #: packages/ui/src/controls/ColorPicker/color-picker.messages.ts:4
 msgid "Saturation and brightness"
 msgstr "Saturation and brightness"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:7
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:36
+msgid "Save the avatar"
+msgstr "Save the avatar"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:6
+msgid "Scylla head"
+msgstr "Scylla head"
+
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:8
 msgid "Search for an icon (rocket, server, database…)"
 msgstr "Search for an icon (rocket, server, database…)"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:14
+msgid "Second color"
+msgstr "Second color"
 
 #: packages/ui/src/feedback/SecretRevealDialog/secret-reveal.messages.ts:6
 msgid "Secret copied"
@@ -309,6 +411,14 @@ msgstr "Secret copied"
 #: packages/ui/src/layout/FeatureHeader/feature-header.messages.ts:5
 msgid "Select all"
 msgstr "Select all"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:4
+msgid "Shape"
+msgstr "Shape"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:5
+msgid "Shape {index}"
+msgstr "Shape {index}"
 
 #: packages/ui/src/controls/ShareLinkButton/share-link-button.messages.ts:5
 msgid "Share link"
@@ -330,6 +440,14 @@ msgstr "shown once"
 msgid "Sidebar"
 msgstr "Sidebar"
 
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:23
+msgid "Size"
+msgstr "Size"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:11
+msgid "Solid"
+msgstr "Solid"
+
 #: packages/ui/src/utils/clipboard.messages.ts:5
 msgid "The browser did not let the page write to the clipboard."
 msgstr "The browser did not let the page write to the clipboard."
@@ -346,7 +464,7 @@ msgstr "The server did not answer. Scylla tries again in {time}."
 msgid "This action cannot be undone."
 msgstr "This action cannot be undone."
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:13
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:14
 msgid "This file is too large: 1 MB max."
 msgstr "This file is too large: 1 MB max."
 
@@ -354,9 +472,21 @@ msgstr "This file is too large: 1 MB max."
 msgid "This item is gone"
 msgstr "This item is gone"
 
-#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:14
+#: packages/ui/src/controls/IconPicker/icon-picker.messages.ts:15
 msgid "This type of file is not accepted: use PNG, JPEG or WebP."
 msgstr "This type of file is not accepted: use PNG, JPEG or WebP."
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:20
+msgid "Vertical"
+msgstr "Vertical"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:32
+msgid "via DiceBear"
+msgstr "via DiceBear"
+
+#: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:9
+msgid "White"
+msgstr "White"
 
 #: packages/ui/src/widget/WidgetState/widget-state.messages.ts:12
 msgid "You cannot see this data"

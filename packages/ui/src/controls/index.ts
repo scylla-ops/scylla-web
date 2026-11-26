@@ -20,6 +20,15 @@ export {
 export { default as IconField } from './IconField/IconField.svelte';
 export { default as ColorSwatches } from './ColorSwatches/ColorSwatches.svelte';
 export { SWATCH_COLORS } from './ColorSwatches/color-swatches.ts';
+export { default as GlyphAvatarCredit } from './GlyphAvatar/GlyphAvatarCredit.svelte';
+export { default as GlyphAvatarDialog } from './GlyphAvatar/GlyphAvatarDialog.svelte';
+export { default as GlyphAvatarEditor } from './GlyphAvatar/GlyphAvatarEditor.svelte';
+export {
+  glyphDataUri,
+  glyphSvg,
+  randomGlyphAvatar,
+  seededGlyphAvatar,
+} from './GlyphAvatar/glyph-avatar.ts';
 export { default as IconPicker } from './IconPicker/IconPicker.svelte';
 export {
   choiceIconProps,

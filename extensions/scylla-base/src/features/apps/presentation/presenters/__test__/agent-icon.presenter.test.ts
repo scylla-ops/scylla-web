@@ -82,3 +82,34 @@ describe('agentIconChange', () => {
     expect(await agentIconChange({ kind: 'default' }, undefined)).toBeUndefined();
   });
 });
+
+describe('a glyph avatar of an app', () => {
+  const avatar = {
+    shape: 'variant03',
+    glyph: { colors: ['#ffffff'], fill: 'solid', angle: 0 },
+    background: { colors: ['#4338ca'], fill: 'solid', angle: 0 },
+    flip: 'none',
+    rotate: 0,
+    scale: 100,
+  } as const;
+  const icon = { kind: 'image', imageId: 'img-1', glyph: avatar } as const;
+
+  it('opens the picker on its options, and shows as the image that the server drew', () => {
+    expect(agentIconChoice(icon)).toEqual({ kind: 'avatar', avatar });
+    expect(agentProfile({ name: 'ci', icon }).avatarUrl).toBe('/images/img-1');
+  });
+
+  it('sends a new avatar, and nothing for the avatar that the app has', async () => {
+    const turned = { ...avatar, rotate: 30 };
+
+    expect(await agentIconChange({ kind: 'avatar', avatar: turned }, icon)).toEqual({
+      kind: 'avatar',
+      avatar: turned,
+    });
+    expect(await agentIconChange({ kind: 'avatar', avatar }, undefined)).toEqual({
+      kind: 'avatar',
+      avatar,
+    });
+    expect(await agentIconChange({ kind: 'avatar', avatar }, icon)).toBeUndefined();
+  });
+});

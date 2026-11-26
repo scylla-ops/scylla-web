@@ -67,6 +67,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   section, also of Pinned and No group, sets the display of that section. Each person keeps the
   choice for each workspace. On a touch screen, the "+" and "..." buttons of a section header are
   larger.
+- Glyph avatars (DiceBear "Glyphs", CC BY 4.0). An editor with a large preview gives the 35 shapes
+  and the Scylla head, the colors of the figure and of the background (solid, linear or radial), and
+  mirror, rotation and size. A person opens it from the profile photo card, the account menu or the
+  command palette, and the icon picker of an agent or an app has an Avatar tab. Activity shows the
+  Scylla head for a change that Scylla made. The account page shows the credit of the style.
 
 ### Changed
 

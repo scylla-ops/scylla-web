@@ -106,3 +106,46 @@ describe('IconField', () => {
     expect(within(field()).getByRole('button', { name: 'Reset' })).toBeDisabled();
   });
 });
+
+describe('the Avatar tab of IconField', () => {
+  it('shows only for a person or an App', async () => {
+    render(IconFieldFixture, {});
+
+    await userEvent.click(toggle());
+
+    expect(screen.queryByRole('tab', { name: 'Avatar' })).not.toBeInTheDocument();
+  });
+
+  it('gives a glyph avatar with explicit values, and the preview shows it', async () => {
+    const onchange = vi.fn();
+    render(IconFieldFixture, { onchange, avatar: true });
+
+    await userEvent.click(toggle());
+    await userEvent.click(screen.getByRole('tab', { name: 'Avatar' }));
+    await userEvent.click(screen.getByRole('button', { name: 'Scylla head' }));
+
+    expect(onchange).toHaveBeenLastCalledWith({
+      kind: 'avatar',
+      avatar: expect.objectContaining({ shape: 'scylla', flip: 'none', rotate: 0, scale: 100 }),
+    });
+    const preview = field().querySelector<HTMLImageElement>('[data-slot="icon-preview"] img');
+    expect(preview?.src.startsWith('data:image/svg+xml')).toBe(true);
+  });
+
+  it('opens on the avatar of an App that has one', async () => {
+    const avatar = {
+      shape: 'variant05',
+      glyph: { colors: ['#ffffff'], fill: 'solid', angle: 0 },
+      background: { colors: ['#4338ca'], fill: 'solid', angle: 0 },
+      flip: 'none',
+      rotate: 0,
+      scale: 100,
+    } as const;
+    render(IconFieldFixture, { initial: { kind: 'avatar', avatar }, avatar: true });
+
+    await userEvent.click(toggle());
+
+    expect(screen.getByRole('tab', { name: 'Avatar' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('button', { name: 'Shape 5' })).toHaveAttribute('aria-pressed', 'true');
+  });
+});

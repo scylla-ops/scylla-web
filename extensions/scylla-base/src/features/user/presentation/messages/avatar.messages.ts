@@ -17,4 +17,7 @@ export const avatarMessages = {
   providerPhotoFailed: (provider: string) =>
     msg`The ${provider} photo could not be imported. Try again later.`,
   changePhoto: msg`Change your photo`,
+  glyphHint: msg`Or a glyph avatar: a figure in the colors you choose`,
+  makeAvatar: msg`Make an avatar`,
+  editAvatar: msg`Edit the avatar`,
 };

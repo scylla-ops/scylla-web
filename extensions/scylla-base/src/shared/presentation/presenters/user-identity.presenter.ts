@@ -1,4 +1,6 @@
+import { glyphDataUri } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
+import { SCYLLA_GLYPH_AVATAR } from '@scylla/ui/structs';
 import { colorIn, glyphOn, iconColors, isHexColor, toHex, type ColorTheme } from '@scylla/ui/utils';
 import { userIdentityMessages } from '../messages/user-identity.messages.ts';
 
@@ -21,6 +23,13 @@ export interface AvatarLook {
   /** The glyph of the icon of an App, a name of `ENTITY_GLYPHS`. */
   avatarGlyph?: string;
 }
+
+/** Scylla itself, the actor of a change with no person or app: the Scylla head. */
+export const systemActorProfile = (): UserIdentityProfile => ({
+  username: '',
+  displayName: 'Scylla',
+  avatarUrl: glyphDataUri(SCYLLA_GLYPH_AVATAR),
+});
 
 /** The CSS colors of an avatar: its background and the color of its initials or glyph. */
 export interface AvatarColors {
