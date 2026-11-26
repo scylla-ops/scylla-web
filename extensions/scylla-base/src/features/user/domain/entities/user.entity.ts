@@ -7,6 +7,10 @@ export interface UserEntity {
   /** Absent only on an old account made without one. */
   email?: string;
   displayName?: string;
+  /** The URL of the photo that the user chose. */
+  avatarUrl?: string;
+  /** The color of the initials that the user chose: a color of the theme or `#RRGGBB`. */
+  avatarColor?: string;
   /** False blocks the sign-in. */
   isActive: boolean;
   /** An admin of the instance: it manages the users. */
@@ -29,7 +33,10 @@ export interface UserInstanceRole {
 }
 
 /** What it takes to show a person. The member lists carry no more than this. */
-export type UserSummary = Pick<UserEntity, 'id' | 'username' | 'email' | 'displayName'>;
+export type UserSummary = Pick<
+  UserEntity,
+  'id' | 'username' | 'email' | 'displayName' | 'avatarUrl' | 'avatarColor'
+>;
 
 export type UserList = PaginatedList<UserEntity>;
 
@@ -46,6 +53,16 @@ export interface CreateUserInput {
   username: string;
   password: string;
   displayName?: string;
+}
+
+/**
+ * A change of the avatar of the own account. An absent field stays unchanged. `image: null`
+ * removes the photo, and an empty `color` gives the default color.
+ */
+export interface UpdateAvatarInput {
+  /** The bytes of a PNG, JPEG or WebP file of 1 MB at most. */
+  image?: Uint8Array | null;
+  color?: string;
 }
 
 /** An absent field stays unchanged. An empty `displayName` removes it. */

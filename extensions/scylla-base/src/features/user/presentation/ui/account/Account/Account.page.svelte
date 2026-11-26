@@ -14,6 +14,7 @@
   import PersonalTokensSection from '../PersonalTokens/PersonalTokensSection.svelte';
   import SettingsSection from '@base/features/user/presentation/ui/components/SettingsSection.svelte';
   import ThemePicker from '@base/features/user/presentation/ui/components/ThemePicker/ThemePicker.svelte';
+  import UserAvatarCard from '@base/features/user/presentation/ui/components/UserAvatarCard/UserAvatarCard.svelte';
   import UserProfileForm from '@base/features/user/presentation/ui/components/UserProfileForm/UserProfileForm.svelte';
   import DeleteAccountDialog from '../DeleteAccountDialog/DeleteAccountDialog.svelte';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
@@ -62,6 +63,7 @@
               onSave={page.saveProfile}
             />
           </SettingsSection>
+          <UserAvatarCard user={me} />
         {:else if current.id === 'appearance'}
           <SettingsSection
             title={t(userMessages.appearance)}

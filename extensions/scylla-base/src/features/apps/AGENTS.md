@@ -102,6 +102,11 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   the admins of the workspace, not the creator of the agent) changes the labels of an admin, in
   a dialog (`AgentLabelsField` of `@shared/presentation/ui`). The agent never chooses its labels.
   The list shows both kinds in a Labels column, the labels of an admin first.
+  The icon card (`AgentIconCard/`, under the labels card) shows only with `SET_APP_ICON`
+  (`set_app_icon`, the admins of the workspace). It opens the `IconPicker` of the projects, with
+  the default icon of an agent (`bot` on `info`) and the recent colors of `features/project`.
+  `agentProfile` (`presenters/agent-icon.presenter.ts`) gives the icon to `IdentityAvatar`: the
+  header, the rows of the list and the cards of a phone.
   `AgentCompatibilityBadge` shows "Update needed" or "Incompatible" in the list and in the header.
   The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
   `linux`, so Linux also shows the Docker command. The success rate and the memory follow the
@@ -152,7 +157,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   it.
 - Apps: `listApps`, `getApp`, `createApp` (an agent gets `runner` on the workspace, or on each of
   `projectIds`), `deleteApp`, `disableApp`, `enableApp`, `setLabels` (the labels of an admin; an
-  empty list removes them). The key of a query on one app must end
+  empty list removes them), `setIcon` (the icon of an admin: a glyph in a color, an image, or the
+  default icon again). The key of a query on one app must end
   with its id: `appMutations.remove` removes these queries, because the server refuses each read
   on a deleted app and the refusal shows a toast.
 - Keys and join codes: `createJoinCode`, `revokeKey`, `renameKey` (the agent names its key after

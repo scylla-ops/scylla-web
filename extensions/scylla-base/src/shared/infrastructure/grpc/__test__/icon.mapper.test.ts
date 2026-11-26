@@ -1,0 +1,36 @@
+// @vitest-environment node
+import { describe, it, expect } from 'vitest';
+import { iconChangeToProto, iconToDomain } from '../icon.mapper.ts';
+
+describe('iconToDomain', () => {
+  it('reads a glyph, its color, and an image', () => {
+    const glyph = iconToDomain({
+      kind: { oneofKind: 'glyph', glyph: { name: 'server', color: 'chart-3' } },
+    });
+    const plain = iconToDomain({ kind: { oneofKind: 'glyph', glyph: { name: 'cpu', color: '' } } });
+    const image = iconToDomain({ kind: { oneofKind: 'imageId', imageId: { value: 'img-1' } } });
+
+    expect(glyph).toEqual({ kind: 'glyph', name: 'server', color: 'chart-3' });
+    expect(plain).toEqual({ kind: 'glyph', name: 'cpu' });
+    expect(image).toEqual({ kind: 'image', imageId: 'img-1' });
+  });
+
+  it('gives no icon for an icon with no kind, as from a newer server', () => {
+    expect(iconToDomain({ kind: { oneofKind: undefined } })).toBeUndefined();
+    expect(iconToDomain(undefined)).toBeUndefined();
+  });
+});
+
+describe('iconChangeToProto', () => {
+  it('sends the glyph, the bytes of an image, and no kind for the default icon', () => {
+    const data = new Uint8Array([1, 2, 3]);
+
+    expect(iconChangeToProto({ kind: 'glyph', name: 'server', color: '#a1b2c3' })).toEqual({
+      kind: { oneofKind: 'glyph', glyph: { name: 'server', color: '#a1b2c3' } },
+    });
+    expect(iconChangeToProto({ kind: 'image', data })).toEqual({
+      kind: { oneofKind: 'image', image: data },
+    });
+    expect(iconChangeToProto({ kind: 'default' })).toEqual({ kind: { oneofKind: undefined } });
+  });
+});

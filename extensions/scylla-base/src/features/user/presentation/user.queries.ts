@@ -6,7 +6,11 @@ import { toast } from '@scylla/ui/utils';
 import { signOut } from '@base/features/login';
 import { refusalOf } from '@shared/utils/scylla-error.ts';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { CreateUserInput, UpdateUserInput } from '../domain/entities/user.entity.ts';
+import type {
+  CreateUserInput,
+  UpdateAvatarInput,
+  UpdateUserInput,
+} from '../domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '../domain/entities/user-session.entity.ts';
 import type { UserModule } from '../user.module.ts';
 
@@ -105,6 +109,16 @@ export const userMutations = {
       onSuccess: (_result, input) => {
         toast.success(i18n._(ToastMessages.USER_UPDATE));
         return invalidateUser(input.id);
+      },
+    }),
+
+  /** The photo or the color of the initials of the own account. The avatar shows the change. */
+  updateAvatar: () =>
+    mutationOptions({
+      mutationFn: (input: UpdateAvatarInput) => repository().updateAvatar(input),
+      onSuccess: user => {
+        getQueryClient().setQueryData(ME_QUERY_KEY(), user);
+        return invalidateUser(user.id);
       },
     }),
 

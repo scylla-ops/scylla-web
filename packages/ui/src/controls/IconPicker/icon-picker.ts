@@ -48,13 +48,17 @@ export const imageFileProblem = (file: File): MessageDescriptor | undefined => {
 };
 
 /** The props of the entity icon that shows a choice. */
-export const choiceIconProps = (choice: IconChoice, defaultGlyph = 'folder'): EntityIconProps => {
+export const choiceIconProps = (
+  choice: IconChoice,
+  defaultGlyph = 'folder',
+  defaultColor = 'primary',
+): EntityIconProps => {
   switch (choice.kind) {
     case 'image':
       return { image: choice.url };
     case 'glyph':
       return { icon: entityGlyph(choice.name) ?? entityGlyph(defaultGlyph), color: choice.color };
     default:
-      return { icon: entityGlyph(defaultGlyph), color: 'primary' };
+      return { icon: entityGlyph(defaultGlyph), color: defaultColor };
   }
 };

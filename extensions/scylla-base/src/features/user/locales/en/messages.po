@@ -181,6 +181,10 @@ msgstr "Changing your email…"
 msgid "Close"
 msgstr "Close"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:12
+msgid "Color {index}"
+msgstr "Color {index}"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:48
 msgid "Confirm password"
 msgstr "Confirm password"
@@ -362,6 +366,10 @@ msgstr "Get a copy of the data of your account, in a format that other tools can
 msgid "Give these versions when you report a problem."
 msgstr "Give these versions when you report a problem."
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:13
+msgid "Grey"
+msgstr "Grey"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:138
 msgid "Help this user sign in again, or stop the sign-in."
 msgstr "Help this user sign in again, or stop the sign-in."
@@ -439,9 +447,17 @@ msgstr "Link {provider}"
 msgid "Linked {date}"
 msgstr "Linked {date}"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:11
+msgid "Main color"
+msgstr "Main color"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:84
 msgid "Make instance admin"
 msgstr "Make instance admin"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:6
+msgid "Members of your workspaces see it: the member lists, the authors of the jobs, the account bar."
+msgstr "Members of your workspaces see it: the member lists, the authors of the jobs, the account bar."
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:40
 msgid "name@example.com"
@@ -557,6 +573,10 @@ msgstr "Personal tokens are turned off in this workspace"
 msgid "Personal tokens are turned off on this server"
 msgstr "Personal tokens are turned off on this server"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:9
+msgid "PNG, JPEG or WebP · 1 MB max · cropped to a square (256 × 256)"
+msgstr "PNG, JPEG or WebP · 1 MB max · cropped to a square (256 × 256)"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:13
 msgid "Preparing your file"
 msgstr "Preparing your file"
@@ -576,6 +596,10 @@ msgstr "Privacy policy"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:60
 msgid "Profile"
 msgstr "Profile"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:5
+msgid "Profile photo"
+msgstr "Profile photo"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:151
 msgid "Reactivate"
@@ -600,6 +624,10 @@ msgstr "Read the privacy policy"
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:85
 msgid "Remove instance admin"
 msgstr "Remove instance admin"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:8
+msgid "Remove the image"
+msgstr "Remove the image"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:18
 msgid "Revoke"
@@ -823,6 +851,10 @@ msgstr "Unknown device"
 msgid "Unlink"
 msgstr "Unlink"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:7
+msgid "Upload an image"
+msgstr "Upload an image"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
 #: extensions/scylla-base/src/features/user/user.module.ts:50
 msgid "User"
@@ -869,6 +901,10 @@ msgstr "What this app keeps in your browser, and why."
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:9
 msgid "With an instance role"
 msgstr "With an instance role"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:10
+msgid "Without an image: your initials, on the color you choose"
+msgstr "Without an image: your initials, on the color you choose"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:21
 msgid "Workspace roles are given in each workspace"

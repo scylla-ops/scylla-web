@@ -8,6 +8,7 @@
   import { IdentityAvatar } from '@shared/presentation/ui';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import type { AppEntity } from '@base/features/apps/domain/entities/app.entity.ts';
+  import { agentProfile } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
   import AgentCompatibilityBadge from '../components/AgentCompatibilityBadge/AgentCompatibilityBadge.svelte';
   import AgentStatusPill from '../components/AgentStatusPill/AgentStatusPill.svelte';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
@@ -32,7 +33,7 @@
 
 <header class="flex flex-wrap items-start gap-4">
   <IdentityAvatar
-    profile={{ username: '', displayName: agent.name }}
+    profile={agentProfile(agent)}
     kind="agent"
     online={agent.connected}
     size={48}

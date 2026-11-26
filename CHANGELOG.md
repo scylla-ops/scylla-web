@@ -25,6 +25,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   and Running, and a sort by name, last job or failures first, all kept in the URL. "Show more"
   replaces the page numbers: 6 cards (3 on a phone), then 12 more each time. The menu of a card has
   Edit and Delete.
+- Each user can set a profile photo in Account > Profile: an uploaded image, or the initials on a
+  color. The photo shows in the account menu, in the account header and in the member lists. An
+  admin of the workspace can set the icon of an agent on the agent page, with the icon picker of the
+  projects: a glyph with a theme color or a free color, or an image. The icon shows in the list of
+  the agents, on the agent page and in the member lists.
 
 ### Changed
 

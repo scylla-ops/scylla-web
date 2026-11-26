@@ -4,6 +4,7 @@ import type { PasswordResetDelivery } from '@base/features/login';
 import type {
   AccountDataExport,
   CreateUserInput,
+  UpdateAvatarInput,
   UpdateUserInput,
   UserEntity,
   UserList,
@@ -23,6 +24,8 @@ export interface UserRepository {
   getMe(): Promise<UserEntity>;
   create(input: CreateUserInput): Promise<UserEntity>;
   update(input: UpdateUserInput): Promise<UserEntity>;
+  /** Of the session's account: its photo, or the color of its initials. */
+  updateAvatar(input: UpdateAvatarInput): Promise<UserEntity>;
   delete(userId: string): Promise<void>;
   /** Deactivation signs the user out and blocks the sign-in. Never on the own id. */
   setActive(userId: string, isActive: boolean): Promise<UserEntity>;

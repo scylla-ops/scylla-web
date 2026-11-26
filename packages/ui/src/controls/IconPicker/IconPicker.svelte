@@ -37,6 +37,8 @@
     recent?: readonly string[];
     /** The glyph of the default icon. */
     defaultGlyph?: string;
+    /** The color of the default icon, e.g. `info` for an agent. */
+    defaultColor?: string;
     class?: string;
   }
 
@@ -47,6 +49,7 @@
     subtitle,
     recent = [],
     defaultGlyph = 'folder',
+    defaultColor = 'primary',
     class: className,
   }: Props = $props();
 
@@ -60,16 +63,16 @@
   // svelte-ignore state_referenced_locally
   let glyph = $state(value.kind === 'glyph' ? value.name : defaultGlyph);
   // svelte-ignore state_referenced_locally
-  let color = $state(value.kind === 'glyph' ? value.color : 'primary');
+  let color = $state(value.kind === 'glyph' ? value.color : defaultColor);
 
   const glyphs = $derived(searchGlyphs(search));
   const freeColor = $derived(isHexColor(color) ? color : (recent[0] ?? '#E879F9'));
-  // The default icon is the default glyph in the main color.
+  // The default icon is the default glyph in the default color.
   const selectedGlyph = $derived(
     value.kind === 'glyph' ? value.name : value.kind === 'default' ? defaultGlyph : undefined,
   );
   const selectedColor = $derived(
-    value.kind === 'glyph' ? value.color : value.kind === 'default' ? 'primary' : undefined,
+    value.kind === 'glyph' ? value.color : value.kind === 'default' ? defaultColor : undefined,
   );
   const glyphColor = (name: string) => (isHexColor(name) ? name : `var(--${name})`);
 
@@ -88,7 +91,7 @@
 
   const reset = () => {
     glyph = defaultGlyph;
-    color = 'primary';
+    color = defaultColor;
     onchange({ kind: 'default' });
   };
 
@@ -113,7 +116,7 @@
 
 <div bind:this={root} data-slot="icon-picker" class={cn('flex flex-col gap-4', className)}>
   <div class="flex h-12 items-center gap-3">
-    <EntityIcon size={48} {...choiceIconProps(value, defaultGlyph)} />
+    <EntityIcon size={48} {...choiceIconProps(value, defaultGlyph, defaultColor)} />
     <div class="flex min-w-0 flex-1 flex-col justify-center">
       <span class="truncate text-sm font-semibold">{title}</span>
       {#if subtitle}

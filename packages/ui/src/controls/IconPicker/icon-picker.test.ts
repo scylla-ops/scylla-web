@@ -46,4 +46,11 @@ describe('choiceIconProps', () => {
     );
     expect(choiceIconProps({ kind: 'image', url: '/images/1' })).toEqual({ image: '/images/1' });
   });
+
+  it('shows the default glyph of the entity in its default color', () => {
+    expect(choiceIconProps({ kind: 'default' }, 'bot', 'info')).toEqual({
+      icon: entityGlyph('bot'),
+      color: 'info',
+    });
+  });
 });

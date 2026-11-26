@@ -1,6 +1,7 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import {
+  avatarColors,
   identityKindOf,
   identitySecondaryLine,
   userInitials,
@@ -71,5 +72,23 @@ describe('identitySecondaryLine', () => {
     expect(identitySecondaryLine(machine, 'agent')).toBe('Agent');
     expect(identitySecondaryLine(machine, 'app')).toBe('App');
     expect(identitySecondaryLine(ada, 'person')).toBe('ada@example.com');
+  });
+});
+
+describe('avatarColors', () => {
+  it('shows a color of the theme on its tint, or solid with the foreground of the main color', () => {
+    expect(avatarColors('chart-4', false, 'dark')).toEqual({
+      tile: 'color-mix(in srgb, var(--chart-4) 10%, transparent)',
+      ink: 'var(--chart-4)',
+    });
+    expect(avatarColors('chart-4', true, 'dark')).toEqual({
+      tile: 'var(--chart-4)',
+      ink: 'var(--primary-foreground)',
+    });
+  });
+
+  it('writes the initials on a solid free color in white or near-black, the one that contrasts more', () => {
+    expect(avatarColors('#1E3A8A', true, 'light').ink).toBe('#FFFFFF');
+    expect(avatarColors('#FDE68A', true, 'light').ink).toBe('#171715');
   });
 });

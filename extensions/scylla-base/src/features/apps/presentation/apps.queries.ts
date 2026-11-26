@@ -2,6 +2,7 @@ import { getModuleDomain, getQueryClient, mutationOptions, queryOptions } from '
 import { i18n } from '@lingui/core';
 import { Permission, authorizationReady, can } from '@platform/authz';
 import { toast } from '@scylla/ui/utils';
+import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
 import type { AppsModule } from '../apps.module.ts';
 import type { AppDetails } from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
@@ -270,6 +271,16 @@ export const appMutations = {
         repository().setLabels(appId, labels),
       onSuccess: () => {
         toast.success(i18n._(appsMessages.labelsChanged));
+        return invalidateApps();
+      },
+    }),
+
+  setIcon: () =>
+    mutationOptions({
+      mutationFn: ({ appId, icon }: { appId: string; icon: CustomIconChange }) =>
+        repository().setIcon(appId, icon),
+      onSuccess: () => {
+        toast.success(i18n._(appsMessages.iconChanged));
         return invalidateApps();
       },
     }),
