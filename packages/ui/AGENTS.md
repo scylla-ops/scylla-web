@@ -45,8 +45,10 @@ src/
                            ScyllaLoadingScreen, keepFitted (an attachment: fits a view again at
                            each resize)
   widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
-  motion/                  page transitions, reduced motion, a spring easing, fold and
-                           unfold (height and fade), swap (a cross-fade of a value), reflow
+  motion/                  page transitions, reduced motion, a spring easing, enter and exit
+                           (fade and rise), fold and unfold (height and fade), reflow (the move
+                           of the items of a list), swap (a cross-fade of a value), a count
+                           that rolls
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -180,14 +182,40 @@ scylla-base is the only place that changes the theme.
 Svelte transition writes inline styles from JavaScript and that query never sees it — every
 transition here asks and collapses its duration to zero. `springEasing({ bounce, duration })`
 gives a spring as an easing, with the parameters of the design tools: the thumb of
-`SegmentedControl` and the rail tile of the core use it. `unfold` and `fold` (`in:` and `out:`)
-open and close a part under its owner: the height, the paddings and an opacity, 220 ms in and
-150 ms out. Put the space above the part in its padding, not in a `gap`, or the close ends with
-a jump. `swapIn` and `swapOut` cross-fade a value that changes, as an icon: put the two in one
-grid cell (`grid` on the parent, `col-start-1 row-start-1` on the child) in a `{#key}`, so the
-place keeps its size. `reflow` is the `animate:` function of a keyed list whose items change
-places (the widgets of the dashboard, the cards of the projects page): it slides each item from
-its old box, and `{ still: true }` keeps a dragged item still.
+`SegmentedControl` and the rail tile of the core use it.
+
+Each element that appears, goes away or moves after the first paint has a motion, and the same
+kind of element has the same motion everywhere. Use these presets, never a new duration:
+
+| What changes | Use | Time |
+|---|---|---|
+| A part that appears in its place: an empty state, a banner over the page, the content that replaces a skeleton | `in:enter` (fade and a rise of 4 px) | 200 ms, ease out |
+| A part out of the flow that goes away: an overlay, a floating bar | `out:exit` (fade) | 150 ms, ease in |
+| A part that opens or closes in the flow: a message under a field, a folding section, a banner, a row of a list | `in:unfold` and `out:fold` (height and fade) | 220 ms in, 150 ms out |
+| The items of a keyed `{#each}` that change places when one comes, goes or moves (rows, the widgets of the dashboard, the cards of the projects page) | `animate:reflow` (a slide from the old box; `{ still: true }` keeps a dragged item still) | 200 ms, ease out |
+| The content of a tab that becomes active | `{@attach enterOnActivate}` (`TabsContent` has it) | as `enter` |
+| A number that changes | `createCountRoll(() => count)` (`rollIn`, `rollOut`, `pulse`) | 370 ms spring in, 220 ms out |
+| A value that takes the place of another, as an icon | `swapIn` and `swapOut` | 240 ms spring in, 120 ms out |
+| A modal (dialog, alert dialog, sheet) and its backdrop | `MODAL_TIMING_CLASS` (`dialog/dialog-variants.ts`) | 200 ms ease out in, 150 ms ease in out |
+
+- **No motion at the first paint.** A Svelte transition is local: it plays when its own block
+  (`{#if}`, `{#each}`, `{#key}`, `{#await}`) changes, not when a block above it is created. The
+  router renders each page in a new `{#key}` (`RouteEntry`), thus a page plays only the page
+  transition when it mounts, and its parts play their motion on a change. A test that renders a
+  component at its root has no block above it: the root element plays its `in:`.
+- **The primitives `Card`, `Badge`, `TableFrame` and `TableRow` have `in:enter`.** A card or a
+  table that replaces a skeleton, and a row that comes after the first render, fade in with no
+  code in the feature. A row has no exit: a new page of rows would wait for the old one.
+- **`fold` and `unfold` take in the gap of a flex column** around the part (`row-gap`), so the
+  parts around do not jump. A gap of another layout (a grid, `space-y`) is not taken in: put the
+  space in the padding of the part.
+- **An `out:` keeps the element in the DOM while it runs**, `inert`. In jsdom the animation never
+  ends (`setup.ts`), thus the element stays. A test that checks that an element went away sets
+  `prefers-reduced-motion: reduce` (`window.matchMedia`): each preset then has a duration of 0
+  and the element goes at once. The end-to-end tests run with reduced motion.
+- `swapIn` and `swapOut` need the two values in one grid cell (`grid` on the parent,
+  `col-start-1 row-start-1` on the child) in a `{#key}`, so the place keeps its size. So does the
+  count roll.
 
 ### `primitives/` — the primitives
 
@@ -395,7 +423,7 @@ Space). The selected background is not on the segment: it is one thumb under the
   segment makes bits-ui clear its value; the setter ignores it, thus the segment stays selected.
   With a plain `value` prop and `onValueChange`, bits-ui keeps the cleared value and shows no
   selection.
-- **A count rolls** (`count-roll.transition.ts`): the old number leaves and the new one enters,
+- **A count rolls** (`motion/count-roll.ts`): the old number leaves and the new one enters,
   up when the count grows. The chip is `aria-hidden` and an `sr-only` copy gives the current
   count to the name of the radio: the leaving number stays in the DOM during its transition (and
   in jsdom, where the animation never ends), and must not go into the name.

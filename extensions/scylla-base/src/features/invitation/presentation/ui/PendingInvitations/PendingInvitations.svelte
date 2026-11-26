@@ -1,7 +1,7 @@
 <script lang="ts">
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { can, Permission } from '@platform/authz';
-  import { ListSkeleton } from '@scylla/ui';
+  import { ListSkeleton, enter, fold, reflow, unfold } from '@scylla/ui';
   import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { roleLabel } from '@base/features/access';
@@ -36,11 +36,11 @@
       {#if invitations.isPending}
         <ListSkeleton rows={2} rowClass="h-10 w-full" />
       {:else if (invitations.data ?? []).length === 0}
-        <p class="text-sm text-muted-foreground">{t(invitationMessages.noPending)}</p>
+        <p class="text-sm text-muted-foreground" in:enter>{t(invitationMessages.noPending)}</p>
       {:else}
         <ul class="flex flex-col divide-y" aria-label={t(invitationMessages.pending)}>
           {#each invitations.data ?? [] as invitation (invitation.id)}
-            <li class="flex items-center gap-3 py-2">
+            <li class="flex items-center gap-3 py-2" in:unfold out:fold animate:reflow>
               <div class="min-w-0 flex-1">
                 <p class="truncate text-sm font-medium">{invitation.email}</p>
                 <p class="text-xs text-muted-foreground">

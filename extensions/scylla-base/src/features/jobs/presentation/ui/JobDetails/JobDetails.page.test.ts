@@ -155,6 +155,11 @@ describe('JobDetailsPage', () => {
   });
 
   it('shows the facts of the job on one line, and its details on demand', async () => {
+    // Less motion: the details close at once, with no fold to wait for.
+    window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+      matches: query === '(prefers-reduced-motion: reduce)',
+      media: query,
+    }));
     await renderPage(job({ agentId: 'agent-1' }));
 
     const facts = screen.getByRole('list', { name: 'Facts of the job' });

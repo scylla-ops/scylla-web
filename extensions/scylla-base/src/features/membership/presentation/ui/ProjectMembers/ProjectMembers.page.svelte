@@ -6,7 +6,7 @@
   import { accessQueries, projectRef } from '@base/features/access';
   import { appQueries } from '@base/features/apps';
   import { userQueries } from '@base/features/user';
-  import { GatedButton } from '@scylla/ui';
+  import { GatedButton, enter } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     Button,
@@ -151,7 +151,10 @@
         {/each}
       </div>
     {:else if rows.length === 0}
-      <p class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+      <p
+        class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground"
+        in:enter
+      >
         {t(membershipMessages.projectEmpty)}
       </p>
     {:else}

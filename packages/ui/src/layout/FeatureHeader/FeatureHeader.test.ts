@@ -13,6 +13,15 @@ beforeEach(() => toastSuccess.mockClear());
 
 const deleteButton = () => screen.getByRole('button', { name: 'Delete' });
 
+const setReducedMotion = (reduce: boolean) => {
+  window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+    matches: reduce && query === '(prefers-reduced-motion: reduce)',
+    media: query,
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+  }));
+};
+
 describe('FeatureHeader', () => {
   it('shows the count and the singular label', () => {
     render(FeatureHeader, { count: 1, label: 'Secret' });
@@ -66,6 +75,37 @@ describe('FeatureHeader', () => {
     void rerender({ label: 'Secret', selectedCount: 2, onClearSelection: vi.fn() });
 
     expect(screen.getByRole('button', { name: 'Clear' })).toBeInTheDocument();
+  });
+
+  it('rolls a new count in while the old one leaves, and swaps it at once with less motion', async () => {
+    const { rerender } = render(FeatureHeader, { count: 3, label: 'Secret', pluralLabel: 'Secrets' });
+
+    await rerender({ count: 4, label: 'Secret', pluralLabel: 'Secrets' });
+    expect(screen.getByRole('heading')).toHaveTextContent(/^34 Secrets$/);
+
+    setReducedMotion(true);
+    await rerender({ count: 5, label: 'Secret', pluralLabel: 'Secrets' });
+    expect(screen.getByRole('heading')).toHaveTextContent(/^35 Secrets$/);
+  });
+
+  it('fades the selection actions out, and takes them from the input at once', async () => {
+    const props = { label: 'Secret', selectedCount: 2, onClearSelection: vi.fn() };
+    const { rerender } = render(FeatureHeader, props);
+
+    await rerender({ ...props, selectedCount: 0 });
+
+    const leaving = screen.getByRole('button', { name: 'Clear' }).parentElement as HTMLElement;
+    expect(leaving.inert).toBe(true);
+  });
+
+  it('removes the selection actions at once for a person who asked for less motion', async () => {
+    setReducedMotion(true);
+    const props = { label: 'Secret', selectedCount: 2, onClearSelection: vi.fn() };
+    const { rerender } = render(FeatureHeader, props);
+
+    await rerender({ ...props, selectedCount: 0 });
+
+    expect(screen.queryByRole('button', { name: 'Clear' })).toBeNull();
   });
 
   it('calls onNew when New is clicked', async () => {

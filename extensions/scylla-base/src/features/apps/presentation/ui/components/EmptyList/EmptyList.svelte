@@ -1,6 +1,6 @@
 <script lang="ts">
   import PlusIcon from '@lucide/svelte/icons/plus';
-  import type { LucideIcon } from '@scylla/ui';
+  import { enter, type LucideIcon } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
 
   interface Props {
@@ -15,6 +15,7 @@
 </script>
 
 <section
+  in:enter
   class="grid min-h-80 flex-1 grid-rows-[2fr_auto_3fr] justify-items-center gap-3 rounded-xl border p-8 text-center"
 >
   <div class="row-start-2 flex flex-col items-center gap-3">

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { enter } from '@scylla/ui';
   import { ResizablePane } from '@scylla/ui/primitives';
   import type { Blueprint } from '@base/features/pipeline/presentation/ui/editor/blueprint/blueprint.state.svelte.ts';
   import { nodeOf } from '@base/features/pipeline/presentation/mappers/blueprint-flow.mapper.ts';
@@ -104,7 +105,8 @@
     minSize={sizes.min}
     maxSize={sizes.max}
   >
-    <aside class="flex h-full flex-col bg-card">
+    <!-- A new mode of the panel fades in. -->
+    <aside class="flex h-full flex-col bg-card" in:enter>
       {#if mode === 'inspector' && node}
         <!-- A new draft for each node, and when an "Undo" puts the node back. -->
         {#key `${node.id}#${blueprint.revision}`}

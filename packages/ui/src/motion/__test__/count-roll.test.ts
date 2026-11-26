@@ -7,7 +7,7 @@ import {
   PULSE_TO_PX,
   ROLL_PX,
   createCountRoll,
-} from './count-roll.transition.ts';
+} from '../count-roll.ts';
 
 const node = document.createElement('span');
 

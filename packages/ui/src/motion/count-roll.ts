@@ -1,8 +1,8 @@
 import { untrack } from 'svelte';
 import { cubicIn, cubicOut } from 'svelte/easing';
 import type { TransitionConfig } from 'svelte/transition';
-import { motionDuration } from '../../motion/reduced-motion.ts';
-import { springEasing } from '../../motion/spring.ts';
+import { motionDuration } from './reduced-motion.ts';
+import { springEasing } from './spring.ts';
 
 export const ROLL_PX = 14;
 export const LEAVE_MS = 220;

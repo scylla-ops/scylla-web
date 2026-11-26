@@ -1,7 +1,7 @@
 <script lang="ts">
   import { ToggleGroupItem } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
-  import { createCountRoll } from './count-roll.transition.ts';
+  import { createCountRoll } from '../../motion/count-roll.ts';
   import type { SegmentedOption, SegmentedSize } from './segmented-control.ts';
 
   interface Props {

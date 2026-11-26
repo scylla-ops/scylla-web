@@ -111,7 +111,10 @@
 <div
   bind:this={root}
   data-slot="sidebar-container"
-  class="relative h-svh shrink-0"
+  class={cn(
+    'relative h-svh shrink-0 transition-[width] duration-200 ease-out motion-reduce:transition-none',
+    width.dragging && 'transition-none',
+  )}
   style:width="{containerWidth}px"
 >
   <div

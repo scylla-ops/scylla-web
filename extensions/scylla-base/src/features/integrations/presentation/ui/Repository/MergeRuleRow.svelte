@@ -9,7 +9,7 @@
   import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
   import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import { Permission, can } from '@platform/authz';
-  import { CopyableText, GatedButton } from '@scylla/ui';
+  import { CopyableText, GatedButton, fold, unfold } from '@scylla/ui';
   import { Badge, Button, buttonVariants, Switch } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -147,6 +147,8 @@
       <ol
         id="{id}-steps"
         class="flex list-decimal flex-col gap-1.5 rounded-md bg-muted py-3 pr-3 pl-7 text-xs"
+        in:unfold
+        out:fold
       >
         {#each view.steps as step (step)}
           <li>{step}</li>

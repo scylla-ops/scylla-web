@@ -167,6 +167,9 @@ module gives an access policy.
   as a new entry. Tests: `runtime/__test__/leave-guard.test.ts`.
 - **`RouteEntry` reads the route once, when it mounts.** The page transition keeps the old page
   on screen for its exit animation; `RoutePage` mounts a new `RouteEntry` for each pathname.
+- **A page mounts in a new `{#key}`.** Without it, the `{#await}` of the import is the block of
+  the parts at the top of the page, and their `in:` transitions play at the first paint. The
+  test "plays no enter transition of a part of the page at its first paint" fails without it.
 - **A change of pathname mounts the page again, with its wrappers.** A change of the query
   string does not.
 - **A page that fails, fails alone.** `RouteEntry` renders the page inside a `<svelte:boundary>`,
@@ -295,8 +298,9 @@ module gives an access policy.
   ready, and not in the sheet of a phone.
 - **The handle is above the rail (`z-30` over `z-20`).** On the open rail, it covers the separator,
   thus a drag on the edge also sets the width while the rail is open, and a press or a click on
-  it does not close the rail. During a drag, the open rail has no transition (`width.dragging`),
-  thus its edge stays on the pointer.
+  it does not close the rail. During a drag, the open rail and the column have no transition
+  (`width.dragging`), thus their edge stays on the pointer. Else the column eases its width in
+  200 ms: a key on the handle, and a page with no second sidebar.
 - **The width is in pixels, thus `ResizablePaneGroup` does not fit.** Its sizes are percent of the
   group, thus a minimum in percent gives a different width for each window, and the group must
   also hold the page.

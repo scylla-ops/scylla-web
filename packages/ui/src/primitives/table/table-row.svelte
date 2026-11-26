@@ -2,13 +2,17 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '../../utils/index.ts';
+  import { enter } from '../../motion/enter.ts';
 
   type Props = HTMLAttributes<HTMLTableRowElement> & { children?: Snippet };
 
   let { class: className, children, ...rest }: Props = $props();
 </script>
 
+<!-- A row that comes after the first render of its table fades in. No exit: a new page of rows
+  would wait for the old one. -->
 <tr
+  in:enter
   data-slot="table-row"
   class={cn(
     // On the cells: a `tr` does not clip its background to the rounded corners.

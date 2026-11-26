@@ -91,6 +91,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the drop zones open and close with a short animation, and with reduced motion each change is
   instant. When the mode opens or closes, the page no longer shows a skeleton or the old order for a
   moment.
+- Dialogs, alert dialogs, side sheets, tabs, field messages, table rows, cards, badges, banners,
+  empty states, folding sections and the selection actions of a list header now have a short motion
+  when they appear, go away or change: a fade with a small rise, a fold in height, or a roll for a
+  count. A fade or a fold takes 150 to 250 ms, the exit is shorter than the entry, and a page that
+  opens shows no motion of its parts. With the reduced motion setting of the system, each change is
+  instant.
 
 ## [0.7.2] - 2026-11-25
 

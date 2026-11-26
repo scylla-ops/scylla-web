@@ -2,6 +2,7 @@
   import type { Snippet } from 'svelte';
   import type { HTMLAttributes } from 'svelte/elements';
   import { cn } from '../../utils/index.ts';
+  import { enter } from '../../motion/enter.ts';
   import { badgeVariants, type BadgeVariant } from './badge-variants.ts';
 
   type Props = HTMLAttributes<HTMLSpanElement> & {
@@ -18,6 +19,6 @@
   kept anyway — they are inert on a span and are what the day someone needs it
   will reach for, the same way `Button` grew an `href`.
 -->
-<span data-slot="badge" class={cn(badgeVariants({ variant }), className)} {...rest}>
+<span in:enter data-slot="badge" class={cn(badgeVariants({ variant }), className)} {...rest}>
   {@render children?.()}
 </span>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { ListSkeleton } from '@scylla/ui';
+  import { ListSkeleton, enter } from '@scylla/ui';
   import { createQuery } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { secretMessages } from '@base/features/secret/presentation/messages/secret.messages.ts';
@@ -36,6 +36,7 @@
       {:else if secrets.length === 0}
         <section
           class="flex min-h-60 flex-col items-center justify-center gap-2 rounded-xl border p-8 text-center"
+          in:enter
         >
           <h2 class="text-xl">{t(secretMessages.emptyTitle)}</h2>
           <p class="max-w-md text-sm text-muted-foreground">{t(secretMessages.emptyBody)}</p>

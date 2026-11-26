@@ -1,5 +1,6 @@
 <script lang="ts">
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
+  import { enter } from '@scylla/ui';
   import { intlLocale, t } from '@scylla/ui/i18n';
   import {
     Button,
@@ -52,7 +53,7 @@
     {/each}
   </div>
 {:else if rows.length === 0}
-  <p class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground">
+  <p class="rounded-xl border border-dashed p-10 text-center text-sm text-muted-foreground" in:enter>
     {t(membershipMessages.workspaceEmpty)}
   </p>
 {:else}

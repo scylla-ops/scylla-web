@@ -14,6 +14,7 @@
   } from '../../primitives/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import PasswordInput from '../../controls/PasswordInput/PasswordInput.svelte';
+  import { fold, unfold } from '../../motion/fold.ts';
   import { createFormState } from '../form.state.svelte.ts';
   import { FormItemType, type FormItem, type FormValues } from '../scylla-form.struct.ts';
 
@@ -134,7 +135,7 @@
           </p>
         {/if}
         {#if error}
-          <p id="{item.id}-error" class="text-xs text-destructive">{error}</p>
+          <p id="{item.id}-error" class="text-xs text-destructive" in:unfold out:fold>{error}</p>
         {/if}
       </Field>
     {/each}

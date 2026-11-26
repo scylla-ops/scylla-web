@@ -10,6 +10,8 @@
   // Not the group barrels: they would import this file back.
   import GatedButton from '../../controls/GatedButton/GatedButton.svelte';
   import ConfirmOperationAlertDialog from '../../feedback/ConfirmOperationAlertDialog/ConfirmOperationAlertDialog.svelte';
+  import { createCountRoll } from '../../motion/count-roll.ts';
+  import { enter, exit } from '../../motion/enter.ts';
   import { featureHeaderMessages } from './feature-header.messages.ts';
   import { countedLabel } from './feature-header.ts';
 
@@ -59,6 +61,8 @@
 
   let deleteDialogOpen = $state(false);
 
+  const { rollIn, rollOut } = createCountRoll(() => count ?? 0);
+
   // A phone: "New" becomes an icon, the selection actions a bar at the bottom of the screen.
   const phone = new MediaQuery('(max-width: 639px)');
   const PhoneNewIcon = $derived(NewIcon ?? PlusIcon);
@@ -92,30 +96,36 @@
   {@const onBar = variant === 'ghost'}
   {@const barButton = 'h-11 text-background hover:bg-background/10 hover:text-background'}
   {#if onSelectAll && !allSelected && !!count}
-    <Button {variant} class={onBar ? barButton : undefined} onclick={onSelectAll}>
-      {t(featureHeaderMessages.selectAll)}
-    </Button>
+    <span class="flex" in:enter out:exit>
+      <Button {variant} class={onBar ? barButton : undefined} onclick={onSelectAll}>
+        {t(featureHeaderMessages.selectAll)}
+      </Button>
+    </span>
   {/if}
 
   {#if selectedCount > 0 && onClearSelection}
-    <Button {variant} class={onBar ? barButton : undefined} onclick={onClearSelection}>
-      {t(featureHeaderMessages.clear)}
-    </Button>
+    <span class="flex" in:enter out:exit>
+      <Button {variant} class={onBar ? barButton : undefined} onclick={onClearSelection}>
+        {t(featureHeaderMessages.clear)}
+      </Button>
+    </span>
   {/if}
 
   {#if selectedCount > 0 && onDeleteSelection}
-    <GatedButton
-      allowed={canDelete}
-      deniedReason={deleteDeniedReason}
-      tooltip={t(featureHeaderMessages.delete)}
-      size="icon"
-      variant="destructive"
-      onclick={() => (deleteDialogOpen = true)}
-      class={onBar ? 'size-11' : 'h-9 w-9 cursor-pointer transition-all'}
-    >
-      <TrashIcon class="size-4" />
-      <span class="sr-only">{t(featureHeaderMessages.delete)}</span>
-    </GatedButton>
+    <span class="flex" in:enter out:exit>
+      <GatedButton
+        allowed={canDelete}
+        deniedReason={deleteDeniedReason}
+        tooltip={t(featureHeaderMessages.delete)}
+        size="icon"
+        variant="destructive"
+        onclick={() => (deleteDialogOpen = true)}
+        class={onBar ? 'size-11' : 'h-9 w-9 cursor-pointer transition-all'}
+      >
+        <TrashIcon class="size-4" />
+        <span class="sr-only">{t(featureHeaderMessages.delete)}</span>
+      </GatedButton>
+    </span>
   {/if}
 {/snippet}
 
@@ -123,7 +133,13 @@
   <div class="flex min-w-0 flex-col gap-0.75">
     <div class="flex flex-row flex-wrap gap-4">
       <h1 class="min-w-0 break-words">
-        {#if count !== undefined}<span class="mr-2 text-primary">{count}</span>{/if}
+        {#if count !== undefined}
+          <span class="mr-2 inline-grid text-primary">
+            {#key count}
+              <span class="col-start-1 row-start-1" in:rollIn out:rollOut>{count}</span>
+            {/key}
+          </span>
+        {/if}
         <span class="text-foreground">{displayLabel}</span>
       </h1>
     </div>
@@ -159,6 +175,8 @@
 
   {#if showSelectionBar}
     <div
+      in:enter
+      out:exit
       data-part="feature-header-selection-bar"
       class="fixed inset-x-3 bottom-[calc(1rem+var(--shell-bottom-inset,0px))] z-40 flex items-center gap-1 rounded-2xl bg-foreground py-1.5 pr-1.5 pl-4 text-background shadow-[0_12px_32px_-8px_oklch(0_0_0/0.35)]"
     >

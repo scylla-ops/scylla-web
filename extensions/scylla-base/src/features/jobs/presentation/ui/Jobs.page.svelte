@@ -2,7 +2,7 @@
   import type { Snippet } from 'svelte';
   import { loadNoAgentsBanner } from '@base/features/apps';
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, ListSkeleton, PaginationSlot } from '@scylla/ui';
+  import { ErrorState, ListSkeleton, PaginationSlot, enter } from '@scylla/ui';
   import { createPagination } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -79,7 +79,7 @@
           <!-- The rows of the jobs table. -->
           <ListSkeleton rows={5} rowClass="h-14 w-full" />
         {:else}
-          <div class="flex items-center justify-center h-full min-h-[400px]">
+          <div class="flex items-center justify-center h-full min-h-[400px]" in:enter>
             <div class="text-center space-y-2">
               <p class="text-muted-foreground">{t(jobsMessages.noJobsFound)}</p>
               {#if !filtered}
