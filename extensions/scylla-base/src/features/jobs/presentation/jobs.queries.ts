@@ -12,6 +12,7 @@ import {
   JOB_QUERY_KEY,
   JOB_STATS_QUERY_KEY,
   NEWEST_JOBS_QUERY_KEY,
+  SEARCH_JOBS_QUERY_KEY,
   WORKSPACE_JOBS_QUERY_KEY,
 } from './jobs.query-keys.ts';
 
@@ -139,6 +140,26 @@ export const jobQueries = {
       refetchInterval: options.refetchMs ?? false,
     }),
 
+  /**
+   * The newest jobs of the workspace whose number, branch, tag, commit title or pipeline name
+   * holds `text`. A new text stops the call of the old one, and the old results stay until the new
+   * ones come. It needs LIST_JOBS_BY_WORKSPACE: the caller adds it to `enabled`.
+   */
+  search: (
+    workspaceId: string | null,
+    text: string,
+    limit: number,
+    options: { enabled?: boolean } = {},
+  ) =>
+    queryOptions<JobEntity[]>({
+      queryKey: SEARCH_JOBS_QUERY_KEY(workspaceId, text, limit),
+      enabled: (options.enabled ?? true) && !!workspaceId,
+      queryFn: ({ signal }) =>
+        repository().getNewestByWorkspaceId({ workspaceId: workspaceId!, text, limit }, signal),
+      placeholderData: previous => previous,
+      staleTime: 10_000,
+    }),
+
   historyOf: (pipelineId: string, enabled: boolean) =>
     queryOptions({
       queryKey: JOBS_QUERY_KEY(pipelineId),
@@ -215,6 +236,20 @@ export const jobMutations = {
       onSuccess: (newJobId: string) => {
         void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_KEY(pipelineId) });
         scyllaNavigate.goToJobDetails(pipelineId, newJobId);
+      },
+    }),
+
+  /**
+   * The same as `rerun`, for a job of any project of the workspace (the command bar): the job
+   * names its pipeline and its project. Then the page of the new job opens.
+   */
+  rerunJob: () =>
+    mutationOptions({
+      mutationFn: ({ jobId }: { jobId: string; pipelineId: string; projectId: string }) =>
+        repository().rerun(jobId),
+      onSuccess: (newJobId: string, { pipelineId, projectId }) => {
+        void getQueryClient().invalidateQueries({ queryKey: JOBS_QUERY_ROOT });
+        scyllaNavigate.goToJobDetails(pipelineId, newJobId, { projectId });
       },
     }),
 };

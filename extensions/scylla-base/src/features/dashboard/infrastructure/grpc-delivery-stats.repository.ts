@@ -36,6 +36,7 @@ export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
         enabledOnly: false,
         order: 0,
         page: { size: TRIGGER_LIMIT, token: '' },
+        query: '',
       }).response,
       this.connections.listVcsConnections({
         workspaceId: wrapId(workspaceId),
@@ -60,7 +61,9 @@ export class GrpcDeliveryStatsRepository implements DeliveryStatsRepository {
       failed: stats.totals?.failed ?? 0,
       connections: stats.connections.map(item => ({
         id: idValue(item.connectionId),
-        provider: providerOf(known.get(idValue(item.connectionId))?.provider ?? VcsProvider.UNSPECIFIED),
+        provider: providerOf(
+          known.get(idValue(item.connectionId))?.provider ?? VcsProvider.UNSPECIFIED,
+        ),
         account: known.get(idValue(item.connectionId))?.account ?? '',
         repositoryCount: known.get(idValue(item.connectionId))?.repositoryCount ?? 0,
         delivered: item.figures?.delivered ?? 0,

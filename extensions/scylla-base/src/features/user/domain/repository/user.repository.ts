@@ -19,6 +19,11 @@ export interface UserRepository {
   createPersonalToken(input: CreateTokenInput): Promise<CreatedToken>;
   revokePersonalToken(tokenId: string): Promise<void>;
   getAll(): Promise<UserList>;
+  /**
+   * The first users whose name, handle or email holds `text`, as on the console of the users.
+   * `signal` stops the call.
+   */
+  search(text: string, limit: number, signal?: AbortSignal): Promise<UserEntity[]>;
   getById(id: string): Promise<UserEntity>;
   /** The account of the session. Needs no permission. */
   getMe(): Promise<UserEntity>;

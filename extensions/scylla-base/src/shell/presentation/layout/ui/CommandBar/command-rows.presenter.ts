@@ -1,11 +1,9 @@
-import type { MessageDescriptor } from '@lingui/core';
 import BlocksIcon from '@lucide/svelte/icons/blocks';
 import Building2Icon from '@lucide/svelte/icons/building-2';
 import FileTextIcon from '@lucide/svelte/icons/file-text';
 import FolderIcon from '@lucide/svelte/icons/folder';
 import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
 import GitForkIcon from '@lucide/svelte/icons/git-fork';
-import KeyRoundIcon from '@lucide/svelte/icons/key-round';
 import LayersIcon from '@lucide/svelte/icons/layers';
 import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
 import LayoutListIcon from '@lucide/svelte/icons/layout-list';
@@ -17,11 +15,10 @@ import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import UserRoundIcon from '@lucide/svelte/icons/user-round';
 import UsersIcon from '@lucide/svelte/icons/users';
 import WorkflowIcon from '@lucide/svelte/icons/workflow';
-import { Permission, type PermissionTarget } from '@platform/authz';
+import { Permission } from '@platform/authz';
 import { workspaceUrl } from '@platform/context';
 import type {
   ActionCommand,
-  AppNavLink,
   ChoiceCommand,
   CommandDefinition,
   CommandForm,
@@ -29,17 +26,10 @@ import type {
   CreateCommand,
   ToggleCommand,
 } from '@scylla/core-sdk';
-import type { EntityIconProps, LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
-import { prepareFuzzyText, type FuzzyFields } from '@scylla/ui/utils';
-import { agentProfile, type AppEntity } from '@base/features/apps';
-import type { DashboardEntry } from '@base/features/dashboard';
-import {
-  newProjectPath,
-  projectIconProps,
-  type ProjectGroupEntity,
-  type ProjectIcon,
-} from '@base/features/project';
+import { prepareFuzzyText } from '@scylla/ui/utils';
+import { agentProfile } from '@base/features/apps';
+import { newProjectPath, projectIconProps } from '@base/features/project';
 import { roleName, type RoleEntity } from '@base/features/roles';
 import {
   allWorkspacesHref,
@@ -47,159 +37,28 @@ import {
   workspaceCounts,
   workspaceIconProps,
   workspaceRoleLabel,
-  type WorkspaceEntity,
-  type WorkspaceOwnerEntity,
 } from '@base/features/workspace';
-import type {
-  IdentityKind,
-  UserIdentityProfile,
-} from '@shared/presentation/presenters/user-identity.presenter.ts';
 import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
 import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
+import type { CommandRow, CommandWorkspace, Draft, RecentRow, RowsInput } from './command-row.ts';
+import { memberPlace, recentDraft, searchDrafts } from './command-search-rows.presenter.ts';
 
-export type CommandGroupId =
-  | 'pages'
-  | 'preferences'
-  | 'actions'
-  | 'projects'
-  | 'groups'
-  | 'pipelines'
-  | 'fragments'
-  | 'dashboards'
-  | 'machines'
-  | 'people'
-  | 'roles'
-  | 'secrets'
-  | 'workspaces';
-
-export type RowEffect =
-  | { kind: 'go'; href: string }
-  | { kind: 'form'; form: CommandForm }
-  | {
-      kind: 'change';
-      apply: () => void | Promise<void>;
-      undo?: () => void | Promise<void>;
-      /** The text of the toast. */
-      done: string;
-    }
-  | {
-      kind: 'confirm';
-      verb: string;
-      question: string;
-      detail?: string;
-      run: () => void | Promise<void>;
-    }
-  | { kind: 'act'; run: () => void | Promise<void> }
-  | { kind: 'run'; pipelineId: string; verb: string; question: string; detail: string }
-  | { kind: 'switch'; workspace: { id: string; name: string; slug: string } };
-
-/** The own avatar of an entity row, in place of the icon of its kind. */
-export type RowLook =
-  | { kind: IdentityKind; profile: UserIdentityProfile; self?: boolean }
-  | { kind: 'project'; icon: EntityIconProps }
-  | { kind: 'workspace'; icon: EntityIconProps };
-
-export interface CommandRow {
-  /** Stable from a session to the next one: the list of the recent rows stores it. */
-  id: string;
-  group: CommandGroupId;
-  name: string;
-  type: string;
-  place?: string;
-  /** What Enter does. No verb: the row is the current value, and Enter does nothing. */
-  verb?: string;
-  /** The full text of what Enter does, for the footer and for a screen reader. */
-  sentence: string;
-  icon: LucideIcon;
-  /** A person, an agent, an app or a project shows as everywhere else: its photo or its icon. */
-  look?: RowLook;
-  /** The color of `icon`, e.g. the folder of a group. Unset: grey. */
-  iconColor?: string;
-  /** Changes when the icon changes: the new icon then takes the place of the old one. */
-  iconKey?: string;
-  /** A glyph before the place, e.g. the folder of the group of a project. */
-  placeGlyph?: { icon: LucideIcon; color?: string };
-  /**
-   * More facts after the place, e.g. the number of projects of a group, or the role of the user and
-   * the counts of a workspace. Not searched.
-   */
-  facts?: string;
-  /** The owner of a workspace: its avatar shows before the place. */
-  owner?: WorkspaceOwnerEntity;
-  effect: RowEffect;
-  /** `true`: the row acts on the current page. */
-  here?: boolean;
-  /** `true`: the row shows only under the chip of its group. A row of another group is the same. */
-  chipOnly?: boolean;
-  /** `run`: the row shows only when the text starts with a word that means to run. */
-  gate?: 'run';
-  projectId?: string;
-  /** The order in the group, before the score: 0 first. */
-  rank?: number;
-  /** Shows with the results of its group, also when the text does not match it. */
-  pinned?: boolean;
-  fields: FuzzyFields;
-}
-
-/** A workspace of the bar. The details come with the lists of the server. */
-export type CommandWorkspace = Pick<WorkspaceEntity, 'id' | 'name' | 'slug'> &
-  Partial<Pick<WorkspaceEntity, 'icon' | 'owner' | 'role' | 'memberCount' | 'projectCount'>>;
-
-export interface CommandSourcesData {
-  projects: readonly { id: string; name: string; icon?: ProjectIcon; groupId?: string }[];
-  /** The groups of the projects: a row for each one, and a new project in each one. */
-  groups: readonly Pick<ProjectGroupEntity, 'id' | 'name' | 'color'>[];
-  pipelines: readonly { id: string; name: string; projectId: string }[];
-  fragments: readonly {
-    id: string;
-    name: string;
-    tags?: readonly string[];
-    source?: { kind: 'linked' | 'forked' };
-  }[];
-  /** Not set while the bar cannot read them. */
-  dashboards?: readonly DashboardEntry[];
-  apps: readonly ({ id: string; name: string; runner: boolean } & Partial<Pick<AppEntity, 'icon'>>)[];
-  members: readonly {
-    actorId: string;
-    actorKind: string;
-    displayName: string;
-    handle: string;
-    avatarUrl?: string;
-    avatarColor?: string;
-  }[];
-  /** The account of the session: its row shows the avatar of the reader, and « You » names it. */
-  selfId?: string;
-  workspaceRoles: readonly RoleEntity[];
-  instanceRoles: readonly RoleEntity[];
-  secrets: readonly { name: string }[];
-  workspaces: readonly CommandWorkspace[];
-  /** The workspaces of other users that the search finds: only for an instance admin. */
-  otherWorkspaces: readonly CommandWorkspace[];
-}
-
-export interface RowsInput extends CommandSourcesData {
-  links: readonly AppNavLink[];
-  commands: readonly CommandDefinition[];
-  slug?: string;
-  workspaceId: string | null;
-  project: { id: string | null; name: string | null };
-  /** The pipeline in the URL. */
-  pipelineId?: string;
-  /** The text of the search, with no filter prefix. */
-  search?: string;
-  can: (permission: Permission, target?: PermissionTarget) => boolean;
-  /** The text of a message in the other language. */
-  other: (message: MessageDescriptor | undefined) => string | undefined;
-}
-
-interface Draft extends Omit<CommandRow, 'sentence' | 'fields'> {
-  say: (label: string) => MessageDescriptor;
-  /** The id of the entity: the row with the same name, type and place shows its start. */
-  uid?: string;
-  keywords?: readonly (string | undefined)[];
-  /** Other words of the place, which do not show. */
-  searchPlace?: readonly (string | undefined)[];
-}
+export type {
+  CommandGroupId,
+  CommandJob,
+  CommandPackage,
+  CommandRow,
+  CommandRowActions,
+  CommandSecret,
+  CommandSourcesData,
+  CommandTrigger,
+  CommandUser,
+  CommandWorkspace,
+  RecentRow,
+  RowEffect,
+  RowLook,
+  RowsInput,
+} from './command-row.ts';
 
 const present = (texts: readonly (string | undefined | null)[]): string[] =>
   texts.filter((text): text is string => !!text);
@@ -503,7 +362,8 @@ const fragmentDrafts = ({ fragments }: RowsInput, slug: string): Draft[] =>
     group: 'fragments',
     name,
     type: t(messages.typeFragment),
-    place: source && t(source.kind === 'linked' ? messages.fragmentLinked : messages.fragmentForked),
+    place:
+      source && t(source.kind === 'linked' ? messages.fragmentLinked : messages.fragmentForked),
     verb: t(messages.verbGo),
     icon: source ? FRAGMENT_ICONS[source.kind] : LayersIcon,
     effect: { kind: 'go', href: workspaceUrl(slug, `library/${id}`) },
@@ -553,7 +413,10 @@ const workspaceDrafts = (input: RowsInput): Draft[] => {
   const draft = (workspace: CommandWorkspace, rank: number): Draft => {
     const current = workspace.id === input.workspaceId;
     const owner = workspace.owner && ownerName(workspace.owner);
-    const facts = present([workspaceRoleLabel(workspace.role, seesAll), ...workspaceCounts(workspace)]);
+    const facts = present([
+      workspaceRoleLabel(workspace.role, seesAll),
+      ...workspaceCounts(workspace),
+    ]);
     return {
       id: `workspace:${workspace.id}`,
       group: 'workspaces',
@@ -574,7 +437,9 @@ const workspaceDrafts = (input: RowsInput): Draft[] => {
       say: current
         ? messages.sayCurrent
         : () =>
-            owner ? messages.saySwitchOf(workspace.name, owner) : messages.saySwitch(workspace.name),
+            owner
+              ? messages.saySwitchOf(workspace.name, owner)
+              : messages.saySwitch(workspace.name),
       keywords: [workspace.slug, workspace.owner?.username, workspace.owner?.email],
     };
   };
@@ -602,7 +467,7 @@ const workspaceDrafts = (input: RowsInput): Draft[] => {
 };
 
 const entityDrafts = (input: RowsInput): Draft[] => {
-  const { slug, project } = input;
+  const { slug } = input;
   const workspaces = workspaceDrafts(input);
   if (!slug) return workspaces;
 
@@ -612,61 +477,42 @@ const entityDrafts = (input: RowsInput): Draft[] => {
     ...pipelineDrafts(input),
     ...fragmentDrafts(input, slug),
     ...dashboardDrafts(input, slug),
-    ...input.apps.map(
-      ({ id, name, runner, icon }): Draft => ({
-        id: `app:${id}`,
-        uid: id,
-        group: 'machines',
-        name,
-        type: t(runner ? messages.typeAgent : messages.typeApp),
-        verb: t(messages.verbGo),
-        icon: runner ? ServerIcon : BlocksIcon,
-        look: { kind: runner ? 'agent' : 'app', profile: agentProfile({ name, icon }) },
-        effect: { kind: 'go', href: workspaceUrl(slug, `${runner ? 'agents' : 'apps'}/${id}`) },
-        say: runner ? messages.sayAgent : messages.sayApp,
-      }),
-    ),
+    ...input.apps.map(({ id, name, runner, icon }): Draft => ({
+      id: `app:${id}`,
+      uid: id,
+      group: 'machines',
+      name,
+      type: t(runner ? messages.typeAgent : messages.typeApp),
+      verb: t(messages.verbGo),
+      icon: runner ? ServerIcon : BlocksIcon,
+      look: { kind: runner ? 'agent' : 'app', profile: agentProfile({ name, icon }) },
+      effect: { kind: 'go', href: workspaceUrl(slug, `${runner ? 'agents' : 'apps'}/${id}`) },
+      say: runner ? messages.sayAgent : messages.sayApp,
+    })),
     ...input.members
       .filter(member => member.actorKind === 'user')
-      .map(
-        ({ actorId, displayName, handle, avatarUrl, avatarColor }): Draft => ({
-          id: `member:${actorId}`,
-          uid: actorId,
-          group: 'people',
-          name: displayName || handle,
-          type: t(messages.typeMember),
-          place: displayName ? handle : undefined,
-          verb: t(messages.verbGo),
-          icon: UserRoundIcon,
-          look: {
-            kind: 'person',
-            profile: { displayName, username: handle, avatarUrl, avatarColor },
-            self: actorId === input.selfId,
-          },
-          effect: { kind: 'go', href: workspaceUrl(slug, `access/members/${actorId}`) },
-          say: messages.sayMember,
-        }),
-      ),
+      .map(({ actorId, displayName, handle, avatarUrl, avatarColor, roles }): Draft => ({
+        id: `member:${actorId}`,
+        uid: actorId,
+        group: 'people',
+        name: displayName || handle,
+        type: t(messages.typeMember),
+        place: memberPlace(roles) ?? (displayName ? handle : undefined),
+        facts: input.workspaceName || undefined,
+        verb: t(messages.verbGo),
+        icon: UserRoundIcon,
+        look: {
+          kind: 'person',
+          profile: { displayName, username: handle, avatarUrl, avatarColor },
+          self: actorId === input.selfId,
+        },
+        effect: { kind: 'go', href: workspaceUrl(slug, `access/members/${actorId}`) },
+        say: messages.sayMember,
+        keywords: [displayName ? handle : undefined],
+      })),
     ...roleDrafts(input.workspaceRoles, 'access', slug),
     ...roleDrafts(input.instanceRoles, 'instance', slug),
-    ...input.secrets.flatMap(({ name }): Draft[] =>
-      project.id
-        ? [
-            {
-              id: `secret:${project.id}:${name}`,
-              group: 'secrets',
-              name,
-              type: t(messages.typeSecret),
-              place: project.name ?? undefined,
-              verb: t(messages.verbGo),
-              icon: KeyRoundIcon,
-              effect: { kind: 'go', href: workspaceUrl(slug, `projects/${project.id}/secrets`) },
-              projectId: project.id,
-              say: messages.saySecret,
-            },
-          ]
-        : [],
-    ),
+    ...searchDrafts(input, slug),
     ...workspaces,
   ];
 };
@@ -680,25 +526,15 @@ const DASHBOARD_PAGE_ID = 'page:workspace/dashboard';
  */
 const emptyDashboardDrafts = (input: RowsInput, pages: readonly Draft[]): Draft[] => {
   const page = pages.find(draft => draft.id === DASHBOARD_PAGE_ID);
-  return page && input.dashboards?.length === 0 ? [{ ...page, group: 'dashboards', chipOnly: true }] : [];
+  return page && input.dashboards?.length === 0
+    ? [{ ...page, group: 'dashboards', chipOnly: true }]
+    : [];
 };
 
 const identityOf = (draft: Draft): string => `${draft.name}\n${draft.type}\n${draft.place ?? ''}`;
 
-/**
- * All that the bar can show. Two rows with the same name, type and place show the start of their
- * id: two rows must not read the same.
- */
-export const buildCommandRows = (input: RowsInput): CommandRow[] => {
-  const pages = pageDrafts(input);
-  const drafts = [
-    ...pages,
-    ...commandDrafts(input),
-    ...newProjectDrafts(input),
-    ...entityDrafts(input),
-    ...emptyDashboardDrafts(input, pages),
-  ];
-
+/** Two rows with the same name, type and place show the start of their id. */
+const finish = (drafts: readonly Draft[]): CommandRow[] => {
   const counts = new Map<string, number>();
   for (const draft of drafts) {
     counts.set(identityOf(draft), (counts.get(identityOf(draft)) ?? 0) + 1);
@@ -706,7 +542,8 @@ export const buildCommandRows = (input: RowsInput): CommandRow[] => {
 
   return drafts.map(({ say, uid, keywords = [], searchPlace = [], ...draft }) => {
     const repeated = (counts.get(identityOf({ say, uid, ...draft })) ?? 0) > 1;
-    const place = repeated && uid ? present([draft.place, uid.slice(0, 4)]).join(' · ') : draft.place;
+    const place =
+      repeated && uid ? present([draft.place, uid.slice(0, 4)]).join(' · ') : draft.place;
     const label = place ? `${draft.name} (${place})` : draft.name;
     return {
       ...draft,
@@ -720,3 +557,19 @@ export const buildCommandRows = (input: RowsInput): CommandRow[] => {
     };
   });
 };
+
+/** All that the bar can show. Two rows must not read the same. */
+export const buildCommandRows = (input: RowsInput): CommandRow[] => {
+  const pages = pageDrafts(input);
+  return finish([
+    ...pages,
+    ...commandDrafts(input),
+    ...newProjectDrafts(input),
+    ...entityDrafts(input),
+    ...emptyDashboardDrafts(input, pages),
+  ]);
+};
+
+/** The rows of the server search in the recent list, from what the list stored. */
+export const buildRecentRows = (recent: readonly RecentRow[]): CommandRow[] =>
+  finish(recent.map(recentDraft));

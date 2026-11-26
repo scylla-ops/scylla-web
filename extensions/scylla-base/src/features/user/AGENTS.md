@@ -18,7 +18,7 @@ component or another feature runs with `createQuery`.
 
 ```typescript
 type UserEntity, UserSummary, CreateUserInput, UpdateUserInput, UserAccess, UserSessionEntity
-userQueries        list · byId · me · access · sessions
+userQueries        list · search · byId · me · access · sessions
 userMutations      create · update · updateAvatar · importAvatar · remove · setActive · changePassword · sendPasswordReset ·
                    revokeSessions · revokeSession · deleteAccount · exportAccountData
 canListUsers, USERS_QUERY_KEY, USER_QUERY_KEY, ME_QUERY_KEY, USER_ACCESS_QUERY_KEY,
@@ -51,6 +51,7 @@ Never add: `user.module.ts`, a page or a component (export a loader, as `loadAcc
 | Method                             | RPC                  | Returns                                               |
 | ---------------------------------- | -------------------- | ----------------------------------------------------- |
 | `getAll()`                         | `ListUsers`          | `UserList` (= `PaginatedList<UserEntity>`)            |
+| `search(text, limit, signal?)`     | `ListUsers`          | `UserEntity[]`: one page (`userQueries.search`, the command bar, with `canListUsers()`) |
 | `getById(id)`                      | `GetUser`            | `UserEntity`                                          |
 | `getMe()`                          | `GetMe`              | `UserEntity`                                          |
 | `create(CreateUserInput)`          | `CreateUser`         | `UserEntity`                                          |

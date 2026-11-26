@@ -2,17 +2,20 @@ import { getQueryClient, mutationOptions, queryOptions, getModuleDomain } from '
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
-import type { SecretEntity } from '../domain/entities/secret.entity.ts';
+import type { SecretEntity, WorkspaceSecret } from '../domain/entities/secret.entity.ts';
 import type { SecretUsage } from '../domain/structs/secret-usage.struct.ts';
 import type { SecretModule } from '../secret.module.ts';
 
 // Resolved per call: tests swap the registry.
-const repository = () =>
-  getModuleDomain<typeof SecretModule.domain>('secret').secretRepository;
+const repository = () => getModuleDomain<typeof SecretModule.domain>('secret').secretRepository;
 
 export const CREATE_SECRET_MUTATION_KEY = ['secret', 'create'] as const;
 
 export const SECRETS_QUERY_KEY = (projectId: string) => ['secrets', projectId] as const;
+
+/** Under the `'secrets'` root: a new or a deleted secret refreshes the results of a search. */
+const SEARCH_SECRETS_QUERY_KEY = (workspaceId: string | null, text: string, limit: number) =>
+  ['secrets', 'workspace', workspaceId, 'search', text, limit] as const;
 
 const SECRET_USAGE_QUERY_KEY = (projectId: string, secretName: string) =>
   [...SECRETS_QUERY_KEY(projectId), 'pipelines', secretName] as const;
@@ -35,6 +38,26 @@ export const secretQueries = {
       enabled: !!projectId,
       queryFn: () => repository().listByProjectId(projectId),
       staleTime: 30 * 1000,
+    }),
+
+  /**
+   * The secrets of the workspace whose name or project name holds `text`: names only, never a
+   * value. A new text stops the call of the old one, and the old results stay until the new ones
+   * come. It needs LIST_SECRETS: the caller adds it to `enabled`.
+   */
+  search: (
+    workspaceId: string | null,
+    text: string,
+    limit: number,
+    options: { enabled?: boolean } = {},
+  ) =>
+    queryOptions<WorkspaceSecret[]>({
+      queryKey: SEARCH_SECRETS_QUERY_KEY(workspaceId, text, limit),
+      enabled: (options.enabled ?? true) && !!workspaceId,
+      queryFn: ({ signal }) =>
+        repository().searchWorkspace({ workspaceId: workspaceId!, text, limit }, signal),
+      placeholderData: previous => previous,
+      staleTime: 10_000,
     }),
 
   usage: (projectId: string, secretName: string, enabled: boolean) =>

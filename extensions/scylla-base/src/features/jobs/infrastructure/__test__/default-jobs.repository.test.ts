@@ -2,7 +2,12 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { IJobServiceClient } from '@base/generated/scylla/pipelines/v1/job_service.client.ts';
 import type { TailJobLogsResponse } from '@base/generated/scylla/pipelines/v1/job_service.ts';
-import { JobOrigin, JobStatus, LogStream, type Job } from '@base/generated/scylla/pipelines/v1/job.ts';
+import {
+  JobOrigin,
+  JobStatus,
+  LogStream,
+  type Job,
+} from '@base/generated/scylla/pipelines/v1/job.ts';
 import { SourceEvent } from '@base/generated/scylla/pipelines/v1/source.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultJobsRepository } from '../default-jobs.repository.ts';
@@ -127,14 +132,24 @@ describe('DefaultJobsRepository lists', () => {
     const listPipelineJobs = vi.fn((_request: { filter?: unknown }) =>
       unaryCall({ jobs: [], page: { nextToken: '' } }),
     );
-    const repository = new DefaultJobsRepository({ listPipelineJobs } as unknown as IJobServiceClient);
+    const repository = new DefaultJobsRepository({
+      listPipelineJobs,
+    } as unknown as IJobServiceClient);
 
     await repository.getByPipelineId('pipeline-1', { page: 1, pageSize: 10 });
     await repository.getByPipelineId('pipeline-1', { page: 1, pageSize: 10 }, { event: 'tag' });
 
     expect(listPipelineJobs.mock.calls.map(([request]) => request.filter)).toEqual([
       undefined,
-      { branch: '', event: SourceEvent.TAG, authorLogin: '', pullRequest: 0, statuses: [], origins: [] },
+      {
+        branch: '',
+        event: SourceEvent.TAG,
+        authorLogin: '',
+        pullRequest: 0,
+        statuses: [],
+        origins: [],
+        query: '',
+      },
     ]);
   });
 });
@@ -155,8 +170,12 @@ describe('DefaultJobsRepository actions', () => {
 
   it('approves and rejects a job from a fork, and gives the job after the change', async () => {
     const client = {
-      approveJob: vi.fn(() => unaryCall({ job: { ...job('job-1', 1), status: JobStatus.PENDING } })),
-      rejectJob: vi.fn(() => unaryCall({ job: { ...job('job-1', 1), status: JobStatus.CANCELLED } })),
+      approveJob: vi.fn(() =>
+        unaryCall({ job: { ...job('job-1', 1), status: JobStatus.PENDING } }),
+      ),
+      rejectJob: vi.fn(() =>
+        unaryCall({ job: { ...job('job-1', 1), status: JobStatus.CANCELLED } }),
+      ),
     } as unknown as IJobServiceClient;
     const repository = new DefaultJobsRepository(client);
 

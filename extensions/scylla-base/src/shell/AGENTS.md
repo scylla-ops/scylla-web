@@ -135,10 +135,14 @@ CommandBar.svelte                the dialog
 CommandBarContent.svelte         the input, the chips, the rows, the status lines, the footer
 CommandRowIcon.svelte            the icon of a row: the entity icon, or a glyph in its color
 command-row.attachments.ts       the fade of a row that a new search shows
+command-row.ts                   the types of a row and of the inputs of the presenters
 command-sources.state.svelte.ts  the lists. Each list reads only with its permission, while the bar is open
+command-search.state.svelte.ts   the server search: jobs, triggers, secrets of each project, users, packages
 command-rows.presenter.ts        builds a CommandRow from each page, command and entity
+command-search-rows.presenter.ts the rows of the server search, their actions, the recent snapshots
 command-results.presenter.ts     prefixes, chips, groups, order, limits
 command-recent.ts                the recent rows of a workspace, in localStorage
+CommandSearchStatus.svelte       the small "Searching…" line of a section
 CommandConfirm.svelte            the confirmation in the bar
 RunPipelineConfirm.svelte        the same for a run
 ```
@@ -193,6 +197,26 @@ Rules:
   own ones (`rank`), with the role "Instance admin", then the row "All workspaces…".
 - A `pinned` row shows with the results of its group, also when the text does not match it. It does
   not show alone.
+- **The server search** (`command-search.state.svelte.ts`) finds the jobs (by the number `#<short id>`,
+  the branch, the pipeline or the project), the triggers, the secrets of each project (names only),
+  the users of the instance and the packages of the marketplace. It uses the list RPCs of the
+  features (`jobQueries.search`, `triggerQueries.search`, `secretQueries.search`, `userQueries.search`,
+  `marketplaceQueries.list`). It sends after a pause of 200 ms, with 2 characters or more (one is
+  enough for a job number in the tab of the jobs or after `#`). A new text stops the old call: the
+  queries pass their `signal` to the client. The old rows stay until the new ones come
+  (`placeholderData`), and the section shows `CommandSearchStatus` while it waits.
+- Each kind reads with the permission of its pages, and its tab shows only then (`available`): the
+  jobs with `LIST_JOBS_BY_WORKSPACE` and `LIST_PIPELINES_BY_WORKSPACE`, the triggers with
+  `MANAGE_TRIGGERS`, the secrets with `LIST_SECRETS` (the server gives only the projects that the
+  reader can read), the users with `canListUsers()`, the packages with `LIST_PIPELINES_BY_WORKSPACE`.
+  A tab with no text lists the newest rows of its kind. The server matched these rows: they show
+  also when the fuzzy match of the bar fails (`found`).
+- An action of a row comes just after its row (`follows`), and uses the confirmation of the bar:
+  "Rerun…" on a failed job (`CREATE_JOB`), "Disable…" on an enabled trigger (destructive), "Enable"
+  on a disabled one (not for a trigger of a pipeline file), "Copy" the name of a secret (never the
+  value).
+- The recent list keeps a snapshot of a job, a trigger, a secret, a user or a package
+  (`toRecentRow`): the bar has no list of these kinds with no text.
 
 ## The wrappers
 

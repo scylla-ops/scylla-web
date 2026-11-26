@@ -7,6 +7,20 @@ export interface SecretEntity {
   updatedAt: string;
 }
 
+/** A secret of a list of the workspace, with the name of its project. Never a value. */
+export interface WorkspaceSecret {
+  secret: SecretEntity;
+  projectName: string;
+}
+
+/** The secrets of a workspace whose name or project name holds `text`, newest first. */
+export interface WorkspaceSecretSearch {
+  workspaceId: string;
+  /** Empty: each secret. */
+  text: string;
+  limit: number;
+}
+
 /** `value` is sent once and never stored. */
 export interface CreateSecretInput {
   projectId: string;

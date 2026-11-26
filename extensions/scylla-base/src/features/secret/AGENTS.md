@@ -17,6 +17,7 @@ component or another feature runs with `createQuery`.
 
 ```typescript
 type SecretEntity, CreateSecretInput, UpdateSecretInput, CreateSecretValues, UpdateSecretValues
+type WorkspaceSecret                  ← a secret of the workspace search, with the name of its project
 secretQueries, secretMutations, SECRETS_QUERY_KEY
 ```
 
@@ -32,6 +33,7 @@ Never add: `secret.module.ts`, pages.
 | Method | Returns |
 |---|---|
 | `listByProjectId(projectId)` | `SecretEntity[]` — **metadata only, no values** |
+| `searchWorkspace(search, signal?)` | `WorkspaceSecret[]` — one page of `ListWorkspaceSecrets`: the secrets of the projects that the reader can read, newest first, whose name or project holds the text. Names only. `secretQueries.search`, for the command bar |
 | `create(CreateSecretInput)` | `SecretEntity` |
 | `update(UpdateSecretInput)` | `SecretEntity` — sends only the fields it gets |
 | `listPipelinesUsing(projectId, secretName)` | `SecretUsage` — the first page of the pipelines that use the secret, and the total |

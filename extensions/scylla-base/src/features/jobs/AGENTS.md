@@ -56,7 +56,7 @@ Never add: `jobs.module.ts`, and never export a `.svelte` component from this ba
 |---|---|
 | `getByPipelineId(id, pagination?, filter?)` | paginated `JobEntity` list, only the jobs that match the filter |
 | `getByWorkspaceId(...)` | paginated `JobEntity` list |
-| `getNewestByWorkspaceId(query)` | `JobEntity[]` — one page, newest first, `JOB_VIEW_SUMMARY` (no node) |
+| `getNewestByWorkspaceId(query, signal?)` | `JobEntity[]` — one page, newest first, `JOB_VIEW_SUMMARY` (no node). `query.text` finds a job by its id, branch, tag, pipeline or project. The signal stops the call |
 | `getStats(query)` | `JobStats` — `GetJobStats`: totals, buckets, groups, previous period |
 | `getById(jobId)` | `JobEntity` |
 | `deleteById(jobId)` | `void` |
@@ -221,6 +221,9 @@ paths.
   details header, and only with `CREATE_JOB` (`rerun_job` on the server, not `run_pipeline`).
   The new job runs the nodes and the inputs of the old job, not the pipeline as it is now. `jobMutations.rerun` refreshes the list and opens the
   new job. The action is disabled while the mutation is pending, so a double click makes one job.
+  `jobMutations.rerunJob` does the same for a job of any project (the command bar): it refreshes
+  each list of jobs and opens the new job in its project. `jobQueries.search` is the server search
+  of the command bar (`SEARCH_JOBS_QUERY_KEY`): it keeps the old rows while the new text loads.
 - **A node shows `Attempt N/M` only when it can retry and it started** (`attemptOf`: `M > 1` and
   `N > 0`), in its row of the list.
 - **The details page is the one place a job's logs are read.** Everywhere a job is displayed —

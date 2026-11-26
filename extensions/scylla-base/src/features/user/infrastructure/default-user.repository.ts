@@ -86,6 +86,19 @@ export class DefaultUserRepository implements UserRepository {
     return grpcUser.toDomainList(users);
   }
 
+  public async search(text: string, limit: number, signal?: AbortSignal): Promise<UserEntity[]> {
+    const request = {
+      query: text.trim(),
+      withInstanceRole: false,
+      page: { size: limit, token: '' },
+    };
+    const call = signal
+      ? this.admin.listUsers(request, { abort: signal })
+      : this.admin.listUsers(request);
+    const response = await call.response;
+    return response.users.map(grpcUser.entryToDomain);
+  }
+
   public async getById(userId: string): Promise<UserEntity> {
     if (this.isSelf(userId)) return this.getMe();
     const response = await this.admin.getUser({ userId: wrapId(userId) }).response;

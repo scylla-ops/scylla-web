@@ -7,12 +7,14 @@
     question: string;
     detail?: string;
     verb: string;
+    /** The verb deletes, removes or stops something. */
+    destructive?: boolean;
     run: () => void | Promise<void>;
     onCancel: () => void;
     onDone: () => void;
   }
 
-  let { question, detail, verb, run, onCancel, onDone }: Props = $props();
+  let { question, detail, verb, destructive = false, run, onCancel, onDone }: Props = $props();
 
   let confirm = $state<HTMLElement | null>(null);
   let busy = $state(false);
@@ -55,6 +57,14 @@
   </div>
   <div class="flex justify-end gap-2">
     <Button variant="ghost" size="sm" onclick={onCancel}>{t(messages.cancel)}</Button>
-    <Button bind:ref={confirm} size="sm" disabled={busy} onclick={execute}>{verb}</Button>
+    <Button
+      bind:ref={confirm}
+      size="sm"
+      variant={destructive ? 'destructive' : 'default'}
+      disabled={busy}
+      onclick={execute}
+    >
+      {verb}
+    </Button>
   </div>
 </div>

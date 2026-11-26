@@ -5,6 +5,7 @@ export type {
   TriggerSource,
   TriggerInput,
   TriggerKind,
+  WorkspaceTrigger,
 } from './domain/entities/trigger.entity.ts';
 export {
   triggerQueries,

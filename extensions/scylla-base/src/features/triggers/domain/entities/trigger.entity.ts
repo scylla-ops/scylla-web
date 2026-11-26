@@ -62,8 +62,7 @@ export type TriggerKind = TriggerSource['kind'];
 
 /** A constant, or a value extracted from the webhook payload. */
 export type TriggerInputValue =
-  | { kind: 'literal'; value: string }
-  | { kind: 'jsonPointer'; value: string };
+  { kind: 'literal'; value: string } | { kind: 'jsonPointer'; value: string };
 
 /**
  * A value that the trigger gives to the run of its pipeline. "Input" is the word of the product
@@ -108,6 +107,22 @@ export interface TriggerEntity {
   updatedAt: string;
   /** From the `on` table of a pipeline file: read only, change the file. */
   fromFile: boolean;
+}
+
+/** A trigger of a list of the workspace, with the names of its pipeline and of its project. */
+export interface WorkspaceTrigger {
+  trigger: TriggerEntity;
+  projectId: string;
+  pipelineName: string;
+  projectName: string;
+}
+
+/** The triggers of a workspace whose name, pipeline name or project name holds `text`. */
+export interface WorkspaceTriggerSearch {
+  workspaceId: string;
+  /** Empty: each trigger. */
+  text: string;
+  limit: number;
 }
 
 export const GIT_KINDS: readonly GitKind[] = ['push', 'pullRequest', 'tag'];

@@ -2,10 +2,13 @@ import type {
   CreatedTrigger,
   TriggerDraft,
   TriggerEntity,
+  WorkspaceTrigger,
+  WorkspaceTriggerSearch,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
 import type { TriggersRepository } from '@base/features/triggers/domain/repository/triggers.repository.ts';
 import type { ITriggerServiceClient } from '@base/generated/scylla/pipelines/v1/trigger_service.client.ts';
 import type { Trigger } from '@base/generated/scylla/pipelines/v1/trigger.ts';
+import { TriggerOrder } from '@base/generated/scylla/pipelines/v1/trigger_summary.ts';
 import { idValue, required, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 import * as grpcTrigger from './grpc-trigger.mapper.ts';
 
@@ -34,6 +37,27 @@ export class DefaultTriggersRepository implements TriggersRepository {
       token = response.page?.nextToken ?? '';
     } while (token);
     return triggers.map(trigger => grpcTrigger.toDomain(trigger, this.apiUrlOf()));
+  }
+
+  public async searchWorkspace(
+    search: WorkspaceTriggerSearch,
+    signal?: AbortSignal,
+  ): Promise<WorkspaceTrigger[]> {
+    const request = {
+      workspaceId: wrapId(search.workspaceId),
+      projectIds: [],
+      pipelineIds: [],
+      kinds: [],
+      enabledOnly: false,
+      order: TriggerOrder.UNSPECIFIED,
+      page: { size: search.limit, token: '' },
+      query: search.text.trim(),
+    };
+    const call = signal
+      ? this.client.listWorkspaceTriggers(request, { abort: signal })
+      : this.client.listWorkspaceTriggers(request);
+    const response = await call.response;
+    return response.triggers.map(summary => grpcTrigger.summaryToDomain(summary, this.apiUrlOf()));
   }
 
   public async getById(triggerId: string): Promise<TriggerEntity> {

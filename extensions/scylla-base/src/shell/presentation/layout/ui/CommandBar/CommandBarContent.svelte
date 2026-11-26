@@ -30,7 +30,7 @@
   import CommandConfirm from './CommandConfirm.svelte';
   import CommandRowIcon from './CommandRowIcon.svelte';
   import { appearRow } from './command-row.attachments.ts';
-  import { addRecent, readRecent } from './command-recent.ts';
+  import { addRecent, readRecent, readRecentRows } from './command-recent.ts';
   import {
     chipPressed,
     commandChips,
@@ -42,9 +42,12 @@
     resultItems,
     type CommandFilter,
   } from './command-results.presenter.ts';
-  import { buildCommandRows, type CommandRow } from './command-rows.presenter.ts';
+  import { buildCommandRows, buildRecentRows, type CommandRow } from './command-rows.presenter.ts';
+  import { toRecentRow } from './command-search-rows.presenter.ts';
   import { HINT_EXAMPLES, showCommandHints } from './command-hints.ts';
+  import { createCommandSearch } from './command-search.state.svelte.ts';
   import { createCommandSources } from './command-sources.state.svelte.ts';
+  import CommandSearchStatus from './CommandSearchStatus.svelte';
   import RunPipelineConfirm from './RunPipelineConfirm.svelte';
 
   interface Props {
@@ -73,12 +76,17 @@
   let input = $state<HTMLInputElement | null>(null);
 
   const recent = readRecent(context().workspace.id);
+  const recentRows = buildRecentRows(readRecentRows(context().workspace.id));
 
   const filter = $derived(parsed.filter ?? chip);
+  const search = createCommandSearch(() => ({ search: parsed.search, filter }));
 
   const rows = $derived(
     buildCommandRows({
       ...sources.data,
+      ...search.data,
+      actions: search.actions,
+      workspaceName: workspace.name,
       links: navLinks(),
       commands,
       slug: linkParams().workspaceSlug,
@@ -91,13 +99,16 @@
     }),
   );
 
-  const chips = $derived(commandChips(rows));
+  const chips = $derived(commandChips(rows, search.available));
 
   const order = $derived({
     openProject: project.id,
     recent,
+    recentRows,
+    searching: search.searching,
     here: pipelineId ? ('pipeline' as const) : ('project' as const),
   });
+  const failed = $derived([...new Set([...sources.failed, ...search.failed])]);
 
   const results = $derived(commandResults(rows, parsed.search, filter, order));
   const items = $derived(resultItems(results));
@@ -123,7 +134,7 @@
     setFilter(next.filter);
   };
 
-  const remember = (row: CommandRow) => addRecent(workspace.id, row.id);
+  const remember = (row: CommandRow) => addRecent(workspace.id, row.id, toRecentRow(row));
 
   const change = async (row: CommandRow) => {
     if (row.effect.kind !== 'change') return;
@@ -216,6 +227,7 @@
     question={confirming.effect.question}
     detail={confirming.effect.detail}
     verb={confirming.effect.verb}
+    destructive={confirming.effect.destructive}
     run={confirming.effect.run}
     onCancel={() => (confirming = null)}
     onDone={close}
@@ -371,18 +383,21 @@
               {t(messages.moreHidden(section.hidden))}
             </p>
           {/if}
+          {#if section.searching}
+            <CommandSearchStatus />
+          {/if}
         </CommandGroup>
       {/each}
 
       {#if searching && sources.loading}
         <p class="px-2 py-2 text-sm text-muted-foreground">{t(messages.reading)}</p>
       {/if}
-      {#if searching && sources.failed.length > 0}
+      {#if searching && failed.length > 0}
         <p class="px-2 py-2 text-sm text-muted-foreground">
-          {t(messages.failed(sources.failed.map(groupTitle).join(', ')))}
+          {t(messages.failed(failed.map(groupTitle).join(', ')))}
         </p>
       {/if}
-      {#if searching && results.total === 0 && !sources.loading && sources.failed.length === 0}
+      {#if searching && results.total === 0 && !sources.loading && search.searching.length === 0 && failed.length === 0}
         <p class="px-2 py-6 text-center text-sm text-muted-foreground">
           {t(layoutMessages.searchNoResult)}
         </p>

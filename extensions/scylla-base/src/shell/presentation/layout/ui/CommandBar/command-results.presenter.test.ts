@@ -165,12 +165,12 @@ describe('the groups', () => {
     ];
 
     it('shows under its chip, and gives the chip', () => {
-      expect(commandResults(rows, '', 'dashboards', ORDER).sections.map(section => section.id)).toEqual([
-        'dashboards',
-      ]);
-      expect(commandResults(rows, 'dash', 'dashboards', ORDER).sections.map(section => section.id)).toEqual([
-        'dashboards',
-      ]);
+      expect(
+        commandResults(rows, '', 'dashboards', ORDER).sections.map(section => section.id),
+      ).toEqual(['dashboards']);
+      expect(
+        commandResults(rows, 'dash', 'dashboards', ORDER).sections.map(section => section.id),
+      ).toEqual(['dashboards']);
       expect(commandChips(rows).map(chip => chip.title)).toEqual(['All', 'Pages', 'Dashboards']);
     });
 
@@ -472,5 +472,64 @@ describe('nameParts', () => {
 
   it('keeps a name with no match', () => {
     expect(nameParts('Build', [])).toEqual([{ text: 'Build', hit: false }]);
+  });
+});
+
+describe('the server search', () => {
+  const job = row('job:1', 'jobs', '#9f3c2a1b', { found: true });
+  const rerun = row('rerun:1', 'jobs', 'Rerun #9f3c2a1b', { found: true, follows: 'job:1' });
+  const other = row('job:2', 'jobs', '#11112222', { found: true });
+
+  it('keeps a row that the server found, also when the letters do not match it', () => {
+    expect(ids(search([job, row('page:a', 'pages', 'Agents')], 'deploy'))).toEqual(['job:1']);
+  });
+
+  it('puts an action just after the row that it acts on', () => {
+    expect(ids(search([rerun, other, job], 'rerun'))).toEqual(['job:2', 'job:1', 'rerun:1']);
+    expect(ids(search([other, job, rerun], '9f3c'))).toEqual(['job:1', 'rerun:1', 'job:2']);
+  });
+
+  it('never gives the best match to an action', () => {
+    const results = search([rerun, row('page:a', 'pages', 'Agents')], 'rerun');
+
+    expect(results.sections.map(section => section.id)).toEqual(['jobs']);
+  });
+
+  it('shows the section of a kind that the server searches, before its first rows come', () => {
+    const order: ResultOrder = { recent: [], searching: ['jobs', 'users'] };
+
+    const all = commandResults([job], 'deploy', null, order);
+    const tab = commandResults([], 'deploy', 'jobs', order);
+
+    expect(all.sections.map(({ id, searching }) => ({ id, searching }))).toEqual([
+      { id: 'jobs', searching: true },
+      { id: 'users', searching: true },
+    ]);
+    expect(tab.sections).toEqual([{ id: 'jobs', heading: 'Jobs', items: [], searching: true }]);
+    expect(tab.total).toBe(0);
+  });
+
+  it('gives # the jobs too', () => {
+    const rows = [job, row('project:p1', 'projects', 'web-api'), row('page:a', 'pages', 'Agents')];
+
+    expect(ids(commandResults(rows, '', 'work', ORDER))).toEqual(['project:p1', 'job:1']);
+    expect(chipPressed('jobs', 'work')).toBe(true);
+  });
+
+  it('shows the chip of a kind that the reader can search, before its rows', () => {
+    const titles = commandChips([row('page:a', 'pages', 'Agents')], ['jobs', 'users']).map(
+      ({ title }) => title,
+    );
+
+    expect(titles).toEqual(['All', 'Pages', 'Jobs', 'Users']);
+  });
+
+  it('gives a stored row of the server search in the recent rows', () => {
+    const results = commandResults([row('page:a', 'pages', 'Agents')], '', null, {
+      recent: ['job:1', 'page:a'],
+      recentRows: [job],
+    });
+
+    expect(results.sections[0].items.map(item => item.id)).toEqual(['job:1', 'page:a']);
   });
 });

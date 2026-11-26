@@ -22,7 +22,11 @@ export type CommandFilter =
   | 'people'
   | 'secrets'
   | 'workspaces'
-  /** `#`: the projects and the pipelines together. No chip has this name. */
+  | 'jobs'
+  | 'triggers'
+  | 'users'
+  | 'packages'
+  /** `#`: the projects, the pipelines and the jobs together. No chip has this name. */
   | 'work';
 
 const FILTER_GROUPS: Record<CommandFilter, readonly CommandGroupId[]> = {
@@ -37,8 +41,16 @@ const FILTER_GROUPS: Record<CommandFilter, readonly CommandGroupId[]> = {
   people: ['people', 'roles'],
   secrets: ['secrets'],
   workspaces: ['workspaces'],
-  work: ['projects', 'pipelines'],
+  jobs: ['jobs'],
+  triggers: ['triggers'],
+  users: ['users'],
+  packages: ['packages'],
+  work: ['projects', 'pipelines', 'jobs'],
 };
+
+/** The groups that a filter shows. */
+export const filterGroups = (filter: CommandFilter): readonly CommandGroupId[] =>
+  FILTER_GROUPS[filter];
 
 const GROUP_FILTER: Record<CommandGroupId, CommandFilter> = {
   pages: 'pages',
@@ -54,6 +66,10 @@ const GROUP_FILTER: Record<CommandGroupId, CommandFilter> = {
   roles: 'people',
   secrets: 'secrets',
   workspaces: 'workspaces',
+  jobs: 'jobs',
+  triggers: 'triggers',
+  users: 'users',
+  packages: 'packages',
 };
 
 /**
@@ -68,11 +84,15 @@ const GROUP_ORDER: readonly CommandGroupId[] = [
   'projects',
   'pipelines',
   'fragments',
+  'jobs',
+  'triggers',
   'dashboards',
   'machines',
   'people',
   'roles',
+  'users',
   'secrets',
+  'packages',
   'workspaces',
 ];
 
@@ -90,6 +110,10 @@ const GROUP_TITLES: Record<CommandGroupId, MessageDescriptor> = {
   roles: messages.groupRoles,
   secrets: messages.groupSecrets,
   workspaces: messages.groupWorkspaces,
+  jobs: messages.groupJobs,
+  triggers: messages.groupTriggers,
+  users: messages.groupUsers,
+  packages: messages.groupPackages,
 };
 
 const PREFIXES: Readonly<Record<string, CommandFilter>> = {
@@ -125,9 +149,15 @@ export interface CommandChip {
   title: string;
 }
 
-/** A chip shows only when it has rows. */
-export const commandChips = (rows: readonly CommandRow[]): CommandChip[] => {
-  const present = new Set(rows.filter(row => !row.gate).map(row => row.group));
+/**
+ * A chip shows only when it has rows, or when the reader can search its kind on the server
+ * (`available`): those rows come only with a text.
+ */
+export const commandChips = (
+  rows: readonly CommandRow[],
+  available: readonly CommandGroupId[] = [],
+): CommandChip[] => {
+  const present = new Set([...rows.filter(row => !row.gate).map(row => row.group), ...available]);
   const chip = (filter: CommandFilter, title: MessageDescriptor): CommandChip[] =>
     FILTER_GROUPS[filter].some(group => present.has(group)) ? [{ filter, title: t(title) }] : [];
   return [
@@ -137,16 +167,22 @@ export const commandChips = (rows: readonly CommandRow[]): CommandChip[] => {
     ...chip('projects', messages.groupProjects),
     ...chip('groups', messages.groupGroups),
     ...chip('pipelines', messages.groupPipelines),
+    ...chip('jobs', messages.groupJobs),
+    ...chip('triggers', messages.groupTriggers),
     ...chip('dashboards', messages.groupDashboards),
     ...chip('machines', messages.groupMachines),
     ...chip('people', messages.groupPeople),
+    ...chip('users', messages.groupUsers),
     ...chip('secrets', messages.groupSecrets),
+    ...chip('packages', messages.groupPackages),
     ...chip('workspaces', messages.groupWorkspaces),
   ];
 };
 
 export const chipPressed = (chip: CommandFilter | null, active: CommandFilter | null): boolean =>
-  active === 'work' ? chip === 'projects' || chip === 'pipelines' : chip === active;
+  active === 'work'
+    ? chip === 'projects' || chip === 'pipelines' || chip === 'jobs'
+    : chip === active;
 
 export interface ResultRow {
   id: string;
@@ -172,6 +208,8 @@ export interface ResultSection {
   items: readonly ResultItem[];
   /** The rows above the limit of a filter. */
   hidden?: number;
+  /** The server search of this kind runs: the section shows a small line under its rows. */
+  searching?: boolean;
 }
 
 export interface CommandResults {
@@ -187,6 +225,10 @@ export interface ResultOrder {
   recent: readonly string[];
   /** What the rows of `here` act on. */
   here?: 'project' | 'pipeline';
+  /** The recent rows that no live list gives: the rows of the server search. */
+  recentRows?: readonly CommandRow[];
+  /** The kinds that the server searches now. */
+  searching?: readonly CommandGroupId[];
 }
 
 interface Scored {
@@ -255,19 +297,34 @@ const sectionOf = (
   return { id: group, heading: groupTitle(group), items: [...shown, more] };
 };
 
+/** An action on a row comes just after that row, when the row shows. */
+const withFollowers = (scored: readonly Scored[]): Scored[] => {
+  const ids = new Set(scored.map(({ row }) => row.id));
+  return scored
+    .filter(({ row }) => !row.follows || !ids.has(row.follows))
+    .flatMap(item => [item, ...scored.filter(({ row }) => row.follows === item.row.id)]);
+};
+
+/** A kind that the server searches shows its section, also before its first rows come. */
 const sectionsOf = (
   scored: readonly Scored[],
   filter: CommandFilter | null,
+  searching: readonly CommandGroupId[] = [],
 ): ResultSection[] =>
   GROUP_ORDER.flatMap(group => {
-    const rows = scored.filter(({ row }) => row.group === group);
-    return rows.length > 0 ? [sectionOf(group, rows, filter)] : [];
+    const rows = withFollowers(scored.filter(({ row }) => row.group === group));
+    const busy = searching.includes(group) && (!filter || FILTER_GROUPS[filter].includes(group));
+    if (rows.length === 0) {
+      return busy ? [{ id: group, heading: groupTitle(group), items: [], searching: true }] : [];
+    }
+    const section = sectionOf(group, rows, filter);
+    return [busy ? { ...section, searching: true } : section];
   });
 
 /** One row is apart from the others, and the fixed order of the groups would not show it first. */
 const bestMatchOf = (scored: readonly Scored[]): Scored | null => {
   const actionable = scored
-    .filter(({ row }) => row.verb !== undefined)
+    .filter(({ row }) => row.verb !== undefined && !row.follows)
     .sort((a, b) => b.match.score - a.match.score);
   const [top, next] = actionable;
   if (!top || !next) return null;
@@ -291,7 +348,7 @@ export const searchCommandRows = (
     .filter(row => (groups ? groups.includes(row.group) : !row.chipOnly))
     .filter(row => row.gate !== 'run' || runWord || row.here);
   const matched = kept.flatMap((row): Scored[] => {
-    const match = fuzzyMatch(query, row.fields);
+    const match = fuzzyMatch(query, row.fields) ?? (row.found ? noMatch : null);
     return match ? [{ row, match }] : [];
   });
   // A pinned row follows the results of its group, e.g. the list of all the workspaces.
@@ -302,7 +359,8 @@ export const searchCommandRows = (
   const scored = [...matched, ...pinned].sort(compareScored(order));
 
   const best = filter ? null : bestMatchOf(scored);
-  const sections = sectionsOf(best ? scored.filter(item => item !== best) : scored, filter);
+  const rest = best ? scored.filter(item => item !== best) : scored;
+  const sections = sectionsOf(rest, filter, order.searching);
 
   return {
     sections: best
@@ -323,7 +381,11 @@ export const browseCommandRows = (
     .filter(row => FILTER_GROUPS[filter].includes(row.group) && (!row.gate || row.here))
     .map((row): Scored => ({ row, match: noMatch }))
     .sort(compareScored(order));
-  return { sections: sectionsOf(scored, filter), total: scored.length, closeOnly: false };
+  return {
+    sections: sectionsOf(scored, filter, order.searching),
+    total: scored.length,
+    closeOnly: false,
+  };
 };
 
 /** The bar with no text: what the user took last, what acts on this page, the preferences, the help. */
@@ -332,7 +394,7 @@ export const startCommandRows = (
   order: ResultOrder,
 ): CommandResults => {
   const shown = rows.filter(row => !row.chipOnly);
-  const byId = new Map(shown.map(row => [row.id, row]));
+  const byId = new Map([...(order.recentRows ?? []), ...shown].map(row => [row.id, row]));
   const taken = new Set<string>();
   const take = (list: readonly CommandRow[]): ResultRow[] =>
     list.flatMap(row => {
@@ -349,7 +411,9 @@ export const startCommandRows = (
   );
   const here = take(rows.filter(row => row.here).slice(0, HERE_LIMIT));
   // Enter on the first row must never change a setting: a page comes before the preferences.
-  const pages = take(rows.filter(row => row.group === 'pages' && row.verb !== undefined).slice(0, PAGES_LIMIT));
+  const pages = take(
+    rows.filter(row => row.group === 'pages' && row.verb !== undefined).slice(0, PAGES_LIMIT),
+  );
   const preferences = take(
     rows
       .filter(row => row.group === 'preferences')
@@ -361,7 +425,9 @@ export const startCommandRows = (
     { id: 'recent', heading: t(messages.groupRecent), items: recent },
     {
       id: 'here',
-      heading: t(order.here === 'pipeline' ? messages.groupHerePipeline : messages.groupHereProject),
+      heading: t(
+        order.here === 'pipeline' ? messages.groupHerePipeline : messages.groupHereProject,
+      ),
       items: here,
     },
     { id: 'pages', heading: groupTitle('pages'), items: pages },

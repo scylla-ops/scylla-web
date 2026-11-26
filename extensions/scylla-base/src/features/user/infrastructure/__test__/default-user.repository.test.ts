@@ -149,6 +149,20 @@ describe('DefaultUserRepository', () => {
     expect(a.listUsers).toHaveBeenCalledTimes(2);
   });
 
+  it('finds the users by a text, in one page, and passes the signal that stops the call', async () => {
+    const { repo, a } = repository();
+    const stop = new AbortController();
+
+    const found = await repo.search(' ada ', 8, stop.signal);
+
+    expect(found.map(user => user.id)).toEqual(['user-1']);
+    expect(a.listUsers).toHaveBeenCalledTimes(1);
+    expect(a.listUsers).toHaveBeenCalledWith(
+      { query: 'ada', withInstanceRole: false, page: { size: 8, token: '' } },
+      { abort: stop.signal },
+    );
+  });
+
   it('reads the own account with GetMe, another one with the admin service', async () => {
     const { repo, p, a } = repository();
 
@@ -224,7 +238,13 @@ describe('DefaultUserRepository', () => {
     await expect(repo.listSignInMethods()).resolves.toEqual({
       hasPassword: false,
       identities: [
-        { provider: 'github', subject: '42', email: 'ada@example.com', linkedAt: '', hasPicture: true },
+        {
+          provider: 'github',
+          subject: '42',
+          email: 'ada@example.com',
+          linkedAt: '',
+          hasPicture: true,
+        },
       ],
     });
   });

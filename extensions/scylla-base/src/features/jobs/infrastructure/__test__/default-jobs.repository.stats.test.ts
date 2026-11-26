@@ -24,7 +24,9 @@ const job = (id: string): Job => ({
 describe('DefaultJobsRepository.getNewestByWorkspaceId', () => {
   it('reads one page of the summary view, with the statuses and the period', async () => {
     const listWorkspaceJobs = vi.fn(() => unaryCall({ jobs: [job('job-1')] }));
-    const repository = new DefaultJobsRepository({ listWorkspaceJobs } as unknown as IJobServiceClient);
+    const repository = new DefaultJobsRepository({
+      listWorkspaceJobs,
+    } as unknown as IJobServiceClient);
 
     const jobs = await repository.getNewestByWorkspaceId({
       workspaceId: 'org-1',
@@ -46,6 +48,24 @@ describe('DefaultJobsRepository.getNewestByWorkspaceId', () => {
       }),
     );
     expect(listWorkspaceJobs.mock.calls[0]).not.toHaveProperty('0.filter.createdBefore');
+  });
+
+  it('sends the text of a search, and passes the signal that stops the call', async () => {
+    const listWorkspaceJobs = vi.fn(() => unaryCall({ jobs: [job('job-1')] }));
+    const repository = new DefaultJobsRepository({
+      listWorkspaceJobs,
+    } as unknown as IJobServiceClient);
+    const stop = new AbortController();
+
+    await repository.getNewestByWorkspaceId(
+      { workspaceId: 'org-1', text: '  9f3c ', limit: 8 },
+      stop.signal,
+    );
+
+    expect(listWorkspaceJobs).toHaveBeenCalledWith(
+      expect.objectContaining({ filter: expect.objectContaining({ query: '9f3c' }) }),
+      { abort: stop.signal },
+    );
   });
 });
 
