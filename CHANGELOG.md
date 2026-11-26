@@ -82,6 +82,13 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the change. If the item is created but its icon is not saved, an error message tells it. The page
   of each app shows its icon and has the icon card, and the app list shows the icon of each app.
   "Change the icon..." on the project card and the icon of the project header stay as shortcuts.
+- In the reorder mode of the projects page, the drop slot now follows the dragged card. The slot
+  moves when the card covers half of a neighbor card, at any point where you hold the card, also on
+  more than one row and between the cards. The other cards slide to their new places, the card goes
+  into its slot when you release it, and Escape sends it back. The bar, the drop slot, the pins and
+  the drop zones open and close with a short animation, and with reduced motion each change is
+  instant. When the mode opens or closes, the page no longer shows a skeleton or the old order for a
+  moment.
 
 ## [0.7.2] - 2026-11-25
 

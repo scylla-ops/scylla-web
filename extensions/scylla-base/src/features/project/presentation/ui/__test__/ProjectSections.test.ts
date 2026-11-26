@@ -14,6 +14,7 @@ import type {
   ProjectSearchResult,
 } from '@base/features/project/domain/structs/project-search.struct.ts';
 import { PROJECT_PINS_KEY, PROJECT_SECTIONS_KEY } from '../../project-layout.user-state.ts';
+import { REORDER_LIMIT } from '../../presenters/project-sections.presenter.ts';
 import ProjectList from '../ProjectList.svelte';
 
 vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
@@ -85,6 +86,13 @@ beforeEach(() => {
     }),
     installTestNavigator({ pathname: '/acme/projects' }).restore,
   ];
+  // The parts of the reorder mode come and go with a transition: with reduced motion, at once.
+  // jsdom never ends an animation (`test/setup.ts`).
+  const media = window.matchMedia;
+  window.matchMedia = vi.fn((query: string) => ({
+    ...media(query),
+    matches: query === '(prefers-reduced-motion: reduce)',
+  }));
 });
 
 afterEach(() => {
@@ -161,6 +169,21 @@ describe('the sections of the projects page', () => {
     );
   });
 
+  it('shows a new pin at once, while the pins load', async () => {
+    const read = search.getMockImplementation()!;
+    search.mockImplementation(async input => {
+      if (input.projectIds) await new Promise(() => {});
+      return read(input);
+    });
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await openMenuOf('docs', 'No group');
+    await userEvent.click(await findFloating('menuitem', 'Pin'));
+
+    await waitFor(() => expect(cardsOf('Pinned')).toEqual(['id-docs']));
+  });
+
   it('moves a project to a group from its menu, last in the group', async () => {
     render(ProjectList, { workspaceId: 'org-1' });
     await screen.findByRole('region', { name: 'Deploys' });
@@ -215,6 +238,28 @@ describe('the sections of the projects page', () => {
     expect(groups.move).not.toHaveBeenCalled();
   });
 
+  it('keeps the cards while the reorder mode reads all of them', async () => {
+    let readAll = () => {};
+    const all = new Promise<void>(resolve => (readAll = resolve));
+    const read = search.getMockImplementation()!;
+    search.mockImplementation(async input => {
+      if (input.limit === REORDER_LIMIT) await all;
+      return read(input);
+    });
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
+
+    // No skeleton: the sections stay, and the pins come over them.
+    expect(cardsOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']);
+    expect(screen.getByRole('region', { name: 'Pinned' })).toBeInTheDocument();
+    readAll();
+    await waitFor(() =>
+      expect(search).toHaveBeenCalledWith(expect.objectContaining({ limit: REORDER_LIMIT })),
+    );
+  });
+
   it('gives no reorder mode out of the custom order', async () => {
     teardown.push(
       installTestNavigator({ pathname: '/acme/projects', search: '?sort=name' }).restore,
@@ -239,5 +284,184 @@ describe('the sections of the projects page', () => {
     await waitFor(() =>
       expect(screen.queryByRole('textbox', { name: 'Group name' })).not.toBeInTheDocument(),
     );
+  });
+});
+
+/**
+ * The layout of a browser, which jsdom does not compute: the sections are 1000 px apart, each
+ * header is 32 px high, and each grid has 3 columns of cards of 400 × 300 px, 16 px apart. The
+ * lifted card (`position: fixed`) is out of the grid.
+ */
+const W = 400;
+const H = 300;
+const STEP = 416;
+const CELL = '[data-card], [data-part="project-drop-slot"]';
+const box = (left: number, top: number, width: number, height: number) =>
+  ({ left, top, width, height, right: left + width, bottom: top + height }) as DOMRect;
+const topOf = (node: Element) =>
+  [...document.querySelectorAll('[data-section]')].indexOf(node.closest('[data-section]')!) * 1000;
+const placeOf = (node: Element) =>
+  [...node.parentElement!.children]
+    .filter(child => child.matches(CELL) && (child as HTMLElement).style.position !== 'fixed')
+    .indexOf(node);
+
+const stubLayout = () => {
+  const rect = Element.prototype.getBoundingClientRect;
+  const offsets = ['offsetLeft', 'offsetTop', 'offsetWidth', 'offsetHeight'] as const;
+  const saved = offsets.map(name => Object.getOwnPropertyDescriptor(HTMLElement.prototype, name));
+  Element.prototype.getBoundingClientRect = function (this: Element) {
+    if (!this.closest('[data-section]')) return rect.call(this);
+    const top = topOf(this);
+    if (this.matches('[data-section]')) return box(0, top, 1232, 900);
+    if (this.matches('[data-part="project-section-header"]')) return box(0, top, 1232, 32);
+    if (this.matches('[data-part="project-grid"]')) return box(0, top + 44, 1232, 632);
+    const place = placeOf(this);
+    if (this.matches(CELL) && place >= 0) {
+      return box((place % 3) * STEP, top + 44 + Math.floor(place / 3) * (H + 16), W, H);
+    }
+    return rect.call(this);
+  };
+  const offset = (name: (typeof offsets)[number]) =>
+    function (this: HTMLElement) {
+      const place = this.matches(CELL) ? placeOf(this) : -1;
+      if (place < 0) return 0;
+      return {
+        offsetLeft: (place % 3) * STEP,
+        offsetTop: Math.floor(place / 3) * (H + 16),
+        offsetWidth: W,
+        offsetHeight: H,
+      }[name];
+    };
+  for (const name of offsets) {
+    Object.defineProperty(HTMLElement.prototype, name, { configurable: true, get: offset(name) });
+  }
+  return () => {
+    Element.prototype.getBoundingClientRect = rect;
+    offsets.forEach((name, index) => {
+      Object.defineProperty(HTMLElement.prototype, name, saved[index]!);
+    });
+  };
+};
+
+const pointer = (target: EventTarget, type: string, x: number, y: number) =>
+  target.dispatchEvent(
+    Object.assign(new Event(type, { bubbles: true, cancelable: true }), {
+      button: 0,
+      isPrimary: true,
+      pointerId: 1,
+      pointerType: 'mouse',
+      clientX: x,
+      clientY: y,
+    }),
+  );
+
+/** Takes a card at `grab` (from its top left corner) and moves the pointer by `dx`, `dy`. */
+const dragCard = async (id: string, grab: { x: number; y: number }, dx: number, dy: number) => {
+  const card = await waitFor(() => {
+    const found = document.querySelector<HTMLElement>(`[data-card="${id}"]`);
+    expect(found).not.toBeNull();
+    return found!;
+  });
+  const { left, top } = card.getBoundingClientRect();
+  const start = { x: left + grab.x, y: top + grab.y };
+  pointer(card, 'pointerdown', start.x, start.y);
+  pointer(window, 'pointermove', start.x + dx / 2, start.y + dy / 2);
+  pointer(window, 'pointermove', start.x + dx, start.y + dy);
+  return () => pointer(window, 'pointerup', start.x + dx, start.y + dy);
+};
+
+const gridOf = (name: string) =>
+  [...section(name).querySelectorAll('[data-part="project-grid"] > *')].map(
+    cell => cell.getAttribute('data-card') ?? cell.getAttribute('data-part'),
+  );
+
+describe('the drag of the reorder mode', () => {
+  beforeEach(() => {
+    teardown.push(stubLayout());
+  });
+
+  const reorderMode = async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+    await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
+    await waitFor(() => expect(cardsOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']));
+  };
+
+  it('moves the other card aside when the dragged card covers it, held at its right edge', async () => {
+    await reorderMode();
+
+    // « status » is held at its move icon, and moves left by one card width.
+    const release = await dragCard('id-status', { x: W - 10, y: 40 }, -W, 0);
+
+    await waitFor(() =>
+      expect(gridOf('No group')).toEqual(['id-docs', 'project-drop-slot', 'id-cli', 'id-status']),
+    );
+    expect(screen.getByText('“status”: place 2 of 3 in No group')).toBeInTheDocument();
+
+    release();
+
+    await waitFor(() => expect(cardsOf('No group')).toEqual(['id-docs', 'id-status', 'id-cli']));
+    expect(screen.getByText('“status” is now at place 2 of 3 in No group')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    await waitFor(() =>
+      expect(groups.move).toHaveBeenCalledWith({ id: 'id-status', beforeId: 'id-cli' }),
+    );
+  });
+
+  it('puts a card last in a group when its center is on the header of the group', async () => {
+    await reorderMode();
+
+    // « docs » (No group, at 2044 px) goes up until its center is on the header of « Deploys ».
+    const release = await dragCard('id-docs', { x: 200, y: 20 }, 0, 1016 - (2044 + H / 2));
+
+    expect(
+      await within(section('Deploys')).findByText('Release to move “docs” into Deploys'),
+    ).toBeInTheDocument();
+    release();
+
+    await waitFor(() => expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api', 'id-docs']));
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    await waitFor(() =>
+      expect(groups.move).toHaveBeenCalledWith({ id: 'id-docs', groupId: 'g-1' }),
+    );
+  });
+
+  it('shows the saved order when it leaves the mode, while the page reads its cards again', async () => {
+    await reorderMode();
+    const release = await dragCard('id-status', { x: W - 10, y: 40 }, -W, 0);
+    await waitFor(() => expect(gridOf('No group')).toContain('project-drop-slot'));
+    release();
+    await waitFor(() => expect(cardsOf('No group')).toEqual(['id-docs', 'id-status', 'id-cli']));
+
+    // The server keeps the new order. After the save, the first cards of the page load slowly.
+    const SAVED = ['id-docs', 'id-status', 'id-cli'];
+    const read = search.getMockImplementation()!;
+    search.mockImplementation(async input => {
+      const saved = groups.move.mock.calls.length > 0;
+      if (!saved || input.section?.kind !== 'ungrouped') return read(input);
+      if (input.limit !== REORDER_LIMIT) await new Promise(() => {});
+      const result = await read(input);
+      const items = [...result.items].sort((a, b) => SAVED.indexOf(a.id) - SAVED.indexOf(b.id));
+      return { ...result, items };
+    });
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    await screen.findByRole('searchbox', { name: 'Search the projects' });
+    expect(cardsOf('No group')).toEqual(SAVED);
+  });
+
+  it('sends the card back with Escape and stays in the reorder mode', async () => {
+    await reorderMode();
+
+    await dragCard('id-status', { x: W - 10, y: 40 }, -W, 0);
+    await waitFor(() => expect(gridOf('No group')).toContain('project-drop-slot'));
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(gridOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']));
+    expect(screen.getByText('“status” is back at its place')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
   });
 });

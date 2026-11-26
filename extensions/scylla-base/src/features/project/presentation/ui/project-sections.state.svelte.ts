@@ -66,6 +66,7 @@ type SearchResult = {
   isPending: boolean;
   isFetching: boolean;
   isError: boolean;
+  dataUpdatedAt: number;
 };
 
 /**
@@ -123,11 +124,40 @@ export const createProjectSections = (options: SectionsOptions) => {
       : [],
   }));
   const all = $derived([...results] as SearchResult[]);
-  const resultOf = $derived(Object.fromEntries(readKeys.map((key, index) => [key, all[index]])));
+  // Each new read of a section is a new query with no data: the reorder mode reads all its cards,
+  // "Show more" reads more, and « Done » reads the first cards again. The `placeholderData` of the
+  // search keeps nothing across queries. Thus a section keeps its newest cards, for one order and
+  // one health, while a read loads: the page shows no skeleton and no old order again.
+  type Kept = { data: ProjectSearchResult; at: number };
+  let kept: { scope: string; byKey: Partial<Record<SectionKey, Kept>> } = { scope: '', byKey: {} };
+  const keptOf = (key: SectionKey, result: SearchResult | undefined): SearchResult | undefined => {
+    const scope = `${workspaceId}\n${searchKey}`;
+    if (kept.scope !== scope) kept = { scope, byKey: {} };
+    const last = kept.byKey[key];
+    if (!result || result.isError) return result;
+    if (result.data && (!last || result.dataUpdatedAt >= last.at)) {
+      kept.byKey[key] = { data: result.data, at: result.dataUpdatedAt };
+    }
+    // A read that loads again and has older cards than the kept ones does not show (« Done »).
+    const old = result.isFetching && result.dataUpdatedAt < (last?.at ?? 0);
+    if (!last || (result.data && !old)) return result;
+    return {
+      data: last.data,
+      dataUpdatedAt: last.at,
+      isPending: false,
+      isFetching: result.isFetching,
+      isError: false,
+    };
+  };
+  const resultOf = $derived(
+    Object.fromEntries(readKeys.map((key, index) => [key, keptOf(key, all[index])])),
+  );
 
   const byId: Record<string, ProjectEntity> = $derived(
     Object.fromEntries(
-      all.flatMap(result => result.data?.items ?? []).map(item => [item.id, item]),
+      Object.values(resultOf)
+        .flatMap(result => result?.data?.items ?? [])
+        .map(item => [item.id, item]),
     ),
   );
   const loadedIds = (key: SectionKey) =>
@@ -148,8 +178,10 @@ export const createProjectSections = (options: SectionsOptions) => {
   const viewOf = (key: SectionKey): SectionView => {
     const result = resultOf[key];
     const counts = result?.data?.counts;
-    const loaded = (orders[key] ?? []).filter(id => id in byId);
-    const shown = key === PINS && !reordering ? loaded.slice(0, limitOf(PINS)) : loaded;
+    const ids = orders[key] ?? [];
+    const loaded = ids.filter(id => id in byId);
+    // Out of the mode, the kept cards of the mode do not show over the first cards.
+    const shown = reordering ? loaded : loaded.slice(0, limitOf(key));
     const total =
       reordering || key === PINS
         ? loaded.length
@@ -164,7 +196,8 @@ export const createProjectSections = (options: SectionsOptions) => {
       counts,
       nextBatch:
         reordering || shown.length >= total ? 0 : nextBatchSize(shown.length, total) || MORE_CARDS,
-      loading: !!result && !result.data,
+      // With no data yet, the section loads, unless the page has each of its cards: a new pin.
+      loading: !!result && !result.data && (ids.length === 0 || loaded.length < ids.length),
       busy: !!result?.isFetching,
       open: !closed.includes(key),
     };

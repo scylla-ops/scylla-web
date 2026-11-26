@@ -18,6 +18,7 @@
   import { projectPoints, type ProjectCardContext } from '../../project.points.ts';
   import type { SectionKey } from '../../presenters/project-sections.presenter.ts';
   import ProjectIcon from '../ProjectIcon/ProjectIcon.svelte';
+  import { reorderIn } from '../reorder.transition.ts';
   import ProjectCardMenu from './ProjectCardMenu.svelte';
 
   interface Props {
@@ -72,7 +73,10 @@
         <WidgetZone point={projectPoints.cardSubtitle} {context} />
       </div>
       {#if reordering}
-        <span class="flex size-8 shrink-0 items-center justify-center text-muted-foreground">
+        <span
+          class="flex size-8 shrink-0 items-center justify-center text-muted-foreground"
+          in:reorderIn
+        >
           <MoveIcon class="size-4" aria-hidden="true" />
         </span>
       {:else}

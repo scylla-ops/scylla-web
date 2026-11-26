@@ -1,14 +1,18 @@
 <script lang="ts">
   import { createMutation } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import {
     PINS,
+    reorderNews,
     UNGROUPED,
+    type SectionKey,
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
   import type { ProjectReorderState } from '../project-reorder.state.svelte.ts';
   import type { ProjectSectionsState, SectionView } from '../project-sections.state.svelte.ts';
+  import { dragCards } from './card-drag.attachments.ts';
   import GroupNameRow from './GroupNameRow.svelte';
   import ProjectSection from './ProjectSection.svelte';
 
@@ -44,15 +48,25 @@
     return canManage && index >= 0 ? { index, count: sections.groups.length } : undefined;
   };
 
+  const sectionName = (key: SectionKey) => {
+    const section = sections.sections.find(item => item.key === key);
+    return section ? nameOf(section) : '';
+  };
+  const projectName = (id: string) =>
+    sections.sections.flatMap(section => section.projects).find(project => project.id === id)
+      ?.name ?? '';
+  const news = $derived(
+    reorderNews({
+      drag: reorder.drag,
+      target: reorder.target,
+      ended: reorder.ended,
+      idsOf: sections.idsOf,
+      nameOf: sectionName,
+    }),
+  );
+
   const create = (name: string) =>
     createGroup.mutate({ workspaceId, name }, { onSuccess: () => onCreated() });
-
-  // A drop in any section ends the drag there: the section that took the last `dragover`.
-  const drop = (event: DragEvent) => {
-    if (!reorder.drag) return;
-    event.preventDefault();
-    reorder.drop();
-  };
 </script>
 
 {#snippet one(section: SectionView)}
@@ -67,12 +81,17 @@
   />
 {/snippet}
 
-<div class="flex flex-col gap-4" role="presentation" ondrop={drop} data-part="project-sections">
+<!-- The space between the sections is in their padding: a section that folds ends with no jump. -->
+<div
+  class={cn('flex flex-col', reorder.drag && 'cursor-grabbing select-none')}
+  data-part="project-sections"
+  {@attach dragCards(reorder, projectName)}
+>
   {#each groups as section (section.key)}
     {@render one(section)}
   {/each}
   {#if creating}
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-3 pb-4">
       <GroupNameRow busy={createGroup.isPending} onSubmit={create} onCancel={onCreated} />
       <div
         class="flex items-center justify-center rounded-xl border border-dashed px-6 py-6 text-center text-sm font-medium text-muted-foreground"
@@ -85,4 +104,5 @@
   {#each ungrouped as section (section.key)}
     {@render one(section)}
   {/each}
+  <p class="sr-only" aria-live="polite">{news}</p>
 </div>

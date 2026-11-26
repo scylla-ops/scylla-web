@@ -1,7 +1,8 @@
 <script lang="ts">
   import { createMutation } from '@scylla/core-sdk';
-  import { ListSkeleton } from '@scylla/ui';
+  import { fold, ListSkeleton, unfold } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import { PINS } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
@@ -33,7 +34,6 @@
 
   const renameGroup = createMutation(() => projectGroupMutations.rename());
   let renaming = $state(false);
-  let openTimer: ReturnType<typeof setTimeout> | undefined;
 
   const drag = $derived(reorder.drag);
   const dropText = $derived(
@@ -46,24 +46,15 @@
       : undefined,
   );
 
-  const stopTimer = () => {
-    clearTimeout(openTimer);
-    openTimer = undefined;
-  };
-  // A drop on the header puts the card last in the section.
-  const overHeader = (event: DragEvent) => {
-    if (drag && reorder.hover(section.key, undefined, true)) event.preventDefault();
-  };
-  // A closed section opens after a short hover, so that the card can go to a place in it.
-  const enterHeader = () => {
-    if (!drag || section.open || !reorder.accepts(section.key) || openTimer) return;
-    openTimer = setTimeout(() => sections.open(section.key), OPEN_AFTER_MS);
-  };
-  const leaveHeader = (event: DragEvent) => {
-    if (!(event.currentTarget as Node).contains(event.relatedTarget as Node | null)) stopTimer();
-  };
+  // A closed section opens when the dragged card stays on its header: the card can then go to a
+  // place in it. A drop on the header puts the card last.
+  const onClosedHeader = $derived(
+    !!drag && !section.open && !!reorder.target?.header && reorder.target.to === section.key,
+  );
   $effect(() => {
-    if (!drag) stopTimer();
+    if (!onClosedHeader) return;
+    const timer = setTimeout(() => sections.open(section.key), OPEN_AFTER_MS);
+    return () => clearTimeout(timer);
   });
 
   const rename = (next: string) => {
@@ -84,45 +75,55 @@
   {/if}
 {/snippet}
 
-<section class="flex flex-col gap-3" data-section={section.key} aria-label={name}>
-  {#if renaming && section.group}
-    <GroupNameRow
-      initial={section.group.name}
-      busy={renameGroup.isPending}
-      onSubmit={rename}
-      onCancel={() => (renaming = false)}
-    />
-  {:else if !headless}
-    <SectionHeader
-      {name}
-      count={section.total}
-      pins={section.key === PINS}
-      open={section.open}
-      counts={section.counts}
-      {dropText}
-      menu={place ? menu : undefined}
-      onToggle={() => sections.toggle(section.key)}
-      ondragover={overHeader}
-      ondragenter={enterHeader}
-      ondragleave={leaveHeader}
-    />
+<section
+  class="flex flex-col not-last-of-type:pb-4"
+  data-section={section.key}
+  aria-label={name}
+  in:unfold
+  out:fold
+>
+  {#if !headless}
+    <!-- The header unfolds when the reorder mode shows the pins over the cards with no group. -->
+    <div class={cn(section.open && 'pb-3')} in:unfold out:fold>
+      {#if renaming && section.group}
+        <GroupNameRow
+          initial={section.group.name}
+          busy={renameGroup.isPending}
+          onSubmit={rename}
+          onCancel={() => (renaming = false)}
+        />
+      {:else}
+        <SectionHeader
+          {name}
+          count={section.total}
+          pins={section.key === PINS}
+          open={section.open}
+          counts={section.counts}
+          {dropText}
+          menu={place ? menu : undefined}
+          onToggle={() => sections.toggle(section.key)}
+        />
+      {/if}
+    </div>
   {/if}
 
   {#if section.open || headless}
-    {#if section.loading}
-      <ListSkeleton rows={phone ? 1 : 3} class={GRID} rowClass="h-60 w-full rounded-xl" />
-    {:else}
-      <SectionGrid {section} {sections} {reorder} {phone} grid={GRID} />
-      {#if section.nextBatch > 0}
-        <ProjectShowMore
-          next={section.nextBatch}
-          shown={section.projects.length}
-          total={section.total}
-          busy={section.busy}
-          {phone}
-          onShowMore={() => sections.showMore(section.key)}
-        />
+    <div class="flex flex-col gap-3">
+      {#if section.loading}
+        <ListSkeleton rows={phone ? 1 : 3} class={GRID} rowClass="h-60 w-full rounded-xl" />
+      {:else}
+        <SectionGrid {section} {sections} {reorder} {phone} grid={GRID} />
+        {#if section.nextBatch > 0}
+          <ProjectShowMore
+            next={section.nextBatch}
+            shown={section.projects.length}
+            total={section.total}
+            busy={section.busy}
+            {phone}
+            onShowMore={() => sections.showMore(section.key)}
+          />
+        {/if}
       {/if}
-    {/if}
+    </div>
   {/if}
 </section>

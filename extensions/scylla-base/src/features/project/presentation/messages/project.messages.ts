@@ -123,4 +123,10 @@ export const projectMessages = {
   currentGroup: msg`Current group`,
   releaseInto: (project: string, group: string) => msg`Release to move “${project}” into ${group}`,
   releaseToPin: (project: string) => msg`Release to pin “${project}”`,
+  slotPlace: (project: string, place: number, count: number, section: string) =>
+    msg`“${project}”: place ${place} of ${count} in ${section}`,
+  droppedAt: (project: string, place: number, count: number, section: string) =>
+    msg`“${project}” is now at place ${place} of ${count} in ${section}`,
+  droppedInto: (project: string, section: string) => msg`“${project}” is now in ${section}`,
+  dragCancelled: (project: string) => msg`“${project}” is back at its place`,
 };

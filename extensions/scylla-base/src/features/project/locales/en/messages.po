@@ -13,6 +13,22 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:131
+msgid "“{project}” is back at its place"
+msgstr "“{project}” is back at its place"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:129
+msgid "“{project}” is now at place {place} of {count} in {section}"
+msgstr "“{project}” is now at place {place} of {count} in {section}"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:130
+msgid "“{project}” is now in {section}"
+msgstr "“{project}” is now in {section}"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:127
+msgid "“{project}”: place {place} of {count} in {section}"
+msgstr "“{project}”: place {place} of {count} in {section}"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:74
 msgid "{count, plural, one {# result} other {# results}} for “{query}” · names, descriptions, repositories and pipelines"
 msgstr "{count, plural, one {# result} other {# results}} for “{query}” · names, descriptions, repositories and pipelines"

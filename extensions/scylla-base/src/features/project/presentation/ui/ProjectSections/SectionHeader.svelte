@@ -9,6 +9,7 @@
   import type { ProjectCounts } from '@base/features/project/domain/structs/project-search.struct.ts';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import { sectionHealth } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
+  import { reorderIn } from '../reorder.transition.ts';
 
   interface Props {
     name: string;
@@ -21,25 +22,9 @@
     dropText?: string;
     menu?: Snippet;
     onToggle: () => void;
-    /** The drag events of the reorder mode: the header takes a drop. */
-    ondragover?: (event: DragEvent) => void;
-    ondragenter?: (event: DragEvent) => void;
-    ondragleave?: (event: DragEvent) => void;
   }
 
-  let {
-    name,
-    count,
-    pins,
-    open,
-    counts,
-    dropText,
-    menu,
-    onToggle,
-    ondragover,
-    ondragenter,
-    ondragleave,
-  }: Props = $props();
+  let { name, count, pins, open, counts, dropText, menu, onToggle }: Props = $props();
 
   const health = $derived(sectionHealth(counts));
   const Chevron = $derived(open ? ChevronDownIcon : ChevronRightIcon);
@@ -48,14 +33,11 @@
 
 <div
   class={cn(
-    'flex min-h-8 items-center gap-3 rounded-lg',
+    'flex min-h-8 items-center gap-3 rounded-lg transition-[background-color,padding] duration-150 motion-reduce:transition-none',
     dropText && 'border-[1.5px] border-primary bg-primary/8 py-1 pr-3 pl-2',
   )}
   data-part="project-section-header"
   role="group"
-  {ondragover}
-  {ondragenter}
-  {ondragleave}
 >
   <!-- The whole row opens and closes the section; the menu does not. -->
   <button
@@ -88,7 +70,7 @@
     {/if}
   </button>
   {#if dropText}
-    <span class="shrink-0 text-sm font-medium text-primary">{dropText}</span>
+    <span class="shrink-0 text-sm font-medium text-primary" in:reorderIn>{dropText}</span>
   {:else if menu}
     {@render menu()}
   {/if}

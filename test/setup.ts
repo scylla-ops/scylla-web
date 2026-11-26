@@ -53,6 +53,8 @@ beforeEach(() => {
 
   vi.stubGlobal('ResizeObserver', ResizeObserverStub);
   Element.prototype.animate = vi.fn(() => new AnimationStub() as unknown as Animation);
+  // Svelte reads it when an item with `animate:` leaves a keyed each.
+  Element.prototype.getAnimations = vi.fn(() => []);
   Element.prototype.hasPointerCapture = vi.fn().mockReturnValue(false);
   Element.prototype.setPointerCapture = vi.fn();
   Element.prototype.releasePointerCapture = vi.fn();

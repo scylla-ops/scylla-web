@@ -46,7 +46,7 @@ src/
                            each resize)
   widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
   motion/                  page transitions, reduced motion, a spring easing, fold and
-                           unfold (height and fade), swap (a cross-fade of a value)
+                           unfold (height and fade), swap (a cross-fade of a value), reflow
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -185,7 +185,9 @@ open and close a part under its owner: the height, the paddings and an opacity, 
 150 ms out. Put the space above the part in its padding, not in a `gap`, or the close ends with
 a jump. `swapIn` and `swapOut` cross-fade a value that changes, as an icon: put the two in one
 grid cell (`grid` on the parent, `col-start-1 row-start-1` on the child) in a `{#key}`, so the
-place keeps its size.
+place keeps its size. `reflow` is the `animate:` function of a keyed list whose items change
+places (the widgets of the dashboard, the cards of the projects page): it slides each item from
+its old box, and `{ still: true }` keeps a dragged item still.
 
 ### `primitives/` — the primitives
 

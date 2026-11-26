@@ -111,17 +111,24 @@ presentation/
   project.points.ts                  projectPoints: the zones of a project card
   presenters/project-list.presenter.ts   the batches of cards, the orders of the page, the
                                      parameters of the URL
-  presenters/project-sections.presenter.ts   the section keys, applyMoves, movesToSave
+  presenters/project-sections.presenter.ts   the section keys, applyMoves, movesToSave, the
+                                     target of a dragged card (cardTargetAt), the texts of a drag
+  presenters/sortable.presenter.ts   the drag of a grid: the nearest cell, the free cell after the
+                                     last one, the scroll at the edges, the style of the lifted item
   ui/Project.page.svelte             picks the workspace, or says there is none
   ui/ProjectList.svelte              keyed on the workspace — that is the page reset
   ui/project-list.state.svelte.ts    createProjectList: the search, the health and the order in
                                      the URL, the search delay, "Show more", the batches
   ui/project-sections.state.svelte.ts   createProjectSections: one search for each section, the
                                      pins, the closed sections, "Show more" for each section
-  ui/project-reorder.state.svelte.ts    createProjectReorder: the drops of the reorder mode
+  ui/project-reorder.state.svelte.ts    createProjectReorder: the drops of the reorder mode, the
+                                     dragged card, its slot, its settle
+  ui/reorder.transition.ts           the transitions of the reorder mode, and a card that moves to
+                                     another section
   ui/project-layout.context.ts       what the menu of a card reads from the page
   ui/ProjectSections/                the sections, their headers, the group menu, the group name
-                                     row, the grid with the drop slot
+                                     row, the grid with the drop slot, the pointer drag of the cards
+                                     (card-drag.attachments.ts)
   ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New group",
                                      "New project"
   ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order,
@@ -252,8 +259,18 @@ choice card links to it by its path only.
   pins. The server places a project with the same rule as `placeBefore`, so the order stays the same.
   « Cancel » or Escape forgets the drops. The mode needs the custom order, no search, a screen that
   is not a phone and `UPDATE_PROJECT` on the workspace.
-- **The dragged card stays in the page, hidden.** The browser ends a drag on the element where it
-  started: a card that leaves the DOM loses its `dragend`.
+- **The drag uses pointer events, not the native drag.** The real card follows the pointer
+  (`position: fixed`); it stays in its grid, so that it keeps its pointer capture. The slot goes to
+  the cell nearest to the center of the card, wherever the person took it: the center chooses the
+  section first, the pointer only when the center is in none. A finger holds still for 250 ms
+  before a drag, so that a quick move scrolls the page. Escape sends the card back. The live region
+  of the sections says each place, and « Move up » and « Move down » stay the keyboard way.
+- **Each move of the mode has a short transition**, and none with a reduced motion: the other
+  cards slide (`reflow` of `@scylla/ui`), the card settles on its slot, a card that changes its
+  section slides from its old place, the bar, the slot and the drop zones fade and unfold. The grid
+  of a section stays with no card, for these transitions.
+- **A section keeps its newest cards while a new read of it loads** (the reorder mode, "Show more",
+  « Done »): each read is a new query with no data, so the page shows no skeleton and no old order.
 - **« Duplicate » copies the name, the description and a glyph icon**, just after the project in its
   group. It does not copy an image icon, the pipelines, the secrets or the members.
 

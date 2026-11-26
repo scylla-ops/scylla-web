@@ -15,6 +15,7 @@
   import { createProjectList } from './project-list.state.svelte.ts';
   import { createProjectReorder } from './project-reorder.state.svelte.ts';
   import { createProjectSections } from './project-sections.state.svelte.ts';
+  import { reorderIn, reorderOut } from './reorder.transition.ts';
   import { projectMessages } from '../messages/project.messages.ts';
   import { projectGroupMutations } from '../project-group.queries.ts';
   import {
@@ -121,23 +122,30 @@
     canManageGroups={canManage}
     onNewGroup={() => (creating = true)}
   />
-  {#if reorder.active}
-    <ProjectReorderBar busy={move.isPending} onCancel={reorder.stop} onDone={saveOrder} />
-  {:else}
-    <ProjectToolbar
-      text={list.text}
-      health={list.health}
-      order={list.order}
-      counts={list.query ? list.counts : list.wholeCounts}
-      phone={list.phone}
-      onType={list.type}
-      onClear={list.clearSearch}
-      onHealth={list.setHealth}
-      onOrder={list.setOrder}
-      canReorder={canManage && !list.phone}
-      onReorder={reorder.start}
-    />
-  {/if}
+  <!-- The bar of the reorder mode and the toolbar take the same cell: they cross-fade in place. -->
+  <div class="grid *:col-start-1 *:row-start-1">
+    {#if reorder.active}
+      <div in:reorderIn out:reorderOut>
+        <ProjectReorderBar busy={move.isPending} onCancel={reorder.stop} onDone={saveOrder} />
+      </div>
+    {:else}
+      <div in:reorderIn out:reorderOut>
+        <ProjectToolbar
+          text={list.text}
+          health={list.health}
+          order={list.order}
+          counts={list.query ? list.counts : list.wholeCounts}
+          phone={list.phone}
+          onType={list.type}
+          onClear={list.clearSearch}
+          onHealth={list.setHealth}
+          onOrder={list.setOrder}
+          canReorder={canManage && !list.phone}
+          onReorder={reorder.start}
+        />
+      </div>
+    {/if}
+  </div>
 
   {#if list.query}
     {#if list.results.isPending}

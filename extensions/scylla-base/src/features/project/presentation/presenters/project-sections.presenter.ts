@@ -7,6 +7,9 @@ import type {
   ProjectCounts,
   ProjectSection,
 } from '@base/features/project/domain/structs/project-search.struct.ts';
+import { t } from '@scylla/ui/i18n';
+import { projectMessages } from '../messages/project.messages.ts';
+import { nearestCell, type Box, type Point } from './sortable.presenter.ts';
 
 /** The key of a section of the page: `pins`, `ungrouped`, or the id of a group. */
 export type SectionKey = string;
@@ -79,15 +82,111 @@ export const neighborsOf = (
   return { previous: ids[index - 1], next: ids[index + 1] };
 };
 
+/** Where a dragged card goes: before a card of a section, or last. `header`: on the header. */
+export interface DropTarget {
+  to: SectionKey;
+  beforeId?: string;
+  header: boolean;
+}
+
+/** A cell of a grid in the reorder mode: a card, or the slot (no id). */
+export interface CardCell {
+  id?: string;
+  box: Box;
+}
+
+/** A section of the page as the drag measures it, in the viewport. */
+export interface SectionZone {
+  key: SectionKey;
+  /** None when the page shows the cards with no header. */
+  header?: Box;
+  /** Under the header: the grid or the empty zone. None when the section is closed. */
+  body?: Box;
+  /** The cards and the slot, in their order, without the dragged card. */
+  cells: readonly CardCell[];
+  /** The free cell after the last one: a drop there puts the card last. */
+  after?: Box | null;
+}
+
+const spans = (box: Box | undefined, y: number) =>
+  !!box && y >= box.top && y <= box.top + box.height;
+
 /**
- * The place of a drop on a card: before it when the pointer is on its first half, else before
- * the card after it. The dragged card is not in `ids`.
+ * The slot goes to the cell nearest to the center of the dragged card: it takes the place of a
+ * card when the dragged card covers more than half of it.
  */
-export const dropBefore = (
+const placeIn = (zone: SectionZone, center: Point): DropTarget => {
+  const ids = zone.cells.flatMap(cell => (cell.id ? [cell.id] : []));
+  const boxes = zone.cells.map(cell => cell.box);
+  const index = nearestCell(zone.after ? [...boxes, zone.after] : boxes, center);
+  return { to: zone.key, beforeId: index < 0 ? undefined : ids[index], header: false };
+};
+
+/**
+ * Where the dragged card goes. The center of the card decides, wherever the person took it; the
+ * pointer decides only out of each section. A header takes the card last in its section. Only the
+ * height chooses the section: the sections take the whole width. Null out of each section that
+ * takes the card: the slot stays where it is.
+ */
+export const cardTargetAt = (
+  zones: readonly SectionZone[],
+  center: Point,
+  pointer: Point,
+  accepts: (key: SectionKey) => boolean,
+): DropTarget | null => {
+  const open = zones.filter(zone => accepts(zone.key));
+  for (const { y } of [center, pointer]) {
+    const header = open.find(zone => spans(zone.header, y));
+    if (header) return { to: header.key, header: true };
+    const body = open.find(zone => spans(zone.body, y));
+    if (body) return placeIn(body, center);
+  }
+  return null;
+};
+
+/** The place of a slot in the cards of a section, from 1, and the count with the dragged card. */
+export const slotPlace = (
   ids: readonly string[],
-  overId: string,
-  secondHalf: boolean,
-): string | undefined => (secondHalf ? ids[ids.indexOf(overId) + 1] : overId);
+  dragId: string,
+  beforeId?: string,
+): { place: number; count: number } => {
+  const others = ids.filter(id => id !== dragId);
+  const at = beforeId ? others.indexOf(beforeId) : -1;
+  return { place: (at < 0 ? others.length : at) + 1, count: others.length + 1 };
+};
+
+/** What the reorder mode tells a screen reader about a drag. */
+export interface ReorderNewsInput {
+  drag: { id: string; name: string } | null;
+  target: DropTarget | null;
+  /** The end of the last drag. `to`: the section of the drop; null: no drop. */
+  ended: { id: string; name: string; to: SectionKey | null } | null;
+  idsOf: (key: SectionKey) => readonly string[];
+  nameOf: (key: SectionKey) => string;
+}
+
+/** The text of the live region of the reorder mode: the place of the slot, then of the drop. */
+export const reorderNews = ({ drag, target, ended, idsOf, nameOf }: ReorderNewsInput): string => {
+  if (drag && target) {
+    const section = nameOf(target.to);
+    if (target.header) {
+      return t(
+        target.to === PINS
+          ? projectMessages.releaseToPin(drag.name)
+          : projectMessages.releaseInto(drag.name, section),
+      );
+    }
+    const { place, count } = slotPlace(idsOf(target.to), drag.id, target.beforeId);
+    return t(projectMessages.slotPlace(drag.name, place, count, section));
+  }
+  if (!ended) return '';
+  if (!ended.to) return t(projectMessages.dragCancelled(ended.name));
+  const ids = idsOf(ended.to);
+  const place = ids.indexOf(ended.id) + 1;
+  return place > 0
+    ? t(projectMessages.droppedAt(ended.name, place, ids.length, nameOf(ended.to)))
+    : t(projectMessages.droppedInto(ended.name, nameOf(ended.to)));
+};
 
 /** The health line of a section header: the failures first, then the jobs that run. */
 export const sectionHealth = (
