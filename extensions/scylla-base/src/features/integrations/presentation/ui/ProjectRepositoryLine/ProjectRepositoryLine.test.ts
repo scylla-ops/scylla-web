@@ -13,6 +13,7 @@ const context = (projectId: string): ProjectCardContext => ({
   projectId,
   projectName: projectId,
   batch: [projectId],
+  density: 'comfortable',
 });
 
 describe('ProjectRepositoryLine', () => {

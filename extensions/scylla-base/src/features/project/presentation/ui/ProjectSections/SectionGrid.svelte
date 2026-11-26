@@ -1,29 +1,38 @@
 <script lang="ts">
   import PinIcon from '@lucide/svelte/icons/pin';
   import PlusIcon from '@lucide/svelte/icons/plus';
-  import { enter, exit, reflow, unfold } from '@scylla/ui';
+  import { DropSlot, enter, exit, GhostItem, reflow, unfold } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import {
+    DENSITY_GHOSTS,
+    DENSITY_GRIDS,
+    DENSITY_SLOTS,
+    type ProjectDensity,
+  } from '@base/features/project/presentation/presenters/project-density.presenter.ts';
+  import {
     PINS,
     UNGROUPED,
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
   import { liftedStyle } from '@base/features/project/presentation/presenters/sortable.presenter.ts';
-  import ProjectCard from '../ProjectCard/ProjectCard.svelte';
+  import ProjectItem from '../ProjectCard/ProjectItem.svelte';
+  import type { ProjectDensityState } from '../project-density.state.svelte.ts';
   import type { ProjectReorderState } from '../project-reorder.state.svelte.ts';
   import type { ProjectSectionsState, SectionView } from '../project-sections.state.svelte.ts';
   import { arrive, foldZone, leave } from '../reorder.transition.ts';
+  import { flipDensity } from './density-flip.effect.svelte.ts';
   import { revealCard, staggerCards } from './section-open.attachments.ts';
 
   interface Props {
     section: SectionView;
     sections: ProjectSectionsState;
     reorder: ProjectReorderState;
+    /** The density of each section: a dragged card takes the shape of the section under it. */
+    densities: ProjectDensityState;
     phone: boolean;
-    grid: string;
     /** The ghost card and the empty group open it. Unset: no new project here. */
     newProjectHref?: string;
     /** The person opened the section now: the cards fade in one after the other. */
@@ -37,8 +46,8 @@
     section,
     sections,
     reorder,
+    densities,
     phone,
-    grid,
     newProjectHref,
     stagger = false,
     reveal = null,
@@ -51,8 +60,17 @@
 
   type Entry = { kind: 'card'; project: ProjectEntity; lifted: boolean } | { kind: 'slot' };
 
+  const density = $derived(densities.of(section.key));
   const drag = $derived(reorder.drag);
   const target = $derived(reorder.target?.to === section.key ? reorder.target : null);
+  // The dragged card takes the shape of the section under it.
+  const liftedDensity = $derived<ProjectDensity>(
+    reorder.target && !reorder.target.header ? densities.of(reorder.target.to) : density,
+  );
+  // A slot of the density of the dragged card has its size; else the size of the cards here.
+  const slotStyle = $derived(
+    drag && densities.of(drag.from) === density ? `min-height: ${drag.box.height}px` : undefined,
+  );
   // The dragged card stays in its grid, out of the flow: it follows the pointer over the page.
   const entries = $derived.by((): Entry[] => {
     const cards: Entry[] = section.projects.map(project => ({
@@ -72,6 +90,7 @@
   // The ghost card is not a card: no drag, and no place in the reorder mode.
   const ghost = $derived(!!newProjectHref && !reorder.active && section.key !== PINS);
   const keyOf = (entry: Entry) => (entry.kind === 'slot' ? SLOT_KEY : entry.project.id);
+  const flip = flipDensity(() => density);
 </script>
 
 {#snippet zone(text: string, padding: string, pin = false)}
@@ -110,9 +129,11 @@
 {/if}
 <!-- The grid stays with no card: a card that leaves it or comes in it moves with a transition. -->
 <div
-  class={cn(grid, 'relative', entries.length === 0 && 'hidden')}
+  class={cn(DENSITY_GRIDS[density], 'relative', entries.length === 0 && 'hidden')}
   role="list"
   data-part="project-grid"
+  data-density={density}
+  {@attach flip}
   {@attach stagger && staggerCards}
 >
   {#each entries as entry (keyOf(entry))}
@@ -120,20 +141,16 @@
     <div
       class={cn(
         'h-full',
-        entry.kind === 'slot' &&
-          'rounded-xl border-[1.5px] border-dashed border-primary bg-primary/8',
         entry.kind === 'card' &&
           reorder.active &&
           'cursor-grab touch-manipulation select-none [-webkit-touch-callout:none] *:pointer-events-none',
         entry.kind === 'card' &&
           entry.lifted &&
-          'cursor-grabbing rounded-xl shadow-2xl ring-2 ring-primary/60',
+          'cursor-grabbing overflow-hidden rounded-xl shadow-2xl ring-2 ring-primary/60',
       )}
       style={entry.kind === 'card' && entry.lifted && drag
-        ? liftedStyle(drag.box, reorder.offset, reorder.motion)
-        : entry.kind === 'slot'
-          ? `min-height: ${drag?.box.height ?? 0}px`
-          : undefined}
+        ? liftedStyle(reorder.box, reorder.offset, reorder.motion)
+        : undefined}
       role="listitem"
       data-card={entry.kind === 'card' ? entry.project.id : undefined}
       data-part={entry.kind === 'slot' ? 'project-drop-slot' : undefined}
@@ -146,11 +163,19 @@
       {@attach entry.kind === 'card' && entry.project.id === reveal && revealCard(onRevealed)}
     >
       {#if entry.kind === 'card'}
-        <ProjectCard
+        <ProjectItem
           project={entry.project}
           batch={sections.batchOf(section.key, entry.project.id)}
           section={section.key}
           reordering={reorder.active}
+          density={entry.lifted ? liftedDensity : density}
+          {phone}
+        />
+      {:else}
+        <DropSlot
+          shape={DENSITY_SLOTS[density]}
+          class={cn(density === 'comfortable' && 'min-h-52')}
+          style={slotStyle}
         />
       {/if}
     </div>
@@ -158,17 +183,16 @@
   {#if ghost && newProjectHref && entries.length > 0}
     <!-- After the last card: a new project in this section, with no drag. -->
     <div class="h-full" role="listitem" in:enter out:exit>
-      <a
+      <GhostItem
+        label={t(projectMessages.newProject)}
         href={newProjectHref}
-        class="flex h-full min-h-40 flex-col items-center justify-center gap-2 rounded-xl border border-dashed text-sm font-medium text-muted-foreground transition-colors outline-none hover:border-primary/50 hover:bg-primary/5 hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 motion-reduce:transition-none"
+        shape={DENSITY_GHOSTS[density]}
+        class={cn(density === 'compact' && 'min-h-24')}
         data-part="project-ghost-card"
-      >
-        <PlusIcon class="size-5" aria-hidden="true" />
-        {t(projectMessages.newProject)}
-      </a>
+      />
     </div>
   {/if}
-  {#if section.key === PINS && !phone && entries.length > 0}
+  {#if section.key === PINS && !phone && entries.length > 0 && density === 'comfortable'}
     <!-- The free cell of the last row of the pins, when there is one. -->
     <div
       class={cn(

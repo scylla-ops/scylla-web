@@ -13,6 +13,18 @@ msgstr ""
 "Language-Team: \n"
 "Plural-Forms: \n"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:154
+msgid "“{group}” is lifted, at place {place} of {count} in the groups. The arrow keys move it, Space drops it, and Escape cancels."
+msgstr "« {group} » est soulevé, à la place {place} sur {count} dans les groupes. Les flèches le déplacent, Espace le dépose et Échap annule."
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:158
+msgid "“{group}” is now at place {place} of {count} in the groups"
+msgstr "« {group} » est maintenant à la place {place} sur {count} dans les groupes"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:156
+msgid "“{group}”: place {place} of {count} in the groups"
+msgstr "« {group} » : place {place} sur {count} dans les groupes"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:149
 msgid "“{project}” is back at its place"
 msgstr "« {project} » est revenu à sa place"
@@ -73,9 +85,13 @@ msgstr "Ajouter une description..."
 msgid "All"
 msgstr "Tous"
 
-#: extensions/scylla-base/src/features/project/project.module.ts:40
+#: extensions/scylla-base/src/features/project/project.module.ts:41
 msgid "All projects"
 msgstr "Tous les projets"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:164
+msgid "Apply to all sections"
+msgstr "Appliquer à toutes les sections"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:41
 msgid "Back"
@@ -108,6 +124,14 @@ msgstr "Effacer la recherche"
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:70
 msgid "Clear the search to reorder."
 msgstr "Effacez la recherche pour réorganiser."
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:165
+msgid "Comfortable"
+msgstr "Confortable"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:166
+msgid "Compact"
+msgstr "Compact"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:113
 msgid "Create"
@@ -149,13 +173,29 @@ msgstr "Supprimer le projet « {name} » ?"
 msgid "Description"
 msgstr "Description"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:160
+msgid "Display"
+msgstr "Affichage"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:162
+msgid "Display of the page"
+msgstr "Affichage de la page"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:163
+msgid "Display of this section"
+msgstr "Affichage de cette section"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:161
+msgid "Display: {display}"
+msgstr "Affichage : {display}"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:72
 msgid "Done"
 msgstr "Terminé"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:71
-msgid "Drag a card to change its order, or drop it on a group or on “Pinned”."
-msgstr "Glissez une carte pour changer son ordre, ou déposez-la sur un groupe ou sur « Épinglés »."
+msgid "Drag a card to change its order, or drop it on a group or on “Pinned”. Drag the handle of a group to move the group."
+msgstr "Glissez une carte pour changer son ordre, ou déposez-la sur un groupe ou sur « Épinglés ». Glissez la poignée d'un groupe pour déplacer le groupe."
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:40
 msgid "Draw its pipelines in the Scylla editor. Link a repository later in Settings."
@@ -257,9 +297,17 @@ msgstr "Dernier job"
 msgid "Link a GitHub repository"
 msgstr "Lier un dépôt GitHub"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:167
+msgid "List"
+msgstr "Liste"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:97
 msgid "Move down"
 msgstr "Descendre"
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:151
+msgid "Move the group {group}"
+msgstr "Déplacer le groupe {group}"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:95
 msgid "Move to group"
@@ -295,7 +343,7 @@ msgstr "Nouveau groupe…"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:10
 #: extensions/scylla-base/src/features/project/presentation/project.commands.ts:15
-#: extensions/scylla-base/src/features/project/project.module.ts:49
+#: extensions/scylla-base/src/features/project/project.module.ts:50
 msgid "New project"
 msgstr "Nouveau projet"
 
@@ -396,8 +444,8 @@ msgid "Project name"
 msgstr "Nom du projet"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:9
-#: extensions/scylla-base/src/features/project/project.module.ts:36
-#: extensions/scylla-base/src/features/project/project.module.ts:43
+#: extensions/scylla-base/src/features/project/project.module.ts:37
+#: extensions/scylla-base/src/features/project/project.module.ts:44
 msgid "Projects"
 msgstr "Projets"
 
@@ -453,6 +501,10 @@ msgstr "Rechercher un projet, un dépôt…"
 msgid "Search the projects"
 msgstr "Rechercher dans les projets"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:159
+msgid "Section menu"
+msgstr "Menu de la section"
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:15
 msgid "Select"
 msgstr "Sélectionner"
@@ -489,6 +541,10 @@ msgstr "Tri : dernier job"
 msgid "Sort: name (A → Z)"
 msgstr "Tri : nom (A → Z)"
 
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:152
+msgid "Space lifts the group. The arrow keys move it, Space drops it, and Escape cancels."
+msgstr "Espace soulève le groupe. Les flèches le déplacent, Espace le dépose et Échap annule."
+
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:32
 msgid "Start a regular project"
 msgstr "Créer un projet standard"
@@ -516,6 +572,10 @@ msgstr "Cette action ne peut pas être annulée."
 #: extensions/scylla-base/src/features/project/infrastructure/default-project.repository.ts:30
 msgid "This workspace has reached its project limit."
 msgstr "Cet espace de travail a atteint sa limite de projets."
+
+#: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:168
+msgid "Tiles"
+msgstr "Tuiles"
 
 #: extensions/scylla-base/src/features/project/presentation/messages/project.messages.ts:6
 msgid "Unable to load projects"

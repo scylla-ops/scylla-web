@@ -1,15 +1,21 @@
 // @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { MAX_PINS } from '@base/features/project/domain/structs/project-layout.struct.ts';
+import type { ProjectGroupEntity } from '@base/features/project/domain/entities/project-group.entity.ts';
 import {
   applyMoves,
   cardTargetAt,
+  groupMovesToSave,
+  groupTargetAt,
+  inGroupOrder,
+  moveGroupTo,
   movesToSave,
   neighborsOf,
   PINS,
   searchSectionOf,
   sectionHealth,
   slotPlace,
+  stepGroup,
   UNGROUPED,
   type CardCell,
   type SectionZone,
@@ -219,5 +225,65 @@ describe('the sections', () => {
     expect(sectionHealth(counts)).toEqual({ kind: 'failed', count: 1 });
     expect(sectionHealth({ ...counts, failed: 0 })).toEqual({ kind: 'running', count: 2 });
     expect(sectionHealth({ ...counts, failed: 0, running: 0 })).toBeUndefined();
+  });
+});
+
+describe('the order of the groups', () => {
+  const group = (id: string): ProjectGroupEntity => ({ id, workspaceId: 'org-1', name: id });
+  /** The headers of the groups in one column, 32 px high and 100 px apart. */
+  const header = (index: number, id?: string) => ({
+    ...(id && { id }),
+    box: { left: 0, top: index * 100, width: 1232, height: 32 },
+  });
+
+  it('shows the groups in the order of the reorder mode, and a new group last', () => {
+    const groups = [group('a'), group('b'), group('c')];
+
+    expect(inGroupOrder(groups, null).map(item => item.id)).toEqual(['a', 'b', 'c']);
+    expect(inGroupOrder(groups, ['c', 'a']).map(item => item.id)).toEqual(['c', 'a', 'b']);
+    expect(inGroupOrder(groups, ['x', 'b']).map(item => item.id)).toEqual(['b', 'a', 'c']);
+  });
+
+  it('moves a group one place, and not the first group up nor the last down', () => {
+    expect(stepGroup(['a', 'b', 'c'], 'b', -1)).toEqual(['b', 'a', 'c']);
+    expect(stepGroup(['a', 'b', 'c'], 'b', 1)).toEqual(['a', 'c', 'b']);
+    expect(stepGroup(['a', 'b', 'c'], 'a', -1)).toEqual(['a', 'b', 'c']);
+    expect(stepGroup(['a', 'b', 'c'], 'c', 1)).toEqual(['a', 'b', 'c']);
+    expect(stepGroup(['a', 'b'], 'x', 1)).toEqual(['a', 'b']);
+  });
+
+  it('puts a group at a place from 0, in the limits of the order', () => {
+    expect(moveGroupTo(['a', 'b', 'c'], 'c', 0)).toEqual(['c', 'a', 'b']);
+    expect(moveGroupTo(['a', 'b', 'c'], 'a', 9)).toEqual(['b', 'c', 'a']);
+  });
+
+  it('gives the server one write for each group that is not at its place, in their order', () => {
+    expect(groupMovesToSave(['a', 'b', 'c'], ['a', 'b', 'c'])).toEqual([]);
+    expect(groupMovesToSave(['a', 'b', 'c'], ['c', 'a', 'b'])).toEqual([
+      { groupId: 'c', position: 0 },
+    ]);
+    expect(groupMovesToSave(['a', 'b', 'c', 'd'], ['d', 'c', 'b', 'a'])).toEqual([
+      { groupId: 'd', position: 0 },
+      { groupId: 'c', position: 1 },
+      { groupId: 'b', position: 2 },
+    ]);
+  });
+
+  it('writes no group that the server does not have any more', () => {
+    expect(groupMovesToSave(['a', 'b'], ['x', 'b', 'a'])).toEqual([{ groupId: 'b', position: 0 }]);
+  });
+
+  it('puts the slot at the group nearest to the center of the dragged header', () => {
+    // « b » is lifted: its slot is between « a » and « c ».
+    const cells = [header(0, 'a'), header(1), header(2, 'c')];
+    const after = { left: 0, top: 300, width: 1232, height: 32 };
+
+    // On « a »: the slot takes its place. On its own slot: it stays before « c ».
+    expect(groupTargetAt(cells, after, { x: 600, y: 10 })).toEqual({ beforeId: 'a' });
+    expect(groupTargetAt(cells, after, { x: 600, y: 116 })).toEqual({ beforeId: 'c' });
+    // On « c », after the slot: « c » goes up, and the slot goes after it, last.
+    expect(groupTargetAt(cells, after, { x: 600, y: 210 })).toEqual({ beforeId: undefined });
+    expect(groupTargetAt(cells, after, { x: 600, y: 320 })).toEqual({ beforeId: undefined });
+    expect(groupTargetAt([], null, { x: 600, y: 10 })).toBeNull();
   });
 });

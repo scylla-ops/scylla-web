@@ -10,15 +10,22 @@
     PINS,
     UNGROUPED,
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
+  import {
+    DENSITY_GRIDS,
+    DENSITY_SKELETONS,
+  } from '@base/features/project/presentation/presenters/project-density.presenter.ts';
   import { colorChange } from '@base/features/project/presentation/presenters/group-color.presenter.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
   import ProjectShowMore from '../ProjectResults/ProjectShowMore.svelte';
+  import type { GroupReorderState } from '../group-reorder.state.svelte.ts';
+  import type { ProjectDensityState } from '../project-density.state.svelte.ts';
   import type { ProjectReorderState } from '../project-reorder.state.svelte.ts';
   import type { ProjectSectionsState, SectionView } from '../project-sections.state.svelte.ts';
   import GroupFolderColor from '../GroupColor/GroupFolderColor.svelte';
   import FoldedPreview from './FoldedPreview.svelte';
-  import GroupMenu from './GroupMenu.svelte';
+  import GroupGrip from './GroupGrip.svelte';
   import GroupNameRow from './GroupNameRow.svelte';
+  import SectionMenu from './SectionMenu.svelte';
   import SectionAction from './SectionAction.svelte';
   import SectionGrid from './SectionGrid.svelte';
   import SectionHeader from './SectionHeader.svelte';
@@ -28,10 +35,17 @@
     name: string;
     sections: ProjectSectionsState;
     reorder: ProjectReorderState;
+    /** The order of the groups in the reorder mode: a group has a handle, and a drag folds each section. */
+    groups: GroupReorderState;
+    densities: ProjectDensityState;
     phone: boolean;
+    /** The id of the text that tells the keys of the handle of a group. */
+    gripHintId: string;
     /** The only section of the page: its cards show with no header. */
     headless: boolean;
-    /** The place of a group in the order of the groups, for its menu. Unset: no menu. */
+    /** The last section of the page: no space under it. */
+    last: boolean;
+    /** The place of a group in the order of the groups, for its menu. Unset: no group action. */
     place?: { index: number; count: number };
     /** A new project in this section: its "+", its menu, its ghost card. Unset: none. */
     newProjectHref?: string;
@@ -44,15 +58,17 @@
     name,
     sections,
     reorder,
+    groups,
+    densities,
     phone,
+    gripHintId,
     headless,
+    last,
     place,
     newProjectHref,
     onNewGroup,
   }: Props = $props();
 
-  // A card needs about 300 px: breakpoints are viewport-wide and the sidebar takes ~16rem.
-  const GRID = 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3';
   const OPEN_AFTER_MS = 600;
 
   const updateGroup = createMutation(() => projectGroupMutations.update());
@@ -62,6 +78,9 @@
   let moved = $state(false);
   // The card that a chip opened: the page scrolls to it once it shows.
   let reveal = $state<string | null>(null);
+  const density = $derived(densities.of(section.key));
+  // A group moves: each section folds to its header, so that the groups fit on the screen.
+  const collapsed = $derived(!!groups.drag);
   const folded = $derived(
     !headless && !section.open && !reorder.active && section.projects.length > 0,
   );
@@ -99,6 +118,11 @@
     return () => clearTimeout(timer);
   });
 
+  // In the reorder mode, « Move up » and « Move down » change the order of the page until « Done ».
+  const moveGroup = (position: number) => {
+    if (section.group) groups.moveTo(section.group.id, position);
+  };
+
   const rename = (next: string, color: string | undefined) => {
     if (!section.group) return;
     const { id: groupId, name: current, color: currentColor } = section.group;
@@ -114,14 +138,22 @@
 </script>
 
 {#snippet menu()}
-  {#if section.group && place}
-    <GroupMenu
-      group={section.group}
-      index={place.index}
-      count={place.count}
-      {newProjectHref}
-      onRename={() => (renaming = true)}
-    />
+  <SectionMenu
+    label={t(section.group ? projectMessages.groupMenu : projectMessages.sectionMenu)}
+    group={section.group}
+    {place}
+    newProjectHref={reorder.active ? undefined : newProjectHref}
+    {density}
+    {phone}
+    onDensity={next => densities.setSection(section.key, next)}
+    onRename={place ? () => (renaming = true) : undefined}
+    onMove={reorder.active ? moveGroup : undefined}
+  />
+{/snippet}
+
+{#snippet grip()}
+  {#if section.group}
+    <GroupGrip id={section.group.id} {name} {groups} hintId={gripHintId} />
   {/if}
 {/snippet}
 
@@ -154,9 +186,11 @@
   {/if}
 {/snippet}
 
+<!-- The space between the sections is in their padding: a section that folds ends with no jump. -->
 <section
-  class="flex flex-col not-last-of-type:pb-4"
+  class={cn('flex flex-col', !last && 'pb-4')}
   data-section={section.key}
+  data-density={density}
   aria-label={name}
   in:unfold
   out:fold
@@ -183,7 +217,8 @@
           counts={section.counts}
           {dropText}
           {actions}
-          menu={place ? menu : undefined}
+          grip={reorder.active && section.group ? grip : undefined}
+          {menu}
           onToggle={toggle}
         />
       {/if}
@@ -191,17 +226,21 @@
   {/if}
 
   <!-- The space under the header is in the padding of the part that folds: no jump. -->
-  {#if section.open || headless}
+  {#if (section.open || headless) && !collapsed}
     <div class={cn('flex flex-col gap-3', !headless && 'pt-3')} in:unfold out:fold>
       {#if section.loading}
-        <ListSkeleton rows={phone ? 1 : 3} class={GRID} rowClass="h-60 w-full rounded-xl" />
+        <ListSkeleton
+          rows={phone ? 1 : 3}
+          class={DENSITY_GRIDS[density]}
+          rowClass={DENSITY_SKELETONS[density]}
+        />
       {:else}
         <SectionGrid
           {section}
           {sections}
           {reorder}
+          {densities}
           {phone}
-          grid={GRID}
           {newProjectHref}
           stagger={moved}
           {reveal}
@@ -219,7 +258,7 @@
         {/if}
       {/if}
     </div>
-  {:else if folded}
+  {:else if folded && !collapsed}
     <div class="pt-2" in:unfold out:fold>
       <FoldedPreview
         projects={section.projects}

@@ -27,6 +27,8 @@
     dropText?: string;
     /** The small actions before the menu, e.g. a new project in this group. */
     actions?: Snippet;
+    /** The handle of a group in the reorder mode, before the chevron. */
+    grip?: Snippet;
     menu?: Snippet;
     onToggle: () => void;
   }
@@ -41,6 +43,7 @@
     counts,
     dropText,
     actions,
+    grip,
     menu,
     onToggle,
   }: Props = $props();
@@ -57,6 +60,7 @@
   data-part="project-section-header"
   role="group"
 >
+  {@render grip?.()}
   <!-- The whole row opens and closes the section; the menu and the folder control do not. -->
   <div class="relative flex min-w-0 flex-1 items-center">
     <button

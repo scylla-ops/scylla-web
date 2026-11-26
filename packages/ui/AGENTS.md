@@ -36,9 +36,11 @@ src/
   chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
                            ChartSlot, ChartRing: the marks of the charts of a widget
   controls/                IconButton, GatedButton, PasswordInput, SearchSelect, SegmentedControl,
-                           ShareLinkButton, ColorPicker, ColorSwatches, IconPicker, IconField
+                           ShareLinkButton, ColorPicker, ColorSwatches, IconPicker, IconField,
+                           GhostItem, Chip
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
-                           CopyableText, TruncatedText, EntityIcon, ColorGlyph
+                           CopyableText, TruncatedText, EntityIcon, ColorGlyph, CompactCard,
+                           ListRow, Tile, DropSlot
   feedback/                ScyllaDialog, ErrorState, EmptyState, ConfirmOperationAlertDialog,
                            SecretRevealDialog
   forms/                   ScyllaForm, FormDialog, createFormState, FormItem types
@@ -107,6 +109,12 @@ they use the language of the browser or no language.
 | An action the user may not use | `GatedButton` with `allowed={can(…)}` |
 | Give the link of a page to another person | `ShareLinkButton` (`url`, `hint`). The top bar of the core renders it for a route with `share`: a page does not render it |
 | The icon of an entity (a project, an agent): a glyph in a color, or an image | `EntityIcon` (`icon`, `color`, `image`, `size` 20, 36 or 48). A free color `#RRGGBB` goes through `iconColors` (`utils/color.ts`): under 3:1 with the card of the theme, the tile is solid with a white or near-black glyph. The glyphs of a picker are `ENTITY_GLYPHS` |
+| An item of a dense grid: a smaller card | `CompactCard` (`title`, `icon`, `badge`, `subtitle`, `actions`, `footer`, `selected`, `interactive`): the icon, the title and the actions on one line, centered, then the footer. The cards of a row have the same height |
+| An item of a list, one row each | `ListRow` (`title`, `icon`, `badge`, `subtitle`, `meta`, `actions`, `stacked`, `selected`, `interactive`): 48 px, each part centered on one line. `stacked` (a phone) puts the subtitle and `meta` on a second line, and the icon and the actions stay centered on the row |
+| A small tile of an overview (the health of each item) | `Tile` (`title`, `icon`, `status`, `actions`, `selected`, `interactive`): the icon, the title and the status centered on both axes; `actions` in the top right corner |
+| The place where a dragged item goes | `DropSlot` (`shape`: `card`, `row`, `header` or `tile`, from `DROP_SLOT_SHAPES`; `children`: a text, centered). Give it the shape of the item, so that the grid does not jump. With no text it is `aria-hidden`: a live region says the place |
+| « New … » as the last item of a grid or a list | `GhostItem` (`label`, `shape`: `card`, `row` or `tile`, from `GHOST_ITEM_SHAPES`; `icon`, `Plus` by default; `href` for a link, else `onclick`): a dashed item, its content centered on both axes |
+| A small item in a line: a name with its icon, or "+N" | `Chip` (`icon` snippet, `variant`: `default` or `more`, the button attributes): 28 px, rounded, the content centered |
 | A glyph in a color with no tile (the folder of a group of projects) | `ColorGlyph` (`icon`, `color`, `label`, `class` for the size, 16 px by default): the outline in the color on its tint. A free color under 3:1 with the card fills the glyph, with a white or near-black outline (`iconColors`). No color: grey, with no fill |
 | Choose the icon of an entity | `IconPicker` (`value`: an `IconChoice`, `onchange`, `title`, `recent`, and the default icon of the entity: `defaultGlyph`, `defaultColor`): the glyphs with a search, the colors of the theme, the free color, the image tab. The owner puts it in a `ScyllaDialog` and saves. The free color is `ColorPicker`, which also works alone |
 | The icon in a form that creates or edits an entity | `IconField` (`value`, `onchange`, `recent`, `defaultGlyph`, `defaultColor`, `disabled`): the label, the preview, "Change the icon" and Reset on one line; the button unfolds the `IconPicker` (with no header) under them. Nothing is saved: the owner sends the choice with the other fields at the submit. The field keeps the URL of a new image while the picker is closed, and frees it when it goes away. Every create and edit form of an entity with an icon has it |

@@ -44,6 +44,18 @@ export const createProjectReorder = () => {
   let target = $state<DropTarget | null>(null);
   let origin: DropTarget | null = null;
   let ended = $state<DragEnd | null>(null);
+  // The size of a cell of the section under the card, when its density is not the density of the
+  // section of the card: the card takes its shape.
+  let shape = $state<Pick<Box, 'width' | 'height'> | null>(null);
+
+  /** The point where the person took the card, in its shape of now. */
+  const grabOf = (card: Drag): Point =>
+    shape
+      ? {
+          x: (card.grab.x * shape.width) / Math.max(card.box.width, 1),
+          y: (card.grab.y * shape.height) / Math.max(card.box.height, 1),
+        }
+      : card.grab;
 
   const accepts = (to: SectionKey) => !!drag && (drag.from !== PINS || to === PINS);
   const clear = () => {
@@ -52,6 +64,7 @@ export const createProjectReorder = () => {
     origin = null;
     settling = false;
     vanishing = false;
+    shape = null;
   };
   const end = (to: SectionKey | null) => {
     if (drag) ended = { id: drag.id, name: drag.name, to };
@@ -74,9 +87,18 @@ export const createProjectReorder = () => {
     },
     /** How far the dragged card is from its box. */
     get offset(): Point {
-      return drag
-        ? { x: pointer.x - drag.grab.x - drag.box.left, y: pointer.y - drag.grab.y - drag.box.top }
-        : { x: 0, y: 0 };
+      if (!drag) return { x: 0, y: 0 };
+      const grab = grabOf(drag);
+      return { x: pointer.x - grab.x - drag.box.left, y: pointer.y - grab.y - drag.box.top };
+    },
+    /** The box of the dragged card where it left its grid, in the shape of the section under it. */
+    get box(): Box {
+      if (!drag) return { left: 0, top: 0, width: 0, height: 0 };
+      return shape ? { ...drag.box, ...shape } : drag.box;
+    },
+    /** The point where the person took the card, in its shape of now. */
+    get grab(): Point {
+      return drag ? grabOf(drag) : { x: 0, y: 0 };
     },
     /** The dragged card goes to its slot: it does not follow the pointer anymore. */
     get settling() {
@@ -130,7 +152,17 @@ export const createProjectReorder = () => {
       if (!drag) return;
       settling = true;
       vanishing = vanish;
-      pointer = { x: to.x + drag.grab.x, y: to.y + drag.grab.y };
+      const grab = grabOf(drag);
+      pointer = { x: to.x + grab.x, y: to.y + grab.y };
+    },
+    /**
+     * The card takes the size of a cell of the section under it, a section of another density;
+     * `null` gives it its own size again.
+     */
+    reshape(size: Pick<Box, 'width' | 'height'> | null) {
+      if (!drag || settling) return;
+      if (size?.width === shape?.width && size?.height === shape?.height) return;
+      shape = size;
     },
     drop() {
       if (drag && target && moves && accepts(target.to) && !sameTarget(target, origin)) {

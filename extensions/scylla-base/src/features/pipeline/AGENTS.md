@@ -354,7 +354,9 @@ the page.
   `pipelineQueries.ofProjects` with the `batch` of its card: the cards of a batch make one call.
   A click on a row opens the jobs of the pipeline (an `<a>`, so a middle click opens a tab), and
   writes the project and the pipeline in `contextStore`. The Run button runs at the head of the
-  default branch, with no dialog, and needs `RUN_PIPELINE` on the project.
+  default branch, with no dialog, and needs `RUN_PIPELINE` on the project. The context of a zone
+  has the `density` of the section: `cardBody` shows in the comfortable card only, and the footer
+  draws its line for each density (no border in a tile, where it is centered).
 
 - **A block of the library is drawn, never saved.** The document always holds the nodes of a
   linked fragment, with the prefix of their block (`instantiate`), so the server runs them as any

@@ -24,7 +24,7 @@
   // screen always.
   const CLASS = cn(
     buttonVariants({ variant: 'ghost', size: 'icon' }),
-    'size-8 shrink-0 rounded-full transition-[opacity,color,background-color] max-md:size-11 motion-reduce:transition-none pointer-fine:opacity-0 pointer-fine:group-focus-within/header:opacity-100 pointer-fine:group-hover/header:opacity-100',
+    'size-8 shrink-0 rounded-full transition-[opacity,color,background-color] max-md:size-11 motion-reduce:transition-none pointer-coarse:size-11 pointer-fine:opacity-0 pointer-fine:group-focus-within/header:opacity-100 pointer-fine:group-hover/header:opacity-100',
   );
 </script>
 

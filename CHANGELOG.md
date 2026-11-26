@@ -58,6 +58,15 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   projects page: the pinned projects, each group with its folder color, then the projects with no
   group, in folding sections that the page and the sidebar share. A dot shows on a project with a
   job that runs.
+- In the reorder mode of the projects page, you can also move the groups: drag the handle of a group
+  header, or use the keyboard (Space lifts the group, the arrow keys move it, Space drops it and
+  Escape cancels). On a phone, "Move up" and "Move down" in the group menu move the group. "Done"
+  saves the order of the groups and "Cancel" forgets it. Each section of the projects page can have
+  its own display: comfortable cards, compact cards, a list or tiles. "Display" in the toolbar sets
+  the display of the page, and "Apply to all sections" gives it to each section. The menu of each
+  section, also of Pinned and No group, sets the display of that section. Each person keeps the
+  choice for each workspace. On a touch screen, the "+" and "..." buttons of a section header are
+  larger.
 
 ### Changed
 

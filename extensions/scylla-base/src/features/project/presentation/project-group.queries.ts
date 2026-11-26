@@ -91,6 +91,15 @@ export const projectGroupMutations = {
       onSuccess: () => refresh(),
     }),
 
+  /** The order of the reorder mode: one write for each group that changes its place, in order. */
+  arrange: () =>
+    mutationOptions({
+      mutationFn: async (moves: readonly { groupId: string; position: number }[]) => {
+        for (const { groupId, position } of moves) await groups().reorder(groupId, position);
+      },
+      onSettled: () => refresh(),
+    }),
+
   remove: () =>
     mutationOptions({
       mutationFn: (groupId: string) => groups().delete(groupId),

@@ -14,6 +14,7 @@ import type {
   ProjectSearchResult,
 } from '@base/features/project/domain/structs/project-search.struct.ts';
 import { PROJECT_PINS_KEY, PROJECT_SECTIONS_KEY } from '../../project-layout.user-state.ts';
+import { PROJECT_DENSITY_KEY } from '../../project-density.user-state.ts';
 import { REORDER_LIMIT } from '../../presenters/project-sections.presenter.ts';
 import ProjectList from '../ProjectList.svelte';
 
@@ -781,3 +782,218 @@ describe('a folded section', () => {
     expect(within(section('Deploys')).queryByRole('group', { name: /folded$/ })).toBeNull();
   });
 });
+
+const OPS: ProjectGroupEntity = { id: 'g-2', workspaceId: 'org-1', name: 'Ops' };
+/** The keys of the sections, in the order of the page. */
+const sectionOrder = () =>
+  [...document.querySelectorAll('[data-section]')].map(node => node.getAttribute('data-section'));
+const densityOfCards = (name: string) =>
+  [...section(name).querySelectorAll('[data-tour="project-card"]')].map(card =>
+    card.getAttribute('data-density'),
+  );
+
+describe('the display of the sections', () => {
+  it('changes the display of the page from « Display », and of one section from its menu', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(screen.getByRole('button', { name: 'Display: Comfortable' }));
+    await userEvent.click(await findFloating('menuitemradio', 'Compact'));
+
+    await waitFor(() => expect(section('Deploys')).toHaveAttribute('data-density', 'compact'));
+    expect(section('No group')).toHaveAttribute('data-density', 'compact');
+    expect(densityOfCards('Deploys')).toEqual(['compact', 'compact']);
+
+    await userEvent.click(within(section('No group')).getByRole('button', { name: 'Section menu' }));
+    await userEvent.click(await findFloating('menuitem', 'Display'));
+    await userEvent.click(await findFloating('menuitemradio', 'List'));
+
+    await waitFor(() => expect(section('No group')).toHaveAttribute('data-density', 'list'));
+    expect(densityOfCards('No group')).toEqual(['list', 'list', 'list']);
+    expect(section('Deploys')).toHaveAttribute('data-density', 'compact');
+    expect(JSON.parse(localStorage.getItem(PROJECT_DENSITY_KEY)!)).toEqual({
+      'org-1': { default: 'compact', sections: { ungrouped: 'list' } },
+    });
+  });
+
+  it('gives each section the display of the page with « Apply to all sections »', async () => {
+    localStorage.setItem(
+      PROJECT_DENSITY_KEY,
+      JSON.stringify({ 'org-1': { default: 'tiles', sections: { 'g-1': 'list' } } }),
+    );
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+    expect(section('Deploys')).toHaveAttribute('data-density', 'list');
+    expect(section('No group')).toHaveAttribute('data-density', 'tiles');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Display: Tiles' }));
+    await userEvent.click(await findFloating('menuitem', 'Apply to all sections'));
+
+    await waitFor(() => expect(section('Deploys')).toHaveAttribute('data-density', 'tiles'));
+    expect(densityOfCards('Deploys')).toEqual(['tiles', 'tiles']);
+  });
+
+  it('shows the display menu on the pins and on « No group » too, with no group items', async () => {
+    localStorage.setItem(PROJECT_PINS_KEY, JSON.stringify({ 'org-1': ['id-docs'] }));
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Pinned' });
+
+    await userEvent.click(within(section('Pinned')).getByRole('button', { name: 'Section menu' }));
+
+    expect(await findFloating('menuitem', 'Display')).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Delete the group', hidden: true })).toBeNull();
+  });
+});
+
+describe('the order of the groups in the reorder mode', () => {
+  beforeEach(() => {
+    groups.list.mockResolvedValue([DEPLOYS, OPS]);
+    groups.reorder.mockResolvedValue(OPS);
+  });
+
+  const reorderMode = async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Ops' });
+    await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
+    return within(section('Ops')).getByRole('button', { name: 'Move the group Ops' });
+  };
+
+  it('shows the handle of a group in the reorder mode only, and not on the pins or « No group »', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Ops' });
+    expect(screen.queryByRole('button', { name: /^Move the group/ })).toBeNull();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
+
+    expect(
+      within(section('Deploys')).getByRole('button', { name: 'Move the group Deploys' }),
+    ).toBeInTheDocument();
+    expect(within(section('Pinned')).queryByRole('button', { name: /^Move the group/ })).toBeNull();
+    expect(within(section('No group')).queryByRole('button', { name: /^Move the group/ })).toBeNull();
+  });
+
+  it('moves a group with the keyboard, and « Done » saves the order of the groups', async () => {
+    const grip = await reorderMode();
+    grip.focus();
+
+    await userEvent.keyboard(' ');
+
+    expect(grip).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      screen.getByText(
+        '“Ops” is lifted, at place 2 of 2 in the groups. The arrow keys move it, Space drops it, and Escape cancels.',
+      ),
+    ).toBeInTheDocument();
+
+    await userEvent.keyboard('{ArrowUp}');
+
+    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-2', 'g-1', 'ungrouped']));
+    await waitFor(() => expect(grip).toHaveFocus());
+
+    await userEvent.keyboard(' ');
+
+    expect(screen.getByText('“Ops” is now at place 1 of 2 in the groups')).toBeInTheDocument();
+    expect(groups.reorder).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    await waitFor(() => expect(groups.reorder).toHaveBeenCalledWith('g-2', 0));
+    expect(groups.reorder).toHaveBeenCalledTimes(1);
+  });
+
+  it('gives the group its place back with Escape, and stays in the reorder mode', async () => {
+    const grip = await reorderMode();
+    grip.focus();
+    await userEvent.keyboard(' ');
+    await userEvent.keyboard('{ArrowUp}');
+    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-2', 'g-1', 'ungrouped']));
+
+    await userEvent.keyboard('{Escape}');
+
+    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-1', 'g-2', 'ungrouped']));
+    expect(screen.getByText('“Ops” is back at its place')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
+  });
+
+  it('moves a group from its menu in the mode, and « Cancel » forgets the new order', async () => {
+    await reorderMode();
+
+    await userEvent.click(within(section('Ops')).getByRole('button', { name: 'Group menu' }));
+    await userEvent.click(await findFloating('menuitem', 'Move up'));
+
+    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-2', 'g-1', 'ungrouped']));
+    expect(groups.reorder).not.toHaveBeenCalled();
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    await waitFor(() => expect(sectionOrder()).toEqual(['g-1', 'g-2', 'ungrouped']));
+    expect(groups.reorder).not.toHaveBeenCalled();
+  });
+
+  it('drags a group by its handle: the sections fold, and the slot follows the header', async () => {
+    teardown.push(stubGroupLayout());
+    const grip = await reorderMode();
+    expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
+
+    // « Ops » (the second group, at 100 px) is taken at its handle and goes up by 100 px.
+    pointer(grip, 'pointerdown', 10, 110);
+    pointer(window, 'pointermove', 10, 60);
+    await waitFor(() =>
+      expect(document.querySelector('[data-part="group-drop-slot"]')).not.toBeNull(),
+    );
+    expect(cardsOf('Deploys')).toEqual([]);
+    pointer(window, 'pointermove', 10, 10);
+
+    await waitFor(() =>
+      expect(screen.getByText('“Ops”: place 1 of 2 in the groups')).toBeInTheDocument(),
+    );
+    pointer(window, 'pointerup', 10, 10);
+
+    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-2', 'g-1', 'ungrouped']));
+    expect(screen.getByText('“Ops” is now at place 1 of 2 in the groups')).toBeInTheDocument();
+    await waitFor(() => expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']));
+
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    await waitFor(() => expect(groups.reorder).toHaveBeenCalledWith('g-2', 0));
+  });
+});
+
+/**
+ * The layout of the groups, which jsdom does not compute: each group is 100 px under the one
+ * before it, with a header 40 px high. The lifted group (`position: fixed`) is out of the column.
+ */
+const stubGroupLayout = () => {
+  const GROUP_CELL = '[data-group-cell], [data-part="group-drop-slot"]';
+  const rect = Element.prototype.getBoundingClientRect;
+  const offsets = ['offsetLeft', 'offsetTop', 'offsetWidth', 'offsetHeight'] as const;
+  const saved = offsets.map(name => Object.getOwnPropertyDescriptor(HTMLElement.prototype, name));
+  const placeOfGroup = (cell: Element) =>
+    [...cell.parentElement!.children]
+      .filter(
+        child => child.matches(GROUP_CELL) && (child as HTMLElement).style.position !== 'fixed',
+      )
+      .indexOf(cell);
+  Element.prototype.getBoundingClientRect = function (this: Element) {
+    const cell = this.closest('[data-group-cell]');
+    if (cell && this.matches('[data-part="project-section-header"]')) {
+      return box(0, placeOfGroup(cell) * 100, 1232, 40);
+    }
+    return rect.call(this);
+  };
+  const offset = (name: (typeof offsets)[number]) =>
+    function (this: HTMLElement) {
+      const place = this.matches(GROUP_CELL) ? placeOfGroup(this) : -1;
+      if (place < 0) return 0;
+      return { offsetLeft: 0, offsetTop: place * 100, offsetWidth: 1232, offsetHeight: 40 }[name];
+    };
+  for (const name of offsets) {
+    Object.defineProperty(HTMLElement.prototype, name, { configurable: true, get: offset(name) });
+  }
+  return () => {
+    Element.prototype.getBoundingClientRect = rect;
+    offsets.forEach((name, index) => {
+      Object.defineProperty(HTMLElement.prototype, name, saved[index]!);
+    });
+  };
+};

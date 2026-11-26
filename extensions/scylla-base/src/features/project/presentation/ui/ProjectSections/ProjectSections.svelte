@@ -2,22 +2,28 @@
   import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
   import { activeWorkspaceSlug, contextStore, workspaceUrl } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
-  import { fold, unfold } from '@scylla/ui';
+  import { DropSlot, fold, reflow, unfold } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { toRune } from '@scylla/ui/stores';
   import { cn } from '@scylla/ui/utils';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import {
+    groupNews,
     PINS,
     reorderNews,
     UNGROUPED,
     type SectionKey,
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
+  import { liftedStyle } from '@base/features/project/presentation/presenters/sortable.presenter.ts';
   import { newProjectPath } from '@base/features/project/presentation/presenters/new-project.presenter.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
+  import type { GroupReorderState } from '../group-reorder.state.svelte.ts';
+  import type { ProjectDensityState } from '../project-density.state.svelte.ts';
   import type { ProjectReorderState } from '../project-reorder.state.svelte.ts';
   import type { ProjectSectionsState, SectionView } from '../project-sections.state.svelte.ts';
+  import { arrive, leave } from '../reorder.transition.ts';
   import { dragCards } from './card-drag.attachments.ts';
+  import { dragGroups } from './group-drag.attachments.ts';
   import GroupNameRow from './GroupNameRow.svelte';
   import ProjectSection from './ProjectSection.svelte';
 
@@ -25,6 +31,9 @@
     workspaceId: string;
     sections: ProjectSectionsState;
     reorder: ProjectReorderState;
+    /** The order of the groups in the reorder mode. */
+    groups: GroupReorderState;
+    densities: ProjectDensityState;
     phone: boolean;
     /** The person changes the groups: each group has its menu. */
     canManage: boolean;
@@ -40,6 +49,8 @@
     workspaceId,
     sections,
     reorder,
+    groups,
+    densities,
     phone,
     canManage,
     canCreate,
@@ -60,10 +71,35 @@
 
   const createGroup = createMutation(() => projectGroupMutations.create());
 
-  const groups = $derived(sections.sections.filter(section => section.key !== UNGROUPED));
+  const GRIP_HINT = 'project-group-grip-hint';
+  const SLOT_KEY = '\nslot';
+
+  const pins = $derived(sections.sections.filter(section => section.key === PINS));
+  const groupSections = $derived(sections.sections.filter(section => !!section.group));
   const ungrouped = $derived(sections.sections.filter(section => section.key === UNGROUPED));
+  const lastKey = $derived(sections.sections.at(-1)?.key);
   // With no pin and no group, the page shows the cards with no header, as one list.
-  const headless = $derived(groups.length === 0 && !creating);
+  const headless = $derived(pins.length === 0 && groupSections.length === 0 && !creating);
+
+  // The pins stay first and « No group » last: only the groups move, with a slot for a pointer.
+  type GroupEntry = { kind: 'section'; section: SectionView; lifted: boolean } | { kind: 'slot' };
+  const pointerDrag = $derived(groups.drag && !groups.drag.keyboard ? groups.drag : null);
+  const groupEntries = $derived.by((): GroupEntry[] => {
+    const list: GroupEntry[] = groupSections.map(section => ({
+      kind: 'section',
+      section,
+      lifted: pointerDrag?.id === section.key,
+    }));
+    const target = pointerDrag ? groups.target : null;
+    if (!target) return list;
+    const at = list.findIndex(
+      entry => entry.kind === 'section' && entry.section.key === target.beforeId,
+    );
+    return at < 0
+      ? [...list, { kind: 'slot' }]
+      : [...list.slice(0, at), { kind: 'slot' }, ...list.slice(at)];
+  });
+  const keyOf = (entry: GroupEntry) => (entry.kind === 'slot' ? SLOT_KEY : entry.section.key);
 
   const nameOf = (section: SectionView) =>
     section.key === PINS
@@ -83,6 +119,15 @@
   const projectName = (id: string) =>
     sections.sections.flatMap(section => section.projects).find(project => project.id === id)
       ?.name ?? '';
+  const groupText = $derived(
+    groupNews({
+      drag: groups.drag,
+      order: groups.order ?? [],
+      target: groups.target,
+      stepped: groups.stepped,
+      ended: groups.ended,
+    }),
+  );
   const news = $derived(
     reorderNews({
       drag: reorder.drag,
@@ -103,7 +148,11 @@
     name={nameOf(section)}
     {sections}
     {reorder}
+    {groups}
+    {densities}
     {phone}
+    gripHintId={GRIP_HINT}
+    last={section.key === lastKey}
     {headless}
     place={placeOf(section)}
     newProjectHref={newProjectHrefOf(section)}
@@ -113,12 +162,37 @@
 
 <!-- The space between the sections is in their padding: a section that folds ends with no jump. -->
 <div
-  class={cn('flex flex-col', reorder.drag && 'cursor-grabbing select-none')}
+  class={cn('relative flex flex-col', (reorder.drag || pointerDrag) && 'cursor-grabbing select-none')}
   data-part="project-sections"
   {@attach dragCards(reorder, projectName)}
+  {@attach dragGroups(groups, sectionName)}
 >
-  {#each groups as section (section.key)}
+  {#each pins as section (section.key)}
     {@render one(section)}
+  {/each}
+  {#each groupEntries as entry (keyOf(entry))}
+    {@const lifted = entry.kind === 'section' && entry.lifted}
+    {@const keyboard = entry.kind === 'section' && groups.drag?.keyboard && groups.drag.id === entry.section.key}
+    <!-- A dragged group leaves the flow: its header follows the pointer over the page. -->
+    <div
+      class={cn(
+        entry.kind === 'slot' && 'pb-4',
+        lifted && 'cursor-grabbing overflow-hidden rounded-lg bg-background shadow-2xl ring-2 ring-primary/60',
+        keyboard && 'rounded-lg ring-2 ring-primary/60 ring-offset-4 ring-offset-background',
+      )}
+      style={lifted && pointerDrag ? liftedStyle(pointerDrag.box, groups.offset, groups.motion) : undefined}
+      data-group-cell={entry.kind === 'section' ? entry.section.key : undefined}
+      data-part={entry.kind === 'slot' ? 'group-drop-slot' : undefined}
+      animate:reflow={{ still: lifted }}
+      in:arrive={{ id: entry.kind === 'section' ? entry.section.key : undefined }}
+      out:leave={{ id: entry.kind === 'section' ? entry.section.key : undefined, fade: !!groups.drag }}
+    >
+      {#if entry.kind === 'slot'}
+        <DropSlot shape="header" style={`min-height: ${pointerDrag?.box.height ?? 40}px`} />
+      {:else}
+        {@render one(entry.section)}
+      {/if}
+    </div>
   {/each}
   {#if !headless && newGroups}
     <!-- After the last group: one more group. The header has the same action. -->
@@ -149,4 +223,8 @@
     {@render one(section)}
   {/each}
   <p class="sr-only" aria-live="polite">{news}</p>
+  <p class="sr-only" aria-live="polite">{groupText}</p>
+  {#if reorder.active}
+    <p id={GRIP_HINT} class="sr-only">{t(projectMessages.groupGripHint)}</p>
+  {/if}
 </div>

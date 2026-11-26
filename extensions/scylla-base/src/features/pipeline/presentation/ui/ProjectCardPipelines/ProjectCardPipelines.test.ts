@@ -37,6 +37,7 @@ const context: ProjectCardContext = {
   projectId: 'web',
   projectName: 'web',
   batch: ['web', 'api'],
+  density: 'comfortable',
 };
 
 let teardown: Array<() => void> = [];

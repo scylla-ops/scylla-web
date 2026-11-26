@@ -22,7 +22,7 @@ const HEADER = '[data-part="project-section-header"]';
 const GRID = '[data-part="project-grid"]';
 const SLOT = '[data-part="project-drop-slot"]';
 /** A mouse moves this far before a press becomes a drag: a click stays a click. */
-const MOUSE_SLOP_PX = 4;
+export const MOUSE_SLOP_PX = 4;
 /** A finger holds still this long, then drags. A move before it scrolls the page. */
 const TOUCH_HOLD_MS = 250;
 const TOUCH_SLOP_PX = 8;
@@ -34,10 +34,10 @@ interface Press {
   card: HTMLElement;
 }
 
-const boxOf = ({ left, top, width, height }: DOMRect): Box => ({ left, top, width, height });
+export const boxOf = ({ left, top, width, height }: DOMRect): Box => ({ left, top, width, height });
 
 /** The box of a cell where the grid places it: a slide (a transform) does not move it. */
-const cellBox = (grid: HTMLElement, cell: HTMLElement): Box => {
+export const cellBox = (grid: HTMLElement, cell: HTMLElement): Box => {
   const { left, top } = grid.getBoundingClientRect();
   return {
     left: left + grid.clientLeft + cell.offsetLeft,
@@ -48,7 +48,7 @@ const cellBox = (grid: HTMLElement, cell: HTMLElement): Box => {
 };
 
 /** Svelte takes a cell that goes out of the flow while it fades: it is not a place anymore. */
-const inFlow = (cell: HTMLElement) => cell.style.position !== 'absolute';
+export const inFlow = (cell: HTMLElement) => cell.style.position !== 'absolute';
 
 const zonesOf = (root: HTMLElement, dragId: string): SectionZone[] =>
   [...root.querySelectorAll<HTMLElement>(SECTION)].map(section => {
@@ -88,7 +88,7 @@ const nextCardOf = (card: HTMLElement): string | undefined => {
   return (next as HTMLElement | null)?.dataset.card;
 };
 
-const scrollerOf = (node: HTMLElement): HTMLElement | null => {
+export const scrollerOf = (node: HTMLElement): HTMLElement | null => {
   for (let parent = node.parentElement; parent; parent = parent.parentElement) {
     const { overflowY } = getComputedStyle(parent);
     if (/auto|scroll/.test(overflowY) && parent.scrollHeight > parent.clientHeight) return parent;
@@ -110,18 +110,31 @@ export const dragCards =
     let dragging = false;
     let ending = false;
     let pointer: Point = { x: 0, y: 0 };
-    let grab: Point = { x: 0, y: 0 };
-    let size = { width: 0, height: 0 };
+    // The density of the section of the card: a slot in a section of another density reshapes it.
+    let source: string | undefined;
     let scroller: HTMLElement | null = null;
     let frame = 0;
     let timer: ReturnType<typeof setTimeout> | undefined;
 
+    /** The card takes the shape of the slot, in a section of another density. */
+    const reshape = () => {
+      if (!dragging) return;
+      const slot = [...root.querySelectorAll<HTMLElement>(SLOT)].find(inFlow);
+      const density = slot?.closest<HTMLElement>(SECTION)?.dataset.density;
+      if (!slot || !density) return;
+      reorder.reshape(
+        density === source ? null : { width: slot.offsetWidth, height: slot.offsetHeight },
+      );
+    };
+
     const retarget = () => {
       const drag = reorder.drag;
       if (!dragging || !drag) return;
-      const center = centerOf(draggedBox(pointer, grab, size));
+      const center = centerOf(draggedBox(pointer, reorder.grab, reorder.box));
       const target = cardTargetAt(zonesOf(root, drag.id), center, pointer, reorder.accepts);
       if (target) reorder.hover(target.to, target.beforeId, target.header);
+      // The slot shows in its section after the update.
+      void tick().then(reshape);
     };
 
     const scroll = () => {
@@ -141,8 +154,8 @@ export const dragCards =
       const from = card?.closest<HTMLElement>(SECTION)?.dataset.section;
       if (!press || !card || !id || !from) return reset();
       const box = boxOf(card.getBoundingClientRect());
-      grab = { x: press.start.x - box.left, y: press.start.y - box.top };
-      size = { width: box.width, height: box.height };
+      const grab = { x: press.start.x - box.left, y: press.start.y - box.top };
+      source = card.closest<HTMLElement>(SECTION)?.dataset.density;
       dragging = true;
       reorder.pick({ id, name: nameOf(id), from, box, grab }, nextCardOf(card));
       scroller = scrollerOf(root);
@@ -185,7 +198,7 @@ export const dragCards =
       } else if (ms > 0 && header) {
         // A closed section: the card goes into its header.
         const box = header.getBoundingClientRect();
-        reorder.settle({ x: box.left, y: box.top + box.height / 2 - size.height / 2 }, true);
+        reorder.settle({ x: box.left, y: box.top + box.height / 2 - reorder.box.height / 2 }, true);
         await new Promise(resolve => (timer = setTimeout(resolve, ms)));
       }
       ending = false;

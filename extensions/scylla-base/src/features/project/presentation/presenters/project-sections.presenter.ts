@@ -3,6 +3,7 @@ import {
   MAX_PINS,
   placeBefore,
 } from '@base/features/project/domain/structs/project-layout.struct.ts';
+import type { ProjectGroupEntity } from '@base/features/project/domain/entities/project-group.entity.ts';
 import type {
   ProjectCounts,
   ProjectSection,
@@ -115,11 +116,26 @@ const spans = (box: Box | undefined, y: number) =>
  * The slot goes to the cell nearest to the center of the dragged card: it takes the place of a
  * card when the dragged card covers more than half of it.
  */
-const placeIn = (zone: SectionZone, center: Point): DropTarget => {
-  const ids = zone.cells.flatMap(cell => (cell.id ? [cell.id] : []));
-  const boxes = zone.cells.map(cell => cell.box);
-  const index = nearestCell(zone.after ? [...boxes, zone.after] : boxes, center);
-  return { to: zone.key, beforeId: index < 0 ? undefined : ids[index], header: false };
+const placeIn = (zone: SectionZone, center: Point): DropTarget => ({
+  to: zone.key,
+  beforeId: beforeIdAt(zone.cells, zone.after ?? null, center) ?? undefined,
+  header: false,
+});
+
+/**
+ * The item before which the slot goes: the cell nearest to the center of the dragged item, the
+ * slot (no id) included. A cell after the slot takes the slot after it: the index of a box in the
+ * cells is the index of the id after it in the ids with no slot. `undefined`: last. Null: no cell.
+ */
+const beforeIdAt = (
+  cells: readonly CardCell[],
+  after: Box | null,
+  center: Point,
+): string | undefined | null => {
+  const ids = cells.flatMap(cell => (cell.id ? [cell.id] : []));
+  const boxes = cells.map(cell => cell.box);
+  const index = nearestCell(after ? [...boxes, after] : boxes, center);
+  return index < 0 ? null : ids[index];
 };
 
 /**
@@ -195,4 +211,104 @@ export const sectionHealth = (
   if (counts?.failed) return { kind: 'failed', count: counts.failed };
   if (counts?.running) return { kind: 'running', count: counts.running };
   return undefined;
+};
+
+/** Where a dragged group goes: before another group, or last of the groups. */
+export interface GroupTarget {
+  beforeId?: string;
+}
+
+/**
+ * Where a dragged group goes, as a card in a grid of one column: the slot goes to the group
+ * nearest to the center of the dragged header. The pins stay first and « No group » last: they are
+ * not cells. Null with no cell.
+ */
+export const groupTargetAt = (
+  cells: readonly CardCell[],
+  after: Box | null,
+  center: Point,
+): GroupTarget | null => {
+  const beforeId = beforeIdAt(cells, after, center);
+  return beforeId === null ? null : { beforeId };
+};
+
+/** The groups in the order of the reorder mode; a group that the mode does not know comes last. */
+export const inGroupOrder = (
+  groups: readonly ProjectGroupEntity[],
+  order: readonly string[] | null,
+): ProjectGroupEntity[] => {
+  if (!order) return [...groups];
+  const known = order.flatMap(id => groups.filter(group => group.id === id));
+  return [...known, ...groups.filter(group => !order.includes(group.id))];
+};
+
+/** A group moves one place up (-1) or down (+1). The first group does not go up, nor the last down. */
+export const stepGroup = (order: readonly string[], id: string, delta: -1 | 1): string[] => {
+  const index = order.indexOf(id);
+  const to = index + delta;
+  if (index < 0 || to < 0 || to >= order.length) return [...order];
+  return moveGroupTo(order, id, to);
+};
+
+/** A group goes to a place of the order, from 0. */
+export const moveGroupTo = (order: readonly string[], id: string, position: number): string[] => {
+  const next = order.filter(other => other !== id);
+  next.splice(Math.max(0, Math.min(position, next.length)), 0, id);
+  return next;
+};
+
+/** One `UpdateProjectGroup` with a new place, from 0. */
+export interface GroupMove {
+  groupId: string;
+  position: number;
+}
+
+/**
+ * The writes that give the server the order of the page, in their order. Each write puts one group
+ * at its place, from the first place: the groups before it are then at their place.
+ */
+export const groupMovesToSave = (
+  saved: readonly string[],
+  wanted: readonly string[],
+): GroupMove[] => {
+  const order = [...saved];
+  const moves: GroupMove[] = [];
+  wanted
+    .filter(id => saved.includes(id))
+    .forEach((id, position) => {
+      if (order[position] === id) return;
+      order.splice(order.indexOf(id), 1);
+      order.splice(position, 0, id);
+      moves.push({ groupId: id, position });
+    });
+  return moves;
+};
+
+/** What the reorder mode tells a screen reader about a group that moves. */
+export interface GroupNewsInput {
+  drag: { id: string; name: string; keyboard: boolean } | null;
+  /** The order of the groups in the mode. */
+  order: readonly string[];
+  /** The slot of a pointer drag. */
+  target: GroupTarget | null;
+  /** A keyboard drag moved the group at least once. */
+  stepped: boolean;
+  ended: { id: string; name: string; dropped: boolean } | null;
+}
+
+/** The text of the live region for the groups: the lift, each place, then the drop or the cancel. */
+export const groupNews = ({ drag, order, target, stepped, ended }: GroupNewsInput): string => {
+  if (drag) {
+    const { place, count } = drag.keyboard
+      ? { place: order.indexOf(drag.id) + 1, count: order.length }
+      : slotPlace(order, drag.id, target?.beforeId);
+    return t(
+      drag.keyboard && !stepped
+        ? projectMessages.groupLifted(drag.name, place, count)
+        : projectMessages.groupPlace(drag.name, place, count),
+    );
+  }
+  if (!ended) return '';
+  if (!ended.dropped) return t(projectMessages.dragCancelled(ended.name));
+  return t(projectMessages.groupDropped(ended.name, order.indexOf(ended.id) + 1, order.length));
 };

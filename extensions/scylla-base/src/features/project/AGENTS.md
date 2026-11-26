@@ -81,8 +81,11 @@ Reach it from `presentation/project-group.queries.ts` only.
 ## Widget points
 
 `presentation/project.points.ts`, listed in `ProjectModule.points`. Each zone gets a
-`ProjectCardContext`: the workspace, the project, its name, and `batch`, the projects of the
-cards that came with this one.
+`ProjectCardContext`: the workspace, the project, its name, `batch`, the projects of the
+cards that came with this one, and `density`, the display of the section (`comfortable`,
+`compact`, `list` or `tiles`). `cardBody` shows in the comfortable card only. The compact card
+and the row show the badge, the subtitle and the footer; the tile shows the badge and the footer,
+as its status.
 
 | Point | Where | Filled by |
 |---|---|---|
@@ -117,11 +120,17 @@ presentation/
   project.queries.ts                 every read and write, plus the key factories
   project-group.queries.ts           the groups, the moves and « Duplicate »
   project-layout.user-state.ts       the keys `project-pins` and `project-sections`
+  project-density.user-state.ts      the key `project-density`: the display of the page and of its
+                                     sections, for each workspace
   project.points.ts                  projectPoints: the zones of a project card
   presenters/project-list.presenter.ts   the batches of cards, the orders of the page, the
                                      parameters of the URL
   presenters/project-sections.presenter.ts   the section keys, applyMoves, movesToSave, the
-                                     target of a dragged card (cardTargetAt), the texts of a drag
+                                     target of a dragged card (cardTargetAt), the texts of a drag;
+                                     the order of the groups (groupTargetAt, stepGroup,
+                                     groupMovesToSave, groupNews)
+  presenters/project-density.presenter.ts    the densities, the choice of a person and its
+                                     rules, the grid, the slot, the ghost and the batches of each
   presenters/new-project.presenter.ts   `?group=` of `projects/new` and of its steps
   presenters/folded-preview.presenter.ts   how many chips of a folded section fit before "+N"
   presenters/sortable.presenter.ts   the drag of a grid: the nearest cell, the free cell after the
@@ -133,7 +142,11 @@ presentation/
   ui/project-sections.state.svelte.ts   createProjectSections: one search for each section, the
                                      pins, the closed sections, "Show more" for each section
   ui/project-reorder.state.svelte.ts    createProjectReorder: the drops of the reorder mode, the
-                                     dragged card, its slot, its settle
+                                     dragged card, its slot, its settle, its shape in another density
+  ui/group-reorder.state.svelte.ts   createGroupReorder: the order of the groups in the reorder
+                                     mode, the dragged group, its slot, the keyboard path
+  ui/project-density.state.svelte.ts createProjectDensity: the density of the page and of each
+                                     section, saved in `project-density`
   ui/reorder.transition.ts           the transitions of the reorder mode, and a card that moves to
                                      another section
   ui/project-layout.context.ts       what the menu of a card reads from the page
@@ -143,7 +156,13 @@ presentation/
                                      the ghost card, the line of chips of a folded section
                                      (FoldedPreview, folded-chips.attachments.ts), the stagger of the
                                      cards and the highlight of a card (section-open.attachments.ts),
-                                     the pointer drag of the cards (card-drag.attachments.ts)
+                                     the pointer drag of the cards (card-drag.attachments.ts) and of
+                                     the groups (group-drag.attachments.ts, GroupGrip), the menu of
+                                     each section (SectionMenu: « Display » and the group items),
+                                     the move of the items when a density changes
+                                     (density-flip.effect.svelte.ts)
+  ui/ProjectDensity/                 « Display » of the toolbar (DensityMenu), the radio items of
+                                     the densities and their icons
   ui/GroupField/                     the field « Group » of a project form: no group, each group with
                                      its folder, « New group… » with its name and its color
   ui/GroupColor/                     the folder color of a group: the colors (`ColorSwatches` of
@@ -154,10 +173,11 @@ presentation/
   ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New group",
                                      "New project"
   ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order,
-                                     "Reorder", and the bar of the reorder mode
+                                     « Display », "Reorder", and the bar of the reorder mode
   ui/ProjectResults/                 the empty states, "Show more"
   ui/ProjectCard/                    the card, its zones, its menu (Pin, Change the icon, Move to
-                                     group, Move up and down, Edit, Duplicate, Delete)
+                                     group, Move up and down, Edit, Duplicate, Delete); ProjectItem,
+                                     the item of each density with the same zones and menu
   ui/EditProjectDialog/               the dialog of « Edit »; its form: the icon, the name, the
                                      description, saved by one UpdateProject, and the group
   ui/ProjectIcon/                    the one component that draws the icon of a project
@@ -328,6 +348,28 @@ choice card links to it by its path only.
   one. The line measures its chips (`fitChips`): a phone shows fewer chips. The fold and the unfold
   of a section, the chips, the cards that come in (one after the other) and the ring have a
   transition, and none with a reduced motion; the first paint has none.
+- **The reorder mode also moves the groups.** In the mode, each group header has a handle (the
+  pins and « No group » have none: they stay first and last). A pointer drags the header: each
+  section folds, and the slot goes to the group nearest to the center of the header
+  (`groupTargetAt`), as for a card. The keyboard: Space on the handle lifts the group, the arrow
+  keys move it, Space drops it and Escape gives it back; a live region says each place. « Move
+  up » and « Move down » of the group menu change the order of the mode too. « Done » sends one
+  `UpdateProjectGroup` with its new `position` for each group that is not at its place
+  (`groupMovesToSave`), then the drops of the cards; « Cancel » forgets both. Out of the mode, «
+  Move up » and « Move down » of the group menu save at once (a phone has no reorder mode). The
+  sidebar of the shell reads the same groups, thus the same order.
+- **Each section has a density, and the person chooses it.** « Display » of the toolbar sets the
+  density of the page and « Apply to all sections » removes the densities of the sections; the
+  menu of each section (also the pins and « No group ») has « Display » for that section; on a
+  phone its choices open under it. The choice is the user-state key `project-density` (see
+  `platform/user-state/AGENTS.md`), with its tracker entry. A section with the density of the page
+  has no entry. A search shows one list in the density of the page. Each density has its grid, its
+  skeleton, its slot (`DropSlot`), its ghost item (`GhostItem`) and its batches: a denser section
+  loads more items. A card dragged into a section of another density takes the shape of the slot
+  there. A change of density moves the items with a slide and a fade (`flipDensity`), and none with
+  a reduced motion.
+- **The "+" and "…" of a section header are 44 px on a touch screen** (`pointer-coarse:size-11`,
+  and on a phone).
 - **« Duplicate » copies the name, the description and a glyph icon**, just after the project in its
   group. It does not copy an image icon, the pipelines, the secrets or the members.
 

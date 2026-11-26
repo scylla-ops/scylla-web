@@ -4,14 +4,16 @@
   import { ErrorState, ListSkeleton } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import ProjectCard from './ProjectCard/ProjectCard.svelte';
+  import ProjectItem from './ProjectCard/ProjectItem.svelte';
   import ProjectHeader from './ProjectHeader.svelte';
   import ProjectEmpty from './ProjectResults/ProjectEmpty.svelte';
   import ProjectShowMore from './ProjectResults/ProjectShowMore.svelte';
   import ProjectSections from './ProjectSections/ProjectSections.svelte';
   import ProjectReorderBar from './ProjectToolbar/ProjectReorderBar.svelte';
   import ProjectToolbar from './ProjectToolbar/ProjectToolbar.svelte';
+  import { createGroupReorder } from './group-reorder.state.svelte.ts';
   import { setProjectLayout } from './project-layout.context.ts';
+  import { createProjectDensity } from './project-density.state.svelte.ts';
   import { createProjectList } from './project-list.state.svelte.ts';
   import { createProjectReorder } from './project-reorder.state.svelte.ts';
   import { createProjectSections } from './project-sections.state.svelte.ts';
@@ -20,7 +22,12 @@
   import { projectMessages } from '../messages/project.messages.ts';
   import { projectGroupMutations } from '../project-group.queries.ts';
   import {
+    DENSITY_GRIDS,
+    DENSITY_SKELETONS,
+  } from '../presenters/project-density.presenter.ts';
+  import {
     applyMoves,
+    groupMovesToSave,
     movesToSave,
     neighborsOf,
     PINS,
@@ -34,15 +41,23 @@
 
   const list = createProjectList(() => workspaceId);
   const reorder = createProjectReorder();
+  const groups = createGroupReorder();
+  const densities = createProjectDensity(() => workspaceId);
   const sections = createProjectSections({
     workspaceId: () => workspaceId,
     order: () => list.order,
     health: () => list.health,
     phone: () => list.phone,
     moves: () => reorder.moves,
+    groupOrder: () => groups.order,
+    density: key => densities.of(key),
   });
   const move = createMutation(() => projectGroupMutations.move());
-  const GRID = 'grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3';
+  const arrange = createMutation(() => projectGroupMutations.arrange());
+  const saving = $derived(move.isPending || arrange.isPending);
+  // A search shows one list, in the density of the page.
+  const grid = $derived(DENSITY_GRIDS[densities.default]);
+  const skeleton = $derived(DENSITY_SKELETONS[densities.default]);
 
   // The groups and the order of the workspace: the right to edit its projects.
   const canManage = $derived(can(Permission.UPDATE_PROJECT, { workspaceId }));
@@ -75,34 +90,54 @@
     },
   });
 
-  /** « Done »: the pins go to the key of the person, the other drops to the server. */
+  /** The reorder mode moves the cards and the groups. */
+  const startReorder = () => {
+    reorder.start();
+    groups.start(sections.savedGroupIds);
+  };
+  const stopReorder = () => {
+    reorder.stop();
+    groups.stop();
+  };
+
+  /**
+   * « Done »: the pins go to the key of the person, the order of the groups and the drops to the
+   * server.
+   */
   const saveOrder = async () => {
     const moves = reorder.moves ?? [];
     const pinMoves = moves.filter(drop => drop.to === PINS);
     const pins = applyMoves({ [PINS]: sections.pins }, pinMoves)[PINS];
     if (pinMoves.length > 0) sections.setPins(pins);
+    const groupMoves = groupMovesToSave(
+      sections.savedGroupIds,
+      sections.groups.map(group => group.id),
+    );
     const saves = movesToSave(moves);
     try {
+      if (groupMoves.length > 0) await arrange.mutateAsync(groupMoves);
       if (saves.length > 0) await move.mutateAsync(saves);
     } catch {
       // The global toast shows the error, and the page reads the order of the server again.
     }
-    reorder.stop();
+    stopReorder();
   };
 
-  // Escape leaves the reorder mode, out of a field, a dialog or a menu.
+  // Escape leaves the reorder mode, out of a field, a dialog or a menu. During a drag, Escape
+  // cancels the drag only.
   const onkeydown = (event: KeyboardEvent) => {
-    if (event.key !== 'Escape' || !reorder.active || reorder.drag || move.isPending) return;
+    if (event.key !== 'Escape' || event.defaultPrevented || !reorder.active) return;
+    if (reorder.drag || groups.drag || saving) return;
     const target = event.target as Element | null;
     if (target?.closest('input, textarea, [role="dialog"], [role="alertdialog"], [role="menu"]')) {
       return;
     }
-    reorder.stop();
+    stopReorder();
   };
 
   // A phone has no reorder mode.
   $effect(() => {
-    if (list.phone && reorder.active) reorder.stop();
+    if (list.phone && reorder.active) stopReorder();
   });
 
   const noCard = $derived(
@@ -137,7 +172,7 @@
   <div class="grid *:col-start-1 *:row-start-1">
     {#if reorder.active}
       <div in:reorderIn out:reorderOut>
-        <ProjectReorderBar busy={move.isPending} onCancel={reorder.stop} onDone={saveOrder} />
+        <ProjectReorderBar busy={saving} onCancel={stopReorder} onDone={saveOrder} />
       </div>
     {:else}
       <div in:reorderIn out:reorderOut>
@@ -152,7 +187,11 @@
           onHealth={list.setHealth}
           onOrder={list.setOrder}
           canReorder={canManage && !list.phone}
-          onReorder={reorder.start}
+          onReorder={startReorder}
+          density={densities.default}
+          mixedDensity={densities.mixed}
+          onDensity={densities.setDefault}
+          onApplyDensity={densities.applyToAll}
         />
       </div>
     {/if}
@@ -160,7 +199,7 @@
 
   {#if list.query}
     {#if list.results.isPending}
-      <ListSkeleton rows={list.phone ? 3 : 6} class={GRID} rowClass="h-60 w-full rounded-xl" />
+      <ListSkeleton rows={list.phone ? 3 : 6} class={grid} rowClass={skeleton} />
     {:else if !list.results.data}
       <ErrorState message={t(projectMessages.loadError)} />
     {:else if list.items.length === 0}
@@ -175,9 +214,14 @@
         </Button>
       </div>
       <!-- A search shows one list, with no section. -->
-      <div class={GRID}>
+      <div class={grid} data-density={densities.default}>
         {#each list.items as project (project.id)}
-          <ProjectCard {project} batch={list.batchOf(project.id)} />
+          <ProjectItem
+            {project}
+            batch={list.batchOf(project.id)}
+            density={densities.default}
+            phone={list.phone}
+          />
         {/each}
       </div>
       {#if list.nextBatch > 0}
@@ -192,7 +236,7 @@
       {/if}
     {/if}
   {:else if sections.loading}
-    <ListSkeleton rows={list.phone ? 3 : 6} class={GRID} rowClass="h-60 w-full rounded-xl" />
+    <ListSkeleton rows={list.phone ? 3 : 6} class={grid} rowClass={skeleton} />
   {:else if sections.failed}
     <ErrorState message={t(projectMessages.loadError)} />
   {:else if noCard}
@@ -202,6 +246,8 @@
       {workspaceId}
       {sections}
       {reorder}
+      {groups}
+      {densities}
       phone={list.phone}
       {canManage}
       {canCreate}

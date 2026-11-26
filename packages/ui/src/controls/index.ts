@@ -28,3 +28,6 @@ export {
   MAX_IMAGE_BYTES,
   type IconChoice,
 } from './IconPicker/icon-picker.ts';
+export { default as GhostItem } from './GhostItem/GhostItem.svelte';
+export { GHOST_ITEM_SHAPES, type GhostItemShape } from './GhostItem/ghost-item.ts';
+export { default as Chip } from './Chip/Chip.svelte';

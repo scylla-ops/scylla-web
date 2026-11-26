@@ -68,7 +68,7 @@ export const projectMessages = {
   reorder: msg`Reorder`,
   reorderNeedsCustom: msg`Reorder is only available in the custom order.`,
   reorderNeedsNoSearch: msg`Clear the search to reorder.`,
-  reorderHint: msg`Drag a card to change its order, or drop it on a group or on “Pinned”.`,
+  reorderHint: msg`Drag a card to change its order, or drop it on a group or on “Pinned”. Drag the handle of a group to move the group.`,
   done: msg`Done`,
   results: (count: number, query: string) =>
     msg`${plural(count, { one: '# result', other: '# results' })} for “${query}” · names, descriptions, repositories and pipelines`,
@@ -147,4 +147,23 @@ export const projectMessages = {
     msg`“${project}” is now at place ${place} of ${count} in ${section}`,
   droppedInto: (project: string, section: string) => msg`“${project}” is now in ${section}`,
   dragCancelled: (project: string) => msg`“${project}” is back at its place`,
+
+  moveGroup: (group: string) => msg`Move the group ${group}`,
+  groupGripHint: msg`Space lifts the group. The arrow keys move it, Space drops it, and Escape cancels.`,
+  groupLifted: (group: string, place: number, count: number) =>
+    msg`“${group}” is lifted, at place ${place} of ${count} in the groups. The arrow keys move it, Space drops it, and Escape cancels.`,
+  groupPlace: (group: string, place: number, count: number) =>
+    msg`“${group}”: place ${place} of ${count} in the groups`,
+  groupDropped: (group: string, place: number, count: number) =>
+    msg`“${group}” is now at place ${place} of ${count} in the groups`,
+  sectionMenu: msg`Section menu`,
+  display: msg`Display`,
+  displayOf: (display: string) => msg`Display: ${display}`,
+  pageDisplay: msg`Display of the page`,
+  sectionDisplay: msg`Display of this section`,
+  applyToAll: msg`Apply to all sections`,
+  densityComfortable: msg`Comfortable`,
+  densityCompact: msg`Compact`,
+  densityList: msg`List`,
+  densityTiles: msg`Tiles`,
 };
