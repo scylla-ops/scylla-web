@@ -10,14 +10,14 @@
     SelectTrigger,
     SelectValue,
   } from '@scylla/ui/primitives';
-  import { Identity } from '@shared/presentation/ui';
+  import { imageUrl } from '@platform/grpc';
+  import { Identity, WorkspaceIcon } from '@shared/presentation/ui';
   import { formatDay, getRelativeTime } from '@shared/utils/date-utils.ts';
   import type {
     WorkspaceEntity,
     WorkspaceOrder,
   } from '@base/features/workspace/domain/entities/workspace.entity.ts';
   import { workspaceAdminMessages as messages } from '@base/features/workspace/presentation/messages/workspace-admin.messages.ts';
-  import WorkspaceIcon from '../WorkspaceIcon/WorkspaceIcon.svelte';
   import { workspaceColumns } from './workspace-admin.columns.ts';
   import { createWorkspaceAdmin } from './workspace-admin.state.svelte.ts';
 
@@ -54,7 +54,7 @@
 
 {#snippet nameCell(workspace: WorkspaceEntity)}
   <span class="flex min-w-0 items-center gap-2">
-    <WorkspaceIcon icon={workspace.icon} size={20} />
+    <WorkspaceIcon icon={workspace.icon} {imageUrl} size={20} />
     <!-- A real button: the keyboard opens the workspace, and the click does not reach the row. -->
     <button
       type="button"

@@ -12,6 +12,7 @@ import type {
 } from '@base/features/user/domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '@base/features/user/domain/entities/user-session.entity.ts';
 import { imageUrl } from '@platform/grpc';
+import { iconToDomain } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import { idValue, required, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 export function toDomain(user: User): UserEntity {
@@ -37,6 +38,16 @@ export function entryToDomain(entry: UserEntry): UserEntity {
     ...toDomain(required(entry.user, 'user')),
     instanceRoles: entry.instanceRoles.map(({ key, name, builtin }) => ({ key, name, builtin })),
     workspaces: entry.workspaces,
+    workspaceDetails: entry.workspaceDetails.map(workspace => {
+      const icon = iconToDomain(workspace.icon);
+      return {
+        id: idValue(workspace.workspaceId),
+        name: workspace.name,
+        ...(icon && { icon }),
+        owner: workspace.owner,
+        ...(workspace.ownerName && { ownerName: workspace.ownerName }),
+      };
+    }),
     ...(lastSignInAt ? { lastSignInAt } : {}),
   };
 }

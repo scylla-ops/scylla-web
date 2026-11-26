@@ -1,5 +1,7 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
+  import { createQuery } from '@scylla/core-sdk';
+  import { workspaceQueries } from '@base/features/workspace';
   import { t } from '@scylla/ui/i18n';
   import { Button, Skeleton } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
@@ -49,6 +51,8 @@
   }: Props = $props();
 
   const sections = $derived(compact ? compactSectionsOf(rows) : sectionsOf(rows));
+  // The list of the switcher: its icons fill the rows that come with no icon of the workspace.
+  const mine = createQuery(() => workspaceQueries.mine());
 </script>
 
 <!-- One grid cell: the leaving skeleton and the arriving list cross-fade in place. -->
@@ -56,15 +60,15 @@
   {#if isLoading}
     <div class="flex flex-col" role="status" out:fade={FADE}>
       {#each { length: skeletonRows }, index (index)}
-        <div data-testid="notification-skeleton" class="flex items-start gap-2">
+        <div data-testid="notification-skeleton" class="flex items-center gap-2">
           {#if onToggleSelect}
-            <Skeleton class="mt-2.5 size-4 shrink-0" />
+            <Skeleton class="size-4 shrink-0" />
           {/if}
-          <div class="flex min-w-0 flex-1 gap-2 p-2">
+          <div class="flex min-w-0 flex-1 items-center gap-2 p-2">
             <span class="size-2 shrink-0"></span>
-            <Skeleton class="mt-0.5 size-4 shrink-0" />
-            <Skeleton class="my-0.5 h-4 flex-1" />
-            <Skeleton class="my-0.5 h-3 w-10 shrink-0" />
+            <Skeleton class="size-6 shrink-0 rounded-full" />
+            <Skeleton class="h-4 flex-1" />
+            <Skeleton class="h-3 w-10 shrink-0" />
           </div>
         </div>
       {/each}
@@ -109,6 +113,7 @@
                 selected={isSelected?.(row.id) ?? false}
                 onToggleSelect={onToggleSelect ? () => onToggleSelect(row.id) : undefined}
                 active={activeId === row.id}
+                workspaces={mine.data ?? []}
               />
             {/each}
           </ul>

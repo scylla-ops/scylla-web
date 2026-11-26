@@ -144,6 +144,12 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   projects, creation date and last activity, with a search, an order and pages from the server. In
   the command bar, a workspace row shows its icon, its owner, your role and its counts, and no part
   of its id.
+- Each place that names a workspace shows its icon: the notification rows and their workspace
+  filter, the invitation rows, the scopes of the member pages, and the Workspaces column of Admin >
+  Users, with the owner of each workspace. A notification row and an open invitation also show the
+  avatar of the person who acted. On a phone, the sidebar sheet shows the links of the modules, for
+  example the projects. In the projects of the sidebar, a project with a failed last job shows a
+  failed status, and a folded group keeps a mark for a project that runs or failed.
 
 ## [0.7.2] - 2026-11-25
 

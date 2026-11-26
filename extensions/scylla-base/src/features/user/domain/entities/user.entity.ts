@@ -1,4 +1,5 @@
 import type { PaginatedList } from '@scylla/ui/structs';
+import type { CustomIcon } from '@shared/domain/structs/custom-icon.struct.ts';
 
 export interface UserEntity {
   id: string;
@@ -19,11 +20,25 @@ export interface UserEntity {
   instanceRoles?: UserInstanceRole[];
   /** On a row of the console of the users: the names, in name order. */
   workspaces?: string[];
+  /** On a row of the console of the users: the same workspaces, with their icon and owner. */
+  workspaceDetails?: UserWorkspaceEntity[];
   /** On a row of the console of the users. */
   lastSignInAt?: string;
   createdAt?: string;
   /** The server gives no time of the last change: the creation time. */
   updatedAt: string;
+}
+
+/** A workspace that a user owns or has a role in. */
+export interface UserWorkspaceEntity {
+  id: string;
+  name: string;
+  /** Undefined: the default icon of a workspace. */
+  icon?: CustomIcon;
+  /** The user of the row is an owner. */
+  owner: boolean;
+  /** When the user is not an owner: the first owner. Absent for a workspace with no owner. */
+  ownerName?: string;
 }
 
 export interface UserInstanceRole {

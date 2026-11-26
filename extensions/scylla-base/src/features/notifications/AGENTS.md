@@ -34,6 +34,11 @@ The inbox of the signed-in user (`scylla.notifications.v1.NotificationService`).
   runs" keeps its row.
 - A row holds a kind and its parameters. `presentation/presenters/kind-views.ts` makes the text in
   the language of the reader.
+- A row shows who acted (`NotificationMark`: the `IdentityAvatar` of the other lists, or the glyph
+  of the kind when nobody acted) with the `WorkspaceIcon` of its workspace on the corner
+  (`rowMark`). The server leaves the icon out of a row about the reader with no open invitation,
+  because an image id opens the image: the row then takes the icon from the workspaces of the
+  reader, or shows none.
 - The notices of the Git connections (`vcs.connection_broken` with a `reason` code, and
   `vcs.token_expiring` with the day `expires_at`) are in the category `integrations`. This category
   has no link, so their rows stay in "Inbox". Their link opens `settings/integrations`. An admin

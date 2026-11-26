@@ -1,9 +1,12 @@
 <script lang="ts">
   import { roleLabel } from '@base/features/access';
   import { navigateTo, workspaceUrl } from '@platform/context';
+  import { imageUrl } from '@platform/grpc';
   import { t } from '@scylla/ui/i18n';
   import { Button } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
+  import type { CustomIcon } from '@shared/domain/structs/custom-icon.struct.ts';
+  import { WorkspaceIcon } from '@shared/presentation/ui';
   import { formatDay } from '@shared/utils/date-utils.ts';
   import type {
     NotificationEntity,
@@ -15,11 +18,13 @@
   interface Props {
     row: NotificationEntity;
     invitation: NotificationInvitation;
+    /** The icon of the workspace: on the button that opens it. */
+    workspaceIcon?: CustomIcon;
     slug: string | null;
     onNavigate?: () => void;
   }
 
-  let { row, invitation, slug, onNavigate }: Props = $props();
+  let { row, invitation, workspaceIcon, slug, onNavigate }: Props = $props();
 
   const body = new InvitationBodyState(() => onNavigate?.());
 
@@ -56,6 +61,7 @@
       class="mt-1.5"
       onclick={() => go(workspaceUrl(row.workspaceSlug))}
     >
+      <WorkspaceIcon icon={workspaceIcon} {imageUrl} size={16} />
       {t(messages.openWorkspace(workspace))}
     </Button>
   {/if}

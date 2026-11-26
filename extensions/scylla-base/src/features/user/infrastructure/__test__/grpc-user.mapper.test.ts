@@ -72,6 +72,17 @@ describe('grpcUser.toDomainList', () => {
       user,
       instanceRoles: [{ key: 'auditor', name: 'Auditor', builtin: false }],
       workspaces: ['acme'],
+      workspaceDetails: [
+        {
+          workspaceId: { value: 'ws-1' },
+          name: 'acme',
+          icon: {
+            kind: { oneofKind: 'glyph' as const, glyph: { name: 'rocket', color: 'chart-3' } },
+          },
+          owner: false,
+          ownerName: 'Grace Hopper',
+        },
+      ],
     });
     const result = grpcUser.toDomainList([
       entry(baseUser()),
@@ -81,6 +92,15 @@ describe('grpcUser.toDomainList', () => {
     expect(result.items).toHaveLength(2);
     expect(result.items[0]?.instanceRoles?.[0]?.name).toBe('Auditor');
     expect(result.items[0]?.workspaces).toEqual(['acme']);
+    expect(result.items[0]?.workspaceDetails).toEqual([
+      {
+        id: 'ws-1',
+        name: 'acme',
+        icon: { kind: 'glyph', name: 'rocket', color: 'chart-3' },
+        owner: false,
+        ownerName: 'Grace Hopper',
+      },
+    ]);
     expect(result.pagination).toMatchObject({ totalCount: 2, page: 1, totalPages: 1 });
   });
 });

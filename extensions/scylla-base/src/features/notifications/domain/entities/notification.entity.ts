@@ -1,3 +1,15 @@
+import type { CustomIcon } from '@shared/domain/structs/custom-icon.struct.ts';
+
+/** How the actor of a row shows: the photo or the color of a person, the icon of an app. */
+export interface NotificationActorLook {
+  /** The URL of the photo of a person, or of the image of the icon of an app. */
+  avatarUrl?: string;
+  /** The color of the initials of a person, or of the glyph of an app. */
+  avatarColor?: string;
+  /** The glyph of the icon of an app, a name of `ENTITY_GLYPHS`. */
+  avatarGlyph?: string;
+}
+
 /** The state of the invitation of a row, as it is now. */
 export type NotificationInvitationState =
   | { kind: 'open'; expiresAt: string }
@@ -25,9 +37,17 @@ export interface NotificationEntity {
   reason: string;
   /** Empty if there is no actor, or if the user no longer exists. */
   actorName: string;
+  /** `user` for a person, `app` for a machine. Empty with no actor. */
+  actorKind: string;
+  actorLook: NotificationActorLook;
   workspaceId: string | null;
   workspaceSlug: string;
   workspaceName: string;
+  /**
+   * Unset: the default icon, or no workspace. The server gives no icon on a row about the reader
+   * that is not an invitation: the reader can have no access to the workspace now.
+   */
+  workspaceIcon?: CustomIcon;
   projectId: string | null;
   projectName: string;
   params: Readonly<Record<string, string>>;

@@ -1,10 +1,11 @@
 <script lang="ts">
   import { can, Permission } from '@platform/authz';
+  import { imageUrl } from '@platform/grpc';
   import { Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { WorkspaceEntity } from '@base/features/workspace/domain/entities/workspace.entity.ts';
   import { workspaceMessages } from '../../messages/workspace.messages.ts';
-  import WorkspaceIcon from '../WorkspaceIcon/WorkspaceIcon.svelte';
+  import { WorkspaceIcon } from '@shared/presentation/ui';
   import WorkspaceIconDialog from '../WorkspaceIconDialog/WorkspaceIconDialog.svelte';
 
   interface Props {
@@ -25,11 +26,11 @@
       class="focus-visible:ring-ring/50 flex shrink-0 cursor-pointer items-center justify-center rounded-xl transition-opacity outline-none hover:opacity-80 focus-visible:ring-[3px] motion-reduce:transition-none"
       onclick={() => (dialogOpen = true)}
     >
-      <WorkspaceIcon icon={workspace.icon} size={48} />
+      <WorkspaceIcon icon={workspace.icon} {imageUrl} size={48} />
     </TooltipTrigger>
     <TooltipContent side="top">{t(workspaceMessages.changeIcon)}</TooltipContent>
   </Tooltip>
   <WorkspaceIconDialog open={dialogOpen} onOpenChange={open => (dialogOpen = open)} {workspace} />
 {:else}
-  <WorkspaceIcon icon={workspace.icon} size={48} />
+  <WorkspaceIcon icon={workspace.icon} {imageUrl} size={48} />
 {/if}

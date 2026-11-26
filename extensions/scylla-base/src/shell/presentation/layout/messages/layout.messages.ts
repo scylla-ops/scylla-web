@@ -16,6 +16,7 @@ export const layoutMessages = {
   newProjectIn: (group: string) => msg`New project in ${group}`,
   newProjectNoGroup: msg`New project with no group`,
   jobRuns: msg`A job runs`,
+  lastJobFailed: msg`The last job failed`,
   language: msg`Language`,
   search: msg`Search`,
   help: msg`Help`,

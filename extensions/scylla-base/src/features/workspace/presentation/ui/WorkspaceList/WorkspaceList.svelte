@@ -8,6 +8,7 @@
   import TrashIcon from '@lucide/svelte/icons/trash';
   import UsersIcon from '@lucide/svelte/icons/users';
   import { can, Permission } from '@platform/authz';
+  import { imageUrl } from '@platform/grpc';
   import { navigateTo, contextStore, workspaceUrl } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { Input, Skeleton } from '@scylla/ui/primitives';
@@ -15,7 +16,7 @@
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { matchesSearch } from '@scylla/ui/utils';
-  import { IdentityAvatar } from '@shared/presentation/ui';
+  import { IdentityAvatar, WorkspaceIcon } from '@shared/presentation/ui';
   import type { WorkspaceEntity } from '@base/features/workspace/domain/entities/workspace.entity.ts';
   import {
     workspaceMutations,
@@ -31,7 +32,6 @@
     workspaceSearchFields,
   } from '@base/features/workspace/presentation/presenters/workspace-owner.presenter.ts';
   import EditWorkspaceDialog from '../EditWorkspaceDialog/EditWorkspaceDialog.svelte';
-  import WorkspaceIcon from '../WorkspaceIcon/WorkspaceIcon.svelte';
   import WorkspaceRow from './WorkspaceRow.svelte';
   import { createWorkspacePermissions } from './workspace-permissions.state.svelte.ts';
 
@@ -176,7 +176,7 @@
         onSelect={() => selectWorkspace(workspace.id, workspace.name, workspace.slug)}
       >
         <div class="flex w-full min-w-0 items-center gap-2">
-          <WorkspaceIcon icon={workspace.icon} size={20} />
+          <WorkspaceIcon icon={workspace.icon} {imageUrl} size={20} />
           <span class="min-w-0 flex-1 truncate text-sm" title={workspace.name}>{workspace.name}</span>
           {#if workspace.id === currentWorkspaceId}
             <CheckIcon
@@ -247,7 +247,7 @@
               onSelect={() => selectWorkspace(workspace.id, workspace.name, workspace.slug)}
             >
               <div class="flex w-full min-w-0 items-center gap-2" title={ownerLabel(workspace)}>
-                <WorkspaceIcon icon={workspace.icon} size={20} />
+                <WorkspaceIcon icon={workspace.icon} {imageUrl} size={20} />
                 <span class="flex min-w-0 flex-1 flex-col">
                   <span class="truncate text-sm">{workspace.name}</span>
                   {#if workspace.owner}

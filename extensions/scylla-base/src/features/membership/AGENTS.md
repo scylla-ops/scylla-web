@@ -33,6 +33,7 @@ It composes, through public APIs only:
 | `features/access` | `accessQueries` (`members`, `memberAccess`, `held`), `accessMutations` |
 | `features/roles` | `roleQueries` (`list`, `catalog`), `roleName`, `missingPermissionIds`, `permissionLabel` |
 | `features/project` | the projects of the workspace |
+| `features/workspace` | the workspaces of the reader, for the icon of a scope; `invalidateWorkspaceMembers` |
 | `features/invitation` | an email in the add dialog makes an invitation |
 | `features/user` | the directory, for a name in the add dialog and for the emails |
 | `features/apps` | the apps of the workspace, for the Apps tab |
@@ -52,6 +53,7 @@ It composes, through public APIs only:
 - The dialog asks before the last workspace role of a person goes, because the server also takes the project roles (decision 88 of the backend). It does not ask for an app, because the server keeps the project roles of an app. It does not ask for a person who is also an owner, because that person stays.
 - `otherRoles` shows the roles of the other scopes as read only, with a link to the page that changes them. `can()` reads only the active scopes, so it cannot gate a link to another project: the route guard decides.
 - Only a role is a pill. A scope (the workspace or a project) is never a pill: `ScopeLabel` shows it as an icon and a name. The Roles card of a member (`MemberRolesCard`) gives each scope a header with its kind, and shows the projects inside the workspace, because a workspace role also applies in each project.
+- A scope with an id shows its own icon, as the switcher and the project cards show it (`createScopeIcon`: the cached list of the workspaces of the reader, or of the projects of the open workspace). While they load, or for a scope out of them, it shows the glyph of its kind.
 - An app gets a role from the Apps tab of the members, or on the members of a project. Only the apps of the workspace are in the list. `?addApp=<id>` is a direct link: an app of another workspace gets a dialog that says why not.
 - **An empty list has its add action** (`EmptyState`), for a person who can add: "Add members" on the workspace page (the add dialog in People, the app chooser in Apps), "Add to <project>" on a project. A search that finds nobody shows "No member matches this search", with no action.
 - **`?add` opens the add form** of the page for a person who can add: the add dialog of the workspace, the chooser row of a project. The search bar gives "Add members" and "Add members to this project" (`membership.commands.ts`) with this link.

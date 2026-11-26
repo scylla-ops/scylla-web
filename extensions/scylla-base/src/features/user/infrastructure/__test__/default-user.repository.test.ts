@@ -54,12 +54,17 @@ const admin = () =>
       unaryCall(
         page.token === ''
           ? {
-              users: [{ user: wireUser, instanceRoles: [], workspaces: [] }],
+              users: [{ user: wireUser, instanceRoles: [], workspaces: [], workspaceDetails: [] }],
               page: { nextToken: 'next' },
             }
           : {
               users: [
-                { user: { ...wireUser, id: { value: 'user-2' } }, instanceRoles: [], workspaces: [] },
+                {
+                  user: { ...wireUser, id: { value: 'user-2' } },
+                  instanceRoles: [],
+                  workspaces: [],
+                  workspaceDetails: [],
+                },
               ],
               page: { nextToken: '' },
             },

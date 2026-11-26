@@ -1,7 +1,10 @@
 import type { LucideIcon } from '../../icon.ts';
 
-/** The sizes of an entity icon, in px: a list row, a card, a page header. */
-export type EntityIconSize = 20 | 36 | 48;
+/**
+ * The sizes of an entity icon, in px: a name in a line of text (16), a list row (20), a row with
+ * an avatar (24), the header of a section (32), a card (36), a page header (48).
+ */
+export type EntityIconSize = 16 | 20 | 24 | 32 | 36 | 48;
 
 export interface EntityIconProps {
   /** The glyph. Not used with an image. */
@@ -18,7 +21,10 @@ export interface EntityIconProps {
 
 /** The tile and the glyph of each size. */
 export const ENTITY_ICON_SIZES: Record<EntityIconSize, { tile: string; glyph: string }> = {
+  16: { tile: 'size-4 rounded-[4px]', glyph: 'size-2.5' },
   20: { tile: 'size-5 rounded-md', glyph: 'size-3' },
+  24: { tile: 'size-6 rounded-md', glyph: 'size-3.5' },
+  32: { tile: 'size-8 rounded-lg', glyph: 'size-4' },
   36: { tile: 'size-9 rounded-lg', glyph: 'size-5' },
   48: { tile: 'size-12 rounded-xl', glyph: 'size-6' },
 };

@@ -99,7 +99,8 @@ presentation/
   messages/avatar.messages.ts              the photo and the color of the initials
   ui/admin/UserAdmin.page.svelte     the directory
   ui/admin/AddUserDialog/            "New user"
-  ui/admin/user-table/               UserTable, user-table.columns.ts
+  ui/admin/user-table/               UserTable, user-table.columns.ts; the Workspaces column shows
+                                     each workspace with its WorkspaceIcon and its owner
   ui/account/Account/                the account page: AccountHeader, one section per page,
                                      AccountNav (with no workspace only), AccountSecurity
                                      (password + sessions), ChangePasswordForm, AccountAbout

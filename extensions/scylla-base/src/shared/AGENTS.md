@@ -46,13 +46,16 @@ presentation/ui/index.ts             `@shared/presentation/ui`
                                      ProviderMark, JobRunMark, FragmentIcon, VersionBadge (the
                                      library: pipeline and marketplace), AgentLabels (the labels
                                      of an agent, a pipeline or a job; the labels of the machine
-                                     in outline, after the others)
+                                     in outline, after the others), WorkspaceIcon (the icon of a
+                                     workspace in each place that names one; a caller gives
+                                     `imageUrl`, because shared cannot import platform)
   forms/                             TokenForm, ApiAccessCard, AgentLabelsField (a list of labels
                                      to change: add with Enter or Add, remove with the x of a
                                      label, the issue of `agentLabelIssue` under the field;
                                      `autofocus` in a dialog or a popover puts the caret in the
                                      field, not on the x of the first label)
 presentation/presenters/job-run.presenter.ts  JobRun, jobShortId: the job of a JobRunMark
+presentation/presenters/workspace-icon.presenter.ts  workspaceIconProps, the default glyph and color
 presentation/ui/layout/AuthLayout.svelte  the frame of the public pages; import it by path
 presentation/ui/layout/LogoMark/     LogoMark: the four dots of the mark, with a state (idle, waiting, lit)
 locales/                             the catalog of these files

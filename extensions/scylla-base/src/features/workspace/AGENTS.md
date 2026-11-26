@@ -107,10 +107,10 @@ presentation/
   ui/WorkspaceList/               the list; the shell's selector gives it its rows
   ui/AddWorkspaceDialog/, EditWorkspaceDialog/   the dialogs; their forms: the icon, the name,
                                     the address
-  ui/WorkspaceIcon/               the one component of this module that draws the icon of a workspace
+  (WorkspaceIcon)                 in `@shared/presentation/ui`: the other modules show it too
   ui/WorkspaceIconDialog/         the icon picker of @scylla/ui in a dialog; the form saves
-  presenters/workspace-icon.presenter.ts   the default icon, the props of EntityIcon, the choice and
-                                    the change of the picker
+  presenters/workspace-icon.presenter.ts   the props of EntityIcon with `imageUrl` (the default
+                                    icon is in shared), the choice and the change of the picker
   ui/WorkspaceAdmin/              the list of all the workspaces, in the administration
   workspace-of.state.svelte.ts    createWorkspaceOf
   messages/workspace.messages.ts

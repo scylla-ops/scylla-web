@@ -6,6 +6,7 @@ import {
   createQuery,
   type SecondSidebarLink,
   type SecondSidebarSection,
+  type SecondSidebarStatus,
 } from '@scylla/core-sdk';
 import { t } from '@scylla/ui/i18n';
 import { toRune } from '@scylla/ui/stores';
@@ -31,13 +32,16 @@ const PROJECTS_ITEM = 'projects';
 const ALL_PROJECTS = Number.MAX_SAFE_INTEGER;
 /** The projects with a job that runs: a page of the server. */
 const RUNNING_PROJECTS = 100;
+/** The projects with a last job that failed: a page of the server. */
+const FAILED_PROJECTS = 100;
 
 /**
  * The projects of the active workspace, after "All projects", as the projects page shows them:
  * the pins of the person, then each group in its order with its folder, then the projects with no
  * group. With no pin and no group, one list with no section. A section folds as on the page: the
- * two share the closed sections of the person. A project with a job that runs has a dot. It reads
- * only while the projects show: the projects in their order, their groups and the running ones.
+ * two share the closed sections of the person. A project with a job that runs, or else with a last
+ * job that failed, has the shape of that status. It reads only while the projects show: the
+ * projects in their order, their groups, the running ones and the failed ones (one read each).
  * A person who can create a project has a "+" on each group and on « No group »: a new project
  * there.
  */
@@ -49,7 +53,7 @@ export const projectLinks = (
   const open = $derived(shown() === PROJECTS_ITEM);
   const enabled = $derived(open && canListProjects(workspaceId));
 
-  const searchOf = (health: 'all' | 'running', limit: number) =>
+  const searchOf = (health: 'all' | 'running' | 'failed', limit: number) =>
     projectQueries.search({ workspaceId, query: '', order: 'position', health, limit });
   // The order of the page changes with a write, which refreshes the projects: no timer.
   const projects = createQuery(() => ({
@@ -58,6 +62,7 @@ export const projectLinks = (
     refetchInterval: false as const,
   }));
   const running = createQuery(() => ({ ...searchOf('running', RUNNING_PROJECTS), enabled }));
+  const failed = createQuery(() => ({ ...searchOf('failed', FAILED_PROJECTS), enabled }));
   const groups = createQuery(() => ({ ...projectGroupQueries.list(workspaceId), enabled }));
 
   // The projects page writes the same keys: each write reads them again.
@@ -94,6 +99,13 @@ export const projectLinks = (
     if (!open || !slug) return [];
     const items = projects.data?.items ?? [];
     const runningIds = running.data?.items.map(project => project.id) ?? [];
+    const failedIds = failed.data?.items.map(project => project.id) ?? [];
+    // A job that runs is the newer news: it hides the failure until it ends.
+    const statusOf = (id: string): SecondSidebarStatus | undefined => {
+      if (runningIds.includes(id)) return { tone: 'running', label: t(layoutMessages.jobRuns) };
+      if (failedIds.includes(id)) return { tone: 'failed', label: t(layoutMessages.lastJobFailed) };
+      return undefined;
+    };
     const canCreate = can(Permission.CREATE_PROJECT, { workspaceId });
     const newProject = (label: string, groupId?: string) =>
       canCreate ? { action: { label, href: workspaceUrl(slug, newProjectPath(groupId)) } } : {};
@@ -103,9 +115,7 @@ export const projectLinks = (
       icon: FolderIcon,
       entityIcon: projectIconProps(project.icon),
       ...(section && { section }),
-      ...(runningIds.includes(project.id) && {
-        status: { tone: 'running' as const, label: t(layoutMessages.jobRuns) },
-      }),
+      status: statusOf(project.id),
     });
 
     const pinned = pins.flatMap(id => items.find(project => project.id === id) ?? []);

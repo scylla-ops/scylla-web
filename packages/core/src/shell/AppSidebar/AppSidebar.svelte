@@ -13,6 +13,8 @@
   import { openNavGroupsOnArrival } from './nav-groups.state.svelte.ts';
   import { reactiveNavSections } from './nav-sections.svelte.ts';
   import NavMain from './NavMain.svelte';
+  import { railFor, secondSidebarFor, selectedRailItem, sheetHolderOf } from './nav-rail.ts';
+  import SheetModuleLinks from './SheetModuleLinks.svelte';
   import { mergeParams, type ShellConfig } from '../shell-config.ts';
 
   let { config }: { config: ShellConfig } = $props();
@@ -30,13 +32,33 @@
   const sections = $derived(navSections());
 
   openNavGroupsOnArrival(() => sections, routePathname);
+
+  // The phone has no second sidebar: its links of the modules go under the section of the URL.
+  const sheetContent = $derived.by(() => {
+    if (!sidebar.isMobile) return undefined;
+    const selected = selectedRailItem(railFor(sections), routePathname());
+    return selected && secondSidebarFor(selected, sections, titleParams);
+  });
+  const holder = $derived(sheetContent && sheetHolderOf(sections, sheetContent.id));
 </script>
+
+{#snippet moduleLinks()}
+  {#if sheetContent}
+    {#key sheetContent.id}
+      <SheetModuleLinks content={sheetContent} contributions={config.contributions} />
+    {/key}
+  {/if}
+{/snippet}
 
 {#if sidebar.isMobile}
   <Sidebar>
     <SidebarContent class="gap-3 p-2">
       {#if ready}
-        <NavMain {sections} contributions={config.contributions} />
+        <NavMain
+          {sections}
+          contributions={config.contributions}
+          after={holder ? { sectionId: holder, content: moduleLinks } : undefined}
+        />
       {:else}
         <SidebarGroup class={NAV_SECTION_CARD_CLASS}>
           <div class="flex flex-col gap-1">

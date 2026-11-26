@@ -11,6 +11,8 @@ import type {
   Notification,
   NotificationInvitation,
 } from '@base/generated/scylla/notifications/v1/notification_service.ts';
+import { imageUrl } from '@platform/grpc';
+import { actorLookToDomain, iconToDomain } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import { idValue, timestampToIso, wrapId } from '@shared/infrastructure/grpc/wrappers.ts';
 
 const stateOf = (invitation: NotificationInvitation): NotificationInvitationState | null => {
@@ -29,15 +31,19 @@ const stateOf = (invitation: NotificationInvitation): NotificationInvitationStat
 
 export const toDomain = (row: Notification): NotificationEntity => {
   const state = row.invitation ? stateOf(row.invitation) : null;
+  const workspaceIcon = iconToDomain(row.workspaceIcon);
   return {
     id: idValue(row.id),
     kind: row.kind,
     category: row.category,
     reason: row.reason,
     actorName: row.actorName,
+    actorKind: row.actorKind,
+    actorLook: actorLookToDomain({ avatar: row.actorAvatar, icon: row.actorIcon }, imageUrl),
     workspaceId: row.workspaceId ? idValue(row.workspaceId) : null,
     workspaceSlug: row.workspaceSlug,
     workspaceName: row.workspaceName,
+    ...(workspaceIcon && { workspaceIcon }),
     projectId: row.projectId ? idValue(row.projectId) : null,
     projectName: row.projectName,
     params: row.params,

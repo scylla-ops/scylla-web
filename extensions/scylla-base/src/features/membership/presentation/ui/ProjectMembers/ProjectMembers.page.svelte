@@ -203,7 +203,11 @@
                 <TableCell class="whitespace-normal">
                   <div class="flex flex-wrap gap-x-3 gap-y-1.5">
                     {#each row.scopes as scope (scope.scopeKind)}
-                      <ScopeLabel kind={scope.scopeKind} name={scope.scopeName} />
+                      <ScopeLabel
+                        kind={scope.scopeKind}
+                        id={scope.scopeId}
+                        name={scope.scopeName}
+                      />
                     {/each}
                   </div>
                 </TableCell>

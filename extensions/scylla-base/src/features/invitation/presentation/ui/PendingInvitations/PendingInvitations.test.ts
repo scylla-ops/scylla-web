@@ -19,6 +19,16 @@ const invitation = {
   sentAt: '2029-12-25T00:00:00.000Z',
 };
 
+const inviter = {
+  actorId: 'user-1',
+  actorKind: 'user',
+  displayName: 'Grace Hopper',
+  handle: 'grace',
+  runner: false,
+  roles: [],
+  avatarColor: 'chart-2',
+};
+
 const setUp = (canManage = true) => {
   const repository = {
     list: vi.fn().mockResolvedValue([invitation]),
@@ -40,9 +50,13 @@ const setUp = (canManage = true) => {
     },
   });
   const cache = withQueryClient();
+  const access = { listMembers: vi.fn().mockResolvedValue([inviter]) };
   teardown = [
     cache.restore,
-    withRegistry({ invitation: { invitationRepository: repository } }),
+    withRegistry({
+      invitation: { invitationRepository: repository },
+      access: { accessRepository: access },
+    }),
     () => permissionsStore.setState({ permissions: null }),
   ];
   render(PendingInvitations, { workspaceId: 'ws-1' });
@@ -57,6 +71,17 @@ describe('PendingInvitations', () => {
 
     expect(await screen.findByText('ada@example.com')).toBeInTheDocument();
     expect(screen.getByText(/Member/)).toBeInTheDocument();
+  });
+
+  it('shows who sent each invitation, with the avatar of the list of the members', async () => {
+    setUp();
+
+    expect(await screen.findByText(/Invited by Grace Hopper/)).toBeInTheDocument();
+    const avatar = document.querySelector(
+      '[data-part="inviter"] [title="Invited by Grace Hopper"]',
+    );
+    expect(avatar).toBeInTheDocument();
+    expect(avatar).toHaveTextContent('GH');
   });
 
   it('sends one again and revokes one', async () => {

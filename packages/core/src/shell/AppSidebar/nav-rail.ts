@@ -1,4 +1,8 @@
-import type { SecondSidebarLink, SecondSidebarSection } from '@scylla/core-sdk';
+import type {
+  SecondSidebarLink,
+  SecondSidebarSection,
+  SecondSidebarStatus,
+} from '@scylla/core-sdk';
 import {
   isNavGroup,
   isNavItemActive,
@@ -70,6 +74,20 @@ export const sheetSections = (sections: readonly NavSection[], pathname: string)
   );
 
 /**
+ * The section of the phone sheet that holds what the second sidebar shows: the section itself
+ * (a section with `railItem`, `within` or `noRailItem`), or the section of its group or its link.
+ */
+export const sheetHolderOf = (
+  sections: readonly NavSection[],
+  contentId: string,
+): string | undefined =>
+  sections.find(
+    section =>
+      section.id === contentId ||
+      section.items.some(node => (isNavGroup(node) ? node.id : node.url) === contentId),
+  )?.id;
+
+/**
  * What the second sidebar shows for a rail item. A section `within` this item takes its place
  * while the URL fills the parameters of its links: `navSectionsFor` drops it otherwise.
  */
@@ -110,6 +128,28 @@ export const withModuleLinks = (
           })),
         ],
       };
+
+/** The mark of a tone in the title of a folded section. */
+export interface SectionMark {
+  tone: SecondSidebarStatus['tone'];
+  /** Each hidden link with this tone, by name, e.g. `api: The last job failed`. */
+  label: string;
+}
+
+const MARK_ORDER: readonly SecondSidebarStatus['tone'][] = ['failed', 'running'];
+
+/** What the hidden links of a folded section tell: one mark for each tone, a failure first. */
+export const sectionMarks = (pages: readonly NavItem[]): SectionMark[] =>
+  MARK_ORDER.flatMap(tone => {
+    const marked = pages.filter(page => page.status?.tone === tone);
+    if (marked.length === 0) return [];
+    return [
+      {
+        tone,
+        label: marked.map(page => `${page.title}: ${page.status?.label ?? ''}`).join(', '),
+      },
+    ];
+  });
 
 /** A run of pages of the second sidebar: pages with no section, or the pages of one section. */
 export interface PageRun {

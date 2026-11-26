@@ -57,8 +57,9 @@ presentation/
                                         (secondSidebarLinks), as the projects page shows them: the
                                         pins, each group with its folder color, then no group, in
                                         folding sections that share the closed sections of the page,
-                                        and a dot on a project with a job that runs. It reads them
-                                        only while they show: 3 reads, none for each group. Each
+                                        and the status of a project: a job that runs, else a last
+                                        job that failed. It reads them only while they show: 4
+                                        reads, none for each group or project. Each
                                         group and « No group » has a "+" (a new project there) for
                                         a person with CREATE_PROJECT
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen

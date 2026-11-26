@@ -698,6 +698,136 @@ describe('the second sidebar', () => {
 
       expect(within(secondSidebar()).queryByRole('button', { name: /runner/ })).toBeNull();
     });
+
+    it('draws the status of a link as the shape of the jobs, a failure as a cross', () => {
+      const contributions: ShellContributions[] = [
+        {
+          linkParams: () => ({ workspaceSlug: 'acme-corp' }),
+          secondSidebarLinks: shown => () =>
+            shown() === 'machines'
+              ? [
+                  {
+                    title: 'runner-1',
+                    href: '/acme-corp/agents/1',
+                    status: { tone: 'failed' as const, label: 'The last job failed' },
+                  },
+                  {
+                    title: 'runner-2',
+                    href: '/acme-corp/agents/2',
+                    status: { tone: 'running' as const, label: 'A job runs' },
+                  },
+                ]
+              : [],
+        },
+      ];
+      render(AppSidebarFixture, { config: configWith({ entries: groupEntries, contributions }) });
+
+      const failed = within(secondSidebar()).getByRole('img', { name: 'The last job failed' });
+      expect(failed).toHaveAttribute('data-slot', 'status-shape');
+      expect(failed).toHaveAttribute('data-state', 'failed');
+      expect(within(secondSidebar()).getByRole('img', { name: 'A job runs' })).toHaveAttribute(
+        'data-state',
+        'running',
+      );
+    });
+
+    it('keeps the marks of the hidden links in the title of a folded section, a failure first', () => {
+      const section = {
+        key: 'g-1',
+        title: 'Build',
+        folded: true,
+        onToggle: () => undefined,
+      };
+      const contributions: ShellContributions[] = [
+        {
+          linkParams: () => ({ workspaceSlug: 'acme-corp' }),
+          secondSidebarLinks: shown => () =>
+            shown() === 'machines'
+              ? [
+                  {
+                    title: 'runner-1',
+                    href: '/acme-corp/agents/1',
+                    section,
+                    status: { tone: 'running' as const, label: 'A job runs' },
+                  },
+                  {
+                    title: 'runner-2',
+                    href: '/acme-corp/agents/2',
+                    section,
+                    status: { tone: 'failed' as const, label: 'The last job failed' },
+                  },
+                  { title: 'runner-3', href: '/acme-corp/agents/3', section },
+                ]
+              : [],
+        },
+      ];
+      render(AppSidebarFixture, { config: configWith({ entries: groupEntries, contributions }) });
+
+      const title = within(secondSidebar()).getByRole('button', { name: /^Build/ });
+      expect(title).toHaveAttribute('aria-expanded', 'false');
+      expect(within(secondSidebar()).queryByRole('button', { name: 'runner-1' })).toBeNull();
+      const marks = within(title).getAllByRole('img');
+      expect(marks.map(mark => mark.getAttribute('data-state'))).toEqual(['failed', 'running']);
+      expect(marks[0]).toHaveAccessibleName('runner-2: The last job failed');
+      expect(marks[1]).toHaveAccessibleName('runner-1: A job runs');
+      expect(title).toHaveTextContent('3');
+    });
+
+    describe('in the sheet of a phone', () => {
+      const matchMedia = window.matchMedia;
+
+      beforeEach(() => {
+        window.matchMedia = vi.fn().mockImplementation((query: string) => ({
+          matches: true,
+          media: query,
+          addEventListener: vi.fn(),
+          removeEventListener: vi.fn(),
+        }));
+      });
+
+      afterEach(() => {
+        window.matchMedia = matchMedia;
+      });
+
+      const openSheet = async (pathname: string) => {
+        navigator.restore();
+        navigator = installTestNavigator({ pathname });
+        render(AppSidebarSheetFixture, {
+          config: configWith({
+            entries: [entry(), ...groupEntries],
+            contributions: withMachineLinks(),
+          }),
+        });
+        await userEvent.click(screen.getByRole('button', { name: 'Toggle Sidebar' }));
+      };
+
+      it('shows them, as the second sidebar does, in a card after the section of the URL', async () => {
+        await openSheet('/acme-corp/agents');
+
+        const runner = await screen.findByRole('button', { name: 'runner-1' });
+        const card = runner.closest<HTMLElement>('[data-part="sheet-module-links"]');
+        expect(card).not.toBeNull();
+        expect(within(card!).getByText('Machines')).toBeInTheDocument();
+        expect(within(card!).getByRole('button', { name: 'runner-2' })).toBeInTheDocument();
+        expect(runner.closest('li')).not.toHaveClass('border-t');
+      });
+
+      it('opens a link and closes the sheet', async () => {
+        await openSheet('/acme-corp/agents');
+
+        await userEvent.click(await screen.findByRole('button', { name: 'runner-2' }));
+
+        expect(navigator.navigate).toHaveBeenCalledWith('/acme-corp/agents/2', undefined);
+        await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+      });
+
+      it('shows none on the pages of another item', async () => {
+        await openSheet('/acme-corp/secrets');
+
+        expect(await screen.findByRole('button', { name: 'Secrets' })).toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: /runner/ })).toBeNull();
+      });
+    });
   });
 });
 

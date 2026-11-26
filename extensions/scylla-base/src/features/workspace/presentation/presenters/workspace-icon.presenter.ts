@@ -1,32 +1,19 @@
-import BuildingIcon from '@lucide/svelte/icons/building';
 import { imageUrl } from '@platform/grpc';
-import { entityGlyph, type EntityIconProps, type IconChoice } from '@scylla/ui';
-import type {
-  CustomIcon,
-  CustomIconChange,
-} from '@shared/domain/structs/custom-icon.struct.ts';
+import type { EntityIconProps, IconChoice } from '@scylla/ui';
+import type { CustomIcon, CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
+import {
+  DEFAULT_WORKSPACE_COLOR,
+  workspaceIconProps as iconPropsWith,
+} from '@shared/presentation/presenters/workspace-icon.presenter.ts';
 
-/** The icon of a workspace with no icon: a building in grey. */
-export const DEFAULT_WORKSPACE_GLYPH = 'building';
-export const DEFAULT_WORKSPACE_COLOR = 'muted-foreground';
+export {
+  DEFAULT_WORKSPACE_COLOR,
+  DEFAULT_WORKSPACE_GLYPH,
+} from '@shared/presentation/presenters/workspace-icon.presenter.ts';
 
-/**
- * What the entity icon of a workspace shows. A glyph that this build does not know, and an image
- * that does not load, show the building.
- */
-export const workspaceIconProps = (icon: CustomIcon | undefined): EntityIconProps => {
-  switch (icon?.kind) {
-    case 'image':
-      return { image: imageUrl(icon.imageId), icon: BuildingIcon };
-    case 'glyph':
-      return {
-        icon: entityGlyph(icon.name) ?? BuildingIcon,
-        color: icon.color ?? DEFAULT_WORKSPACE_COLOR,
-      };
-    default:
-      return { icon: BuildingIcon, color: DEFAULT_WORKSPACE_COLOR };
-  }
-};
+/** What the entity icon of a workspace shows, with the images of this server. */
+export const workspaceIconProps = (icon: CustomIcon | undefined): EntityIconProps =>
+  iconPropsWith(icon, imageUrl);
 
 /** The choice of the icon picker when it opens on a workspace. */
 export const workspaceIconChoice = (icon: CustomIcon | undefined): IconChoice => {

@@ -31,6 +31,7 @@ const resultOf = (items: ProjectEntity[]) => ({
 const repository = { search: vi.fn() };
 const groups = { list: vi.fn() };
 let running: ProjectEntity[];
+let failed: ProjectEntity[];
 let all: ProjectEntity[];
 
 let cache: ReturnType<typeof withQueryClient>;
@@ -70,10 +71,13 @@ beforeEach(() => {
   localStorage.clear();
   all = [project('p-1', 'feu'), project('p-2', 'td')];
   running = [];
+  failed = [];
   repository.search
     .mockReset()
     .mockImplementation(({ health }: { health: string }) =>
-      Promise.resolve(resultOf(health === 'running' ? running : all)),
+      Promise.resolve(
+        resultOf(health === 'running' ? running : health === 'failed' ? failed : all),
+      ),
     );
   groups.list.mockReset().mockResolvedValue([]);
   restoreRegistry = withRegistry({
@@ -207,6 +211,31 @@ describe('projectLinks', () => {
     await vi.waitFor(() => expect(links()[1]?.status).toEqual({ tone: 'running', label: 'A job runs' }));
     expect(links()[0]?.status).toBeUndefined();
     expect(repository.search).toHaveBeenCalledWith(expect.objectContaining({ health: 'running' }));
+  });
+
+  it('marks a project whose last job failed, from one read of the failed projects', async () => {
+    failed = [project('p-1', 'feu')];
+    const links = mount('projects');
+
+    await vi.waitFor(() =>
+      expect(links()[0]?.status).toEqual({ tone: 'failed', label: 'The last job failed' }),
+    );
+    expect(links()[1]?.status).toBeUndefined();
+    const failedReads = repository.search.mock.calls.filter(
+      ([search]) => search.health === 'failed',
+    );
+    expect(failedReads).toHaveLength(1);
+    expect(failedReads[0]?.[0]).toMatchObject({ workspaceId: 'org-1', limit: 100 });
+  });
+
+  it('shows a job that runs over the failure of the last one', async () => {
+    failed = [project('p-1', 'feu')];
+    running = [project('p-1', 'feu')];
+    const links = mount('projects');
+
+    await vi.waitFor(() =>
+      expect(links()[0]?.status).toEqual({ tone: 'running', label: 'A job runs' }),
+    );
   });
 
   it('reads nothing while another item shows', async () => {

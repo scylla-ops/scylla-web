@@ -15,6 +15,9 @@
     fold,
     motionDuration,
     prefersReducedMotion,
+    StatusShape,
+    swapIn,
+    swapOut,
     unfold,
   } from '@scylla/ui';
   import {
@@ -27,7 +30,7 @@
   import { cn } from '@scylla/ui/utils';
   import type { NavItem, SecondSidebarContent } from '../structs/nav-section.struct.ts';
   import { NAV_DANGER_APART_CLASS, NAV_HEADING_CLASS } from './nav-classes.ts';
-  import { activePageOf, pageRuns } from './nav-rail.ts';
+  import { activePageOf, pageRuns, sectionMarks } from './nav-rail.ts';
 
   interface Props {
     id?: string;
@@ -62,6 +65,9 @@
   const runs = $derived(content ? pageRuns(content.pages) : []);
   const SECTION_FADE_MS = 120;
   const COUNT_FADE_MS = 150;
+  /** The status shapes of the rows, and the smaller ones of the summary of a folded section. */
+  const STATUS_PX = 14;
+  const SUMMARY_STATUS_PX = 12;
 </script>
 
 {#snippet row(page: NavItem)}
@@ -84,19 +90,17 @@
     {/if}
     <span class="min-w-0 flex-1 truncate" title={page.title}>{page.title}</span>
     {#if page.status}
-      <!-- One live mark at most, e.g. a job that runs. -->
+      <!-- One live mark at most, e.g. a job that runs: the shape of the status, as on the jobs.
+           A new tone moves the same shape to its new form. -->
       <span
-        role="img"
-        aria-label={page.status.label}
+        data-part="second-sidebar-status"
+        class="flex shrink-0"
         title={page.status.label}
-        class={cn(
-          'size-2 shrink-0 rounded-full',
-          page.status.tone === 'failed'
-            ? 'bg-destructive'
-            : 'animate-pulse bg-warning motion-reduce:animate-none',
-        )}
-        transition:fade={{ duration: motionDuration(COUNT_FADE_MS) }}
-      ></span>
+        in:swapIn
+        out:swapOut
+      >
+        <StatusShape state={page.status.tone} label={page.status.label} size={STATUS_PX} />
+      </span>
     {/if}
     {#each badges as Badge, index (index)}
       <Badge url={page.url} />
@@ -207,6 +211,18 @@
                     {/if}
                     <span class="min-w-0 flex-1 truncate" title={section.title}>{section.title}</span>
                     {#if section.folded}
+                      <!-- The hidden rows keep their news: a mark for each tone, a failure first. -->
+                      {#each sectionMarks(run.pages) as mark (mark.tone)}
+                        <span
+                          data-part="second-sidebar-section-status"
+                          class="flex shrink-0"
+                          title={mark.label}
+                          in:swapIn
+                          out:swapOut
+                        >
+                          <StatusShape state={mark.tone} label={mark.label} size={SUMMARY_STATUS_PX} />
+                        </span>
+                      {/each}
                       <span
                         class="shrink-0 tabular-nums"
                         transition:fade={{ duration: motionDuration(COUNT_FADE_MS) }}

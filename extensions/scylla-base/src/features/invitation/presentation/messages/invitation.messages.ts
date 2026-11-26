@@ -14,6 +14,7 @@ export const invitationMessages = {
   pendingDescription: msg`The people who have a link and have not joined yet.`,
   noPending: msg`No open invitation.`,
   expires: (date: string) => msg`Expires ${date}`,
+  invitedBy: (name: string) => msg`Invited by ${name}`,
   resend: msg`Send again`,
   revoke: msg`Revoke`,
   acceptTitle: msg`Join a workspace`,
