@@ -7,18 +7,50 @@
     TabsList,
     TabsTrigger,
   } from '@scylla/ui/primitives';
+  import ArrowRightIcon from '@lucide/svelte/icons/arrow-right';
   import PauseIcon from '@lucide/svelte/icons/pause';
   import PlayIcon from '@lucide/svelte/icons/play';
   import { ScyllaDialog, prefersReducedMotion, swapIn, swapOut } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { can } from '@platform/authz';
+  import { scyllaNavigate } from '@platform/context';
+  import { startTourById } from '@base/features/onboarding';
+  import type { ReleaseHighlight } from '@base/shell/whats-new.ts';
+  import { requestCommandBar } from '@base/shell/presentation/layout/command-bar-request.state.svelte.ts';
   import {
     dismissRelease,
+    markSeen,
     tabHasNew,
     unseenRelease,
   } from '@base/shell/presentation/layout/whats-new.state.svelte.ts';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
 
   const release = $derived(unseenRelease());
+
+  /** The dialog leaves first: an action that opens a dialog or an overlay waits for its exit. */
+  const EXIT_MS = 250;
+
+  const canOpen = (highlight: ReleaseHighlight): boolean => {
+    const { target } = highlight;
+    if (!target) return false;
+    return target.kind === 'action' || !target.permission || can(target.permission);
+  };
+
+  const go = (highlight: ReleaseHighlight) => {
+    const { target } = highlight;
+    if (!target) return;
+    userPaused = true;
+    markSeen(highlight.id);
+    dismissRelease();
+    if (target.kind === 'page') {
+      scyllaNavigate.goToWorkspaceRoute(target.url);
+      return;
+    }
+    setTimeout(() => {
+      if (target.id === 'open-command-bar') requestCommandBar();
+      else void startTourById('search');
+    }, EXIT_MS);
+  };
 
   const TICK_MS = 50;
   const RESUME_AFTER_MS = 1800;
@@ -37,6 +69,8 @@
   let lastInput = -Infinity;
   let scrollPos = 0;
   let wasRunning = false;
+  /** A focused item of the list: the scroll and the tab change would move it under the keyboard. */
+  let itemFocused = false;
 
   $effect(() => {
     if (!active && release) active = release.tabs[0];
@@ -68,7 +102,7 @@
   const tick = () => {
     if (!release) return;
     const running =
-      !reduced && !userPaused && !document.hidden && Date.now() - lastInput >= RESUME_AFTER_MS;
+      !reduced && !userPaused && !itemFocused && !document.hidden && Date.now() - lastInput >= RESUME_AFTER_MS;
     if (!running) {
       wasRunning = false;
       return;
@@ -125,7 +159,13 @@
     title={t(layoutMessages.whatsNew(release.line))}
     description={t(layoutMessages.whatsNewDescription)}
   >
-    <div bind:this={root} class="contents">
+    <div
+      bind:this={root}
+      class="contents"
+      role="presentation"
+      onfocusin={event => (itemFocused = !!(event.target as Element).closest('[role="tabpanel"]'))}
+      onfocusout={() => (itemFocused = false)}
+    >
     <Tabs bind:value={active} class="min-h-0 min-w-0 gap-3">
       <div class="flex shrink-0 items-center gap-2">
         <div class="relative min-w-0 flex-1 overflow-x-auto">
@@ -171,18 +211,45 @@
       {#each release.tabs as version (version)}
         <TabsContent value={version} class="relative min-h-0 overflow-y-auto py-2 data-[state=active]:animate-in data-[state=active]:fade-in-0 data-[state=active]:duration-200"
         >
-          <ul class="flex flex-col gap-4">
+          <ul class="flex flex-col gap-2">
             {#each release.highlights.filter(highlight => highlight.version === version) as highlight (highlight.id)}
-              <li class="flex items-center gap-3">
+              {@const openable = canOpen(highlight)}
+              <li
+                class={[
+                  'relative flex items-center gap-3 rounded-xl p-2 transition-colors motion-reduce:transition-none',
+                  openable &&
+                    'group hover:bg-accent has-focus-visible:bg-accent has-focus-visible:ring-2 has-focus-visible:ring-ring',
+                ]}
+              >
                 <span
                   class="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10"
                 >
                   <highlight.icon class="size-5 text-primary" />
                 </span>
-                <div class="min-w-0">
-                  <h4 class="text-sm text-foreground">{t(highlight.title)}</h4>
+                <div class="min-w-0 flex-1">
+                  <h4 class="text-sm text-foreground">
+                    {#if openable}
+                      <button
+                        type="button"
+                        data-testid="whats-new-item"
+                        class="cursor-pointer text-left outline-hidden after:absolute after:inset-0 after:rounded-xl"
+                        onclick={() => go(highlight)}
+                      >
+                        {t(highlight.title)}
+                      </button>
+                    {:else}
+                      {t(highlight.title)}
+                    {/if}
+                  </h4>
                   <p class="text-sm text-muted-foreground">{t(highlight.description)}</p>
                 </div>
+                <span class="flex size-4 shrink-0 items-center justify-center" aria-hidden="true">
+                  {#if openable}
+                    <ArrowRightIcon
+                      class="size-4 text-muted-foreground opacity-0 transition duration-150 group-hover:translate-x-0.5 group-hover:opacity-100 group-has-focus-visible:translate-x-0.5 group-has-focus-visible:opacity-100 pointer-coarse:opacity-60 motion-reduce:transition-none"
+                    />
+                  {/if}
+                </span>
               </li>
             {/each}
           </ul>

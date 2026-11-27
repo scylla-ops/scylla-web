@@ -78,6 +78,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   mirror, rotation and size. A person opens it from the profile photo card, the account menu or the
   command palette, and the icon picker of an agent or an app has an Avatar tab. Activity shows the
   Scylla head for a change that Scylla made. The account page shows the credit of the style.
+- What's new: click an item to open its page or start its action, such as the command bar.
 
 ### Changed
 

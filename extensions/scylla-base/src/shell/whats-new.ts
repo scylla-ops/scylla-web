@@ -19,6 +19,7 @@ import Store from '@lucide/svelte/icons/store';
 import Tags from '@lucide/svelte/icons/tags';
 import TextSearch from '@lucide/svelte/icons/text-search';
 import Workflow from '@lucide/svelte/icons/workflow';
+import { Permission } from '@platform/authz';
 import type { LucideIcon } from '@scylla/ui';
 
 /** The version that announced a highlight: the version of its "seen" flag. */
@@ -27,6 +28,17 @@ export type HighlightVersion = (typeof HIGHLIGHT_VERSIONS)[number];
 
 /** The versions that have a tab in the dialog. */
 export type TabVersion = '0.7.0' | '0.7.1' | '0.7.2' | '0.7.3';
+
+/** What a click on a highlight does: opens a page of the workspace, or runs an action. */
+export type HighlightTarget =
+  | {
+      kind: 'page';
+      /** A path in the active workspace, with or without the first slash. */
+      url: string;
+      /** The user who lacks it cannot click the item: the page would refuse them. */
+      permission?: Permission;
+    }
+  | { kind: 'action'; id: 'open-command-bar' | 'start-search-tour' };
 
 export interface ReleaseHighlight {
   /** Also the key of its "seen" flag in `localStorage`. */
@@ -40,6 +52,8 @@ export interface ReleaseHighlight {
   icon: LucideIcon;
   /** The sidebar entry that shows a "New" badge until the user opens it. */
   navUrl?: string;
+  /** Where the item takes the user. An item with no target is not clickable. */
+  target?: HighlightTarget;
 }
 
 export interface Release {
@@ -66,6 +80,7 @@ export const WHATS_NEW = {
       description: msg`Your projects as cards with their pipelines, with search, filters and sort. Put them in colored groups, pin your favorites, drag them into your own order and pick a display: cards, list or tiles. Your groups also show in the sidebar.`,
       icon: FolderKanban,
       navUrl: 'projects',
+      target: { kind: 'page', url: 'projects', permission: Permission.READ_WORKSPACE },
     },
     {
       id: 'custom-icons',
@@ -74,6 +89,7 @@ export const WHATS_NEW = {
       title: msg`Make it yours`,
       description: msg`A glyph in any color or your own image for your projects, workspaces, agents and apps. And for you: a profile photo, imported from GitHub in one click, or an avatar you design yourself, Scylla head included.`,
       icon: Sparkles,
+      target: { kind: 'page', url: 'account/profile' },
     },
     {
       id: 'command-bar-more',
@@ -82,6 +98,7 @@ export const WHATS_NEW = {
       title: msg`Ctrl K finds even more`,
       description: msg`Project groups, dashboards, fragments, jobs, triggers, secrets and members: you now find them all from the keyboard. Rerun a failed job or turn off a trigger right from the bar.`,
       icon: TextSearch,
+      target: { kind: 'action', id: 'open-command-bar' },
     },
     {
       id: 'smooth-ui',
@@ -98,6 +115,7 @@ export const WHATS_NEW = {
       title: msg`Scylla pipelines and file pipelines, together`,
       description: msg`Your Scylla pipelines and file pipelines can now live side by side in one project, each with its badge. If an admin allows it, a Scylla pipeline can also start on a push, a PR or a tag.`,
       icon: GitMerge,
+      target: { kind: 'page', url: 'projects', permission: Permission.READ_WORKSPACE },
     },
     {
       id: 'start-node-triggers',
@@ -122,6 +140,7 @@ export const WHATS_NEW = {
       title: msg`Labels for your agents`,
       description: msg`Label your agents and choose where each pipeline runs. A waiting job now tells you why.`,
       icon: Tags,
+      target: { kind: 'page', url: 'agents', permission: Permission.LIST_APPS_BY_WORKSPACE },
     },
     {
       id: 'command-bar-search',
@@ -130,6 +149,7 @@ export const WHATS_NEW = {
       title: msg`A clearer command bar`,
       description: msg`Ctrl K now highlights what matches your search, and a short tour shows you how to use it.`,
       icon: Search,
+      target: { kind: 'action', id: 'start-search-tour' },
     },
     {
       id: 'dashboard-links',
@@ -138,6 +158,7 @@ export const WHATS_NEW = {
       title: msg`Dashboards you can click`,
       description: msg`Click a pipeline, a run or an agent in a widget to open its page.`,
       icon: LayoutDashboard,
+      target: { kind: 'page', url: 'dashboard', permission: Permission.READ_WORKSPACE },
     },
     {
       id: 'copy-link',
@@ -163,6 +184,7 @@ export const WHATS_NEW = {
       description: msg`Turn a group of nodes into a fragment and reuse it in every pipeline of your workspace. Updates are offered, never forced.`,
       icon: LibraryBig,
       navUrl: 'library',
+      target: { kind: 'page', url: 'library', permission: Permission.LIST_PIPELINES_BY_WORKSPACE },
     },
     {
       id: 'marketplace',
@@ -172,6 +194,11 @@ export const WHATS_NEW = {
       description: msg`Discover fragments published by other teams and add them to your library: linked to follow their updates, or copied to edit freely.`,
       icon: Store,
       navUrl: 'marketplace',
+      target: {
+        kind: 'page',
+        url: 'marketplace',
+        permission: Permission.LIST_PIPELINES_BY_WORKSPACE,
+      },
     },
     {
       id: 'command-bar',
@@ -180,6 +207,7 @@ export const WHATS_NEW = {
       title: msg`A command bar`,
       description: msg`Ctrl K finds everything: pages, projects, pipelines, agents or people, even with a typo. Run a pipeline or switch theme without leaving the keyboard.`,
       icon: Command,
+      target: { kind: 'action', id: 'open-command-bar' },
     },
     {
       id: 'notifications-inbox',
@@ -189,6 +217,7 @@ export const WHATS_NEW = {
       description: msg`All your notifications behind the bell: accept an invitation in one click and follow the failed runs of your workspace.`,
       icon: Bell,
       navUrl: 'notifications',
+      target: { kind: 'page', url: 'notifications' },
     },
     {
       id: 'machines',
@@ -197,6 +226,7 @@ export const WHATS_NEW = {
       title: msg`Apps and agents`,
       description: msg`Connect an agent in three steps. For your apps, pick the access type: token, CI identity or key pair, and see their last use at a glance.`,
       icon: Server,
+      target: { kind: 'page', url: 'agents', permission: Permission.LIST_APPS_BY_WORKSPACE },
     },
     {
       id: 'git-integrations',
@@ -205,6 +235,11 @@ export const WHATS_NEW = {
       title: msg`GitHub and GitLab`,
       description: msg`Link a repository to your project, run a pipeline straight from a file of the repository, and export your pipelines as TOML, YAML or JSON.`,
       icon: GitBranch,
+      target: {
+        kind: 'page',
+        url: 'settings/integrations',
+        permission: Permission.VIEW_INTEGRATIONS,
+      },
     },
     {
       id: 'new-look',

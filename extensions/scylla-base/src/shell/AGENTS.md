@@ -62,6 +62,7 @@ presentation/
                                         reads, none for each group or project. Each
                                         group and « No group » has a "+" (a new project there) for
                                         a person with CREATE_PROJECT
+    command-bar-request.state.svelte.ts       requestCommandBar: GlobalSearch opens the bar (an action target of a highlight)
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
@@ -82,7 +83,7 @@ presentation/
                                         (sidebar footer); green on the rail while the URL is on the account or the help page
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
-    ui/WhatsNewDialog/                  first-launch release announcement
+    ui/WhatsNewDialog/                  first-launch release announcement; an item with a `target` (page or action) is a button that closes the dialog, marks the highlight seen, stops the autoplay, then goes there
     ui/LaunchOverlays/                  THE overlay: the announcement first, then the onboarding tour
     ui/ConsentHost/                     over each page, public too (appOverlays): the banner and the cookie
                                         settings of `platform/consent`, while one tracker needs consent
