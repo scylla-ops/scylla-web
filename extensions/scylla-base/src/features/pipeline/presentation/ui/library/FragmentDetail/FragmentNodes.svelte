@@ -67,7 +67,8 @@
         </Button>
       </div>
     {:else}
-      <span class="ml-auto text-xs text-muted-foreground">
+      <!-- The height of the field of the changes: the graph does not move down at the first edit. -->
+      <span class="ml-auto flex h-8 items-center text-xs text-muted-foreground">
         {t(editable ? libraryMessages.editNodeHint : libraryMessages.selectNodeHint)}
       </span>
     {/if}

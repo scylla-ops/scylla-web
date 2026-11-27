@@ -35,7 +35,7 @@ and behave alike:
   shape, and a soft green tint with a 3 px bar marks the selection without a hard outline. The
   pages sit under the table, outside its frame, so the table stays one calm block.
 - **A status is a shape, made of the logo.** `StatusShape` turns the four dots of the logo into
-  the form of a status — a grid that waits, marbles that run, a disc, a cross, a slash — and
+  the form of a status — a dashed ring that waits, marbles that run, a disc, a cross, a slash — and
   moves from one to the next instead of swapping an icon. The brand carries the meaning, and a
   change of status is something the eye sees happen.
 - **`createSelection(key)`** over a single `selectionStore`. Selection is keyed by feature, so

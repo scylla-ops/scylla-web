@@ -37,7 +37,7 @@ workspaces" holds `OTHERS_LIMIT` (5) workspaces of other users, the last active 
 `workspaceQueries.all` with `othersOnly`. Each of these rows shows the icon of the workspace, then
 the owner (avatar and name, with the email or the handle as the hint). The filter field always shows. It matches the own workspaces
 in the browser, with the owner, and it asks the server for the others after a pause
-(`SEARCH_DELAY_MS`). The last row, "All workspaces…", opens `/admin/workspaces?q=<text>`. The
+(`SEARCH_DELAY_MS`). The last row, "All workspaces…", opens `/admin/workspaces?q=<text>`. It shows the count of the rows of that page: the own workspaces that match, plus the `total` of `listAll`. The
 switcher of the other users does not change: no section, no owner, no call to `listAll`.
 
 **Never list all the workspaces in one call.** `getMine` gives only the own workspaces, also to an

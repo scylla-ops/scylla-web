@@ -137,6 +137,8 @@ const openMenuOf = async (name: string, sectionName: string) => {
     expect(found).not.toBeNull();
     return found as HTMLElement;
   });
+  // A menu that closed gives the pointer back to the page at the end of its motion.
+  await waitFor(() => expect(document.body.style.pointerEvents).not.toBe('none'));
   await userEvent.click(within(card).getByRole('button', { name: 'Project menu' }));
 };
 
@@ -234,8 +236,6 @@ describe('the sections of the projects page', () => {
         beforeId: 'id-web',
       }),
     );
-    // The closed menu gives the pointer back to the page.
-    await waitFor(() => expect(document.body.style.pointerEvents).not.toBe('none'));
     await openMenuOf('web', 'Deploys');
     expect(await findFloating('menuitem', 'Move up')).toHaveAttribute('data-disabled');
   });
@@ -249,16 +249,51 @@ describe('the sections of the projects page', () => {
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
     expect(screen.queryByRole('searchbox')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Project menu' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'New project' })).not.toBeInTheDocument();
-    // The pins take a drop in the mode, also with no pin.
-    expect(screen.getByRole('region', { name: 'Pinned' })).toHaveTextContent(
-      'Drop a card here to pin it.',
+    // The buttons of the header stay in their place, turned off.
+    expect(screen.getByRole('button', { name: 'Select all' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'New project' })).toHaveAttribute(
+      'aria-disabled',
+      'true',
     );
+    // With no pin, the mode adds no section: the pins take a drop during a drag only.
+    expect(screen.queryByRole('region', { name: 'Pinned' })).not.toBeInTheDocument();
 
     await userEvent.keyboard('{Escape}');
 
     expect(screen.getByRole('searchbox', { name: 'Search the projects' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Select all' })).toBeEnabled();
     expect(groups.move).not.toHaveBeenCalled();
+  });
+
+  it('swaps the controls of the toolbar in their place: « Done » for « Reorder »', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+    const toolbar = document.querySelector<HTMLElement>('[data-part="project-toolbar"]')!;
+    const reorder = screen.getByRole('button', { name: 'Reorder' });
+    const placeOf = (button: HTMLElement) => button.closest('.grid.shrink-0');
+
+    reorder.focus();
+    await userEvent.keyboard('{Enter}');
+
+    // « Done » is in the cell of « Reorder », and takes the focus; « Reorder » is still there,
+    // out of reach.
+    const done = screen.getByRole('button', { name: 'Done' });
+    expect(placeOf(done)).toBe(placeOf(reorder));
+    expect(done).toHaveFocus();
+    expect(reorder.closest('[data-layer="normal"]')).toHaveAttribute('aria-hidden', 'true');
+    expect(toolbar).toContainElement(reorder);
+    expect(screen.getByRole('combobox', { name: 'Sort the projects' })).toBeDisabled();
+    expect(toolbar.querySelector('[data-part="project-reorder-hint"]')).not.toHaveAttribute(
+      'aria-hidden',
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(screen.getByRole('button', { name: 'Reorder' })).toHaveFocus();
+    expect(toolbar.querySelector('[data-part="project-reorder-hint"]')).toHaveAttribute(
+      'aria-hidden',
+      'true',
+    );
   });
 
   it('keeps the cards while the reorder mode reads all of them', async () => {
@@ -274,9 +309,9 @@ describe('the sections of the projects page', () => {
 
     await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
 
-    // No skeleton: the sections stay, and the pins come over them.
+    // No skeleton: the sections stay, and no section comes over them.
     expect(cardsOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']);
-    expect(screen.getByRole('region', { name: 'Pinned' })).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Pinned' })).not.toBeInTheDocument();
     readAll();
     await waitFor(() =>
       expect(search).toHaveBeenCalledWith(expect.objectContaining({ limit: REORDER_LIMIT })),
@@ -330,10 +365,7 @@ describe('the sections of the projects page', () => {
       name: 'Change the folder color of Deploys',
     });
     await userEvent.click(folder);
-    expect(await floatingButton('Color 3')).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(await floatingButton('Color 3')).toHaveAttribute('aria-pressed', 'true');
     await userEvent.click(await floatingButton('Color 4'));
     expect(groups.update).not.toHaveBeenCalled();
 
@@ -349,7 +381,9 @@ describe('the sections of the projects page', () => {
     await screen.findByRole('region', { name: 'Deploys' });
 
     await userEvent.click(
-      within(section('Deploys')).getByRole('button', { name: 'Change the folder color of Deploys' }),
+      within(section('Deploys')).getByRole('button', {
+        name: 'Change the folder color of Deploys',
+      }),
     );
     await userEvent.click(await floatingButton('Free color'));
 
@@ -371,6 +405,16 @@ describe('the sections of the projects page', () => {
     await waitFor(() =>
       expect(groups.update).toHaveBeenCalledWith('g-1', { name: undefined, color: '' }),
     );
+  });
+
+  it('opens the folder colors from « Folder color… » in the group menu', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(within(section('Deploys')).getByRole('button', { name: 'Group menu' }));
+    await userEvent.click(await findFloating('menuitem', 'Folder color…'));
+
+    expect(await floatingButton('Reset')).toBeInTheDocument();
   });
 
   it('changes the folder color in the rename row, with no new name', async () => {
@@ -431,8 +475,11 @@ const STEP = 416;
 const CELL = '[data-card], [data-part="project-drop-slot"]';
 const box = (left: number, top: number, width: number, height: number) =>
   ({ left, top, width, height, right: left + width, bottom: top + height }) as DOMRect;
+// The drop zone of the pins over the toolbar is out of the column of the sections.
 const topOf = (node: Element) =>
-  [...document.querySelectorAll('[data-section]')].indexOf(node.closest('[data-section]')!) * 1000;
+  [...document.querySelectorAll('section[data-section]')].indexOf(
+    node.closest('[data-section]')!,
+  ) * 1000;
 const placeOf = (node: Element) =>
   [...node.parentElement!.children]
     .filter(child => child.matches(CELL) && (child as HTMLElement).style.position !== 'fixed')
@@ -503,8 +550,9 @@ const dragCard = async (id: string, grab: { x: number; y: number }, dx: number, 
   return () => pointer(window, 'pointerup', start.x + dx, start.y + dy);
 };
 
+/** The cards and the slot of a grid: the ghost card is not a place. */
 const gridOf = (name: string) =>
-  [...section(name).querySelectorAll('[data-part="project-grid"] > *')].map(
+  [...section(name).querySelectorAll(`[data-part="project-grid"] > :is(${CELL})`)].map(
     cell => cell.getAttribute('data-card') ?? cell.getAttribute('data-part'),
   );
 
@@ -546,8 +594,8 @@ describe('the drag of the reorder mode', () => {
   it('puts a card last in a group when its center is on the header of the group', async () => {
     await reorderMode();
 
-    // « docs » (No group, at 2044 px) goes up until its center is on the header of « Deploys ».
-    const release = await dragCard('id-docs', { x: 200, y: 20 }, 0, 1016 - (2044 + H / 2));
+    // « docs » (No group, at 1044 px) goes up until its center is on the header of « Deploys ».
+    const release = await dragCard('id-docs', { x: 200, y: 20 }, 0, 16 - (1044 + H / 2));
 
     expect(
       await within(section('Deploys')).findByText('Release to move “docs” into Deploys'),
@@ -596,6 +644,33 @@ describe('the drag of the reorder mode', () => {
     await waitFor(() => expect(gridOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']));
     expect(screen.getByText('“status” is back at its place')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
+  });
+
+  it('pins a card on the drop zone of the pins over the toolbar, with no pin yet', async () => {
+    await reorderMode();
+    const zone = () => document.querySelector('[data-part="project-pin-overlay"]');
+    expect(zone()).toBeNull();
+
+    // « status » (No group, at 1044 px) is taken; the zone shows during the drag, at -1000 px.
+    const card = document.querySelector<HTMLElement>('[data-card="id-status"]')!;
+    const { left, top } = card.getBoundingClientRect();
+    const start = { x: left + 200, y: top + 20 };
+    pointer(card, 'pointerdown', start.x, start.y);
+    pointer(window, 'pointermove', start.x, start.y - 10);
+    await waitFor(() => expect(zone()).toHaveTextContent('Drop a card here to pin it.'));
+    expect(screen.queryByRole('region', { name: 'Pinned' })).not.toBeInTheDocument();
+
+    // The center of the card goes on the zone.
+    const y = -984 - H / 2 + 20;
+    pointer(window, 'pointermove', start.x, y);
+    await waitFor(() => expect(zone()).toHaveTextContent('Release to pin “status”'));
+    pointer(window, 'pointerup', start.x, y);
+
+    await waitFor(() => expect(cardsOf('Pinned')).toEqual(['id-status']));
+    expect(zone()).toBeNull();
+    await userEvent.click(screen.getByRole('button', { name: 'Done' }));
+
+    expect(JSON.parse(localStorage.getItem(PROJECT_PINS_KEY)!)).toEqual({ 'org-1': ['id-status'] });
   });
 });
 
@@ -770,6 +845,18 @@ describe('a folded section', () => {
     expect(chipsOf(line)).toEqual(['cli', 'web']);
   });
 
+  it('keeps the line in the reorder mode: nothing moves when the mode starts', async () => {
+    fold(['g-1']);
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+    const line = lineOf('Deploys');
+
+    await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
+
+    expect(lineOf('Deploys')).toBe(line);
+    expect(chipsOf(line)).toEqual(['web', 'api']);
+  });
+
   it('folds an open group to its line, and the header opens it again', async () => {
     render(ProjectList, { workspaceId: 'org-1' });
     await screen.findByRole('region', { name: 'Deploys' });
@@ -780,6 +867,25 @@ describe('a folded section', () => {
     await userEvent.click(headerOf('Deploys', false));
     expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
     expect(within(section('Deploys')).queryByRole('group', { name: /folded$/ })).toBeNull();
+  });
+
+  it('puts the line in the place of the cards, in one box: the cards fade out over it', async () => {
+    const reduced = window.matchMedia;
+    window.matchMedia = vi.fn((query: string) => ({ ...reduced(query), matches: false }));
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+    const body = section('Deploys').querySelector<HTMLElement>(
+      '[data-part="project-section-body"]',
+    )!;
+    const cards = body.firstElementChild as HTMLElement;
+
+    await userEvent.click(headerOf('Deploys'));
+
+    const line = lineOf('Deploys');
+    expect(line.parentElement?.parentElement).toBe(body);
+    expect(cards.parentElement).toBe(body);
+    expect(cards.inert).toBe(true);
+    expect(body.children).toHaveLength(2);
   });
 });
 
@@ -804,7 +910,9 @@ describe('the display of the sections', () => {
     expect(section('No group')).toHaveAttribute('data-density', 'compact');
     expect(densityOfCards('Deploys')).toEqual(['compact', 'compact']);
 
-    await userEvent.click(within(section('No group')).getByRole('button', { name: 'Section menu' }));
+    await userEvent.click(
+      within(section('No group')).getByRole('button', { name: 'Section menu' }),
+    );
     await userEvent.click(await findFloating('menuitem', 'Display'));
     await userEvent.click(await findFloating('menuitemradio', 'List'));
 
@@ -859,17 +967,22 @@ describe('the order of the groups in the reorder mode', () => {
   };
 
   it('shows the handle of a group in the reorder mode only, and not on the pins or « No group »', async () => {
+    localStorage.setItem(PROJECT_PINS_KEY, JSON.stringify({ 'org-1': ['id-cli'] }));
     render(ProjectList, { workspaceId: 'org-1' });
     await screen.findByRole('region', { name: 'Ops' });
     expect(screen.queryByRole('button', { name: /^Move the group/ })).toBeNull();
+    const plus = within(section('Deploys')).getByRole('link', { name: 'New project in Deploys' });
+    const place = plus.closest('.grid');
 
     await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
 
-    expect(
-      within(section('Deploys')).getByRole('button', { name: 'Move the group Deploys' }),
-    ).toBeInTheDocument();
+    // The handle takes the place of the "+": the title and the menu do not move.
+    const grip = within(section('Deploys')).getByRole('button', { name: 'Move the group Deploys' });
+    expect(grip.closest('.grid')).toBe(place);
     expect(within(section('Pinned')).queryByRole('button', { name: /^Move the group/ })).toBeNull();
-    expect(within(section('No group')).queryByRole('button', { name: /^Move the group/ })).toBeNull();
+    expect(
+      within(section('No group')).queryByRole('button', { name: /^Move the group/ }),
+    ).toBeNull();
   });
 
   it('moves a group with the keyboard, and « Done » saves the order of the groups', async () => {
@@ -887,7 +1000,7 @@ describe('the order of the groups in the reorder mode', () => {
 
     await userEvent.keyboard('{ArrowUp}');
 
-    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-2', 'g-1', 'ungrouped']));
+    await waitFor(() => expect(sectionOrder()).toEqual(['g-2', 'g-1', 'ungrouped']));
     await waitFor(() => expect(grip).toHaveFocus());
 
     await userEvent.keyboard(' ');
@@ -906,11 +1019,11 @@ describe('the order of the groups in the reorder mode', () => {
     grip.focus();
     await userEvent.keyboard(' ');
     await userEvent.keyboard('{ArrowUp}');
-    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-2', 'g-1', 'ungrouped']));
+    await waitFor(() => expect(sectionOrder()).toEqual(['g-2', 'g-1', 'ungrouped']));
 
     await userEvent.keyboard('{Escape}');
 
-    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-1', 'g-2', 'ungrouped']));
+    await waitFor(() => expect(sectionOrder()).toEqual(['g-1', 'g-2', 'ungrouped']));
     expect(screen.getByText('“Ops” is back at its place')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Done' })).toBeInTheDocument();
   });
@@ -921,8 +1034,10 @@ describe('the order of the groups in the reorder mode', () => {
     await userEvent.click(within(section('Ops')).getByRole('button', { name: 'Group menu' }));
     await userEvent.click(await findFloating('menuitem', 'Move up'));
 
-    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-2', 'g-1', 'ungrouped']));
+    await waitFor(() => expect(sectionOrder()).toEqual(['g-2', 'g-1', 'ungrouped']));
     expect(groups.reorder).not.toHaveBeenCalled();
+    // The menu gives the page its pointer back when it has closed.
+    await waitFor(() => expect(document.body.style.pointerEvents).not.toBe('none'));
 
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
 
@@ -930,28 +1045,33 @@ describe('the order of the groups in the reorder mode', () => {
     expect(groups.reorder).not.toHaveBeenCalled();
   });
 
-  it('drags a group by its handle: the sections fold, and the slot follows the header', async () => {
+  it('drags a group by its handle: the sections stay, and a line shows the new place', async () => {
     teardown.push(stubGroupLayout());
     const grip = await reorderMode();
-    expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
+    const copy = () => document.querySelector('[data-part="group-drag-overlay"]');
+    const line = () => document.querySelector('[data-part="group-drop-slot"]');
 
-    // « Ops » (the second group, at 100 px) is taken at its handle and goes up by 100 px.
+    // « Ops » (the second group, at 100 px) is taken at its handle: a copy of its header follows
+    // the pointer, and near its own place no line shows.
     pointer(grip, 'pointerdown', 10, 110);
-    pointer(window, 'pointermove', 10, 60);
-    await waitFor(() =>
-      expect(document.querySelector('[data-part="group-drop-slot"]')).not.toBeNull(),
-    );
-    expect(cardsOf('Deploys')).toEqual([]);
-    pointer(window, 'pointermove', 10, 10);
+    pointer(window, 'pointermove', 10, 90);
+    await waitFor(() => expect(copy()).toHaveTextContent('Ops'));
+    expect(line()).toBeNull();
 
+    // Up by 100 px: the line goes before « Deploys », and no section moves or folds.
+    pointer(window, 'pointermove', 10, 10);
     await waitFor(() =>
       expect(screen.getByText('“Ops”: place 1 of 2 in the groups')).toBeInTheDocument(),
     );
+    expect(line()).not.toBeNull();
+    expect(sectionOrder()).toEqual(['g-1', 'g-2', 'ungrouped']);
+    expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
     pointer(window, 'pointerup', 10, 10);
 
-    await waitFor(() => expect(sectionOrder()).toEqual(['pins', 'g-2', 'g-1', 'ungrouped']));
+    await waitFor(() => expect(sectionOrder()).toEqual(['g-2', 'g-1', 'ungrouped']));
     expect(screen.getByText('“Ops” is now at place 1 of 2 in the groups')).toBeInTheDocument();
-    await waitFor(() => expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']));
+    expect(line()).toBeNull();
+    expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
 
     await userEvent.click(screen.getByRole('button', { name: 'Done' }));
 
@@ -961,19 +1081,15 @@ describe('the order of the groups in the reorder mode', () => {
 
 /**
  * The layout of the groups, which jsdom does not compute: each group is 100 px under the one
- * before it, with a header 40 px high. The lifted group (`position: fixed`) is out of the column.
+ * before it, 100 px high, with a header 40 px high. The line of a drag takes no place.
  */
 const stubGroupLayout = () => {
-  const GROUP_CELL = '[data-group-cell], [data-part="group-drop-slot"]';
+  const GROUP_CELL = '[data-group-cell]';
   const rect = Element.prototype.getBoundingClientRect;
   const offsets = ['offsetLeft', 'offsetTop', 'offsetWidth', 'offsetHeight'] as const;
   const saved = offsets.map(name => Object.getOwnPropertyDescriptor(HTMLElement.prototype, name));
   const placeOfGroup = (cell: Element) =>
-    [...cell.parentElement!.children]
-      .filter(
-        child => child.matches(GROUP_CELL) && (child as HTMLElement).style.position !== 'fixed',
-      )
-      .indexOf(cell);
+    [...cell.parentElement!.children].filter(child => child.matches(GROUP_CELL)).indexOf(cell);
   Element.prototype.getBoundingClientRect = function (this: Element) {
     const cell = this.closest('[data-group-cell]');
     if (cell && this.matches('[data-part="project-section-header"]')) {
@@ -985,7 +1101,7 @@ const stubGroupLayout = () => {
     function (this: HTMLElement) {
       const place = this.matches(GROUP_CELL) ? placeOfGroup(this) : -1;
       if (place < 0) return 0;
-      return { offsetLeft: 0, offsetTop: place * 100, offsetWidth: 1232, offsetHeight: 40 }[name];
+      return { offsetLeft: 0, offsetTop: place * 100, offsetWidth: 1232, offsetHeight: 100 }[name];
     };
   for (const name of offsets) {
     Object.defineProperty(HTMLElement.prototype, name, { configurable: true, get: offset(name) });

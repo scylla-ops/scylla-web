@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
-  import { motionDuration } from '@scylla/ui';
+  import { motionDuration, StableLabel } from '@scylla/ui';
   import {
     Button,
     Dialog,
@@ -102,8 +102,12 @@
         </a>
         <Button variant="outline" size="sm" onclick={onExplore}>{t(m.exploreAlone)}</Button>
       {:else}
+        <!-- The width of the longer label: the button stays under the pointer at the last step. -->
         <Button size="sm" onclick={() => (index += 1)}>
-          {index === total - 1 ? t(m.chooseTour) : t(m.next)}
+          <StableLabel
+            text={index === total - 1 ? t(m.chooseTour) : t(m.next)}
+            reserve={[t(m.next), t(m.chooseTour)]}
+          />
         </Button>
       {/if}
     </div>

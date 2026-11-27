@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { setAppNavigator, contextStore } from '@platform/context';
 import { holdsLeave } from '@scylla/core-sdk';
+import { expectNoLayoutShift } from '@test/layout.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
@@ -420,6 +421,20 @@ describe('The edit mode', () => {
     await vi.waitFor(() => expect(storedSet()?.dashboards[0].widgets).toHaveLength(11));
     expect(storedSet()?.dashboards[0].widgets.some(widget => widget.data === 'success-rate')).toBe(false);
     expect(panel().getByRole('button', { name: 'Edit dashboard' })).toBeInTheDocument();
+  });
+
+  it('keeps the widgets in their place when the edit mode starts', async () => {
+    const user = userEvent.setup();
+    render(DashboardWithPanel);
+    await screen.findByRole('region', { name: 'Success rate' });
+    const grid = document.querySelector('[data-slot="widget-grid"]') as HTMLElement;
+
+    // The handles of the edit mode come over the widgets: the grid does not move down.
+    await expectNoLayoutShift(
+      () => user.click(panel().getByRole('button', { name: 'Edit dashboard' })),
+      grid,
+      { within: grid.parentElement?.parentElement ?? undefined, checkContent: false },
+    );
   });
 
   it('drops the draft on Cancel, and Undo takes back one change', async () => {

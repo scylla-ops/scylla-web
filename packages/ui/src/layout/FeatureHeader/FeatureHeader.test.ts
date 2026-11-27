@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { expectNoLayoutShift } from '@test/layout.ts';
 import { findTooltip, render, textSnippet } from '@test/render.ts';
 import FeatureHeader from './FeatureHeader.svelte';
 
@@ -53,7 +54,7 @@ describe('FeatureHeader', () => {
     expect(screen.getByRole('heading')).toHaveTextContent(/^Secret$/);
   });
 
-  it('omits "Select all" once everything is already selected', () => {
+  it('disables "Select all" in its place once everything is already selected', () => {
     render(FeatureHeader, {
       count: 3,
       label: 'Secret',
@@ -61,7 +62,28 @@ describe('FeatureHeader', () => {
       allSelected: true,
     });
 
-    expect(screen.queryByRole('button', { name: 'Select all' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Select all' })).toBeDisabled();
+  });
+
+  it('keeps "Select all" and New still when a row is selected, then when all are', async () => {
+    const { rerender } = render(FeatureHeader, {
+      count: 5,
+      label: 'Secret',
+      onSelectAll: vi.fn(),
+      onClearSelection: vi.fn(),
+      onDeleteSelection: vi.fn(),
+      onNew: vi.fn(),
+    });
+    const still = [
+      screen.getByRole('button', { name: 'Select all' }),
+      screen.getByRole('button', { name: 'New Secret' }),
+    ];
+
+    // The row is aligned to the right: Clear and Delete come on its left.
+    await expectNoLayoutShift(() => rerender({ selectedCount: 1 }), still, { align: 'end' });
+    await expectNoLayoutShift(() => rerender({ selectedCount: 5, allSelected: true }), still, {
+      align: 'end',
+    });
   });
 
   it('shows "Clear" only once something is selected', () => {

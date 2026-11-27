@@ -21,9 +21,11 @@
     underLabel?: Snippet;
     pluralLabel?: string;
     selectedCount?: number;
-    /** Hides "Select all". */
+    /** Disables "Select all": it keeps its place, so the actions around it do not move. */
     allSelected?: boolean;
     onSelectAll?: () => void;
+    /** Turns off "Select all" in its place, e.g. in a mode that selects nothing. */
+    selectDisabled?: boolean;
     onClearSelection?: () => void;
     onDeleteSelection?: () => Promise<void> | void;
     onNew?: () => void;
@@ -47,6 +49,7 @@
     selectedCount = 0,
     allSelected = false,
     onSelectAll,
+    selectDisabled = false,
     onClearSelection,
     onDeleteSelection,
     onNew,
@@ -95,14 +98,10 @@
 {#snippet selectionActions(variant: 'outline' | 'ghost')}
   {@const onBar = variant === 'ghost'}
   {@const barButton = 'h-11 text-background hover:bg-background/10 hover:text-background'}
-  {#if onSelectAll && !allSelected && !!count}
-    <span class="flex" in:enter out:exit>
-      <Button {variant} class={onBar ? barButton : undefined} onclick={onSelectAll}>
-        {t(featureHeaderMessages.selectAll)}
-      </Button>
-    </span>
-  {/if}
-
+  <!--
+    The actions of a selection come first: the row is aligned to the right, thus they appear on
+    its left and push nothing. "Select all" stays in its place, disabled when all are selected.
+  -->
   {#if selectedCount > 0 && onClearSelection}
     <span class="flex" in:enter out:exit>
       <Button {variant} class={onBar ? barButton : undefined} onclick={onClearSelection}>
@@ -125,6 +124,19 @@
         <TrashIcon class="size-4" />
         <span class="sr-only">{t(featureHeaderMessages.delete)}</span>
       </GatedButton>
+    </span>
+  {/if}
+
+  {#if onSelectAll && !!count}
+    <span class="flex" in:enter out:exit>
+      <Button
+        {variant}
+        class={onBar ? barButton : undefined}
+        disabled={allSelected || selectDisabled}
+        onclick={onSelectAll}
+      >
+        {t(featureHeaderMessages.selectAll)}
+      </Button>
     </span>
   {/if}
 {/snippet}

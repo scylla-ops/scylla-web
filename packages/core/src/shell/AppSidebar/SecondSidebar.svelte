@@ -12,13 +12,15 @@
   import {
     ColorGlyph,
     EntityIcon,
-    fold,
+    enter,
+    exit,
+    MORPH_BOX_CLASS,
+    morphHeight,
     motionDuration,
     prefersReducedMotion,
     StatusShape,
     swapIn,
     swapOut,
-    unfold,
   } from '@scylla/ui';
   import {
     Input,
@@ -105,6 +107,19 @@
     {#each badges as Badge, index (index)}
       <Badge url={page.url} />
     {/each}
+  </button>
+{/snippet}
+
+{#snippet emptyRow(page: NavItem)}
+  <!-- An empty section: one muted call to action, e.g. a new project in an empty group. -->
+  <button
+    type="button"
+    class="flex h-8 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-left text-sm text-muted-foreground transition-colors outline-hidden hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none"
+    data-part="second-sidebar-empty-action"
+    onclick={() => onOpenPage(page)}
+  >
+    <PlusIcon class="size-4 shrink-0" aria-hidden="true" />
+    <span class="min-w-0 flex-1 truncate">{page.title}</span>
   </button>
 {/snippet}
 
@@ -227,7 +242,7 @@
                         class="shrink-0 tabular-nums"
                         transition:fade={{ duration: motionDuration(COUNT_FADE_MS) }}
                       >
-                        {run.pages.length}
+                        {run.pages.filter(page => !page.placeholder).length}
                       </span>
                     {/if}
                   </button>
@@ -235,14 +250,21 @@
                     {@render sectionAction(section.action)}
                   {/if}
                 </div>
-                {#if !section.folded}
-                  <!-- Indented under the title: the links belong to the section. -->
-                  <ul class="flex flex-col gap-0.5 pt-0.5 pl-3" in:unfold out:fold>
-                    {#each run.pages as page (page.href)}
-                      <li>{@render row(page)}</li>
-                    {/each}
-                  </ul>
-                {/if}
+                <!-- The links fold in one box, as the cards of a section of the projects page. -->
+                <div class={MORPH_BOX_CLASS} {@attach morphHeight}>
+                  {#if !section.folded}
+                    <!-- Indented under the title: the links belong to the section. -->
+                    <ul class="flex flex-col gap-0.5 pt-0.5 pl-3" in:enter out:exit>
+                      {#each run.pages as page (page.href)}
+                        {#if !page.placeholder}
+                          <li>{@render row(page)}</li>
+                        {:else if page.href}
+                          <li>{@render emptyRow(page)}</li>
+                        {/if}
+                      {/each}
+                    </ul>
+                  {/if}
+                </div>
               </li>
             {:else}
               {#each run.pages as page (page.href)}

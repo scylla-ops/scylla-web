@@ -104,6 +104,12 @@ describe('ShellFrame', () => {
     expect(area).toHaveClass('pb-[max(0.5rem,var(--shell-bottom-inset))]');
   });
 
+  it('keeps the room of the scroll bar, so a page that grows does not move to the left', () => {
+    render(ShellFrameFixture);
+
+    expect(screen.getByText('page content').parentElement).toHaveClass('[scrollbar-gutter:stable]');
+  });
+
   it('keeps free below the pages the largest band that an overlay covers', () => {
     setShellConfig({
       entries: [],

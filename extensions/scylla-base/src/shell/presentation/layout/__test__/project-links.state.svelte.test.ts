@@ -177,6 +177,36 @@ describe('projectLinks', () => {
     ]);
   });
 
+  it('shows an empty group with one placeholder row: a new project there, or none without the right', async () => {
+    all = [project('p-1', 'cli')];
+    groups.list.mockResolvedValue([group('g-1', 'Empty')]);
+    const links = mount('projects');
+
+    await vi.waitFor(() => expect(links()).toHaveLength(2));
+    expect(links()[0]).toMatchObject({ placeholder: true, href: '', section: { key: 'g-1' } });
+
+    permissionsStore.setState({
+      permissions: {
+        scopes: [
+          {
+            scope: PermissionScope.WORKSPACE,
+            scopeId: 'org-1',
+            access: {
+              kind: 'restricted',
+              permissions: [Permission.LIST_PROJECTS_BY_WORKSPACE, Permission.CREATE_PROJECT],
+            },
+          },
+        ],
+      },
+    });
+    await vi.waitFor(() =>
+      expect(links()[0]).toMatchObject({
+        title: 'New project',
+        href: '/acme/projects/new?group=g-1',
+      }),
+    );
+  });
+
   it('gives no "+" to a person who cannot create a project', async () => {
     all = [project('p-1', 'web', 'g-1'), project('p-2', 'cli')];
     groups.list.mockResolvedValue([group('g-1', 'Deploys')]);

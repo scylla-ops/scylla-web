@@ -1,8 +1,11 @@
 <script lang="ts">
+  import { tick } from 'svelte';
   import ArrowUpDownIcon from '@lucide/svelte/icons/arrow-up-down';
+  import CheckIcon from '@lucide/svelte/icons/check';
   import MoveIcon from '@lucide/svelte/icons/move';
   import { GatedButton, SegmentedControl, type SegmentedOption } from '@scylla/ui';
   import {
+    Button,
     buttonVariants,
     DropdownMenu,
     DropdownMenuContent,
@@ -45,6 +48,15 @@
     /** « Reorder » shows: the person moves the projects, on a screen that is not a phone. */
     canReorder: boolean;
     onReorder: () => void;
+    /**
+     * The reorder mode: « Done » takes the place of « Reorder », « Cancel » the place of
+     * « Display », and the hint the place of the search and of the filter. Nothing moves.
+     */
+    reordering?: boolean;
+    /** « Done » saves the moves. */
+    busy?: boolean;
+    onCancel?: () => void;
+    onDone?: () => void;
     /** The density of the page, in the menu « Display ». */
     density: ProjectDensity;
     /** Some sections have their own density. */
@@ -65,6 +77,10 @@
     onOrder,
     canReorder,
     onReorder,
+    reordering = false,
+    busy = false,
+    onCancel,
+    onDone,
     density,
     mixedDensity,
     onDensity,
@@ -98,6 +114,28 @@
 
   const sortedBy = $derived(t(ORDER_LABELS[order].trigger));
   const pickOrder = (value: string) => onOrder(orderOfParam(value));
+
+  /**
+   * A layer of a place that two controls share: both stay in the page, so that the place keeps the
+   * size of the larger one, and they cross-fade. The layer that is off is `inert`: no pointer and
+   * no focus. No `visibility`: a button inherits it with its own transition, and takes no focus
+   * while it moves.
+   */
+  const layer = (on: boolean) =>
+    cn(
+      'transition-opacity motion-reduce:transition-none',
+      on ? 'duration-200 ease-out' : 'pointer-events-none opacity-0 duration-150 ease-in',
+    );
+
+  // The control under the focus turns off: the focus goes to the control that takes its place.
+  // Before the update: a browser drops the focus of a control that becomes inert.
+  let bar = $state<HTMLElement | null>(null);
+  $effect.pre(() => {
+    const off = reordering ? 'normal' : 'reorder';
+    const next = reordering ? 'project-reorder-done' : 'project-reorder';
+    if (!bar || !document.activeElement?.closest(`[data-layer="${off}"]`)) return;
+    void tick().then(() => bar?.querySelector<HTMLElement>(`[data-part="${next}"]`)?.focus());
+  });
 </script>
 
 {#snippet search()}
@@ -160,11 +198,35 @@
     </div>
   </div>
 {:else}
-  <div class="flex items-center gap-3" data-part="project-toolbar">
-    {@render search()}
-    {@render healthFilter()}
+  <div class="flex items-center gap-3" data-part="project-toolbar" bind:this={bar}>
+    <!-- The hint of the reorder mode takes the place of the search and of the filter, which do not
+         work in the mode. It takes their width, in two lines at most: the row keeps its height. -->
+    <div class="grid min-w-0 shrink grid-cols-1 *:col-start-1 *:row-start-1">
+      <div
+        class={cn('flex min-w-0 items-center gap-3', layer(!reordering))}
+        data-layer="normal"
+        inert={reordering}
+        aria-hidden={reordering || undefined}
+      >
+        {@render search()}
+        {@render healthFilter()}
+      </div>
+      <div
+        class={cn('flex w-0 min-w-full items-center gap-2', layer(reordering))}
+        data-layer="reorder"
+        inert={!reordering}
+        aria-hidden={!reordering || undefined}
+        data-part="project-reorder-hint"
+      >
+        <MoveIcon class="size-4 shrink-0 text-primary" aria-hidden="true" />
+        <p class="line-clamp-2 text-sm leading-4.5 font-medium text-muted-foreground">
+          {t(projectMessages.reorderHint)}
+        </p>
+      </div>
+    </div>
     <div class="flex-1"></div>
-    <Select type="single" value={order} onValueChange={pickOrder}>
+    <!-- The order stays in its place in the reorder mode, turned off: the mode needs the custom order. -->
+    <Select type="single" value={order} onValueChange={pickOrder} disabled={reordering}>
       <SelectTrigger class="w-[220px] shrink-0 bg-background" aria-label={t(projectMessages.sortLabel)}>
         <span class="truncate">{sortedBy}</span>
       </SelectTrigger>
@@ -182,19 +244,67 @@
         {/if}
       </SelectContent>
     </Select>
-    {@render display()}
     {#if canReorder}
-      <GatedButton
-        variant="outline"
-        allowed={!reorderBlocked}
-        deniedReason={reorderBlocked}
-        onclick={onReorder}
-        class="shrink-0"
-        data-part="project-reorder"
-      >
-        <MoveIcon aria-hidden="true" />
-        {t(projectMessages.reorder)}
-      </GatedButton>
+      <!-- « Cancel » in the place of « Display », « Done » in the place of « Reorder »: the button
+           under the pointer stays a button, and Escape also cancels. -->
+      <div class="grid shrink-0 justify-items-end *:col-start-1 *:row-start-1">
+        <div
+          class={layer(!reordering)}
+          data-layer="normal"
+          inert={reordering}
+          aria-hidden={reordering || undefined}
+        >
+          {@render display()}
+        </div>
+        <div
+          class={layer(reordering)}
+          data-layer="reorder"
+          inert={!reordering}
+          aria-hidden={!reordering || undefined}
+        >
+          <Button variant="ghost" disabled={busy} onclick={onCancel}>
+            {t(projectMessages.cancel)}
+          </Button>
+        </div>
+      </div>
+      <div class="grid shrink-0 *:col-start-1 *:row-start-1">
+        <div
+          class={cn('grid', layer(!reordering))}
+          data-layer="normal"
+          inert={reordering}
+          aria-hidden={reordering || undefined}
+        >
+          <GatedButton
+            variant="outline"
+            allowed={!reorderBlocked}
+            deniedReason={reorderBlocked}
+            onclick={onReorder}
+            class="shrink-0"
+            data-part="project-reorder"
+          >
+            <MoveIcon aria-hidden="true" />
+            {t(projectMessages.reorder)}
+          </GatedButton>
+        </div>
+        <div
+          class={cn('grid', layer(reordering))}
+          data-layer="reorder"
+          inert={!reordering}
+          aria-hidden={!reordering || undefined}
+        >
+          <Button
+            disabled={busy}
+            aria-busy={busy || undefined}
+            onclick={onDone}
+            data-part="project-reorder-done"
+          >
+            <CheckIcon aria-hidden="true" />
+            {t(projectMessages.done)}
+          </Button>
+        </div>
+      </div>
+    {:else}
+      {@render display()}
     {/if}
   </div>
 {/if}

@@ -1,7 +1,9 @@
-import { tick } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import { motionDuration } from '@scylla/ui';
-import { groupTargetAt } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
+import {
+  groupTargetAt,
+  type GroupCell,
+} from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
 import {
   centerOf,
   draggedBox,
@@ -14,7 +16,6 @@ import { boxOf, cellBox, inFlow, MOUSE_SLOP_PX, scrollerOf } from './card-drag.a
 
 const GRIP = '[data-part="group-grip"]';
 const CELL = '[data-group-cell]';
-const SLOT = '[data-part="group-drop-slot"]';
 const HEADER = '[data-part="project-section-header"]';
 
 interface Press {
@@ -23,11 +24,12 @@ interface Press {
   cell: HTMLElement;
 }
 
-/** The groups and the slot in the order of the page, without the dragged group. */
-const cellsOf = (root: HTMLElement, dragId: string) =>
-  [...root.querySelectorAll<HTMLElement>(`:scope > ${CELL}, :scope > ${SLOT}`)]
-    .filter(cell => inFlow(cell) && cell.dataset.groupCell !== dragId)
-    .map(cell => ({ id: cell.dataset.groupCell, box: cellBox(root, cell) }));
+/** The groups in the order of the page, where the column places them: a slide does not move them. */
+const cellsOf = (root: HTMLElement): GroupCell[] =>
+  [...root.querySelectorAll<HTMLElement>(`:scope > ${CELL}`)].filter(inFlow).map(cell => {
+    const box = cellBox(root, cell);
+    return { id: cell.dataset.groupCell ?? '', top: box.top, bottom: box.top + box.height };
+  });
 
 const nextGroupOf = (cell: HTMLElement): string | undefined => {
   let next = cell.nextElementSibling;
@@ -36,10 +38,11 @@ const nextGroupOf = (cell: HTMLElement): string | undefined => {
 };
 
 /**
- * The drag of a group by its handle, in the reorder mode, on the root of the sections. Each
- * section folds; the header of the group follows the pointer, and the slot goes to the group
- * nearest to the center of the header (`groupTargetAt`). A drop sends the header to the slot;
- * Escape sends it back. Near the top or the bottom of the scroller, the page scrolls.
+ * The drag of a group by its handle, in the reorder mode, on the root of the sections. The
+ * sections stay as they are: a copy of the header follows the pointer, and a line shows the place
+ * between the two groups nearest to the center of the copy (`groupTargetAt`). A drop moves the
+ * group there, and the groups slide to their new places; Escape and a drop at its own place send
+ * the copy back to the header. Near the top or the bottom of the scroller, the page scrolls.
  */
 export const dragGroups =
   (groups: GroupReorderState, nameOf: (id: string) => string): Attachment<HTMLElement> =>
@@ -55,10 +58,8 @@ export const dragGroups =
     const retarget = () => {
       const drag = groups.drag;
       if (!dragging || !drag) return;
-      const cells = cellsOf(root, drag.id);
-      const last = cells.at(-1)?.box;
-      const after = last ? { ...last, top: last.top + last.height } : null;
-      const target = groupTargetAt(cells, after, centerOf(draggedBox(pointer, drag.grab, drag.box)));
+      const { y } = centerOf(draggedBox(pointer, drag.grab, drag.box));
+      const target = groupTargetAt(cellsOf(root), drag.id, y);
       if (target) groups.hover(target);
     };
 
@@ -97,17 +98,20 @@ export const dragGroups =
       retarget();
     };
 
-    /** The header goes to the slot, then the drop or the way back ends the drag. */
+    /**
+     * A drop at a new place moves the group at once: it slides there under the copy, which fades.
+     * Else the copy goes back to the header first.
+     */
     const finish = async (drop: boolean) => {
+      const id = groups.drag?.id;
       dragging = false;
       ending = true;
       reset();
       if (!drop) groups.cancel();
-      await tick();
       const ms = motionDuration(SETTLE_MS);
-      const slot = [...root.querySelectorAll<HTMLElement>(`:scope > ${SLOT}`)].find(inFlow);
-      if (ms > 0 && slot) {
-        const box = cellBox(root, slot);
+      const header = root.querySelector<HTMLElement>(`${CELL}[data-group-cell="${id}"] ${HEADER}`);
+      if (ms > 0 && header && !groups.moved) {
+        const box = header.getBoundingClientRect();
         groups.settle({ x: box.left, y: box.top });
         await new Promise(resolve => (timer = setTimeout(resolve, ms)));
       }

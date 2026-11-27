@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { screen } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { expectNoLayoutShift } from '@test/layout.ts';
 import { render } from '@test/render.ts';
 // The fixture pins the id generic.
 import FormDialog from './FormDialog.fixture.svelte';
@@ -49,6 +50,14 @@ describe('FormDialog', () => {
 
     expect(onOpenChange).toHaveBeenCalledWith(false);
     expect(onSubmit).not.toHaveBeenCalled();
+  });
+
+  it('keeps Cancel still while the mutation runs: the submit keeps the width of its longer label', async () => {
+    const { rerender } = render(FormDialog, { ...base, open: true });
+    const within = await screen.findByRole('dialog');
+    const cancel = screen.getByRole('button', { name: 'Cancel' });
+
+    await expectNoLayoutShift(() => rerender({ isPending: true }), cancel, { within, align: 'end' });
   });
 
   it('shows the pending label and disables both buttons while the mutation runs', async () => {

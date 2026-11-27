@@ -47,9 +47,10 @@
   };
 </script>
 
+<!-- The two modes have the same height (two lines of text in the edit mode): the widgets stay still. -->
 <div data-slot="dashboard-mobile-bar" class="mb-3 md:hidden">
   {#if editing}
-    <div class="flex items-center gap-2">
+    <div class="flex h-9 items-center gap-2">
       <Button variant="ghost" size="sm" onclick={() => dashboardEditor.stop()}>{t(messages.cancel)}</Button>
       <div class="min-w-0 flex-1 text-center">
         <p class="text-sm font-medium">{t(messages.editDashboard)}</p>
@@ -66,7 +67,7 @@
       </Button>
     </div>
   {:else}
-    <div class="flex items-center gap-2">
+    <div class="flex h-9 items-center gap-2">
       <Select
         type="single"
         value={dashboard.id}

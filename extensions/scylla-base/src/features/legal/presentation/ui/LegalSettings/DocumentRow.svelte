@@ -1,7 +1,8 @@
 <script lang="ts">
   import FileTextIcon from '@lucide/svelte/icons/file-text';
-  import { fold, unfold } from '@scylla/ui';
+  import { StableLabel } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import {
     Button,
     Input,
@@ -142,23 +143,34 @@
           <div class="flex items-center justify-between gap-2">
             <Label for={`${id}-text`}>{t(messages.text)}</Label>
             <Button variant="ghost" size="sm" onclick={() => (previewing = !previewing)}>
-              {previewing ? t(messages.edit) : t(messages.preview)}
+              <StableLabel
+                text={previewing ? t(messages.edit) : t(messages.preview)}
+                reserve={[t(messages.edit), t(messages.preview)]}
+              />
             </Button>
           </div>
-          {#if previewing}
-            <div class="relative max-h-96 overflow-y-auto rounded-lg border border-border p-4">
-              <MarkdownView blocks={parseMarkdown(draft.markdown)} />
-            </div>
-          {:else}
+          <!--
+            The preview takes the box of the text, which stays below it: the parts under it do not
+            move when the user switches.
+          -->
+          <div class="relative">
             <TextArea
               id={`${id}-text`}
               rows={10}
-              class="font-mono text-xs md:text-xs"
+              class={cn('block font-mono text-xs md:text-xs', previewing && 'invisible')}
               value={draft.markdown}
               {disabled}
               oninput={event => set('markdown', event.currentTarget.value)}
             />
-          {/if}
+            {#if previewing}
+              <div
+                data-part="document-preview"
+                class="absolute inset-0 overflow-y-auto rounded-lg border border-border p-4"
+              >
+                <MarkdownView blocks={parseMarkdown(draft.markdown)} />
+              </div>
+            {/if}
+          </div>
           {#if kind === 'cookies' || kind === 'legal-notice'}
             <p class="text-xs text-muted-foreground">
               {kind === 'cookies' ? t(messages.cookiesHint) : t(messages.noticeHint)}
@@ -219,14 +231,13 @@
     </div>
   {/if}
 
-  {#if changed}
-    <div class="flex justify-end" in:unfold out:fold>
-      <Button
-        disabled={disabled || !valid || (draft.mode === 'url' && !draft.url.trim())}
-        onclick={() => onSave(toChange(kind, draft), () => (typed = null))}
-      >
-        {saveLabel}
-      </Button>
-    </div>
-  {/if}
+  <!-- Always in its place, disabled until a change: the first change pushes nothing down. -->
+  <div class="flex justify-end">
+    <Button
+      disabled={!changed || disabled || !valid || (draft.mode === 'url' && !draft.url.trim())}
+      onclick={() => onSave(toChange(kind, draft), () => (typed = null))}
+    >
+      {saveLabel}
+    </Button>
+  </div>
 </li>

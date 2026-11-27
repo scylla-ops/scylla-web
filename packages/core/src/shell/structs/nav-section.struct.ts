@@ -18,6 +18,8 @@ export interface NavItem {
   heading?: string;
   /** The folding section of a link of a module, e.g. a group of projects. */
   section?: SecondSidebarSection;
+  /** The call to action of an empty section: a muted row, no page, not counted. */
+  placeholder?: boolean;
   /** A small live mark at the end of the row of a link of a module. */
   status?: SecondSidebarStatus;
 }

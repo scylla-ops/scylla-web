@@ -27,8 +27,6 @@
     dropText?: string;
     /** The small actions before the menu, e.g. a new project in this group. */
     actions?: Snippet;
-    /** The handle of a group in the reorder mode, before the chevron. */
-    grip?: Snippet;
     menu?: Snippet;
     onToggle: () => void;
   }
@@ -43,7 +41,6 @@
     counts,
     dropText,
     actions,
-    grip,
     menu,
     onToggle,
   }: Props = $props();
@@ -52,15 +49,16 @@
   const Chevron = $derived(open ? ChevronDownIcon : ChevronRightIcon);
 </script>
 
+<!-- A dragged card over the header: a frame around it, out of the flow, so that no line moves. -->
 <div
   class={cn(
-    'group/header flex min-h-8 items-center gap-3 rounded-lg transition-[background-color,padding] duration-150 motion-reduce:transition-none',
-    dropText && 'border-[1.5px] border-primary bg-primary/8 py-1 pr-3 pl-2',
+    'group/header relative flex min-h-8 items-center gap-3 rounded-lg',
+    "before:pointer-events-none before:absolute before:-inset-x-2 before:-inset-y-1 before:rounded-lg before:border-[1.5px] before:border-primary before:bg-primary/8 before:opacity-0 before:transition-opacity before:duration-150 before:content-[''] motion-reduce:before:transition-none",
+    dropText && 'before:opacity-100',
   )}
   data-part="project-section-header"
   role="group"
 >
-  {@render grip?.()}
   <!-- The whole row opens and closes the section; the menu and the folder control do not. -->
   <div class="relative flex min-w-0 flex-1 items-center">
     <button

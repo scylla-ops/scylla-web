@@ -46,7 +46,7 @@ export const railFor = (sections: readonly NavSection[]): Rail => ({
 /** The page of the URL: the longest match, because a parent URL is a prefix of its children. */
 export const activePageOf = (pages: readonly NavItem[], pathname: string): NavItem | undefined =>
   pages
-    .filter(page => isNavItemActive(page, pathname))
+    .filter(page => !page.placeholder && isNavItemActive(page, pathname))
     .reduce<
       NavItem | undefined
     >((best, page) => (!best || page.href.length > best.href.length ? page : best), undefined);
@@ -116,7 +116,7 @@ export const withModuleLinks = (
         ...content,
         pages: [
           ...content.pages,
-          ...links.map(({ title, href, icon, entityIcon, apart, section, status }, index) => ({
+          ...links.map(({ title, href, icon, entityIcon, apart, section, placeholder, status }, index) => ({
             title,
             href,
             url: href,
@@ -124,6 +124,7 @@ export const withModuleLinks = (
             entityIcon,
             apart: apart ?? index === 0,
             section,
+            placeholder,
             status,
           })),
         ],

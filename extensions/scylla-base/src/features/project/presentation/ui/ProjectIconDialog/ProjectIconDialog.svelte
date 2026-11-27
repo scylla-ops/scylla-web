@@ -22,6 +22,7 @@
   {onOpenChange}
   title={t(projectMessages.iconTitle)}
   description={t(projectMessages.iconDescription)}
+  stable={37}
   class="sm:max-w-lg"
 >
   <ProjectIconForm {project} {subtitle} close={() => onOpenChange(false)} />

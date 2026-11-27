@@ -42,6 +42,8 @@
     /** Offers the tab of the glyph avatars: for a person or an App only. */
     avatar?: boolean;
     class?: string;
+    /** Classes of the body of each tab, e.g. a fixed height with a scroll, so no tab resizes it. */
+    bodyClass?: string;
   }
 
   let {
@@ -55,6 +57,7 @@
     header = true,
     avatar = false,
     class: className,
+    bodyClass,
   }: Props = $props();
 
   // svelte-ignore state_referenced_locally
@@ -145,7 +148,7 @@
       {/if}
     </TabsList>
 
-    <TabsContent value="icon">
+    <TabsContent value="icon" class={bodyClass}>
       <!-- A change of tab fades the new content in. -->
       <div class="flex flex-col gap-4" in:fade={{ duration: motionDuration(150) }}>
         <div class="relative">
@@ -221,14 +224,14 @@
       </div>
     </TabsContent>
 
-    <TabsContent value="image">
+    <TabsContent value="image" class={bodyClass}>
       <div in:fade={{ duration: motionDuration(150) }}>
         <IconImageDrop onfile={chooseImage} />
       </div>
     </TabsContent>
 
     {#if avatar}
-      <TabsContent value="avatar">
+      <TabsContent value="avatar" class={bodyClass}>
         <!-- The preview of the picker shows the avatar: the editor has no preview of its own. -->
         <div in:fade={{ duration: motionDuration(150) }}>
           <GlyphAvatarEditor

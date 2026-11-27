@@ -56,13 +56,17 @@ const zonesOf = (root: HTMLElement, dragId: string): SectionZone[] =>
     const headerElement = section.querySelector<HTMLElement>(HEADER);
     const header = headerElement ? boxOf(headerElement.getBoundingClientRect()) : undefined;
     const whole = section.getBoundingClientRect();
+    const grid = section.querySelector<HTMLElement>(GRID);
+    // A closed section has no grid: its line of chips takes a drop as its header.
+    if (!grid) {
+      const height = header ? Math.max(header.height, whole.bottom - header.top) : 0;
+      return { key, header: header && { ...header, height }, cells: [] };
+    }
     const top = header ? header.top + header.height : whole.top;
     const body =
       whole.bottom > top
         ? { left: whole.left, top, width: whole.width, height: whole.bottom - top }
         : undefined;
-    const grid = section.querySelector<HTMLElement>(GRID);
-    if (!grid) return { key, header, body, cells: [] };
     const cells = [...grid.querySelectorAll<HTMLElement>(`:scope > ${CARD}, :scope > ${SLOT}`)]
       .filter(cell => inFlow(cell) && (!cell.dataset.card || cell.dataset.card !== dragId))
       .map(cell => ({ id: cell.dataset.card, box: cellBox(grid, cell) }));

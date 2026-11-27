@@ -216,7 +216,11 @@
     </div>
   {:else if dashboard}
     <div bind:this={gridArea} bind:clientWidth={gridWidth}>
-    <WidgetGrid aria-label={dashboard.name} class={cn(editing && 'pt-3')}>
+    <!--
+      The room of the handles of the edit mode, above the first row, is kept in the two modes: the
+      widgets do not move down when the edit mode starts.
+    -->
+    <WidgetGrid aria-label={dashboard.name} class="pt-3">
       {#if editing}
         {#each shown as item (item.id)}
           <div

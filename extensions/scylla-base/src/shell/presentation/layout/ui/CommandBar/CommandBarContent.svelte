@@ -74,6 +74,7 @@
   let highlighted = $state('');
   let confirming = $state<CommandRow | null>(null);
   let input = $state<HTMLInputElement | null>(null);
+  let chipRow = $state<HTMLDivElement | null>(null);
 
   const recent = readRecent(context().workspace.id);
   const recentRows = buildRecentRows(readRecentRows(context().workspace.id));
@@ -120,6 +121,17 @@
 
   $effect(() => {
     if (!confirming) input?.focus();
+  });
+
+  // The active chip comes into view inside the row only: the dialog never scrolls.
+  $effect(() => {
+    void filter;
+    const pressed = chipRow?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (!chipRow || !pressed) return;
+    const left = pressed.offsetLeft - chipRow.offsetLeft;
+    const over = left + pressed.offsetWidth + 24 - (chipRow.scrollLeft + chipRow.clientWidth);
+    if (left - 24 < chipRow.scrollLeft) chipRow.scrollLeft = Math.max(0, left - 24);
+    else if (over > 0) chipRow.scrollLeft += over;
   });
 
   const setFilter = (next: CommandFilter | null) => {
@@ -247,6 +259,7 @@
     shouldFilter={false}
     vimBindings={false}
     loop
+    class="min-w-0"
     label={t(layoutMessages.search)}
   >
     <div class="flex items-center gap-2 border-b border-border px-3">
@@ -261,7 +274,11 @@
       />
     </div>
 
-    <div class="relative flex items-center gap-1 overflow-x-auto border-b border-border px-2 py-1.5">
+    <!-- The row scrolls in its own box and fades at the edges: it never widens the dialog. -->
+    <div
+      bind:this={chipRow}
+      class="relative flex min-w-0 items-center gap-1 overflow-x-auto border-b border-border px-3 py-1.5 [mask-image:linear-gradient(to_right,transparent,black_0.75rem,black_calc(100%-0.75rem),transparent)] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+    >
       <!-- A chip comes when its list loads: it grows in, and the others make room. -->
       {#each chips as { filter: value, title } (value ?? 'all')}
         <button

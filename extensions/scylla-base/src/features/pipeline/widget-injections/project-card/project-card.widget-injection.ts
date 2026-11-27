@@ -19,4 +19,8 @@ export const ProjectCardPipelinesWidgetInjection = [
     component: () =>
       import('@base/features/pipeline/presentation/ui/ProjectCardPipelines/ProjectCardFooter.svelte'),
   }),
+  projectPoints.cardPrefetch.inject({
+    component: () =>
+      import('@base/features/pipeline/presentation/ui/ProjectCardPipelines/ProjectCardPrefetch.svelte'),
+  }),
 ];
