@@ -192,6 +192,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   pins shows that it is already pinned.
 - A form no longer keeps an empty line under each field. An error line now slides in under its field
   and slides out when the error goes, and the fields below move with it.
+- The icon field of each create and edit form (project, workspace, agent, app) is centered: a large
+  preview, then "Change the icon" and Reset under it. "Change the icon" opens the icon editor on a
+  second screen that slides in, with a Back button and the chosen icon next to its title. In a
+  dialog, the dialog keeps its size and Escape goes back first. The colors of the icon picker are
+  centered, and the drop zone of the Image tab fills the tab.
 
 ## [0.7.2] - 2026-11-25
 

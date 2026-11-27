@@ -108,6 +108,9 @@ describe('EditWorkspaceDialog', () => {
     expect(within(field).getByRole('button', { name: 'Reset' })).toBeEnabled();
     await user.click(within(field).getByRole('button', { name: 'Change the icon' }));
     await user.click(screen.getByRole('button', { name: 'Color 2' }));
+    // The editor is a second screen of the dialog: Back gives the form and Save again.
+    const editor = screen.getByRole('region', { name: 'Icon' });
+    await user.click(within(editor).getByRole('button', { name: 'Back' }));
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     await waitFor(() =>

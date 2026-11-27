@@ -51,5 +51,8 @@
     <Specimen label="48 (page header, dialog)">
       <EntityIcon icon={ROCKET} color="chart-2" size={48} />
     </Specimen>
+    <Specimen label="72 (centered preview of a form)">
+      <EntityIcon icon={ROCKET} color="chart-2" size={72} />
+    </Specimen>
   </div>
 </Story>

@@ -61,6 +61,9 @@ const install = (saved: ProjectEntity = project()) => {
 };
 
 const iconField = () => screen.getByRole('group', { name: 'Icon' });
+/** Back of the editor of the icon, a second screen of the dialog. */
+const back = () =>
+  within(screen.getByRole('region', { name: 'Icon' })).getByRole('button', { name: 'Back' });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -153,6 +156,8 @@ describe('EditProjectDialog', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Color 2' }));
     await userEvent.click(screen.getByRole('tab', { name: 'Image' }));
     expect(update).not.toHaveBeenCalled();
+    // The editor is a second screen of the dialog: Back gives the form and Save again.
+    await userEvent.click(back());
 
     await userEvent.click(screen.getByRole('button', { name: 'Save' }));
 
@@ -208,6 +213,7 @@ describe('EditProjectDialog', () => {
 
     await userEvent.click(within(iconField()).getByRole('button', { name: 'Change the icon' }));
     await userEvent.click(screen.getByRole('button', { name: 'rocket' }));
+    await userEvent.click(back());
     expect(within(iconField()).getByRole('button', { name: 'Reset' })).toBeEnabled();
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(setOpen).toHaveBeenCalledWith(false);

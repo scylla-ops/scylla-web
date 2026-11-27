@@ -14,6 +14,7 @@ export * from './motion/morph-height.attachments.ts';
 export * from './motion/page-transition.ts';
 export * from './motion/reduced-motion.ts';
 export * from './motion/reflow.ts';
+export * from './motion/screen-slide.ts';
 export * from './motion/spring.ts';
 export * from './motion/swap.ts';
 export * from './widget';
