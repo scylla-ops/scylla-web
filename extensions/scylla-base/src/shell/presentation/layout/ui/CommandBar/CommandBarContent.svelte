@@ -100,8 +100,6 @@
     }),
   );
 
-  const chips = $derived(commandChips(rows, search.available));
-
   const order = $derived({
     openProject: project.id,
     recent,
@@ -109,6 +107,14 @@
     searching: search.searching,
     here: pipelineId ? ('pipeline' as const) : ('project' as const),
   });
+  const chips = $derived(
+    commandChips(rows, search.available, {
+      search: parsed.search,
+      active: filter,
+      order,
+      searching: search.searching,
+    }),
+  );
   const failed = $derived([...new Set([...sources.failed, ...search.failed])]);
 
   const results = $derived(commandResults(rows, parsed.search, filter, order));

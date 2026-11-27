@@ -20,6 +20,7 @@
   title={t(workspaceMessages.createTitle)}
   description={t(workspaceMessages.createDescription)}
   dismissible={!hideCancel}
+  screens
 >
   <AddWorkspaceForm close={() => setOpen(false)} {hideCancel} />
 </ScyllaDialog>

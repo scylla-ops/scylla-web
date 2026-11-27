@@ -11,40 +11,26 @@ import {
 import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
 import type { CommandGroupId, CommandRow } from './command-rows.presenter.ts';
 
+/**
+ * The five families of the chips. Each family holds some kinds of rows, and the results keep
+ * their kinds apart with a header each.
+ */
 export type CommandFilter =
   | 'pages'
   | 'actions'
   | 'projects'
-  | 'groups'
-  | 'pipelines'
-  | 'dashboards'
-  | 'machines'
-  | 'people'
-  | 'secrets'
-  | 'workspaces'
-  | 'jobs'
-  | 'triggers'
-  | 'users'
-  | 'packages'
+  | 'library'
+  | 'team'
   /** `#`: the projects, the pipelines and the jobs together. No chip has this name. */
   | 'work';
 
 const FILTER_GROUPS: Record<CommandFilter, readonly CommandGroupId[]> = {
-  pages: ['pages'],
-  actions: ['preferences', 'actions'],
-  projects: ['projects'],
-  groups: ['groups'],
+  pages: ['pages', 'dashboards', 'preferences', 'workspaces'],
+  actions: ['actions'],
+  projects: ['projects', 'groups', 'pipelines', 'jobs', 'triggers'],
   /** The fragments of the library are parts of pipelines. */
-  pipelines: ['pipelines', 'fragments'],
-  dashboards: ['dashboards'],
-  machines: ['machines'],
-  people: ['people', 'roles'],
-  secrets: ['secrets'],
-  workspaces: ['workspaces'],
-  jobs: ['jobs'],
-  triggers: ['triggers'],
-  users: ['users'],
-  packages: ['packages'],
+  library: ['fragments', 'packages'],
+  team: ['people', 'users', 'roles', 'machines', 'secrets'],
   work: ['projects', 'pipelines', 'jobs'],
 };
 
@@ -54,22 +40,22 @@ export const filterGroups = (filter: CommandFilter): readonly CommandGroupId[] =
 
 const GROUP_FILTER: Record<CommandGroupId, CommandFilter> = {
   pages: 'pages',
-  preferences: 'actions',
+  preferences: 'pages',
+  dashboards: 'pages',
+  workspaces: 'pages',
   actions: 'actions',
   projects: 'projects',
-  groups: 'groups',
-  pipelines: 'pipelines',
-  fragments: 'pipelines',
-  dashboards: 'dashboards',
-  machines: 'machines',
-  people: 'people',
-  roles: 'people',
-  secrets: 'secrets',
-  workspaces: 'workspaces',
-  jobs: 'jobs',
-  triggers: 'triggers',
-  users: 'users',
-  packages: 'packages',
+  groups: 'projects',
+  pipelines: 'projects',
+  jobs: 'projects',
+  triggers: 'projects',
+  fragments: 'library',
+  packages: 'library',
+  machines: 'team',
+  people: 'team',
+  roles: 'team',
+  secrets: 'team',
+  users: 'team',
 };
 
 /**
@@ -120,7 +106,7 @@ const PREFIXES: Readonly<Record<string, CommandFilter>> = {
   '>': 'actions',
   '/': 'pages',
   '#': 'work',
-  '@': 'people',
+  '@': 'team',
 };
 
 const RUN_WORDS = prepareFuzzyText('run start launch execute lancer executer demarrer');
@@ -149,39 +135,55 @@ export interface CommandChip {
   title: string;
 }
 
+/** The chips, in order. */
+const FAMILIES: readonly { filter: CommandFilter; title: MessageDescriptor }[] = [
+  { filter: 'pages', title: messages.groupPages },
+  { filter: 'actions', title: messages.groupActions },
+  { filter: 'projects', title: messages.groupProjects },
+  { filter: 'library', title: messages.chipLibrary },
+  { filter: 'team', title: messages.chipTeam },
+];
+
+export interface ChipSearch {
+  /** The text of the search, with no filter prefix. */
+  search: string;
+  /** The filter in use: its chip stays, also with no result. */
+  active: CommandFilter | null;
+  order: ResultOrder;
+  /** The kinds that wait for the server: their family stays until the answer. */
+  searching?: readonly CommandGroupId[];
+}
+
 /**
  * A chip shows only when it has rows, or when the reader can search its kind on the server
- * (`available`): those rows come only with a text.
+ * (`available`): those rows come only with a text. With a text, a family with no result hides,
+ * except the family in use and a family that waits for the server.
  */
 export const commandChips = (
   rows: readonly CommandRow[],
   available: readonly CommandGroupId[] = [],
+  typed?: ChipSearch,
 ): CommandChip[] => {
   const present = new Set([...rows.filter(row => !row.gate).map(row => row.group), ...available]);
-  const chip = (filter: CommandFilter, title: MessageDescriptor): CommandChip[] =>
-    FILTER_GROUPS[filter].some(group => present.has(group)) ? [{ filter, title: t(title) }] : [];
+  const found = (filter: CommandFilter): boolean => {
+    if (!typed?.search.trim()) return true;
+    if (chipPressed(filter, typed.active)) return true;
+    if (typed.searching?.some(group => FILTER_GROUPS[filter].includes(group))) return true;
+    return searchCommandRows(rows, typed.search, filter, typed.order).total > 0;
+  };
   return [
     { filter: null, title: t(messages.chipAll) },
-    ...chip('pages', messages.groupPages),
-    ...chip('actions', messages.groupActions),
-    ...chip('projects', messages.groupProjects),
-    ...chip('groups', messages.groupGroups),
-    ...chip('pipelines', messages.groupPipelines),
-    ...chip('jobs', messages.groupJobs),
-    ...chip('triggers', messages.groupTriggers),
-    ...chip('dashboards', messages.groupDashboards),
-    ...chip('machines', messages.groupMachines),
-    ...chip('people', messages.groupPeople),
-    ...chip('users', messages.groupUsers),
-    ...chip('secrets', messages.groupSecrets),
-    ...chip('packages', messages.groupPackages),
-    ...chip('workspaces', messages.groupWorkspaces),
+    ...FAMILIES.flatMap(({ filter, title }): CommandChip[] =>
+      FILTER_GROUPS[filter].some(group => present.has(group)) && found(filter)
+        ? [{ filter, title: t(title) }]
+        : [],
+    ),
   ];
 };
 
 export const chipPressed = (chip: CommandFilter | null, active: CommandFilter | null): boolean =>
   active === 'work'
-    ? chip === 'projects' || chip === 'pipelines' || chip === 'jobs'
+    ? chip === 'projects'
     : chip === active;
 
 export interface ResultRow {

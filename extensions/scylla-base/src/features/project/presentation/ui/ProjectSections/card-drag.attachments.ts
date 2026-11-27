@@ -1,8 +1,12 @@
 import { tick } from 'svelte';
 import type { Attachment } from 'svelte/attachments';
 import { motionDuration } from '@scylla/ui';
+import { t } from '@scylla/ui/i18n';
+import { toast } from '@scylla/ui/utils';
+import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
 import {
   cardTargetAt,
+  PINS,
   type SectionZone,
 } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
 import {
@@ -135,8 +139,16 @@ export const dragCards =
       const drag = reorder.drag;
       if (!dragging || !drag) return;
       const center = centerOf(draggedBox(pointer, reorder.grab, reorder.box));
-      const target = cardTargetAt(zonesOf(root, drag.id), center, pointer, reorder.accepts);
-      if (target) reorder.hover(target.to, target.beforeId, target.header);
+      const zones = zonesOf(root, drag.id);
+      const target = cardTargetAt(zones, center, pointer, reorder.accepts);
+      if (target) {
+        reorder.refuse(null);
+        reorder.hover(target.to, target.beforeId, target.header);
+      } else {
+        // Over the pins with a card that they have: the slot stays at the place of the card.
+        const over = cardTargetAt(zones, center, pointer, key => key === PINS);
+        reorder.refuse(over && !reorder.accepts(PINS) ? PINS : null);
+      }
       // The slot shows in its section after the update.
       void tick().then(reshape);
     };
@@ -186,6 +198,8 @@ export const dragCards =
     const finish = async (drop: boolean) => {
       dragging = false;
       ending = true;
+      const refused = drop && reorder.refused ? reorder.drag?.name : undefined;
+      if (refused) toast.info(t(projectMessages.alreadyPinnedDrop(refused)));
       reset();
       if (!drop) reorder.cancel();
       await tick();

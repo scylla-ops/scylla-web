@@ -21,6 +21,7 @@
   title={t(projectMessages.editTitle)}
   description={t(projectMessages.editDescription)}
   class="sm:max-w-lg"
+  screens
 >
   <EditProjectForm {project} close={() => setOpen(false)} />
 </ScyllaDialog>

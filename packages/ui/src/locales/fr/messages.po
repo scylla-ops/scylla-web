@@ -57,6 +57,10 @@ msgstr "Demandez l'accès à un admin."
 msgid "Avatar"
 msgstr "Avatar"
 
+#: packages/ui/src/layout/ScreenStack/screen-stack.messages.ts:4
+msgid "Back"
+msgstr "Retour"
+
 #: packages/ui/src/controls/GlyphAvatar/glyph-avatar.messages.ts:8
 msgid "Background"
 msgstr "Fond"

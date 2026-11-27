@@ -165,8 +165,9 @@
           />
         </div>
 
-        <!-- Four rows: the dialog keeps its height while the search filters the glyphs. -->
-        <div class="relative h-[188px] overflow-y-auto">
+        <!-- Four rows: the dialog keeps its height while the search filters the glyphs. `-m-1 p-1`:
+             the ring of the selected glyph at an edge is not clipped, and the rows keep 188 px. -->
+        <div class="relative -m-1 h-[196px] overflow-y-auto p-1">
           {#if glyphs.length === 0}
             <p class="text-muted-foreground flex h-11 items-center justify-center text-sm">
               {t(m.noGlyph)}
@@ -201,9 +202,11 @@
           {/if}
         </div>
 
-        <div class="flex flex-col gap-2">
+        <!-- Centered under the grid, as the rest of the picker. -->
+        <div class="flex flex-col items-center gap-2">
           <span id={colorLabel} class="text-muted-foreground text-xs font-medium">{t(m.color)}</span>
           <ColorSwatches
+            class="justify-center"
             labelledby={colorLabel}
             value={selectedColor}
             onchange={chooseColor}
@@ -224,8 +227,9 @@
       </div>
     </TabsContent>
 
-    <TabsContent value="image" class={cn('flex-1', bodyClass)}>
-      <div class="flex h-full flex-col" in:fade={{ duration: motionDuration(150) }}>
+    <!-- A column down to the zone: `h-full` does not resolve in a flex item with no set height. -->
+    <TabsContent value="image" class={cn('flex flex-1 flex-col', bodyClass)}>
+      <div class="flex min-h-0 flex-1 flex-col" in:fade={{ duration: motionDuration(150) }}>
         <IconImageDrop onfile={chooseImage} />
       </div>
     </TabsContent>

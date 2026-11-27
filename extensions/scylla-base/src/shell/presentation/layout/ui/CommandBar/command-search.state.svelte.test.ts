@@ -101,15 +101,16 @@ describe('searchTextFor', () => {
   it('searches with 2 letters or more, in the kinds of the tab', () => {
     expect(searchTextFor('jobs', 'de', null)).toBe('de');
     expect(searchTextFor('jobs', 'd', null)).toBeNull();
-    expect(searchTextFor('triggers', 'deploy', 'jobs')).toBeNull();
+    expect(searchTextFor('triggers', 'deploy', 'team')).toBe('deploy');
+    expect(searchTextFor('triggers', '', 'team')).toBeNull();
     expect(searchTextFor('jobs', 'deploy', 'work')).toBe('deploy');
   });
 
   it('lists the newest rows of a tab with no text, and finds a job number after #', () => {
-    expect(searchTextFor('secrets', '', 'secrets')).toBe('');
+    expect(searchTextFor('secrets', '', 'team')).toBe('');
     expect(searchTextFor('secrets', '', null)).toBeNull();
     expect(searchTextFor('jobs', '7', 'work')).toBe('7');
-    expect(searchTextFor('users', '7', 'users')).toBeNull();
+    expect(searchTextFor('users', '7', 'team')).toBeNull();
   });
 });
 
@@ -192,7 +193,7 @@ describe('createCommandSearch', () => {
     ]);
     start();
 
-    await type('', SEARCH_PAUSE_MS, 'secrets');
+    await type('', SEARCH_PAUSE_MS, 'team');
 
     expect(texts(searchSecrets)).toEqual(['']);
     expect(searchJobs).not.toHaveBeenCalled();

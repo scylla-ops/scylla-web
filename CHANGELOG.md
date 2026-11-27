@@ -39,6 +39,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   admin of the workspace can set the icon of an agent on the agent page, with the icon picker of the
   projects: a glyph with a theme color or a free color, or an image. The icon shows in the list of
   the agents, on the agent page, on its jobs and in the member lists.
+- A new account that signs up with GitHub or an OIDC provider gets the photo of the provider as its
+  profile photo. If the download fails, the account keeps the initials. In Account > Profile, "Use
+  my <provider> photo" makes the photo of a linked account the profile photo again, after a
+  confirmation when a photo is set.
 - The projects page has groups, pins and a custom order. A member that can edit the projects creates
   a group with "New group", and opens, closes, renames, moves or deletes each group section, which
   shows its count and its health. Each person pins projects in a "Pinned" zone at the top. The menu
@@ -47,7 +51,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   drag the cards to a group, to a place or to the pins: Done saves the order, Cancel or Escape
   reverts it. On a phone, the page has no Reorder, no New group and no Select all.
 - The What's new dialog now moves to the next version by itself, with a progress bar and a slow
-  scroll. Any input pauses it.
+  scroll, and loops until you close it. Any input pauses it, and it starts again 1.8 seconds after
+  the last input.
 - Each workspace can have its own icon, with the icon picker of the projects: a glyph with a theme
   color or a free color, or an uploaded image. A new workspace shows a building on a grey tile. The
   icon is in the forms that create or edit a workspace, in the workspace switcher and its list, and
@@ -59,14 +64,15 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   group, in folding sections that the page and the sidebar share. A dot shows on a project with a
   job that runs.
 - In the reorder mode of the projects page, you can also move the groups: drag the handle of a group
-  header, or use the keyboard (Space lifts the group, the arrow keys move it, Space drops it and
-  Escape cancels). On a phone, "Move up" and "Move down" in the group menu move the group. "Done"
-  saves the order of the groups and "Cancel" forgets it. Each section of the projects page can have
-  its own display: comfortable cards, compact cards, a list or tiles. "Display" in the toolbar sets
-  the display of the page, and "Apply to all sections" gives it to each section. The menu of each
-  section, also of Pinned and No group, sets the display of that section. Each person keeps the
-  choice for each workspace. On a touch screen, the "+" and "..." buttons of a section header are
-  larger.
+  header (the sections stay open, and a line shows the new place), or use the keyboard (Space lifts
+  the group, the arrow keys move it, Space drops it and Escape cancels). On a phone, "Move up" and
+  "Move down" in the group menu move the group. "Done" saves the order of the groups and "Cancel"
+  forgets it. Each section of the projects page can have its own display: comfortable cards, compact
+  cards, a list or tiles, and a denser display shows more items before "Show more". "Display" in the
+  toolbar sets the display of the page, and "Apply to all sections" gives it to each section. The
+  menu of each section, also of Pinned and No group, sets the display of that section. Each person
+  keeps the choice for each workspace. On a touch screen, the "+" and "..." buttons of a section
+  header are larger.
 - Glyph avatars (DiceBear "Glyphs", CC BY 4.0). An editor with a large preview gives the 35 shapes
   and the Scylla head, the colors of the figure and of the background (solid, linear or radial), and
   mirror, rotation and size. A person opens it from the profile photo card, the account menu or the
@@ -76,9 +82,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 ### Changed
 
 - What's new shows one tab for each version, an icon tile for each item, and new, clearer texts. It
-  opens again one time for each user, and announces the new Projects page, the project icons, the
-  profile photo and the agent icons. The Projects link of the sidebar shows a "New" badge until you
-  open it.
+  opens again one time for each user. The 0.7.3 tab announces the new Projects page, the icons and
+  avatars of projects, workspaces, people, agents and apps, the search bar that finds more, and the
+  smoother interface. The Projects link of the sidebar shows a "New" badge until you open it.
+- The search bar shows five filters (Pages, Actions, Projects, Library, Team and infra). A filter
+  with no result hides while you type.
 
 ### Fixed
 
@@ -99,8 +107,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - Job page: the agent of the job shows with its own icon in the header and in Details, in place of a
   generic server icon. An agent with no icon shows the default agent icon. The agent icon card and
   its dialog now name the same places: the list of the agents, the agent page and the jobs.
-- A project URL with an unknown project id now shows the "Page not found" page and no longer sends
-  the user to the dashboard. The not-found page no longer shows an empty second sidebar.
+- A project URL with an unknown project id, or an id with a wrong form, now shows the "Page not
+  found" page with no project sidebar, no crumb and no error toast, and no longer sends the user to
+  the dashboard.
 - Each form that creates or edits a project or an app has an icon field: Edit of a project, a new
   regular project, a new project from GitHub, a new agent and a new app (API token, CI identity or
   key pair). The field shows the icon, opens the icon picker (a glyph with a theme color or a free
@@ -108,13 +117,14 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the change. If the item is created but its icon is not saved, an error message tells it. The page
   of each app shows its icon and has the icon card, and the app list shows the icon of each app.
   "Change the icon..." on the project card and the icon of the project header stay as shortcuts.
-- In the reorder mode of the projects page, the drop slot now follows the dragged card. The slot
-  moves when the card covers half of a neighbor card, at any point where you hold the card, also on
-  more than one row and between the cards. The other cards slide to their new places, the card goes
-  into its slot when you release it, and Escape sends it back. The bar, the drop slot, the pins and
-  the drop zones open and close with a short animation, and with reduced motion each change is
-  instant. When the mode opens or closes, the page no longer shows a skeleton or the old order for a
-  moment.
+- In the reorder mode of the projects page, the drop slot now follows the dragged card: it goes to
+  the place nearest to the center of the card, wherever you hold it, also on more than one row and
+  between the cards. The other cards slide to their new places, the card goes into its slot when you
+  release it, and Escape sends it back. The page does not move when the mode starts or stops, and
+  shows no skeleton or old order: "Done" and "Cancel" take the place of "Reorder" and "Display", and
+  the other controls stay in their place, disabled. With no pin, the drop zone of the pins shows
+  over the toolbar only during the drag of a card. The controls cross-fade, and the drop slot and
+  the drop zones fade in and out. With reduced motion, each change is instant.
 - Dialogs, alert dialogs, side sheets, tabs, field messages, table rows, cards, badges, banners,
   empty states, folding sections and the selection actions of a list header now have a short motion
   when they appear, go away or change: a fade with a small rise, a fold in height, or a roll for a
@@ -122,8 +132,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   opens shows no motion of its parts. With the reduced motion setting of the system, each change is
   instant.
 - In the dark theme, the rail and the second sidebar are now lighter than the page.
-- The corner logo is larger. A missing project or an id with a wrong form shows the not-found page
-  with no sidebar, no crumb and no error toast.
+- The corner logo is larger.
 - The profile initials take a free color, as the icons of the projects and the agents: the theme
   colors, or a color picker with a hex field. The initials stay readable on each color, in the light
   and the dark theme. The photo or the initials color of a person now shows in each place: the rail
@@ -135,13 +144,23 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   card to create a project in this group, and the project forms have a Group field. The sidebar and
   the search bar also open a new project in a group. A folded group shows one line with its first
   projects and "+N".
+- Each empty list now has its add action, for a person who can add: the pipelines of a project (New
+  pipeline), the jobs of a pipeline (Run), the triggers, the secrets, the members of a workspace or
+  of a project (Add members), the personal tokens, the agents and the apps. An empty Capacity widget
+  adds an agent, and an empty Pipelines widget adds a pipeline in its project, or a project. The
+  list of the dashboards has a "+" on its title. The search bar has "Add members" and "Add members
+  to this project".
 - The search bar (Ctrl K) now finds the project groups, the dashboards and the fragments of the
-  library. A group row shows the folder color of the group and its number of projects, and opens the
+  library. It also asks the server for the jobs (by their number "#...", branch, pipeline or
+  project), the triggers, the secrets of each project (names only), the users of the instance (for
+  an instance admin) and the packages of the marketplace: 200 ms after the last key, from 2
+  characters, with a small "Searching..." line. Each kind shows only to a person who can open its
+  pages. A group row shows the folder color of the group and its number of projects, and opens the
   projects page on this group: the group opens, comes into view and its header flashes once. A
   dashboard row tells if the dashboard is personal or shared, and names the person that shares it. A
-  project row shows the icon of the project and its group, with the folder color. The tabs "Groups"
-  and "Dashboards" come after "Projects" and "Pipelines", and the fragments show in "Pipelines". The
-  recent list keeps these rows too. The rows fade in, and a new tab grows in.
+  project row shows the icon of the project and its group, with the folder color. A failed job has
+  "Rerun...", a trigger has "Disable..." or "Enable", and a secret has "Copy" for its name, never
+  its value. The recent list keeps these rows too. The rows fade in.
 - Workspace switcher of an instance admin: your workspaces show first, then the 5 workspaces of
   other users with the last activity, each with its icon and its owner, and the entry "All
   workspaces…". The search also finds a workspace by the name, handle or email of its owner. A new
@@ -177,17 +196,19 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   that grows does not move to the left.
 - An empty group now shows in the second sidebar and the phone menu with a "New project" row, and
   the group menu has a "Folder color..." item.
-- The icon dialogs and the pipeline export dialog keep one top edge and one minimum height, so the
-  tabs no longer move under the pointer.
+- The icon dialogs and the pipeline export dialog keep one top edge and one minimum height, and
+  their buttons stay at the bottom, so the tabs and the buttons no longer move when you change tabs.
 - Opening a folded project group no longer waits for the network: the page reads the pipelines of
   the folded groups in advance, so the group opens in one motion.
-- A form error no longer moves the fields below it: each field keeps one line for its message.
-- The projects page no longer moves when the reorder mode starts or stops. "Done" and "Cancel" take
-  the place of "Reorder" and "Display", and the other controls stay in their place, disabled. During
-  the drag of a group, the sections stay open and a line shows the new place. With no pin, the drop
-  zone of the pins shows over the toolbar only during the drag of a card.
-- The buttons of the icon dialogs stay in one place when you change tabs, and the image drop zone
-  fills the free height.
+- The project menu marks the place where the project is now, and a drag of a pinned card onto the
+  pins shows that it is already pinned.
+- A form no longer keeps an empty line under each field. An error line now slides in under its field
+  and slides out when the error goes, and the fields below move with it.
+- The icon field of each create and edit form (project, workspace, agent, app) is centered: a large
+  preview, then "Change the icon" and Reset under it. "Change the icon" opens the icon editor on a
+  second screen that slides in, with a Back button and the chosen icon next to its title. In a
+  dialog, the dialog keeps its size and Escape goes back first. The colors of the icon picker are
+  centered, and the drop zone of the Image tab fills the tab.
 
 ## [0.7.2] - 2026-11-25
 

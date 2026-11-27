@@ -21,10 +21,10 @@
   const release = $derived(unseenRelease());
 
   const TICK_MS = 50;
-  const RESUME_AFTER_MS = 5000;
-  const MIN_ITEM_MS = 6000;
-  const MAX_ITEM_MS = 16000;
-  const MS_PER_CHAR = 45;
+  const RESUME_AFTER_MS = 1800;
+  const MIN_ITEM_MS = 3500;
+  const MAX_ITEM_MS = 8000;
+  const MS_PER_CHAR = 25;
   /** Share of the item time with no scroll, at the top and at the bottom. */
   const SCROLL_PAUSE = 0.12;
   const USER_EVENTS = ['pointermove', 'pointerdown', 'wheel', 'keydown', 'touchstart'] as const;
@@ -32,7 +32,6 @@
   let active = $state<string>('');
   let elapsed = $state(0);
   let userPaused = $state(false);
-  let finished = $state(false);
   const reduced = prefersReducedMotion();
   let root = $state<HTMLElement>();
   let lastInput = -Infinity;
@@ -50,7 +49,7 @@
         (sum, highlight) => sum + t(highlight.title).length + t(highlight.description).length,
         0,
       );
-    return Math.min(MAX_ITEM_MS, Math.max(MIN_ITEM_MS, 3000 + chars * MS_PER_CHAR));
+    return Math.min(MAX_ITEM_MS, Math.max(MIN_ITEM_MS, 1700 + chars * MS_PER_CHAR));
   };
   const duration = $derived(itemMs(active));
   const progress = $derived(Math.min(1, elapsed / duration));
@@ -61,14 +60,13 @@
   $effect(() => {
     void active;
     elapsed = 0;
-    finished = false;
     scrollPos = 0;
     const current = panel();
     if (current) current.scrollTop = 0;
   });
 
   const tick = () => {
-    if (!release || finished) return;
+    if (!release) return;
     const running =
       !reduced && !userPaused && !document.hidden && Date.now() - lastInput >= RESUME_AFTER_MS;
     if (!running) {
@@ -89,8 +87,14 @@
     }
     if (elapsed < duration) return;
     const index = release.tabs.findIndex(version => version === active);
-    if (index < release.tabs.length - 1) active = release.tabs[index + 1];
-    else finished = true;
+    const next = release.tabs[(index + 1) % release.tabs.length];
+    if (next !== active) {
+      active = next;
+      return;
+    }
+    elapsed = 0;
+    scrollPos = 0;
+    if (current) current.scrollTop = 0;
   };
 
   $effect(() => {

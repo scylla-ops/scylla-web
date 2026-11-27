@@ -200,6 +200,9 @@ describe('the new highlights of the dialog', () => {
 
     expect(isNewInRelease(find('projects-page'))).toBe(true);
     expect(isNewInRelease(find('custom-icons'))).toBe(true);
+    expect(isNewInRelease(find('command-bar-more'))).toBe(true);
+    expect(isNewInRelease(find('smooth-ui'))).toBe(true);
+    expect(isNewInRelease(find('command-bar-search'))).toBe(false);
     expect(isNewInRelease(find('log-viewer'))).toBe(false);
     expect(isNewInRelease(find('new-look'))).toBe(false);
     expect(WHATS_NEW.tabs.filter(tabHasNew)).toEqual(['0.7.3']);
