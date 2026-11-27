@@ -5,7 +5,7 @@ import { fold, motionDuration, REFLOW_MS } from '@scylla/ui';
 const IN_MS = 180;
 const OUT_MS = 120;
 
-/** A part of the reorder mode comes in: the bar, the text of a drop, the move icon of a card. */
+/** A part of the reorder mode comes in: the text of a drop, the move icon of a card. */
 export const reorderIn = (_node?: Element): TransitionConfig => ({
   duration: motionDuration(IN_MS),
   easing: cubicOut,

@@ -5,7 +5,6 @@
   import { cn } from '@scylla/ui/utils';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
   import type { GroupReorderState } from '../group-reorder.state.svelte.ts';
-  import { reorderIn } from '../reorder.transition.ts';
 
   interface Props {
     id: string;
@@ -57,11 +56,12 @@
   };
 </script>
 
-<!-- The handle of a group in the reorder mode: a pointer drags the header, the keyboard moves it. -->
+<!-- The handle of a group in the reorder mode, in the place of the "+" of the header: a pointer
+     drags the header, the keyboard moves it. -->
 <button
   type="button"
   class={cn(
-    'flex size-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-muted-foreground transition-colors outline-none select-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:cursor-grabbing motion-reduce:transition-none pointer-coarse:size-11',
+    'flex size-8 shrink-0 cursor-grab touch-none items-center justify-center rounded-md text-muted-foreground transition-colors outline-none select-none hover:bg-accent hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 active:cursor-grabbing max-md:size-11 motion-reduce:transition-none pointer-coarse:size-11',
     lifted && 'bg-primary/10 text-primary',
   )}
   aria-label={t(projectMessages.moveGroup(name))}
@@ -71,7 +71,6 @@
   data-group={id}
   {onkeydown}
   {onfocusout}
-  in:reorderIn
 >
   <GripVerticalIcon class="size-4" aria-hidden="true" />
 </button>

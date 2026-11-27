@@ -9,7 +9,6 @@
   import ProjectEmpty from './ProjectResults/ProjectEmpty.svelte';
   import ProjectShowMore from './ProjectResults/ProjectShowMore.svelte';
   import ProjectSections from './ProjectSections/ProjectSections.svelte';
-  import ProjectReorderBar from './ProjectToolbar/ProjectReorderBar.svelte';
   import ProjectToolbar from './ProjectToolbar/ProjectToolbar.svelte';
   import { createGroupReorder } from './group-reorder.state.svelte.ts';
   import { setProjectLayout } from './project-layout.context.ts';
@@ -18,7 +17,6 @@
   import { createProjectReorder } from './project-reorder.state.svelte.ts';
   import { createProjectSections } from './project-sections.state.svelte.ts';
   import { focusGroup } from './group-focus.attachments.svelte.ts';
-  import { reorderIn, reorderOut } from './reorder.transition.ts';
   import { projectMessages } from '../messages/project.messages.ts';
   import { projectGroupMutations } from '../project-group.queries.ts';
   import {
@@ -168,34 +166,28 @@
     canManageGroups={canManage}
     onNewGroup={() => (creating = true)}
   />
-  <!-- The bar of the reorder mode and the toolbar take the same cell: they cross-fade in place. -->
-  <div class="grid *:col-start-1 *:row-start-1">
-    {#if reorder.active}
-      <div in:reorderIn out:reorderOut>
-        <ProjectReorderBar busy={saving} onCancel={stopReorder} onDone={saveOrder} />
-      </div>
-    {:else}
-      <div in:reorderIn out:reorderOut>
-        <ProjectToolbar
-          text={list.text}
-          health={list.health}
-          order={list.order}
-          counts={list.query ? list.counts : list.wholeCounts}
-          phone={list.phone}
-          onType={list.type}
-          onClear={list.clearSearch}
-          onHealth={list.setHealth}
-          onOrder={list.setOrder}
-          canReorder={canManage && !list.phone}
-          onReorder={startReorder}
-          density={densities.default}
-          mixedDensity={densities.mixed}
-          onDensity={densities.setDefault}
-          onApplyDensity={densities.applyToAll}
-        />
-      </div>
-    {/if}
-  </div>
+  <!-- The reorder mode changes the controls of the toolbar in their place: nothing moves. -->
+  <ProjectToolbar
+    text={list.text}
+    health={list.health}
+    order={list.order}
+    counts={list.query ? list.counts : list.wholeCounts}
+    phone={list.phone}
+    onType={list.type}
+    onClear={list.clearSearch}
+    onHealth={list.setHealth}
+    onOrder={list.setOrder}
+    canReorder={canManage && !list.phone}
+    onReorder={startReorder}
+    reordering={reorder.active}
+    busy={saving}
+    onCancel={stopReorder}
+    onDone={saveOrder}
+    density={densities.default}
+    mixedDensity={densities.mixed}
+    onDensity={densities.setDefault}
+    onApplyDensity={densities.applyToAll}
+  />
 
   {#if list.query}
     {#if list.results.isPending}

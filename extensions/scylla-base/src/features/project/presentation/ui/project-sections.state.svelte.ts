@@ -216,10 +216,15 @@ export const createProjectSections = (options: SectionsOptions) => {
     };
   };
 
+  // The pins show with a pin, or with a drop on the pins of the reorder mode. With no pin, the
+  // mode adds no section: the pins take a drop over the toolbar during a drag, so nothing moves.
+  const pinned = $derived(
+    pins.length > 0 || (options.moves() ?? []).some(move => move.to === PINS),
+  );
   // With a health filter, a section with no card does not show.
   const sections = $derived(
     [
-      ...(pins.length > 0 || reordering ? [PINS] : []),
+      ...(pinned ? [PINS] : []),
       ...groupList.map(group => group.id),
       UNGROUPED,
     ]

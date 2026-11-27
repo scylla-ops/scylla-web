@@ -564,6 +564,8 @@ The same cell snippets render in both layouts. Each column says where it goes in
 icon (`newIcon`, `Plus` by default) with its label for screen readers only, and when something is
 selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of the screen
 (`data-part="feature-header-selection-bar"`). Without a selection there is no bar.
+A mode that takes no selection turns "Select all" off in its place (`selectDisabled`), and "New"
+off with `canNew` and its reason: the buttons do not move.
 
 ## Destructive actions
 

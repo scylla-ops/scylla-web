@@ -9,6 +9,8 @@
     ListSkeleton,
     MORPH_BOX_CLASS,
     morphHeight,
+    swapIn,
+    swapOut,
     unfold,
   } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -43,7 +45,7 @@
     name: string;
     sections: ProjectSectionsState;
     reorder: ProjectReorderState;
-    /** The order of the groups in the reorder mode: a group has a handle, and a drag folds each section. */
+    /** The order of the groups in the reorder mode: a group has a handle in the place of its "+". */
     groups: GroupReorderState;
     densities: ProjectDensityState;
     phone: boolean;
@@ -88,11 +90,11 @@
   // The card that a chip opened: the page scrolls to it once it shows.
   let reveal = $state<string | null>(null);
   const density = $derived(densities.of(section.key));
-  // A group moves: each section folds to its header, so that the groups fit on the screen.
-  const collapsed = $derived(!!groups.drag);
-  const folded = $derived(
-    !headless && !section.open && !reorder.active && section.projects.length > 0,
-  );
+  // The reorder mode keeps the line of chips: nothing in the page moves when the mode starts.
+  const folded = $derived(!headless && !section.open && section.projects.length > 0);
+  // One place in the header for the "+" and for the handle of a group (`place`: the person moves
+  // the groups): the handle takes the place of the "+" in the reorder mode, so that nothing moves.
+  const actionPlace = $derived(section.key !== PINS && (!!newProjectHref || !!place));
 
   const toggle = () => {
     moved = true;
@@ -164,24 +166,30 @@
   />
 {/snippet}
 
-{#snippet grip()}
-  {#if section.group}
-    <GroupGrip id={section.group.id} {name} {groups} hintId={gripHintId} />
-  {/if}
-{/snippet}
-
 {#snippet actions()}
-  {#if newProjectHref && section.key !== PINS && !reorder.active}
-    <SectionAction
-      icon={PlusIcon}
-      label={t(
-        section.key === UNGROUPED
-          ? projectMessages.newProjectNoGroup
-          : projectMessages.newProjectIn(name),
-      )}
-      href={newProjectHref}
-      part="section-new-project"
-    />
+  {#if actionPlace}
+    <div
+      class="grid size-8 shrink-0 place-items-center *:col-start-1 *:row-start-1 max-md:size-11 pointer-coarse:size-11"
+    >
+      {#if reorder.active && section.group && place}
+        <div class="flex" in:swapIn out:swapOut>
+          <GroupGrip id={section.group.id} {name} {groups} hintId={gripHintId} />
+        </div>
+      {:else if !reorder.active && newProjectHref}
+        <div class="flex" in:swapIn out:swapOut>
+          <SectionAction
+            icon={PlusIcon}
+            label={t(
+              section.key === UNGROUPED
+                ? projectMessages.newProjectNoGroup
+                : projectMessages.newProjectIn(name),
+            )}
+            href={newProjectHref}
+            part="section-new-project"
+          />
+        </div>
+      {/if}
+    </div>
   {/if}
   {#if onNewGroup}
     <SectionAction
@@ -230,7 +238,6 @@
           counts={section.counts}
           {dropText}
           {actions}
-          grip={reorder.active && section.group ? grip : undefined}
           {menu}
           onToggle={toggle}
         />
@@ -241,7 +248,7 @@
   <!-- The cards and the line of chips take the place of each other in one box, which moves its
        height once. The space under the header is in the padding of each part: no jump. -->
   <div class={MORPH_BOX_CLASS} data-part="project-section-body" {@attach morphHeight}>
-    {#if (section.open || headless) && !collapsed}
+    {#if section.open || headless}
       <div class={cn('flex flex-col gap-3', !headless && 'pt-3')} in:enter out:exit>
         {#if section.loading}
           <ListSkeleton
@@ -273,7 +280,7 @@
           {/if}
         {/if}
       </div>
-    {:else if folded && !collapsed}
+    {:else if folded}
       <div class="pt-2" in:enter out:exit>
         <FoldedPreview
           projects={section.projects}

@@ -1,8 +1,9 @@
 <script lang="ts">
   import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
+  import PinIcon from '@lucide/svelte/icons/pin';
   import { activeWorkspaceSlug, contextStore, workspaceUrl } from '@platform/context';
   import { createMutation, WidgetZone } from '@scylla/core-sdk';
-  import { DropSlot, fold, reflow, unfold } from '@scylla/ui';
+  import { enter, exit, fold, reflow, unfold } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { toRune } from '@scylla/ui/stores';
   import { cn } from '@scylla/ui/utils';
@@ -14,7 +15,10 @@
     UNGROUPED,
     type SectionKey,
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
-  import { liftedStyle } from '@base/features/project/presentation/presenters/sortable.presenter.ts';
+  import {
+    liftedStyle,
+    type Box,
+  } from '@base/features/project/presentation/presenters/sortable.presenter.ts';
   import { newProjectPath } from '@base/features/project/presentation/presenters/new-project.presenter.ts';
   import { projectPoints } from '../../project.points.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
@@ -27,6 +31,7 @@
   import { dragGroups } from './group-drag.attachments.ts';
   import GroupNameRow from './GroupNameRow.svelte';
   import ProjectSection from './ProjectSection.svelte';
+  import SectionHeader from './SectionHeader.svelte';
 
   interface Props {
     workspaceId: string;
@@ -82,16 +87,16 @@
   // With no pin and no group, the page shows the cards with no header, as one list.
   const headless = $derived(pins.length === 0 && groupSections.length === 0 && !creating);
 
-  // The pins stay first and « No group » last: only the groups move, with a slot for a pointer.
-  type GroupEntry = { kind: 'section'; section: SectionView; lifted: boolean } | { kind: 'slot' };
+  // The pins stay first and « No group » last: only the groups move. A pointer drag shows a line
+  // at the new place of the group; the line takes no height, so that no group moves before the drop.
+  type GroupEntry = { kind: 'section'; section: SectionView } | { kind: 'slot' };
   const pointerDrag = $derived(groups.drag && !groups.drag.keyboard ? groups.drag : null);
+  const draggedSection = $derived(
+    pointerDrag ? groupSections.find(section => section.key === pointerDrag.id) : undefined,
+  );
   const groupEntries = $derived.by((): GroupEntry[] => {
-    const list: GroupEntry[] = groupSections.map(section => ({
-      kind: 'section',
-      section,
-      lifted: pointerDrag?.id === section.key,
-    }));
-    const target = pointerDrag ? groups.target : null;
+    const list: GroupEntry[] = groupSections.map(section => ({ kind: 'section', section }));
+    const target = pointerDrag && groups.moved ? groups.target : null;
     if (!target) return list;
     const at = list.findIndex(
       entry => entry.kind === 'section' && entry.section.key === target.beforeId,
@@ -101,6 +106,18 @@
       : [...list.slice(0, at), { kind: 'slot' }, ...list.slice(at)];
   });
   const keyOf = (entry: GroupEntry) => (entry.kind === 'slot' ? SLOT_KEY : entry.section.key);
+  // The copy of the dragged header has room around the header, which stays at its place in it. It
+  // is narrow, so that the line of the new place shows next to it.
+  const COPY_MAX_PX = 400;
+  const copyBox = (box: Box): Box => ({
+    left: box.left - 8,
+    top: box.top - 4,
+    width: Math.min(box.width + 16, COPY_MAX_PX),
+    height: box.height + 8,
+  });
+  // With no pin, the pins take a drop over the toolbar during the drag of a card: no section moves.
+  const pinZone = $derived(!!reorder.drag && pins.length === 0);
+  const overPins = $derived(reorder.target?.to === PINS);
 
   // Once the page is idle, the data of the folded sections loads: opening one waits for nothing.
   let idle = $state(false);
@@ -191,28 +208,56 @@
   {@attach dragCards(reorder, projectName)}
   {@attach dragGroups(groups, sectionName)}
 >
+  {#if pinZone}
+    <!-- Over the toolbar (the gap of the page is 16 px), as a header of the pins: a drop pins the
+         card, and the pins then show. -->
+    <div
+      class="absolute inset-x-0 bottom-full z-10 mb-4 h-9 rounded-xl bg-background"
+      data-section={PINS}
+      data-part="project-pin-overlay"
+      in:enter
+      out:exit
+    >
+      <div
+        class={cn(
+          'flex h-full items-center justify-center gap-2 rounded-xl border border-dashed px-3 text-sm font-medium text-muted-foreground transition-colors duration-150 motion-reduce:transition-none',
+          overPins && 'border-solid border-primary bg-primary/8 text-primary',
+        )}
+        data-part="project-section-header"
+        role="note"
+      >
+        <PinIcon class="size-4 shrink-0" aria-hidden="true" />
+        <span class="truncate">
+          {overPins && reorder.drag
+            ? t(projectMessages.releaseToPin(reorder.drag.name))
+            : t(projectMessages.pinsDrop)}
+        </span>
+      </div>
+    </div>
+  {/if}
   {#each pins as section (section.key)}
     {@render one(section)}
   {/each}
   {#each groupEntries as entry (keyOf(entry))}
-    {@const lifted = entry.kind === 'section' && entry.lifted}
+    {@const dragged = entry.kind === 'section' && pointerDrag?.id === entry.section.key}
     {@const keyboard = entry.kind === 'section' && groups.drag?.keyboard && groups.drag.id === entry.section.key}
-    <!-- A dragged group leaves the flow: its header follows the pointer over the page. -->
+    <!-- A dragged group stays in its place, dimmed, until the drop. -->
     <div
       class={cn(
-        entry.kind === 'slot' && 'pb-4',
-        lifted && 'cursor-grabbing overflow-hidden rounded-lg bg-background shadow-2xl ring-2 ring-primary/60',
+        'transition-opacity duration-150 motion-reduce:transition-none',
+        entry.kind === 'slot' && 'relative h-0',
+        dragged && 'opacity-40',
         keyboard && 'rounded-lg ring-2 ring-primary/60 ring-offset-4 ring-offset-background',
       )}
-      style={lifted && pointerDrag ? liftedStyle(pointerDrag.box, groups.offset, groups.motion) : undefined}
       data-group-cell={entry.kind === 'section' ? entry.section.key : undefined}
       data-part={entry.kind === 'slot' ? 'group-drop-slot' : undefined}
-      animate:reflow={{ still: lifted }}
+      animate:reflow
       in:arrive={{ id: entry.kind === 'section' ? entry.section.key : undefined }}
       out:leave={{ id: entry.kind === 'section' ? entry.section.key : undefined, fade: !!groups.drag }}
     >
       {#if entry.kind === 'slot'}
-        <DropSlot shape="header" style={`min-height: ${pointerDrag?.box.height ?? 40}px`} />
+        <!-- In the middle of the 16 px between the two groups. -->
+        <div class="absolute inset-x-0 -top-[9px] h-0.5 rounded-full bg-primary" aria-hidden="true"></div>
       {:else}
         {@render one(entry.section)}
       {/if}
@@ -248,6 +293,27 @@
   {/each}
   {#if prefetch.length > 0}
     <WidgetZone point={projectPoints.cardPrefetch} context={{ workspaceId, batches: prefetch }} />
+  {/if}
+  {#if pointerDrag && draggedSection}
+    <!-- The copy of the dragged header follows the pointer over the page. -->
+    <div
+      class="pointer-events-none rounded-lg bg-background px-2 py-1 shadow-2xl ring-2 ring-primary/60"
+      style={liftedStyle(copyBox(pointerDrag.box), groups.offset, groups.motion)}
+      data-part="group-drag-overlay"
+      aria-hidden="true"
+      inert
+      out:exit
+    >
+      <SectionHeader
+        name={nameOf(draggedSection)}
+        count={draggedSection.total}
+        pins={false}
+        color={draggedSection.group?.color}
+        open={draggedSection.open}
+        counts={draggedSection.counts}
+        onToggle={() => {}}
+      />
+    </div>
   {/if}
   <p class="sr-only" aria-live="polite">{news}</p>
   <p class="sr-only" aria-live="polite">{groupText}</p>

@@ -182,6 +182,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - Opening a folded project group no longer waits for the network: the page reads the pipelines of
   the folded groups in advance, so the group opens in one motion.
 - A form error no longer moves the fields below it: each field keeps one line for its message.
+- The projects page no longer moves when the reorder mode starts or stops. "Done" and "Cancel" take
+  the place of "Reorder" and "Display", and the other controls stay in their place, disabled. During
+  the drag of a group, the sections stay open and a line shows the new place. With no pin, the drop
+  zone of the pins shows over the toolbar only during the drag of a card.
 
 ## [0.7.2] - 2026-11-25
 

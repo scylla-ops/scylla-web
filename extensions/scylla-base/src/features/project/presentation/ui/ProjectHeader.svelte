@@ -18,7 +18,7 @@
     projectIds: string[];
     /** A phone has no « Select all » and no « New group ». */
     phone: boolean;
-    /** The reorder mode keeps « New group » only. */
+    /** The reorder mode turns off « Select all » and « New project » in their place. */
     reordering: boolean;
     /** « New group » shows: the person changes the groups. */
     canManageGroups: boolean;
@@ -37,9 +37,7 @@
   const canCreate = $derived(can(Permission.CREATE_PROJECT));
   const canDelete = $derived(can(Permission.DELETE_PROJECT));
   const headerProps = $derived(
-    phone || reordering
-      ? { ...selection.headerProps, onSelectAll: undefined }
-      : selection.headerProps,
+    phone ? { ...selection.headerProps, onSelectAll: undefined } : selection.headerProps,
   );
 </script>
 
@@ -66,11 +64,12 @@
   label={t(projectMessages.project)}
   pluralLabel={t(projectMessages.projects)}
   {...headerProps}
+  selectDisabled={reordering}
   extraActions={newGroup}
-  onNew={reordering ? undefined : () => scyllaNavigate.goToWorkspaceRoute('/projects/new')}
+  onNew={() => scyllaNavigate.goToWorkspaceRoute('/projects/new')}
   newLabel={t(projectMessages.newProject)}
-  canNew={canCreate}
-  newDeniedReason={t(projectMessages.createDenied)}
+  canNew={canCreate && !reordering}
+  newDeniedReason={t(canCreate ? projectMessages.reorderLeaveFirst : projectMessages.createDenied)}
   {canDelete}
   deleteDeniedReason={t(projectMessages.deleteDenied)}
 />

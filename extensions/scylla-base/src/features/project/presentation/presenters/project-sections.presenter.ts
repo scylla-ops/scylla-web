@@ -218,18 +218,34 @@ export interface GroupTarget {
   beforeId?: string;
 }
 
+/** A group of the page as the drag of a group measures it: its top and its bottom, in the viewport. */
+export interface GroupCell {
+  id: string;
+  top: number;
+  bottom: number;
+}
+
 /**
- * Where a dragged group goes, as a card in a grid of one column: the slot goes to the group
- * nearest to the center of the dragged header. The pins stay first and « No group » last: they are
- * not cells. Null with no cell.
+ * Where a dragged group goes: the line between two groups that is nearest to the center of the
+ * dragged header (`y`). The groups stay in their place during the drag, the dragged one too: the
+ * line just before it or just after it is its own place. The pins stay first and « No group »
+ * last: they are not cells. Null with no cell.
  */
 export const groupTargetAt = (
-  cells: readonly CardCell[],
-  after: Box | null,
-  center: Point,
+  cells: readonly GroupCell[],
+  dragId: string,
+  y: number,
 ): GroupTarget | null => {
-  const beforeId = beforeIdAt(cells, after, center);
-  return beforeId === null ? null : { beforeId };
+  const last = cells.at(-1);
+  if (!last) return null;
+  const lines = [...cells.map(cell => cell.top), last.bottom];
+  const nearest = lines.reduce(
+    (best, line, index) => (Math.abs(line - y) < Math.abs(lines[best] - y) ? index : best),
+    0,
+  );
+  // Before the dragged group is its own place: before the group after it.
+  const at = cells[nearest]?.id === dragId ? nearest + 1 : nearest;
+  return { beforeId: cells[at]?.id };
 };
 
 /** The groups in the order of the reorder mode; a group that the mode does not know comes last. */

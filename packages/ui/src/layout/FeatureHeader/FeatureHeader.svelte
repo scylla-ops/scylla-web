@@ -24,6 +24,8 @@
     /** Disables "Select all": it keeps its place, so the actions around it do not move. */
     allSelected?: boolean;
     onSelectAll?: () => void;
+    /** Turns off "Select all" in its place, e.g. in a mode that selects nothing. */
+    selectDisabled?: boolean;
     onClearSelection?: () => void;
     onDeleteSelection?: () => Promise<void> | void;
     onNew?: () => void;
@@ -47,6 +49,7 @@
     selectedCount = 0,
     allSelected = false,
     onSelectAll,
+    selectDisabled = false,
     onClearSelection,
     onDeleteSelection,
     onNew,
@@ -129,7 +132,7 @@
       <Button
         {variant}
         class={onBar ? barButton : undefined}
-        disabled={allSelected}
+        disabled={allSelected || selectDisabled}
         onclick={onSelectAll}
       >
         {t(featureHeaderMessages.selectAll)}

@@ -69,6 +69,7 @@ export const projectMessages = {
   reorderNeedsCustom: msg`Reorder is only available in the custom order.`,
   reorderNeedsNoSearch: msg`Clear the search to reorder.`,
   reorderHint: msg`Drag a card to change its order, or drop it on a group or on “Pinned”. Drag the handle of a group to move the group.`,
+  reorderLeaveFirst: msg`Leave the reorder mode first: “Done” or “Cancel”.`,
   done: msg`Done`,
   results: (count: number, query: string) =>
     msg`${plural(count, { one: '# result', other: '# results' })} for “${query}” · names, descriptions, repositories and pipelines`,
