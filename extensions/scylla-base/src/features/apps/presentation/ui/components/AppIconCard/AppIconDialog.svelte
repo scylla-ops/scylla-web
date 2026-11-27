@@ -26,7 +26,7 @@
   {onOpenChange}
   title={t(app.runner ? messages.icon : appPageMessages.icon)}
   description={t(app.runner ? messages.iconDialogDescription : appPageMessages.iconDialogDescription)}
-  stable={37}
+  stable={38}
   class="sm:max-w-lg"
 >
   <AppIconForm {app} {avatar} close={() => onOpenChange(false)} />

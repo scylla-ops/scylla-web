@@ -11,7 +11,7 @@
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createQuery, routeParams } from '@scylla/core-sdk';
-  import { SegmentedControl, type LucideIcon } from '@scylla/ui';
+  import { SegmentedControl, overscrollGlow, type LucideIcon } from '@scylla/ui';
   import {
     DropdownMenu,
     DropdownMenuContent,
@@ -114,7 +114,10 @@
   <h2 class="truncate text-base">{t(messages.dashboard)}</h2>
 </div>
 
-<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto">
+<div
+  class="relative flex min-h-0 flex-1 flex-col overflow-y-auto"
+  {@attach overscrollGlow({ edges: 'bottom', size: 'sidebar' })}
+>
   <!-- The "+" of the title repeats "New dashboard" at the end of the list. A mouse sees it on hover. -->
   <div class="group/section flex items-center gap-2 pt-5 pr-3 pb-2 pl-4">
     <p class="min-w-0 flex-1 truncate text-xs text-muted-foreground">{t(messages.dashboards)}</p>
