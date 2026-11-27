@@ -81,6 +81,7 @@
 
   const updateGroup = createMutation(() => projectGroupMutations.update());
   let renaming = $state(false);
+  let colorOpen = $state(false);
   // The person folded or opened the section: its cards or its chips come in with a motion. The
   // first paint of the page has none.
   let moved = $state(false);
@@ -131,6 +132,9 @@
     if (section.group) groups.moveTo(section.group.id, position);
   };
 
+  // The menu closes first and gives the focus back: the colors open after it.
+  const openColors = () => setTimeout(() => (colorOpen = true), 0);
+
   const rename = (next: string, color: string | undefined) => {
     if (!section.group) return;
     const { id: groupId, name: current, color: currentColor } = section.group;
@@ -155,6 +159,7 @@
     {phone}
     onDensity={next => densities.setSection(section.key, next)}
     onRename={place ? () => (renaming = true) : undefined}
+    onColor={place ? openColors : undefined}
     onMove={reorder.active ? moveGroup : undefined}
   />
 {/snippet}
@@ -190,7 +195,7 @@
 
 {#snippet folder()}
   {#if section.group}
-    <GroupFolderColor group={section.group} class="max-md:size-8" />
+    <GroupFolderColor group={section.group} bind:open={colorOpen} class="max-md:size-8" />
   {/if}
 {/snippet}
 

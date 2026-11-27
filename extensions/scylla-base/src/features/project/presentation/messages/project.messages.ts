@@ -107,6 +107,7 @@ export const projectMessages = {
   groupName: msg`Group name`,
   groupNamePlaceholder: msg`e.g., Deploys`,
   folderColor: msg`Folder color`,
+  folderColorItem: msg`Folder color…`,
   changeFolderColor: (group: string) => msg`Change the folder color of ${group}`,
   folderColorOfNew: msg`Folder color of the new group`,
   resetColor: msg`Reset`,

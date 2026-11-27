@@ -58,6 +58,12 @@ export interface SecondSidebarLink {
    * after the other; its title shows once, before the first of them. Unset: no section.
    */
   section?: SecondSidebarSection;
+  /**
+   * The link is the call to action of an empty section, e.g. « New project » of an empty group:
+   * a muted row that is no page and does not count. Its `href` may be empty: the section then
+   * shows with no row. Needs `section`.
+   */
+  placeholder?: boolean;
   /** A small live mark at the end of the row, e.g. a job that runs. At most one per link. */
   status?: SecondSidebarStatus;
 }

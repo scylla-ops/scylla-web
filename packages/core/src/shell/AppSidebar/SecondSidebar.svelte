@@ -110,6 +110,19 @@
   </button>
 {/snippet}
 
+{#snippet emptyRow(page: NavItem)}
+  <!-- An empty section: one muted call to action, e.g. a new project in an empty group. -->
+  <button
+    type="button"
+    class="flex h-8 w-full cursor-pointer items-center gap-2 rounded-lg px-2 text-left text-sm text-muted-foreground transition-colors outline-hidden hover:bg-accent hover:text-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring motion-reduce:transition-none"
+    data-part="second-sidebar-empty-action"
+    onclick={() => onOpenPage(page)}
+  >
+    <PlusIcon class="size-4 shrink-0" aria-hidden="true" />
+    <span class="min-w-0 flex-1 truncate">{page.title}</span>
+  </button>
+{/snippet}
+
 {#snippet sectionAction(action: SecondSidebarSectionAction)}
   <!-- At rest, a mouse sees no "+": it shows on hover and on focus. A touch screen always shows it. -->
   <Tooltip>
@@ -229,7 +242,7 @@
                         class="shrink-0 tabular-nums"
                         transition:fade={{ duration: motionDuration(COUNT_FADE_MS) }}
                       >
-                        {run.pages.length}
+                        {run.pages.filter(page => !page.placeholder).length}
                       </span>
                     {/if}
                   </button>
@@ -243,7 +256,11 @@
                     <!-- Indented under the title: the links belong to the section. -->
                     <ul class="flex flex-col gap-0.5 pt-0.5 pl-3" in:enter out:exit>
                       {#each run.pages as page (page.href)}
-                        <li>{@render row(page)}</li>
+                        {#if !page.placeholder}
+                          <li>{@render row(page)}</li>
+                        {:else if page.href}
+                          <li>{@render emptyRow(page)}</li>
+                        {/if}
                       {/each}
                     </ul>
                   {/if}

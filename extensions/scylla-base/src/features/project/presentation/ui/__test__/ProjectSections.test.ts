@@ -372,6 +372,16 @@ describe('the sections of the projects page', () => {
     );
   });
 
+  it('opens the folder colors from « Folder color… » in the group menu', async () => {
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+
+    await userEvent.click(within(section('Deploys')).getByRole('button', { name: 'Group menu' }));
+    await userEvent.click(await findFloating('menuitem', 'Folder color…'));
+
+    expect(await floatingButton('Reset')).toBeInTheDocument();
+  });
+
   it('changes the folder color in the rename row, with no new name', async () => {
     render(ProjectList, { workspaceId: 'org-1' });
     await screen.findByRole('region', { name: 'Deploys' });

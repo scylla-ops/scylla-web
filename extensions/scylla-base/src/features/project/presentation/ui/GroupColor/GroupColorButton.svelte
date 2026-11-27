@@ -18,13 +18,22 @@
     /** The accessible name of the button. */
     label: string;
     disabled?: boolean;
+    /** The colors show. The menu of the group opens them. */
+    open?: boolean;
     class?: string;
   }
 
-  let { value, onchange, onclose, label, disabled = false, class: className }: Props = $props();
+  let {
+    value,
+    onchange,
+    onclose,
+    label,
+    disabled = false,
+    open = $bindable(false),
+    class: className,
+  }: Props = $props();
 
   const id = $props.id();
-  let open = $state(false);
   let content = $state<HTMLElement | null>(null);
   const recent = recentColors();
 

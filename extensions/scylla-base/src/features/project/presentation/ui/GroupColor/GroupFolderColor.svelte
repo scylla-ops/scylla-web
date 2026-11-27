@@ -9,10 +9,12 @@
 
   interface Props {
     group: ProjectGroupEntity;
+    /** The colors show. The menu of the group opens them. */
+    open?: boolean;
     class?: string;
   }
 
-  let { group, class: className }: Props = $props();
+  let { group, open = $bindable(false), class: className }: Props = $props();
 
   const update = createMutation(() => projectGroupMutations.update());
   // The folder shows each change at once; the color is saved when the colors close.
@@ -36,5 +38,6 @@
   onclose={save}
   label={t(projectMessages.changeFolderColor(group.name))}
   disabled={update.isPending}
+  bind:open
   class={className}
 />

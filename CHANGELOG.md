@@ -175,6 +175,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   change, and its preview has the size of its text. The buttons of the App wizard and of the tour
   introduction keep one width at each step. The pages keep the room of the scroll bar, so a page
   that grows does not move to the left.
+- An empty group now shows in the second sidebar and the phone menu with a "New project" row, and
+  the group menu has a "Folder color..." item.
 
 ## [0.7.2] - 2026-11-25
 
