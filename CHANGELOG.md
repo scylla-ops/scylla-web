@@ -229,6 +229,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   filter, the group headers, the cards and the sidebar mark have a pending state. The Pipeline
   widget shows the job that runs or waits, not the last ended job, so it does not show "orphaned"
   for a pipeline that runs.
+- Glyph avatar scroll area now keeps hidden descendants inside it.
 
 ## [0.7.2] - 2026-11-25
 

@@ -36,7 +36,7 @@
     bind:this={scroller}
     onscroll={measure}
     class={cn(
-      'h-full max-h-[inherit] overflow-y-auto overscroll-contain p-1 transition-[mask-image] duration-200 motion-reduce:transition-none',
+      'relative h-full max-h-[inherit] overflow-y-auto overscroll-contain p-1 transition-[mask-image] duration-200 motion-reduce:transition-none',
       more && '[mask-image:linear-gradient(to_bottom,black_calc(100%-2.5rem),transparent)]',
     )}
   >
