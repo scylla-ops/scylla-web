@@ -211,6 +211,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   centered, and the drop zone of the Image tab fills the tab.
 - Each field error in the forms of the app (mail settings, triggers, pipeline editor, roles, GitLab
   token, and others) now slides in and out like the other errors, and the fields below move with it.
+- The icon editor tabs can be clicked again, and switching between the Icon and Image tabs on a page
+  no longer moves the fields below.
 
 ## [0.7.2] - 2026-11-25
 
