@@ -284,9 +284,9 @@
       <div class="flex w-full min-w-0 items-center gap-2">
         <LayoutListIcon class="size-4 shrink-0 text-muted-foreground" />
         <span class="min-w-0 flex-1 truncate text-sm">{t(workspaceMessages.allWorkspaces)}</span>
-        {#if othersQuery.data && othersQuery.data.total > others.length}
+        {#if othersQuery.data}
           <span class="shrink-0 text-xs text-muted-foreground tabular-nums">
-            {othersQuery.data.total}
+            {shown.length + othersQuery.data.total}
           </span>
         {/if}
       </div>

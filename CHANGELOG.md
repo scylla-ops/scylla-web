@@ -157,6 +157,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   failed status, and a folded group keeps a mark for a project that runs or failed.
 - The search palette no longer cuts its left edge when many filter chips show. The chip row now
   scrolls in its own box.
+- The count of the row "All workspaces" in the workspace switcher of an instance admin now shows the
+  total of the page that it opens, with the own workspaces.
 
 ## [0.7.2] - 2026-11-25
 

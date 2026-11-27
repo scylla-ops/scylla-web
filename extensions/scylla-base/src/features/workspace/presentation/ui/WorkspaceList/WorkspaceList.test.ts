@@ -281,7 +281,8 @@ describe('WorkspaceList', () => {
         pageToken: '',
       });
       expect(screen.getByText('All workspaces…')).toBeInTheDocument();
-      expect(screen.getByText('31')).toBeInTheDocument();
+      // The count is the total of the page that the row opens: the own workspaces and the others.
+      expect(screen.getByText(String(workspaces.length + 31))).toBeInTheDocument();
       // The icon of each workspace, before its name and its owner. No icon: a building in grey.
       const glyphOf = (owner: string) =>
         screen
