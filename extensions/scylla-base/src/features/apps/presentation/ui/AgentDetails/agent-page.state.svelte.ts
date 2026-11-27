@@ -2,6 +2,7 @@ import { can, Permission } from '@platform/authz';
 import { contextStore, scyllaNavigate } from '@platform/context';
 import { createMutation, createQuery } from '@scylla/core-sdk';
 import { toRune } from '@scylla/ui/stores';
+import { sessionUserId } from '@base/features/login';
 import { appStateOf } from '@base/features/apps/domain/entities/app.entity.ts';
 import { hasNoActiveKey } from '@base/features/apps/domain/structs/agent-list.struct.ts';
 import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
@@ -46,7 +47,7 @@ export const createAgentPage = (appId: () => string) => {
   const never = $derived(!!agent && appStateOf(agent) === 'never' && !agent.disabledAt);
 
   // The server gives these rights to the creator of the agent too.
-  const userId = localStorage.getItem('userId') ?? '';
+  const userId = sessionUserId() ?? '';
   const created = $derived(!!userId && agent?.createdBy === userId);
   const canNewCode = $derived(created || can(Permission.CREATE_JOIN_CODE, target));
 
