@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import { overscrollGlow } from '@scylla/ui';
   import { SidebarInset, SidebarProvider } from '@scylla/ui/primitives';
   import AppSidebar from '../AppSidebar/AppSidebar.svelte';
   import { shellConfig } from '../shell-config.ts';
@@ -28,6 +29,7 @@
   <div
     style:--shell-bottom-inset="{bottomInset}px"
     class="relative min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable] px-2 pt-2 pb-[max(0.5rem,var(--shell-bottom-inset))] md:px-8 md:pt-8 md:pb-[max(2rem,var(--shell-bottom-inset))]"
+    {@attach overscrollGlow({ edges: 'both', size: 'page' })}
   >
     {@render children()}
   </div>

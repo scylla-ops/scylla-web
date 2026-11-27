@@ -10,6 +10,7 @@
   import ScreenStack from '../../layout/ScreenStack/ScreenStack.svelte';
   import { createScreenStack } from '../../layout/ScreenStack/screen-stack.state.svelte.ts';
   import { dialogHoldStore, toRune } from '../../stores/index.ts';
+  import { overscrollGlow } from '../../motion/overscroll.attachments.ts';
   import { cn } from '../../utils/index.ts';
 
   interface Props {
@@ -78,6 +79,10 @@
 
   const stack = createScreenStack();
 
+  // The glow at the end of the body, above the sticky footer.
+  let contentEl = $state<HTMLElement | null>(null);
+  $effect(() => (contentEl ? overscrollGlow({ edges: 'bottom', size: 'dialog' })(contentEl) : undefined));
+
   const keepOpen = (event: Event) => {
     const { held: holding, onBlocked } = dialogHoldStore.getState();
     if (holding || dismissible !== true) event.preventDefault();
@@ -103,6 +108,7 @@
 
 <Dialog {open} {onOpenChange}>
   <DialogContent
+    bind:ref={contentEl}
     {...rest}
     style={stableStyle}
     {overlayClass}

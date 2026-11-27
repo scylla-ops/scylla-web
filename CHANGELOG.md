@@ -79,6 +79,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   command palette, and the icon picker of an agent or an app has an Avatar tab. Activity shows the
   Scylla head for a change that Scylla made. The account page shows the credit of the style.
 - What's new: click an item to open its page or start its action, such as the command bar.
+- A soft light halo shows behind the content when you push past the end of a page, a second sidebar
+  or a dialog.
 
 ### Changed
 

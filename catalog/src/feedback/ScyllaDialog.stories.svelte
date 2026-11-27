@@ -65,3 +65,16 @@
     {@render form()}
   </ScyllaDialog>
 </Story>
+
+<Story name="Long body, glow at the end" asChild>
+  {@render reopen()}
+  <ScyllaDialog {open} onOpenChange={next => (open = next)} title="Terms" description="Scroll to the end, then push.">
+    {#each Array.from({ length: 24 }, (_, index) => index) as line (line)}
+      <p class="text-sm text-muted-foreground">Line {line + 1}: a long text to make the body scroll.</p>
+    {/each}
+    <DialogFooter>
+      <Button variant="outline" data-dialog-dismiss onclick={() => (open = false)}>Cancel</Button>
+      <Button onclick={() => (open = false)}>Accept</Button>
+    </DialogFooter>
+  </ScyllaDialog>
+</Story>
