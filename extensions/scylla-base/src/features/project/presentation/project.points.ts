@@ -19,6 +19,13 @@ export interface ProjectCardContext {
   density: ProjectDensity;
 }
 
+/** The cards that a folded section draws once opened: a part reads their data ahead. */
+export interface ProjectPrefetchContext {
+  workspaceId: string;
+  /** The batches of the cards of the folded sections, as the cards read them. */
+  batches: readonly (readonly string[])[];
+}
+
 /**
  * Listed in `ProjectModule.points`: the loader names them `project.<key>`. The pipelines and the
  * repository of a project are in `features/pipeline` and `features/integrations`, which import
@@ -33,4 +40,9 @@ export const projectPoints = {
   cardBody: point.zone<ProjectCardContext>(),
   /** At the bottom of the card: one line, such as the time of the last job. */
   cardFooter: point.zone<ProjectCardContext>(),
+  /**
+   * Draws nothing. Once the page is idle, a part reads the data of the cards of the folded
+   * sections, so that a section opens with no wait: its height does not move when data arrives.
+   */
+  cardPrefetch: point.zone<ProjectPrefetchContext>(),
 };

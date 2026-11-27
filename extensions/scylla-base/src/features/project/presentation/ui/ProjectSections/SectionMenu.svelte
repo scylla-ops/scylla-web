@@ -1,6 +1,7 @@
 <script lang="ts">
   import ArrowDownIcon from '@lucide/svelte/icons/arrow-down';
   import ArrowUpIcon from '@lucide/svelte/icons/arrow-up';
+  import FolderIcon from '@lucide/svelte/icons/folder';
   import EllipsisIcon from '@lucide/svelte/icons/ellipsis';
   import PencilIcon from '@lucide/svelte/icons/pencil';
   import PlusIcon from '@lucide/svelte/icons/plus';
@@ -43,6 +44,8 @@
     phone: boolean;
     onDensity: (density: ProjectDensity) => void;
     onRename?: () => void;
+    /** « Folder color… » opens the colors of the folder of the group. */
+    onColor?: () => void;
     /** The reorder mode: « Move up » and « Move down » change the order of the page, not the server. */
     onMove?: (position: number) => void;
   }
@@ -56,6 +59,7 @@
     phone,
     onDensity,
     onRename,
+    onColor,
     onMove,
   }: Props = $props();
 
@@ -118,6 +122,12 @@
         <DropdownMenuItem class={ITEM} onSelect={onRename}>
           <PencilIcon class="size-4" aria-hidden="true" />
           {t(projectMessages.rename)}
+        </DropdownMenuItem>
+      {/if}
+      {#if onColor}
+        <DropdownMenuItem class={ITEM} onSelect={onColor}>
+          <FolderIcon class="size-4" aria-hidden="true" />
+          {t(projectMessages.folderColorItem)}
         </DropdownMenuItem>
       {/if}
       <DropdownMenuItem

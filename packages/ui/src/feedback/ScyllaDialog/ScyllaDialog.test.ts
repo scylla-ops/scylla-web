@@ -13,6 +13,17 @@ const closed = () =>
 describe('ScyllaDialog', () => {
   afterEach(() => dialogHoldStore.setState({ held: false }));
 
+  it('keeps its top edge at one place, whatever its height, when it is stable', () => {
+    render(ScyllaDialog, { stable: 37 });
+
+    const { className } = screen.getByRole('dialog');
+    expect(className).toContain('translate-y-0');
+    expect(className).not.toContain('translate-y-[-50%]');
+    const { top, minHeight } = screen.getByRole('dialog').style;
+    expect(top).toContain('18.5rem');
+    expect(minHeight).toContain('37rem');
+  });
+
   it('takes no Escape while the dialogs are held, and hides its close button', async () => {
     render(ScyllaDialog);
     dialogHoldStore.setState({ held: true });

@@ -93,6 +93,7 @@ as its status.
 | `project.cardSubtitle` | one line under the name | `integrations`: the linked repository |
 | `project.cardBody` | under the description | `pipeline`: the first pipelines, with Run |
 | `project.cardFooter` | the bottom line of the card | `pipeline`: the job that runs, or the last job |
+| `project.cardPrefetch` | draws nothing: reads the data of the folded sections once the page is idle, so a section opens with no wait | `pipeline`: the summaries of each batch |
 
 This module cannot import `pipeline` or `integrations`: they import it. The zones let them show
 on the card with no import back.
@@ -144,7 +145,7 @@ presentation/
   ui/project-reorder.state.svelte.ts    createProjectReorder: the drops of the reorder mode, the
                                      dragged card, its slot, its settle, its shape in another density
   ui/group-reorder.state.svelte.ts   createGroupReorder: the order of the groups in the reorder
-                                     mode, the dragged group, its slot, the keyboard path
+                                     mode, the dragged group, its new place, the keyboard path
   ui/project-density.state.svelte.ts createProjectDensity: the density of the page and of each
                                      section, saved in `project-density`
   ui/reorder.transition.ts           the transitions of the reorder mode, and a card that moves to
@@ -173,7 +174,8 @@ presentation/
   ui/ProjectHeader.svelte            the counts of the workspace, "Select all", "New group",
                                      "New project"
   ui/ProjectToolbar/                 the search field ("/" and Escape), the health filter, the order,
-                                     « Display », "Reorder", and the bar of the reorder mode
+                                     « Display », "Reorder", and in their places the hint,
+                                     « Cancel » and « Done » of the reorder mode
   ui/ProjectResults/                 the empty states, "Show more"
   ui/ProjectCard/                    the card, its zones, its menu (Pin, Change the icon, Move to
                                      group, Move up and down, Edit, Duplicate, Delete); ProjectItem,
@@ -315,6 +317,15 @@ choice card links to it by its path only.
   pins. The server places a project with the same rule as `placeBefore`, so the order stays the same.
   « Cancel » or Escape forgets the drops. The mode needs the custom order, no search, a screen that
   is not a phone and `UPDATE_PROJECT` on the workspace.
+- **The reorder mode starts and ends in one frame, and nothing moves.** Each control keeps its
+  place: « Done » takes the place of « Reorder » (and the focus), « Cancel » the place of
+  « Display », the hint the place of the search and of the health filter (two lines at most). The
+  two controls of each place stay in the page and cross-fade, so that the place keeps the size of
+  the larger one. The order, « Select all » and « New project » stay, turned off. The handle of a
+  group takes the place of its "+"; the ghost card and « New project » of an empty group stay,
+  turned off; a folded section keeps its line of chips. The mode adds no section: with no pin,
+  the pins take a drop in a zone over the toolbar during the drag of a card only, and the pins show
+  after that drop. A dragged card over a header draws a frame around it, out of the flow.
 - **The drag uses pointer events, not the native drag.** The real card follows the pointer
   (`position: fixed`); it stays in its grid, so that it keeps its pointer capture. The slot goes to
   the cell nearest to the center of the card, wherever the person took it: the center chooses the
@@ -323,15 +334,16 @@ choice card links to it by its path only.
   of the sections says each place, and « Move up » and « Move down » stay the keyboard way.
 - **Each move of the mode has a short transition**, and none with a reduced motion: the other
   cards slide (`reflow` of `@scylla/ui`), the card settles on its slot, a card that changes its
-  section slides from its old place, the bar, the slot and the drop zones fade and unfold. The grid
-  of a section stays with no card, for these transitions.
+  section slides from its old place, the controls of the toolbar cross-fade, the slot and the drop
+  zones fade. The grid of a section stays with no card, for these transitions.
 - **A section keeps its newest cards while a new read of it loads** (the reorder mode, "Show more",
   « Done »): each read is a new query with no data, so the page shows no skeleton and no old order.
 - **Each group has its calls to action for a new project**, for a person with `CREATE_PROJECT` on
   the workspace: the "+" of its header (on a mouse screen it shows on hover and focus), « New
   project here » in the group menu, and a ghost card after the last card. An empty group shows one
-  line and « New project ». « No group » has its "+" too; the pins have none. The ghost card and
-  the "+" hide in the reorder mode. They open `projects/new?group=<id>`: the page of the kind
+  line and « New project ». « No group » has its "+" too; the pins have none. The reorder mode
+  turns the ghost card off in its place, and the handle of a group takes the place of the "+".
+  They open `projects/new?group=<id>`: the page of the kind
   keeps `?group=` for `regular` and `github`, and the form chooses this group first. The sidebar
   of the shell (the "+" of a section) and the palette (« New project in <group> ») open the same
   path. « New group » is in the header of the page, at the end of the page and in the header of
@@ -348,10 +360,19 @@ choice card links to it by its path only.
   one. The line measures its chips (`fitChips`): a phone shows fewer chips. The fold and the unfold
   of a section, the chips, the cards that come in (one after the other) and the ring have a
   transition, and none with a reduced motion; the first paint has none.
-- **The reorder mode also moves the groups.** In the mode, each group header has a handle (the
-  pins and « No group » have none: they stay first and last). A pointer drags the header: each
-  section folds, and the slot goes to the group nearest to the center of the header
-  (`groupTargetAt`), as for a card. The keyboard: Space on the handle lifts the group, the arrow
+- **A section folds and opens in one move.** The cards and the line of chips are two parts of one
+  box (`morphHeight` of `@scylla/ui`): the part that goes fades over the part that comes, and the
+  box moves its height once, from the one to the other. The two heights never add up. The first
+  frame measures the cards after their widget zones mount, and the box follows them while it
+  moves: pipelines that load during the move change its end. Pipelines that load up to 1 s later
+  move the box again, with no jump. The header does not move.
+- **The reorder mode also moves the groups.** In the mode, each group header has a handle in the
+  place of its "+" (the pins and « No group » have none: they stay first and last). A pointer
+  drags a copy of the header; the sections stay as they are, the dragged group dimmed in its
+  place, and a line that takes no height shows the place between the two groups nearest to the
+  center of the copy (`groupTargetAt`). A drop moves the group there: the groups slide to their
+  new places in one move, and the copy fades. Escape, or a drop at its own place, sends the copy
+  back to the header. The keyboard: Space on the handle lifts the group, the arrow
   keys move it, Space drops it and Escape gives it back; a live region says each place. « Move
   up » and « Move down » of the group menu change the order of the mode too. « Done » sends one
   `UpdateProjectGroup` with its new `position` for each group that is not at its place

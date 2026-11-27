@@ -505,6 +505,12 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
 - **List headers**: `FeatureHeader` (count, clear/delete selection, new button).
 - **Modals**: `ScyllaDialog` for every modal, never `Dialog` + `DialogContent` directly — a
   `{#key}` around `DialogContent` leaves the modal impossible to close.
+- **The UI stays still on a click.** Only what the click is about moves, in one motion. A button
+  keeps its place and size across states (`StableLabel` for a label that changes, disable rather
+  than remove, one button for two states), a part that comes goes in reserved space or over the
+  page, a mode changes everything in one frame, a dialog has one size. See
+  `packages/ui/AGENTS.md`, "Layout shifts", and test it with `expectNoLayoutShift`
+  (`@test/layout.ts`) and in a browser.
 - **Destructive actions** (delete, remove, revoke, disable, deactivate): the destructive variant
   of the menu item, the button or `IconButton`, never a red class; in a menu, at the end after a
   separator; confirmed by `ConfirmOperationAlertDialog`; on a settings page, in a `DangerZone`.
@@ -757,7 +763,7 @@ Where a test goes:
   Fixtures used by several components' tests go there too.
 - `primitives/`: one kebab-case folder per primitive, and its tests go in that folder.
 
-The harness is six files in `test/` at the repository root (alias `@test/*`), and it is the only
+The harness is seven files in `test/` at the repository root (alias `@test/*`), and it is the only
 shared test code of the workspace:
 
 | | |
@@ -768,6 +774,7 @@ shared test code of the workspace:
 | `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`, `fakePollTimers`. |
 | `test/i18n.ts` | `withLocale(locale, messages)` — for the handful of tests that assert on a real translation. |
 | `test/grpc.ts` | `unaryCall`, `failedCall` — the calls a fake `I…ServiceClient` returns, to test a repository. |
+| `test/layout.ts` | `expectNoLayoutShift(action, elements, { within, align, checkContent })` — fails when a click moves a part that it is not about. See `packages/ui/AGENTS.md`, "Layout shifts". |
 
 ### The rules that bite here
 

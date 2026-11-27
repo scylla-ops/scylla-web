@@ -11,7 +11,7 @@ interface GroupDrag {
   id: string;
   name: string;
   keyboard: boolean;
-  /** The box of the header when the person took it: the header leaves the page there. */
+  /** The box of the header when the person took it: its copy leaves the page there. */
   box: Box;
   /** The point where the person took the header, from its top left corner. */
   grab: Point;
@@ -30,8 +30,9 @@ const NOWHERE: Box = { left: 0, top: 0, width: 0, height: 0 };
  * The order of the groups in the reorder mode. It stays on the page until « Done » saves it;
  * « Cancel » forgets it. The pins stay first and « No group » last: they are not in the order.
  *
- * A pointer drag: `pick` lifts the header, `follow` moves it, `hover` moves the slot, `settle`
- * sends the header to the slot, then `drop` keeps the place; `cancel` and `release` give it back.
+ * A pointer drag: `pick` takes the header, `follow` moves its copy, `hover` moves the line between
+ * two groups, then `drop` puts the group there; `cancel` and `settle` send the copy back to the
+ * header, and `release` ends the drag. The groups stay in their place until the drop.
  * The keyboard: `lift`, `step` up or down, then `place` or `restore`.
  */
 export const createGroupReorder = () => {
@@ -66,11 +67,15 @@ export const createGroupReorder = () => {
     get drag(): Readonly<GroupDrag> | null {
       return drag;
     },
-    /** The slot of a pointer drag. */
+    /** The place of a pointer drag: the line between two groups. */
     get target(): Readonly<GroupTarget> | null {
       return target;
     },
-    /** How far the dragged header is from its box. */
+    /** A pointer drag has a new place for the group: the line shows. */
+    get moved() {
+      return !!drag && !drag.keyboard && !!target && target.beforeId !== origin?.beforeId;
+    },
+    /** How far the copy of the dragged header is from its box. */
     get offset(): Point {
       return drag && !drag.keyboard
         ? { x: pointer.x - drag.grab.x - drag.box.left, y: pointer.y - drag.grab.y - drag.box.top }
@@ -98,7 +103,7 @@ export const createGroupReorder = () => {
       order = null;
       ended = null;
     },
-    /** `nextId`: the group after it, so that the slot first shows at its own place. */
+    /** `nextId`: the group after it, its own place: the line shows once the place changes. */
     pick(group: { id: string; name: string; box: Box; grab: Point }, nextId?: string) {
       if (!order || drag) return;
       drag = { ...group, keyboard: false };
@@ -115,11 +120,11 @@ export const createGroupReorder = () => {
       if (!drag || drag.keyboard || settling) return;
       if (target?.beforeId !== next.beforeId) target = { beforeId: next.beforeId };
     },
-    /** The slot goes back to the place of the group before the drag. */
+    /** The place goes back to the place of the group before the drag. */
     cancel() {
       if (drag && !settling) target = origin;
     },
-    /** The top left corner of the header goes to the slot. */
+    /** The top left corner of the copy of the header goes to `to`. */
     settle(to: Point) {
       if (!drag || drag.keyboard) return;
       settling = true;

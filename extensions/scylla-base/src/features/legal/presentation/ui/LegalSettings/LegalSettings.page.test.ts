@@ -8,6 +8,7 @@ import {
   type LegalInfo,
   type LegalRepository,
 } from '@platform/legal';
+import { expectNoLayoutShift } from '@test/layout.ts';
 import { findFloating, render, withQueryClient } from '@test/render.ts';
 import LegalSettingsPage from './LegalSettings.page.svelte';
 
@@ -120,6 +121,25 @@ describe('LegalSettingsPage', () => {
         ],
       }),
     );
+  });
+
+  it('pushes nothing down at the first change or in the preview of a document', async () => {
+    setUp();
+    const user = userEvent.setup();
+    const row = await rowOf('Terms of service');
+    // The next document: the parts of the terms come before it in the flow.
+    const next = row.nextElementSibling as HTMLElement;
+    const save = within(row).getByRole('button', { name: /^(Save|Publish version)/ });
+    expect(save).toBeDisabled();
+
+    await expectNoLayoutShift(() => user.type(within(row).getByLabelText('Title'), 'Terms'), next);
+    expect(save).toBeEnabled();
+
+    await expectNoLayoutShift(
+      () => user.click(within(row).getByRole('button', { name: 'Preview' })),
+      next,
+    );
+    expect(within(row).getByRole('button', { name: 'Edit' })).toBeInTheDocument();
   });
 
   it('saves the operator, and shows the banner as off while every tracker is exempt', async () => {

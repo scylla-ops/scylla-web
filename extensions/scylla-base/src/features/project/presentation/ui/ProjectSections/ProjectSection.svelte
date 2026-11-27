@@ -2,7 +2,17 @@
   import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import { createMutation } from '@scylla/core-sdk';
-  import { fold, ListSkeleton, unfold } from '@scylla/ui';
+  import {
+    enter,
+    exit,
+    fold,
+    ListSkeleton,
+    MORPH_BOX_CLASS,
+    morphHeight,
+    swapIn,
+    swapOut,
+    unfold,
+  } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
@@ -35,7 +45,7 @@
     name: string;
     sections: ProjectSectionsState;
     reorder: ProjectReorderState;
-    /** The order of the groups in the reorder mode: a group has a handle, and a drag folds each section. */
+    /** The order of the groups in the reorder mode: a group has a handle in the place of its "+". */
     groups: GroupReorderState;
     densities: ProjectDensityState;
     phone: boolean;
@@ -73,17 +83,18 @@
 
   const updateGroup = createMutation(() => projectGroupMutations.update());
   let renaming = $state(false);
+  let colorOpen = $state(false);
   // The person folded or opened the section: its cards or its chips come in with a motion. The
   // first paint of the page has none.
   let moved = $state(false);
   // The card that a chip opened: the page scrolls to it once it shows.
   let reveal = $state<string | null>(null);
   const density = $derived(densities.of(section.key));
-  // A group moves: each section folds to its header, so that the groups fit on the screen.
-  const collapsed = $derived(!!groups.drag);
-  const folded = $derived(
-    !headless && !section.open && !reorder.active && section.projects.length > 0,
-  );
+  // The reorder mode keeps the line of chips: nothing in the page moves when the mode starts.
+  const folded = $derived(!headless && !section.open && section.projects.length > 0);
+  // One place in the header for the "+" and for the handle of a group (`place`: the person moves
+  // the groups): the handle takes the place of the "+" in the reorder mode, so that nothing moves.
+  const actionPlace = $derived(section.key !== PINS && (!!newProjectHref || !!place));
 
   const toggle = () => {
     moved = true;
@@ -123,6 +134,9 @@
     if (section.group) groups.moveTo(section.group.id, position);
   };
 
+  // The menu closes first and gives the focus back: the colors open after it.
+  const openColors = () => setTimeout(() => (colorOpen = true), 0);
+
   const rename = (next: string, color: string | undefined) => {
     if (!section.group) return;
     const { id: groupId, name: current, color: currentColor } = section.group;
@@ -147,28 +161,35 @@
     {phone}
     onDensity={next => densities.setSection(section.key, next)}
     onRename={place ? () => (renaming = true) : undefined}
+    onColor={place ? openColors : undefined}
     onMove={reorder.active ? moveGroup : undefined}
   />
 {/snippet}
 
-{#snippet grip()}
-  {#if section.group}
-    <GroupGrip id={section.group.id} {name} {groups} hintId={gripHintId} />
-  {/if}
-{/snippet}
-
 {#snippet actions()}
-  {#if newProjectHref && section.key !== PINS && !reorder.active}
-    <SectionAction
-      icon={PlusIcon}
-      label={t(
-        section.key === UNGROUPED
-          ? projectMessages.newProjectNoGroup
-          : projectMessages.newProjectIn(name),
-      )}
-      href={newProjectHref}
-      part="section-new-project"
-    />
+  {#if actionPlace}
+    <div
+      class="grid size-8 shrink-0 place-items-center *:col-start-1 *:row-start-1 max-md:size-11 pointer-coarse:size-11"
+    >
+      {#if reorder.active && section.group && place}
+        <div class="flex" in:swapIn out:swapOut>
+          <GroupGrip id={section.group.id} {name} {groups} hintId={gripHintId} />
+        </div>
+      {:else if !reorder.active && newProjectHref}
+        <div class="flex" in:swapIn out:swapOut>
+          <SectionAction
+            icon={PlusIcon}
+            label={t(
+              section.key === UNGROUPED
+                ? projectMessages.newProjectNoGroup
+                : projectMessages.newProjectIn(name),
+            )}
+            href={newProjectHref}
+            part="section-new-project"
+          />
+        </div>
+      {/if}
+    </div>
   {/if}
   {#if onNewGroup}
     <SectionAction
@@ -182,7 +203,7 @@
 
 {#snippet folder()}
   {#if section.group}
-    <GroupFolderColor group={section.group} class="max-md:size-8" />
+    <GroupFolderColor group={section.group} bind:open={colorOpen} class="max-md:size-8" />
   {/if}
 {/snippet}
 
@@ -217,7 +238,6 @@
           counts={section.counts}
           {dropText}
           {actions}
-          grip={reorder.active && section.group ? grip : undefined}
           {menu}
           onToggle={toggle}
         />
@@ -225,48 +245,51 @@
     </div>
   {/if}
 
-  <!-- The space under the header is in the padding of the part that folds: no jump. -->
-  {#if (section.open || headless) && !collapsed}
-    <div class={cn('flex flex-col gap-3', !headless && 'pt-3')} in:unfold out:fold>
-      {#if section.loading}
-        <ListSkeleton
-          rows={phone ? 1 : 3}
-          class={DENSITY_GRIDS[density]}
-          rowClass={DENSITY_SKELETONS[density]}
-        />
-      {:else}
-        <SectionGrid
-          {section}
-          {sections}
-          {reorder}
-          {densities}
-          {phone}
-          {newProjectHref}
-          stagger={moved}
-          {reveal}
-          onRevealed={() => (reveal = null)}
-        />
-        {#if section.nextBatch > 0}
-          <ProjectShowMore
-            next={section.nextBatch}
-            shown={section.projects.length}
-            total={section.total}
-            busy={section.busy}
-            {phone}
-            onShowMore={() => sections.showMore(section.key)}
+  <!-- The cards and the line of chips take the place of each other in one box, which moves its
+       height once. The space under the header is in the padding of each part: no jump. -->
+  <div class={MORPH_BOX_CLASS} data-part="project-section-body" {@attach morphHeight}>
+    {#if section.open || headless}
+      <div class={cn('flex flex-col gap-3', !headless && 'pt-3')} in:enter out:exit>
+        {#if section.loading}
+          <ListSkeleton
+            rows={phone ? 1 : 3}
+            class={DENSITY_GRIDS[density]}
+            rowClass={DENSITY_SKELETONS[density]}
           />
+        {:else}
+          <SectionGrid
+            {section}
+            {sections}
+            {reorder}
+            {densities}
+            {phone}
+            {newProjectHref}
+            stagger={moved}
+            {reveal}
+            onRevealed={() => (reveal = null)}
+          />
+          {#if section.nextBatch > 0}
+            <ProjectShowMore
+              next={section.nextBatch}
+              shown={section.projects.length}
+              total={section.total}
+              busy={section.busy}
+              {phone}
+              onShowMore={() => sections.showMore(section.key)}
+            />
+          {/if}
         {/if}
-      {/if}
-    </div>
-  {:else if folded && !collapsed}
-    <div class="pt-2" in:unfold out:fold>
-      <FoldedPreview
-        projects={section.projects}
-        total={section.total}
-        {name}
-        animate={moved}
-        onOpen={openAt}
-      />
-    </div>
-  {/if}
+      </div>
+    {:else if folded}
+      <div class="pt-2" in:enter out:exit>
+        <FoldedPreview
+          projects={section.projects}
+          total={section.total}
+          {name}
+          animate={moved}
+          onOpen={openAt}
+        />
+      </div>
+    {/if}
+  </div>
 </section>

@@ -104,6 +104,7 @@
   onOpenChange={next => (open = next)}
   {title}
   description={t(app.runner ? messages.iconDialogDescription : appPageMessages.iconDialogDescription)}
+  stable={37}
   class="sm:max-w-lg"
 >
   <AppIconForm {app} {avatar} close={() => (open = false)} />

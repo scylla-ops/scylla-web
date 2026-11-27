@@ -38,6 +38,7 @@
 </script>
 
 <ScyllaDialog
+  stable={42}
   {open}
   {onOpenChange}
   title={pipelineName.trim()

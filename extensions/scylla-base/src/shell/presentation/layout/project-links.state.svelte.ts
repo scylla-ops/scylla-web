@@ -136,9 +136,17 @@ export const projectLinks = (
           color: group.color,
           ...newProject(t(layoutMessages.newProjectIn(group.name)), group.id),
         });
-        return items
-          .filter(project => project.groupId === group.id)
-          .map(project => linkOf(project, section));
+        const inGroup = items.filter(project => project.groupId === group.id);
+        if (inGroup.length > 0) return inGroup.map(project => linkOf(project, section));
+        // An empty group shows too, with one muted call to action (none without the right).
+        return [
+          {
+            title: t(layoutMessages.newProject),
+            href: canCreate ? workspaceUrl(slug, newProjectPath(group.id)) : '',
+            section,
+            placeholder: true,
+          },
+        ];
       }),
       ...items
         .filter(project => !project.groupId || !groupIds.includes(project.groupId))

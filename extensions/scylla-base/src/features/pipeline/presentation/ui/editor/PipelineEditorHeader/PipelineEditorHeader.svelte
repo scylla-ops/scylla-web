@@ -7,7 +7,7 @@
   import SaveIcon from '@lucide/svelte/icons/save';
   import { Permission, can } from '@platform/authz';
   import { TabsList, TabsTrigger } from '@scylla/ui/primitives';
-  import { GatedButton } from '@scylla/ui';
+  import { GatedButton, StableLabel } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { exportMessages } from '@base/features/pipeline/presentation/messages/export.messages.ts';
@@ -210,10 +210,11 @@
         : (keyBlock ?? undefined)}
       onclick={onSubmit}
       disabled={submitDisabled || !!missing || !!issue || isSaving || (mode === 'edit' && !isDirty)}
+      aria-busy={isSaving || undefined}
       data-tour="pipeline-submit"
     >
-      {#if isSaving}<Loader2Icon class="mr-2 size-4 animate-spin" />{/if}
-      {submitLabel}
+      <!-- The spinner takes the place of the label: the button and the actions beside it stay still. -->
+      <StableLabel text={submitLabel} busy={isSaving} />
     </GatedButton>
   </div>
 </div>

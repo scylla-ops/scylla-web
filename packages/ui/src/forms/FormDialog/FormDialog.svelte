@@ -1,5 +1,6 @@
 <script lang="ts" generics="TId extends string">
   import { Button, DialogFooter } from '../../primitives/index.ts';
+  import StableLabel from '../../controls/StableLabel/StableLabel.svelte';
   import ScyllaDialog from '../../feedback/ScyllaDialog/ScyllaDialog.svelte';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import ScyllaForm from '../ScyllaForm/ScyllaForm.svelte';
@@ -31,6 +32,9 @@
     onSubmit,
     hideCancel = false,
   }: Props = $props();
+
+  const idleLabel = $derived(submitLabel ?? t(formDialogMessages.create));
+  const busyLabel = $derived(pendingLabel ?? t(formDialogMessages.creating));
 </script>
 
 <ScyllaDialog {open} {onOpenChange} {title} {description} dismissible={!hideCancel}>
@@ -48,10 +52,9 @@
             {t(formDialogMessages.cancel)}
           </Button>
         {/if}
+        <!-- The button keeps the width of its longer label: Cancel does not move at the submit. -->
         <Button type="submit" disabled={!isValid || pending}>
-          {pending
-            ? (pendingLabel ?? t(formDialogMessages.creating))
-            : (submitLabel ?? t(formDialogMessages.create))}
+          <StableLabel text={pending ? busyLabel : idleLabel} reserve={[idleLabel, busyLabel]} />
         </Button>
       </DialogFooter>
     {/snippet}

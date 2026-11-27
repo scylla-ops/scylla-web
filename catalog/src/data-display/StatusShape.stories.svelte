@@ -32,6 +32,14 @@
   </div>
 </Story>
 
+<Story name="Waiting" asChild>
+  <div class="flex flex-wrap items-end gap-8">
+    {#each SIZES as size (size)}
+      <Specimen label="No run yet, {size} px"><StatusShape state="idle" label="No run yet" {size} /></Specimen>
+    {/each}
+  </div>
+</Story>
+
 <Story name="Sizes" asChild>
   <div class="flex flex-wrap items-end gap-8">
     {#each SIZES as size (size)}

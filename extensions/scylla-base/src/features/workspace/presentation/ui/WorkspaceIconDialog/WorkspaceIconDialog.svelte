@@ -20,6 +20,7 @@
   {onOpenChange}
   title={t(workspaceMessages.iconTitle)}
   description={t(workspaceMessages.iconDescription)}
+  stable={37}
   class="sm:max-w-lg"
 >
   <WorkspaceIconForm {workspace} close={() => onOpenChange(false)} />

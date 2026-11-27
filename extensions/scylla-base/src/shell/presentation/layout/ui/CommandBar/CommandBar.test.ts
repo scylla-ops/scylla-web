@@ -819,6 +819,15 @@ describe('CommandBar', () => {
   });
 
   describe('the filters', () => {
+    it('keeps the root and the chip row inside the dialog with many chips', async () => {
+      await open();
+
+      const root = screen.getByRole('application');
+      expect(root).toHaveClass('min-w-0');
+      const row = chip('Pages').parentElement;
+      expect(row).toHaveClass('min-w-0', 'overflow-x-auto');
+    });
+
     it('lists the rows of a filter with no text', async () => {
       await open();
       await fireEvent.click(chip('Pages'));

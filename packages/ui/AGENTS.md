@@ -36,7 +36,8 @@ src/
   chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
                            ChartSlot, ChartRing: the marks of the charts of a widget
   controls/                IconButton, GatedButton, PasswordInput, SearchSelect, SegmentedControl,
-                           ShareLinkButton, ColorPicker, ColorSwatches, IconPicker, IconField,
+                           ShareLinkButton, StableLabel, ColorPicker, ColorSwatches, IconPicker,
+                           IconField,
                            GhostItem, Chip, GlyphAvatarEditor, GlyphAvatarDialog,
                            GlyphAvatarCredit
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
@@ -50,9 +51,9 @@ src/
                            each resize)
   widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
   motion/                  page transitions, reduced motion, a spring easing, enter and exit
-                           (fade and rise), fold and unfold (height and fade), reflow (the move
-                           of the items of a list), swap (a cross-fade of a value), a count
-                           that rolls
+                           (fade and rise), fold and unfold (height and fade), a box that moves
+                           its height between two parts (morph), reflow (the move of the items
+                           of a list), swap (a cross-fade of a value), a count that rolls
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -124,7 +125,8 @@ they use the language of the browser or no language.
 | The glyph or the initials on a solid tile of a color | `glyphOn(rgb)` (white or near-black, the one that contrasts more), with `colorIn(color, theme)`: a free color, or a color of the theme from `THEME_COLORS` (the tokens of `styles.css`, which `styles.test.ts` compares) |
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
 | One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
-| A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
+| A text that changes with a state in a button or a row ("Save" → "Saving...", "Close" → "Reopen"), or a spinner in place of a label | `StableLabel` (`text`, `reserve`: the other texts of the place, `busy`): all the texts in one grid cell, the others invisible, thus the place has the width of the longest and nothing beside it moves. `busy` shows a spinner in place of the text, which stays the name of the button. See "Layout shifts" |
+| A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Every `ScyllaDialog` keeps its top edge at one place (10% of the screen) and the body scrolls under a sticky footer: only the bottom moves when the content changes. `stable` (the height of the largest state, in rem) is for a dialog with tabs between known sizes: it keeps that height and is centered for it. `IconPicker` `bodyClass` gives each tab a fixed height with a scroll. Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
 | Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue". Its button is destructive; `variant="default"` for an action that takes nothing away ("Reactivate") |
 | An action that deletes, removes, revokes, disables or deactivates | The destructive variant, never a red class. See "Destructive actions" |
 | The section of a settings page with the actions that cannot be undone | `DangerZone` (`title`, `description`, `action`: the destructive button, centered on the text or under it in a narrow card, `children`) |
@@ -207,6 +209,7 @@ kind of element has the same motion everywhere. Use these presets, never a new d
 | A part that appears in its place: an empty state, a banner over the page, the content that replaces a skeleton | `in:enter` (fade and a rise of 4 px) | 200 ms, ease out |
 | A part out of the flow that goes away: an overlay, a floating bar | `out:exit` (fade) | 150 ms, ease in |
 | A part that opens or closes in the flow: a message under a field, a folding section, a banner, a row of a list | `in:unfold` and `out:fold` (height and fade) | 220 ms in, 150 ms out |
+| A part that takes the place of another in the flow, or of nothing: the cards of a section of the projects page and its folded line of chips, the links of a section of the second sidebar | `{@attach morphHeight}` and `MORPH_BOX_CLASS` on the box, `in:enter` and `out:exit` on each part | the box: as `unfold` to grow, as `fold` to shrink |
 | The items of a keyed `{#each}` that change places when one comes, goes or moves (rows, the widgets of the dashboard, the cards of the projects page) | `animate:reflow` (a slide from the old box; `{ still: true }` keeps a dragged item still) | 200 ms, ease out |
 | The content of a tab that becomes active | `{@attach enterOnActivate}` (`TabsContent` has it) | as `enter` |
 | A number that changes | `createCountRoll(() => count)` (`rollIn`, `rollOut`, `pulse`) | 370 ms spring in, 220 ms out |
@@ -228,9 +231,51 @@ kind of element has the same motion everywhere. Use these presets, never a new d
   ends (`setup.ts`), thus the element stays. A test that checks that an element went away sets
   `prefers-reduced-motion: reduce` (`window.matchMedia`): each preset then has a duration of 0
   and the element goes at once. The end-to-end tests run with reduced motion.
+- **`morphHeight` moves the box once, never the two parts one after the other.** With `unfold`
+  on one part and `fold` on the other, the two heights add up while they move, and `slide`
+  measures the new part before the content it loads (a widget zone, data): the box first grows,
+  then shrinks, and jumps at the end. The box measures the new part in the first frame, follows it
+  while it moves (`height-move.ts`: a new end keeps the place and the speed, and never goes past
+  the end). It keeps following the new part up to 1 s after the swap: data that loads after the
+  move moves the box again, with no jump. Then the box has no height of its own.
 - `swapIn` and `swapOut` need the two values in one grid cell (`grid` on the parent,
   `col-start-1 row-start-1` on the child) in a `{#key}`, so the place keeps its size. So does the
   count roll.
+
+### Layout shifts: the UI stays still on a click
+
+A click moves the UI as little as possible. Only the content that the click is about moves (a
+section that opens, a row that goes), in one motion of the table above, with no overshoot and no
+jump at its end. All the rest stays where it is, first of all the element under the pointer.
+
+- **A button keeps its place and its size when a state or a mode changes.** Swap its content in
+  place, disable it rather than remove it, and keep the room of a part that comes and goes. A
+  label that changes ("Save" → "Saving...") is a `StableLabel` with the other labels in
+  `reserve`; a spinner takes the place of the label (`busy`), it is not added beside it. One
+  button for two states (`Close` / `Reopen`), not two buttons in an `{#if}`. The `outline`
+  variant has a border of 1 px: a button that changes to it from another variant gets
+  `border border-transparent` in the other state.
+- **In a row aligned to the right, a part that comes goes on the left of the row** (the actions
+  of a selection in `FeatureHeader`), so the parts on its right do not move.
+- **A part that shows on hover keeps its room:** `invisible` and `group-hover:visible`, never
+  `hidden` and `group-hover:flex`. An icon that it replaces is in the same grid cell.
+- **A row that comes after a click goes in reserved space, or over the page.** A Save that waits
+  for a change is there and disabled from the start. A hint, a drop zone or a bar of a mode is an
+  overlay (`absolute`, `fixed`), or it takes a place that is already there.
+- **A mode (edit, reorder, select) changes everything in one frame**, with the same heights and
+  paddings in the two modes: the room of its handles is kept out of the mode too.
+- **A dialog has one size in all its tabs and states**, and a loading state has the size of the
+  content that comes after it (a skeleton of the real size).
+- **A preview takes the box of what it previews** (the text stays below it, `invisible`), so
+  the parts under it do not move.
+- **The scroll area of the frame keeps the room of its scroll bar** (`[scrollbar-gutter:stable]`
+  in `ShellFrame`): a page that grows does not get narrower.
+
+Test it with `expectNoLayoutShift(action, elements, { within, align })` of `@test/layout.ts`: it
+fails when the action replaces a watched element, or changes the texts or the size classes of a
+part that can push it. jsdom has no layout, thus also check the change in a browser: read the
+rect of the controls around the click at each animation frame (`requestAnimationFrame`) for one
+second, before and after the click.
 
 ### `primitives/` — the primitives
 
@@ -386,7 +431,7 @@ them. A row with `onclick` is `bg-muted/40` on hover; a selected row (`data-stat
 ## `StatusShape`
 
 The four dots of the logo, drawn on a canvas, take a form per state (`StatusState`, in
-`data-display/status-state.ts`): `pending` / `idle` the 2 × 2 grid, breathing; `running` the
+`data-display/status-state.ts`): `pending` / `idle` a hollow dashed ring in `muted-foreground` (an SVG that fades over the canvas; never a grid of dots, it reads as a drag grip); `running` the
 marbles run round a circle (as the old Windows spinner: slow at the top, fast below, so they
 catch up and part); `success` one disc; `failed` and `orphaned` a ×; `skipped` and `cancelled` a
 slash. Its accessible name is `label`; `data-state` gives the state to a test.
@@ -519,6 +564,8 @@ The same cell snippets render in both layouts. Each column says where it goes in
 icon (`newIcon`, `Plus` by default) with its label for screen readers only, and when something is
 selected, "Select all", "Clear" and Delete go into a bar fixed at the bottom of the screen
 (`data-part="feature-header-selection-bar"`). Without a selection there is no bar.
+A mode that takes no selection turns "Select all" off in its place (`selectDisabled`), and "New"
+off with `canNew` and its reason: the buttons do not move.
 
 ## Destructive actions
 

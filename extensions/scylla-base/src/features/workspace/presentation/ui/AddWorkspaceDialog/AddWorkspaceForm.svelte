@@ -1,7 +1,13 @@
 <script lang="ts">
   import { navigateTo, workspaceUrl } from '@platform/context';
   import { createMutation } from '@scylla/core-sdk';
-  import { IconField, ScyllaForm, type FormValues, type IconChoice } from '@scylla/ui';
+  import {
+    IconField,
+    ScyllaForm,
+    StableLabel,
+    type FormValues,
+    type IconChoice,
+  } from '@scylla/ui';
   import { Button, DialogFooter } from '@scylla/ui/primitives';
   import { activeLocale, t } from '@scylla/ui/i18n';
   import { recentColors } from '@base/features/project';
@@ -73,7 +79,10 @@
         </Button>
       {/if}
       <Button type="submit" disabled={!isValid || isPending}>
-        {isPending ? t(workspaceMessages.creating) : t(workspaceMessages.createSubmit)}
+        <StableLabel
+          text={isPending ? t(workspaceMessages.creating) : t(workspaceMessages.createSubmit)}
+          reserve={[t(workspaceMessages.createSubmit), t(workspaceMessages.creating)]}
+        />
       </Button>
     </DialogFooter>
   {/snippet}

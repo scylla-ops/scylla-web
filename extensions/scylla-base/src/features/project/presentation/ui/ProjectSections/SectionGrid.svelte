@@ -87,8 +87,9 @@
       : [...cards.slice(0, at), { kind: 'slot' }, ...cards.slice(at)];
   });
   const cells = $derived(entries.filter(entry => entry.kind === 'slot' || !entry.lifted).length);
-  // The ghost card is not a card: no drag, and no place in the reorder mode.
-  const ghost = $derived(!!newProjectHref && !reorder.active && section.key !== PINS);
+  // The ghost card is not a card: no drag. The reorder mode keeps it in its place, turned off.
+  const ghost = $derived(!!newProjectHref && section.key !== PINS);
+  const OFF = 'opacity-40';
   const keyOf = (entry: Entry) => (entry.kind === 'slot' ? SLOT_KEY : entry.project.id);
   const flip = flipDensity(() => density);
 </script>
@@ -116,7 +117,14 @@
       out:foldZone={{ now: !!reorder.drag }}
     >
       <p class="font-medium">{t(projectMessages.emptyGroupCreate)}</p>
-      <Button href={newProjectHref} variant="outline" size="sm">
+      <Button
+        href={newProjectHref}
+        variant="outline"
+        size="sm"
+        class={cn('transition-opacity motion-reduce:transition-none', reorder.active && OFF)}
+        inert={reorder.active}
+        aria-hidden={reorder.active || undefined}
+      >
         <PlusIcon aria-hidden="true" />
         {t(projectMessages.newProject)}
       </Button>
@@ -182,7 +190,14 @@
   {/each}
   {#if ghost && newProjectHref && entries.length > 0}
     <!-- After the last card: a new project in this section, with no drag. -->
-    <div class="h-full" role="listitem" in:enter out:exit>
+    <div
+      class={cn('h-full transition-opacity motion-reduce:transition-none', reorder.active && OFF)}
+      role="listitem"
+      inert={reorder.active}
+      aria-hidden={reorder.active || undefined}
+      in:enter
+      out:exit
+    >
       <GhostItem
         label={t(projectMessages.newProject)}
         href={newProjectHref}

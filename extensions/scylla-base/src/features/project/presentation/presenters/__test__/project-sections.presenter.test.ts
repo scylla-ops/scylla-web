@@ -230,10 +230,11 @@ describe('the sections', () => {
 
 describe('the order of the groups', () => {
   const group = (id: string): ProjectGroupEntity => ({ id, workspaceId: 'org-1', name: id });
-  /** The headers of the groups in one column, 32 px high and 100 px apart. */
-  const header = (index: number, id?: string) => ({
-    ...(id && { id }),
-    box: { left: 0, top: index * 100, width: 1232, height: 32 },
+  /** The groups in one column, each 100 px high. */
+  const groupCell = (index: number, id: string) => ({
+    id,
+    top: index * 100,
+    bottom: index * 100 + 100,
   });
 
   it('shows the groups in the order of the reorder mode, and a new group last', () => {
@@ -273,17 +274,31 @@ describe('the order of the groups', () => {
     expect(groupMovesToSave(['a', 'b'], ['x', 'b', 'a'])).toEqual([{ groupId: 'b', position: 0 }]);
   });
 
-  it('puts the slot at the group nearest to the center of the dragged header', () => {
-    // « b » is lifted: its slot is between « a » and « c ».
-    const cells = [header(0, 'a'), header(1), header(2, 'c')];
-    const after = { left: 0, top: 300, width: 1232, height: 32 };
+  it('puts the line between the two groups nearest to the center of the dragged header', () => {
+    // Three groups of 100 px; « b » is dragged and stays in its place.
+    const cells = [groupCell(0, 'a'), groupCell(1, 'b'), groupCell(2, 'c')];
 
-    // On « a »: the slot takes its place. On its own slot: it stays before « c ».
-    expect(groupTargetAt(cells, after, { x: 600, y: 10 })).toEqual({ beforeId: 'a' });
-    expect(groupTargetAt(cells, after, { x: 600, y: 116 })).toEqual({ beforeId: 'c' });
-    // On « c », after the slot: « c » goes up, and the slot goes after it, last.
-    expect(groupTargetAt(cells, after, { x: 600, y: 210 })).toEqual({ beforeId: undefined });
-    expect(groupTargetAt(cells, after, { x: 600, y: 320 })).toEqual({ beforeId: undefined });
-    expect(groupTargetAt([], null, { x: 600, y: 10 })).toBeNull();
+    // Over the top of « a »: before it. Near the line between « a » and « b »: its own place.
+    expect(groupTargetAt(cells, 'b', 10)).toEqual({ beforeId: 'a' });
+    expect(groupTargetAt(cells, 'b', 90)).toEqual({ beforeId: 'c' });
+    // On itself, and just after itself: its own place, before « c ».
+    expect(groupTargetAt(cells, 'b', 160)).toEqual({ beforeId: 'c' });
+    expect(groupTargetAt(cells, 'b', 210)).toEqual({ beforeId: 'c' });
+    // Near the end of « c »: last.
+    expect(groupTargetAt(cells, 'b', 270)).toEqual({ beforeId: undefined });
+    expect(groupTargetAt(cells, 'b', 900)).toEqual({ beforeId: undefined });
+    expect(groupTargetAt([], 'b', 10)).toBeNull();
+  });
+
+  it('puts the line at the nearest end of a tall group', () => {
+    // « b » is 600 px high, with many cards; « c » is dragged.
+    const cells = [
+      { id: 'a', top: 0, bottom: 100 },
+      { id: 'b', top: 100, bottom: 700 },
+      { id: 'c', top: 700, bottom: 800 },
+    ];
+
+    expect(groupTargetAt(cells, 'c', 380)).toEqual({ beforeId: 'b' });
+    expect(groupTargetAt(cells, 'c', 420)).toEqual({ beforeId: undefined });
   });
 });

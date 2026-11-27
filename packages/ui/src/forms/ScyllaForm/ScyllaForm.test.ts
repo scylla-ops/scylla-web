@@ -134,6 +134,26 @@ describe('ScyllaForm', () => {
     expect(screen.getByLabelText('Username')).toHaveAttribute('aria-invalid', 'true');
   });
 
+  it('reserves the line of the message under each field, so an error moves no field', async () => {
+    const { container } = render(ScyllaForm, {
+      items: [{ ...items[0], validate: () => ({ id: 'bad', message: 'Too short' }) }, items[1]],
+      onSubmit: vi.fn(),
+      buttonLabel: 'Save',
+    });
+    const slots = () => [...container.querySelectorAll('[data-slot="field-message"]')];
+    const before = slots();
+    expect(before).toHaveLength(2);
+    expect(before.every(slot => slot.classList.contains('min-h-4'))).toBe(true);
+
+    await userEvent.type(screen.getByLabelText('Username'), 'ra');
+    await userEvent.tab();
+
+    // The same slots: the error comes into the first one, nothing is added to the column.
+    expect(slots()).toEqual(before);
+    expect(before[0]).toHaveTextContent('Too short');
+    expect(before[1]).toBeEmptyDOMElement();
+  });
+
   it('does not submit while a value is wrong', async () => {
     const onSubmit = vi.fn();
     render(ScyllaForm, {
