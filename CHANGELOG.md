@@ -188,6 +188,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   zone of the pins shows over the toolbar only during the drag of a card.
 - The buttons of the icon dialogs stay in one place when you change tabs, and the image drop zone
   fills the free height.
+- The project menu marks the place where the project is now, and a drag of a pinned card onto the
+  pins shows that it is already pinned.
 
 ## [0.7.2] - 2026-11-25
 

@@ -86,4 +86,32 @@ describe('createProjectReorder', () => {
     expect(reorder.hover('g-1', 'x')).toBe(false);
     expect(reorder.hover(PINS)).toBe(true);
   });
+
+  it('takes no drop on the pins of a card that they have: the slot goes back to the card', () => {
+    const reorder = createProjectReorder(id => id === 'b');
+    reorder.start();
+    reorder.pick({ id: 'b', name: 'B', from: UNGROUPED, box: BOX, grab: { x: 1, y: 1 } }, 'c');
+    reorder.hover('g-1', 'x');
+
+    expect(reorder.accepts(PINS)).toBe(false);
+    expect(reorder.hover(PINS)).toBe(false);
+
+    reorder.refuse(PINS);
+
+    expect(reorder.refused).toBe(PINS);
+    expect(reorder.target).toEqual({ to: UNGROUPED, beforeId: 'c', header: false });
+
+    reorder.drop();
+
+    expect(reorder.moves).toEqual([]);
+    expect(reorder.refused).toBeNull();
+  });
+
+  it('takes a drop on the pins of a card that they have not', () => {
+    const reorder = createProjectReorder(() => false);
+    reorder.start();
+    reorder.pick({ id: 'b', name: 'B', from: UNGROUPED, box: BOX, grab: { x: 1, y: 1 } }, 'c');
+
+    expect(reorder.hover(PINS)).toBe(true);
+  });
 });

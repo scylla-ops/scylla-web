@@ -35,7 +35,7 @@ const sameTarget = (a: DropTarget | null, b: DropTarget | null) =>
  * `settle` sends the card to its slot, then `drop` keeps the place. `cancel` sends the slot back
  * to the place of the card, and `release` ends the drag with no drop.
  */
-export const createProjectReorder = () => {
+export const createProjectReorder = (isPinned: (id: string) => boolean = () => false) => {
   let moves = $state<CardMove[] | null>(null);
   let drag = $state<Drag | null>(null);
   let pointer = $state<Point>({ x: 0, y: 0 });
@@ -44,6 +44,8 @@ export const createProjectReorder = () => {
   let target = $state<DropTarget | null>(null);
   let origin: DropTarget | null = null;
   let ended = $state<DragEnd | null>(null);
+  // The pins when the drag goes over them with a card that they have already.
+  let refused = $state<SectionKey | null>(null);
   // The size of a cell of the section under the card, when its density is not the density of the
   // section of the card: the card takes its shape.
   let shape = $state<Pick<Box, 'width' | 'height'> | null>(null);
@@ -57,11 +59,18 @@ export const createProjectReorder = () => {
         }
       : card.grab;
 
-  const accepts = (to: SectionKey) => !!drag && (drag.from !== PINS || to === PINS);
+  // A pinned card has its place in the pins: the pins take no new drop of it from another section.
+  const pinnedNow = (id: string) =>
+    isPinned(id) || !!moves?.some(move => move.to === PINS && move.id === id);
+  const accepts = (to: SectionKey) =>
+    !!drag &&
+    (drag.from !== PINS || to === PINS) &&
+    !(to === PINS && drag.from !== PINS && pinnedNow(drag.id));
   const clear = () => {
     drag = null;
     target = null;
     origin = null;
+    refused = null;
     settling = false;
     vanishing = false;
     shape = null;
@@ -108,6 +117,16 @@ export const createProjectReorder = () => {
     get motion(): LiftedMotion {
       if (!settling) return 'follow';
       return vanishing ? 'vanish' : 'settle';
+    },
+    /** The section that shows « Already pinned » for the dragged card, or null. */
+    get refused(): SectionKey | null {
+      return refused;
+    },
+    /** The drag is over the pins with a pinned card: the slot goes back to the card. */
+    refuse(to: SectionKey | null) {
+      if (!drag || settling) return;
+      refused = to;
+      if (to) target = origin;
     },
     get ended(): Readonly<DragEnd> | null {
       return ended;

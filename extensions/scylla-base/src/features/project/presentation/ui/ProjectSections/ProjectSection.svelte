@@ -109,7 +109,9 @@
 
   const drag = $derived(reorder.drag);
   const dropText = $derived(
-    drag && reorder.target?.header && reorder.target.to === section.key
+    drag && reorder.refused === section.key
+      ? t(projectMessages.alreadyPinnedDrop(drag.name))
+      : drag && reorder.target?.header && reorder.target.to === section.key
       ? t(
           section.key === PINS
             ? projectMessages.releaseToPin(drag.name)
