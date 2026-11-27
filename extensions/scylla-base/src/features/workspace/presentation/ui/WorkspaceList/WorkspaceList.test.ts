@@ -149,6 +149,19 @@ describe('WorkspaceList', () => {
     expect(screen.getAllByRole('button', { name: 'Delete', hidden: true })).toHaveLength(1);
   });
 
+  it('keeps the room of the row actions while they are hidden: the name does not get shorter on hover', async () => {
+    grant({ 'org-2': ['update_workspace'] });
+    setUp(() => Promise.resolve(workspaces));
+    render(WorkspaceList);
+
+    const actions = (await screen.findByRole('button', { name: 'Edit' })).closest(
+      '[data-part="workspace-row-actions"]',
+    );
+    // `invisible` keeps the box, `hidden` would take it away until the hover.
+    expect(actions).toHaveClass('invisible', 'group-hover:visible');
+    expect(actions).not.toHaveClass('hidden');
+  });
+
   it('does not take the rights of the active workspace for another workspace', async () => {
     grant({ 'org-1': ['update_workspace'], 'org-2': ['list_access'] });
     permissionsStore.setState({

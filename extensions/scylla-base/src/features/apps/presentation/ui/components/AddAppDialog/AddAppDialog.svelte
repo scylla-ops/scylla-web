@@ -11,7 +11,7 @@
     DialogHeader,
     DialogTitle,
   } from '@scylla/ui/primitives';
-  import type { IconChoice } from '@scylla/ui';
+  import { StableLabel, type IconChoice } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { TokenExpiry, TokenPreset } from '@shared/domain/structs/api-token.struct.ts';
   import {
@@ -183,6 +183,15 @@
     close();
     if (id) scyllaNavigate.goToWorkspaceRoute(`/apps/${id}`);
   };
+
+  /** The labels of the two buttons of the footer at each step: each button has the longest. */
+  const backTexts = $derived([t(messages.close), t(messages.cancel), t(messages.back)]);
+  const nextTexts = $derived([
+    t(messages.openApp),
+    t(messages.next),
+    t(messages.createToken),
+    t(messages.addIdentity),
+  ]);
 </script>
 
 <Dialog
@@ -239,20 +248,36 @@
       <span class="text-xs text-muted-foreground">
         {t(messages.stepOf(Math.min(step + 1, 3)))}
       </span>
+      <!-- Each step has its labels, in buttons of one width: they stay under the pointer. -->
       <div class="flex gap-2">
         {#if done}
-          <Button variant="outline" onclick={close}>{t(messages.close)}</Button>
-          <Button onclick={openApp}>{t(messages.openApp)}</Button>
+          <Button variant="outline" onclick={close}>
+            <StableLabel text={t(messages.close)} reserve={backTexts} />
+          </Button>
+          <Button onclick={openApp}><StableLabel text={t(messages.openApp)} reserve={nextTexts} /></Button>
         {:else if step === 0}
-          <Button variant="outline" onclick={close}>{t(messages.cancel)}</Button>
-          <Button onclick={next} disabled={!name.trim()}>{t(messages.next)}</Button>
+          <Button variant="outline" onclick={close}>
+            <StableLabel text={t(messages.cancel)} reserve={backTexts} />
+          </Button>
+          <Button onclick={next} disabled={!name.trim()}>
+            <StableLabel text={t(messages.next)} reserve={nextTexts} />
+          </Button>
         {:else if step === 1}
-          <Button variant="outline" onclick={() => (step = 0)}>{t(messages.back)}</Button>
-          <Button onclick={next} disabled={create.isPending}>{t(messages.next)}</Button>
+          <Button variant="outline" onclick={() => (step = 0)}>
+            <StableLabel text={t(messages.back)} reserve={backTexts} />
+          </Button>
+          <Button onclick={next} disabled={create.isPending}>
+            <StableLabel text={t(messages.next)} reserve={nextTexts} />
+          </Button>
         {:else}
-          <Button variant="outline" onclick={() => (step = 1)}>{t(messages.back)}</Button>
+          <Button variant="outline" onclick={() => (step = 1)}>
+            <StableLabel text={t(messages.back)} reserve={backTexts} />
+          </Button>
           <Button onclick={submit} disabled={!canSubmit || create.isPending}>
-            {kind === 'token' ? t(messages.createToken) : t(messages.addIdentity)}
+            <StableLabel
+              text={kind === 'token' ? t(messages.createToken) : t(messages.addIdentity)}
+              reserve={nextTexts}
+            />
           </Button>
         {/if}
       </div>

@@ -178,55 +178,64 @@
         <div class="flex w-full min-w-0 items-center gap-2">
           <WorkspaceIcon icon={workspace.icon} {imageUrl} size={20} />
           <span class="min-w-0 flex-1 truncate text-sm" title={workspace.name}>{workspace.name}</span>
-          {#if workspace.id === currentWorkspaceId}
-            <CheckIcon
-              class="size-4 shrink-0 text-foreground group-hover:hidden"
-              aria-label={t(workspaceMessages.current)}
-            />
-          {/if}
-          <!-- The actions of a row are not in the drawing: they show on hover, in place of the check. -->
-          <div class="hidden gap-0.5 group-hover:flex">
-            {#if permissions.can(Permission.LIST_WORKSPACE_MEMBERS, workspace.id)}
-              <IconButton
-                icon={UsersIcon}
-                tooltip={t(workspaceMessages.members)}
-                onclick={event => {
-                  event.stopPropagation();
-                  // The members page reads the workspace from the context.
-                  contextStore
-                    .getState()
-                    .setWorkspace(workspace.id, workspace.name, workspace.slug);
-                  navigateTo(workspaceUrl(workspace.slug, 'access/members'));
-                }}
-                class="size-6"
-                iconClass="size-3.5"
+          <!--
+            The actions of a row are not in the drawing: they show on hover, in place of the check.
+            They keep their room while they are invisible, so the name does not get shorter under
+            the pointer.
+          -->
+          <div class="grid shrink-0 items-center justify-items-end">
+            {#if workspace.id === currentWorkspaceId}
+              <CheckIcon
+                class="col-start-1 row-start-1 size-4 text-foreground group-hover:invisible"
+                aria-label={t(workspaceMessages.current)}
               />
             {/if}
-            {#if permissions.can(Permission.UPDATE_WORKSPACE, workspace.id)}
-              <IconButton
-                icon={PencilIcon}
-                tooltip={t(workspaceMessages.edit)}
-                onclick={event => {
-                  event.stopPropagation();
-                  editWorkspace = workspace;
-                }}
-                class="size-6"
-                iconClass="size-3.5"
-              />
-            {/if}
-            {#if permissions.can(Permission.DELETE_WORKSPACE, workspace.id)}
-              <IconButton
-                icon={TrashIcon}
-                tooltip={t(workspaceMessages.delete)}
-                onclick={event => {
-                  event.stopPropagation();
-                  deleteWorkspaceId = workspace.id;
-                }}
-                variant="destructive"
-                class="size-6"
-                iconClass="size-3.5"
-              />
-            {/if}
+            <div
+              data-part="workspace-row-actions"
+              class="invisible col-start-1 row-start-1 flex gap-0.5 opacity-0 transition-[opacity,visibility] group-hover:visible group-hover:opacity-100 motion-reduce:transition-none"
+            >
+              {#if permissions.can(Permission.LIST_WORKSPACE_MEMBERS, workspace.id)}
+                <IconButton
+                  icon={UsersIcon}
+                  tooltip={t(workspaceMessages.members)}
+                  onclick={event => {
+                    event.stopPropagation();
+                    // The members page reads the workspace from the context.
+                    contextStore
+                      .getState()
+                      .setWorkspace(workspace.id, workspace.name, workspace.slug);
+                    navigateTo(workspaceUrl(workspace.slug, 'access/members'));
+                  }}
+                  class="size-6"
+                  iconClass="size-3.5"
+                />
+              {/if}
+              {#if permissions.can(Permission.UPDATE_WORKSPACE, workspace.id)}
+                <IconButton
+                  icon={PencilIcon}
+                  tooltip={t(workspaceMessages.edit)}
+                  onclick={event => {
+                    event.stopPropagation();
+                    editWorkspace = workspace;
+                  }}
+                  class="size-6"
+                  iconClass="size-3.5"
+                />
+              {/if}
+              {#if permissions.can(Permission.DELETE_WORKSPACE, workspace.id)}
+                <IconButton
+                  icon={TrashIcon}
+                  tooltip={t(workspaceMessages.delete)}
+                  onclick={event => {
+                    event.stopPropagation();
+                    deleteWorkspaceId = workspace.id;
+                  }}
+                  variant="destructive"
+                  class="size-6"
+                  iconClass="size-3.5"
+                />
+              {/if}
+            </div>
           </div>
         </div>
       </Row>

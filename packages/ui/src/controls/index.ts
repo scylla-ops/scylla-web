@@ -10,6 +10,7 @@ export type {
   SegmentedSize,
 } from './SegmentedControl/segmented-control.ts';
 export { default as ShareLinkButton } from './ShareLinkButton/ShareLinkButton.svelte';
+export { default as StableLabel } from './StableLabel/StableLabel.svelte';
 export { default as ColorPicker } from './ColorPicker/ColorPicker.svelte';
 export {
   contrastLines,

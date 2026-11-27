@@ -165,6 +165,16 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   open and fold in one smooth move. The header that you click stays in place. Only the content below
   it moves, one time, with no jump when the cards and their pipelines load. With a reduced motion,
   nothing moves.
+- A click moves less of the UI. The submit buttons of the dialogs keep their width while they save
+  ("Create" and "Creating...", "Save" and "Saving..."), and the Save button of the pipeline editor
+  shows its spinner in place of its label. On each list page, a selection does not move "Select all"
+  and "New": "Clear" and "Delete" come on the left, and "Select all" stays in its place, disabled
+  when all items are selected. The widgets of the dashboard do not move down when the edit mode
+  starts, and the bar of the dashboard on a phone keeps its height. The row actions of the workspace
+  switcher keep their room. A legal document keeps its Save button in place, disabled until a
+  change, and its preview has the size of its text. The buttons of the App wizard and of the tour
+  introduction keep one width at each step. The pages keep the room of the scroll bar, so a page
+  that grows does not move to the left.
 
 ## [0.7.2] - 2026-11-25
 

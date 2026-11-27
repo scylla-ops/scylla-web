@@ -20,10 +20,14 @@
 </script>
 
 {#snippet pages()}
-  <!-- A page that fills the view ends above the band of the overlays. -->
+  <!--
+    A page that fills the view ends above the band of the overlays. The room of the scroll bar is
+    kept when the page is shorter than the view: a page that grows (a section that opens, a list
+    that loads) does not get narrower and move all its content to the left.
+  -->
   <div
     style:--shell-bottom-inset="{bottomInset}px"
-    class="relative min-h-0 flex-1 overflow-y-auto px-2 pt-2 pb-[max(0.5rem,var(--shell-bottom-inset))] md:px-8 md:pt-8 md:pb-[max(2rem,var(--shell-bottom-inset))]"
+    class="relative min-h-0 flex-1 overflow-y-auto [scrollbar-gutter:stable] px-2 pt-2 pb-[max(0.5rem,var(--shell-bottom-inset))] md:px-8 md:pt-8 md:pb-[max(2rem,var(--shell-bottom-inset))]"
   >
     {@render children()}
   </div>

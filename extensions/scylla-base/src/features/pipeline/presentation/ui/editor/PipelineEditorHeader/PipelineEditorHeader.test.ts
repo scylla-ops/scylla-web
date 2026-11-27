@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { screen, waitFor } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
+import { expectNoLayoutShift } from '@test/layout.ts';
 import { render } from '@test/render.ts';
 import PipelineEditorHeaderFixture from './PipelineEditorHeader.fixture.svelte';
 
@@ -85,6 +86,18 @@ describe('PipelineEditorHeader', () => {
 
     await rerender({ isDirty: false, isSaving: false });
     expect(screen.getByText('All changes saved')).toBeInTheDocument();
+  });
+
+  it('keeps the actions still while it saves: the spinner takes the place of the label', async () => {
+    grantOnly(Permission.UPDATE_PIPELINE);
+    const { rerender } = renderHeader({ isDirty: true });
+
+    await expectNoLayoutShift(
+      () => rerender({ isDirty: true, isSaving: true }),
+      screen.getByRole('status'),
+      { align: 'end' },
+    );
+    expect(screen.getByRole('button', { name: 'Save' })).toHaveAttribute('aria-busy', 'true');
   });
 
   it('shows a failed save with its message, and goes back to the normal states', async () => {

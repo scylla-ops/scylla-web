@@ -36,7 +36,8 @@ src/
   chart/                   ChartSegment, ChartDot, ChartLegendItem, ChartDelta, ChartHeatCell,
                            ChartSlot, ChartRing: the marks of the charts of a widget
   controls/                IconButton, GatedButton, PasswordInput, SearchSelect, SegmentedControl,
-                           ShareLinkButton, ColorPicker, ColorSwatches, IconPicker, IconField,
+                           ShareLinkButton, StableLabel, ColorPicker, ColorSwatches, IconPicker,
+                           IconField,
                            GhostItem, Chip, GlyphAvatarEditor, GlyphAvatarDialog,
                            GlyphAvatarCredit
   data-display/            DataTable, Pagination, PaginationSlot, StatusShape, StatusTrail,
@@ -124,6 +125,7 @@ they use the language of the browser or no language.
 | The glyph or the initials on a solid tile of a color | `glyphOn(rgb)` (white or near-black, the one that contrasts more), with `colorIn(color, theme)`: a free color, or a color of the theme from `THEME_COLORS` (the tokens of `styles.css`, which `styles.test.ts` compares) |
 | A select with a search | `SearchSelect`, with `options` as data. `row` draws a richer option. `chip` shows the choice as a chip in the field: the text of the field is then the search only, and the owner clears its value to remove the chip. Use `Select` only for a short fixed list |
 | One choice out of a few: a filter, a mode, a period | `SegmentedControl`, with `options` as data (a count, a dot, an icon). `fill` for equal columns over the full width, `size="sm"` in a toolbar. See "`SegmentedControl`". Not for real tabs (`Tabs`) or for a choice of several (`ToggleGroup type="multiple"`) |
+| A text that changes with a state in a button or a row ("Save" → "Saving...", "Close" → "Reopen"), or a spinner in place of a label | `StableLabel` (`text`, `reserve`: the other texts of the place, `busy`): all the texts in one grid cell, the others invisible, thus the place has the width of the longest and nothing beside it moves. `busy` shows a spinner in place of the text, which stays the name of the button. See "Layout shifts" |
 | A modal | `ScyllaDialog` (`open`, `onOpenChange`, `title`, `dismissible`, and `data-*` attributes, which go on its content). Never `Dialog` + `DialogContent` directly: `ScyllaDialog` rebuilds its content at each opening without recreating `DialogContent`, which is what keeps it closable |
 | Confirm a destructive action | `ConfirmOperationAlertDialog`; give it a `continueLabel` that says what the action does ("Deactivate"), else it says "Continue". Its button is destructive; `variant="default"` for an action that takes nothing away ("Reactivate") |
 | An action that deletes, removes, revokes, disables or deactivates | The destructive variant, never a red class. See "Destructive actions" |
@@ -239,6 +241,41 @@ kind of element has the same motion everywhere. Use these presets, never a new d
 - `swapIn` and `swapOut` need the two values in one grid cell (`grid` on the parent,
   `col-start-1 row-start-1` on the child) in a `{#key}`, so the place keeps its size. So does the
   count roll.
+
+### Layout shifts: the UI stays still on a click
+
+A click moves the UI as little as possible. Only the content that the click is about moves (a
+section that opens, a row that goes), in one motion of the table above, with no overshoot and no
+jump at its end. All the rest stays where it is, first of all the element under the pointer.
+
+- **A button keeps its place and its size when a state or a mode changes.** Swap its content in
+  place, disable it rather than remove it, and keep the room of a part that comes and goes. A
+  label that changes ("Save" → "Saving...") is a `StableLabel` with the other labels in
+  `reserve`; a spinner takes the place of the label (`busy`), it is not added beside it. One
+  button for two states (`Close` / `Reopen`), not two buttons in an `{#if}`. The `outline`
+  variant has a border of 1 px: a button that changes to it from another variant gets
+  `border border-transparent` in the other state.
+- **In a row aligned to the right, a part that comes goes on the left of the row** (the actions
+  of a selection in `FeatureHeader`), so the parts on its right do not move.
+- **A part that shows on hover keeps its room:** `invisible` and `group-hover:visible`, never
+  `hidden` and `group-hover:flex`. An icon that it replaces is in the same grid cell.
+- **A row that comes after a click goes in reserved space, or over the page.** A Save that waits
+  for a change is there and disabled from the start. A hint, a drop zone or a bar of a mode is an
+  overlay (`absolute`, `fixed`), or it takes a place that is already there.
+- **A mode (edit, reorder, select) changes everything in one frame**, with the same heights and
+  paddings in the two modes: the room of its handles is kept out of the mode too.
+- **A dialog has one size in all its tabs and states**, and a loading state has the size of the
+  content that comes after it (a skeleton of the real size).
+- **A preview takes the box of what it previews** (the text stays below it, `invisible`), so
+  the parts under it do not move.
+- **The scroll area of the frame keeps the room of its scroll bar** (`[scrollbar-gutter:stable]`
+  in `ShellFrame`): a page that grows does not get narrower.
+
+Test it with `expectNoLayoutShift(action, elements, { within, align })` of `@test/layout.ts`: it
+fails when the action replaces a watched element, or changes the texts or the size classes of a
+part that can push it. jsdom has no layout, thus also check the change in a browser: read the
+rect of the controls around the click at each animation frame (`requestAnimationFrame`) for one
+second, before and after the click.
 
 ### `primitives/` — the primitives
 

@@ -4,6 +4,7 @@
     FormItemType,
     IconField,
     ScyllaForm,
+    StableLabel,
     type FormItem,
     type FormValues,
     type IconChoice,
@@ -91,7 +92,10 @@
         {t(workspaceMessages.cancel)}
       </Button>
       <Button type="submit" disabled={!isValid || isPending}>
-        {isPending ? t(workspaceMessages.saving) : t(workspaceMessages.save)}
+        <StableLabel
+          text={isPending ? t(workspaceMessages.saving) : t(workspaceMessages.save)}
+          reserve={[t(workspaceMessages.save), t(workspaceMessages.saving)]}
+        />
       </Button>
     </DialogFooter>
   {/snippet}

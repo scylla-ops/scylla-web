@@ -4,6 +4,7 @@
     FormItemType,
     IconField,
     ScyllaForm,
+    StableLabel,
     type FormItem,
     type FormValues,
     type IconChoice,
@@ -106,7 +107,10 @@
         {t(projectMessages.cancel)}
       </Button>
       <Button type="submit" disabled={!isValid || isPending || !groupChoiceComplete(group)}>
-        {isPending ? t(projectMessages.saving) : t(projectMessages.save)}
+        <StableLabel
+          text={isPending ? t(projectMessages.saving) : t(projectMessages.save)}
+          reserve={[t(projectMessages.save), t(projectMessages.saving)]}
+        />
       </Button>
     </DialogFooter>
   {/snippet}
