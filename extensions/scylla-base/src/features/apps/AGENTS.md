@@ -158,7 +158,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   gateway `POST /api/<package>.<Service>/<Method>`.
 - **Each form that creates an app has the icon** (`IconField` of `@scylla/ui`), for a user with
   `SET_APP_ICON` only: step 1 of "Add an agent" (`NameStep`) and step 1 of "Add an app"
-  (`RolesStep`). `CreateApp` has no icon: `withIcon` (`apps.queries.ts`) sends it in a
+  (`RolesStep`). The editor of the icon is a second screen: `AddAppDialog` puts its content in a
+  `ScreenStack`, thus the dialog keeps its size, and Escape goes back first. `CreateApp` has no icon: `withIcon` (`apps.queries.ts`) sends it in a
   `SetAppIcon` just after, in the same action. When only the icon fails, the app stays and one
   error toast says that its icon is not saved. An app has no edit form (no `UpdateApp`): the icon
   card of its page edits the icon. An image goes as bytes at the submit only.

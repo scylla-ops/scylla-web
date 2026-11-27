@@ -20,6 +20,7 @@
   onOpenChange={setOpen}
   title={t(workspaceMessages.editTitle)}
   description={t(workspaceMessages.editDescription)}
+  screens
 >
   <EditWorkspaceForm {workspace} close={() => setOpen(false)} />
 </ScyllaDialog>

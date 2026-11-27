@@ -150,7 +150,8 @@ from `ListUserAccess`; that module does not import this one for them.
   When both fields are blank and the icon stays, the dialog closes with no call.
 - **A workspace has an icon**, as a project: a glyph in a color, or an image (`IconField` and
   `IconPicker` of `@scylla/ui`). No icon: a building in grey. The create dialog of the switcher, the
-  first-workspace screen of the shell and `EditWorkspaceDialog` have the field. `CreateWorkspace`
+  first-workspace screen of the shell and `EditWorkspaceDialog` have the field; the two dialogs
+  set `screens`, thus the editor of the icon is their second screen. `CreateWorkspace`
   has no icon: `workspaceMutations.create` sends it in an `UpdateWorkspace` just after, and a toast
   tells when only the icon fails. A click on the icon at the top of the settings opens the picker,
   for a member with `UPDATE_WORKSPACE`. The switcher, its rows (also the rows of the workspaces of

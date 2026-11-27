@@ -4,3 +4,7 @@ export { default as FeatureHeader } from './FeatureHeader/FeatureHeader.svelte';
 export { default as PageTransition } from './PageTransition/PageTransition.svelte';
 export { default as ScyllaLoadingScreen } from './ScyllaLoadingScreen.svelte';
 export { keepFitted } from './keep-fitted.attachments.ts';
+export { default as PreviewBlock } from './PreviewBlock.svelte';
+export { default as ScreenStack } from './ScreenStack/ScreenStack.svelte';
+export { getScreenStack, type Screen, type ScreenStackState } from './ScreenStack/screen-stack.ts';
+export { createScreenStack } from './ScreenStack/screen-stack.state.svelte.ts';

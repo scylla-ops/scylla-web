@@ -114,6 +114,8 @@
         <ProjectGroupSubmenu
           {project}
           groups={layout.groups}
+          {pinned}
+          onPin={() => layout.togglePin(project.id)}
           onNewGroup={() => (newGroupOpen = true)}
         />
       {/if}

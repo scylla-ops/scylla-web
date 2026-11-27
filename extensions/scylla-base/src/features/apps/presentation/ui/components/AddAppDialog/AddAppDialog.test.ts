@@ -126,6 +126,9 @@ describe('AddAppDialog', () => {
     await user.click(within(field).getByRole('button', { name: 'Change the icon' }));
     await user.click(within(dialog).getByRole('button', { name: 'key' }));
     await user.click(within(dialog).getByRole('button', { name: 'Color 2' }));
+    // The editor is a second screen of the dialog: Back gives the step again.
+    const editor = within(dialog).getByRole('region', { name: 'Icon' });
+    await user.click(within(editor).getByRole('button', { name: 'Back' }));
     await user.type(within(dialog).getByLabelText('Name'), 'release-bot');
     await user.click(within(dialog).getByRole('button', { name: 'Next' }));
     await user.click(within(dialog).getByRole('button', { name: 'Next' }));

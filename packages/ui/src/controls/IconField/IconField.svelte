@@ -1,11 +1,13 @@
 <script lang="ts">
-  import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
+  import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import PaletteIcon from '@lucide/svelte/icons/palette';
   import RotateCcwIcon from '@lucide/svelte/icons/rotate-ccw';
   import { t } from '../../i18n/index.ts';
-  import { fold, unfold } from '../../motion/fold.ts';
+  import PreviewBlock from '../../layout/PreviewBlock.svelte';
+  import ScreenStack from '../../layout/ScreenStack/ScreenStack.svelte';
+  import { getScreenStack, type Screen } from '../../layout/ScreenStack/screen-stack.ts';
+  import { createScreenStack } from '../../layout/ScreenStack/screen-stack.state.svelte.ts';
   import { Button } from '../../primitives/index.ts';
-  import { cn } from '../../utils/index.ts';
   import ChoicePreview from '../IconPicker/ChoicePreview.svelte';
   import IconPicker from '../IconPicker/IconPicker.svelte';
   import type { IconChoice } from '../IconPicker/icon-picker.ts';
@@ -40,13 +42,26 @@
     class: className,
   }: Props = $props();
 
-  const id = $props.id();
-  let open = $state(false);
-  const shown = $derived(open && !disabled);
+  // The editor is a second screen: the one of the dialog around the field (`ScyllaDialog screens`),
+  // else one of the field, which then takes the height of the editor.
+  const outer = getScreenStack();
+  const stack = outer ?? createScreenStack();
+
+  const title = $derived(label ?? t(m.icon));
+  const screen: Screen = {
+    get title() {
+      return title;
+    },
+    leading: choice,
+    content: editor,
+  };
+  // The field goes away (the dialog closes): its screen too.
+  $effect(() => () => stack.close(screen));
+
   // A reset builds the picker again, on the default glyph and color.
   let resets = $state(0);
 
-  // The picker closes and goes away: the URL of a new image belongs to the field, which shows it.
+  // The picker goes away at Back: the URL of a new image belongs to the field, which shows it.
   let imageUrl: string | undefined;
   const revoke = () => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
@@ -69,61 +84,66 @@
   };
 </script>
 
-<div
-  data-slot="icon-field"
-  role="group"
-  aria-labelledby="{id}-label"
-  class={cn('flex flex-col', className)}
->
-  <div class="flex flex-col gap-3">
-    <span id="{id}-label" class="text-sm leading-snug font-medium">{label ?? t(m.icon)}</span>
-    <div class="flex items-center gap-3">
-      <ChoicePreview {value} {defaultGlyph} {defaultColor} />
-      <div class="flex flex-wrap items-center gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          aria-expanded={shown}
-          aria-controls={shown ? `${id}-picker` : undefined}
-          {disabled}
-          onclick={() => (open = !open)}
-        >
-          <PaletteIcon aria-hidden="true" />
-          {t(m.change)}
-          <ChevronDownIcon
-            aria-hidden="true"
-            class={cn('transition-transform duration-200 motion-reduce:transition-none', shown && 'rotate-180')}
-          />
-        </Button>
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          disabled={disabled || value.kind === 'default'}
-          onclick={reset}
-        >
-          <RotateCcwIcon aria-hidden="true" />
-          {t(m.reset)}
-        </Button>
-      </div>
-    </div>
+<!-- The choice shows beside the title of the editor too: the image of the second tab, at once. -->
+{#snippet choice()}
+  <ChoicePreview {value} {defaultGlyph} {defaultColor} size={32} />
+{/snippet}
+
+{#snippet editor()}
+  <!-- The width of a dialog, centered: on a page, the grid of the glyphs does not spread. In a
+       dialog, the image tab fills the height of the screen. -->
+  <div class="mx-auto flex w-full max-w-lg flex-1 flex-col" inert={disabled}>
+    {#key resets}
+      <IconPicker
+        class="flex-1"
+        header={false}
+        {value}
+        onchange={change}
+        {recent}
+        {defaultGlyph}
+        {defaultColor}
+        {avatar}
+      />
+    {/key}
   </div>
-  {#if shown}
-    <!-- The width of a dialog: on a page, the grid of the glyphs does not spread. The top
-         padding is part of the fold, so the close leaves no gap. -->
-    <div id="{id}-picker" class="w-full max-w-lg pt-4" in:unfold out:fold>
-      {#key resets}
-        <IconPicker
-          header={false}
-          {value}
-          onchange={change}
-          {recent}
-          {defaultGlyph}
-          {defaultColor}
-          {avatar}
-        />
-      {/key}
-    </div>
-  {/if}
-</div>
+{/snippet}
+
+{#snippet field(className?: string)}
+  <PreviewBlock data-slot="icon-field" label={title} class={className}>
+    {#snippet preview()}
+      <ChoicePreview {value} {defaultGlyph} {defaultColor} size={72} />
+    {/snippet}
+    {#snippet actions()}
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        {disabled}
+        onclick={event => stack.open(screen, event.currentTarget)}
+      >
+        <PaletteIcon aria-hidden="true" />
+        {t(m.change)}
+        <ChevronRightIcon aria-hidden="true" />
+      </Button>
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
+        disabled={disabled || value.kind === 'default'}
+        onclick={reset}
+      >
+        <RotateCcwIcon aria-hidden="true" />
+        {t(m.reset)}
+      </Button>
+    {/snippet}
+  </PreviewBlock>
+{/snippet}
+
+{#if outer}
+  {@render field(className)}
+{:else}
+  <!-- On a page, the editor and its Back are one column of the width of a dialog, centered. -->
+  <ScreenStack {stack} class={className} screenClass="mx-auto w-full max-w-lg">
+    {@render field()}
+  </ScreenStack>
+{/if}

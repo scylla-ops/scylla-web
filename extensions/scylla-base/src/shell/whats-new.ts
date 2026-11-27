@@ -2,6 +2,7 @@ import { msg } from '@lingui/core/macro';
 import type { MessageDescriptor } from '@lingui/core';
 import Bell from '@lucide/svelte/icons/bell';
 import Command from '@lucide/svelte/icons/command';
+import Feather from '@lucide/svelte/icons/feather';
 import FolderKanban from '@lucide/svelte/icons/folder-kanban';
 import GitBranch from '@lucide/svelte/icons/git-branch';
 import GitMerge from '@lucide/svelte/icons/git-merge';
@@ -16,6 +17,7 @@ import Sparkles from '@lucide/svelte/icons/sparkles';
 import Split from '@lucide/svelte/icons/split';
 import Store from '@lucide/svelte/icons/store';
 import Tags from '@lucide/svelte/icons/tags';
+import TextSearch from '@lucide/svelte/icons/text-search';
 import Workflow from '@lucide/svelte/icons/workflow';
 import type { LucideIcon } from '@scylla/ui';
 
@@ -61,7 +63,7 @@ export const WHATS_NEW = {
       since: '0.7.3',
       version: '0.7.3',
       title: msg`A new Projects page`,
-      description: msg`Your projects as cards with their pipelines, plus search, shared groups, pins and a Reorder mode.`,
+      description: msg`Your projects as cards with their pipelines, with search, filters and sort. Put them in colored groups, pin your favorites, drag them into your own order and pick a display: cards, list or tiles. Your groups also show in the sidebar.`,
       icon: FolderKanban,
       navUrl: 'projects',
     },
@@ -70,8 +72,24 @@ export const WHATS_NEW = {
       since: '0.7.3',
       version: '0.7.3',
       title: msg`Make it yours`,
-      description: msg`A glyph in any color or your own image for each project, a profile photo, and an icon for your agents.`,
+      description: msg`A glyph in any color or your own image for your projects, workspaces, agents and apps. And for you: a profile photo, imported from GitHub in one click, or an avatar you design yourself, Scylla head included.`,
       icon: Sparkles,
+    },
+    {
+      id: 'command-bar-more',
+      since: '0.7.3',
+      version: '0.7.3',
+      title: msg`Ctrl K finds even more`,
+      description: msg`Project groups, dashboards, fragments, jobs, triggers, secrets and members: you now find them all from the keyboard. Rerun a failed job or turn off a trigger right from the bar.`,
+      icon: TextSearch,
+    },
+    {
+      id: 'smooth-ui',
+      since: '0.7.3',
+      version: '0.7.3',
+      title: msg`A smoother interface`,
+      description: msg`Dialogs, tabs, lists and sections now open and close smoothly. Nothing jumps under your click anymore, and a dialog keeps its size from one tab to the next. Prefer less motion? Scylla follows your system setting.`,
+      icon: Feather,
     },
     {
       id: 'pipelines-together',

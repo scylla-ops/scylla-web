@@ -848,7 +848,7 @@ describe('CommandBar', () => {
       ['>', 'Actions', /New trigger/, /Agents/],
       ['/', 'Pages', /Agents/, /New trigger/],
       ['#', 'Projects', /Go to the project web-api/, /Agents/],
-      ['@', 'Members', /Marie Dubois/, /Agents/],
+      ['@', 'Team & infra', /Marie Dubois/, /Agents/],
     ])('gives %s the filter %s', async (prefix, name, shown, hidden) => {
       const input = await open();
       await user().type(input, prefix);
@@ -858,37 +858,72 @@ describe('CommandBar', () => {
       expect(chip(name)).toHaveAttribute('aria-pressed', 'true');
     });
 
-    it('has the chips of the groups and of the dashboards, in a logical order', async () => {
+    it('has the five families, in a logical order', async () => {
       await open();
 
-      await waitFor(() => expect(chip('Dashboards')).toBeInTheDocument());
+      await waitFor(() => expect(chip('Library')).toBeInTheDocument());
       const titles = screen
         .getAllByRole('button')
         .map(button => button.textContent?.trim())
         .filter(title =>
-          ['Projects', 'Groups', 'Pipelines', 'Dashboards', 'Machines'].includes(title ?? ''),
+          ['All', 'Pages', 'Actions', 'Projects', 'Library', 'Team & infra'].includes(title ?? ''),
         );
-      expect(titles).toEqual(['Projects', 'Groups', 'Pipelines', 'Dashboards', 'Machines']);
+      expect(titles).toEqual(['All', 'Pages', 'Actions', 'Projects', 'Library', 'Team & infra']);
+      for (const old of ['Groups', 'Pipelines', 'Dashboards', 'Machines', 'Jobs', 'Users']) {
+        expect(screen.queryByRole('button', { name: old })).not.toBeInTheDocument();
+      }
     });
 
-    it('lists the groups, and the fragments with the pipelines', async () => {
+    it('lists the groups and the pipelines with the projects, and the fragments in the library', async () => {
       await open();
-      await waitFor(() => expect(chip('Groups')).toBeInTheDocument());
-      await fireEvent.click(chip('Groups'));
+      await waitFor(() => expect(chip('Projects')).toBeInTheDocument());
+      await fireEvent.click(chip('Projects'));
       expect(await option(/group Backend/)).toBeInTheDocument();
-      expect(screen.queryByRole('option', { name: /project web-api/ })).not.toBeInTheDocument();
-
-      await fireEvent.click(chip('Pipelines'));
-      expect(await option(/fragment docker-build/)).toBeInTheDocument();
+      expect(await option(/project web-api/)).toBeInTheDocument();
       expect(await option(/pipeline Build web/)).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /fragment docker-build/ })).not.toBeInTheDocument();
+
+      await fireEvent.click(chip('Library'));
+      expect(await option(/fragment docker-build/)).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /pipeline Build web/ })).not.toBeInTheDocument();
     });
 
-    it('marks two chips for the prefix of the projects and of the pipelines', async () => {
+    it('keeps the kinds apart with a header each inside a family', async () => {
+      await open();
+      await waitFor(() => expect(chip('Projects')).toBeInTheDocument());
+      await fireEvent.click(chip('Projects'));
+
+      await option(/group Backend/);
+      for (const heading of ['Projects', 'Groups', 'Pipelines']) {
+        expect(within(screen.getByRole('listbox')).getByText(heading)).toBeInTheDocument();
+      }
+    });
+
+    it('hides a family with no result when the user types, and shows it again', async () => {
+      const input = await open();
+      await waitFor(() => expect(chip('Library')).toBeInTheDocument());
+      const typing = user();
+
+      await typing.type(input, 'agents');
+      await option(/Agents/);
+      // The stub of `animate()` keeps running: end the fade out of the chip.
+      await waitFor(() => {
+        vi.mocked(Element.prototype.animate).mock.results.forEach(result =>
+          (result.value as { finish: () => void }).finish(),
+        );
+        expect(screen.queryByRole('button', { name: 'Library' })).not.toBeInTheDocument();
+      });
+      expect(chip('All')).toHaveAttribute('aria-pressed', 'true');
+
+      await typing.clear(input);
+      await waitFor(() => expect(chip('Library')).toBeInTheDocument());
+    });
+
+    it('marks the chip of the projects for the prefix of the work', async () => {
       const input = await open();
       await user().type(input, '#');
 
       await waitFor(() => expect(chip('Projects')).toHaveAttribute('aria-pressed', 'true'));
-      await waitFor(() => expect(chip('Pipelines')).toHaveAttribute('aria-pressed', 'true'));
     });
 
     it('searches with the text after a prefix', async () => {
@@ -1060,7 +1095,7 @@ describe('CommandBar', () => {
     it('shows the tab of each kind that the reader can search, before a text', async () => {
       await open();
 
-      for (const name of ['Jobs', 'Triggers', 'Members', 'Users', 'Secrets', 'Packages']) {
+      for (const name of ['Projects', 'Library', 'Team & infra']) {
         expect(chip(name)).toBeInTheDocument();
       }
     });
@@ -1069,10 +1104,7 @@ describe('CommandBar', () => {
       grant([Permission.LIST_PIPELINES_BY_WORKSPACE]);
       await open();
 
-      expect(chip('Packages')).toBeInTheDocument();
-      for (const name of ['Jobs', 'Triggers', 'Users']) {
-        expect(screen.queryByRole('button', { name })).not.toBeInTheDocument();
-      }
+      expect(chip('Library')).toBeInTheDocument();
     });
 
     it('finds a job by its number after #, with the shape of its status, and opens it', async () => {
@@ -1113,7 +1145,7 @@ describe('CommandBar', () => {
 
     it('lists the newest jobs under the tab of the jobs, with no text', async () => {
       await open();
-      await user().click(chip('Jobs'));
+      await user().click(chip('Projects'));
 
       expect(await option(JOB_ROW)).toBeInTheDocument();
       expect(fakes.searchJobs).toHaveBeenCalledWith(
@@ -1272,12 +1304,10 @@ describe('CommandBar', () => {
       setNavLinks(() => [...LINKS, link('dashboard', msg`Dashboard`)]);
       await open();
 
-      await waitFor(() => expect(chip('Dashboards')).toBeInTheDocument());
-      await fireEvent.click(chip('Dashboards'));
+      await waitFor(() => expect(chip('Pages')).toBeInTheDocument());
+      await fireEvent.click(chip('Pages'));
 
-      expect(options().map(element => element.getAttribute('aria-label'))).toEqual([
-        'Go to the page Dashboard.',
-      ]);
+      expect(await screen.findAllByRole('option', { name: 'Go to the page Dashboard.' })).toHaveLength(2);
       expect(fakes.listDashboards).toHaveBeenCalledWith('w1');
       expect(fakes.createDashboard).not.toHaveBeenCalled();
     });

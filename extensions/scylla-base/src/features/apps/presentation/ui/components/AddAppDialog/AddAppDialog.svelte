@@ -11,7 +11,7 @@
     DialogHeader,
     DialogTitle,
   } from '@scylla/ui/primitives';
-  import { StableLabel, type IconChoice } from '@scylla/ui';
+  import { createScreenStack, ScreenStack, StableLabel, type IconChoice } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import type { TokenExpiry, TokenPreset } from '@shared/domain/structs/api-token.struct.ts';
   import {
@@ -109,6 +109,8 @@
         : true,
   );
 
+  const stack = createScreenStack();
+
   const close = () => {
     setOpen(false);
     step = 0;
@@ -200,87 +202,99 @@
     if (!next) close();
   }}
 >
-  <DialogContent class="gap-5 sm:max-w-xl">
-    <DialogHeader>
-      <DialogTitle>
-        {done && kind !== 'keypair' ? t(messages.readyTitle(name.trim())) : t(messages.addApp)}
-      </DialogTitle>
-    </DialogHeader>
-    <StepBar labels={STEPS} current={done && kind !== 'keypair' ? 3 : step} />
+  <DialogContent
+    class="gap-5 sm:max-w-xl"
+    onEscapeKeydown={event => {
+      // On the editor of the icon, Escape goes back to the step.
+      if (stack.screen) {
+        event.preventDefault();
+        stack.back();
+      }
+    }}
+  >
+    <!-- The editor of the icon is a second screen: the dialog keeps its size. -->
+    <ScreenStack {stack} mainClass="grid gap-5">
+      <DialogHeader>
+        <DialogTitle>
+          {done && kind !== 'keypair' ? t(messages.readyTitle(name.trim())) : t(messages.addApp)}
+        </DialogTitle>
+      </DialogHeader>
+      <StepBar labels={STEPS} current={done && kind !== 'keypair' ? 3 : step} />
 
-    {#key `${step}-${done}`}
-      <div in:fly={{ x: 24, duration: 220 }}>
-        {#if step === 0}
-          <RolesStep
-            {workspaceId}
-            {workspaceName}
-            bind:name
-            bind:icon
-            {canSetIcon}
-            bind:workspaceRole
-            bind:projectRoles
-          />
-        {:else if step === 1}
-          <ConnectionStep bind:kind />
-        {:else if kind === 'keypair' && ready && joinCode}
-          <KeyPairStep {joinCode} onNewCode={newCode} renewing={renew.isPending} {joined} />
-        {:else if ready}
-          <ReadyStep {ready} {workspaceId} {server} />
-        {:else if kind === 'token'}
-          <TokenForm
-            bind:name={tokenName}
-            bind:expiry
-            bind:preset
-            bind:keys
-            bind:someProjects
-            bind:projectIds
-            projects={projects.data?.items ?? []}
-            hint={t(messages.limitsHint)}
-            idPrefix="app-token"
-          />
-        {:else}
-          <CiForm bind:provider bind:repository bind:refKind bind:refValue {server} />
-        {/if}
-      </div>
-    {/key}
-
-    <DialogFooter class="items-center border-t pt-4 sm:justify-between">
-      <span class="text-xs text-muted-foreground">
-        {t(messages.stepOf(Math.min(step + 1, 3)))}
-      </span>
-      <!-- Each step has its labels, in buttons of one width: they stay under the pointer. -->
-      <div class="flex gap-2">
-        {#if done}
-          <Button variant="outline" onclick={close}>
-            <StableLabel text={t(messages.close)} reserve={backTexts} />
-          </Button>
-          <Button onclick={openApp}><StableLabel text={t(messages.openApp)} reserve={nextTexts} /></Button>
-        {:else if step === 0}
-          <Button variant="outline" onclick={close}>
-            <StableLabel text={t(messages.cancel)} reserve={backTexts} />
-          </Button>
-          <Button onclick={next} disabled={!name.trim()}>
-            <StableLabel text={t(messages.next)} reserve={nextTexts} />
-          </Button>
-        {:else if step === 1}
-          <Button variant="outline" onclick={() => (step = 0)}>
-            <StableLabel text={t(messages.back)} reserve={backTexts} />
-          </Button>
-          <Button onclick={next} disabled={create.isPending}>
-            <StableLabel text={t(messages.next)} reserve={nextTexts} />
-          </Button>
-        {:else}
-          <Button variant="outline" onclick={() => (step = 1)}>
-            <StableLabel text={t(messages.back)} reserve={backTexts} />
-          </Button>
-          <Button onclick={submit} disabled={!canSubmit || create.isPending}>
-            <StableLabel
-              text={kind === 'token' ? t(messages.createToken) : t(messages.addIdentity)}
-              reserve={nextTexts}
+      {#key `${step}-${done}`}
+        <div in:fly={{ x: 24, duration: 220 }}>
+          {#if step === 0}
+            <RolesStep
+              {workspaceId}
+              {workspaceName}
+              bind:name
+              bind:icon
+              {canSetIcon}
+              bind:workspaceRole
+              bind:projectRoles
             />
-          </Button>
-        {/if}
-      </div>
-    </DialogFooter>
+          {:else if step === 1}
+            <ConnectionStep bind:kind />
+          {:else if kind === 'keypair' && ready && joinCode}
+            <KeyPairStep {joinCode} onNewCode={newCode} renewing={renew.isPending} {joined} />
+          {:else if ready}
+            <ReadyStep {ready} {workspaceId} {server} />
+          {:else if kind === 'token'}
+            <TokenForm
+              bind:name={tokenName}
+              bind:expiry
+              bind:preset
+              bind:keys
+              bind:someProjects
+              bind:projectIds
+              projects={projects.data?.items ?? []}
+              hint={t(messages.limitsHint)}
+              idPrefix="app-token"
+            />
+          {:else}
+            <CiForm bind:provider bind:repository bind:refKind bind:refValue {server} />
+          {/if}
+        </div>
+      {/key}
+
+      <DialogFooter class="items-center border-t pt-4 sm:justify-between">
+        <span class="text-xs text-muted-foreground">
+          {t(messages.stepOf(Math.min(step + 1, 3)))}
+        </span>
+        <!-- Each step has its labels, in buttons of one width: they stay under the pointer. -->
+        <div class="flex gap-2">
+          {#if done}
+            <Button variant="outline" onclick={close}>
+              <StableLabel text={t(messages.close)} reserve={backTexts} />
+            </Button>
+            <Button onclick={openApp}><StableLabel text={t(messages.openApp)} reserve={nextTexts} /></Button>
+          {:else if step === 0}
+            <Button variant="outline" onclick={close}>
+              <StableLabel text={t(messages.cancel)} reserve={backTexts} />
+            </Button>
+            <Button onclick={next} disabled={!name.trim()}>
+              <StableLabel text={t(messages.next)} reserve={nextTexts} />
+            </Button>
+          {:else if step === 1}
+            <Button variant="outline" onclick={() => (step = 0)}>
+              <StableLabel text={t(messages.back)} reserve={backTexts} />
+            </Button>
+            <Button onclick={next} disabled={create.isPending}>
+              <StableLabel text={t(messages.next)} reserve={nextTexts} />
+            </Button>
+          {:else}
+            <Button variant="outline" onclick={() => (step = 1)}>
+              <StableLabel text={t(messages.back)} reserve={backTexts} />
+            </Button>
+            <Button onclick={submit} disabled={!canSubmit || create.isPending}>
+              <StableLabel
+                text={kind === 'token' ? t(messages.createToken) : t(messages.addIdentity)}
+                reserve={nextTexts}
+              />
+            </Button>
+          {/if}
+        </div>
+      </DialogFooter>
+    </ScreenStack>
   </DialogContent>
 </Dialog>

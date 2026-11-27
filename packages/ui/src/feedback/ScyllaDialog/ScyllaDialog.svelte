@@ -7,6 +7,8 @@
     DialogHeader,
     DialogTitle,
   } from '../../primitives/index.ts';
+  import ScreenStack from '../../layout/ScreenStack/ScreenStack.svelte';
+  import { createScreenStack } from '../../layout/ScreenStack/screen-stack.state.svelte.ts';
   import { dialogHoldStore, toRune } from '../../stores/index.ts';
   import { cn } from '../../utils/index.ts';
 
@@ -28,6 +30,12 @@
      * its top edge at one place, so what is under the pointer never moves.
      */
     stable?: number;
+    /**
+     * Gives the content a second screen (`ScreenStack`), which slides in over it and keeps the
+     * size of the dialog: an `IconField` in it opens its editor there. Escape goes back first.
+     * Not with `stable`.
+     */
+    screens?: boolean;
     class?: string;
     /** Classes of the backdrop. */
     overlayClass?: string;
@@ -44,6 +52,7 @@
     header,
     dismissible = true,
     stable,
+    screens = false,
     class: className,
     overlayClass,
     children,
@@ -67,12 +76,30 @@
   const hold = toRune(dialogHoldStore);
   const held = $derived(hold().held);
 
+  const stack = createScreenStack();
+
   const keepOpen = (event: Event) => {
     const { held: holding, onBlocked } = dialogHoldStore.getState();
     if (holding || dismissible !== true) event.preventDefault();
     if (holding) onBlocked?.();
   };
 </script>
+
+{#snippet content()}
+  {#if header}
+    {@render header()}
+  {:else if title}
+    <DialogHeader>
+      <DialogTitle>{title}</DialogTitle>
+      {#if description}
+        <DialogDescription>{description}</DialogDescription>
+      {/if}
+    </DialogHeader>
+  {/if}
+  {#key opening}
+    {@render children()}
+  {/key}
+{/snippet}
 
 <Dialog {open} {onOpenChange}>
   <DialogContent
@@ -92,21 +119,24 @@
       className,
     )}
     trapFocus={!held}
-    onEscapeKeydown={keepOpen}
+    onEscapeKeydown={event => {
+      // On a second screen, Escape goes back to the main one.
+      if (stack.screen) {
+        event.preventDefault();
+        stack.back();
+      } else {
+        keepOpen(event);
+      }
+    }}
     onInteractOutside={keepOpen}
   >
-    {#if header}
-      {@render header()}
-    {:else if title}
-      <DialogHeader>
-        <DialogTitle>{title}</DialogTitle>
-        {#if description}
-          <DialogDescription>{description}</DialogDescription>
-        {/if}
-      </DialogHeader>
+    {#if screens && stable === undefined}
+      <!-- The main screen keeps the column of the dialog. -->
+      <ScreenStack {stack} mainClass="grid gap-4">
+        {@render content()}
+      </ScreenStack>
+    {:else}
+      {@render content()}
     {/if}
-    {#key opening}
-      {@render children()}
-    {/key}
   </DialogContent>
 </Dialog>

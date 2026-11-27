@@ -251,7 +251,9 @@ choice card links to it by its path only.
 - **Only a person with `UPDATE_PROJECT` on the project changes its icon**: the icon of the page is
   a button for this person only. The server checks it too (`UpdateProject`).
 - **Each form that creates or edits a project has the icon** (`IconField` of `@scylla/ui`): « Edit »,
-  `projects/new/regular` and `projects/new/github` (integrations). The picker of the dialog
+  `projects/new/regular` and `projects/new/github` (integrations). « Edit » is a `ScyllaDialog`
+  with `screens`: the editor of the icon is its second screen, and the dialog keeps its size. The
+  picker of the dialog
   « Change the icon… » and the icon of the page stay as shortcuts. « Edit » sends the icon in the
   same `UpdateProject` as the name, only at « Save »; « Cancel » forgets it, because the dialog
   builds its form again at each opening. `CreateProject` has no icon: `projectMutations.create`

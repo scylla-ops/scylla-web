@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { screen, waitFor, act, fireEvent } from '@testing-library/svelte';
+import { screen, waitFor, act, fireEvent, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render } from '@test/render.ts';
 import { WHATS_NEW } from '@base/shell/whats-new.ts';
@@ -39,6 +39,22 @@ describe('WhatsNewDialog', () => {
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('A new Projects page')).toBeInTheDocument();
     expect(screen.getByText('A new look')).not.toBeVisible();
+  });
+
+  it('shows the main features of 0.7.3 in its tab, in order', async () => {
+    render(WhatsNewDialog);
+
+    const panel = (await screen.findAllByRole('tabpanel'))[0];
+    const titles = within(panel)
+      .getAllByRole('heading', { level: 4 })
+      .map(heading => heading.textContent);
+    expect(titles).toEqual([
+      'A new Projects page',
+      'Make it yours',
+      'Ctrl K finds even more',
+      'A smoother interface',
+    ]);
+    expect(within(panel).queryByText('A clearer command bar')).not.toBeInTheDocument();
   });
 
   it('scrolls the tab panel, not the dialog, so the tab list stays in view', async () => {
@@ -105,17 +121,17 @@ describe('WhatsNewDialog autoplay', () => {
     Object.defineProperty(document, 'hidden', { value: false, configurable: true });
   });
 
-  it('moves to the next tab by itself and stops after the last one', async () => {
+  it('moves to the next tab by itself and loops back after the last one', async () => {
     render(WhatsNewDialog);
     await screen.findAllByRole('tab');
     expect(selected()).toBe('0.7.3');
 
-    await advance(17000);
-    expect(selected()).toBe('0.7.2');
-
-    await advance(17000 * 5);
-    expect(selected()).toBe('0.7.0');
-    expect(screen.getByTestId('whats-new-progress')).toHaveStyle({ transform: 'scaleX(1)' });
+    const seen = [selected()];
+    for (let i = 0; i < 1000 && seen.length < 6; i += 1) {
+      await advance(50);
+      if (selected() !== seen[seen.length - 1]) seen.push(selected());
+    }
+    expect(seen).toEqual(['0.7.3', '0.7.2', '0.7.1', '0.7.0', '0.7.3', '0.7.2']);
   });
 
   it('fills the progress bar while it plays', async () => {
@@ -127,17 +143,17 @@ describe('WhatsNewDialog autoplay', () => {
     expect(bar.style.transform).not.toBe('scaleX(0)');
   });
 
-  it('pauses on user input and resumes after 5 s without input', async () => {
+  it('pauses on user input and resumes after 1.8 s without input', async () => {
     render(WhatsNewDialog);
     await screen.findAllByRole('tab');
     await advance(2000);
     const before = screen.getByTestId('whats-new-progress').style.transform;
 
     await fireEvent.pointerMove(screen.getByRole('dialog'));
-    await advance(4000);
+    await advance(1000);
     expect(screen.getByTestId('whats-new-progress').style.transform).toBe(before);
 
-    await advance(4000);
+    await advance(2000);
     expect(screen.getByTestId('whats-new-progress').style.transform).not.toBe(before);
   });
 
@@ -149,7 +165,7 @@ describe('WhatsNewDialog autoplay', () => {
     expect(selected()).toBe('0.7.3');
 
     await userEvent.click(screen.getByRole('button', { name: 'Resume the tour' }));
-    await advance(5000 + 17000);
+    await advance(2000 + 8000);
     expect(selected()).toBe('0.7.2');
   });
 

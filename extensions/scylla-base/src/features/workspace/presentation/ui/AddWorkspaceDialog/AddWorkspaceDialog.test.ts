@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
@@ -109,6 +109,9 @@ describe('AddWorkspaceDialog', () => {
 
     await user.click(screen.getByRole('button', { name: 'Change the icon' }));
     await user.click(screen.getByRole('button', { name: 'Color 2' }));
+    // The editor is a second screen of the dialog: Back gives the form again.
+    const editor = screen.getByRole('region', { name: 'Icon' });
+    await user.click(within(editor).getByRole('button', { name: 'Back' }));
     await user.type(screen.getByLabelText('Workspace name'), 'Acme Corp');
     await user.click(screen.getByRole('button', { name: 'Create Workspace' }));
 

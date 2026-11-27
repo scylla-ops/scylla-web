@@ -25,6 +25,8 @@ export const commandBarMessages = {
   groupPackages: msg`Packages`,
 
   chipAll: msg`All`,
+  chipLibrary: msg`Library`,
+  chipTeam: msg`Team & infra`,
 
   typePage: msg`Page`,
   typeAction: msg`Action`,

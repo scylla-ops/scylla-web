@@ -38,7 +38,7 @@
   let { workspaceId }: Props = $props();
 
   const list = createProjectList(() => workspaceId);
-  const reorder = createProjectReorder();
+  const reorder = createProjectReorder(id => sections.isPinned(id));
   const groups = createGroupReorder();
   const densities = createProjectDensity(() => workspaceId);
   const sections = createProjectSections({

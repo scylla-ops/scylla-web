@@ -75,7 +75,7 @@ describe('UserProfileForm', () => {
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(screen.getByLabelText('Username')).toHaveAccessibleDescription(
-      'A username cannot contain "@".',
+      'A handle that other people see. A username cannot contain "@".',
     );
     expect(
       screen.getByText('The display name must have 100 characters at most.'),
