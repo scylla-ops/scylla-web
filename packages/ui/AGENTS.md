@@ -50,9 +50,9 @@ src/
                            each resize)
   widget/                  Widget, WidgetGrid, WidgetState: the frame of a dashboard widget
   motion/                  page transitions, reduced motion, a spring easing, enter and exit
-                           (fade and rise), fold and unfold (height and fade), reflow (the move
-                           of the items of a list), swap (a cross-fade of a value), a count
-                           that rolls
+                           (fade and rise), fold and unfold (height and fade), a box that moves
+                           its height between two parts (morph), reflow (the move of the items
+                           of a list), swap (a cross-fade of a value), a count that rolls
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -207,6 +207,7 @@ kind of element has the same motion everywhere. Use these presets, never a new d
 | A part that appears in its place: an empty state, a banner over the page, the content that replaces a skeleton | `in:enter` (fade and a rise of 4 px) | 200 ms, ease out |
 | A part out of the flow that goes away: an overlay, a floating bar | `out:exit` (fade) | 150 ms, ease in |
 | A part that opens or closes in the flow: a message under a field, a folding section, a banner, a row of a list | `in:unfold` and `out:fold` (height and fade) | 220 ms in, 150 ms out |
+| A part that takes the place of another in the flow, or of nothing: the cards of a section of the projects page and its folded line of chips, the links of a section of the second sidebar | `{@attach morphHeight}` and `MORPH_BOX_CLASS` on the box, `in:enter` and `out:exit` on each part | the box: as `unfold` to grow, as `fold` to shrink |
 | The items of a keyed `{#each}` that change places when one comes, goes or moves (rows, the widgets of the dashboard, the cards of the projects page) | `animate:reflow` (a slide from the old box; `{ still: true }` keeps a dragged item still) | 200 ms, ease out |
 | The content of a tab that becomes active | `{@attach enterOnActivate}` (`TabsContent` has it) | as `enter` |
 | A number that changes | `createCountRoll(() => count)` (`rollIn`, `rollOut`, `pulse`) | 370 ms spring in, 220 ms out |
@@ -228,6 +229,13 @@ kind of element has the same motion everywhere. Use these presets, never a new d
   ends (`setup.ts`), thus the element stays. A test that checks that an element went away sets
   `prefers-reduced-motion: reduce` (`window.matchMedia`): each preset then has a duration of 0
   and the element goes at once. The end-to-end tests run with reduced motion.
+- **`morphHeight` moves the box once, never the two parts one after the other.** With `unfold`
+  on one part and `fold` on the other, the two heights add up while they move, and `slide`
+  measures the new part before the content it loads (a widget zone, data): the box first grows,
+  then shrinks, and jumps at the end. The box measures the new part in the first frame, follows it
+  while it moves (`height-move.ts`: a new end keeps the place and the speed, and never goes past
+  the end). It keeps following the new part up to 1 s after the swap: data that loads after the
+  move moves the box again, with no jump. Then the box has no height of its own.
 - `swapIn` and `swapOut` need the two values in one grid cell (`grid` on the parent,
   `col-start-1 row-start-1` on the child) in a `{#key}`, so the place keeps its size. So does the
   count roll.

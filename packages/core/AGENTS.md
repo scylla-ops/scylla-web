@@ -237,8 +237,8 @@ module gives an access policy.
   shows the links of the item of the URL in a card after its section (`sheetHolderOf`). A link can
   have a `section` (`SecondSidebarSection`: a key, a title,
   a pin `icon` or a folder `color`, `folded`, `onToggle`, an `action`): the next links of one section
-  show under its title, which folds them (`unfold`/`fold`) and shows their number while they are
-  folded (`pageRuns`). The module keeps the folded state. An `action` (`{ label, href }`) is a "+"
+  show under its title, which folds them (`morphHeight`, as the sections of the projects page)
+  and shows their number while they are folded (`pageRuns`). The module keeps the folded state. An `action` (`{ label, href }`) is a "+"
   at the end of the title, e.g. a new project in this group: on a mouse screen it shows on hover and
   focus. The module gives it only to a person who can do it. A link can have one `status`
   (`running` or `failed`): the `StatusShape` of the jobs, with its accessible name. A folded

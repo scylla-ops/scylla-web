@@ -348,6 +348,13 @@ choice card links to it by its path only.
   one. The line measures its chips (`fitChips`): a phone shows fewer chips. The fold and the unfold
   of a section, the chips, the cards that come in (one after the other) and the ring have a
   transition, and none with a reduced motion; the first paint has none.
+- **A section folds and opens in one move.** The cards and the line of chips are two parts of one
+  box (`morphHeight` of `@scylla/ui`): the part that goes fades over the part that comes, and the
+  box moves its height once, from the one to the other. The two heights never add up. The first
+  frame measures the cards after their widget zones mount, and the box follows them while it
+  moves: pipelines that load during the move change its end. Pipelines that load up to 1 s later
+  move the box again, with no jump. The header does not move. A group drag folds each section to
+  its header with the same box.
 - **The reorder mode also moves the groups.** In the mode, each group header has a handle (the
   pins and « No group » have none: they stay first and last). A pointer drags the header: each
   section folds, and the slot goes to the group nearest to the center of the header

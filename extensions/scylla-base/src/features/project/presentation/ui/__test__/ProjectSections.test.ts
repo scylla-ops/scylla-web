@@ -330,10 +330,7 @@ describe('the sections of the projects page', () => {
       name: 'Change the folder color of Deploys',
     });
     await userEvent.click(folder);
-    expect(await floatingButton('Color 3')).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    expect(await floatingButton('Color 3')).toHaveAttribute('aria-pressed', 'true');
     await userEvent.click(await floatingButton('Color 4'));
     expect(groups.update).not.toHaveBeenCalled();
 
@@ -349,7 +346,9 @@ describe('the sections of the projects page', () => {
     await screen.findByRole('region', { name: 'Deploys' });
 
     await userEvent.click(
-      within(section('Deploys')).getByRole('button', { name: 'Change the folder color of Deploys' }),
+      within(section('Deploys')).getByRole('button', {
+        name: 'Change the folder color of Deploys',
+      }),
     );
     await userEvent.click(await floatingButton('Free color'));
 
@@ -781,6 +780,25 @@ describe('a folded section', () => {
     expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api']);
     expect(within(section('Deploys')).queryByRole('group', { name: /folded$/ })).toBeNull();
   });
+
+  it('puts the line in the place of the cards, in one box: the cards fade out over it', async () => {
+    const reduced = window.matchMedia;
+    window.matchMedia = vi.fn((query: string) => ({ ...reduced(query), matches: false }));
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Deploys' });
+    const body = section('Deploys').querySelector<HTMLElement>(
+      '[data-part="project-section-body"]',
+    )!;
+    const cards = body.firstElementChild as HTMLElement;
+
+    await userEvent.click(headerOf('Deploys'));
+
+    const line = lineOf('Deploys');
+    expect(line.parentElement?.parentElement).toBe(body);
+    expect(cards.parentElement).toBe(body);
+    expect(cards.inert).toBe(true);
+    expect(body.children).toHaveLength(2);
+  });
 });
 
 const OPS: ProjectGroupEntity = { id: 'g-2', workspaceId: 'org-1', name: 'Ops' };
@@ -804,7 +822,9 @@ describe('the display of the sections', () => {
     expect(section('No group')).toHaveAttribute('data-density', 'compact');
     expect(densityOfCards('Deploys')).toEqual(['compact', 'compact']);
 
-    await userEvent.click(within(section('No group')).getByRole('button', { name: 'Section menu' }));
+    await userEvent.click(
+      within(section('No group')).getByRole('button', { name: 'Section menu' }),
+    );
     await userEvent.click(await findFloating('menuitem', 'Display'));
     await userEvent.click(await findFloating('menuitemradio', 'List'));
 
@@ -869,7 +889,9 @@ describe('the order of the groups in the reorder mode', () => {
       within(section('Deploys')).getByRole('button', { name: 'Move the group Deploys' }),
     ).toBeInTheDocument();
     expect(within(section('Pinned')).queryByRole('button', { name: /^Move the group/ })).toBeNull();
-    expect(within(section('No group')).queryByRole('button', { name: /^Move the group/ })).toBeNull();
+    expect(
+      within(section('No group')).queryByRole('button', { name: /^Move the group/ }),
+    ).toBeNull();
   });
 
   it('moves a group with the keyboard, and « Done » saves the order of the groups', async () => {

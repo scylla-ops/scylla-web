@@ -2,7 +2,15 @@
   import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import { createMutation } from '@scylla/core-sdk';
-  import { fold, ListSkeleton, unfold } from '@scylla/ui';
+  import {
+    enter,
+    exit,
+    fold,
+    ListSkeleton,
+    MORPH_BOX_CLASS,
+    morphHeight,
+    unfold,
+  } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
@@ -225,48 +233,51 @@
     </div>
   {/if}
 
-  <!-- The space under the header is in the padding of the part that folds: no jump. -->
-  {#if (section.open || headless) && !collapsed}
-    <div class={cn('flex flex-col gap-3', !headless && 'pt-3')} in:unfold out:fold>
-      {#if section.loading}
-        <ListSkeleton
-          rows={phone ? 1 : 3}
-          class={DENSITY_GRIDS[density]}
-          rowClass={DENSITY_SKELETONS[density]}
-        />
-      {:else}
-        <SectionGrid
-          {section}
-          {sections}
-          {reorder}
-          {densities}
-          {phone}
-          {newProjectHref}
-          stagger={moved}
-          {reveal}
-          onRevealed={() => (reveal = null)}
-        />
-        {#if section.nextBatch > 0}
-          <ProjectShowMore
-            next={section.nextBatch}
-            shown={section.projects.length}
-            total={section.total}
-            busy={section.busy}
-            {phone}
-            onShowMore={() => sections.showMore(section.key)}
+  <!-- The cards and the line of chips take the place of each other in one box, which moves its
+       height once. The space under the header is in the padding of each part: no jump. -->
+  <div class={MORPH_BOX_CLASS} data-part="project-section-body" {@attach morphHeight}>
+    {#if (section.open || headless) && !collapsed}
+      <div class={cn('flex flex-col gap-3', !headless && 'pt-3')} in:enter out:exit>
+        {#if section.loading}
+          <ListSkeleton
+            rows={phone ? 1 : 3}
+            class={DENSITY_GRIDS[density]}
+            rowClass={DENSITY_SKELETONS[density]}
           />
+        {:else}
+          <SectionGrid
+            {section}
+            {sections}
+            {reorder}
+            {densities}
+            {phone}
+            {newProjectHref}
+            stagger={moved}
+            {reveal}
+            onRevealed={() => (reveal = null)}
+          />
+          {#if section.nextBatch > 0}
+            <ProjectShowMore
+              next={section.nextBatch}
+              shown={section.projects.length}
+              total={section.total}
+              busy={section.busy}
+              {phone}
+              onShowMore={() => sections.showMore(section.key)}
+            />
+          {/if}
         {/if}
-      {/if}
-    </div>
-  {:else if folded && !collapsed}
-    <div class="pt-2" in:unfold out:fold>
-      <FoldedPreview
-        projects={section.projects}
-        total={section.total}
-        {name}
-        animate={moved}
-        onOpen={openAt}
-      />
-    </div>
-  {/if}
+      </div>
+    {:else if folded && !collapsed}
+      <div class="pt-2" in:enter out:exit>
+        <FoldedPreview
+          projects={section.projects}
+          total={section.total}
+          {name}
+          animate={moved}
+          onOpen={openAt}
+        />
+      </div>
+    {/if}
+  </div>
 </section>

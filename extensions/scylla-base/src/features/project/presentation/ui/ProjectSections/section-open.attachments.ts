@@ -1,8 +1,11 @@
 import { ENTER_EASING, ENTER_MS, prefersReducedMotion, RISE_PX } from '@scylla/ui';
 
-/** The delay between two cards that come in, and the last card that waits for its turn. */
-const STAGGER_MS = 35;
-const STAGGERED_CARDS = 9;
+/**
+ * The delay between two cards that come in, and the last card that waits for its turn: each card
+ * starts before the middle of the move of the box of the section (`UNFOLD_MS`), not after it.
+ */
+const STAGGER_MS = 20;
+const STAGGERED_CARDS = 5;
 /** The highlight of a card that a chip opened: it fades out over this time. */
 const HIGHLIGHT_MS = 1400;
 

@@ -161,6 +161,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   total of the page that it opens, with the own workspaces.
 - The status "No run yet" is now a dashed ring. It no longer looks like the drag grip of the Reorder
   mode.
+- A group of the projects page (with Pinned and No group) and a section of the second sidebar now
+  open and fold in one smooth move. The header that you click stays in place. Only the content below
+  it moves, one time, with no jump when the cards and their pipelines load. With a reduced motion,
+  nothing moves.
 
 ## [0.7.2] - 2026-11-25
 

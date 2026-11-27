@@ -12,13 +12,15 @@
   import {
     ColorGlyph,
     EntityIcon,
-    fold,
+    enter,
+    exit,
+    MORPH_BOX_CLASS,
+    morphHeight,
     motionDuration,
     prefersReducedMotion,
     StatusShape,
     swapIn,
     swapOut,
-    unfold,
   } from '@scylla/ui';
   import {
     Input,
@@ -235,14 +237,17 @@
                     {@render sectionAction(section.action)}
                   {/if}
                 </div>
-                {#if !section.folded}
-                  <!-- Indented under the title: the links belong to the section. -->
-                  <ul class="flex flex-col gap-0.5 pt-0.5 pl-3" in:unfold out:fold>
-                    {#each run.pages as page (page.href)}
-                      <li>{@render row(page)}</li>
-                    {/each}
-                  </ul>
-                {/if}
+                <!-- The links fold in one box, as the cards of a section of the projects page. -->
+                <div class={MORPH_BOX_CLASS} {@attach morphHeight}>
+                  {#if !section.folded}
+                    <!-- Indented under the title: the links belong to the section. -->
+                    <ul class="flex flex-col gap-0.5 pt-0.5 pl-3" in:enter out:exit>
+                      {#each run.pages as page (page.href)}
+                        <li>{@render row(page)}</li>
+                      {/each}
+                    </ul>
+                  {/if}
+                </div>
               </li>
             {:else}
               {#each run.pages as page (page.href)}
