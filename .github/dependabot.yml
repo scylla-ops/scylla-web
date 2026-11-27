@@ -1,6 +1,4 @@
-# Dependency updates, one pull request per group and per week, against the version branch.
-# `target-branch` names the current version branch: the release checklist of CONTRIBUTING.md
-# moves it when the next version branch opens.
+# Dependency updates, one pull request per group and per week, against `main`, the default branch.
 version: 2
 updates:
   - package-ecosystem: npm
@@ -8,7 +6,6 @@ updates:
     schedule:
       interval: weekly
       day: monday
-    target-branch: v0.8.0
     open-pull-requests-limit: 5
     commit-message:
       prefix: chore

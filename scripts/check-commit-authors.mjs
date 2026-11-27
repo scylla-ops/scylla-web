@@ -6,7 +6,7 @@
  * agent trailer puts the agent in them.
  *
  * Usage:
- *   node scripts/check-commit-authors.mjs <range>     e.g. origin/v0.7.3..HEAD
+ *   node scripts/check-commit-authors.mjs <range>     e.g. origin/main..HEAD
  */
 
 import { execFileSync } from 'node:child_process';

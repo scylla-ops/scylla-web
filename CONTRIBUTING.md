@@ -33,11 +33,9 @@ change of the protos. Run all commands from the repository root.
 
 ## Branches
 
-- `main` holds the released versions.
-- A **version branch** (`v0.7.3`, …) collects the work of the next version. It merges into
-  `main` when the version is released.
-- Start your work from the current version branch, on a branch named after the type of the
-  change:
+- `main` collects the work of the next version. A release is a tag on `main`. There is no
+  version branch.
+- Start your work from `main`, on a branch named after the type of the change:
 
   | Prefix | Use |
   |---|---|
@@ -50,7 +48,7 @@ change of the protos. Run all commands from the repository root.
 
   Example: `fix/workspace-selector-width`.
 
-- Open the pull request against the version branch, not against `main`.
+- Open the pull request against `main`.
 
 ## Commits
 
@@ -78,7 +76,7 @@ other change:
   pull request. You answer the questions of the review.
 - **Only humans are authors and co-authors.** Do not add a `Co-Authored-By` trailer that names
   an AI agent, and do not add a "Generated with …" line to a pull request. Configure your agent
-  to not add them. The CI checks it: `pnpm check:authors origin/v0.7.3..HEAD` runs the same
+  to not add them. The CI checks it: `pnpm check:authors origin/main..HEAD` runs the same
   check on your branch.
 - Agents read [`AGENTS.md`](AGENTS.md) and the `AGENTS.md` of each module. When you change a
   rule or a public API, update these files in the same pull request.
@@ -99,9 +97,9 @@ other change:
 
 ## Checks
 
-Scylla runs these commands on each pull request that is not a draft, and after each push to `main`
-or to a version branch. Run them before you push. All of them must
-pass with zero warnings, zero failures, zero violations, zero cycles and zero collisions.
+Scylla runs these commands on each pull request that is not a draft, and after each push to `main`.
+Run them before you push. All of them must pass with zero warnings, zero failures, zero violations,
+zero cycles and zero collisions.
 
 | Command | What it checks |
 |---|---|
@@ -115,7 +113,7 @@ pass with zero warnings, zero failures, zero violations, zero cycles and zero co
 
 The file `.scylla/pipelines/ci.yaml` has these checks. The project `web` of the workspace Scylla Ops
 (app.scylla-ops.com) runs it on its CI agent, and GitHub shows the result as the check `scylla/ci`,
-which is required on `main`. If this run is red on a version branch, fix or revert the merge first.
+which is required on `main`. If this run is red on `main`, fix or revert the merge first.
 
 ## Changelog and releases
 
@@ -130,22 +128,19 @@ protos of a patch version only add.
   change: `Added`, `Changed`, `Deprecated`, `Removed`, `Fixed` or `Security`. Write
   `**Breaking:**` before an entry that changes what an extension imports.
 - **To release a version** (a maintainer does it):
-  1. On the version branch, rename `## [Unreleased]` to `## [0.7.3] - YYYY-MM-DD` in
-     `CHANGELOG.md`. Add an empty `## [Unreleased]` above it, and update the links at the end
-     of the file.
-  2. Set the version in the release commit, just before the tag. Set it in the 8 `package.json`
-     files and in `extensions/scylla-base/src/scylla-base.extension.ts` (the extension
-     manifest). The version branch keeps the version of the last tag until its release.
-     Then create the next version branch (`v0.8.0`) from the version branch, if it does not
-     exist yet. Its first pull request sets `target-branch` in `.github/dependabot.yml` to the
-     new branch.
-  3. Open the release pull request (`release/0.7.3`) with the version change, from the version
-     branch to `main`, and merge it with a merge commit.
-  4. Delete the version branch. A branch and a tag with the same name make `git` refs
-     ambiguous.
-  5. Tag the merge commit on `main`: `git tag -a v0.7.3 -m "Scylla Web v0.7.3"`. Tags start
-     with a lowercase `v`. Never move or delete a tag.
-  6. Create the GitHub Release from the tag. Its text is the section of the version in
+  1. Create the release branch (`release/0.8.0`) from `main`.
+  2. Make the release commit on this branch. It sets the version in the 8 `package.json` files
+     and in `extensions/scylla-base/src/scylla-base.extension.ts` (the extension manifest). In
+     `CHANGELOG.md`, it renames `## [Unreleased]` to `## [0.8.0] - YYYY-MM-DD`, adds an empty
+     `## [Unreleased]` above it, and updates the links at the end of the file. Between two
+     releases, `main` keeps the version of the last tag.
+  3. Open the release pull request from `release/0.8.0` to `main`. Merge it with a merge
+     commit, not a squash, so that the release commit stays on `main`. Then delete the release
+     branch.
+  4. Tag the release commit: `git tag -a v0.8.0 <release commit> -m "Scylla Web v0.8.0"`. Tags
+     start with a lowercase `v`. A tag cannot move and cannot be deleted: make sure that it is
+     on the release commit before you push it.
+  5. Create the GitHub Release from the tag. Its text is the section of the version in
      `CHANGELOG.md`.
 
 ## Code conventions, in short
