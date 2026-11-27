@@ -241,6 +241,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 - The Dashboard side panel now shows the end-of-scroll glow, like the other second sidebars.
 - The Color row of the Icon tab in the agent and app icon dialog shows in full, with no second
   scroll bar.
+- A pipeline with a waiting job now shows a turning ring and "Job pending for" time, not the ring of
+  a pipeline with no run.
 
 ## [0.7.2] - 2026-11-25
 

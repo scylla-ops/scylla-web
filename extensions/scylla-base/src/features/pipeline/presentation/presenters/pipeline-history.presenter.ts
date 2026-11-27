@@ -21,7 +21,7 @@ const BAR_CLASS: Record<StatusState, string> = {
   success: 'bg-status-passed',
   failed: 'bg-status-failed',
   running: 'bg-status-running animate-[smooth-pulse_2s_infinite]',
-  pending: 'bg-status-queued',
+  pending: 'bg-status-queued/60 animate-[smooth-pulse_2.4s_infinite] motion-reduce:animate-none',
   idle: 'bg-status-queued',
   skipped: 'bg-status-skipped',
   cancelled: 'bg-status-canceled',
