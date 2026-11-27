@@ -3,15 +3,17 @@ import type { ProjectEntity } from '../entities/project.entity.ts';
 /**
  * The order of a list of projects. `position` is the order of the workspace: before a member
  * sets one, the oldest project comes first. `last-job`: the newest job first. `failed-first`:
- * the failing projects, then the running projects, then the others; by name in each group.
+ * the failing projects, then the running projects, then the pending projects, then the others;
+ * by name in each group.
  */
 export type ProjectOrder = 'position' | 'name' | 'last-job' | 'failed-first';
 
 /**
  * A filter by health. `failed`: a pipeline of the project has a last ended job that did not
- * complete. `running`: a job of the project runs or waits.
+ * complete. `running`: a job of the project runs. `pending`: a job of the project waits for an
+ * agent or for an approval.
  */
-export type ProjectHealth = 'all' | 'failed' | 'running';
+export type ProjectHealth = 'all' | 'failed' | 'running' | 'pending';
 
 /** A section of the projects page: the projects of one group, or the projects with no group. */
 export type ProjectSection = { kind: 'group'; groupId: string } | { kind: 'ungrouped' };
@@ -20,7 +22,10 @@ export type ProjectSection = { kind: 'group'; groupId: string } | { kind: 'ungro
 export interface ProjectCounts {
   total: number;
   failed: number;
+  /** The projects with a job that runs. */
   running: number;
+  /** The projects with a job that waits for an agent or for an approval. */
+  pending: number;
   /** The pipelines of these projects. */
   pipelines: number;
 }
@@ -51,4 +56,4 @@ export interface ProjectSearchResult {
 
 /** The number of projects that a search with this health gives, on all the pages. */
 export const countOfHealth = (counts: ProjectCounts, health: ProjectHealth): number =>
-  health === 'failed' ? counts.failed : health === 'running' ? counts.running : counts.total;
+  health === 'all' ? counts.total : counts[health];

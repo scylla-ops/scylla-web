@@ -219,12 +219,16 @@ describe('the sections', () => {
     expect(searchSectionOf(PINS)).toBeUndefined();
   });
 
-  it('shows the failures first, then the jobs that run, else no health', () => {
-    const counts = { total: 4, failed: 1, running: 2, pipelines: 6 };
+  it('shows the failures first, then the jobs that run, then the jobs that wait, else no health', () => {
+    const counts = { total: 4, failed: 1, running: 2, pending: 3, pipelines: 6 };
 
     expect(sectionHealth(counts)).toEqual({ kind: 'failed', count: 1 });
     expect(sectionHealth({ ...counts, failed: 0 })).toEqual({ kind: 'running', count: 2 });
-    expect(sectionHealth({ ...counts, failed: 0, running: 0 })).toBeUndefined();
+    expect(sectionHealth({ ...counts, failed: 0, running: 0 })).toEqual({
+      kind: 'pending',
+      count: 3,
+    });
+    expect(sectionHealth({ ...counts, failed: 0, running: 0, pending: 0 })).toBeUndefined();
   });
 });
 

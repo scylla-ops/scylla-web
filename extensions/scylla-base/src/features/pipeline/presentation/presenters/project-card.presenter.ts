@@ -1,6 +1,8 @@
+import type { MessageDescriptor } from '@lingui/core';
 import type { StatusState } from '@scylla/ui';
 import type { JobStatus } from '@shared/domain/structs/job-status.struct.ts';
 import { toStatusState } from '@shared/utils/job-status.utils.ts';
+import { projectCardMessages } from '../messages/project-card.messages.ts';
 import type {
   PipelineSummary,
   RecentRun,
@@ -9,17 +11,28 @@ import type {
 /** The pipelines that a project card shows. The others are one link to the project. */
 export const CARD_PIPELINES = 3;
 
-/** The time of a row: since when its job runs, the next fire of its cron, or its last job. */
+/**
+ * The time of a row: since when its job runs or waits (`live`), the next fire of its cron, or its
+ * last job.
+ */
 export type RowTime =
-  | { kind: 'running'; since: string }
-  | { kind: 'next'; at: string }
-  | { kind: 'last'; at: string };
+  { kind: 'live'; since: string } | { kind: 'next'; at: string } | { kind: 'last'; at: string };
+
+/** The job that the footer tells about: the state of the server, and since when it is so. */
+export interface LiveFooter {
+  kind: 'live';
+  status: JobStatus;
+  since: string;
+}
 
 /** One pipeline on a project card. */
 export interface CardPipelineRow {
   id: string;
   name: string;
-  /** The status of its last job: `running` while a job runs or waits. `null`: no job. */
+  /**
+   * The state of its jobs that run or wait (`running`, else `pending`, else `awaiting_approval`),
+   * else the status of its last job. `null`: no job.
+   */
   status: JobStatus | null;
   /** The form of the status, for `StatusShape`. */
   state: StatusState;
@@ -37,21 +50,40 @@ export interface CardPipelines {
   /** The pipelines whose last ended job of the default branch did not complete. */
   failing: number;
   /** The line at the bottom of the card. `null`: the project has no pipeline. */
-  footer: RowTime | { kind: 'none' } | null;
+  footer: LiveFooter | Exclude<RowTime, { kind: 'live' }> | { kind: 'none' } | null;
 }
+
+/** The live states, in the order of the footer: a job that runs first. */
+const LIVE_ORDER: readonly JobStatus[] = ['running', 'pending', 'awaiting_approval'];
+
+/** The footer text of each live state: "Job running for 2 min", "Job pending for 2 min". */
+const LIVE_FOOTERS: Partial<Record<JobStatus, (duration: string) => MessageDescriptor>> = {
+  running: projectCardMessages.jobRunningFor,
+  pending: projectCardMessages.jobPendingFor,
+  awaiting_approval: projectCardMessages.jobAwaitingApprovalFor,
+};
+
+/** The footer text of a live state. */
+export const liveFooterMessage = (status: JobStatus): ((duration: string) => MessageDescriptor) =>
+  LIVE_FOOTERS[status] ?? projectCardMessages.jobPendingFor;
 
 /** When a job started, or was created if it waits. */
 const startOf = (run: RecentRun): string => run.startedAt ?? run.createdAt;
 
+/** The newest recent job in the live state of the pipeline, if the recent jobs hold one. */
+const liveRunOf = (summary: PipelineSummary): RecentRun | undefined =>
+  summary.live ? summary.recent.find(run => run.status === summary.live) : undefined;
+
 const timeOf = (summary: PipelineSummary): RowTime | null => {
-  const last = summary.recent[0];
-  if (summary.active && last) return { kind: 'running', since: startOf(last) };
+  const live = liveRunOf(summary);
+  if (live) return { kind: 'live', since: startOf(live) };
   if (summary.nextFire) return { kind: 'next', at: summary.nextFire.at };
+  const last = summary.recent[0];
   return last ? { kind: 'last', at: last.createdAt } : null;
 };
 
 const statusOf = (summary: PipelineSummary): JobStatus | null =>
-  summary.active ? 'running' : (summary.recent[0]?.status ?? null);
+  summary.live ?? summary.recent[0]?.status ?? null;
 
 const rowOf = (summary: PipelineSummary): CardPipelineRow => ({
   id: summary.id,
@@ -77,17 +109,20 @@ const newest = (times: string[]): string | undefined =>
   );
 
 /**
- * The footer: the job that runs for the longest time, else the newest job, else the next fire of
- * a cron.
+ * The footer: the job that runs for the longest time, else the job that waits for the longest
+ * time, else the newest job, else the next fire of a cron.
  */
 const footerOf = (pipelines: PipelineSummary[]): CardPipelines['footer'] => {
   if (pipelines.length === 0) return null;
-  const running = oldest(
-    pipelines.flatMap(summary =>
-      summary.active && summary.recent[0] ? [startOf(summary.recent[0])] : [],
-    ),
-  );
-  if (running) return { kind: 'running', since: running };
+  for (const status of LIVE_ORDER) {
+    const since = oldest(
+      pipelines.flatMap(summary => {
+        const live = summary.live === status ? liveRunOf(summary) : undefined;
+        return live ? [startOf(live)] : [];
+      }),
+    );
+    if (since) return { kind: 'live', status, since };
+  }
   const last = newest(pipelines.flatMap(summary => summary.recent[0]?.createdAt ?? []));
   if (last) return { kind: 'last', at: last };
   const next = oldest(pipelines.flatMap(summary => summary.nextFire?.at ?? []));

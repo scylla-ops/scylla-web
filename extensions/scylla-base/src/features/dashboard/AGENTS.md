@@ -288,6 +288,9 @@ a widget), `1527:8165` (widget data), `1529:8782` (layouts), `1529:9001` (new la
   panel read the same module state.
 - **The palette replaces the panel.** A kind with data opens "Add a widget", or drags onto the
   grid. A kind with no data shows "soon". Each kind has data now.
+- **The Pipeline widget tells the job that runs or waits now** (`liveRunOf`, with the state of
+  the server: running, pending, waiting for approval), else the last run that ended. Its icon and
+  its color come from `pipelineTone`: a pipeline with a job that waits is `queued`, not `running`.
 - **A dedicated widget (`DATA[data].target`) shows one agent or one pipeline.** "Add a widget"
   and the drawer show `TargetPicker`. "Add a widget" takes the first choice when the user picks
   none. A widget that a drag of the palette adds has no target: it asks for one. A target that

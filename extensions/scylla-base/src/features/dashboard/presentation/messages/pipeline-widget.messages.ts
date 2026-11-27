@@ -3,7 +3,12 @@ import { msg } from '@lingui/core/macro';
 export const pipelineWidgetMessages = {
   lastRun: (id: string, outcome: string, ago: string) =>
     msg({ context: 'pipeline widget', message: `Last run ${id} · ${outcome} ${ago} ago` }),
+  liveRun: (id: string, state: string, duration: string) =>
+    msg({ context: 'pipeline widget', message: `Run ${id} · ${state} for ${duration}` }),
   noRun: msg({ context: 'pipeline widget', message: 'No run yet' }),
+  running: msg({ context: 'pipeline widget', message: 'running' }),
+  pending: msg({ context: 'pipeline widget', message: 'pending' }),
+  awaitingApproval: msg({ context: 'pipeline widget', message: 'waiting for approval' }),
   completed: msg({ context: 'pipeline widget', message: 'completed' }),
   failed: msg({ context: 'pipeline widget', message: 'failed' }),
   cancelled: msg({ context: 'pipeline widget', message: 'cancelled' }),

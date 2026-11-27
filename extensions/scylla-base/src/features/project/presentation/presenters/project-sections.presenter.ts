@@ -204,14 +204,23 @@ export const reorderNews = ({ drag, target, ended, idsOf, nameOf }: ReorderNewsI
     : t(projectMessages.droppedInto(ended.name, nameOf(ended.to)));
 };
 
-/** The health line of a section header: the failures first, then the jobs that run. */
+/** The kinds of the health line of a section header, in their order. */
+const SECTION_HEALTHS = ['failed', 'running', 'pending'] as const;
+
+/** The health line of a section header: the failures first, then the jobs that run, then wait. */
 export const sectionHealth = (
   counts: ProjectCounts | undefined,
-): { kind: 'failed' | 'running'; count: number } | undefined => {
-  if (counts?.failed) return { kind: 'failed', count: counts.failed };
-  if (counts?.running) return { kind: 'running', count: counts.running };
-  return undefined;
+): { kind: (typeof SECTION_HEALTHS)[number]; count: number } | undefined => {
+  const kind = SECTION_HEALTHS.find(health => counts?.[health]);
+  return kind && counts ? { kind, count: counts[kind] } : undefined;
 };
+
+/** The dot and the text of each health of a section header: the colors of the status shapes. */
+export const SECTION_HEALTH_LOOKS = {
+  failed: { dot: 'bg-destructive', text: projectMessages.sectionFailing },
+  running: { dot: 'bg-warning', text: projectMessages.sectionRunning },
+  pending: { dot: 'bg-status-queued', text: projectMessages.sectionPending },
+} as const;
 
 /** Where a dragged group goes: before another group, or last of the groups. */
 export interface GroupTarget {

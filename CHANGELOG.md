@@ -224,6 +224,11 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   or Image, then see only the options of that kind.
 - The avatar editor uses the full dialog: colors are under the preview, shapes are smaller, and a
   fade shows when more content is below.
+- The projects page, the second sidebar and the dashboard show the state of the jobs that the server
+  gives. A job that waits for an agent shows "pending", not "running": the counts, the Pending
+  filter, the group headers, the cards and the sidebar mark have a pending state. The Pipeline
+  widget shows the job that runs or waits, not the last ended job, so it does not show "orphaned"
+  for a pipeline that runs.
 
 ## [0.7.2] - 2026-11-25
 

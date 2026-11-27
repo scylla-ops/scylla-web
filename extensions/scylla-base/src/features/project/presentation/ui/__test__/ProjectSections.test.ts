@@ -67,7 +67,7 @@ beforeEach(() => {
     const failed = section?.kind === 'group' ? 1 : 0;
     return Promise.resolve({
       items: found.slice(0, limit),
-      counts: { total: found.length, failed, running: 0, pipelines: 0 },
+      counts: { total: found.length, failed, running: 0, pending: 0, pipelines: 0 },
       hasMore: found.length > limit,
     });
   });

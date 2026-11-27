@@ -224,11 +224,13 @@ choice card links to it by its path only.
   never a loop of `createQuery`.
 - The member UI and its data belong to [`membership`](../membership/AGENTS.md), through `access`.
 - **The projects page has no page numbers.** It shows 6 cards (3 on a phone), then 12 more at
-  each "Show more". The search, the health (`?health=failed|running`) and the order (`?sort=`)
+  each "Show more". The search, the health (`?health=failed|running|pending`) and the order (`?sort=`)
   are in the URL, and the server applies them (`ListProjects`): a new value shows the first
   batch again. The search goes to the URL and the server 250 ms after the last letter.
 - **The header counts the whole workspace, the segments count the search.** The health does not
-  change the counts of the server, so each segment shows its count with any health.
+  change the counts of the server, so each segment shows its count with any health. `running`
+  counts the projects with a job that runs, and `pending` the projects with a job that waits for
+  an agent or for an approval: a job that waits is never counted as running.
 - **A part of a card reads the data of its whole batch.** The cards that came together have the
   same `batch`: the pipelines of a batch are one `ListPipelineSummaries`, the repositories of the
   workspace are one `ListRepositoryLinks`. Do not read in a zone by `projectId` alone.

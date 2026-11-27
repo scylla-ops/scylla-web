@@ -25,7 +25,7 @@ const summary = (overrides: Partial<PipelineSummary> = {}): PipelineSummary => (
   failed: 0,
   medianDuration: null,
   health: 'none',
-  active: false,
+  live: null,
   triggerKinds: [],
   nextFire: null,
   ...overrides,
@@ -289,9 +289,19 @@ describe('pipelineRows', () => {
   });
 
   it('shows a pipeline that runs now in the color of a running job, and a pipeline with no trigger as manual', () => {
-    const [row] = pipelineRows([summary({ active: true, health: 'green' })], 20);
+    const [row] = pipelineRows([summary({ live: 'running', health: 'green' })], 20);
 
     expect(row).toMatchObject({ tone: 'running', trigger: 'manual', rate: '—', median: '—' });
+  });
+
+  it('shows a pipeline whose job waits in the color of a pending job, never as running', () => {
+    const [pending, approval] = pipelineRows(
+      [summary({ live: 'pending', health: 'red' }), summary({ live: 'awaiting_approval' })],
+      20,
+    );
+
+    expect(pending.tone).toBe('queued');
+    expect(approval.tone).toBe('queued');
   });
 });
 

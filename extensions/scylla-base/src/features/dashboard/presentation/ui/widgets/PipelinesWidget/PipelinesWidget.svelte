@@ -114,6 +114,7 @@
             <ChartLegendItem tone="passed" label={t(messages.green)} />
             <ChartLegendItem tone="failed" label={t(messages.red)} />
             <ChartLegendItem tone="warning" label={t(messages.runningNow)} />
+            <ChartLegendItem tone="queued" label={t(messages.pendingNow)} />
             {#if rows.length > shown.length}
               <Button variant="ghost" size="xs" class="ml-auto text-primary" onclick={() => (sheetOpen = true)}>
                 {t(messages.seeAll(rows.length))}

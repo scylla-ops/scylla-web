@@ -53,8 +53,8 @@ beforeEach(() => {
     return Promise.resolve({
       items: found.slice(0, limit),
       counts: query
-        ? { total: found.length, failed: 1, running: 0, pipelines: 3 }
-        : { total: found.length, failed: 2, running: 1, pipelines: 63 },
+        ? { total: found.length, failed: 1, running: 0, pending: 0, pipelines: 3 }
+        : { total: found.length, failed: 2, running: 1, pending: 4, pipelines: 63 },
       hasMore: found.length > limit,
     });
   });
@@ -86,7 +86,7 @@ describe('ProjectList', () => {
   it('counts the workspace in its header, shows six cards, then twelve more', async () => {
     render(ProjectList, { workspaceId: 'org-1' });
 
-    expect(await screen.findByText('63 pipelines · 2 failing · 1 running')).toBeInTheDocument();
+    expect(await screen.findByText('63 pipelines · 2 failing · 1 running · 4 pending')).toBeInTheDocument();
     expect(await screen.findByText('6 of 43 projects')).toBeInTheDocument();
     expect(cards()).toHaveLength(6);
     expect(search).toHaveBeenCalledWith(
@@ -113,7 +113,7 @@ describe('ProjectList', () => {
     expect(search).not.toHaveBeenCalledWith(expect.objectContaining({ query: 'we' }));
     expect(navigator.navigate).toHaveBeenLastCalledWith('/acme/projects?q=web', { replace: true });
     // The header still counts the whole workspace.
-    expect(screen.getByText('63 pipelines · 2 failing · 1 running')).toBeInTheDocument();
+    expect(screen.getByText('63 pipelines · 2 failing · 1 running · 4 pending')).toBeInTheDocument();
     expect(cards()).toHaveLength(2);
 
     await userEvent.click(screen.getByRole('button', { name: 'Clear the search' }));

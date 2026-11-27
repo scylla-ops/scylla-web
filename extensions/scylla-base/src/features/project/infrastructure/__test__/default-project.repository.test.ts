@@ -170,7 +170,7 @@ describe('DefaultProjectRepository.search', () => {
   });
 
   it('reads pages of at most 100 projects until it has the limit, with the counts', async () => {
-    const counts = { total: 130, failed: 2, running: 1, pipelines: 200 };
+    const counts = { total: 130, failed: 2, running: 1, pending: 3, pipelines: 200 };
     const listProjects = vi
       .fn()
       .mockReturnValueOnce(
@@ -228,7 +228,7 @@ describe('DefaultProjectRepository.search', () => {
 
     expect(result.items.map(item => item.id)).toEqual(['p-1']);
     expect(result.hasMore).toBe(false);
-    expect(result.counts).toEqual({ total: 0, failed: 0, running: 0, pipelines: 0 });
+    expect(result.counts).toEqual({ total: 0, failed: 0, running: 0, pending: 0, pipelines: 0 });
     expect(listProjects).toHaveBeenCalledTimes(1);
   });
 });

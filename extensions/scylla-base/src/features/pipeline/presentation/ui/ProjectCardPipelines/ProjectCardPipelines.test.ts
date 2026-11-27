@@ -26,7 +26,7 @@ const summary = (patch: Partial<PipelineSummary>): PipelineSummary => ({
   failed: 1,
   medianDuration: null,
   health: 'red',
-  active: false,
+  live: null,
   triggerKinds: [],
   nextFire: null,
   ...patch,

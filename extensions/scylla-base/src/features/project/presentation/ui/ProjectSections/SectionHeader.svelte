@@ -8,8 +8,10 @@
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { ProjectCounts } from '@base/features/project/domain/structs/project-search.struct.ts';
-  import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
-  import { sectionHealth } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
+  import {
+    SECTION_HEALTH_LOOKS,
+    sectionHealth,
+  } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
   import { reorderIn } from '../reorder.transition.ts';
 
   interface Props {
@@ -81,18 +83,11 @@
       {#if health}
         <span class="flex shrink-0 items-center gap-1.5 pl-1">
           <span
-            class={cn(
-              'size-2.5 rounded-full',
-              health.kind === 'failed' ? 'bg-destructive' : 'bg-warning',
-            )}
+            class={cn('size-2.5 rounded-full', SECTION_HEALTH_LOOKS[health.kind].dot)}
             aria-hidden="true"
           ></span>
           <span class="text-xs text-muted-foreground">
-            {t(
-              health.kind === 'failed'
-                ? projectMessages.sectionFailing(health.count)
-                : projectMessages.sectionRunning(health.count),
-            )}
+            {t(SECTION_HEALTH_LOOKS[health.kind].text(health.count))}
           </span>
         </span>
       {/if}

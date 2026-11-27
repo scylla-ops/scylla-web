@@ -4,8 +4,10 @@ import { jobQueries } from '@base/features/jobs';
 import { createRunPipeline, pipelineQueries } from '@base/features/pipeline';
 import {
   lastRunOf,
+  liveRunOf,
   pipelineTone,
   stageChips,
+  toneTextClass,
 } from '@base/features/dashboard/presentation/presenters/pipeline-widget.presenter.ts';
 import { shortJobId } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
 import { pipelineRows } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
@@ -51,6 +53,14 @@ export const createPipelineWidget = (
     },
     get tone() {
       return summary ? pipelineTone(summary) : 'muted';
+    },
+    /** The text color of the icon of the pipeline, in its tone. */
+    get toneText() {
+      return toneTextClass(summary ? pipelineTone(summary) : 'muted');
+    },
+    /** The job that runs or waits now: the widget tells its state, not the last run that ended. */
+    get liveRun() {
+      return summary ? liveRunOf(summary) : null;
     },
     get lastRun() {
       return summary ? lastRunOf(summary) : null;

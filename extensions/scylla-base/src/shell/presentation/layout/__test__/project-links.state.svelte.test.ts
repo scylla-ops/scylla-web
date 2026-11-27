@@ -24,13 +24,14 @@ const SECTIONS_KEY = 'scylla.project-sections';
 
 const resultOf = (items: ProjectEntity[]) => ({
   items,
-  counts: { total: items.length, failed: 0, running: 0, pipelines: 0 },
+  counts: { total: items.length, failed: 0, running: 0, pending: 0, pipelines: 0 },
   hasMore: false,
 });
 
 const repository = { search: vi.fn() };
 const groups = { list: vi.fn() };
 let running: ProjectEntity[];
+let pending: ProjectEntity[];
 let failed: ProjectEntity[];
 let all: ProjectEntity[];
 
@@ -71,13 +72,12 @@ beforeEach(() => {
   localStorage.clear();
   all = [project('p-1', 'feu'), project('p-2', 'td')];
   running = [];
+  pending = [];
   failed = [];
   repository.search
     .mockReset()
     .mockImplementation(({ health }: { health: string }) =>
-      Promise.resolve(
-        resultOf(health === 'running' ? running : health === 'failed' ? failed : all),
-      ),
+      Promise.resolve(resultOf({ running, pending, failed }[health] ?? all)),
     );
   groups.list.mockReset().mockResolvedValue([]);
   restoreRegistry = withRegistry({
@@ -256,6 +256,31 @@ describe('projectLinks', () => {
     );
     expect(failedReads).toHaveLength(1);
     expect(failedReads[0]?.[0]).toMatchObject({ workspaceId: 'org-1', limit: 100 });
+  });
+
+  it('marks a project with a job that waits as pending, not running', async () => {
+    pending = [project('p-2', 'td')];
+    const links = mount('projects');
+
+    await vi.waitFor(() =>
+      expect(links()[1]?.status).toEqual({ tone: 'pending', label: 'A job is pending' }),
+    );
+    expect(links()[0]?.status).toBeUndefined();
+    expect(repository.search).toHaveBeenCalledWith(expect.objectContaining({ health: 'pending' }));
+  });
+
+  it('shows a job that runs over a job that waits, and a job that waits over a failure', async () => {
+    failed = [project('p-1', 'feu'), project('p-2', 'td')];
+    pending = [project('p-1', 'feu'), project('p-2', 'td')];
+    running = [project('p-1', 'feu')];
+    const links = mount('projects');
+
+    await vi.waitFor(() =>
+      expect(links()[0]?.status).toEqual({ tone: 'running', label: 'A job runs' }),
+    );
+    await vi.waitFor(() =>
+      expect(links()[1]?.status).toEqual({ tone: 'pending', label: 'A job is pending' }),
+    );
   });
 
   it('shows a job that runs over the failure of the last one', async () => {

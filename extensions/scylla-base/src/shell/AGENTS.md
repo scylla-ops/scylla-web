@@ -57,9 +57,10 @@ presentation/
                                         (secondSidebarLinks), as the projects page shows them: the
                                         pins, each group with its folder color, then no group, in
                                         folding sections that share the closed sections of the page,
-                                        and the status of a project: a job that runs, else a last
-                                        job that failed. It reads them only while they show: 4
-                                        reads, none for each group or project. Each
+                                        and the status of a project: a job that runs, else a job
+                                        that waits (pending), else a last job that failed. It
+                                        reads them only while they show: 5 reads, none for each
+                                        group or project. Each
                                         group and « No group » has a "+" (a new project there) for
                                         a person with CREATE_PROJECT
     command-bar-request.state.svelte.ts       requestCommandBar: GlobalSearch opens the bar (an action target of a highlight)

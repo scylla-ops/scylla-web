@@ -75,7 +75,8 @@ export const toDomain = (summary: GrpcPipelineSummary): PipelineSummary => ({
     ? Number(summary.medianDuration.seconds) + summary.medianDuration.nanos / 1e9
     : null,
   health: healthOf(summary.lastEndedStatus),
-  active: summary.active,
+  live:
+    summary.liveStatus === GrpcJobStatus.UNSPECIFIED ? null : statusToDomain(summary.liveStatus),
   triggerKinds: summary.triggerKinds.flatMap(kind => TRIGGER_KINDS[kind] ?? []),
   nextFire: summary.nextFire?.at
     ? { at: timestampToIso(summary.nextFire.at), schedule: summary.nextFire.schedule }

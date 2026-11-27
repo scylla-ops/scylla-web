@@ -35,8 +35,12 @@ export interface PipelineSummary {
   /** In seconds, of the recent jobs that completed. `null` when none did. */
   medianDuration: number | null;
   health: PipelineHealth;
-  /** A job runs, or waits for an agent or an approval. */
-  active: boolean;
+  /**
+   * The state of the jobs that run or wait, as the server gives it: `running` when a job runs,
+   * else `pending` when a job waits for an agent, else `awaiting_approval`. `null`: no job runs
+   * or waits.
+   */
+  live: JobStatus | null;
   triggerKinds: PipelineTriggerKind[];
   /** The next fire of a cron trigger. */
   nextFire: { at: string; schedule: string } | null;
