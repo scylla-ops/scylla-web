@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import { Permission, can } from '@platform/authz';
   import { createQuery } from '@scylla/core-sdk';
   import { secretQueries } from '@base/features/secret';
@@ -45,9 +46,7 @@
       aria-label={parameter.key}
       class={missing ? 'border-destructive' : undefined}
     />
-    {#if missing}
-      <p class="text-xs text-destructive">{t(libraryMessages.secretMissing)}</p>
-    {/if}
+    <FieldMessage message={missing && t(libraryMessages.secretMissing)} />
   {:else}
     <Input {id} {value} class="font-mono" oninput={event => onChange(event.currentTarget.value)} />
     {#if parameter.description}

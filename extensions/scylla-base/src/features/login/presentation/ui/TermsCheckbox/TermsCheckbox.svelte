@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import { Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -52,9 +53,11 @@
     />
     <span><LinkedText {sentence} {links} /></span>
   </Label>
-  {#if error}
-    <p id={errorId} role="alert" class={cn('text-sm text-destructive', centered && 'text-center')}>
-      {error}
-    </p>
-  {/if}
+  <FieldMessage
+    id={errorId}
+    role="alert"
+    size="sm"
+    class={cn(centered && 'text-center')}
+    message={error}
+  />
 </div>

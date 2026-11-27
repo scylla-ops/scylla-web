@@ -3,6 +3,7 @@
   import type { Attachment } from 'svelte/attachments';
   import PlusIcon from '@lucide/svelte/icons/plus';
   import XIcon from '@lucide/svelte/icons/x';
+  import { FieldMessage } from '@scylla/ui';
   import { Badge, Button, Input } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import {
@@ -33,6 +34,8 @@
     duplicate: messages.duplicateIssue,
     'too-many': messages.tooManyIssue,
   };
+
+  const issueId = $props.id();
 
   let text = $state('');
   let issue = $state<AgentLabelIssue | null>(null);
@@ -78,6 +81,7 @@
       placeholder={t(messages.placeholder)}
       aria-label={label ?? t(messages.newLabel)}
       aria-invalid={issue ? true : undefined}
+      aria-describedby={issue ? issueId : undefined}
       autocomplete="off"
       spellcheck={false}
       {disabled}
@@ -100,7 +104,5 @@
       {t(messages.add)}
     </Button>
   </div>
-  {#if issue}
-    <p role="alert" class="text-xs text-destructive">{t(ISSUES[issue])}</p>
-  {/if}
+  <FieldMessage id={issueId} role="alert" message={issue && t(ISSUES[issue])} />
 </div>

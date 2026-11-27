@@ -57,11 +57,13 @@ presentation/
                                         (secondSidebarLinks), as the projects page shows them: the
                                         pins, each group with its folder color, then no group, in
                                         folding sections that share the closed sections of the page,
-                                        and the status of a project: a job that runs, else a last
-                                        job that failed. It reads them only while they show: 4
-                                        reads, none for each group or project. Each
+                                        and the status of a project: a job that runs, else a job
+                                        that waits (pending), else a last job that failed. It
+                                        reads them only while they show: 5 reads, none for each
+                                        group or project. Each
                                         group and « No group » has a "+" (a new project there) for
                                         a person with CREATE_PROJECT
+    command-bar-request.state.svelte.ts       requestCommandBar: GlobalSearch opens the bar (an action target of a highlight)
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
@@ -74,7 +76,7 @@ presentation/
     ui/CommandBar/                      the command bar: see "The command bar"
     ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
     ui/AdminBar/                        the bar of the administration (space.bar): the host, "Back to <workspace>"
-    ui/NavUser/                         who is signed in (userQueries.me), Account, Make an avatar, Help & tours, Legal and privacy
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Help & tours, Legal and privacy
                                         (a submenu of the documents that are on, no entry while none is on; on a
                                         phone it opens under its entry), Cookie settings
                                         (while one tracker needs consent), Instance administration, or
@@ -82,7 +84,7 @@ presentation/
                                         (sidebar footer); green on the rail while the URL is on the account or the help page
     ui/SessionLine/                     "Signed in as … · Account · Sign out", one centered line, outside the sidebar
     ui/NewBadge.svelte                  "New" pill of a sidebar link (navBadge)
-    ui/WhatsNewDialog/                  first-launch release announcement
+    ui/WhatsNewDialog/                  first-launch release announcement; an item with a `target` (page or action) is a button that closes the dialog, marks the highlight seen, stops the autoplay, then goes there
     ui/LaunchOverlays/                  THE overlay: the announcement first, then the onboarding tour
     ui/ConsentHost/                     over each page, public too (appOverlays): the banner and the cookie
                                         settings of `platform/consent`, while one tracker needs consent

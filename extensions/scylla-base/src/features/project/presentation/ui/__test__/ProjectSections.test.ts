@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { toast } from 'svelte-sonner';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import { installTestNavigator } from '@test/navigator.ts';
 import { contextStore } from '@platform/context';
@@ -18,7 +19,7 @@ import { PROJECT_DENSITY_KEY } from '../../project-density.user-state.ts';
 import { REORDER_LIMIT } from '../../presenters/project-sections.presenter.ts';
 import ProjectList from '../ProjectList.svelte';
 
-vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn(), info: vi.fn() } }));
 
 const project = (name: string, groupId?: string): ProjectEntity => ({
   id: `id-${name}`,
@@ -67,7 +68,7 @@ beforeEach(() => {
     const failed = section?.kind === 'group' ? 1 : 0;
     return Promise.resolve({
       items: found.slice(0, limit),
-      counts: { total: found.length, failed, running: 0, pipelines: 0 },
+      counts: { total: found.length, failed, running: 0, pending: 0, pipelines: 0 },
       hasMore: found.length > limit,
     });
   });
@@ -515,11 +516,20 @@ const stubLayout = () => {
   for (const name of offsets) {
     Object.defineProperty(HTMLElement.prototype, name, { configurable: true, get: offset(name) });
   }
+  // The grid places its cells: the offsets of a cell start at the grid.
+  const parent = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent');
+  Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.matches(CELL) ? this.parentElement : null;
+    },
+  });
   return () => {
     Element.prototype.getBoundingClientRect = rect;
     offsets.forEach((name, index) => {
       Object.defineProperty(HTMLElement.prototype, name, saved[index]!);
     });
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', parent!);
   };
 };
 
@@ -550,6 +560,9 @@ const dragCard = async (id: string, grab: { x: number; y: number }, dx: number, 
   return () => pointer(window, 'pointerup', start.x + dx, start.y + dy);
 };
 
+/** From the right edge of « status » (the third card) to the first part of « cli » (the second). */
+const OVER_CLI = STEP + 60 - (2 * STEP + W - 10);
+
 /** The cards and the slot of a grid: the ghost card is not a place. */
 const gridOf = (name: string) =>
   [...section(name).querySelectorAll(`[data-part="project-grid"] > :is(${CELL})`)].map(
@@ -568,11 +581,12 @@ describe('the drag of the reorder mode', () => {
     await waitFor(() => expect(cardsOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']));
   };
 
-  it('moves the other card aside when the dragged card covers it, held at its right edge', async () => {
+  it('moves the other card aside when the pointer is over it, wherever the card was taken', async () => {
     await reorderMode();
 
-    // « status » is held at its move icon, and moves left by one card width.
-    const release = await dragCard('id-status', { x: W - 10, y: 40 }, -W, 0);
+    // « status » is held at its move icon (its right edge); the pointer goes on the first part of
+    // « cli ».
+    const release = await dragCard('id-status', { x: W - 10, y: 40 }, OVER_CLI, 0);
 
     await waitFor(() =>
       expect(gridOf('No group')).toEqual(['id-docs', 'project-drop-slot', 'id-cli', 'id-status']),
@@ -591,18 +605,26 @@ describe('the drag of the reorder mode', () => {
     );
   });
 
-  it('puts a card last in a group when its center is on the header of the group', async () => {
+  it('puts a card last in a folded group when the pointer is over the group', async () => {
+    localStorage.setItem(PROJECT_SECTIONS_KEY, JSON.stringify({ 'org-1': ['g-1'] }));
     await reorderMode();
 
-    // « docs » (No group, at 1044 px) goes up until its center is on the header of « Deploys ».
-    const release = await dragCard('id-docs', { x: 200, y: 20 }, 0, 16 - (1044 + H / 2));
+    // « docs » (No group, at 1044 px) goes up until the pointer is on the header of « Deploys ».
+    const release = await dragCard('id-docs', { x: 200, y: 20 }, 0, 16 - 1064);
 
     expect(
       await within(section('Deploys')).findByText('Release to move “docs” into Deploys'),
     ).toBeInTheDocument();
+    // The slot of « docs » ends the line of chips: the card goes last.
+    const line = section('Deploys').querySelector('[data-part="folded-preview"]');
+    expect(line?.lastElementChild?.matches('[data-part="folded-drop-slot"]')).toBe(true);
     release();
 
-    await waitFor(() => expect(cardsOf('Deploys')).toEqual(['id-web', 'id-api', 'id-docs']));
+    await waitFor(() =>
+      expect(
+        screen.getByText(/^“docs” is now (in|at place 3 of 3 in) Deploys$/),
+      ).toBeInTheDocument(),
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Done' }));
 
     await waitFor(() =>
@@ -612,8 +634,10 @@ describe('the drag of the reorder mode', () => {
 
   it('shows the saved order when it leaves the mode, while the page reads its cards again', async () => {
     await reorderMode();
-    const release = await dragCard('id-status', { x: W - 10, y: 40 }, -W, 0);
-    await waitFor(() => expect(gridOf('No group')).toContain('project-drop-slot'));
+    const release = await dragCard('id-status', { x: W - 10, y: 40 }, OVER_CLI, 0);
+    await waitFor(() =>
+      expect(gridOf('No group')).toEqual(['id-docs', 'project-drop-slot', 'id-cli', 'id-status']),
+    );
     release();
     await waitFor(() => expect(cardsOf('No group')).toEqual(['id-docs', 'id-status', 'id-cli']));
 
@@ -660,8 +684,8 @@ describe('the drag of the reorder mode', () => {
     await waitFor(() => expect(zone()).toHaveTextContent('Drop a card here to pin it.'));
     expect(screen.queryByRole('region', { name: 'Pinned' })).not.toBeInTheDocument();
 
-    // The center of the card goes on the zone.
-    const y = -984 - H / 2 + 20;
+    // The pointer goes on the zone.
+    const y = -984;
     pointer(window, 'pointermove', start.x, y);
     await waitFor(() => expect(zone()).toHaveTextContent('Release to pin “status”'));
     pointer(window, 'pointerup', start.x, y);
@@ -671,6 +695,49 @@ describe('the drag of the reorder mode', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Done' }));
 
     expect(JSON.parse(localStorage.getItem(PROJECT_PINS_KEY)!)).toEqual({ 'org-1': ['id-status'] });
+  });
+
+  /** The page with « web » or « status » pinned: the pins at 0 px, « No group » at 2000 px. */
+  const withPin = async (id: string) => {
+    localStorage.setItem(PROJECT_PINS_KEY, JSON.stringify({ 'org-1': [id] }));
+    render(ProjectList, { workspaceId: 'org-1' });
+    await screen.findByRole('region', { name: 'Pinned' });
+    await userEvent.click(screen.getByRole('button', { name: 'Reorder' }));
+    await waitFor(() => expect(cardsOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']));
+    const card = section('No group').querySelector<HTMLElement>('[data-card="id-status"]')!;
+    const { left, top } = card.getBoundingClientRect();
+    // « status » is taken near its top: the card hangs under the pointer.
+    pointer(card, 'pointerdown', left + 200, top + 10);
+    pointer(window, 'pointermove', left + 200, top);
+  };
+
+  it('takes the pins as soon as the pointer is over them, with the card still under them', async () => {
+    await withPin('id-web');
+
+    // The bottom of the pins: the card is in « Deploys », under the pins.
+    pointer(window, 'pointermove', 600, 880);
+    await waitFor(() =>
+      expect(screen.getByText('“status”: place 2 of 2 in Pinned')).toBeInTheDocument(),
+    );
+    pointer(window, 'pointerup', 600, 880);
+
+    await waitFor(() => expect(cardsOf('Pinned')).toEqual(['id-web', 'id-status']));
+  });
+
+  it('says « Already pinned » over the pins for a pinned card, and sends it back', async () => {
+    await withPin('id-status');
+
+    pointer(window, 'pointermove', 600, 100);
+    expect(await within(section('Pinned')).findByText('Already pinned')).toBeInTheDocument();
+    expect(screen.getByText('“status” is already pinned')).toBeInTheDocument();
+    pointer(window, 'pointerup', 600, 100);
+
+    await waitFor(() =>
+      expect(screen.getByText('“status” is back at its place')).toBeInTheDocument(),
+    );
+    expect(toast.info).toHaveBeenCalledWith('“status” is already pinned');
+    expect(cardsOf('Pinned')).toEqual(['id-status']);
+    expect(cardsOf('No group')).toEqual(['id-docs', 'id-cli', 'id-status']);
   });
 });
 
@@ -1106,10 +1173,19 @@ const stubGroupLayout = () => {
   for (const name of offsets) {
     Object.defineProperty(HTMLElement.prototype, name, { configurable: true, get: offset(name) });
   }
+  // The grid places its cells: the offsets of a cell start at the grid.
+  const parent = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'offsetParent');
+  Object.defineProperty(HTMLElement.prototype, 'offsetParent', {
+    configurable: true,
+    get(this: HTMLElement) {
+      return this.matches(GROUP_CELL) ? this.parentElement : null;
+    },
+  });
   return () => {
     Element.prototype.getBoundingClientRect = rect;
     offsets.forEach((name, index) => {
       Object.defineProperty(HTMLElement.prototype, name, saved[index]!);
     });
+    Object.defineProperty(HTMLElement.prototype, 'offsetParent', parent!);
   };
 };

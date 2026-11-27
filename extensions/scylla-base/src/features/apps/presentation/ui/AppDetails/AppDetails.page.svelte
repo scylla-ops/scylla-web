@@ -1,5 +1,4 @@
 <script lang="ts">
-  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
   import { can, Permission } from '@platform/authz';
   import { contextStore, scyllaNavigate } from '@platform/context';
   import { createMutation, createQuery } from '@scylla/core-sdk';
@@ -8,7 +7,6 @@
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { setAppCrumbName } from '@base/features/apps/presentation/app-crumb.state.svelte.ts';
-  import { formatDay } from '@shared/utils/date-utils.ts';
   import {
     credentialRows,
     lastUsedOf,
@@ -22,6 +20,9 @@
   import AppCredentialsCard from './AppCredentialsCard.svelte';
   import AddCredentialDialog from './AddCredentialDialog.svelte';
   import AppIconCard from '../components/AppIconCard/AppIconCard.svelte';
+  import AppIconDialog from '../components/AppIconCard/AppIconDialog.svelte';
+  import DeleteAppDialog from '../components/DeleteAppDialog/DeleteAppDialog.svelte';
+  import DisabledBanner from '../components/DisabledBanner.svelte';
   import { agentPageMessages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
 
   let { appId = '' }: { appId?: string } = $props();
@@ -53,6 +54,13 @@
   let disabling = $state(false);
   let adding = $state(false);
   let iconOpen = $state(false);
+  let iconAvatar = $state(false);
+  let deleting = $state(false);
+
+  const openIcon = (avatar = false) => {
+    iconAvatar = avatar;
+    iconOpen = true;
+  };
 </script>
 
 {#if details.isError}
@@ -70,22 +78,18 @@
   <div class="flex flex-col gap-6 pb-20">
     <AppHeader
       {app}
+      onChangeIcon={canSetIcon ? () => openIcon() : undefined}
       onDisable={canManage ? () => (disabling = true) : undefined}
       onEnable={canManage ? () => enable.mutate(app.id) : undefined}
-      enabling={enable.isPending}
-      onChangeIcon={canSetIcon ? () => (iconOpen = true) : undefined}
+      onDelete={canManage ? () => (deleting = true) : undefined}
     />
 
     {#if app.disabledAt}
-      <div
-        class="flex items-center gap-3 rounded-xl border border-warning/60 bg-warning/10 p-4"
-        role="status"
-      >
-        <TriangleAlertIcon class="size-4 shrink-0 text-warning" aria-hidden="true" />
-        <p class="text-sm font-medium">
-          {t(agentPageMessages.disabledSince(formatDay(app.disabledAt)))}
-        </p>
-      </div>
+      <DisabledBanner
+        disabledAt={app.disabledAt}
+        onEnable={canManage ? () => enable.mutate(app.id) : undefined}
+        enabling={enable.isPending}
+      />
     {/if}
 
     <div class="grid gap-4 lg:grid-cols-3">
@@ -100,7 +104,7 @@
       <div class="flex flex-col gap-4">
         <AppActivityCard latest={lastUsedOf(rows)} />
         {#if canSetIcon}
-          <AppIconCard {app} bind:open={iconOpen} />
+          <AppIconCard {app} onChange={openIcon} />
         {/if}
       </div>
     </div>
@@ -113,12 +117,7 @@
     />
 
     {#if canManage}
-      <AgentDangerZone
-        app
-        agentId={app.id}
-        agentName={app.name}
-        onDeleted={() => scyllaNavigate.goToWorkspaceRoute('/apps')}
-      />
+      <AgentDangerZone app onDelete={() => (deleting = true)} />
     {/if}
   </div>
 
@@ -131,6 +130,24 @@
       keysBefore={details.data?.keys.length ?? 0}
     />
   {/if}
+
+  {#if canSetIcon}
+    <AppIconDialog
+      {app}
+      open={iconOpen}
+      onOpenChange={open => (iconOpen = open)}
+      avatar={iconAvatar}
+    />
+  {/if}
+
+  <DeleteAppDialog
+    app
+    open={deleting}
+    onOpenChange={open => (deleting = open)}
+    appId={app.id}
+    appName={app.name}
+    onDeleted={() => scyllaNavigate.goToWorkspaceRoute('/apps')}
+  />
 
   <ConfirmOperationAlertDialog
     open={disabling}

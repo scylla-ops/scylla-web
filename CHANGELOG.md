@@ -78,6 +78,9 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   mirror, rotation and size. A person opens it from the profile photo card, the account menu or the
   command palette, and the icon picker of an agent or an app has an Avatar tab. Activity shows the
   Scylla head for a change that Scylla made. The account page shows the credit of the style.
+- What's new: click an item to open its page or start its action, such as the command bar.
+- A soft light halo shows behind the content when you push past the end of a page, a second sidebar
+  or a dialog.
 
 ### Changed
 
@@ -87,6 +90,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   smoother interface. The Projects link of the sidebar shows a "New" badge until you open it.
 - The search bar shows five filters (Pages, Actions, Projects, Library, Team and infra). A filter
   with no result hides while you type.
+- The account menu no longer shows "Make an avatar". The editor stays on Account > Profile, in the
+  icon picker and in the command palette.
 
 ### Fixed
 
@@ -209,6 +214,30 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   second screen that slides in, with a Back button and the chosen icon next to its title. In a
   dialog, the dialog keeps its size and Escape goes back first. The colors of the icon picker are
   centered, and the drop zone of the Image tab fills the tab.
+- Each field error in the forms of the app (mail settings, triggers, pipeline editor, roles, GitLab
+  token, and others) now slides in and out like the other errors, and the fields below move with it.
+- The icon editor tabs can be clicked again, and switching between the Icon and Image tabs on a page
+  no longer moves the fields below.
+- The description of a project is now a text area. It grows with the text, you can drag its bottom
+  edge, and a counter shows near the limit.
+- The profile photo card shows one preview and one kind of photo at a time: choose Initials, Avatar
+  or Image, then see only the options of that kind.
+- The avatar editor uses the full dialog: colors are under the preview, shapes are smaller, and a
+  fade shows when more content is below.
+- The projects page, the second sidebar and the dashboard show the state of the jobs that the server
+  gives. A job that waits for an agent shows "pending", not "running": the counts, the Pending
+  filter, the group headers, the cards and the sidebar mark have a pending state. The Pipeline
+  widget shows the job that runs or waits, not the last ended job, so it does not show "orphaned"
+  for a pipeline that runs.
+- Glyph avatar scroll area now keeps hidden descendants inside it.
+- Projects page, reorder mode: a dragged card goes into "Pinned" or into a group as soon as the
+  pointer is over it, also a folded or empty group. The card follows the pointer, the other cards
+  move aside, and a drop on a section that already has the card says so. The dashboard editor uses
+  the same drag, and the keyboard can move a card or a widget (Space, arrow keys, Escape).
+- The agent page has 5 tabs: Overview, Jobs, Activity, Settings and Machine. The URL keeps the open
+  tab. The header shows the status on the line of the name and has a menu with the actions of the
+  agent; the app page has the same menu. The Jobs tab filters the jobs by state, searches them and
+  shows 10 more at each click. The Activity tab shows less for an agent with few days or no job.
 
 ## [0.7.2] - 2026-11-25
 

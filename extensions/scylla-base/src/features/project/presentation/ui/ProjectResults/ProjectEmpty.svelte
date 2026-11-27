@@ -7,6 +7,7 @@
   import { t } from '@scylla/ui/i18n';
   import type { ProjectHealth } from '@base/features/project/domain/structs/project-search.struct.ts';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
+  import { EMPTY_HEALTH_TEXTS } from '@base/features/project/presentation/presenters/project-list.presenter.ts';
 
   interface Props {
     query: string;
@@ -50,6 +51,6 @@
     class="flex items-center justify-center rounded-xl border border-dashed px-6 py-6 text-center text-sm font-medium text-muted-foreground"
     data-part="project-empty"
   >
-    {t(health === 'failed' ? projectMessages.noFailing : projectMessages.noRunning)}
+    {t(EMPTY_HEALTH_TEXTS[health])}
   </p>
 {/if}

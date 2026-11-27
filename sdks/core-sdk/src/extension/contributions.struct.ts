@@ -95,9 +95,12 @@ export interface SecondSidebarSectionAction {
   href: string;
 }
 
-/** A small live mark of a link: a dot in the color of the tone, with its accessible name. */
+/**
+ * A small live mark of a link: the status shape of the tone, with its accessible name. `pending`:
+ * a job waits, for an agent or for an approval.
+ */
 export interface SecondSidebarStatus {
-  tone: 'running' | 'failed';
+  tone: 'running' | 'pending' | 'failed';
   label: string;
 }
 

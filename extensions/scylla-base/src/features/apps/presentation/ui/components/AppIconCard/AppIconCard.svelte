@@ -2,7 +2,7 @@
   import PaletteIcon from '@lucide/svelte/icons/palette';
   import SmileIcon from '@lucide/svelte/icons/smile';
   import { createMutation } from '@scylla/core-sdk';
-  import { ScyllaDialog, swapIn, swapOut } from '@scylla/ui';
+  import { swapIn, swapOut } from '@scylla/ui';
   import {
     Button,
     Card,
@@ -18,19 +18,16 @@
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
   import { appPageMessages } from '@base/features/apps/presentation/messages/app-page.messages.ts';
   import { agentProfile } from '@base/features/apps/presentation/presenters/agent-icon.presenter.ts';
-  import AppIconForm from './AppIconForm.svelte';
 
   interface Props {
     /** Only the admins of the workspace see the card: `set_app_icon`. */
     app: Pick<AppEntity, 'id' | 'name' | 'icon' | 'runner'>;
-    /** The dialog of the icon: the avatar of the header of the agent page opens it too. */
-    open?: boolean;
+    /** Opens the dialog of the icon (`AppIconDialog`), on the Avatar tab with `avatar`. */
+    onChange: (avatar: boolean) => void;
   }
 
-  let { app, open = $bindable(false) }: Props = $props();
+  let { app, onChange }: Props = $props();
 
-  /** The dialog opens on the Avatar tab: "Make an avatar". */
-  let avatar = $state(false);
   const glyphAvatar = $derived(app.icon?.kind === 'image' && !!app.icon.glyph);
 
   const reset = createMutation(() => appMutations.setIcon());
@@ -63,10 +60,7 @@
         <Button
           variant="outline"
           size="sm"
-          onclick={() => {
-            avatar = false;
-            open = true;
-          }}
+          onclick={() => onChange(false)}
         >
           <PaletteIcon class="size-4" aria-hidden="true" />
           {t(messages.changeIcon)}
@@ -75,10 +69,7 @@
           <Button
             variant="outline"
             size="sm"
-            onclick={() => {
-              avatar = true;
-              open = true;
-            }}
+            onclick={() => onChange(true)}
           >
             <SmileIcon class="size-4" aria-hidden="true" />
             {t(messages.makeAvatar)}
@@ -97,15 +88,3 @@
     </div>
   </CardContent>
 </Card>
-
-<!-- The form is built again at each opening: it starts on the icon of the app. -->
-<ScyllaDialog
-  {open}
-  onOpenChange={next => (open = next)}
-  {title}
-  description={t(app.runner ? messages.iconDialogDescription : appPageMessages.iconDialogDescription)}
-  stable={37}
-  class="sm:max-w-lg"
->
-  <AppIconForm {app} {avatar} close={() => (open = false)} />
-</ScyllaDialog>

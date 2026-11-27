@@ -121,7 +121,7 @@ export interface PipelineRow {
   projectId: string;
   name: string;
   projectName: string;
-  /** Green, red, or running when a job runs now. */
+  /** Green, red, or the color of the state of its jobs that run or wait now. */
   tone: ChartTone;
   trigger: string;
   /** The last runs, oldest first: the newest is at the right. */
@@ -282,8 +282,8 @@ export const pipelineRows = (
     projectId: summary.projectId,
     name: summary.name,
     projectName: summary.projectName,
-    tone: summary.active
-      ? 'running'
+    tone: summary.live
+      ? statusTone(summary.live)
       : summary.health === 'green'
         ? 'passed'
         : summary.health === 'red'

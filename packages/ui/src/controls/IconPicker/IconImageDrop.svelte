@@ -1,4 +1,5 @@
 <script lang="ts">
+  import FieldMessage from '../../forms/FieldMessage/FieldMessage.svelte';
   import UploadIcon from '@lucide/svelte/icons/upload';
   import type { MessageDescriptor } from '@lingui/core';
   import { t } from '../../i18n/index.ts';
@@ -65,9 +66,8 @@
       {t(m.browse)}
     </Button>
   </p>
-  {#if problem}
-    <p role="alert" class="text-destructive text-xs">{t(problem)}</p>
-  {:else}
+  <FieldMessage role="alert" message={problem && t(problem)} />
+  {#if !problem}
     <p class="text-muted-foreground text-xs">{t(m.imageRules)}</p>
   {/if}
   <input

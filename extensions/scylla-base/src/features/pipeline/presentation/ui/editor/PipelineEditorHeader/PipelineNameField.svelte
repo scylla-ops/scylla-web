@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import WorkflowIcon from '@lucide/svelte/icons/workflow';
   import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
@@ -92,12 +93,9 @@
       />
     {/if}
   </label>
-  {#if issueText}
-    <p
-      id="{uid}-issue"
-      class="absolute top-full left-0 z-10 mt-1 w-max max-w-[min(28rem,calc(100vw-2rem))] rounded-md border bg-popover px-2 py-1 text-xs text-destructive shadow-md"
-    >
-      {issueText}
-    </p>
-  {/if}
+  <FieldMessage
+    id="{uid}-issue"
+    class="absolute top-full left-0 z-10 mt-1 w-max max-w-[min(28rem,calc(100vw-2rem))] rounded-md border bg-popover px-2 py-1 shadow-md"
+    message={issueText}
+  />
 </div>

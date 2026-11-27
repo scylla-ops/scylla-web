@@ -32,9 +32,16 @@ export const ORDER_LABELS: Record<PageOrder, { item: MessageDescriptor; trigger:
   },
 };
 
+/** The text of an empty list of each health filter. */
+export const EMPTY_HEALTH_TEXTS: Record<Exclude<ProjectHealth, 'all'>, MessageDescriptor> = {
+  failed: projectMessages.noFailing,
+  running: projectMessages.noRunning,
+  pending: projectMessages.noPending,
+};
+
 /** The parameter `health` of the URL. Any other value: each project. */
 export const healthOfParam = (value: string): ProjectHealth =>
-  value === 'failed' || value === 'running' ? value : 'all';
+  value === 'failed' || value === 'running' || value === 'pending' ? value : 'all';
 
 /** The parameter `sort` of the URL. Any other value: the default order. */
 export const orderOfParam = (value: string): PageOrder =>

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import XIcon from '@lucide/svelte/icons/x';
   import { Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
@@ -90,9 +91,8 @@
       onblur={commit}
     />
   </div>
-  {#if issueText}
-    <p id={`${id}-hint`} class="text-xs text-destructive">{t(issueText)}</p>
-  {:else if hint}
+  <FieldMessage id={`${id}-hint`} message={issueText && t(issueText)} />
+  {#if !issueText && hint}
     <p id={`${id}-hint`} class="text-xs text-muted-foreground">{hint}</p>
   {/if}
 </div>

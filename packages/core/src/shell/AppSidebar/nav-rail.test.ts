@@ -167,14 +167,15 @@ describe('pageRuns', () => {
 });
 
 describe('sectionMarks', () => {
-  it('gives one mark for each tone, a failure first, with the name of each link', () => {
-    const marked = (url: string, tone: 'running' | 'failed', label: string): NavItem => ({
+  it('gives one mark for each tone, a failure first, then a job that runs, then a job that waits', () => {
+    const marked = (url: string, tone: 'running' | 'pending' | 'failed', label: string): NavItem => ({
       ...page(url),
       status: { tone, label },
     });
 
     expect(
       sectionMarks([
+        marked('queue', 'pending', 'waits'),
         marked('api', 'running', 'runs'),
         page('web'),
         marked('db', 'failed', 'failed'),
@@ -183,6 +184,7 @@ describe('sectionMarks', () => {
     ).toEqual([
       { tone: 'failed', label: 'db: failed, ops: failed' },
       { tone: 'running', label: 'api: runs' },
+      { tone: 'pending', label: 'queue: waits' },
     ]);
   });
 

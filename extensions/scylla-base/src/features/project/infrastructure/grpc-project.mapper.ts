@@ -96,6 +96,7 @@ const HEALTHS: Record<ProjectHealth, GrpcProjectHealth> = {
   all: GrpcProjectHealth.ALL,
   failed: GrpcProjectHealth.FAILED,
   running: GrpcProjectHealth.RUNNING,
+  pending: GrpcProjectHealth.PENDING,
 };
 
 export const orderToProto = (order: ProjectOrder): GrpcProjectOrder => ORDERS[order];
@@ -111,5 +112,6 @@ export const countsToDomain = (counts: GrpcProjectCounts | undefined): ProjectCo
   total: counts?.total ?? 0,
   failed: counts?.failed ?? 0,
   running: counts?.running ?? 0,
+  pending: counts?.pending ?? 0,
   pipelines: counts?.pipelines ?? 0,
 });

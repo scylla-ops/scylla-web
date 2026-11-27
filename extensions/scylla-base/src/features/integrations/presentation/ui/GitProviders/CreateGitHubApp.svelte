@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
   import GlobeIcon from '@lucide/svelte/icons/globe';
   import { GatedButton } from '@scylla/ui';
@@ -66,11 +67,7 @@
         oninput={event => page.setOrganization(event.currentTarget.value)}
         onblur={page.touch}
       />
-      {#if page.organizationError}
-        <p id="app-organization-error" role="alert" class="text-xs text-destructive">
-          {page.organizationError}
-        </p>
-      {/if}
+      <FieldMessage id="app-organization-error" role="alert" message={page.organizationError} />
     </div>
   {/if}
 </div>
@@ -108,6 +105,4 @@
   </GatedButton>
   <span class="text-xs text-muted-foreground">{t(messages.githubComOnly)}</span>
 </div>
-{#if page.createError}
-  <p role="alert" class="text-sm text-destructive">{page.createError}</p>
-{/if}
+<FieldMessage role="alert" size="sm" message={page.createError} />

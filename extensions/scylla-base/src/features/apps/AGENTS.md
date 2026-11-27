@@ -81,13 +81,33 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   and 3fr. The text and the button are in the 3fr row. Thus a longer text does not move the icon
   or the title, unless the text and the button are taller than this row. Do not center the full
   group: its height changes with the text.
-- The agent page (`ui/AgentDetails/`, route `/agents/:appId`) shows the header (Disable or
-  Enable), a banner when it is disabled, the timeline, the stats of the period, the jobs per day,
-  the machine, the recent jobs, the access (Change: `runnerChanges` in
+- The agent page (`ui/AgentDetails/`, route `/agents/:appId`) has one ViewModel
+  (`agent-page.state.svelte.ts`: the permissions, the queries, the tabs and the dialogs). Under the
+  header and a banner when it is disabled, it has five tabs (`Tabs` of `@scylla/ui/primitives`):
+  Overview, Jobs, Activity, Settings and Machine. The URL keeps the open tab (`?tab=jobs`,
+  `agent-tab.state.svelte.ts`); the default tab writes nothing, and a tab that the user may not see
+  (Jobs without `list_jobs_by_workspace`, Activity without `READ_APP_STATS`) opens the overview.
+  Only the open tab mounts, and it fades in. The header and the tab bar do not move when the tab
+  changes. The header has the status pill on the line of the name, and a "…" menu
+  (`components/AppHeaderMenu.svelte`): Change the icon…, Finish setup or New join code, Copy the
+  ID, Enable, then the destructive items after a separator (Disable…, Delete the agent…). The
+  page opens the dialogs of the menu (`AppIconDialog`, `DeleteAppDialog`, the confirmation of
+  Disable), so that each tab can open them too. The page of another app has the same header and
+  menu. Overview (`AgentOverview/`): what the agent does now (its slots, its running jobs, its last
+  contact), the stats row, the 5 recent jobs with "All jobs", and an aside with the machine (one
+  line on a phone), the access and the labels, and the jobs of the last 14 days. Jobs
+  (`AgentJobs/`): a filter of the states with their counts since the agent joined, a search on the
+  server (`AppJobsQuery.text`), and "Show 10 more" (`agent-jobs.state.svelte.ts`,
+  `appQueries.jobPage`, which keeps the last list on the screen while the next one loads).
+  Activity (`AgentActivity/`): one card with the presets, the timeline, the stats row and the jobs
+  per day. Settings (`AgentSettings/`): the access (Change: `runnerChanges` in
   `agent-access.struct.ts` gives the grants before the revokes; `appMutations.changeAccess` sends
-  them one by one), the keys (rename, revoke, new join code) and the delete zone (type the name).
+  them one by one), the labels, the icon, the jobs at once (read-only: the machine sets it with
+  `--capacity`), Disable or Enable, and the delete zone (type the name). Machine
+  (`AgentMachine/`): the machine card, the keys (rename, revoke, new join code) and the uninstall
+  commands. An empty state gives the next step: Finish setup, Give access, or Open the projects.
   An agent that never said hello shows a connect card with "Finish setup", which opens
-  `/agents/<id>/connect`; "New join code" of the keys card opens it too. Do not make the code on
+  `/agents/<id>/connect`; "New join code" of the menu and of the keys card opens it too. Do not make the code on
   the open of the agent page: a new code stops the code of a machine that installs now. The machine card
   (`AgentMachineCard/`) shows the versions of the agent and of the server as text. When the agent
   is `outdated` or `unsupported` (`needsUpdate`: the server compares the protocols), they are
@@ -109,8 +129,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   projects, with the default icon of an agent (`bot` on `info`) and the recent colors of
   `features/project`. The page of another app shows the same card, with the default icon of an
   app (`blocks` in grey, `defaultAppIcon`). On the agent page and on the app page, with the same
-  permission, the icon of the header is a button that opens the dialog of this card too (`open`
-  of `AppIconCard`). The picker of an app has the Avatar tab (`avatar` of `IconPicker` and
+  permission, the icon of the header is a button that opens the dialog of this card too
+  (`AppIconDialog`, which the page owns; `onChange` of `AppIconCard` asks the page to open it). The picker of an app has the Avatar tab (`avatar` of `IconPicker` and
   `IconField`): a glyph avatar that the server draws as an SVG image. "Make an avatar" of the
   card opens the dialog on this tab with a random avatar. `agentIconChoice` opens an image with
   `glyph` on its options, and `agentIconChange` sends nothing for the same avatar.
@@ -118,28 +138,32 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   header, the rows of the list and the cards of a phone. The barrel exports it for the job page
   (`features/jobs`), which shows the icon of the agent of the job.
   `AgentCompatibilityBadge` shows "Update needed" or "Incompatible" in the list and in the header.
-  The delete zone shows the uninstall command for the system of the agent. A Docker agent reports
-  `linux`, so Linux also shows the Docker command. The success rate and the memory follow the
+  The Machine tab shows the uninstall command for the system of the agent
+  (`AgentMachine/AgentUninstallCard.svelte`). A Docker agent reports `linux`, so Linux also shows
+  the Docker command. The success rate and the memory follow the
   language of the UI ("95 %", "24 Go" in French): `presenters/agent-figures.presenter.ts`.
 - The timeline and the period: `agent-stats.state.svelte.ts` asks for two periods with
   `appQueries.agentStatsOf`: the days since the creation of the agent (the strip of
-  `AgentTimeline/`), and the chosen period (the stats row and `JobsPerDayCard/`). The URL keeps the
+  `AgentTimeline/`), and the chosen period (the stats row and `JobsPerDay/`). The URL keeps the
   period: `?period=7d|90d|all`, or `?from=YYYY-MM-DD&to=YYYY-MM-DD` after a drag
   (`mappers/period-search.mapper.ts`). The default, 30 days, writes nothing. A drag changes the URL
   only at its end (`timeline-window.state.svelte.ts`). The edges of the window are sliders: an
   arrow moves one day, Shift and an arrow move 7 days. The timeline shows from the day that the
   agent joined. An agent with no ended job shows no timeline: the card shows the last 30 days and
-  hatches the days before the creation of the agent. When two presets give the same period (a
-  young agent), the selected preset stays the one that the user chose. A bar of the strip is
-  7 px wide at most, with a gap of 2 px, as in the design: a strip with few days puts its days in
-  the last columns, at the right (`stripColumns` in `presenters/agent-timeline.presenter.ts`). The
-  first day and "Today" are in one row that grows to the left, so they do not overlap. The window
+  hatches the days before the creation of the agent. How much the Activity tab shows comes from
+  `activityLevel` (`presenters/agent-activity.presenter.ts`): no ended job gives a short block
+  with the next step; an agent that joined today gives one line and "See the N jobs"; an agent
+  that joined fewer than 14 days ago gives the stats and the chart of each day since, with no
+  timeline and no presets. When two presets give the same period, the selected preset stays the
+  one that the user chose. The days of the strip fill its width (`timelineStrip` in
+  `presenters/agent-timeline.presenter.ts`). The first day and "Today" are in one row that grows
+  to the left, so they do not overlap. The window
   is at least 28 px wide (`windowBox`), so its two handles do not cover each other. A disabled
   agent gets a hatched zone after the day that it was disabled. More than 90 days show one bar for
   each week, aligned on the last day (`presenters/jobs-chart.presenter.ts`).
   A day with 3 failed or orphaned jobs or more is an incident: a red dot on the strip.
-- The page of another app (`ui/AppDetails/`, route `/apps/:appId`) shows the header (Disable or
-  Enable), the workspace roles, the activity (the latest sign-in of a credential), the credentials
+- The page of another app (`ui/AppDetails/`, route `/apps/:appId`) shows the header (with the
+  "…" menu of the agent page), the workspace roles, the activity (the latest sign-in of a credential), the credentials
   (`credentialRows` in `app-credentials.struct.ts`: the tokens, the CI identities and the keys,
   with the expiry states of `@shared/domain/structs/api-token.struct.ts`), the icon card
   (`SET_APP_ICON`), "Add a credential" and the delete zone. The header shows the icon of the
@@ -180,7 +204,8 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   on a deleted app and the refusal shows a toast.
 - Keys and join codes: `createJoinCode`, `revokeKey`, `renameKey` (the agent names its key after
   its machine at the join).
-- Agents: `listJobs`, `getAgentStats` (the last 30 days, or a period), `listAgentStats` (30 days
+- Agents: `listJobs` (the dashboard widget), `listJobPage` (the jobs of an agent that match a
+  state and a text, page after page up to a limit, and `more`), `getAgentStats` (the last 30 days, or a period), `listAgentStats` (30 days
   for each agent). The server counts days in UTC: `domain/structs/agent-stats.struct.ts`.
 - Credentials: `createToken` (the secret comes one time), `listTokens`, `revokeToken`;
   `addCiIdentity`, `listCiIdentities`, `removeCiIdentity` (`domain/entities/ci-identity.entity.ts`).

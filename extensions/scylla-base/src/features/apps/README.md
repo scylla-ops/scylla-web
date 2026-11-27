@@ -23,6 +23,8 @@ The apps of a workspace (`scylla.apps.v1.AppService`). An agent is an app that r
 - The agent page keeps the period of its stats in the URL, so that a reload or a link shows the
   same days. A drag of the timeline window changes the URL only at its end: one entry in the
   history, and one request to the server.
+- The agent page keeps its open tab in the URL (`?tab=jobs`) too: a link, a reload and the back
+  button open the same tab. The header and the tab bar stay at their place when the tab changes.
 - The install step has one tab for each of Linux, macOS, Windows and Docker. The command holds the
   address of the server in this browser, because the machine must reach the same address. The
   server gives the image of the agent and its version with `GetCapabilities`, so that the Docker

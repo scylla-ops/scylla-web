@@ -483,3 +483,84 @@ html:has([data-slot='sidebar-wrapper']) {
 .dark ::-webkit-scrollbar-thumb:hover {
   background-color: rgba(255, 255, 255, 0.38);
 }
+
+/* The glow at the end of a scroll area (overscrollGlow). --overscroll-b and --overscroll-t
+   (0 to 1) are written while the person pushes past the end: they rise fast and fall slowly. */
+@property --overscroll-b {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+@property --overscroll-t {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+.overscroll-glow {
+  --overscroll-glow: 24%;
+  --overscroll-rim: 60%;
+}
+.dark .overscroll-glow {
+  --overscroll-glow: 34%;
+  --overscroll-rim: 100%;
+}
+
+/* The halo and the rim are background layers of the scroll area itself. A background paints under
+   the children, so the glow never covers a card, a text or a button. */
+.overscroll-glow {
+  --og-w: min(90%, 1072px);
+  --og-h: 312px;
+  --og-rim-w: 560px;
+  --og-rim-h: 8px;
+  --overscroll-offset-b: 0px;
+  overscroll-behavior-y: none;
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-image:
+    radial-gradient(closest-side, color-mix(in oklab, var(--primary) calc(var(--overscroll-b) * var(--overscroll-glow)), transparent), transparent),
+    radial-gradient(closest-side, color-mix(in oklab, var(--primary) calc(var(--overscroll-b) * var(--overscroll-rim)), transparent), transparent),
+    radial-gradient(closest-side, color-mix(in oklab, var(--primary) calc(var(--overscroll-t) * var(--overscroll-glow)), transparent), transparent),
+    radial-gradient(closest-side, color-mix(in oklab, var(--primary) calc(var(--overscroll-t) * var(--overscroll-rim)), transparent), transparent);
+  background-size:
+    var(--og-w) calc(var(--og-h) * (0.5 + 0.5 * var(--overscroll-b))),
+    min(calc(var(--og-rim-w) * (0.6 + 0.4 * var(--overscroll-b))), 90%) var(--og-rim-h),
+    var(--og-w) calc(var(--og-h) * (0.5 + 0.5 * var(--overscroll-t))),
+    min(calc(var(--og-rim-w) * (0.6 + 0.4 * var(--overscroll-t))), 90%) var(--og-rim-h);
+  /* Half of each layer shows: its center is on the edge (above the sticky footer in a dialog). */
+  background-position:
+    50% calc(100% - var(--overscroll-offset-b) + var(--og-h) / 2),
+    50% calc(100% - var(--overscroll-offset-b) + var(--og-rim-h) / 2),
+    50% calc(var(--og-h) / -2),
+    50% calc(var(--og-rim-h) / -2);
+  transition:
+    --overscroll-b 400ms cubic-bezier(0.33, 1, 0.68, 1),
+    --overscroll-t 400ms cubic-bezier(0.33, 1, 0.68, 1);
+}
+.overscroll-glow[data-overscroll='rise'] {
+  transition-duration: 120ms;
+}
+.overscroll-glow-sidebar {
+  --og-w: 236px;
+  --og-h: 176px;
+  --og-rim-w: 116px;
+}
+.overscroll-glow-dialog {
+  --og-w: 472px;
+  --og-h: 202px;
+  --og-rim-w: 240px;
+}
+/* The glow shows and fades: it does not change size. */
+@media (prefers-reduced-motion: reduce) {
+  .overscroll-glow {
+    background-size:
+      var(--og-w) calc(var(--og-h) * 0.75),
+      min(calc(var(--og-rim-w) * 0.8), 90%) var(--og-rim-h),
+      var(--og-w) calc(var(--og-h) * 0.75),
+      min(calc(var(--og-rim-w) * 0.8), 90%) var(--og-rim-h);
+  }
+  .overscroll-glow,
+  .overscroll-glow[data-overscroll='rise'] {
+    transition-duration: 150ms;
+  }
+}

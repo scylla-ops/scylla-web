@@ -137,7 +137,7 @@ export interface SectionMark {
   label: string;
 }
 
-const MARK_ORDER: readonly SecondSidebarStatus['tone'][] = ['failed', 'running'];
+const MARK_ORDER: readonly SecondSidebarStatus['tone'][] = ['failed', 'running', 'pending'];
 
 /** What the hidden links of a folded section tell: one mark for each tone, a failure first. */
 export const sectionMarks = (pages: readonly NavItem[]): SectionMark[] =>

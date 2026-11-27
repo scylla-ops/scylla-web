@@ -14,6 +14,7 @@
   import { SCYLLA_GLYPH_AVATAR, type GlyphAvatar } from '../../structs/glyph-avatar.struct.ts';
   import { glyphAvatarMessages as m } from './glyph-avatar.messages.ts';
   import GlyphAvatarEditor from './GlyphAvatarEditor.svelte';
+  import GlyphScrollArea from './GlyphScrollArea.svelte';
 
   interface Props {
     open: boolean;
@@ -49,9 +50,9 @@
 
 {#snippet body()}
   <!-- The controls scroll under a fixed header and footer; the preview stays in view. -->
-  <div class="relative -m-1 max-h-[60dvh] overflow-y-auto p-1 md:max-h-[min(64dvh,620px)]">
+  <GlyphScrollArea class="max-h-[62dvh] md:max-h-none">
     <GlyphAvatarEditor value={start} onchange={avatar => (draft = avatar)} {recent} {square} />
-  </div>
+  </GlyphScrollArea>
   <DialogFooter>
     <Button type="button" variant="outline" data-dialog-dismiss onclick={() => onOpenChange(false)}>
       {t(m.cancel)}
@@ -93,7 +94,7 @@
     }}
     title={title ?? t(m.title)}
     description={t(m.description)}
-    class="sm:max-w-3xl"
+    class="sm:max-w-4xl"
     data-slot="glyph-avatar-dialog"
   >
     {@render body()}

@@ -189,7 +189,8 @@ describe('SignUpPage', () => {
       await waitFor(() => expect(readLegalInfo).toHaveBeenCalledTimes(2));
 
       await user.click(await termsBox());
-      expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+      // The line folds out over a short motion: the box no longer points to it at once.
+      expect(await termsBox()).not.toHaveAttribute('aria-describedby');
       await user.click(screen.getByRole('button', { name: 'Create the account' }));
       await waitFor(() =>
         expect(signUp).toHaveBeenLastCalledWith(

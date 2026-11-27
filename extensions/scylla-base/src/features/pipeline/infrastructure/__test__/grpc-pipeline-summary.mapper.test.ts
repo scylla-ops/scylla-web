@@ -27,6 +27,7 @@ const summary = (overrides: Partial<PipelineSummary> = {}): PipelineSummary => (
   medianDuration: { seconds: 190n, nanos: 0 },
   lastEndedStatus: JobStatus.FAILED,
   active: false,
+  liveStatus: JobStatus.UNSPECIFIED,
   triggerKinds: [TriggerKind.PUSH, 99 as TriggerKind],
   source: PipelineSource.EDITOR,
   keyTaken: false,
@@ -66,7 +67,7 @@ describe('listToDomain', () => {
       failed: 3,
       medianDuration: 190,
       health: 'red',
-      active: false,
+      live: null,
       triggerKinds: ['push'],
       nextFire: null,
     });
@@ -80,6 +81,27 @@ describe('listToDomain', () => {
     });
 
     expect(list.items[0].medianDuration).toBeNull();
+  });
+
+  it.each([
+    [JobStatus.RUNNING, 'running'],
+    [JobStatus.PENDING, 'pending'],
+    [JobStatus.AWAITING_APPROVAL, 'awaiting_approval'],
+    [JobStatus.UNSPECIFIED, null],
+  ] as const)('keeps the live state of the server: %s → %s', (liveStatus, live) => {
+    const list = listToDomain({ pipelines: [summary({ liveStatus })], total: 1, green: 0 });
+
+    expect(list.items[0].live).toBe(live);
+  });
+
+  it('reads the live state from live_status, not from the deprecated active of the old clients', () => {
+    const list = listToDomain({
+      pipelines: [summary({ active: true, liveStatus: JobStatus.PENDING })],
+      total: 1,
+      green: 0,
+    });
+
+    expect(list.items[0].live).toBe('pending');
   });
 });
 

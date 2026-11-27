@@ -13,6 +13,8 @@ import type {
   AppDetails,
   AppEntity,
   AppJob,
+  AppJobPage,
+  AppJobsQuery,
   AppKeyEntity,
   CreatedApp,
   JoinCode,
@@ -277,5 +279,28 @@ export class DefaultAppsRepository implements AppsRepository {
     return response.jobs
       .map(grpcApp.jobToDomain)
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }
+
+  public async listJobPage(
+    workspaceId: string,
+    appId: string,
+    query: AppJobsQuery,
+  ): Promise<AppJobPage> {
+    const jobs: AppJob[] = [];
+    let token = '';
+    do {
+      const response = await this.jobs.listWorkspaceJobs({
+        workspaceId: wrapId(workspaceId),
+        agentId: wrapId(appId),
+        projectIds: [],
+        pipelineIds: [],
+        page: { size: Math.min(PAGE_SIZE, query.limit - jobs.length), token },
+        filter: grpcApp.jobFilterToProto(query),
+        view: JobView.SUMMARY,
+      }).response;
+      jobs.push(...response.jobs.map(grpcApp.jobToDomain));
+      token = response.page?.nextToken ?? '';
+    } while (token && jobs.length < query.limit);
+    return { jobs, more: !!token };
   }
 }

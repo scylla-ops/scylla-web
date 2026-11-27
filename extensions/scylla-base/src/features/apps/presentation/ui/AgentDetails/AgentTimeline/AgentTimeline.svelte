@@ -1,16 +1,12 @@
 <script lang="ts">
-  import { SegmentedControl, type SegmentedOption } from '@scylla/ui';
-  import { Card } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { t } from '@scylla/ui/i18n';
   import { formatUtcDay } from '@shared/utils/date-utils.ts';
   import { endedJobs, type AgentStats } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
   import {
-    PERIOD_PRESETS,
     daysBetween,
     periodDays,
     type Day,
-    type PeriodPreset,
     type StatsPeriod,
   } from '@base/features/apps/domain/structs/stats-period.struct.ts';
   import type { PeriodChoice } from '@base/features/apps/presentation/mappers/period-search.mapper.ts';
@@ -32,31 +28,17 @@
     bounds: StatsPeriod;
     stats: AgentStats;
     period: StatsPeriod;
-    /** `null` for a window that the user moved. */
-    preset: PeriodPreset | null;
     today: Day;
     /** The day that the agent was disabled. */
     disabled: Day | null;
     onChoose: (choice: PeriodChoice) => void;
   }
 
-  let { bounds, stats, period, preset, today, disabled, onChoose }: Props = $props();
-
-  const PRESET_LABELS = {
-    '7d': messages.preset7d,
-    '30d': messages.preset30d,
-    '90d': messages.preset90d,
-    all: messages.presetAll,
-  };
+  let { bounds, stats, period, today, disabled, onChoose }: Props = $props();
 
   let width = $state(0);
   const strip = $derived(timelineStrip({ bounds, days: stats.days, disabled, width }));
   const total = $derived(endedJobs(stats.outcomes));
-  const presets = $derived(
-    PERIOD_PRESETS.map(
-      (value): SegmentedOption<PeriodPreset | ''> => ({ value, label: t(PRESET_LABELS[value]) }),
-    ),
-  );
 
   const timeline = createTimelineWindow(() => ({ period, bounds, onChange: onChoose }));
   const box = $derived(windowBox(spanOf(timeline.shown, bounds, strip.columns), width));
@@ -85,23 +67,9 @@
   </span>
 {/snippet}
 
-<Card class="gap-3 px-5 pt-4 pb-9">
-  <div class="flex flex-wrap items-center justify-between gap-3">
-    <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-      <h2 class="text-sm">{t(messages.timeline)}</h2>
-      <p class="text-xs text-muted-foreground">
-        {t(messages.timelineSince(formatUtcDay(bounds.from), total))}
-      </p>
-    </div>
-    <SegmentedControl
-      size="sm"
-      value={preset ?? ''}
-      options={presets}
-      onChange={value => value && onChoose(value)}
-      aria-label={t(messages.period)}
-    />
-  </div>
-
+<!-- The strip of the days since the agent joined, and the window of the period on it. The labels
+     go under the box, in its bottom padding. -->
+<div class="pb-6">
   <div class="relative h-[62px] select-none" bind:clientWidth={width}>
     <TimelineStrip
       {strip}
@@ -133,4 +101,4 @@
       {@render handle('end', timeline.shown.to)}
     </div>
   </div>
-</Card>
+</div>

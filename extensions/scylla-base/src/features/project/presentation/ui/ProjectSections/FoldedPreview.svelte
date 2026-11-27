@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Chip } from '@scylla/ui';
+  import { Chip, enter, exit } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { ProjectEntity } from '@base/features/project/domain/entities/project.entity.ts';
@@ -19,9 +19,11 @@
     animate: boolean;
     /** Opens the section, at a project when a chip gives it. */
     onOpen: (projectId?: string) => void;
+    /** A dragged card goes last into the section: the slot of its name opens at the end of the line. */
+    dropName?: string;
   }
 
-  let { projects, total, name, animate, onOpen }: Props = $props();
+  let { projects, total, name, animate, onOpen, dropName }: Props = $props();
 
   let fit = $state<number | null>(null);
   const shown = $derived(Math.min(fit ?? projects.length, projects.length));
@@ -34,7 +36,8 @@
 </script>
 
 <!--
-  One line under the header of a folded section: a chip for each project that fits, then "+N".
+  One line under the header of a folded section: a chip for each project that fits, then "+N",
+  then the slot of a card that a drag puts last in the section.
   A click on a chip opens the section at its card; a click on "+N" or on the free part of the line
   opens the section. The chips are the way of the keyboard.
 -->
@@ -71,5 +74,16 @@
     >
       +{rest}
     </Chip>
+  {/if}
+  {#if dropName}
+    <span
+      class="flex h-7 max-w-48 shrink-0 items-center justify-center rounded-full border-[1.5px] border-dashed border-primary bg-primary/8 px-3 text-xs font-medium text-primary"
+      data-part="folded-drop-slot"
+      aria-hidden="true"
+      in:enter
+      out:exit
+    >
+      <span class="min-w-0 truncate">{dropName}</span>
+    </span>
   {/if}
 </div>

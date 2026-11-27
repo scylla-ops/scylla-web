@@ -498,7 +498,7 @@ try {
 
 The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
 `@scylla/ui/primitives`, `@scylla/ui/state`, `@scylla/ui/stores`, `@scylla/ui/i18n`,
-`@scylla/ui/utils`, `@scylla/ui/structs`).
+`@scylla/ui/utils`, `@scylla/ui/structs`, `@scylla/ui/dnd`).
 
 - **Selection**: `createSelection(key)` over the single `selectionStore`, keyed by feature. Used by
   `DataTable` + `FeatureHeader`. No per-feature selection store.
@@ -511,6 +511,10 @@ The components and helpers below are in `@scylla/ui` (entry points `@scylla/ui`,
   page, a mode changes everything in one frame, a dialog has one size. See
   `packages/ui/AGENTS.md`, "Layout shifts", and test it with `expectNoLayoutShift`
   (`@test/layout.ts`) and in a browser.
+- **Drag and drop**: `@scylla/ui/dnd` for each drag (the pointer, the keyboard, the ghost, the
+  zones and the places, the pulse of a drop). The pointer chooses the place, never the center of
+  the item. No native drag and no pointer listeners of a feature. See `packages/ui/AGENTS.md`,
+  "Drag and drop".
 - **Destructive actions** (delete, remove, revoke, disable, deactivate): the destructive variant
   of the menu item, the button or `IconButton`, never a red class; in a menu, at the end after a
   separator; confirmed by `ConfirmOperationAlertDialog`; on a settings page, in a `DangerZone`.

@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { render } from '@test/render.ts';
 import ScreenStackFixture from './ScreenStack.fixture.svelte';
 
-const main = () => document.querySelector('[data-screen="main"] > div') as HTMLElement;
+const main = () => document.querySelector('[data-screen="main"]') as HTMLElement;
 const second = () => screen.queryByRole('region', { name: 'Details' });
 
 describe('ScreenStack', () => {
@@ -16,9 +16,10 @@ describe('ScreenStack', () => {
 
     expect(second()).toBeInTheDocument();
     expect(main().inert).toBe(true);
-    expect(main().parentElement).toHaveClass('opacity-0');
+    expect(main()).toHaveClass('opacity-0', 'pointer-events-none');
+    expect(main()).toHaveAttribute('aria-hidden', 'true');
     expect(within(second()!).getByRole('button', { name: 'Back' })).toHaveFocus();
-    expect(screen.getByRole('textbox', { name: 'Name' })).toHaveValue('acme');
+    expect(screen.getByRole('textbox', { name: 'Name', hidden: true })).toHaveValue('acme');
   });
 
   it('goes back with Back, and gives the focus to the button that opened the screen', async () => {
@@ -28,7 +29,8 @@ describe('ScreenStack', () => {
     await userEvent.click(within(second()!).getByRole('button', { name: 'Back' }));
 
     expect(main().inert).toBe(false);
-    expect(main().parentElement).not.toHaveClass('opacity-0');
+    expect(main()).not.toHaveClass('opacity-0', 'pointer-events-none');
+    expect(main()).not.toHaveAttribute('aria-hidden');
     await waitFor(() => expect(screen.getByRole('button', { name: 'Open' })).toHaveFocus());
   });
 
@@ -52,9 +54,9 @@ describe('ScreenStack', () => {
     render(ScreenStackFixture);
     await userEvent.click(screen.getByRole('button', { name: 'Open' }));
 
-    await fireEvent.click(screen.getByRole('button', { name: 'Close another' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Close another', hidden: true }));
     expect(main().inert).toBe(true);
-    await fireEvent.click(screen.getByRole('button', { name: 'Close it' }));
+    await fireEvent.click(screen.getByRole('button', { name: 'Close it', hidden: true }));
     expect(main().inert).toBe(false);
   });
 });

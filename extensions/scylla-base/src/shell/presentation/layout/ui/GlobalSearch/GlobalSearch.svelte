@@ -3,6 +3,7 @@
   import type { CommandForm } from '@scylla/core-sdk';
   import { t } from '@scylla/ui/i18n';
   import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
+  import { commandBarRequests } from '@base/shell/presentation/layout/command-bar-request.state.svelte.ts';
   import { modifierKey } from './modifier-key.ts';
 
   let open = $state(false);
@@ -23,6 +24,14 @@
     form = { load, props: props?.() };
     formOpen = true;
   };
+
+  let handled = commandBarRequests();
+  $effect(() => {
+    const requested = commandBarRequests();
+    if (requested === handled) return;
+    handled = requested;
+    setOpen(true);
+  });
 
   const onWindowKey = (event: KeyboardEvent) => {
     if (event.key.toLowerCase() === 'k' && (event.metaKey || event.ctrlKey)) {

@@ -11,10 +11,11 @@
     SelectItem,
     SelectTrigger,
     SelectValue,
+    Textarea,
   } from '../../primitives/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import PasswordInput from '../../controls/PasswordInput/PasswordInput.svelte';
-  import { fold, unfold } from '../../motion/fold.ts';
+  import FieldMessage from '../FieldMessage/FieldMessage.svelte';
   import { createFormState } from '../form.state.svelte.ts';
   import { FormItemType, type FormItem, type FormValues } from '../scylla-form.struct.ts';
 
@@ -108,6 +109,34 @@
               onblur={() => form.touch(item.id)}
             />
             {/if}
+        {:else if item.type === FormItemType.Textarea}
+          {@const length = form.values[item.id].length}
+          <Textarea
+            id={item.id}
+            disabled={isPending || item.disabled}
+            placeholder={item.placeholder}
+            class={item.class}
+            maxlength={item.maxLength}
+            minRows={item.minRows}
+            maxRows={item.maxRows}
+            autofocus={autofocus && index === 0}
+            aria-invalid={error ? 'true' : undefined}
+            aria-describedby={describedBy(item, error)}
+            value={form.values[item.id]}
+            oninput={event => form.handleChange(item.id, event.currentTarget.value)}
+            onblur={() => form.touch(item.id)}
+          />
+          <!-- Near the limit only: 80 % and more. -->
+          {#if item.maxLength && length >= item.maxLength * 0.8}
+            <p
+              class="text-right text-xs tabular-nums {length >= item.maxLength
+                ? 'text-destructive'
+                : 'text-muted-foreground'}"
+              data-testid="{item.id}-counter"
+            >
+              {length} / {item.maxLength}
+            </p>
+          {/if}
         {:else}
           <!-- Not `bind:value`: the form state owns the value, reset and validity. -->
           <Select
@@ -137,9 +166,7 @@
             {item.description}
           </p>
         {/if}
-        {#if error}
-          <p id="{item.id}-error" class="text-xs text-destructive" in:unfold out:fold>{error}</p>
-        {/if}
+        <FieldMessage id="{item.id}-error" message={error} />
       </Field>
     {/each}
     {@render trailing?.()}

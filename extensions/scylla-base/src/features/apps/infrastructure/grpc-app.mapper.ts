@@ -12,11 +12,14 @@ import type { Duration } from '@base/generated/google/protobuf/duration.ts';
 import type { Timestamp } from '@base/generated/google/protobuf/timestamp.ts';
 import { iconToDomain } from '@shared/infrastructure/grpc/icon.mapper.ts';
 import { type Job, JobStatus as GrpcJobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
+import { SourceEvent } from '@base/generated/scylla/pipelines/v1/source.ts';
+import type { JobFilter as GrpcJobFilter } from '@base/generated/scylla/pipelines/v1/job_service.ts';
 import type {
   AgentCompatibility,
   AppEntity,
   AppHost,
   AppJob,
+  AppJobsQuery,
   AppKeyEntity,
 } from '@base/features/apps/domain/entities/app.entity.ts';
 import type {
@@ -110,7 +113,29 @@ const STATUS: Partial<Record<GrpcJobStatus, JobStatus>> = {
   [GrpcJobStatus.FAILED]: 'failed',
   [GrpcJobStatus.CANCELLED]: 'cancelled',
   [GrpcJobStatus.ORPHANED]: 'orphaned',
+  [GrpcJobStatus.AWAITING_APPROVAL]: 'awaiting_approval',
 };
+
+const STATUS_TO_PROTO: Record<Exclude<JobStatus, 'unknown'>, GrpcJobStatus> = {
+  pending: GrpcJobStatus.PENDING,
+  running: GrpcJobStatus.RUNNING,
+  completed: GrpcJobStatus.COMPLETED,
+  failed: GrpcJobStatus.FAILED,
+  cancelled: GrpcJobStatus.CANCELLED,
+  orphaned: GrpcJobStatus.ORPHANED,
+  awaiting_approval: GrpcJobStatus.AWAITING_APPROVAL,
+};
+
+/** The filter of a list of the jobs of an agent: only the states and the text. */
+export const jobFilterToProto = (query: AppJobsQuery): GrpcJobFilter => ({
+  branch: '',
+  event: SourceEvent.UNSPECIFIED,
+  authorLogin: '',
+  pullRequest: 0,
+  statuses: (query.statuses ?? []).map(status => STATUS_TO_PROTO[status]),
+  origins: [],
+  query: query.text?.trim() ?? '',
+});
 
 export function jobToDomain(job: Job): AppJob {
   return {

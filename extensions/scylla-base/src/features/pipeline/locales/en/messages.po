@@ -1089,9 +1089,17 @@ msgstr "It is public: other workspaces link it. Deprecate its versions instead."
 msgid "Its push, pull request and tag triggers stay, but they start no run until an admin allows them again."
 msgstr "Its push, pull request and tag triggers stay, but they start no run until an admin allows them again."
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:14
+msgid "Job pending for {duration}"
+msgstr "Job pending for {duration}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:13
 msgid "Job running for {duration}"
 msgstr "Job running for {duration}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:15
+msgid "Job waiting for approval for {duration}"
+msgstr "Job waiting for approval for {duration}"
 
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:112
 msgid "Jobs"
@@ -1298,7 +1306,7 @@ msgstr "New version published"
 msgid "next {time}"
 msgstr "next {time}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:14
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:16
 msgid "Next job {time}"
 msgstr "Next job {time}"
 
@@ -1322,7 +1330,7 @@ msgstr "No fragment of the marketplace yet. Browse the marketplace to add one, l
 msgid "No input link"
 msgstr "No input link"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:15
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:17
 msgid "No job yet"
 msgstr "No job yet"
 
@@ -1484,7 +1492,7 @@ msgstr "Open in library"
 msgid "Open nodes"
 msgstr "Open nodes"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:16
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:18
 msgid "Open the jobs of {name}"
 msgstr "Open the jobs of {name}"
 

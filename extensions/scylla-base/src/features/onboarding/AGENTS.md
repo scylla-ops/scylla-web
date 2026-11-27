@@ -16,6 +16,7 @@ next. Each tour has 6 steps or fewer.
 
 ```typescript
 loadOnboardingTour   // loader of OnboardingTour.svelte
+startTourById        // starts a tour at its first step from anywhere (the notes of a release)
 ```
 
 The shell mounts `OnboardingTour` in `LaunchOverlays`, **after** the "What's new" dialog. Never

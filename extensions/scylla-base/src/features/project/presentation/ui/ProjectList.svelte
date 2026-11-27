@@ -25,6 +25,7 @@
   } from '../presenters/project-density.presenter.ts';
   import {
     applyMoves,
+    homeOf,
     groupMovesToSave,
     movesToSave,
     neighborsOf,
@@ -38,7 +39,21 @@
   let { workspaceId }: Props = $props();
 
   const list = createProjectList(() => workspaceId);
-  const reorder = createProjectReorder(id => sections.isPinned(id));
+  const reorder = createProjectReorder({
+    isPinned: id => sections.isPinned(id),
+    homeOf: id =>
+      homeOf(
+        sections.sections.flatMap(section => section.projects).find(project => project.id === id)
+          ?.groupId,
+      ),
+    // One section with no header shows its cards, open or not.
+    layout: () =>
+      sections.sections.map(section => ({
+        key: section.key,
+        open: section.open || sections.sections.length === 1,
+        ids: section.projects.map(project => project.id),
+      })),
+  });
   const groups = createGroupReorder();
   const densities = createProjectDensity(() => workspaceId);
   const sections = createProjectSections({

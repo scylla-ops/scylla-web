@@ -241,9 +241,9 @@ module gives an access policy.
   and shows their number while they are folded (`pageRuns`). The module keeps the folded state. An `action` (`{ label, href }`) is a "+"
   at the end of the title, e.g. a new project in this group: on a mouse screen it shows on hover and
   focus. The module gives it only to a person who can do it. A link can have one `status`
-  (`running` or `failed`): the `StatusShape` of the jobs, with its accessible name. A folded
-  section keeps a smaller shape for each tone of its hidden links, a failure first, named with the
-  links (`sectionMarks`). A mark grows in and out with `swapIn`/`swapOut`.
+  (`running`, `pending` or `failed`): the `StatusShape` of the jobs, with its accessible name. A
+  folded section keeps a smaller shape for each tone of its hidden links, a failure first, then a
+  job that runs, then a job that waits, named with the links (`sectionMarks`). A mark grows in and out with `swapIn`/`swapOut`.
 - **A module can add a search field to the second sidebar** (`shell.secondSidebarSearch`, same
   call as `secondSidebarLinks`). It sits between the title and the links. The module keeps the
   value and filters its own links. It returns `undefined` while it has no field.

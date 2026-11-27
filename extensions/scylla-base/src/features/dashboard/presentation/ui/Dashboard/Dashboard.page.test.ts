@@ -50,7 +50,7 @@ const summary = (overrides: Record<string, unknown> = {}) => ({
   failed: 1,
   medianDuration: 300,
   health: 'red',
-  active: false,
+  live: null,
   triggerKinds: ['push'],
   nextFire: null,
   ...overrides,

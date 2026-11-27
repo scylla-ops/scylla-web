@@ -208,7 +208,6 @@ describe('NavUser', () => {
     expect(choices.map(choice => choice.textContent.trim().replace(/\s+/g, ' '))).toEqual([
       'RL Ravenne Lee ravenne@example.com',
       'Account',
-      'Make an avatar',
       'Help & tours',
       "What's new",
       'Sign out',
