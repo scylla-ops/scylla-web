@@ -190,6 +190,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   fills the free height.
 - The project menu marks the place where the project is now, and a drag of a pinned card onto the
   pins shows that it is already pinned.
+- A form no longer keeps an empty line under each field. An error line now slides in under its field
+  and slides out when the error goes, and the fields below move with it.
 
 ## [0.7.2] - 2026-11-25
 
