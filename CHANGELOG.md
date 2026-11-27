@@ -215,6 +215,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   token, and others) now slides in and out like the other errors, and the fields below move with it.
 - The icon editor tabs can be clicked again, and switching between the Icon and Image tabs on a page
   no longer moves the fields below.
+- The description of a project is now a text area. It grows with the text, you can drag its bottom
+  edge, and a counter shows near the limit.
 
 ## [0.7.2] - 2026-11-25
 

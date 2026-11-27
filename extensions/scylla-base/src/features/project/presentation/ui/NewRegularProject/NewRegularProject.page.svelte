@@ -67,8 +67,8 @@
       id: 'description',
       label: t(messages.description),
       placeholder: t(messages.descriptionPlaceholder),
-      type: FormItemType.Input,
-      inputType: 'text',
+      type: FormItemType.Textarea,
+      maxLength: 1024,
       optional: true,
     },
   ]);

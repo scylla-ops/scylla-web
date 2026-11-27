@@ -28,6 +28,7 @@ export { default as CardHeader } from './card/card-header.svelte';
 export { default as CardTitle } from './card/card-title.svelte';
 
 export { default as Input } from './input/input.svelte';
+export { default as Textarea } from './textarea/textarea.svelte';
 export { default as Skeleton } from './skeleton/skeleton.svelte';
 
 export { default as Tooltip } from './tooltip/tooltip.svelte';

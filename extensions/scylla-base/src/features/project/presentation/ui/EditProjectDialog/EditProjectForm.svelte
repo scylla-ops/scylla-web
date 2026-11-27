@@ -57,8 +57,8 @@
       label: t(projectMessages.description),
       placeholder: project.description || t(projectMessages.addDescription),
       defaultValue: project.description,
-      type: FormItemType.Input,
-      inputType: 'text',
+      type: FormItemType.Textarea,
+      maxLength: 1024,
       optional: true,
     },
   ]);
