@@ -186,6 +186,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the place of "Reorder" and "Display", and the other controls stay in their place, disabled. During
   the drag of a group, the sections stay open and a line shows the new place. With no pin, the drop
   zone of the pins shows over the toolbar only during the drag of a card.
+- The buttons of the icon dialogs stay in one place when you change tabs, and the image drop zone
+  fills the free height.
 
 ## [0.7.2] - 2026-11-25
 
