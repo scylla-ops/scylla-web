@@ -177,6 +177,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   that grows does not move to the left.
 - An empty group now shows in the second sidebar and the phone menu with a "New project" row, and
   the group menu has a "Folder color..." item.
+- The icon dialogs and the pipeline export dialog keep one top edge and one minimum height, so the
+  tabs no longer move under the pointer.
 
 ## [0.7.2] - 2026-11-25
 
