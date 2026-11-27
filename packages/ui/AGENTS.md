@@ -386,7 +386,7 @@ them. A row with `onclick` is `bg-muted/40` on hover; a selected row (`data-stat
 ## `StatusShape`
 
 The four dots of the logo, drawn on a canvas, take a form per state (`StatusState`, in
-`data-display/status-state.ts`): `pending` / `idle` the 2 × 2 grid, breathing; `running` the
+`data-display/status-state.ts`): `pending` / `idle` a hollow dashed ring in `muted-foreground` (an SVG that fades over the canvas; never a grid of dots, it reads as a drag grip); `running` the
 marbles run round a circle (as the old Windows spinner: slow at the top, fast below, so they
 catch up and part); `success` one disc; `failed` and `orphaned` a ×; `skipped` and `cancelled` a
 slash. Its accessible name is `label`; `data-state` gives the state to a test.

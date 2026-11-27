@@ -25,4 +25,20 @@ describe('StatusShape', () => {
 
     expect(screen.getByRole('img', { name: 'Waiting' })).toHaveStyle({ width: '24px', height: '24px' });
   });
+
+  it.each(['idle', 'pending'] as const)('shows a dashed ring, not dots, for %s', state => {
+    render(StatusShape, { state, label: 'No run yet' });
+    const ring = screen.getByRole('img', { name: 'No run yet' }).querySelector('[data-slot="status-shape-ring"]');
+
+    expect(ring).toHaveClass('opacity-100', 'text-muted-foreground');
+    expect(ring?.querySelector('circle')).toHaveAttribute('stroke-dasharray');
+  });
+
+  it('hides the ring once something runs', () => {
+    render(StatusShape, { state: 'running', label: 'Running' });
+
+    expect(
+      screen.getByRole('img', { name: 'Running' }).querySelector('[data-slot="status-shape-ring"]'),
+    ).toHaveClass('opacity-0');
+  });
 });

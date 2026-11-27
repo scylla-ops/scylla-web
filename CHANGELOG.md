@@ -159,6 +159,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   scrolls in its own box.
 - The count of the row "All workspaces" in the workspace switcher of an instance admin now shows the
   total of the page that it opens, with the own workspaces.
+- The status "No run yet" is now a dashed ring. It no longer looks like the drag grip of the Reorder
+  mode.
 
 ## [0.7.2] - 2026-11-25
 
