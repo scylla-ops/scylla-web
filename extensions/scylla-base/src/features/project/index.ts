@@ -43,4 +43,8 @@ export { PINS, UNGROUPED } from './presentation/presenters/project-sections.pres
 /** A loader: a barrel must not re-export a component. The icon and the name of a project page. */
 export const loadProjectTitle = () => import('./presentation/ui/ProjectTitle/ProjectTitle.svelte');
 // The zones of the project card: the pipelines and the repository of a project show there.
-export { projectPoints, type ProjectCardContext } from './presentation/project.points.ts';
+export {
+  projectPoints,
+  type ProjectCardContext,
+  type ProjectPrefetchContext,
+} from './presentation/project.points.ts';

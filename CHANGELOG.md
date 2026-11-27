@@ -179,6 +179,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   the group menu has a "Folder color..." item.
 - The icon dialogs and the pipeline export dialog keep one top edge and one minimum height, so the
   tabs no longer move under the pointer.
+- Opening a folded project group no longer waits for the network: the page reads the pipelines of
+  the folded groups in advance, so the group opens in one motion.
 
 ## [0.7.2] - 2026-11-25
 

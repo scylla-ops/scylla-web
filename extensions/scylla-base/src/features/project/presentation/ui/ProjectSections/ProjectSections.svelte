@@ -1,7 +1,7 @@
 <script lang="ts">
   import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
   import { activeWorkspaceSlug, contextStore, workspaceUrl } from '@platform/context';
-  import { createMutation } from '@scylla/core-sdk';
+  import { createMutation, WidgetZone } from '@scylla/core-sdk';
   import { DropSlot, fold, reflow, unfold } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { toRune } from '@scylla/ui/stores';
@@ -16,6 +16,7 @@
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
   import { liftedStyle } from '@base/features/project/presentation/presenters/sortable.presenter.ts';
   import { newProjectPath } from '@base/features/project/presentation/presenters/new-project.presenter.ts';
+  import { projectPoints } from '../../project.points.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
   import type { GroupReorderState } from '../group-reorder.state.svelte.ts';
   import type { ProjectDensityState } from '../project-density.state.svelte.ts';
@@ -100,6 +101,29 @@
       : [...list.slice(0, at), { kind: 'slot' }, ...list.slice(at)];
   });
   const keyOf = (entry: GroupEntry) => (entry.kind === 'slot' ? SLOT_KEY : entry.section.key);
+
+  // Once the page is idle, the data of the folded sections loads: opening one waits for nothing.
+  let idle = $state(false);
+  $effect(() => {
+    const ready = () => (idle = true);
+    if (typeof requestIdleCallback === 'function') {
+      const id = requestIdleCallback(ready, { timeout: 1500 });
+      return () => cancelIdleCallback(id);
+    }
+    const id = setTimeout(ready, 300);
+    return () => clearTimeout(id);
+  });
+  const prefetch = $derived.by(() => {
+    if (!idle || headless || reorder.active) return [];
+    const batches: Record<string, readonly string[]> = {};
+    for (const section of sections.sections) {
+      const first = section.projects[0];
+      if (section.open || !first) continue;
+      const batch = sections.batchOf(section.key, first.id);
+      batches[batch.join(',')] = batch;
+    }
+    return Object.values(batches);
+  });
 
   const nameOf = (section: SectionView) =>
     section.key === PINS
@@ -222,6 +246,9 @@
   {#each ungrouped as section (section.key)}
     {@render one(section)}
   {/each}
+  {#if prefetch.length > 0}
+    <WidgetZone point={projectPoints.cardPrefetch} context={{ workspaceId, batches: prefetch }} />
+  {/if}
   <p class="sr-only" aria-live="polite">{news}</p>
   <p class="sr-only" aria-live="polite">{groupText}</p>
   {#if reorder.active}

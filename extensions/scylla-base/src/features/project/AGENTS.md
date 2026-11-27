@@ -93,6 +93,7 @@ as its status.
 | `project.cardSubtitle` | one line under the name | `integrations`: the linked repository |
 | `project.cardBody` | under the description | `pipeline`: the first pipelines, with Run |
 | `project.cardFooter` | the bottom line of the card | `pipeline`: the job that runs, or the last job |
+| `project.cardPrefetch` | draws nothing: reads the data of the folded sections once the page is idle, so a section opens with no wait | `pipeline`: the summaries of each batch |
 
 This module cannot import `pipeline` or `integrations`: they import it. The zones let them show
 on the card with no import back.
