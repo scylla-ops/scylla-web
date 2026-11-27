@@ -238,6 +238,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   tab. The header shows the status on the line of the name and has a menu with the actions of the
   agent; the app page has the same menu. The Jobs tab filters the jobs by state, searches them and
   shows 10 more at each click. The Activity tab shows less for an agent with few days or no job.
+- The Dashboard side panel now shows the end-of-scroll glow, like the other second sidebars.
 
 ## [0.7.2] - 2026-11-25
 

@@ -398,6 +398,14 @@ describe('DashboardPanel', () => {
     expect(panel().getByText('Default')).toBeInTheDocument();
     expect(panel().getByRole('combobox', { name: 'Scope' })).toHaveTextContent('All projects');
   });
+
+  it('glows at the end of its scroll area, like the other second sidebars', async () => {
+    render(DashboardWithPanel);
+
+    await panel().findByText('Ops overview');
+    const scroller = document.querySelector('[data-slot="dashboard-panel"] .overflow-y-auto');
+    expect(scroller).toHaveClass('overscroll-glow', 'overscroll-glow-sidebar');
+  });
 });
 
 describe('The edit mode', () => {
