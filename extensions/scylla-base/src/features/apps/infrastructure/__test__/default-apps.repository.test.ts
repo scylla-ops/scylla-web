@@ -8,6 +8,7 @@ import type { ICapabilityServiceClient } from '@base/generated/scylla/capabiliti
 import { AgentCompatibility, type App, CiProvider } from '@base/generated/scylla/apps/v1/app.ts';
 import { TokenExpiry, TokenPreset } from '@base/generated/scylla/auth/v1/api_token.ts';
 import { JobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
+import { JobView } from '@base/generated/scylla/pipelines/v1/job_service.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultAppsRepository } from '../default-apps.repository.ts';
 import { toDomain } from '../grpc-app.mapper.ts';
@@ -350,6 +351,66 @@ describe('DefaultAppsRepository', () => {
     });
     expect(list.map(job => job.id)).toEqual(['new', 'old']);
     expect(list[0].status).toBe('running');
+  });
+
+  it('reads a page of the jobs of the agent that match a filter, page after page up to the limit', async () => {
+    const { jobs, repository } = clients();
+    const wireJob = (id: string) => ({
+      id: { value: id },
+      pipelineId: { value: 'p' },
+      projectId: { value: 'pr' },
+      status: JobStatus.FAILED,
+      nodes: [],
+      runs: [],
+      error: '',
+      createdAt: TS,
+    });
+    const pages = (({ page }: { page: { token: string } }) =>
+      unaryCall(
+        page.token === ''
+          ? { jobs: [wireJob('a'), wireJob('b')], page: { nextToken: 'n1' } }
+          : { jobs: [wireJob('c')], page: { nextToken: 'n2' } },
+      )) as unknown as typeof jobs.listWorkspaceJobs;
+    vi.mocked(jobs.listWorkspaceJobs).mockImplementation(pages);
+
+    const page = await repository.listJobPage('ws-1', 'app-1', {
+      limit: 3,
+      statuses: ['failed', 'orphaned', 'awaiting_approval'],
+      text: '  main ',
+    });
+
+    expect(page).toMatchObject({ more: true });
+    expect(page.jobs.map(job => job.id)).toEqual(['a', 'b', 'c']);
+    expect(jobs.listWorkspaceJobs).toHaveBeenCalledTimes(2);
+    expect(jobs.listWorkspaceJobs).toHaveBeenNthCalledWith(1, {
+      workspaceId: { value: 'ws-1' },
+      agentId: { value: 'app-1' },
+      projectIds: [],
+      pipelineIds: [],
+      page: { size: 3, token: '' },
+      filter: {
+        branch: '',
+        event: 0,
+        authorLogin: '',
+        pullRequest: 0,
+        statuses: [JobStatus.FAILED, JobStatus.ORPHANED, JobStatus.AWAITING_APPROVAL],
+        origins: [],
+        query: 'main',
+      },
+      view: JobView.SUMMARY,
+    });
+    expect(jobs.listWorkspaceJobs).toHaveBeenLastCalledWith(
+      expect.objectContaining({ page: { size: 1, token: 'n1' } }),
+    );
+  });
+
+  it('tells that the agent has no more jobs when the server gives no next page', async () => {
+    const { repository } = clients();
+
+    const page = await repository.listJobPage('ws-1', 'app-1', { limit: 10 });
+
+    expect(page.more).toBe(false);
+    expect(page.jobs.map(job => job.status)).toEqual(['completed', 'running']);
   });
 
   it('revokes one key of an app', async () => {

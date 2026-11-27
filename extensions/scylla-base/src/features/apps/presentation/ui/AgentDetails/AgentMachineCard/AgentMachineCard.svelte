@@ -58,8 +58,9 @@
   <CardContent>
     {#if agent.host}
       {@const host = agent.host}
+      <!-- Two columns of facts on a wide screen, one on a phone. -->
       <dl
-        class="grid auto-rows-[minmax(18px,auto)] grid-cols-[auto_1fr] items-center gap-x-6 gap-y-3 text-xs"
+        class="grid auto-rows-[minmax(18px,auto)] grid-cols-[auto_minmax(0,1fr)] items-center gap-x-6 gap-y-3 text-xs sm:grid-cols-[auto_minmax(0,1fr)_auto_minmax(0,1fr)] sm:gap-x-8"
       >
         {@render fact(messages.hostname, host.hostname)}
         {@render fact(messages.system, `${host.os} / ${host.arch}`)}
@@ -121,7 +122,7 @@
           {/if}
         </dd>
         <dt class="text-muted-foreground">{t(messages.features)}</dt>
-        <dd class="flex flex-wrap items-center justify-end gap-1">
+        <dd class="flex flex-wrap items-center justify-end gap-1 sm:col-span-3">
           <FeatureBadges {host} missing={agent.missingFeatures} />
         </dd>
       </dl>

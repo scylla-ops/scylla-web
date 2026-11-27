@@ -2,6 +2,8 @@ import type {
   AppDetails,
   AppEntity,
   AppJob,
+  AppJobPage,
+  AppJobsQuery,
   AppKeyEntity,
   CreatedApp,
   JoinCode,
@@ -44,6 +46,8 @@ export interface AppsRepository {
   revokeKey(appId: string, keyId: string): Promise<void>;
   /** The latest jobs that the server placed on the agent, newest first. */
   listJobs(workspaceId: string, appId: string, limit: number): Promise<AppJob[]>;
+  /** The newest jobs of the agent that match the query, in pages of 100 at most. */
+  listJobPage(workspaceId: string, appId: string, query: AppJobsQuery): Promise<AppJobPage>;
   /**
    * The job stats of an agent for a period, from the server: by default the last 30 days. The
    * server starts the period at the creation of the agent, and refuses a period that ends before.

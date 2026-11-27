@@ -234,6 +234,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   pointer is over it, also a folded or empty group. The card follows the pointer, the other cards
   move aside, and a drop on a section that already has the card says so. The dashboard editor uses
   the same drag, and the keyboard can move a card or a widget (Space, arrow keys, Escape).
+- The agent page has 5 tabs: Overview, Jobs, Activity, Settings and Machine. The URL keeps the open
+  tab. The header shows the status on the line of the name and has a menu with the actions of the
+  agent; the app page has the same menu. The Jobs tab filters the jobs by state, searches them and
+  shows 10 more at each click. The Activity tab shows less for an agent with few days or no job.
 
 ## [0.7.2] - 2026-11-25
 

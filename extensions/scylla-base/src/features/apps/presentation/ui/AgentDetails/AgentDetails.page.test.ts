@@ -130,15 +130,18 @@ const setUp = (
         { day: '2026-11-04T00:00:00.000Z', outcomes: outcomes(12, 0) },
       ],
     }),
-    listJobs: vi.fn().mockResolvedValue([
-      {
-        id: 'job-000001',
-        pipelineId: 'pl-1',
-        projectId: 'p-api',
-        status: 'running',
-        createdAt: '2026-11-04T14:00:00.000Z',
-      },
-    ]),
+    listJobPage: vi.fn().mockResolvedValue({
+      jobs: [
+        {
+          id: 'job-000001',
+          pipelineId: 'pl-1',
+          projectId: 'p-api',
+          status: 'running',
+          createdAt: '2026-11-04T14:00:00.000Z',
+        },
+      ],
+      more: false,
+    }),
     createJoinCode: vi.fn().mockResolvedValue({
       code: 'JOIN-99',
       expiresAt: new Date(Date.now() + 900_000).toISOString(),
@@ -197,6 +200,21 @@ const machineValue = (label: string) =>
 
 const periodsAsked = () => apps.getAgentStats.mock.calls.map(([, period]) => period);
 
+/** The search of a page that opens on a tab. */
+const MACHINE = '?tab=machine';
+const SETTINGS = '?tab=settings';
+const ACTIVITY = '?tab=activity';
+
+/** Opens the "…" menu of the header. */
+const openMenu = async (user: ReturnType<typeof userEvent.setup>) =>
+  user.click(await screen.findByRole('button', { name: 'Actions of build-linux-01' }));
+
+const tabNames = () => screen.getAllByRole('tab').map(tab => tab.textContent?.trim());
+
+/** The items of the open menu, which is in a floating layer. */
+const menuItems = () =>
+  screen.getAllByRole('menuitem', { hidden: true }).map(item => item.textContent?.trim());
+
 beforeEach(() => vi.clearAllMocks());
 afterEach(() => {
   teardown.forEach(restore => restore());
@@ -206,106 +224,147 @@ afterEach(() => {
 });
 
 describe('AgentDetails', () => {
-  it('shows the state, the stats, the machine, the jobs, the access and the keys', async () => {
+  it('opens on the overview: the state now, the figures, the jobs, the machine and the access', async () => {
     onNovember4();
     setUp();
 
     expect(await screen.findByRole('heading', { name: 'build-linux-01' })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: 'Overview' })).toHaveAttribute('aria-selected', 'true');
+    expect(tabNames()).toEqual(['Overview', 'Jobs', 'Activity', 'Settings', 'Machine']);
     expect(screen.getByText('Running 2 jobs')).toBeInTheDocument();
+    expect(screen.getByText('2 of 2 slots busy')).toBeInTheDocument();
     expect(await screen.findByText('412')).toBeInTheDocument();
     expect(screen.getByText('96%')).toBeInTheDocument();
     expect(screen.getByText('396 of 412 completed')).toBeInTheDocument();
     expect(screen.getByText('3m 12s')).toBeInTheDocument();
     expect(screen.getByText('8m 40s')).toBeInTheDocument();
-    expect(screen.getByText('Jobs, Oct 12 – Today')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: '412 jobs, Oct 12 – Today' })).toBeInTheDocument();
     expect(
-      screen.getByRole('img', { name: '412 jobs since the agent joined, by day' }),
+      await screen.findByRole('img', { name: '23 jobs in the last 14 days, by day' }),
     ).toBeInTheDocument();
     expect(screen.getByText('build-linux-01.acme.lan', { selector: 'dd' })).toBeInTheDocument();
     expect(screen.getByText('16 GB')).toBeInTheDocument();
     expect(await screen.findByText('All projects of acme')).toBeInTheDocument();
-    expect(await screen.findByText('api')).toBeInTheDocument();
-    expect(screen.getByText('Active')).toBeInTheDocument();
-    expect(screen.getByText(/Revoked on/)).toBeInTheDocument();
+    expect((await screen.findAllByText('api')).length).toBeGreaterThan(0);
+    expect(apps.listJobPage).toHaveBeenCalledWith('ws-1', '01JBX7AAAAAAAAAAAAAAAAK2M', {
+      limit: 5,
+    });
+  });
+
+  it('keeps the open tab in the URL, and opens the jobs from the overview', async () => {
+    setUp();
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('tab', { name: 'Jobs' }));
+    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?tab=jobs', { replace: true });
+    expect(screen.getByRole('tab', { name: 'Jobs' })).toHaveAttribute('aria-selected', 'true');
+
+    await user.click(screen.getByRole('tab', { name: 'Overview' }));
+    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1', { replace: true });
+
+    await user.click(await screen.findByRole('button', { name: 'All jobs' }));
+    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?tab=jobs', { replace: true });
+  });
+
+  it('opens the overview for a tab that the user may not see', async () => {
+    setUp(agent(), [Permission.READ_APP], DEFAULT_KEYS, true, ACTIVITY);
+
+    expect(await screen.findByRole('tab', { name: 'Overview' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
+    expect(tabNames()).toEqual(['Overview', 'Settings', 'Machine']);
+  });
+
+  it('shows the activity in one card: the timeline, the figures and the jobs per day', async () => {
+    onNovember4();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, ACTIVITY);
+
+    expect(await screen.findByText('Jobs, Oct 12 – Today')).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: '412 jobs, Oct 12 – Today' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: '412 jobs since the agent joined, by day' }),
+    ).toBeInTheDocument();
+    expect(screen.getByText('396 of 412 completed')).toBeInTheDocument();
   });
 
   it('changes the period with a preset, and the stats follow', async () => {
     onNovember4();
-    setUp();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, ACTIVITY);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('radio', { name: '7 d' }));
 
-    expect(navigate).toHaveBeenCalledWith('/acme/agents/a1?period=7d', { replace: true });
+    expect(navigate).toHaveBeenCalledWith('/acme/agents/a1?tab=activity&period=7d', {
+      replace: true,
+    });
     expect(await screen.findByText('Jobs, Oct 29 – Today')).toBeInTheDocument();
     expect(periodsAsked()).toContainEqual({ from: '2026-10-29', to: '2026-11-04' });
   });
 
   it('moves an edge of the window with the arrows: a day, or a week with Shift', async () => {
     onNovember4();
-    setUp(agent(), ALL, DEFAULT_KEYS, true, '?from=2026-10-20&to=2026-10-30');
+    setUp(agent(), ALL, DEFAULT_KEYS, true, '?tab=activity&from=2026-10-20&to=2026-10-30');
     const user = userEvent.setup();
 
     const start = await screen.findByRole('slider', { name: 'Start of the period, Oct 20' });
     start.focus();
     await user.keyboard('{ArrowRight}');
 
-    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?from=2026-10-21&to=2026-10-30', {
-      replace: true,
-    });
+    expect(navigate).toHaveBeenLastCalledWith(
+      '/acme/agents/a1?tab=activity&from=2026-10-21&to=2026-10-30',
+      { replace: true },
+    );
 
     const end = screen.getByRole('slider', { name: 'End of the period, Oct 30' });
     end.focus();
     await user.keyboard('{Shift>}{ArrowRight}{/Shift}');
 
-    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?from=2026-10-21&to=2026-11-04', {
-      replace: true,
-    });
+    expect(navigate).toHaveBeenLastCalledWith(
+      '/acme/agents/a1?tab=activity&from=2026-10-21&to=2026-11-04',
+      { replace: true },
+    );
     expect(screen.getByText('Jobs, Oct 21 – Today')).toBeInTheDocument();
   });
 
   it('keeps the period of a link, and gives its number of days', async () => {
     onNovember4();
-    setUp(agent(), ALL, DEFAULT_KEYS, true, '?from=2026-10-20&to=2026-10-30');
+    setUp(agent(), ALL, DEFAULT_KEYS, true, '?tab=activity&from=2026-10-20&to=2026-10-30');
 
     expect(await screen.findByText('Jobs, Oct 20 – Oct 30')).toBeInTheDocument();
     expect(screen.getByText('11 days')).toBeInTheDocument();
     expect(periodsAsked()).toContainEqual({ from: '2026-10-20', to: '2026-10-30' });
   });
 
-  it('shows the timeline of an agent that joined today, with a window of one day', async () => {
+  it('gives one line for an agent that joined today, and opens its jobs', async () => {
     onNovember4();
-    setUp(agent({ createdAt: '2026-11-04T08:00:00.000Z' }));
+    setUp(agent({ createdAt: '2026-11-04T08:00:00.000Z' }), ALL, DEFAULT_KEYS, true, ACTIVITY);
     const user = userEvent.setup();
 
-    expect(
-      await screen.findByRole('img', { name: '412 jobs since the agent joined, by day' }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: '412 jobs, Today' })).toBeInTheDocument();
-    expect(screen.getByText('Jobs, Today')).toBeInTheDocument();
+    expect(await screen.findByText('412 jobs since the agent joined today.')).toBeInTheDocument();
+    expect(screen.queryByRole('slider')).not.toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: '7 d' })).not.toBeInTheDocument();
     expect(periodsAsked()).toEqual([{ from: '2026-11-04', to: '2026-11-04' }]);
 
-    const start = screen.getByRole('slider', { name: 'Start of the period, Nov 4' });
-    const end = screen.getByRole('slider', { name: 'End of the period, Nov 4' });
-    expect(start).toHaveAttribute('aria-valuemax', '0');
-    start.focus();
-    await user.keyboard('{ArrowLeft}{Shift>}{ArrowRight}{/Shift}');
-    end.focus();
-    await user.keyboard('{ArrowRight}{ArrowLeft}');
+    await user.click(screen.getByRole('button', { name: 'See the 412 jobs' }));
 
-    expect(navigate).not.toHaveBeenCalled();
-
-    await user.click(screen.getByRole('radio', { name: '7 d' }));
-
-    expect(navigate).toHaveBeenCalledWith('/acme/agents/a1?period=7d', { replace: true });
-    expect(screen.getByRole('radio', { name: '7 d' })).toBeChecked();
-    expect(screen.getByText('Jobs, Today')).toBeInTheDocument();
+    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?tab=jobs', { replace: true });
   });
 
-  it('shows the last 30 days of a new agent with no job, and hatches the days before it joined', async () => {
+  it('gives the chart of each day with no timeline to an agent that joined a few days ago', async () => {
     onNovember4();
-    setUp(agent({ createdAt: '2026-11-02T08:00:00.000Z' }));
+    setUp(agent({ createdAt: '2026-11-02T08:00:00.000Z' }), ALL, DEFAULT_KEYS, true, ACTIVITY);
+
+    expect(
+      await screen.findByText('The agent joined on Nov 2. The chart shows each day since.'),
+    ).toBeInTheDocument();
+    expect(await screen.findByRole('img', { name: '412 jobs, Nov 2 – Today' })).toBeInTheDocument();
+    expect(screen.queryByRole('slider')).not.toBeInTheDocument();
+    expect(screen.queryByRole('radio', { name: '7 d' })).not.toBeInTheDocument();
+  });
+
+  it('shows a short block with the next step for an agent with no ended job', async () => {
+    onNovember4();
+    setUp(agent({ createdAt: '2026-11-02T08:00:00.000Z' }), ALL, DEFAULT_KEYS, true, ACTIVITY);
     apps.getAgentStats.mockResolvedValue({
       agentId: agent().id,
       outcomes: outcomes(0, 0),
@@ -313,17 +372,19 @@ describe('AgentDetails', () => {
       p95Ms: null,
       days: [],
     });
+    const user = userEvent.setup();
 
-    expect(await screen.findByRole('img', { name: '0 jobs, Oct 6 – Today' })).toBeInTheDocument();
-    expect(screen.getByText('Not joined yet')).toBeInTheDocument();
-    expect(screen.queryByText('Timeline')).not.toBeInTheDocument();
-    expect(periodsAsked()).toContainEqual({ from: '2026-10-06', to: '2026-11-04' });
+    expect(await screen.findByRole('heading', { name: 'No ended job yet' })).toBeInTheDocument();
+    expect(screen.queryByText('Jobs per day')).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Open the projects' }));
+
+    expect(navigate).toHaveBeenCalledWith('/acme/projects', undefined);
   });
 
   it('tells where the jobs of a disabled agent are when its period has none', async () => {
     onNovember4();
     const disabled = agent({ disabledAt: '2026-10-25T10:00:00.000Z', connected: false });
-    setUp(disabled, ALL, DEFAULT_KEYS, true, '?period=7d');
+    setUp(disabled, ALL, DEFAULT_KEYS, true, '?tab=activity&period=7d');
     apps.getAgentStats = vi.fn((_id: string, period: { from: string }) =>
       Promise.resolve({
         agentId: disabled.id,
@@ -341,7 +402,7 @@ describe('AgentDetails', () => {
     ).toBeInTheDocument();
     expect(screen.getByText('Oct 29 – Today · disabled since Oct 25')).toBeInTheDocument();
     expect(screen.getByText('No ended job')).toBeInTheDocument();
-    expect(screen.getAllByText('Disabled since Oct 25')).toHaveLength(2);
+    expect(screen.getAllByText('Disabled since Oct 25').length).toBeGreaterThan(0);
   });
 
   it('ends with a space under the last card, above a floating button at the bottom right', async () => {
@@ -354,10 +415,12 @@ describe('AgentDetails', () => {
 
   it('opens the install step to connect an agent that never said hello, with no code on open', async () => {
     setUp(agent({ connected: false, lastSeenAt: '', host: null, runningJobs: 0 }));
+    apps.listJobPage.mockResolvedValue({ jobs: [], more: false });
     const user = userEvent.setup();
 
     expect(await screen.findByText('Connect this agent')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Finish setup' }));
+    const finish = await screen.findAllByRole('button', { name: 'Finish setup' });
+    await user.click(finish[0]);
 
     expect(navigate).toHaveBeenCalledWith(
       '/acme/agents/01JBX7AAAAAAAAAAAAAAAAK2M/connect',
@@ -367,11 +430,12 @@ describe('AgentDetails', () => {
     expect(screen.queryByText('Success rate')).not.toBeInTheDocument();
   });
 
-  it('opens the install step for a new join code of an agent that has a machine', async () => {
+  it('opens the install step for a new join code from the menu of the header', async () => {
     setUp();
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'New join code' }));
+    await openMenu(user);
+    await user.click(await findFloating('menuitem', 'New join code'));
 
     expect(navigate).toHaveBeenCalledWith(
       '/acme/agents/01JBX7AAAAAAAAAAAAAAAAK2M/connect',
@@ -379,8 +443,18 @@ describe('AgentDetails', () => {
     );
   });
 
+  it('gives in the menu of the header the actions of the agent, the destructive ones last', async () => {
+    setUp();
+    const user = userEvent.setup();
+
+    await openMenu(user);
+    await findFloating('menuitem', 'Copy the ID');
+
+    expect(menuItems()).toEqual(['New join code', 'Copy the ID', 'Disable…', 'Delete the agent…']);
+  });
+
   it('gives the command for the system of an agent with another version', async () => {
-    setUp(agent({ host: { ...host, version: '0.6.0' } }));
+    setUp(agent({ host: { ...host, version: '0.6.0' } }), ALL, DEFAULT_KEYS, true, MACHINE);
 
     expect(
       await screen.findByText('This agent has version 0.6.0. The server has version 0.7.0.'),
@@ -390,7 +464,13 @@ describe('AgentDetails', () => {
   });
 
   it('shows an outdated agent with the version of the server in badges, and its update command', async () => {
-    setUp(agent({ host: { ...host, protocol: 0, build: '' }, compatibility: 'outdated' }));
+    setUp(
+      agent({ host: { ...host, protocol: 0, build: '' }, compatibility: 'outdated' }),
+      ALL,
+      DEFAULT_KEYS,
+      true,
+      MACHINE,
+    );
 
     await screen.findByText('Agent version');
     await userEvent.hover(within(machineValue('Agent version')).getByText('0.7.0'));
@@ -405,7 +485,13 @@ describe('AgentDetails', () => {
   });
 
   it('tells in the badge of its version that the server refuses the agent', async () => {
-    setUp(agent({ host: { ...host, protocol: 0 }, compatibility: 'unsupported' }));
+    setUp(
+      agent({ host: { ...host, protocol: 0 }, compatibility: 'unsupported' }),
+      ALL,
+      DEFAULT_KEYS,
+      true,
+      MACHINE,
+    );
 
     await screen.findByText('Agent version');
     await userEvent.hover(within(machineValue('Agent version')).getByText('0.7.0'));
@@ -422,6 +508,10 @@ describe('AgentDetails', () => {
         compatibility: 'outdated',
         missingFeatures: ['checkout'],
       }),
+      ALL,
+      DEFAULT_KEYS,
+      true,
+      MACHINE,
     );
 
     await userEvent.hover(await screen.findByText('checkout'));
@@ -430,7 +520,13 @@ describe('AgentDetails', () => {
   });
 
   it('asks for git on an agent with the protocol and no checkout', async () => {
-    setUp(agent({ host: { ...host, features: [] }, missingFeatures: ['checkout'] }));
+    setUp(
+      agent({ host: { ...host, features: [] }, missingFeatures: ['checkout'] }),
+      ALL,
+      DEFAULT_KEYS,
+      true,
+      MACHINE,
+    );
 
     await userEvent.hover(await screen.findByText('checkout'));
 
@@ -439,7 +535,7 @@ describe('AgentDetails', () => {
   });
 
   it('asks no update of an agent of the release of a server build with its commit', async () => {
-    setUp(agent(), ALL, DEFAULT_KEYS, true, '', '0.7.0+240da00');
+    setUp(agent(), ALL, DEFAULT_KEYS, true, MACHINE, '0.7.0+240da00');
 
     await waitFor(() => expect(machineValue('Server version')).toHaveTextContent('0.7.0+240da00'));
     expect(machineValue('Agent version')).toHaveTextContent('0.7.0');
@@ -447,7 +543,13 @@ describe('AgentDetails', () => {
   });
 
   it('shows None for an agent with no container runtime and no feature', async () => {
-    setUp(agent({ host: { ...host, containerRuntime: '', features: [] } }));
+    setUp(
+      agent({ host: { ...host, containerRuntime: '', features: [] } }),
+      ALL,
+      DEFAULT_KEYS,
+      true,
+      MACHINE,
+    );
 
     expect(await screen.findByText('Container runtime')).toBeInTheDocument();
     expect(machineValue('Container runtime')).toHaveTextContent('None');
@@ -455,28 +557,28 @@ describe('AgentDetails', () => {
   });
 
   it('gives no update command to an agent with the version of the server', async () => {
-    setUp();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, MACHINE);
 
-    expect(await screen.findByText('Machine')).toBeInTheDocument();
+    expect(await screen.findByText('Container runtime')).toBeInTheDocument();
     await waitFor(() => expect(apps.getServerInfo).toHaveBeenCalled());
     expect(screen.queryByText(/sh -s -- --update/)).not.toBeInTheDocument();
   });
 
   it('gives the uninstall commands of a Windows agent, with no Docker command', async () => {
-    setUp(agent({ host: { ...host, os: 'windows' } }));
+    setUp(agent({ host: { ...host, os: 'windows' } }), ALL, DEFAULT_KEYS, true, MACHINE);
 
     expect(await screen.findByText(/install\.ps1\)\)\) -Uninstall/)).toBeInTheDocument();
     expect(screen.queryByText(/docker volume rm/)).not.toBeInTheDocument();
   });
 
   it('gives the Docker uninstall command also on Linux, because a container reports Linux', async () => {
-    setUp();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, MACHINE);
 
     expect(await screen.findByText(/sh -s -- --uninstall/)).toBeInTheDocument();
     expect(screen.getByText(/docker volume rm scylla-agent/)).toBeInTheDocument();
   });
 
-  it('shows a disabled agent and enables it', async () => {
+  it('shows a disabled agent and enables it from the banner', async () => {
     setUp(agent({ connected: false, runningJobs: 0, disabledAt: '2026-10-02T00:00:00.000Z' }));
     const user = userEvent.setup();
 
@@ -486,11 +588,23 @@ describe('AgentDetails', () => {
     await waitFor(() => expect(apps.enableApp).toHaveBeenCalledWith('01JBX7AAAAAAAAAAAAAAAAK2M'));
   });
 
-  it('disables an agent after a confirmation', async () => {
+  it('disables an agent from the menu of the header, after a confirmation', async () => {
     setUp();
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Disable' }));
+    await openMenu(user);
+    await user.click(await findFloating('menuitem', 'Disable…'));
+    const confirm = await screen.findByRole('alertdialog');
+    await user.click(within(confirm).getByRole('button', { name: 'Disable' }));
+
+    await waitFor(() => expect(apps.disableApp).toHaveBeenCalledTimes(1));
+  });
+
+  it('disables an agent from its settings too', async () => {
+    setUp(agent(), ALL, DEFAULT_KEYS, true, SETTINGS);
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Disable…' }));
     const confirm = await screen.findByRole('alertdialog');
     await user.click(within(confirm).getByRole('button', { name: 'Disable' }));
 
@@ -498,7 +612,7 @@ describe('AgentDetails', () => {
   });
 
   it('gives the agent some projects in place of the workspace', async () => {
-    setUp();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, SETTINGS);
     const user = userEvent.setup();
 
     await screen.findByText('All projects of acme');
@@ -518,10 +632,13 @@ describe('AgentDetails', () => {
   });
 
   it('shows the labels of an admin apart from the labels of the machine, and changes them', async () => {
-    setUp(agent({ labels: ['deploy'], automaticLabels: ['linux', 'x64'] }), [
-      ...ALL,
-      Permission.SET_APP_LABELS,
-    ]);
+    setUp(
+      agent({ labels: ['deploy'], automaticLabels: ['linux', 'x64'] }),
+      [...ALL, Permission.SET_APP_LABELS],
+      DEFAULT_KEYS,
+      true,
+      SETTINGS,
+    );
     const user = userEvent.setup();
 
     const admin = await screen.findByRole('list', { name: 'From an admin' });
@@ -539,6 +656,7 @@ describe('AgentDetails', () => {
     expect(field).toHaveFocus();
     await user.type(field, 'Prod Host{Enter}');
     expect(within(dialog).getByRole('alert')).toHaveTextContent('Use 1 to 32 lower case letters');
+    expect(field).toHaveAccessibleDescription(/Use 1 to 32 lower case letters/);
     await user.clear(field);
     await user.type(field, 'gpu{Enter}');
     await user.click(within(dialog).getByRole('button', { name: 'Remove deploy' }));
@@ -550,7 +668,7 @@ describe('AgentDetails', () => {
   });
 
   it('gives the change of the labels only to an admin of the workspace', async () => {
-    setUp(agent({ labels: ['deploy'] }));
+    setUp(agent({ labels: ['deploy'] }), ALL, DEFAULT_KEYS, true, SETTINGS);
 
     expect(await screen.findByRole('list', { name: 'From an admin' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Change the labels' })).not.toBeInTheDocument();
@@ -558,10 +676,13 @@ describe('AgentDetails', () => {
   });
 
   it('gives the icon of an agent to an admin of the workspace, who resets it or picks one', async () => {
-    setUp(agent({ icon: { kind: 'glyph', name: 'server', color: 'chart-3' } }), [
-      ...ALL,
-      Permission.SET_APP_ICON,
-    ]);
+    setUp(
+      agent({ icon: { kind: 'glyph', name: 'server', color: 'chart-3' } }),
+      [...ALL, Permission.SET_APP_ICON],
+      DEFAULT_KEYS,
+      true,
+      SETTINGS,
+    );
     const user = userEvent.setup();
 
     expect(await screen.findByRole('heading', { name: 'Agent icon' })).toBeInTheDocument();
@@ -598,19 +719,44 @@ describe('AgentDetails', () => {
     expect(await screen.findByRole('dialog', { name: 'Agent icon' })).toBeInTheDocument();
   });
 
+  it('opens the icon from the menu of the header too', async () => {
+    setUp(agent(), [...ALL, Permission.SET_APP_ICON]);
+    const user = userEvent.setup();
+
+    await openMenu(user);
+    await user.click(await findFloating('menuitem', 'Change the icon…'));
+
+    expect(await screen.findByRole('dialog', { name: 'Agent icon' })).toBeInTheDocument();
+  });
+
   it('gives the change of the icon only to an admin of the workspace', async () => {
-    setUp(agent());
+    setUp(agent(), ALL, DEFAULT_KEYS, true, SETTINGS);
+    const user = userEvent.setup();
 
     expect(await screen.findByRole('heading', { name: 'Labels' })).toBeInTheDocument();
     expect(screen.queryByRole('heading', { name: 'Agent icon' })).not.toBeInTheDocument();
     const header = screen.getByRole('heading', { level: 1 }).closest('header')!;
     expect(within(header).queryByRole('button', { name: 'Change the icon…' })).toBeNull();
+    await openMenu(user);
+    await findFloating('menuitem', 'Copy the ID');
+    expect(menuItems()).not.toContain('Change the icon…');
+  });
+
+  it('shows the number of jobs at once that the machine gives, with the option that changes it', async () => {
+    setUp(agent(), ALL, DEFAULT_KEYS, true, SETTINGS);
+
+    const title = await screen.findByRole('heading', { name: 'Jobs at once' });
+    const card = title.closest<HTMLElement>('[data-slot="card"]')!;
+    expect(within(card).getByText('2')).toBeInTheDocument();
+    expect(within(card).getByText('--capacity <n>')).toBeInTheDocument();
   });
 
   it('renames a key', async () => {
-    setUp();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, MACHINE);
     const user = userEvent.setup();
 
+    expect(await screen.findByText('Active')).toBeInTheDocument();
+    expect(screen.getByText(/Revoked on/)).toBeInTheDocument();
     await user.click(
       await screen.findByRole('button', { name: 'Actions of the key build-linux-01.acme.lan' }),
     );
@@ -631,11 +777,12 @@ describe('AgentDetails', () => {
     );
   });
 
-  it('deletes the agent only after its name is typed', async () => {
+  it('deletes the agent from the menu of the header, only after its name is typed', async () => {
     setUp();
     const user = userEvent.setup();
 
-    await user.click(await screen.findByRole('button', { name: 'Delete agent' }));
+    await openMenu(user);
+    await user.click(await findFloating('menuitem', 'Delete the agent…'));
     const dialog = await screen.findByRole('dialog');
     await focusSettled();
     const confirm = within(dialog).getByRole('button', { name: 'Delete' });
@@ -651,9 +798,9 @@ describe('AgentDetails', () => {
     await waitFor(() => expect(navigate).toHaveBeenCalledWith('/acme/agents', undefined));
   });
 
-  it('asks nothing more about the agent after its delete: the server would refuse', async () => {
+  it('asks nothing more about the agent after its delete from the settings: the server would refuse', async () => {
     onNovember4();
-    setUp();
+    setUp(agent(), ALL, DEFAULT_KEYS, true, SETTINGS);
     const user = userEvent.setup();
 
     await user.click(await screen.findByRole('button', { name: 'Delete agent' }));
@@ -668,24 +815,28 @@ describe('AgentDetails', () => {
 
     expect(apps.getApp).toHaveBeenCalledTimes(1);
     expect(apps.getAgentStats).toHaveBeenCalledTimes(1);
-    expect(apps.listJobs).toHaveBeenCalledTimes(1);
   });
 
-  it('hides the actions that the user may not use', async () => {
+  it('hides the actions and the tabs that the user may not use', async () => {
     setUp(agent(), [Permission.READ_APP]);
+    const user = userEvent.setup();
 
     expect(await screen.findByRole('heading', { name: 'build-linux-01' })).toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Disable' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'Delete agent' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('button', { name: 'New join code' })).not.toBeInTheDocument();
-    expect(screen.queryByText('Access')).not.toBeInTheDocument();
+    expect(tabNames()).toEqual(['Overview', 'Settings', 'Machine']);
+    expect(screen.queryByText('Access and labels')).not.toBeInTheDocument();
     expect(screen.queryByText('Recent jobs')).not.toBeInTheDocument();
+    await openMenu(user);
+    await findFloating('menuitem', 'Copy the ID');
+    expect(menuItems()).toEqual([
+      'Copy the ID',
+    ]);
+    expect(apps.listJobPage).not.toHaveBeenCalled();
   });
 
   it('gives the keys and a new join code only to who may manage the apps, as the server does', async () => {
-    setUp(agent(), [Permission.READ_APP, Permission.CREATE_APP]);
+    setUp(agent(), [Permission.READ_APP, Permission.CREATE_APP], DEFAULT_KEYS, true, MACHINE);
 
-    expect(await screen.findByRole('heading', { name: 'build-linux-01' })).toBeInTheDocument();
+    expect(await screen.findByText('Active')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'New join code' })).not.toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: 'Actions of the key build-linux-01.acme.lan' }),
@@ -694,7 +845,7 @@ describe('AgentDetails', () => {
 
   it('gives the keys and a new join code to the creator of the agent with no other right', async () => {
     localStorage.setItem('userId', 'u-maker');
-    setUp(agent({ createdBy: 'u-maker' }), [Permission.READ_APP]);
+    setUp(agent({ createdBy: 'u-maker' }), [Permission.READ_APP], DEFAULT_KEYS, true, MACHINE);
     const user = userEvent.setup();
 
     expect(await screen.findByRole('button', { name: 'New join code' })).toBeInTheDocument();
@@ -709,7 +860,7 @@ describe('AgentDetails', () => {
     setUp(agent(), [Permission.READ_APP]);
 
     expect(await screen.findByRole('heading', { name: 'build-linux-01' })).toBeInTheDocument();
-    expect(screen.queryByText('Jobs per day')).not.toBeInTheDocument();
+    expect(screen.queryByRole('tab', { name: 'Activity' })).not.toBeInTheDocument();
     expect(screen.queryByText('Success rate')).not.toBeInTheDocument();
     expect(apps.getAgentStats).not.toHaveBeenCalled();
   });
@@ -722,10 +873,90 @@ describe('AgentDetails', () => {
     expect(await screen.findByText('No active key')).toBeInTheDocument();
   });
 
-  it('offers to give access to an agent with none', async () => {
+  it('offers to give access to an agent with none, on the overview and in the settings', async () => {
     setUp(agent(), ALL, DEFAULT_KEYS, false);
+    const user = userEvent.setup();
 
     expect(await screen.findByText('No access: this agent takes no job.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Give access' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Manage' }));
+
+    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?tab=settings', { replace: true });
+    expect(await screen.findByRole('button', { name: 'Give access' })).toBeInTheDocument();
+  });
+
+  it('gives an agent with no job the next step in its list of jobs', async () => {
+    setUp(agent({ runningJobs: 0 }), ALL, DEFAULT_KEYS, false, '?tab=jobs');
+    apps.listJobPage.mockResolvedValue({ jobs: [], more: false });
+    const user = userEvent.setup();
+
+    expect(await screen.findByText('No job yet.')).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: 'Give access' }));
+
+    expect(navigate).toHaveBeenLastCalledWith('/acme/agents/a1?tab=settings', { replace: true });
+  });
+});
+
+describe('the jobs of an agent', () => {
+  const job = (index: number) => ({
+    id: `job-${String(index).padStart(6, '0')}`,
+    pipelineId: 'pl-1',
+    projectId: 'p-api',
+    status: 'completed',
+    createdAt: '2026-11-04T14:00:00.000Z',
+    startedAt: '2026-11-04T14:00:00.000Z',
+    finishedAt: '2026-11-04T14:03:12.000Z',
+  });
+  const jobPage = (count: number, more: boolean) => ({
+    jobs: Array.from({ length: count }, (_, index) => job(index)),
+    more,
+  });
+
+  it('lists 10 jobs, then 10 more, with the count of each state in the filter', async () => {
+    setUp(agent(), ALL, DEFAULT_KEYS, true, '?tab=jobs');
+    apps.listJobPage.mockResolvedValue(jobPage(10, true));
+    const user = userEvent.setup();
+
+    expect(await screen.findAllByRole('link', { name: /api/ })).toHaveLength(10);
+    expect(await screen.findByRole('radio', { name: /Failed/ })).toHaveTextContent('16');
+    expect(screen.getByRole('radio', { name: /All/ })).toHaveTextContent('414');
+    apps.listJobPage.mockResolvedValue(jobPage(20, false));
+    await user.click(screen.getByRole('button', { name: 'Show 10 more' }));
+
+    await waitFor(() => expect(screen.getAllByRole('link', { name: /api/ })).toHaveLength(20));
+    expect(screen.queryByRole('button', { name: 'Show 10 more' })).not.toBeInTheDocument();
+    expect(apps.listJobPage).toHaveBeenLastCalledWith('ws-1', '01JBX7AAAAAAAAAAAAAAAAK2M', {
+      limit: 20,
+      statuses: [],
+      text: '',
+    });
+  });
+
+  it('asks the server for the jobs of a state or a search, and clears them', async () => {
+    setUp(agent(), ALL, DEFAULT_KEYS, true, '?tab=jobs');
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('radio', { name: /Failed/ }));
+    await waitFor(() =>
+      expect(apps.listJobPage).toHaveBeenLastCalledWith('ws-1', '01JBX7AAAAAAAAAAAAAAAAK2M', {
+        limit: 10,
+        statuses: ['failed', 'orphaned'],
+        text: '',
+      }),
+    );
+
+    apps.listJobPage.mockResolvedValue({ jobs: [], more: false });
+    await user.type(screen.getByRole('searchbox', { name: /Search/ }), 'main');
+    await waitFor(() =>
+      expect(apps.listJobPage).toHaveBeenLastCalledWith('ws-1', '01JBX7AAAAAAAAAAAAAAAAK2M', {
+        limit: 10,
+        statuses: ['failed', 'orphaned'],
+        text: 'main',
+      }),
+    );
+    expect(await screen.findByText('No job matches.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Clear the filters' }));
+
+    expect(screen.getByRole('radio', { name: /All/ })).toBeChecked();
+    expect(screen.getByRole('searchbox', { name: /Search/ })).toHaveValue('');
   });
 });

@@ -147,3 +147,23 @@ export interface AppJob {
   startedAt?: string;
   finishedAt?: string;
 }
+
+/** The jobs of an agent that match each field that is set. */
+export interface AppJobsQuery {
+  /** The size of the list. The server gives at most 100 jobs in one page. */
+  limit: number;
+  /** Empty or unset: each status. */
+  statuses?: readonly Exclude<JobStatus, 'unknown'>[];
+  /**
+   * The number (the last 8 characters of the id), the branch, the tag, the commit title or the
+   * pipeline name holds this text, in any case. Empty or unset: each job.
+   */
+  text?: string;
+}
+
+/** The newest jobs of an agent that match a query, newest first. */
+export interface AppJobPage {
+  jobs: AppJob[];
+  /** The server has more jobs that match. */
+  more: boolean;
+}
