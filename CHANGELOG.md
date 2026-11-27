@@ -79,6 +79,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   opens again one time for each user, and announces the new Projects page, the project icons, the
   profile photo and the agent icons. The Projects link of the sidebar shows a "New" badge until you
   open it.
+- The search bar shows five filters (Pages, Actions, Projects, Library, Team and infra). A filter
+  with no result hides while you type.
 
 ### Fixed
 

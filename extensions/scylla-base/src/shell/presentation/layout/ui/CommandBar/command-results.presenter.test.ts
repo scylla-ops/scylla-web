@@ -9,6 +9,7 @@ import {
   nameParts,
   parseCommandText,
   resultItems,
+  type CommandFilter,
   type CommandResults,
   type ResultOrder,
 } from './command-results.presenter.ts';
@@ -43,7 +44,7 @@ describe('parseCommandText', () => {
     ['>dark', 'actions', 'dark'],
     ['/ roles', 'pages', 'roles'],
     ['#web', 'work', 'web'],
-    ['@marie', 'people', 'marie'],
+    ['@marie', 'team', 'marie'],
     ['  >dark', 'actions', 'dark'],
   ])('reads %s', (text, filter, rest) => {
     expect(parseCommandText(text)).toEqual({ filter, search: rest });
@@ -57,12 +58,12 @@ describe('parseCommandText', () => {
 
 describe('the chips', () => {
   it('shows All and the chips with rows', () => {
-    const chips = commandChips([row('a', 'pages', 'A'), row('b', 'preferences', 'B')]);
+    const chips = commandChips([row('a', 'pages', 'A'), row('b', 'actions', 'B')]);
 
     expect(chips.map(chip => chip.title)).toEqual(['All', 'Pages', 'Actions']);
   });
 
-  it('puts the groups after the projects and the dashboards after the pipelines', () => {
+  it('shows the five families, in order', () => {
     const chips = commandChips([
       row('w', 'workspaces', 'W'),
       row('d', 'dashboards', 'D'),
@@ -70,23 +71,56 @@ describe('the chips', () => {
       row('l', 'pipelines', 'L'),
       row('g', 'groups', 'G'),
       row('p', 'projects', 'P'),
+      row('f', 'fragments', 'F'),
+      row('a', 'actions', 'A'),
     ]);
 
     expect(chips.map(chip => chip.title)).toEqual([
       'All',
+      'Pages',
+      'Actions',
       'Projects',
-      'Groups',
-      'Pipelines',
-      'Dashboards',
-      'Machines',
-      'Workspaces',
+      'Library',
+      'Team & infra',
     ]);
   });
 
-  it('gives the fragments of the library to the chip of the pipelines', () => {
-    const chips = commandChips([row('f', 'fragments', 'F')]);
+  it('gives the fragments to the library and the machines to the team', () => {
+    const chips = commandChips([row('f', 'fragments', 'F'), row('m', 'machines', 'M')]);
 
-    expect(chips.map(chip => chip.filter)).toEqual([null, 'pipelines']);
+    expect(chips.map(chip => chip.filter)).toEqual([null, 'library', 'team']);
+  });
+
+  describe('with a text', () => {
+    const rows = [
+      row('page:a', 'pages', 'Agents'),
+      row('project:p', 'projects', 'web-api'),
+      row('job:1', 'jobs', 'deploy'),
+      row('user:1', 'users', 'marie'),
+    ];
+    const typed = (
+      search: string,
+      active: CommandFilter | null = null,
+      searching?: CommandGroupId[],
+    ) =>
+      commandChips(rows, [], { search, active, order: ORDER, searching }).map(chip => chip.title);
+
+    it('hides a family with no result', () => {
+      expect(typed('deploy')).toEqual(['All', 'Projects']);
+      expect(typed('marie')).toEqual(['All', 'Team & infra']);
+    });
+
+    it('keeps the family in use, with no result', () => {
+      expect(typed('deploy', 'team')).toEqual(['All', 'Projects', 'Team & infra']);
+    });
+
+    it('keeps a family that waits for the server', () => {
+      expect(typed('zzz', null, ['users'])).toEqual(['All', 'Team & infra']);
+    });
+
+    it('shows all the families with no text', () => {
+      expect(typed('')).toEqual(['All', 'Pages', 'Projects', 'Team & infra']);
+    });
   });
 
   it('does not count a row that needs a word to show', () => {
@@ -95,9 +129,9 @@ describe('the chips', () => {
     expect(chips.map(chip => chip.title)).toEqual(['All']);
   });
 
-  it('presses the two chips of the prefix of the work', () => {
+  it('presses the chip of the projects for the prefix of the work', () => {
     expect(chipPressed('projects', 'work')).toBe(true);
-    expect(chipPressed('pipelines', 'work')).toBe(true);
+    expect(chipPressed('library', 'work')).toBe(false);
     expect(chipPressed('pages', 'work')).toBe(false);
     expect(chipPressed(null, null)).toBe(true);
   });
@@ -166,12 +200,12 @@ describe('the groups', () => {
 
     it('shows under its chip, and gives the chip', () => {
       expect(
-        commandResults(rows, '', 'dashboards', ORDER).sections.map(section => section.id),
-      ).toEqual(['dashboards']);
+        commandResults(rows, '', 'pages', ORDER).sections.map(section => section.id),
+      ).toEqual(['pages', 'dashboards']);
       expect(
-        commandResults(rows, 'dash', 'dashboards', ORDER).sections.map(section => section.id),
-      ).toEqual(['dashboards']);
-      expect(commandChips(rows).map(chip => chip.title)).toEqual(['All', 'Pages', 'Dashboards']);
+        commandResults(rows, 'dash', 'pages', ORDER).sections.map(section => section.id),
+      ).toEqual(['pages', 'dashboards']);
+      expect(commandChips(rows).map(chip => chip.title)).toEqual(['All', 'Pages']);
     });
 
     it('does not show twice with all the rows', () => {
@@ -185,15 +219,15 @@ describe('the groups', () => {
     });
   });
 
-  it('lists the fragments under the filter of the pipelines', () => {
-    const results = commandResults(
-      [row('f', 'fragments', 'lint'), row('l', 'pipelines', 'build'), row('g', 'groups', 'core')],
-      '',
-      'pipelines',
-      ORDER,
-    );
+  it('lists the fragments under the library and the pipelines under the projects', () => {
+    const rows = [
+      row('f', 'fragments', 'lint'),
+      row('l', 'pipelines', 'build'),
+      row('g', 'groups', 'core'),
+    ];
 
-    expect(ids(results)).toEqual(['l', 'f']);
+    expect(ids(commandResults(rows, '', 'library', ORDER))).toEqual(['f']);
+    expect(ids(commandResults(rows, '', 'projects', ORDER))).toEqual(['g', 'l']);
   });
 
   it('keeps 4 rows, then a row with the number of the others', () => {
@@ -232,7 +266,7 @@ describe('the groups', () => {
       row('page', 'pages', 'Page'),
     ];
 
-    expect(ids(commandResults(rows, '', 'actions', ORDER))).toEqual(['light', 'dark']);
+    expect(ids(commandResults(rows, '', 'pages', ORDER))).toEqual(['page', 'light', 'dark']);
   });
 });
 
@@ -499,7 +533,7 @@ describe('the server search', () => {
     const order: ResultOrder = { recent: [], searching: ['jobs', 'users'] };
 
     const all = commandResults([job], 'deploy', null, order);
-    const tab = commandResults([], 'deploy', 'jobs', order);
+    const tab = commandResults([], 'deploy', 'projects', order);
 
     expect(all.sections.map(({ id, searching }) => ({ id, searching }))).toEqual([
       { id: 'jobs', searching: true },
@@ -513,7 +547,6 @@ describe('the server search', () => {
     const rows = [job, row('project:p1', 'projects', 'web-api'), row('page:a', 'pages', 'Agents')];
 
     expect(ids(commandResults(rows, '', 'work', ORDER))).toEqual(['project:p1', 'job:1']);
-    expect(chipPressed('jobs', 'work')).toBe(true);
   });
 
   it('shows the chip of a kind that the reader can search, before its rows', () => {
@@ -521,7 +554,7 @@ describe('the server search', () => {
       ({ title }) => title,
     );
 
-    expect(titles).toEqual(['All', 'Pages', 'Jobs', 'Users']);
+    expect(titles).toEqual(['All', 'Pages', 'Projects', 'Team & infra']);
   });
 
   it('gives a stored row of the server search in the recent rows', () => {

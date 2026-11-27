@@ -524,7 +524,7 @@ describe('buildCommandRows', () => {
         input({ can: () => true, workspaces: [own], otherWorkspaces: [alice] }),
       );
       const ids = (search: string) =>
-        commandResults(rows, search, 'workspaces', { recent: [] }).sections.flatMap(section =>
+        commandResults(rows, search, 'pages', { recent: [] }).sections.flatMap(section =>
           section.items.map(item => item.id),
         );
 

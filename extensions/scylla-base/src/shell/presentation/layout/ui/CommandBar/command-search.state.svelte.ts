@@ -25,7 +25,7 @@ export const SERVER_GROUPS = ['jobs', 'triggers', 'secrets', 'users', 'packages'
 export type ServerGroup = (typeof SERVER_GROUPS)[number];
 
 /**
- * The text that a kind searches with, or `null`: no search. A tab with no text lists the newest
+ * The text that a kind searches with, or `null`: no search. A filter with no text lists the newest
  * rows of its kind. `#` with a short text looks for a job number.
  */
 export const searchTextFor = (
@@ -33,8 +33,9 @@ export const searchTextFor = (
   text: string,
   filter: CommandFilter | null,
 ): string | null => {
-  if (filter && !filterGroups(filter).includes(group)) return null;
+  // A text searches every kind, also with a filter: the chips of the other families need it.
   if (text.length >= SEARCH_MIN_LENGTH) return text;
+  if (filter && !filterGroups(filter).includes(group)) return null;
   if (filter && text === '') return '';
   if (filter && group === 'jobs') return text;
   return null;
