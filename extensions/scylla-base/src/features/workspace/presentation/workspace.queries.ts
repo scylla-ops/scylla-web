@@ -3,8 +3,17 @@ import { contextStore } from '@platform/context';
 import { i18n } from '@lingui/core';
 import { toast } from '@scylla/ui/utils';
 import { ToastMessages } from '@shared/utils/toast-messages.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
+import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
+import { keepRecentColor } from '@base/features/project';
 import { PERSONAL_TOKENS_QUERY_KEY } from '@base/features/user';
+import type {
+  WorkspaceEntity,
+  WorkspacePage,
+  WorkspaceSearch,
+} from '../domain/entities/workspace.entity.ts';
 import type { WorkspaceModule } from '../workspace.module.ts';
+import { workspaceMessages } from './messages/workspace.messages.ts';
 import { workspaceSettingsMessages } from './messages/workspace-settings.messages.ts';
 
 // Resolved per call: tests swap the registry.
@@ -15,9 +24,16 @@ export const WORKSPACES_QUERY_KEY = () => ['workspaces'] as const;
 export const MY_WORKSPACES_QUERY_KEY = () => ['workspaces', 'mine'] as const;
 export const WORKSPACE_MEMBERS_QUERY_KEY = (workspaceId: string) =>
   ['workspaces', workspaceId, 'members'] as const;
+export const ALL_WORKSPACES_QUERY_KEY = (search: WorkspaceSearch) =>
+  ['workspaces', 'all', search] as const;
+const ONE_WORKSPACE_QUERY_KEY = (by: 'slug' | 'id', value: string) =>
+  ['workspaces', 'one', by, value] as const;
+
+/** A miss is an answer, not an error: the caller shows its own state, and no toast shows. */
+const QUIET = { retry: false, meta: { showsOwnError: true } } as const;
 
 export const workspaceQueries = {
-  /** Not the global list: non-admins may not read it. */
+  /** Not the global list: an instance admin also gets only its own workspaces here. */
   mine: () =>
     queryOptions({
       queryKey: MY_WORKSPACES_QUERY_KEY(),
@@ -32,6 +48,36 @@ export const workspaceQueries = {
       queryFn: () => repository().listMembers(workspaceId!),
       enabled: (options.enabled ?? true) && !!workspaceId,
     }),
+
+  /**
+   * One page of all the workspaces, for a user with `LIST_ALL_WORKSPACES`. The last page stays
+   * on the screen while the next one loads.
+   */
+  all: (search: WorkspaceSearch, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: ALL_WORKSPACES_QUERY_KEY(search),
+      queryFn: () => repository().listAll(search),
+      enabled: options.enabled ?? true,
+      placeholderData: (previous: WorkspacePage | undefined) => previous,
+      staleTime: 1000 * 30,
+    }),
+
+  /** A workspace that is not in `mine`, e.g. the workspace of another user for an admin. */
+  bySlug: (slug: string | undefined, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: ONE_WORKSPACE_QUERY_KEY('slug', slug ?? ''),
+      queryFn: () => repository().getBySlug(slug!),
+      enabled: (options.enabled ?? true) && !!slug,
+      ...QUIET,
+    }),
+
+  byId: (workspaceId: string | null, options: { enabled?: boolean } = {}) =>
+    queryOptions({
+      queryKey: ONE_WORKSPACE_QUERY_KEY('id', workspaceId ?? ''),
+      queryFn: () => repository().getById(workspaceId!),
+      enabled: (options.enabled ?? true) && !!workspaceId,
+      ...QUIET,
+    }),
 };
 
 export const invalidateWorkspaceMembers = (workspaceId: string | null): void => {
@@ -45,15 +91,40 @@ export const invalidateWorkspaceMembers = (workspaceId: string | null): void => 
 const invalidateWorkspaces = () =>
   getQueryClient().invalidateQueries({ queryKey: WORKSPACES_QUERY_KEY() });
 
+/** A free color of a saved icon goes first in the recent colors. */
+const keepColorOf = (icon: CustomIconChange | undefined) => {
+  if (icon?.kind === 'glyph') keepRecentColor(icon.color);
+};
+
+/**
+ * `CreateWorkspace` has no icon: it goes in an `UpdateWorkspace` just after. The workspace stays
+ * when only the icon fails, and a toast tells it.
+ */
+const createWithIcon = async (
+  name: string,
+  slug?: string,
+  icon?: CustomIconChange,
+): Promise<WorkspaceEntity> => {
+  const created = await repository().create(name, slug);
+  if (!icon) return created;
+  try {
+    return await repository().update(created.id, undefined, undefined, icon);
+  } catch (error) {
+    toast.error(i18n._(workspaceMessages.iconNotSaved(ScyllaError.from(error).userMessage())));
+    return created;
+  }
+};
+
 export const workspaceMutations = {
   create: () =>
     mutationOptions({
-      mutationFn: ({ name, slug }: { name: string; slug?: string }) =>
-        repository().create(name, slug),
-      onSuccess: data => {
+      mutationFn: ({ name, slug, icon }: { name: string; slug?: string; icon?: CustomIconChange }) =>
+        createWithIcon(name, slug, icon),
+      onSuccess: (data, { icon }) => {
         // The new workspace becomes the active one.
         contextStore.getState().setWorkspace(data.id, data.name, data.slug);
         toast.success(i18n._(ToastMessages.WORKSPACE_CREATE));
+        if (data.icon) keepColorOf(icon);
         return invalidateWorkspaces();
       },
     }),
@@ -64,15 +135,30 @@ export const workspaceMutations = {
         workspaceId,
         name,
         slug,
+        icon,
       }: {
         workspaceId: string;
         name?: string;
         slug?: string;
-      }) => repository().update(workspaceId, name, slug),
-      onSuccess: () => {
+        icon?: CustomIconChange;
+      }) => repository().update(workspaceId, name, slug, icon),
+      onSuccess: (_workspace, { icon }) => {
         toast.success(i18n._(ToastMessages.WORKSPACE_UPDATE));
+        keepColorOf(icon);
         // The data of other features also holds the name: members, roles, apps, notifications.
         return getQueryClient().invalidateQueries();
+      },
+    }),
+
+  /** The switcher, the list of the workspaces and the settings show the new icon. */
+  setIcon: () =>
+    mutationOptions({
+      mutationFn: ({ workspaceId, icon }: { workspaceId: string; icon: CustomIconChange }) =>
+        repository().update(workspaceId, undefined, undefined, icon),
+      onSuccess: (_workspace, { icon }) => {
+        toast.success(i18n._(workspaceMessages.iconSaved));
+        keepColorOf(icon);
+        return invalidateWorkspaces();
       },
     }),
 

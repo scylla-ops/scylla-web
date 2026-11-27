@@ -5,6 +5,7 @@ import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
 import type { WidgetInjection } from '@scylla/core-sdk';
+import { installTestNavigator } from '@test/navigator.ts';
 import { render, withQueryClient, withRegistry, withWidgetInjections } from '@test/render.ts';
 import { membershipPoints } from '@base/features/membership/presentation/membership.points.ts';
 import ProjectMembersPage from './ProjectMembers.page.svelte';
@@ -195,5 +196,51 @@ describe('ProjectMembersPage', () => {
       expect(within(dialog).queryByRole('checkbox', { name: 'Project editor' })).not.toBeInTheDocument(),
     );
     expect(screen.getByRole('dialog')).toHaveTextContent('Change the roles of Alice');
+  });
+
+  describe('the empty list', () => {
+    const emptyState = async () =>
+      (await screen.findByText('Nobody has access to this project yet.')).closest<HTMLElement>(
+        '[data-slot="empty-state"]',
+      )!;
+
+    beforeEach(() => listMembers.mockResolvedValue([]));
+
+    it('offers "Add to <project>" in the empty list, and it opens the chooser of a member', async () => {
+      setUp();
+
+      await userEvent.click(within(await emptyState()).getByRole('button', { name: 'Add to Web' }));
+
+      expect(await screen.findByRole('combobox', { name: 'Member' })).toBeInTheDocument();
+    });
+
+    it('shows no add action in the empty list without MANAGE_PROJECT_GRANTS', async () => {
+      grant([Permission.LIST_PROJECT_MEMBERS]);
+      setUp();
+
+      expect(within(await emptyState()).queryByRole('button')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('the add link of the search bar', () => {
+    let navigator: ReturnType<typeof installTestNavigator>;
+
+    afterEach(() => navigator.restore());
+
+    it('opens the chooser of a member with ?add', async () => {
+      navigator = installTestNavigator({ pathname: '/acme/projects/project-1/members', search: '?add' });
+      setUp();
+
+      expect(await screen.findByRole('combobox', { name: 'Member' })).toBeInTheDocument();
+    });
+
+    it('opens nothing with ?add without MANAGE_PROJECT_GRANTS', async () => {
+      grant([Permission.LIST_PROJECT_MEMBERS]);
+      navigator = installTestNavigator({ pathname: '/acme/projects/project-1/members', search: '?add' });
+      setUp();
+      await screen.findByText('Alice');
+
+      expect(screen.queryByRole('combobox', { name: 'Member' })).not.toBeInTheDocument();
+    });
   });
 });

@@ -7,7 +7,8 @@
   import type { RoleEntity } from '../../../domain/entities/role.entity.ts';
   import { andMore, holderLabels, holdersTotal, rolesMessages } from '../../messages/roles.messages.ts';
   import { permissionCount, roleDescription, roleName } from '../../role-labels.ts';
-  import { canSeePeople, roleQueries } from '../../roles.queries.ts';
+  import { holderProfile } from '../../presenters/holder-card.presenter.ts';
+  import { canSeePeople, roleQueries, sessionUserId } from '../../roles.queries.ts';
   import LevelTag from '../components/LevelTag.svelte';
   import OriginTag from '../components/OriginTag.svelte';
   import PermissionTable from '../components/PermissionTable/PermissionTable.svelte';
@@ -31,6 +32,8 @@
     roleQueries.holders(role.key, workspaceId, { enabled: canSeeHolders }),
   );
   const shown = $derived((holdersQuery.data?.holders ?? []).slice(0, 5));
+  /** The reader: its own row shows the avatar of the reader. */
+  const selfId = sessionUserId();
   const more = $derived((holdersQuery.data?.total ?? 0) - shown.length);
 
   const catalogQuery = createQuery(() => roleQueries.catalog());
@@ -105,8 +108,9 @@
               <li class="flex items-center justify-between gap-2">
                 <Identity
                   format="cell"
-                  profile={{ displayName: holder.displayName, username: holder.handle }}
+                  profile={holderProfile(holder)}
                   kind={identityKindOf(holder)}
+                  self={holder.actorId === selfId}
                 />
                 {#if holder.scopeKind === 'project'}
                   <span class="truncate text-xs text-muted-foreground">{holder.scopeName}</span>

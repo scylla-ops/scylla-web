@@ -50,9 +50,17 @@ beforeEach(() => {
   mine = TWO;
   const getMine = () => Promise.resolve(mine);
   const create = (name: string) => Promise.resolve({ id: 'org-3', name, slug: name.toLowerCase() });
+  // The workspace of another user, that an instance admin opens: it is not in its list.
+  const getById = (id: string) =>
+    Promise.resolve({
+      id,
+      name: 'Personal',
+      slug: 'personal-alice',
+      icon: { kind: 'glyph', name: 'rocket', color: 'chart-3' },
+    });
   teardown = [
     cache.restore,
-    withRegistry({ workspace: { workspaceRepository: { getMine, create } } }),
+    withRegistry({ workspace: { workspaceRepository: { getMine, create, getById } } }),
   ];
   contextStore.setState({ workspace: { id: 'org-1', name: 'Acme Corp', slug: 'acme-corp' } });
   permissionsStore.setState({ permissions: null });
@@ -64,6 +72,52 @@ afterEach(() => {
 });
 
 describe('WorkspaceSelector', () => {
+  describe('the icons of the workspaces', () => {
+    it('shows the icon of the active workspace on the switcher, and the icon of each row', async () => {
+      mine = [
+        {
+          ...TWO[0],
+          icon: { kind: 'glyph', name: 'rocket', color: 'chart-2' },
+        } as (typeof TWO)[number],
+        TWO[1],
+      ];
+      const user = userEvent.setup();
+      render(InSidebar, { component: WorkspaceSelector });
+
+      const switcher = screen.getByRole('button', { name: /Acme Corp/ });
+      // A new icon grows in over the old one: the last one is the icon of now.
+      await waitFor(() =>
+        expect(
+          [...switcher.querySelectorAll('[data-slot="entity-icon"] svg')].at(-1)?.getAttribute('stroke'),
+        ).toBe('var(--chart-2)'),
+      );
+      await user.click(switcher);
+      const acme = await findMenuItem('Acme Corp');
+      const globex = await findMenuItem('Globex Inc');
+      expect(acme.querySelector('[data-slot="entity-icon"] svg')).toHaveAttribute(
+        'stroke',
+        'var(--chart-2)',
+      );
+      // No icon: a building in grey.
+      expect(globex.querySelector('[data-slot="entity-icon"] svg')).toHaveAttribute(
+        'stroke',
+        'var(--muted-foreground)',
+      );
+    });
+  });
+
+  it('shows the icon of the workspace of another user that an admin opens', async () => {
+    contextStore.setState({ workspace: { id: 'org-9', name: 'Personal', slug: 'personal-alice' } });
+    render(InSidebar, { component: WorkspaceSelector });
+
+    const switcher = screen.getByRole('button', { name: /Personal/ });
+    await waitFor(() =>
+      expect(
+        [...switcher.querySelectorAll('[data-slot="entity-icon"] svg')].at(-1)?.getAttribute('stroke'),
+      ).toBe('var(--chart-3)'),
+    );
+  });
+
   describe('the filter field', () => {
     const SIX = [
       ...TWO,

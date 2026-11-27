@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
+import { toast } from 'svelte-sonner';
 import { holdsLeave } from '@scylla/core-sdk';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
@@ -62,7 +63,9 @@ const PROJECTS = [
 let navigator: ReturnType<typeof installTestNavigator>;
 let teardown: Array<() => void> = [];
 
-const setUp = (options: { projects?: typeof PROJECTS; pathname?: string } = {}) => {
+const setUp = (
+  options: { projects?: typeof PROJECTS; pathname?: string; extra?: Permission[] } = {},
+) => {
   permissionsStore.setState({
     permissions: {
       scopes: [
@@ -76,6 +79,7 @@ const setUp = (options: { projects?: typeof PROJECTS; pathname?: string } = {}) 
               Permission.READ_APP,
               Permission.CREATE_JOIN_CODE,
               Permission.DELETE_APP,
+              ...(options.extra ?? []),
             ],
           },
         },
@@ -93,6 +97,9 @@ const setUp = (options: { projects?: typeof PROJECTS; pathname?: string } = {}) 
     getApp: vi.fn().mockResolvedValue({ app: app(false), keys: [] }),
     createJoinCode: vi.fn().mockResolvedValue(code('JOIN-77')),
     deleteApp: vi.fn().mockResolvedValue(undefined),
+    setIcon: vi
+      .fn()
+      .mockResolvedValue(app(false, { icon: { kind: 'glyph', name: 'server', color: 'chart-4' } })),
   };
   const projects = {
     getByWorkspaceId: vi.fn().mockResolvedValue({
@@ -178,6 +185,64 @@ describe('the page of a new agent', () => {
 
     await userEvent.setup().click(screen.getByRole('button', { name: 'Open agent' }));
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/agents/a1', undefined);
+  });
+
+  it('gives the agent the icon that an admin chose, just after its creation', async () => {
+    const { apps } = setUp({ extra: [Permission.SET_APP_ICON] });
+    const user = userEvent.setup();
+    render(NewAgentPage, {});
+
+    const field = screen.getByRole('group', { name: 'Icon' });
+    await user.click(within(field).getByRole('button', { name: 'Change the icon' }));
+    await user.click(screen.getByRole('button', { name: 'server' }));
+    await user.click(screen.getByRole('button', { name: 'Color 4' }));
+    await user.type(screen.getByLabelText('Name'), 'agent-1');
+    await user.click(screen.getByRole('button', { name: 'Add agent' }));
+
+    await waitFor(() =>
+      expect(apps.setIcon).toHaveBeenCalledWith('a1', {
+        kind: 'glyph',
+        name: 'server',
+        color: 'chart-4',
+      }),
+    );
+    expect(apps.createApp).toHaveBeenCalledWith('ws-1', 'agent-1', true, []);
+    await waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme/agents/a1/connect', { replace: true }),
+    );
+  });
+
+  it('keeps the agent when only its icon fails, and tells it', async () => {
+    const { apps } = setUp({ extra: [Permission.SET_APP_ICON] });
+    apps.setIcon.mockRejectedValue(new Error('refused'));
+    const user = userEvent.setup();
+    render(NewAgentPage, {});
+
+    const field = screen.getByRole('group', { name: 'Icon' });
+    await user.click(within(field).getByRole('button', { name: 'Change the icon' }));
+    await user.click(screen.getByRole('button', { name: 'server' }));
+    await user.type(screen.getByLabelText('Name'), 'agent-1');
+    await user.click(screen.getByRole('button', { name: 'Add agent' }));
+
+    await waitFor(() =>
+      expect(navigator.navigate).toHaveBeenCalledWith('/acme/agents/a1/connect', { replace: true }),
+    );
+    expect(toast.error).toHaveBeenCalledWith(
+      'The agent is created, but its icon is not saved: An unexpected error occurred',
+    );
+  });
+
+  it('has no icon field for a user who may not change the icon of an app', async () => {
+    const { apps } = setUp();
+    const user = userEvent.setup();
+    render(NewAgentPage, {});
+
+    expect(screen.queryByRole('group', { name: 'Icon' })).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText('Name'), 'agent-1');
+    await user.click(screen.getByRole('button', { name: 'Add agent' }));
+
+    await waitFor(() => expect(apps.createApp).toHaveBeenCalled());
+    expect(apps.setIcon).not.toHaveBeenCalled();
   });
 
   it('gives the agent the projects that the user chose, in one step', async () => {

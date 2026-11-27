@@ -13,6 +13,8 @@ export const userMessages = {
   instanceRoles: msg`Instance roles`,
   noInstanceRole: msg`No instance role`,
   workspaces: msg`Workspaces`,
+  workspaceOwner: msg`Owner`,
+  ownedBy: (name: string) => msg`Owner: ${name}`,
   lastSignIn: msg`Last sign-in`,
   neverSignedIn: msg`Never`,
   changeInstanceRoles: msg`Change instance roles`,

@@ -46,6 +46,32 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   Delete. The sort has "Custom order", the default, and in this order the "Reorder" mode lets you
   drag the cards to a group, to a place or to the pins: Done saves the order, Cancel or Escape
   reverts it. On a phone, the page has no Reorder, no New group and no Select all.
+- The What's new dialog now moves to the next version by itself, with a progress bar and a slow
+  scroll. Any input pauses it.
+- Each workspace can have its own icon, with the icon picker of the projects: a glyph with a theme
+  color or a free color, or an uploaded image. A new workspace shows a building on a grey tile. The
+  icon is in the forms that create or edit a workspace, in the workspace switcher and its list, and
+  in the header of the workspace settings, where a member that can edit the workspace opens the icon
+  picker. Each project group can have a folder color: a theme color or a free color. The color is in
+  the forms that create or rename a group, on the folder of the group header (a click opens the
+  colors) and in "Move to group" of a card. The sidebar of the projects shows the structure of the
+  projects page: the pinned projects, each group with its folder color, then the projects with no
+  group, in folding sections that the page and the sidebar share. A dot shows on a project with a
+  job that runs.
+- In the reorder mode of the projects page, you can also move the groups: drag the handle of a group
+  header, or use the keyboard (Space lifts the group, the arrow keys move it, Space drops it and
+  Escape cancels). On a phone, "Move up" and "Move down" in the group menu move the group. "Done"
+  saves the order of the groups and "Cancel" forgets it. Each section of the projects page can have
+  its own display: comfortable cards, compact cards, a list or tiles. "Display" in the toolbar sets
+  the display of the page, and "Apply to all sections" gives it to each section. The menu of each
+  section, also of Pinned and No group, sets the display of that section. Each person keeps the
+  choice for each workspace. On a touch screen, the "+" and "..." buttons of a section header are
+  larger.
+- Glyph avatars (DiceBear "Glyphs", CC BY 4.0). An editor with a large preview gives the 35 shapes
+  and the Scylla head, the colors of the figure and of the background (solid, linear or radial), and
+  mirror, rotation and size. A person opens it from the profile photo card, the account menu or the
+  command palette, and the icon picker of an agent or an app has an Avatar tab. Activity shows the
+  Scylla head for a change that Scylla made. The account page shows the credit of the style.
 
 ### Changed
 
@@ -75,6 +101,60 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   its dialog now name the same places: the list of the agents, the agent page and the jobs.
 - A project URL with an unknown project id now shows the "Page not found" page and no longer sends
   the user to the dashboard. The not-found page no longer shows an empty second sidebar.
+- Each form that creates or edits a project or an app has an icon field: Edit of a project, a new
+  regular project, a new project from GitHub, a new agent and a new app (API token, CI identity or
+  key pair). The field shows the icon, opens the icon picker (a glyph with a theme color or a free
+  color, or an image) and has Reset. Save keeps the icon with the other fields, and Cancel removes
+  the change. If the item is created but its icon is not saved, an error message tells it. The page
+  of each app shows its icon and has the icon card, and the app list shows the icon of each app.
+  "Change the icon..." on the project card and the icon of the project header stay as shortcuts.
+- In the reorder mode of the projects page, the drop slot now follows the dragged card. The slot
+  moves when the card covers half of a neighbor card, at any point where you hold the card, also on
+  more than one row and between the cards. The other cards slide to their new places, the card goes
+  into its slot when you release it, and Escape sends it back. The bar, the drop slot, the pins and
+  the drop zones open and close with a short animation, and with reduced motion each change is
+  instant. When the mode opens or closes, the page no longer shows a skeleton or the old order for a
+  moment.
+- Dialogs, alert dialogs, side sheets, tabs, field messages, table rows, cards, badges, banners,
+  empty states, folding sections and the selection actions of a list header now have a short motion
+  when they appear, go away or change: a fade with a small rise, a fold in height, or a roll for a
+  count. A fade or a fold takes 150 to 250 ms, the exit is shorter than the entry, and a page that
+  opens shows no motion of its parts. With the reduced motion setting of the system, each change is
+  instant.
+- In the dark theme, the rail and the second sidebar are now lighter than the page.
+- The corner logo is larger. A missing project or an id with a wrong form shows the not-found page
+  with no sidebar, no crumb and no error toast.
+- The profile initials take a free color, as the icons of the projects and the agents: the theme
+  colors, or a color picker with a hex field. The initials stay readable on each color, in the light
+  and the dark theme. The photo or the initials color of a person now shows in each place: the rail
+  button and the account menu, the account header, the member lists, the role holders, the command
+  palette and the activity of the dashboard. The palette and the dashboard also show the icon of
+  each project and agent. A click on your own avatar (the account menu, the account header) opens
+  the editor of your photo.
+- Projects page: each group now has a "+" in its header, "New project here" in its menu and a ghost
+  card to create a project in this group, and the project forms have a Group field. The sidebar and
+  the search bar also open a new project in a group. A folded group shows one line with its first
+  projects and "+N".
+- The search bar (Ctrl K) now finds the project groups, the dashboards and the fragments of the
+  library. A group row shows the folder color of the group and its number of projects, and opens the
+  projects page on this group: the group opens, comes into view and its header flashes once. A
+  dashboard row tells if the dashboard is personal or shared, and names the person that shares it. A
+  project row shows the icon of the project and its group, with the folder color. The tabs "Groups"
+  and "Dashboards" come after "Projects" and "Pipelines", and the fragments show in "Pipelines". The
+  recent list keeps these rows too. The rows fade in, and a new tab grows in.
+- Workspace switcher of an instance admin: your workspaces show first, then the 5 workspaces of
+  other users with the last activity, each with its icon and its owner, and the entry "All
+  workspaces…". The search also finds a workspace by the name, handle or email of its owner. A new
+  page, Administration > Workspaces, lists all the workspaces with their icon, owner, members,
+  projects, creation date and last activity, with a search, an order and pages from the server. In
+  the command bar, a workspace row shows its icon, its owner, your role and its counts, and no part
+  of its id.
+- Each place that names a workspace shows its icon: the notification rows and their workspace
+  filter, the invitation rows, the scopes of the member pages, and the Workspaces column of Admin >
+  Users, with the owner of each workspace. A notification row and an open invitation also show the
+  avatar of the person who acted. On a phone, the sidebar sheet shows the links of the modules, for
+  example the projects. In the projects of the sidebar, a project with a failed last job shows a
+  failed status, and a folded group keeps a mark for a project that runs or failed.
 
 ## [0.7.2] - 2026-11-25
 

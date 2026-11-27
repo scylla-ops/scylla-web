@@ -2,6 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { CARD_COLORS, THEME_COLORS } from '../utils/color.ts';
 
 const STYLES = readFileSync(fileURLToPath(new URL('../styles.css', import.meta.url)), 'utf8');
 
@@ -22,7 +23,7 @@ const luminance = (hex: string) => {
 describe.each([
   ['light', ':root'],
   ['dark', '\\.dark'],
-])('the %s theme', (_, selector) => {
+] as const)('the %s theme', (theme, selector) => {
   const tokens = tokensOf(selector);
   const surface = (name: string) => {
     const hex = tokens[name];
@@ -30,8 +31,27 @@ describe.each([
     return luminance(hex);
   };
 
-  it('puts the double sidebar below the page: the rail is the darkest, then the second sidebar', () => {
-    expect(surface('rail')).toBeLessThan(surface('second-sidebar'));
-    expect(surface('second-sidebar')).toBeLessThan(surface('background'));
+  it.runIf(selector === ':root')(
+    'puts the double sidebar below the page: the rail is the darkest, then the second sidebar',
+    () => {
+      expect(surface('rail')).toBeLessThan(surface('second-sidebar'));
+      expect(surface('second-sidebar')).toBeLessThan(surface('background'));
+    },
+  );
+
+  it.runIf(selector === '\\.dark')(
+    'lifts the double sidebar above the page and keeps the cards above the page',
+    () => {
+      expect(surface('background')).toBeLessThan(surface('second-sidebar'));
+      expect(surface('second-sidebar')).toBeLessThan(surface('rail'));
+      expect(surface('background')).toBeLessThan(surface('card'));
+    },
+  );
+
+  it('gives the color code the values of its tokens: the card and the colors of a picker', () => {
+    expect(CARD_COLORS[theme]).toBe(tokens.card);
+    for (const [name, hex] of Object.entries(THEME_COLORS[theme])) {
+      expect(hex, `--${name}`).toBe(tokens[name]);
+    }
   });
 });

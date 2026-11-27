@@ -597,7 +597,7 @@ msgstr "Copy the node"
 msgid "Couldn't load the pipeline"
 msgstr "Couldn't load the pipeline"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:79
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:80
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:43
 msgid "Create"
 msgstr "Create"
@@ -795,7 +795,7 @@ msgstr "each branch"
 msgid "each tag"
 msgstr "each tag"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:88
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:90
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:21
 msgid "Edit"
 msgstr "Edit"
@@ -944,7 +944,7 @@ msgstr "Forked from {reference}"
 msgid "Forks"
 msgstr "Forks"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:61
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:62
 msgid "Fragment"
 msgstr "Fragment"
 
@@ -1093,7 +1093,7 @@ msgstr "Its push, pull request and tag triggers stay, but they start no run unti
 msgid "Job running for {duration}"
 msgstr "Job running for {duration}"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:109
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:112
 msgid "Jobs"
 msgstr "Jobs"
 
@@ -1528,8 +1528,8 @@ msgstr "passed"
 msgid "pins {key}={value}"
 msgstr "pins {key}={value}"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:86
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:98
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:88
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:101
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:8
 msgid "Pipeline"
 msgstr "Pipeline"
@@ -1546,7 +1546,7 @@ msgstr "Pipeline file"
 msgid "Pipeline name"
 msgstr "Pipeline name"
 
-#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:73
+#: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:74
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/pipeline.messages.ts:9
 msgid "Pipelines"
 msgstr "Pipelines"

@@ -27,6 +27,8 @@
     PAGE_ORDERS,
     type PageOrder,
   } from '@base/features/project/presentation/presenters/project-list.presenter.ts';
+  import type { ProjectDensity } from '@base/features/project/presentation/presenters/project-density.presenter.ts';
+  import DensityMenu from '../ProjectDensity/DensityMenu.svelte';
   import ProjectSearchField from './ProjectSearchField.svelte';
 
   interface Props {
@@ -43,6 +45,12 @@
     /** « Reorder » shows: the person moves the projects, on a screen that is not a phone. */
     canReorder: boolean;
     onReorder: () => void;
+    /** The density of the page, in the menu « Display ». */
+    density: ProjectDensity;
+    /** Some sections have their own density. */
+    mixedDensity: boolean;
+    onDensity: (density: ProjectDensity) => void;
+    onApplyDensity: () => void;
   }
 
   let {
@@ -57,6 +65,10 @@
     onOrder,
     canReorder,
     onReorder,
+    density,
+    mixedDensity,
+    onDensity,
+    onApplyDensity,
   }: Props = $props();
 
   // The reorder mode moves the cards of the custom order, with no search.
@@ -100,6 +112,16 @@
   />
 {/snippet}
 
+{#snippet display()}
+  <DensityMenu
+    value={density}
+    mixed={mixedDensity}
+    {phone}
+    onChange={onDensity}
+    onApplyToAll={onApplyDensity}
+  />
+{/snippet}
+
 {#snippet healthFilter()}
   <SegmentedControl
     value={health}
@@ -117,6 +139,7 @@
     <div class="flex items-center gap-3">
       {@render healthFilter()}
       <div class="flex-1"></div>
+      {@render display()}
       <DropdownMenu>
         <DropdownMenuTrigger
           class={cn(buttonVariants({ variant: 'outline', size: 'icon' }), 'size-11 rounded-lg')}
@@ -159,6 +182,7 @@
         {/if}
       </SelectContent>
     </Select>
+    {@render display()}
     {#if canReorder}
       <GatedButton
         variant="outline"

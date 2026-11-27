@@ -74,11 +74,13 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   credentials (`credentialQueries.allOf`, one query for each line) and shows the one that needs
   attention first (`mainCredential` in `app-list.struct.ts`). A user may list the apps and not
   read one of them: that query gives `null`, with no error, and the line shows a dash. The access
-  column needs `list_workspace_members` (`appQueries.appRoles`).
-- With no item, both pages show `components/EmptyList/`. The icon and the title have their own
-  grid row, between two rows of 2fr and 3fr. The text and the button are in the 3fr row. Thus a
-  longer text does not move the icon or the title, unless the text and the button are taller
-  than this row. Do not center the full group: its height changes with the text.
+  column needs `list_workspace_members` (`appQueries.appRoles`). Each line starts with the icon of
+  the app (`IdentityAvatar`, kind `app`).
+- With no item, both pages show `EmptyState` of `@scylla/ui`, with the add action for a person
+  who can create an app. The icon and the title have their own grid row, between two rows of 2fr
+  and 3fr. The text and the button are in the 3fr row. Thus a longer text does not move the icon
+  or the title, unless the text and the button are taller than this row. Do not center the full
+  group: its height changes with the text.
 - The agent page (`ui/AgentDetails/`, route `/agents/:appId`) shows the header (Disable or
   Enable), a banner when it is disabled, the timeline, the stats of the period, the jobs per day,
   the machine, the recent jobs, the access (Change: `runnerChanges` in
@@ -102,9 +104,16 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
   the admins of the workspace, not the creator of the agent) changes the labels of an admin, in
   a dialog (`AgentLabelsField` of `@shared/presentation/ui`). The agent never chooses its labels.
   The list shows both kinds in a Labels column, the labels of an admin first.
-  The icon card (`AgentIconCard/`, under the labels card) shows only with `SET_APP_ICON`
-  (`set_app_icon`, the admins of the workspace). It opens the `IconPicker` of the projects, with
-  the default icon of an agent (`bot` on `info`) and the recent colors of `features/project`.
+  The icon card (`components/AppIconCard/`, under the labels card) shows only with
+  `SET_APP_ICON` (`set_app_icon`, the admins of the workspace). It opens the `IconPicker` of the
+  projects, with the default icon of an agent (`bot` on `info`) and the recent colors of
+  `features/project`. The page of another app shows the same card, with the default icon of an
+  app (`blocks` in grey, `defaultAppIcon`). On the agent page and on the app page, with the same
+  permission, the icon of the header is a button that opens the dialog of this card too (`open`
+  of `AppIconCard`). The picker of an app has the Avatar tab (`avatar` of `IconPicker` and
+  `IconField`): a glyph avatar that the server draws as an SVG image. "Make an avatar" of the
+  card opens the dialog on this tab with a random avatar. `agentIconChoice` opens an image with
+  `glyph` on its options, and `agentIconChange` sends nothing for the same avatar.
   `agentProfile` (`presenters/agent-icon.presenter.ts`) gives the icon to `IdentityAvatar`: the
   header, the rows of the list and the cards of a phone. The barrel exports it for the job page
   (`features/jobs`), which shows the icon of the agent of the job.
@@ -132,21 +141,27 @@ under the folding item "Machines" of the sidebar (a `NavGroup`).
 - The page of another app (`ui/AppDetails/`, route `/apps/:appId`) shows the header (Disable or
   Enable), the workspace roles, the activity (the latest sign-in of a credential), the credentials
   (`credentialRows` in `app-credentials.struct.ts`: the tokens, the CI identities and the keys,
-  with the expiry states of `@shared/domain/structs/api-token.struct.ts`), "Add a credential" and
-  the delete zone. The labels of a credential come from
-  `presenters/credential-labels.presenter.ts`.
+  with the expiry states of `@shared/domain/structs/api-token.struct.ts`), the icon card
+  (`SET_APP_ICON`), "Add a credential" and the delete zone. The header shows the icon of the
+  app. The labels of a credential come from `presenters/credential-labels.presenter.ts`.
 - Both detail pages end with `pb-20` (80 px). The `main` of `PageTransition` is `absolute`, thus
   the shell adds no space under a page that is taller than the view. A shell overlay can float in
   the last 56 px of the view, at the right. With less space, it covers the last card.
-- "Add an app" (`components/AddAppDialog/`) has three steps: name and roles (`grantsOf`), the
-  connection (API token, CI identity or key pair), and the credential.
-  `credentialMutations.createApp` makes the app, gives its roles, then makes the credential; a
-  key pair gets the join code of the new app at the end of step 2. The token form is shared
-  (`@shared/presentation/ui` `TokenForm`, `@shared/domain/structs/token-actions.struct.ts`: the
-  boxes of the advanced limits and the presets). A CI identity gets the preset `full`: its roles
+- "Add an app" (`components/AddAppDialog/`) has three steps: icon, name and roles (`grantsOf`),
+  the connection (API token, CI identity or key pair), and the credential.
+  `credentialMutations.createApp` makes the app, sets its icon, gives its roles, then makes the
+  credential; a key pair gets the join code of the new app at the end of step 2. The token form
+  is shared (`@shared/presentation/ui` `TokenForm`, `@shared/domain/structs/token-actions.struct.ts`:
+  the boxes of the advanced limits and the presets). A CI identity gets the preset `full`: its roles
   bound it. `ci-ref.struct.ts` writes a GitHub branch as `refs/heads/<name>`, because the server
   compares the `ref` claim as it is. The code samples (`app-snippets.struct.ts`) call the JSON
   gateway `POST /api/<package>.<Service>/<Method>`.
+- **Each form that creates an app has the icon** (`IconField` of `@scylla/ui`), for a user with
+  `SET_APP_ICON` only: step 1 of "Add an agent" (`NameStep`) and step 1 of "Add an app"
+  (`RolesStep`). `CreateApp` has no icon: `withIcon` (`apps.queries.ts`) sends it in a
+  `SetAppIcon` just after, in the same action. When only the icon fails, the app stays and one
+  error toast says that its icon is not saved. An app has no edit form (no `UpdateApp`): the icon
+  card of its page edits the icon. An image goes as bytes at the submit only.
 - `appQueries.runners` and `loadNoAgentsBanner` serve the pipelines and the jobs: they warn when
   jobs wait and no agent is connected.
 - `appQueries.server` serves the About section of the account (`user`): the edition and the

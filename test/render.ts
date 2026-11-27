@@ -100,3 +100,14 @@ export const findTooltip = (): Promise<HTMLElement> => findFloating('tooltip');
 
 export const queryTooltip = (): HTMLElement | null =>
   screen.queryByRole('tooltip', { hidden: true });
+
+/**
+ * Ends each Svelte transition that runs. The stub of `element.animate()` (`test/setup.ts`) never
+ * ends by itself, so an element that leaves stays in the document until this call.
+ */
+export const endTransitions = (): void => {
+  const stub = Reflect.get(Element.prototype, 'animate') as {
+    mock?: { results: { value?: { finish?: () => void } }[] };
+  };
+  for (const { value } of stub.mock?.results ?? []) value?.finish?.();
+};

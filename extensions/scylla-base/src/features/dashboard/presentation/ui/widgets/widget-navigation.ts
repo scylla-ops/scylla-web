@@ -7,6 +7,7 @@ import type { ActivityEvent } from '@base/features/dashboard/domain/structs/acti
 import type { AttentionItem } from '@base/features/dashboard/domain/structs/attention.struct.ts';
 import type { JobPlace } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
 import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
+import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
 
 /** The project, and the pipeline, of the page that a link opens. */
 export interface LinkPlace {
@@ -110,6 +111,34 @@ export const projectLink = (projectId: string, projectName: string): LinkTarget 
   href: scyllaHref.project(projectId),
   place: { projectId, projectName },
 });
+
+/** A link that adds the first item of an empty widget, and the label of its button. */
+export interface AddLink {
+  href: string;
+  label: string;
+}
+
+/** The setup of a new agent. `null` without the right to add one: the empty widget has no button. */
+export const newAgentLink = (): AddLink | null =>
+  can(Permission.CREATE_APP)
+    ? { href: `${scyllaHref.agents()}/new`, label: t(widgetMessages.addAgent) }
+    : null;
+
+/**
+ * The first pipeline of the scope: the editor in the project of the scope, else a new project
+ * for the whole workspace. `null` without the right.
+ */
+export const firstPipelineLink = (projectId: string | undefined): AddLink | null => {
+  if (projectId) {
+    return can(Permission.CREATE_PIPELINE, { projectId })
+      ? { href: `${scyllaHref.project(projectId)}/create`, label: t(linkMessages.newPipeline) }
+      : null;
+  }
+  const slug = activeWorkspaceSlug();
+  return slug && can(Permission.CREATE_PROJECT)
+    ? { href: `/${slug}/projects/new`, label: t(linkMessages.newProject) }
+    : null;
+};
 
 export const integrationsLink = (): LinkTarget => ({
   href: integrationsUrl(activeWorkspaceSlug() ?? ''),

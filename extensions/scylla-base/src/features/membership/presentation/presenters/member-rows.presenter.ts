@@ -103,7 +103,7 @@ export interface ProjectMemberRow extends MemberAvatar {
   handle: string;
   roles: MemberRoleEntity[];
   /** The scopes of the roles, nearest first, each one once. */
-  scopes: Pick<MemberRoleEntity, 'scopeKind' | 'scopeName'>[];
+  scopes: Pick<MemberRoleEntity, 'scopeKind' | 'scopeId' | 'scopeName'>[];
   /** No role on the project: the row only shows, and it says where to change a role. */
   inheritedOnly: boolean;
 }
@@ -124,10 +124,14 @@ export const buildProjectMemberRows = (members: readonly MemberEntity[]): Projec
         handle: member.handle,
         ...avatarOf(member),
         roles,
-        scopes: kinds.map(kind => ({
-          scopeKind: kind,
-          scopeName: roles.find(role => role.scopeKind === kind)?.scopeName ?? '',
-        })),
+        scopes: kinds.map(kind => {
+          const first = roles.find(role => role.scopeKind === kind);
+          return {
+            scopeKind: kind,
+            scopeId: first?.scopeId ?? '',
+            scopeName: first?.scopeName ?? '',
+          };
+        }),
         inheritedOnly: !kinds.includes('project'),
       };
     })

@@ -58,7 +58,8 @@ src/
                                                (second-sidebar-width.state.svelte.ts: the width, its limits, the drag,
                                                second-sidebar-handle.attachments.ts: the drag and the keys)
                                                Below `md`, the sheet: NavMain, where a NavGroup folds its links
-                                               (nav-groups.state.svelte.ts keeps which groups are open)
+                                               (nav-groups.state.svelte.ts keeps which groups are open),
+                                               and SheetModuleLinks: the links of the modules
     TopBar/                                    the crumbs of the route trail, after the name of the section, the share
                                                button of a page with `share`, and `topBarEnd`
                                                (ShellBreadcrumbs, breadcrumbs.ts; SidebarTrigger on a phone only)
@@ -167,6 +168,9 @@ module gives an access policy.
   as a new entry. Tests: `runtime/__test__/leave-guard.test.ts`.
 - **`RouteEntry` reads the route once, when it mounts.** The page transition keeps the old page
   on screen for its exit animation; `RoutePage` mounts a new `RouteEntry` for each pathname.
+- **A page mounts in a new `{#key}`.** Without it, the `{#await}` of the import is the block of
+  the parts at the top of the page, and their `in:` transitions play at the first paint. The
+  test "plays no enter transition of a part of the page at its first paint" fails without it.
 - **A change of pathname mounts the page again, with its wrappers.** A change of the query
   string does not.
 - **A page that fails, fails alone.** `RouteEntry` renders the page inside a `<svelte:boundary>`,
@@ -229,7 +233,17 @@ module gives an access policy.
   open like the pages (`withModuleLinks`). Only the first link is apart, unless a link sets `apart`
   (the dashboards set `false`, and `true` on "New dashboard"). `DoubleSidebar` calls each source once, when it mounts,
   thus a source can create a query: read it only while `shown` is the id of its item. The sheet of a
-  phone does not show them.
+  phone shows them too, with the search field: `SheetModuleLinks` calls the sources once more and
+  shows the links of the item of the URL in a card after its section (`sheetHolderOf`). A link can
+  have a `section` (`SecondSidebarSection`: a key, a title,
+  a pin `icon` or a folder `color`, `folded`, `onToggle`, an `action`): the next links of one section
+  show under its title, which folds them (`unfold`/`fold`) and shows their number while they are
+  folded (`pageRuns`). The module keeps the folded state. An `action` (`{ label, href }`) is a "+"
+  at the end of the title, e.g. a new project in this group: on a mouse screen it shows on hover and
+  focus. The module gives it only to a person who can do it. A link can have one `status`
+  (`running` or `failed`): the `StatusShape` of the jobs, with its accessible name. A folded
+  section keeps a smaller shape for each tone of its hidden links, a failure first, named with the
+  links (`sectionMarks`). A mark grows in and out with `swapIn`/`swapOut`.
 - **A module can add a search field to the second sidebar** (`shell.secondSidebarSearch`, same
   call as `secondSidebarLinks`). It sits between the title and the links. The module keeps the
   value and filters its own links. It returns `undefined` while it has no field.
@@ -295,8 +309,9 @@ module gives an access policy.
   ready, and not in the sheet of a phone.
 - **The handle is above the rail (`z-30` over `z-20`).** On the open rail, it covers the separator,
   thus a drag on the edge also sets the width while the rail is open, and a press or a click on
-  it does not close the rail. During a drag, the open rail has no transition (`width.dragging`),
-  thus its edge stays on the pointer.
+  it does not close the rail. During a drag, the open rail and the column have no transition
+  (`width.dragging`), thus their edge stays on the pointer. Else the column eases its width in
+  200 ms: a key on the handle, and a page with no second sidebar.
 - **The width is in pixels, thus `ResizablePaneGroup` does not fit.** Its sizes are percent of the
   group, thus a minimum in percent gives a different width for each window, and the group must
   also hold the page.

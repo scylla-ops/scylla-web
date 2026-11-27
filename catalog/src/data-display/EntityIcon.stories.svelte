@@ -33,8 +33,17 @@
 
 <Story name="Sizes" asChild>
   <div class="flex flex-wrap items-center gap-6">
+    <Specimen label="16 (a name in a line of text)">
+      <EntityIcon icon={ROCKET} color="chart-2" size={16} />
+    </Specimen>
     <Specimen label="20 (sidebar)">
       <EntityIcon icon={ROCKET} color="chart-2" size={20} />
+    </Specimen>
+    <Specimen label="24 (a row with an avatar)">
+      <EntityIcon icon={ROCKET} color="chart-2" size={24} />
+    </Specimen>
+    <Specimen label="32 (the header of a section)">
+      <EntityIcon icon={ROCKET} color="chart-2" size={32} />
     </Specimen>
     <Specimen label="36 (card)">
       <EntityIcon icon={ROCKET} color="chart-2" size={36} />

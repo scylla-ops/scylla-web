@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { contextStore } from '@platform/context';
+import { PermissionScope, permissionsStore } from '@platform/authz';
 import { render, withQueryClient, withRegistry } from '@test/render.ts';
 import WorkspaceSettingsPage from './WorkspaceSettings.page.svelte';
 
@@ -107,5 +108,43 @@ describe('WorkspaceSettingsPage', () => {
     await waitFor(() =>
       expect(workspaces.setTimeZone).toHaveBeenCalledWith('ws-1', 'Europe/Paris'),
     );
+  });
+
+  describe('the icon at the top', () => {
+    afterEach(() => permissionsStore.setState({ permissions: null }));
+
+    it('opens the icon picker for a member who may edit the workspace, and saves the choice', async () => {
+      permissionsStore.setState({
+        permissions: {
+          scopes: [{ scope: PermissionScope.SYSTEM, scopeId: '', access: { kind: 'fullControl' } }],
+        },
+      });
+      setUp(true);
+      workspaces.update = vi.fn((id: string) =>
+        Promise.resolve({ id, name: 'acme', slug: 'acme', personalTokensEnabled: true, timeZone: 'UTC' }),
+      );
+      const user = userEvent.setup();
+
+      await user.click(await screen.findByRole('button', { name: 'Change the icon…' }));
+      const dialog = await screen.findByRole('dialog', { name: 'Workspace icon' });
+      await user.click(within(dialog).getByRole('button', { name: 'Color 2' }));
+      await user.click(within(dialog).getByRole('button', { name: 'Save' }));
+
+      await waitFor(() =>
+        expect(workspaces.update).toHaveBeenCalledWith('ws-1', undefined, undefined, {
+          kind: 'glyph',
+          name: 'building',
+          color: 'chart-2',
+        }),
+      );
+    });
+
+    it('shows the icon with no button to a member who may not edit the workspace', async () => {
+      setUp(true);
+
+      await theSwitch();
+      expect(document.querySelector('[data-slot="workspace-icon"]')).not.toBeNull();
+      expect(screen.queryByRole('button', { name: 'Change the icon…' })).not.toBeInTheDocument();
+    });
   });
 });

@@ -38,4 +38,16 @@ describe('breadcrumbsFor', () => {
       },
     ]);
   });
+
+  it('stops at a crumb that gives null, and drops the ones after it', () => {
+    const trail: TrailCrumb[] = [
+      { breadcrumb: () => ({ label: 'Projects' }), pathname: '/acme/projects' },
+      { breadcrumb: () => null, pathname: '/acme/projects/p1' },
+      { breadcrumb: () => ({ label: 'Pipelines' }), pathname: '/acme/projects/p1/pipelines' },
+    ];
+
+    expect(breadcrumbsFor(trail, {}, translate)).toEqual([
+      { label: 'Projects', pathname: '/acme/projects' },
+    ]);
+  });
 });

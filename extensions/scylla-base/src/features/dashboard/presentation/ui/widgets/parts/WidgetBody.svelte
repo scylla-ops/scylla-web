@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
-  import { WidgetState, type WidgetSize } from '@scylla/ui';
+  import { WidgetState, type WidgetSize, type WidgetStateAction } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
 
@@ -18,6 +18,8 @@
     emptyKind?: 'empty' | 'all-clear';
     emptyTitle?: string;
     emptyText?: string;
+    /** Adds the first item, for a person who can. */
+    emptyAction?: WidgetStateAction;
     children: Snippet;
   }
 
@@ -33,6 +35,7 @@
     emptyKind = 'empty',
     emptyTitle,
     emptyText,
+    emptyAction,
     children,
   }: Props = $props();
 </script>
@@ -49,7 +52,13 @@
     action={onRetry ? { label: t(widgetMessages.retry), onSelect: onRetry } : undefined}
   />
 {:else if empty}
-  <WidgetState state={emptyKind} {size} title={emptyTitle} description={emptyText} />
+  <WidgetState
+    state={emptyKind}
+    {size}
+    title={emptyTitle}
+    description={emptyText}
+    action={emptyAction}
+  />
 {:else}
   {@render children()}
 {/if}

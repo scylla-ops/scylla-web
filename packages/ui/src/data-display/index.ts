@@ -17,9 +17,15 @@ export { default as StatusTrail } from './StatusTrail/StatusTrail.svelte';
 export type { StatusTrailItem } from './StatusTrail/status-trail.ts';
 export type { StatusState } from './status-state.ts';
 export { default as EntityIcon } from './EntityIcon/EntityIcon.svelte';
+export { default as ColorGlyph } from './ColorGlyph/ColorGlyph.svelte';
 export {
   ENTITY_ICON_SIZES,
   type EntityIconProps,
   type EntityIconSize,
 } from './EntityIcon/entity-icon.ts';
 export { ENTITY_GLYPHS, entityGlyph, type EntityGlyph } from './EntityIcon/entity-glyphs.ts';
+export { default as CompactCard } from './CompactCard/CompactCard.svelte';
+export { default as ListRow } from './ListRow/ListRow.svelte';
+export { default as Tile } from './Tile/Tile.svelte';
+export { default as DropSlot } from './DropSlot/DropSlot.svelte';
+export { DROP_SLOT_SHAPES, type DropSlotShape } from './DropSlot/drop-slot.ts';

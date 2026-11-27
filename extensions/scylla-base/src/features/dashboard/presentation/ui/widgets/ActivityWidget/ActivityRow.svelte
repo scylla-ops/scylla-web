@@ -3,13 +3,19 @@
   import PlugIcon from '@lucide/svelte/icons/plug';
   import { ChartDot } from '@scylla/ui';
   import { cn } from '@scylla/ui/utils';
-  import type { ActivityLine } from '@base/features/dashboard/presentation/presenters/activity.presenter.ts';
+  import { IdentityAvatar } from '@shared/presentation/ui';
+  import type {
+    ActivityLine,
+    ActivityLook,
+  } from '@base/features/dashboard/presentation/presenters/activity.presenter.ts';
   import { clockIn } from '@base/features/dashboard/presentation/presenters/zoned-day.presenter.ts';
   import type { LinkTarget } from '../widget-navigation.ts';
   import WidgetLink from '../parts/WidgetLink.svelte';
 
   interface Props {
     line: ActivityLine;
+    /** The avatar of the actor, when the dashboard knows it. */
+    look?: ActivityLook;
     /** The page of the subject of the event. */
     link: LinkTarget | null;
     timeZone: string;
@@ -17,12 +23,20 @@
     wide?: boolean;
   }
 
-  let { line, link, timeZone, wide = false }: Props = $props();
+  let { line, look, link, timeZone, wide = false }: Props = $props();
 </script>
 
 <li class="flex h-[22px] min-w-0 items-center gap-2">
   <span class="flex size-4 shrink-0 items-center justify-center" aria-hidden="true">
-    {#if line.mark.kind === 'dot'}
+    {#if look}
+      <IdentityAvatar
+        profile={look.profile}
+        kind={look.kind}
+        self={look.self}
+        online={line.mark.kind === 'agent' && line.mark.online}
+        size={16}
+      />
+    {:else if line.mark.kind === 'dot'}
       <span class="flex size-4 items-center justify-center rounded-full bg-muted"><ChartDot tone={line.mark.tone} /></span>
     {:else if line.mark.kind === 'person'}
       <span class="flex size-4 items-center justify-center rounded-full bg-muted text-[9px] font-medium text-muted-foreground">{line.mark.initial}</span>

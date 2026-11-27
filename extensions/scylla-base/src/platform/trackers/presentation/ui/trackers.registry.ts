@@ -153,6 +153,15 @@ export const SCYLLA_TRACKERS: readonly Tracker[] = [
     exempt: true,
   },
   {
+    name: 'scylla.project-density',
+    type: 'local-storage',
+    provider: 'Scylla',
+    owner: `${BASE}/features/project/presentation/project-density.user-state.ts`,
+    purpose: msg`Keeps the display of the projects page and of its sections that you chose.`,
+    lifetime: lifetimes.untilSignOut,
+    exempt: true,
+  },
+  {
     name: 'paneforge:scylla.blueprint.side-panel',
     type: 'local-storage',
     provider: 'Scylla',

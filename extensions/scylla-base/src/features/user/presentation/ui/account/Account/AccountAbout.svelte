@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { MessageDescriptor } from '@lingui/core';
   import { createQuery } from '@scylla/core-sdk';
+  import { GlyphAvatarCredit } from '@scylla/ui';
   import {
     Badge,
     type BadgeVariant,
@@ -51,6 +52,8 @@
         {@render fact(userMessages.webApp, webVersion, 'secondary')}
         {@render fact(userMessages.server, server.data?.version, 'secondary')}
       </dl>
+      <!-- The license of the style of the glyph avatars asks for this credit. -->
+      <GlyphAvatarCredit class="mt-4" />
     </CardContent>
   </Card>
 </section>

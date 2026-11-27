@@ -14,6 +14,7 @@ const MAP: Partial<Record<Permission, Names>> = {
   [Permission.READ_USER]: { platform: 'get_user' },
   [Permission.CREATE_USER]: { platform: 'create_user' },
   [Permission.UPDATE_USER]: { platform: 'update_user' },
+  [Permission.LIST_ALL_WORKSPACES]: { platform: 'list_all_workspaces' },
   [Permission.DELETE_USER]: { platform: 'delete_user' },
   [Permission.MANAGE_SYSTEM_GRANTS]: { platform: 'grant' },
   [Permission.MANAGE_INSTANCE_ADMINS]: { platform: 'grant_instance_admin' },

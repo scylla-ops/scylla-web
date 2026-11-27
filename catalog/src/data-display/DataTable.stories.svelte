@@ -1,5 +1,6 @@
 <script module lang="ts">
   import { DataTable, StatusShape, type DataTableColumn, type StatusState } from '@scylla/ui';
+  import { Button } from '@scylla/ui/primitives';
   import { defineMeta } from '@storybook/addon-svelte-csf';
   import { renderComponent } from '@tanstack/svelte-table';
   import Specimen from '../Specimen.svelte';
@@ -46,6 +47,20 @@
 
 <script lang="ts">
   let selected = $state('r-127');
+
+  // The rows of the story "Rows that come and go".
+  let runs = $state<Run[]>([...RUNS]);
+  let next = 129;
+  let expanded = $state<string | null>(null);
+  const addRun = () => {
+    runs = [
+      { id: `r-${next}`, pipeline: 'build', state: 'running', branch: 'main', duration: '1 s' },
+      ...runs,
+    ];
+    next += 1;
+  };
+  const removeRun = () => (runs = runs.slice(1));
+  const toggle = (id: string) => (expanded = expanded === id ? null : id);
 </script>
 
 {#snippet details()}
@@ -93,5 +108,32 @@
 <Story name="Empty" asChild>
   <div class="max-w-3xl">
     <DataTable columns={COLUMNS} data={[]} />
+  </div>
+</Story>
+
+<Story name="Rows that come and go" asChild>
+  <div class="flex max-w-3xl flex-col gap-3">
+    <div class="flex items-center gap-2">
+      <Button variant="outline" onclick={addRun}>Add a run</Button>
+      <Button variant="outline" onclick={removeRun}>Remove the first</Button>
+    </div>
+    <DataTable
+      columns={COLUMNS}
+      data={runs}
+      getRowId={run => run.id}
+      expandedContent={details}
+      isRowExpanded={run => run.id === expanded}
+      onRowClick={row => toggle(row.original.id)}
+    />
+    <div class="w-96">
+      <DataTable
+        columns={COLUMNS}
+        data={runs}
+        getRowId={run => run.id}
+        expandedContent={details}
+        isRowExpanded={run => run.id === expanded}
+        onRowClick={row => toggle(row.original.id)}
+      />
+    </div>
   </div>
 </Story>

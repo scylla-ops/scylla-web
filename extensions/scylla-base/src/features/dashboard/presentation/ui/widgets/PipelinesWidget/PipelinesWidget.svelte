@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import GitBranchIcon from '@lucide/svelte/icons/git-branch';
+  import PlusIcon from '@lucide/svelte/icons/plus';
+  import { scyllaNavigate } from '@platform/context';
   import { ChartDot, ChartLegendItem, ChartSegment, Widget, type LucideIcon, type WidgetSize } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
@@ -9,7 +11,7 @@
   import { pipelinesMessages as messages } from '@base/features/dashboard/presentation/messages/pipelines.messages.ts';
   import { pipelineRows, type PipelineRow } from '@base/features/dashboard/presentation/presenters/widget-rows.presenter.ts';
   import { PIPELINE_RUNS, type DashboardWidgets } from '../dashboard-widgets.state.svelte.ts';
-  import { jobMarkLink, pipelineJobsLink } from '../widget-navigation.ts';
+  import { firstPipelineLink, jobMarkLink, pipelineJobsLink } from '../widget-navigation.ts';
   import { viewPermissionName } from '@base/features/dashboard/presentation/presenters/permission-name.presenter.ts';
   import { linkMessages } from '@base/features/dashboard/presentation/messages/links.messages.ts';
   import WidgetBody from '../parts/WidgetBody.svelte';
@@ -35,6 +37,7 @@
   const green = $derived(widgets.pipelineItems.filter(item => item.health === 'green').length);
   const failing = $derived(rows.filter(row => row.tone === 'failed').slice(0, ROWS.s));
   const shown = $derived(rows.slice(0, ROWS[size]));
+  const addFirst = $derived(firstPipelineLink(widgets.projectIds[0]));
 
   let sheetOpen = $state(false);
 
@@ -64,6 +67,9 @@
     empty={rows.length === 0}
     emptyTitle={t(widgetMessages.noPipelinesYet)}
     emptyText={t(widgetMessages.noPipelinesYetText)}
+    emptyAction={addFirst
+      ? { label: addFirst.label, icon: PlusIcon, onSelect: () => scyllaNavigate.navigate(addFirst.href) }
+      : undefined}
   >
     {#if size === 'xs'}
       <div data-part="pipelines" class="flex h-7 min-w-0 items-center gap-1.5">

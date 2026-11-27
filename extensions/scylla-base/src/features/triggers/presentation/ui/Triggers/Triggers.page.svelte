@@ -1,7 +1,9 @@
 <script lang="ts">
+  import ZapIcon from '@lucide/svelte/icons/zap';
+  import { can, Permission } from '@platform/authz';
   import { contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, ListSkeleton } from '@scylla/ui';
+  import { EmptyState, ErrorState, ListSkeleton } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { ScyllaError } from '@shared/utils/scylla-error.ts';
   import { t } from '@scylla/ui/i18n';
@@ -34,6 +36,7 @@
     triggers.filter(trigger => !trigger.fromFile).map(trigger => trigger.id),
   );
   const hasGitTrigger = $derived(triggers.some(trigger => isGitSource(trigger.source)));
+  const canManage = $derived(can(Permission.MANAGE_TRIGGERS));
 
   const linkQuery = createQuery(() => repositoryLinkQueries.byProject(projectId ?? ''));
   const provider = $derived(linkQuery.data?.provider);
@@ -85,12 +88,17 @@
           filePath={origin.filePath}
         />
       {:else}
-        <div class="flex items-center justify-center min-h-[300px]">
-          <div class="text-center space-y-2">
-            <p class="text-muted-foreground">{t(triggersMessages.noTriggersYet)}</p>
-            <p class="text-sm text-muted-foreground">{t(triggersMessages.noTriggersBody)}</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={ZapIcon}
+          title={t(triggersMessages.noTriggersYet)}
+          description={t(triggersMessages.noTriggersBody)}
+          action={canManage && pipelineId
+            ? {
+                label: t(triggersMessages.newTrigger),
+                onSelect: () => triggersNavigation.toCreate(pipelineId),
+              }
+            : undefined}
+        />
       {/if}
     </div>
 

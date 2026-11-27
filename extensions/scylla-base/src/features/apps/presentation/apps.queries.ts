@@ -3,15 +3,16 @@ import { i18n } from '@lingui/core';
 import { Permission, authorizationReady, can } from '@platform/authz';
 import { toast } from '@scylla/ui/utils';
 import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
+import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppsModule } from '../apps.module.ts';
-import type { AppDetails } from '../domain/entities/app.entity.ts';
+import type { AppDetails, CreatedApp } from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
 import { appRolesOf } from '@base/features/apps/domain/structs/app-list.struct.ts';
 import { agentAccessOf, type RunnerChange } from '../domain/structs/agent-access.struct.ts';
 import type { AgentStats } from '../domain/structs/agent-stats.struct.ts';
 import type { StatsPeriod } from '../domain/structs/stats-period.struct.ts';
 import { accessQueries, projectRef, workspaceRef, type ObjectRef } from '@base/features/access';
-import { projectQueries } from '@base/features/project';
+import { keepRecentColor, projectQueries } from '@base/features/project';
 
 const repository = () => getModuleDomain<typeof AppsModule.domain>('apps').appsRepository;
 
@@ -20,7 +21,30 @@ export interface NewApp {
   name: string;
   runner: boolean;
   projectIds?: readonly string[];
+  /** Set with `SetAppIcon` just after the creation. */
+  icon?: CustomIconChange;
 }
+
+/**
+ * `CreateApp` has no icon: it goes in a `SetAppIcon` just after, in the same action. The app
+ * stays when only the icon fails, and a toast tells it.
+ */
+export const withIcon = async (
+  created: CreatedApp,
+  icon: CustomIconChange | undefined,
+): Promise<CreatedApp> => {
+  if (!icon) return created;
+  try {
+    const app = await repository().setIcon(created.app.id, icon);
+    if (icon.kind === 'glyph') keepRecentColor(icon.color);
+    return { ...created, app };
+  } catch (error) {
+    const reason = ScyllaError.from(error).userMessage();
+    const message = created.app.runner ? appsMessages.agentIconNotSaved : appsMessages.iconNotSaved;
+    toast.error(i18n._(message(reason)));
+    return created;
+  }
+};
 
 /** Which apps a list shows. */
 export type AppFilter = 'all' | 'agents' | 'others';
@@ -198,8 +222,11 @@ export const appMutations = {
   create: (workspaceId: string) =>
     mutationOptions({
       mutationKey: CREATE_APP_MUTATION_KEY,
-      mutationFn: ({ name, runner, projectIds = [] }: NewApp) =>
-        repository().createApp(workspaceId, name.trim(), runner, projectIds),
+      mutationFn: async ({ name, runner, projectIds = [], icon }: NewApp) =>
+        withIcon(
+          await repository().createApp(workspaceId, name.trim(), runner, projectIds),
+          icon,
+        ),
       onSuccess: () => invalidateApps(),
     }),
 

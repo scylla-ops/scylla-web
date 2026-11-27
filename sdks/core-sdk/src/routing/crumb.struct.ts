@@ -14,7 +14,11 @@ export interface Crumb {
   detail?: MessageDescriptor;
 }
 
-export type BreadcrumbFn = (params: BreadcrumbParams) => Crumb;
+/**
+ * `null`: this crumb and the ones after it do not show. The page below a missing entity has no
+ * trail of its own.
+ */
+export type BreadcrumbFn = (params: BreadcrumbParams) => Crumb | null;
 
 /** A crumb of the current page, and the URL it links to. */
 export interface TrailCrumb {

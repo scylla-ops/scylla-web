@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { fireEvent } from '@testing-library/svelte';
-import { render } from '@test/render.ts';
+import { endTransitions, render } from '@test/render.ts';
 import IdentityAvatar from './IdentityAvatar.svelte';
 
 const machine = { username: '', displayName: 'build-agent-01' };
@@ -55,8 +55,24 @@ describe('IdentityAvatar with a chosen avatar', () => {
 
     expect(image).toHaveAttribute('src', '/images/img-1');
     await fireEvent.error(image);
+    endTransitions();
     expect(container.querySelector('img')).not.toBeInTheDocument();
     expect(container.querySelector('[data-kind]')).toHaveTextContent('AL');
+  });
+
+  it('cross-fades a new photo or new initials with the old ones', async () => {
+    const profile = { username: 'ada', displayName: 'Ada Lovelace', avatarUrl: '/images/img-1' };
+    const { container, rerender } = render(IdentityAvatar, { profile });
+    vi.mocked(Element.prototype.animate).mockClear();
+
+    await rerender({ profile: { ...profile, avatarUrl: undefined, avatarColor: '#3366CC' } });
+
+    // The photo fades out while the initials fade in, in the same place.
+    expect(container.querySelector('img')).toBeInTheDocument();
+    expect(container.querySelector('[data-kind]')).toHaveTextContent('AL');
+    expect(Element.prototype.animate).toHaveBeenCalledTimes(2);
+    endTransitions();
+    expect(container.querySelector('img')).not.toBeInTheDocument();
   });
 
   it('shows the initials in the chosen color, on its tint, or solid for the reader', () => {
@@ -69,7 +85,8 @@ describe('IdentityAvatar with a chosen avatar', () => {
     expect(other).toHaveClass('bg-(--avatar-tile)', 'text-(--avatar-ink)');
     expect((other as HTMLElement).style.getPropertyValue('--avatar-ink')).toBe('var(--chart-4)');
     expect(self.style.getPropertyValue('--avatar-tile')).toBe('var(--chart-4)');
-    expect(self.style.getPropertyValue('--avatar-ink')).toBe('var(--primary-foreground)');
+    // On the amber of the picker, near-black initials contrast more than the light ones.
+    expect(self.style.getPropertyValue('--avatar-ink')).toBe('#171715');
   });
 
   it('shows the glyph that an admin chose for an agent, and the bot with none', () => {

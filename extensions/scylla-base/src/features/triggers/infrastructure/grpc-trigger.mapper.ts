@@ -21,7 +21,9 @@ import type {
   TriggerFireResult,
   TriggerInput,
   TriggerSource,
+  WorkspaceTrigger,
 } from '@base/features/triggers/domain/entities/trigger.entity.ts';
+import type { TriggerSummary } from '@base/generated/scylla/pipelines/v1/trigger_summary.ts';
 import type {
   WebhookCondition,
   WebhookConditionOperator,
@@ -172,6 +174,17 @@ export function toDomain(trigger: ProtoTrigger, apiUrl = ''): TriggerEntity {
   };
 }
 
+/** A trigger of a list of the workspace. `apiUrl` as in `toDomain`. */
+export function summaryToDomain(summary: TriggerSummary, apiUrl = ''): WorkspaceTrigger {
+  const trigger = required(summary.trigger, 'trigger');
+  return {
+    trigger: toDomain(trigger, apiUrl),
+    projectId: idValue(trigger.projectId),
+    pipelineName: summary.pipelineName,
+    projectName: summary.projectName,
+  };
+}
+
 export function createdToDomain(response: CreateTriggerResponse, apiUrl = ''): CreatedTrigger {
   return {
     trigger: toDomain(required(response.trigger, 'trigger'), apiUrl),
@@ -190,7 +203,9 @@ function inputToProto(input: TriggerInput): ProtoTriggerInput {
 }
 
 /** The rules of a Git source, as the `rules` of an update; the `kind` of a create has the same arms. */
-function rulesToProto(source: GitSource): Exclude<UpdateTriggerRequest['rules'], { oneofKind: undefined }> {
+function rulesToProto(
+  source: GitSource,
+): Exclude<UpdateTriggerRequest['rules'], { oneofKind: undefined }> {
   switch (source.kind) {
     case 'push':
       return {

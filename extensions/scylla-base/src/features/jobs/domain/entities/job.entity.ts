@@ -38,6 +38,8 @@ export interface JobEntity {
   waitingReason?: string;
   /** With `NO_AGENT_WITH_CHECKOUT`: the online agents that cannot get the code. Unset if none. */
   unfitAgents?: UnfitAgent[];
+  /** The trigger that started the job. Unset for a job that a person, the API or a rerun started. */
+  triggerId?: string;
 }
 
 /**
@@ -146,6 +148,11 @@ export interface NewestJobsQuery {
   createdBefore?: Date;
   /** At most 100. */
   limit: number;
+  /**
+   * Only the jobs whose number (the last 8 characters of the id), branch, tag, commit title or
+   * pipeline name holds this text, in any case. Empty or unset: each job.
+   */
+  text?: string;
 }
 
 /** A need of a node: another node, and one of its ports or none. */
@@ -168,13 +175,7 @@ export interface JobNode {
 
 /** `unknown`: an outcome newer than this build. */
 export type NodeExecutionState =
-  | 'pending'
-  | 'running'
-  | 'completed'
-  | 'failed'
-  | 'cancelled'
-  | 'skipped'
-  | 'unknown';
+  'pending' | 'running' | 'completed' | 'failed' | 'cancelled' | 'skipped' | 'unknown';
 
 export interface JobNodeExecution {
   id: string;

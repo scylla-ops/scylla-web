@@ -10,6 +10,7 @@ import type {
   CreateUserInput,
   UpdateAvatarInput,
   UpdateUserInput,
+  UserEntity,
 } from '../domain/entities/user.entity.ts';
 import type { UserSessionEntity } from '../domain/entities/user-session.entity.ts';
 import type { UserModule } from '../user.module.ts';
@@ -29,6 +30,19 @@ export const userQueries = {
       queryKey: USERS_QUERY_KEY(),
       queryFn: () => repository().getAll(),
       enabled: (options.enabled ?? true) && canListUsers(),
+    }),
+
+  /**
+   * The first users whose name, handle or email holds `text`. Checks `LIST_USERS` itself. A new
+   * text stops the call of the old one, and the old results stay until the new ones come.
+   */
+  search: (text: string, limit: number, options: { enabled?: boolean } = {}) =>
+    queryOptions<UserEntity[]>({
+      queryKey: [...USERS_QUERY_KEY(), 'search', text, limit] as const,
+      queryFn: ({ signal }) => repository().search(text, limit, signal),
+      enabled: (options.enabled ?? true) && canListUsers(),
+      placeholderData: previous => previous,
+      staleTime: 10_000,
     }),
 
   /** Checks for itself: the own id, or `READ_USER`. */
@@ -116,6 +130,21 @@ export const userMutations = {
   updateAvatar: () =>
     mutationOptions({
       mutationFn: (input: UpdateAvatarInput) => repository().updateAvatar(input),
+      onSuccess: user => {
+        getQueryClient().setQueryData(ME_QUERY_KEY(), user);
+        return invalidateUser(user.id);
+      },
+    }),
+
+  /**
+   * The photo of an identity replaces the avatar of the own account. The card shows a refusal
+   * itself (NO_PICTURE, PICTURE_UNAVAILABLE).
+   */
+  importAvatar: () =>
+    mutationOptions({
+      mutationFn: ({ provider, subject }: { provider: string; subject: string }) =>
+        repository().importAvatar(provider, subject),
+      meta: { showsOwnError: true },
       onSuccess: user => {
         getQueryClient().setQueryData(ME_QUERY_KEY(), user);
         return invalidateUser(user.id);

@@ -2,7 +2,7 @@
   import CopyIcon from '@lucide/svelte/icons/copy';
   import PowerIcon from '@lucide/svelte/icons/power';
   import PowerOffIcon from '@lucide/svelte/icons/power-off';
-  import { Button } from '@scylla/ui/primitives';
+  import { Button, Tooltip, TooltipContent, TooltipTrigger } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { copyToClipboard } from '@scylla/ui/utils';
   import { IdentityAvatar } from '@shared/presentation/ui';
@@ -22,22 +22,44 @@
     onDisable?: () => void;
     onEnable?: () => void;
     enabling?: boolean;
+    /** Absent: the user may not change the icon (`set_app_icon`). */
+    onChangeIcon?: () => void;
   }
 
-  let { agent, noActiveKey = false, onDisable, onEnable, enabling = false }: Props = $props();
+  let {
+    agent,
+    noActiveKey = false,
+    onDisable,
+    onEnable,
+    enabling = false,
+    onChangeIcon,
+  }: Props = $props();
 
   const shortId = $derived(
     agent.id.length > 12 ? `${agent.id.slice(0, 6)}…${agent.id.slice(-3)}` : agent.id,
   );
 </script>
 
+{#snippet avatar()}
+  <IdentityAvatar profile={agentProfile(agent)} kind="agent" online={agent.connected} size={48} />
+{/snippet}
+
+<!-- A click on the icon changes it, for an admin, as on the page of a project. -->
 <header class="flex flex-wrap items-start gap-4">
-  <IdentityAvatar
-    profile={agentProfile(agent)}
-    kind="agent"
-    online={agent.connected}
-    size={48}
-  />
+  {#if onChangeIcon}
+    <Tooltip>
+      <TooltipTrigger
+        aria-label={t(messages.changeIcon)}
+        class="focus-visible:ring-ring/50 flex shrink-0 cursor-pointer items-center justify-center rounded-[25%] transition-opacity outline-none hover:opacity-80 focus-visible:ring-[3px]"
+        onclick={onChangeIcon}
+      >
+        {@render avatar()}
+      </TooltipTrigger>
+      <TooltipContent side="top">{t(messages.changeIcon)}</TooltipContent>
+    </Tooltip>
+  {:else}
+    {@render avatar()}
+  {/if}
   <div class="flex min-w-0 flex-1 flex-col gap-1">
     <div class="flex flex-wrap items-center gap-3">
       <h1 class="truncate">{agent.name}</h1>

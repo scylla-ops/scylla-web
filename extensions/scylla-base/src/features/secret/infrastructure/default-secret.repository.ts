@@ -7,6 +7,8 @@ import type {
   CreateSecretInput,
   SecretEntity,
   UpdateSecretInput,
+  WorkspaceSecret,
+  WorkspaceSecretSearch,
 } from '@base/features/secret/domain/entities/secret.entity.ts';
 import type { SecretUsage } from '@base/features/secret/domain/structs/secret-usage.struct.ts';
 import type { SecretRepository } from '@base/features/secret/domain/repository/secret.repository.ts';
@@ -43,6 +45,25 @@ export class DefaultSecretRepository implements SecretRepository {
       return { items: response.secrets, next: response.page?.nextToken ?? '' };
     });
     return secrets.map(grpcSecret.toDomain);
+  }
+
+  public async searchWorkspace(
+    search: WorkspaceSecretSearch,
+    signal?: AbortSignal,
+  ): Promise<WorkspaceSecret[]> {
+    const request = {
+      workspaceId: wrapId(search.workspaceId),
+      query: search.text.trim(),
+      page: { size: search.limit, token: '' },
+    };
+    const call = signal
+      ? this.client.listWorkspaceSecrets(request, { abort: signal })
+      : this.client.listWorkspaceSecrets(request);
+    const response = await call.response;
+    return response.secrets.map(found => ({
+      secret: grpcSecret.toDomain(required(found.secret, 'secret')),
+      projectName: found.projectName,
+    }));
   }
 
   public async create(input: CreateSecretInput): Promise<SecretEntity> {

@@ -1,9 +1,11 @@
 <script lang="ts">
+  import WorkflowIcon from '@lucide/svelte/icons/workflow';
   import { repositoryLinkQueries } from '@base/features/integrations';
   import { loadProjectTitle } from '@base/features/project';
+  import { can, Permission } from '@platform/authz';
+  import { scyllaNavigate } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
-  import { ListSkeleton } from '@scylla/ui';
-  import { ErrorState, PaginationSlot } from '@scylla/ui';
+  import { EmptyState, ErrorState, ListSkeleton, PaginationSlot } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
   import {
     createPipelineDashboard,
@@ -25,6 +27,7 @@
   const runPipeline = createRunPipeline();
   const runRequest = createRunRequest({ projectId: () => projectId ?? '', runPipeline });
   const repositoryLink = createQuery(() => repositoryLinkQueries.byProject(projectId ?? ''));
+  const canCreate = $derived(can(Permission.CREATE_PIPELINE, { projectId }));
 </script>
 
 <!-- The frame renders first and stays on an error: the table area's height decides what to fetch. -->
@@ -58,12 +61,17 @@
         <!-- The rows of the pipelines table. -->
         <ListSkeleton rows={4} rowClass="h-20 w-full" />
       {:else}
-        <div class="flex h-full min-h-100 items-center justify-center">
-          <div class="space-y-2 text-center">
-            <p class="text-muted-foreground">{t(pipelineMessages.noPipelines)}</p>
-            <p class="text-sm text-muted-foreground">{t(pipelineMessages.noPipelinesBody)}</p>
-          </div>
-        </div>
+        <EmptyState
+          icon={WorkflowIcon}
+          title={t(pipelineMessages.noPipelines)}
+          description={t(pipelineMessages.noPipelinesBody)}
+          action={canCreate
+            ? {
+                label: t(pipelineMessages.newPipeline),
+                onSelect: () => scyllaNavigate.goToCreatePipeline(),
+              }
+            : undefined}
+        />
       {/if}
     </div>
   </div>

@@ -11,10 +11,12 @@ const ACCOUNT_KEYS: readonly string[] = [
   'scylla-workspace-context',
   // features/pipeline: the style of the nodes.
   'scylla.blueprint.node-appearance',
-  // features/project: the last free colors of the icons, the pins and the closed sections.
+  // features/project: the last free colors of the icons, the pins, the closed sections and the
+  // display of the projects page.
   'scylla.recent-colors',
   'scylla.project-pins',
   'scylla.project-sections',
+  'scylla.project-density',
 ];
 
 /** The keys that start with one of these prefixes: one key for each user, workspace or release. */

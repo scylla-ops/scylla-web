@@ -94,4 +94,43 @@ describe('AddWorkspaceDialog', () => {
 
     expect(screen.queryByRole('button', { name: 'Cancel' })).not.toBeInTheDocument();
   });
+
+  it('creates the workspace with the chosen icon, in a write just after', async () => {
+    const user = userEvent.setup();
+    setUp();
+    const update = vi.fn().mockResolvedValue({
+      id: 'org-1',
+      name: 'Acme Corp',
+      slug: 'acme-corp',
+      icon: { kind: 'glyph', name: 'building', color: 'chart-2' },
+    });
+    teardown.push(withRegistry({ workspace: { workspaceRepository: { create, update } } }));
+    await focusSettled();
+
+    await user.click(screen.getByRole('button', { name: 'Change the icon' }));
+    await user.click(screen.getByRole('button', { name: 'Color 2' }));
+    await user.type(screen.getByLabelText('Workspace name'), 'Acme Corp');
+    await user.click(screen.getByRole('button', { name: 'Create Workspace' }));
+
+    await waitFor(() =>
+      expect(update).toHaveBeenCalledWith('org-1', undefined, undefined, {
+        kind: 'glyph',
+        name: 'building',
+        color: 'chart-2',
+      }),
+    );
+    expect(create).toHaveBeenCalledWith('Acme Corp', undefined);
+  });
+
+  it('closes on Cancel with no call to the server', async () => {
+    const setOpen = vi.fn();
+    const user = userEvent.setup();
+    setUp({ setOpen });
+    await focusSettled();
+
+    await user.click(screen.getByRole('button', { name: 'Cancel' }));
+
+    expect(setOpen).toHaveBeenCalledWith(false);
+    expect(create).not.toHaveBeenCalled();
+  });
 });

@@ -7,6 +7,8 @@ export interface IdentityEntity {
   /** Empty when the provider gives none. */
   email: string;
   linkedAt: string;
+  /** The provider gave a photo at the last sign-in: `importAvatar` can make it the avatar. */
+  hasPicture: boolean;
 }
 
 /** The ways the user signs in: a password, and the identities. The last one cannot go. */

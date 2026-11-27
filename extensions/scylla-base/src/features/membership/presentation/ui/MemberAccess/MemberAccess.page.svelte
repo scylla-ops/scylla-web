@@ -120,7 +120,7 @@
     </header>
 
     <div class="grid items-start gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-      <MemberRolesCard roles={member.roles} {workspaceName} />
+      <MemberRolesCard roles={member.roles} workspaceId={workspaceId ?? undefined} {workspaceName} />
 
       <section class="overflow-hidden rounded-2xl border bg-card">
         <div class="flex items-start justify-between gap-4 p-5">

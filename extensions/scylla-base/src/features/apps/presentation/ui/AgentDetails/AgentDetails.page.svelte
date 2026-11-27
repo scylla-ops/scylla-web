@@ -20,7 +20,7 @@
   import AgentRecentJobsCard from './AgentRecentJobsCard.svelte';
   import AgentAccessCard from './AgentAccessCard.svelte';
   import AgentLabelsCard from './AgentLabelsCard.svelte';
-  import AgentIconCard from './AgentIconCard/AgentIconCard.svelte';
+  import AppIconCard from '../components/AppIconCard/AppIconCard.svelte';
   import AgentKeysCard from './AgentKeysCard.svelte';
   import AgentConnectCard from './AgentConnectCard.svelte';
   import AgentDangerZone from './AgentDangerZone.svelte';
@@ -69,6 +69,7 @@
   const stats = createAgentStats(() => ({ appId, workspaceId, agent }));
 
   let disabling = $state(false);
+  let iconOpen = $state(false);
 
   /** A new join code on the page of a new agent, at its install step. */
   const connect = () => scyllaNavigate.goToWorkspaceRoute(`/agents/${appId}/connect`);
@@ -93,6 +94,7 @@
       onDisable={canManage ? () => (disabling = true) : undefined}
       onEnable={canManage ? () => enable.mutate(agent.id) : undefined}
       enabling={enable.isPending}
+      onChangeIcon={canSetIcon ? () => (iconOpen = true) : undefined}
     />
 
     {#if agent.disabledAt}
@@ -172,7 +174,7 @@
         {/if}
         <AgentLabelsCard {agent} canChange={canSetLabels} />
         {#if canSetIcon}
-          <AgentIconCard {agent} />
+          <AppIconCard app={agent} bind:open={iconOpen} />
         {/if}
       </div>
     </div>

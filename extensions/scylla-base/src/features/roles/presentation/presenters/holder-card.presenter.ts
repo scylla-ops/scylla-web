@@ -8,6 +8,7 @@ import { t } from '@scylla/ui/i18n';
 import {
   identityKindOf,
   type IdentityKind,
+  type UserIdentityProfile,
 } from '@shared/presentation/presenters/user-identity.presenter.ts';
 import type { RoleHolderEntry, RoleHolders, RoleLevel } from '../../domain/entities/role.entity.ts';
 import {
@@ -23,6 +24,8 @@ export interface HolderCardRow {
   actorId: string;
   displayName: string;
   handle: string;
+  /** The name and the avatar: the photo or the initials color of a person, the icon of an app. */
+  profile: UserIdentityProfile;
   kind: IdentityKind;
   scopeIcon: LucideIcon;
   /** The workspace, the project, or "3 projects". */
@@ -47,6 +50,15 @@ export interface HolderPages {
   /** Absent: the instance, whose people are its users. */
   workspaceId?: string;
 }
+
+/** How a holder shows in `Identity`: its name, and the avatar that it or an admin chose. */
+export const holderProfile = (holder: RoleHolderEntry): UserIdentityProfile => ({
+  displayName: holder.displayName,
+  username: holder.handle,
+  ...(holder.avatarUrl && { avatarUrl: holder.avatarUrl }),
+  ...(holder.avatarColor && { avatarColor: holder.avatarColor }),
+  ...(holder.avatarGlyph && { avatarGlyph: holder.avatarGlyph }),
+});
 
 /** A grant on a workspace covers its projects: the widest scope tells where an actor holds the role. */
 const WIDEST_FIRST: RoleLevel[] = ['platform', 'workspace', 'project'];
@@ -103,6 +115,7 @@ export const holderCard = (
       actorId: first.actorId,
       displayName: first.displayName,
       handle: first.handle,
+      profile: holderProfile(first),
       kind,
       ...scopeOf(own),
       href:

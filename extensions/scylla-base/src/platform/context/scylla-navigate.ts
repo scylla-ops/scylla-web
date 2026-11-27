@@ -54,12 +54,13 @@ const goToJobs = (id: string, name?: string) => {
   if (name) contextStore.getState().setPipeline(id, name);
 };
 
+/** `projectId`: the project of the job, when it is not the project of the context. */
 const goToJobDetails = (
   pipelineId: string,
   jobId: string,
-  options: { nodeId?: string; pipelineName?: string } = {},
+  options: { nodeId?: string; pipelineName?: string; projectId?: string } = {},
 ) => {
-  const projectId = contextStore.getState().project.id;
+  const projectId = options.projectId ?? contextStore.getState().project.id;
   const query = options.nodeId ? `?node=${encodeURIComponent(options.nodeId)}` : '';
   navigateTo(
     `${getWorkspacePrefix()}/projects/${projectId}/pipelines/${pipelineId}/jobs/${jobId}${query}`,

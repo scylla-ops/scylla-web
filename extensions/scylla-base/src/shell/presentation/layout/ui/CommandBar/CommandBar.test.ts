@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, onTestFinished, vi, type Mock } from 'vitest';
-import { fireEvent, screen, waitFor, within } from '@testing-library/svelte';
+import { cleanup, fireEvent, screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { msg } from '@lingui/core/macro';
 import FolderIcon from '@lucide/svelte/icons/folder';
@@ -129,6 +129,12 @@ const reads = () => ({
       ],
     }),
   ),
+  listGroups: vi.fn(() =>
+    Promise.resolve([
+      { id: 'g-1', workspaceId: 'w1', name: 'Deploys' },
+      { id: 'g1', workspaceId: 'w1', name: 'Backend', color: 'chart-2' },
+    ]),
+  ),
   getMetadataByWorkspaceId: vi.fn(() =>
     Promise.resolve({ items: [{ id: 'l1', name: 'Build web', projectId: 'p1' }] }),
   ),
@@ -158,7 +164,117 @@ const reads = () => ({
       { id: 'w2', name: 'Globex', slug: 'globex' },
     ]),
   ),
+  listDashboards: vi.fn(() =>
+    Promise.resolve([
+      { id: 'd1', name: 'Ops overview', visibility: 'private', teamDefault: false, widgets: [] },
+      {
+        id: 'd2',
+        name: 'Release health',
+        visibility: 'workspace',
+        teamDefault: false,
+        createdBy: 'u1',
+        widgets: [],
+      },
+    ]),
+  ),
+  listFragments: vi.fn(() => Promise.resolve([{ id: 'f1', name: 'docker-build', tags: [] }])),
+  createDashboard: vi.fn(),
+  getMe: vi.fn(() => Promise.resolve({ id: 'me', username: 'me' })),
+  // The workspaces of other users: the server finds Alice's with a search of her name.
+  listAll: vi.fn((search: { query: string }) =>
+    Promise.resolve({
+      items: 'alice martin'.includes(search.query)
+        ? [
+            {
+              id: 'w9',
+              name: 'Personal',
+              slug: 'personal-alice',
+              owner: { id: 'u9', username: 'alice', displayName: 'Alice Martin' },
+              icon: { kind: 'glyph', name: 'rocket', color: 'chart-2' },
+              role: '',
+              memberCount: 1,
+              projectCount: 4,
+            },
+          ]
+        : [],
+      nextToken: '',
+      total: 1,
+    }),
+  ),
   run: vi.fn(() => Promise.resolve()),
+  // The server search: the jobs, the triggers, the secrets of each project, the users, the packages.
+  searchJobs: vi.fn((query: { text?: string }, _signal?: AbortSignal) =>
+    Promise.resolve(
+      'deploy'.includes(query.text ?? '') || (query.text ?? '').startsWith('9f3c')
+        ? [
+            {
+              id: '0190aaaa-0000-7000-8000-00009f3c2a1b',
+              pipelineId: 'l1',
+              status: 'failed',
+              createdAt: new Date(Date.now() - 3 * 60_000).toISOString(),
+              source: { branch: 'feature/deploy', tag: '', title: 'Deploy the web app' },
+            },
+          ]
+        : [],
+    ),
+  ),
+  rerun: vi.fn(() => Promise.resolve('job-2')),
+  searchTriggers: vi.fn((query: { text: string }, _signal?: AbortSignal) =>
+    Promise.resolve(
+      'nightly'.includes(query.text)
+        ? [
+            {
+              trigger: {
+                id: 't1',
+                pipelineId: 'l1',
+                name: 'Nightly',
+                enabled: true,
+                fromFile: false,
+                source: { kind: 'cron' },
+              },
+              projectId: 'p1',
+              pipelineName: 'Build web',
+              projectName: 'web-api',
+            },
+          ]
+        : [],
+    ),
+  ),
+  setEnabled: vi.fn(() => Promise.resolve({})),
+  searchSecrets: vi.fn((query: { text: string }, _signal?: AbortSignal) =>
+    Promise.resolve(
+      'stripe_key'.includes(query.text.toLowerCase())
+        ? [{ secret: { id: 's9', name: 'STRIPE_KEY', projectId: 'p2' }, projectName: 'mobile-app' }]
+        : [],
+    ),
+  ),
+  searchUsers: vi.fn((text: string, _limit: number, _signal?: AbortSignal) =>
+    Promise.resolve(
+      !'jane doe jdoe jane@acme.test'.includes(text.toLowerCase())
+        ? []
+        : [
+            {
+              id: 'u7',
+              username: 'jdoe',
+              email: 'jane@acme.test',
+              displayName: 'Jane Doe',
+              avatarColor: '#aa3322',
+              isActive: false,
+            },
+          ],
+    ),
+  ),
+  listPackages: vi.fn(() =>
+    Promise.resolve([
+      {
+        id: 'scylla/rust-build',
+        name: 'rust-build',
+        publisher: { handle: 'scylla' },
+        versions: [{ number: 1 }, { number: 3 }],
+        stars: 12,
+      },
+    ]),
+  ),
 });
 
 let fakes: ReturnType<typeof reads>;
@@ -197,7 +313,9 @@ const pressUndo = () => {
 const option = (name: RegExp | string) => screen.findByRole('option', { name });
 const options = () => screen.queryAllByRole('option');
 const selected = () =>
-  options().find(element => element.getAttribute('aria-selected') === 'true')?.getAttribute('aria-label');
+  options()
+    .find(element => element.getAttribute('aria-selected') === 'true')
+    ?.getAttribute('aria-label');
 const chip = (name: string) => screen.getByRole('button', { name });
 
 beforeEach(() => {
@@ -217,7 +335,12 @@ beforeEach(() => {
   });
   setNavLinks(() => LINKS);
   setInstalledExtensions([
-    { id: 'test', name: 'Test', version: '1.0.0', modules: [{ id: 't', domain: {}, commands: COMMANDS }] },
+    {
+      id: 'test',
+      name: 'Test',
+      version: '1.0.0',
+      modules: [{ id: 't', domain: {}, commands: COMMANDS }],
+    },
   ]);
   grant();
   contextStore.setState({
@@ -229,18 +352,39 @@ beforeEach(() => {
   teardown = [
     cache.restore,
     withRegistry({
-      project: { projectRepository: { getByWorkspaceId: fakes.getByWorkspaceId } },
+      project: {
+        projectRepository: { getByWorkspaceId: fakes.getByWorkspaceId },
+        projectGroupRepository: { list: fakes.listGroups },
+      },
       pipeline: {
         pipelineRepository: {
           getMetadataByWorkspaceId: fakes.getMetadataByWorkspaceId,
           run: fakes.run,
         },
+        fragmentRepository: { list: fakes.listFragments },
       },
+      dashboard: {
+        dashboardLayoutRepository: { list: fakes.listDashboards, create: fakes.createDashboard },
+        dashboardPreferences: { defaultId: () => null, legacy: () => null },
+      },
+      user: { userRepository: { getMe: fakes.getMe, search: fakes.searchUsers } },
+      jobs: {
+        jobsRepository: { getNewestByWorkspaceId: fakes.searchJobs, rerun: fakes.rerun },
+      },
+      triggers: {
+        triggersRepository: { searchWorkspace: fakes.searchTriggers, setEnabled: fakes.setEnabled },
+      },
+      marketplace: { marketplaceRepository: { list: fakes.listPackages } },
       apps: { appsRepository: { listApps: fakes.listApps } },
       access: { accessRepository: { listMembers: fakes.listMembers } },
       roles: { roleRepository: { list: fakes.listRoles } },
-      secret: { secretRepository: { listByProjectId: fakes.listByProjectId } },
-      workspace: { workspaceRepository: { getMine: fakes.getMine } },
+      secret: {
+        secretRepository: {
+          listByProjectId: fakes.listByProjectId,
+          searchWorkspace: fakes.searchSecrets,
+        },
+      },
+      workspace: { workspaceRepository: { getMine: fakes.getMine, listAll: fakes.listAll } },
     }),
   ];
 });
@@ -321,8 +465,40 @@ describe('CommandBar', () => {
       await waitFor(() => expect(navigate).toHaveBeenCalledWith(href, undefined));
     };
 
-    it('goes to a project', () =>
-      go('web-api', 'Go to the project web-api.', '/acme/projects/p1'));
+    it('goes to a project', () => go('web-api', 'Go to the project web-api.', '/acme/projects/p1'));
+
+    it('opens the form of a new project in a group, with the group', () =>
+      go(
+        'new project deploys',
+        'Open the form: New project in Deploys. Nothing changes until you submit it.',
+        '/acme/projects/new?group=g-1',
+      ));
+
+    it('opens the projects page on a group', () =>
+      go('backend', 'Go to the group Backend on the projects page.', '/acme/projects?group=g1'));
+
+    it('goes to the default dashboard at its short path', () =>
+      go('ops overview', 'Go to the dashboard Ops overview (Personal).', '/acme/dashboard'));
+
+    it('goes to a shared dashboard', () =>
+      go('release health', 'Go to the dashboard Release health (Shared).', '/acme/dashboards/d2'));
+
+    it('goes to a fragment of the library', () =>
+      go('docker build', 'Go to the fragment docker-build of the library.', '/acme/library/f1'));
+
+    it('shows the number of projects of a group, and who shares a dashboard', async () => {
+      const input = await open();
+      const typing = user();
+      await typing.type(input, 'backend');
+      expect(
+        within(await option(/group Backend/)).getByText('Group · 0 projects'),
+      ).toBeInTheDocument();
+
+      await typing.clear(input);
+      await typing.type(input, 'release health');
+      const row = await option(/Release health/);
+      expect(within(row).getByText('Shared · Marie Dubois')).toBeInTheDocument();
+    });
 
     it('goes to a pipeline, and names its project', () =>
       go(
@@ -331,7 +507,8 @@ describe('CommandBar', () => {
         '/acme/projects/p1/pipelines/l1/jobs',
       ));
 
-    it('goes to an agent', () => go('prod-runner', 'Go to the agent prod-runner.', '/acme/agents/a1'));
+    it('goes to an agent', () =>
+      go('prod-runner', 'Go to the agent prod-runner.', '/acme/agents/a1'));
 
     it('goes to an app', () => go('release-bot', 'Go to the app release-bot.', '/acme/apps/a2'));
 
@@ -368,8 +545,9 @@ describe('CommandBar', () => {
       const input = await open();
       const typing = user();
       await typing.type(input, 'new project');
-      await option(/New project/);
-      await waitFor(() => expect(selected()).toMatch(/New project/));
+      // « New project in Deploys » matches too: the form of the command comes first.
+      await option(/New project\./);
+      await waitFor(() => expect(selected()).toMatch(/New project\./));
       await typing.keyboard('{Enter}');
 
       await waitFor(() => expect(openForm).toHaveBeenCalledOnce());
@@ -461,9 +639,7 @@ describe('CommandBar', () => {
       expect(await screen.findByText('Sign out of Scylla?')).toBeInTheDocument();
       expect(signOut).not.toHaveBeenCalled();
 
-      await waitFor(() =>
-        expect(screen.getByRole('button', { name: 'Sign out' })).toHaveFocus(),
-      );
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Sign out' })).toHaveFocus());
       await typing.keyboard('{Enter}');
 
       await waitFor(() => expect(signOut).toHaveBeenCalledOnce());
@@ -533,7 +709,9 @@ describe('CommandBar', () => {
       await option(/Apps/);
 
       await waitFor(() => expect(selected()).toMatch(/Apps/));
-      const count = options().filter(element => element.getAttribute('aria-disabled') !== 'true').length;
+      const count = options().filter(
+        element => element.getAttribute('aria-disabled') !== 'true',
+      ).length;
       const first = selected();
       for (let step = 0; step < count; step++) await typing.keyboard('{ArrowDown}');
       expect(selected()).toBe(first);
@@ -661,7 +839,7 @@ describe('CommandBar', () => {
       ['>', 'Actions', /New trigger/, /Agents/],
       ['/', 'Pages', /Agents/, /New trigger/],
       ['#', 'Projects', /Go to the project web-api/, /Agents/],
-      ['@', 'People', /Marie Dubois/, /Agents/],
+      ['@', 'Members', /Marie Dubois/, /Agents/],
     ])('gives %s the filter %s', async (prefix, name, shown, hidden) => {
       const input = await open();
       await user().type(input, prefix);
@@ -669,6 +847,31 @@ describe('CommandBar', () => {
       expect(await option(shown)).toBeInTheDocument();
       expect(screen.queryByRole('option', { name: hidden })).not.toBeInTheDocument();
       expect(chip(name)).toHaveAttribute('aria-pressed', 'true');
+    });
+
+    it('has the chips of the groups and of the dashboards, in a logical order', async () => {
+      await open();
+
+      await waitFor(() => expect(chip('Dashboards')).toBeInTheDocument());
+      const titles = screen
+        .getAllByRole('button')
+        .map(button => button.textContent?.trim())
+        .filter(title =>
+          ['Projects', 'Groups', 'Pipelines', 'Dashboards', 'Machines'].includes(title ?? ''),
+        );
+      expect(titles).toEqual(['Projects', 'Groups', 'Pipelines', 'Dashboards', 'Machines']);
+    });
+
+    it('lists the groups, and the fragments with the pipelines', async () => {
+      await open();
+      await waitFor(() => expect(chip('Groups')).toBeInTheDocument());
+      await fireEvent.click(chip('Groups'));
+      expect(await option(/group Backend/)).toBeInTheDocument();
+      expect(screen.queryByRole('option', { name: /project web-api/ })).not.toBeInTheDocument();
+
+      await fireEvent.click(chip('Pipelines'));
+      expect(await option(/fragment docker-build/)).toBeInTheDocument();
+      expect(await option(/pipeline Build web/)).toBeInTheDocument();
     });
 
     it('marks two chips for the prefix of the projects and of the pipelines', async () => {
@@ -790,7 +993,12 @@ describe('CommandBar', () => {
     it('shows the examples during a tour, even with many picks', async () => {
       localStorage.setItem(
         'scylla-command-bar-recent:w1',
-        JSON.stringify(['page:workspace/agents', 'page:workspace/apps', 'page:account/appearance', 'page:workspace/agents']),
+        JSON.stringify([
+          'page:workspace/agents',
+          'page:workspace/apps',
+          'page:account/appearance',
+          'page:workspace/agents',
+        ]),
       );
       dialogHoldStore.setState({ held: true });
       onTestFinished(() => dialogHoldStore.setState({ held: false }));
@@ -801,12 +1009,187 @@ describe('CommandBar', () => {
       expect(input).toHaveValue('agnts');
     });
 
+    it('keeps a group and a dashboard in the recent rows', async () => {
+      const input = await open();
+      const typing = user();
+      await typing.type(input, 'backend');
+      await option(/group Backend/);
+      await waitFor(() => expect(selected()).toMatch(/group Backend/));
+      await typing.keyboard('{Enter}');
+
+      expect(JSON.parse(localStorage.getItem('scylla-command-bar-recent:w1') ?? '[]')).toEqual([
+        'group:g1',
+      ]);
+    });
+
+    it('shows a recent dashboard first in the empty bar', async () => {
+      localStorage.setItem('scylla-command-bar-recent:w1', JSON.stringify(['dashboard:d2']));
+      await open();
+
+      expect(await screen.findByText('Recent')).toBeInTheDocument();
+      await waitFor(() =>
+        expect(options()[0]).toHaveAccessibleName('Go to the dashboard Release health (Shared).'),
+      );
+    });
+
     it('reads a recent row from the list of this workspace', async () => {
-      localStorage.setItem('scylla-command-bar-recent:w1', JSON.stringify(['page:workspace/agents']));
+      localStorage.setItem(
+        'scylla-command-bar-recent:w1',
+        JSON.stringify(['page:workspace/agents']),
+      );
       await open();
 
       expect(await screen.findByText('Recent')).toBeInTheDocument();
       expect(options()[0]).toHaveAccessibleName('Go to the page Agents (Machines).');
+    });
+  });
+
+  describe('the server search', () => {
+    const JOB_ID = '0190aaaa-0000-7000-8000-00009f3c2a1b';
+    const JOB_ROW = 'Go to the job #9f3c2a1b (Build web · web-api).';
+
+    it('shows the tab of each kind that the reader can search, before a text', async () => {
+      await open();
+
+      for (const name of ['Jobs', 'Triggers', 'Members', 'Users', 'Secrets', 'Packages']) {
+        expect(chip(name)).toBeInTheDocument();
+      }
+    });
+
+    it('hides the tabs of the kinds that the reader cannot search', async () => {
+      grant([Permission.LIST_PIPELINES_BY_WORKSPACE]);
+      await open();
+
+      expect(chip('Packages')).toBeInTheDocument();
+      for (const name of ['Jobs', 'Triggers', 'Users']) {
+        expect(screen.queryByRole('button', { name })).not.toBeInTheDocument();
+      }
+    });
+
+    it('finds a job by its number after #, with the shape of its status, and opens it', async () => {
+      const input = await open();
+      await user().type(input, '#9f3c');
+
+      const row = await option(JOB_ROW);
+      expect(
+        within(row).getByText(/Job · Build web · web-api · feature\/deploy/),
+      ).toBeInTheDocument();
+      expect(row.querySelector('[data-slot="status-shape"]')).not.toBeNull();
+      expect(fakes.searchJobs).toHaveBeenCalledWith(
+        expect.objectContaining({ workspaceId: 'w1', text: '9f3c' }),
+        expect.any(AbortSignal),
+      );
+
+      await user().click(row);
+      expect(navigate).toHaveBeenCalledWith(
+        `/acme/projects/p1/pipelines/l1/jobs/${JOB_ID}`,
+        undefined,
+      );
+    });
+
+    it('shows a small line while the server searches, then the rows', async () => {
+      const input = await open();
+      await user().type(input, 'deploy');
+
+      expect(await screen.findByText('Searching…')).toBeInTheDocument();
+      expect(await option(JOB_ROW)).toBeInTheDocument();
+      // The stub of `animate()` keeps running: end the fade out of the line.
+      await waitFor(() => {
+        vi.mocked(Element.prototype.animate).mock.results.forEach(result =>
+          (result.value as { finish: () => void }).finish(),
+        );
+        expect(screen.queryByText('Searching…')).not.toBeInTheDocument();
+      });
+    });
+
+    it('lists the newest jobs under the tab of the jobs, with no text', async () => {
+      await open();
+      await user().click(chip('Jobs'));
+
+      expect(await option(JOB_ROW)).toBeInTheDocument();
+      expect(fakes.searchJobs).toHaveBeenCalledWith(
+        expect.objectContaining({ text: '' }),
+        expect.any(AbortSignal),
+      );
+    });
+
+    it('reruns a failed job after a confirmation, then opens the new job', async () => {
+      const input = await open();
+      await user().type(input, 'deploy');
+      await user().click(await option('Rerun the job #9f3c2a1b: you confirm in the next step.'));
+
+      expect(screen.getByText('Rerun the job #9f3c2a1b?')).toBeInTheDocument();
+      await user().click(screen.getByRole('button', { name: 'Rerun #9f3c2a1b' }));
+
+      await waitFor(() => expect(fakes.rerun).toHaveBeenCalledWith(JOB_ID));
+      await waitFor(() =>
+        expect(navigate).toHaveBeenCalledWith(
+          '/acme/projects/p1/pipelines/l1/jobs/job-2',
+          undefined,
+        ),
+      );
+    });
+
+    it('disables a trigger after a destructive confirmation', async () => {
+      const input = await open();
+      await user().type(input, 'nightly');
+
+      expect(await option('Go to the trigger Nightly (Build web · web-api).')).toBeInTheDocument();
+      await user().click(
+        await option('Disable the trigger Nightly: you confirm in the next step.'),
+      );
+      const confirm = screen.getByRole('button', { name: 'Disable Nightly' });
+      expect(confirm).toHaveAttribute('data-variant', 'destructive');
+      await user().click(confirm);
+
+      await waitFor(() => expect(fakes.setEnabled).toHaveBeenCalledWith('t1', false));
+    });
+
+    it('finds a secret of another project by its name, and copies the name, never the value', async () => {
+      const input = await open();
+      const typing = user();
+      await typing.type(input, 'stripe');
+
+      const row = await option(
+        'Go to the secrets page, at STRIPE_KEY (mobile-app). The value stays hidden.',
+      );
+      expect(within(row).getByText('Secret · mobile-app · Project scope')).toBeInTheDocument();
+      await typing.click(
+        await option('Copy the name of the secret STRIPE_KEY. The value stays hidden.'),
+      );
+
+      await waitFor(() => expect(toast.success).toHaveBeenCalledWith('Name copied: STRIPE_KEY'));
+      expect(await navigator.clipboard.readText()).toBe('STRIPE_KEY');
+    });
+
+    it('finds a user of the instance, with its email and its state', async () => {
+      const input = await open();
+      await user().type(input, 'jane');
+
+      const row = await option('Go to the user Jane Doe (jane@acme.test) in the administration.');
+      expect(within(row).getByText('User · jane@acme.test · Disabled')).toBeInTheDocument();
+    });
+
+    it('finds a package of the marketplace, with its publisher, its version and its stars', async () => {
+      const input = await open();
+      await user().type(input, 'rust');
+
+      const row = await option('Go to the package rust-build (scylla) of the marketplace.');
+      expect(within(row).getByText('Package · scylla · Version 3 · 12 stars')).toBeInTheDocument();
+    });
+
+    it('keeps a picked job in the recent rows of the next opening', async () => {
+      const input = await open();
+      await user().type(input, 'deploy');
+      await user().click(await option(JOB_ROW));
+
+      const [stored] = JSON.parse(localStorage.getItem('scylla-command-bar-recent:w1') ?? '[]');
+      expect(stored).toMatchObject({ id: `job:${JOB_ID}`, name: '#9f3c2a1b' });
+
+      cleanup();
+      await open();
+      expect(await screen.findByText('Recent')).toBeInTheDocument();
+      expect(options()[0]).toHaveAccessibleName(JOB_ROW);
     });
   });
 
@@ -825,7 +1208,9 @@ describe('CommandBar', () => {
       const input = await open();
       await user().type(input, 'zzzzzz');
 
-      expect(await screen.findByText('These lists could not be read: Projects.')).toBeInTheDocument();
+      expect(
+        await screen.findByText('These lists could not be read: Projects.'),
+      ).toBeInTheDocument();
       expect(screen.queryByText('Nothing matches this search.')).not.toBeInTheDocument();
     });
 
@@ -834,6 +1219,26 @@ describe('CommandBar', () => {
       await user().type(input, 'zzzzzz');
 
       expect(await screen.findByText('Nothing matches this search.')).toBeInTheDocument();
+    });
+
+    it('finds the workspace of another user by its owner, for an instance admin', async () => {
+      const input = await open();
+      await user().type(input, 'alice');
+
+      expect(
+        await screen.findByText('Alice Martin · Instance admin · Members: 1 · Projects: 4'),
+      ).toBeInTheDocument();
+      await waitFor(() =>
+        expect(fakes.listAll).toHaveBeenLastCalledWith(
+          expect.objectContaining({ query: 'alice', othersOnly: true }),
+        ),
+      );
+      const row = screen.getByRole('option', { name: 'Switch to Personal of Alice Martin' });
+      // The icon of the workspace, in place of the building.
+      expect(row.querySelector('[data-slot="entity-icon"] svg')).toHaveAttribute(
+        'stroke',
+        'var(--chart-2)',
+      );
     });
   });
 
@@ -848,6 +1253,33 @@ describe('CommandBar', () => {
       expect(fakes.listApps).not.toHaveBeenCalled();
       expect(fakes.listMembers).not.toHaveBeenCalled();
       expect(fakes.listByProjectId).not.toHaveBeenCalled();
+      expect(fakes.listGroups).not.toHaveBeenCalled();
+      expect(fakes.listDashboards).not.toHaveBeenCalled();
+      expect(fakes.listFragments).not.toHaveBeenCalled();
+    });
+
+    it('creates no dashboard when it opens in a workspace with none', async () => {
+      fakes.listDashboards.mockResolvedValue([]);
+      setNavLinks(() => [...LINKS, link('dashboard', msg`Dashboard`)]);
+      await open();
+
+      await waitFor(() => expect(chip('Dashboards')).toBeInTheDocument());
+      await fireEvent.click(chip('Dashboards'));
+
+      expect(options().map(element => element.getAttribute('aria-label'))).toEqual([
+        'Go to the page Dashboard.',
+      ]);
+      expect(fakes.listDashboards).toHaveBeenCalledWith('w1');
+      expect(fakes.createDashboard).not.toHaveBeenCalled();
+    });
+
+    it('reads the groups, the dashboards and the fragments each with its own permission', async () => {
+      grant([Permission.LIST_PROJECTS_BY_WORKSPACE, Permission.READ_WORKSPACE]);
+      await open();
+
+      await waitFor(() => expect(fakes.listGroups).toHaveBeenCalledWith('w1'));
+      await waitFor(() => expect(fakes.listDashboards).toHaveBeenCalledWith('w1'));
+      expect(fakes.listFragments).not.toHaveBeenCalled();
     });
 
     it('hides a command without its permission', async () => {

@@ -1,7 +1,15 @@
 // @vitest-environment node
 import { describe, expect, it } from 'vitest';
 import { entityGlyph } from '../../data-display/EntityIcon/entity-glyphs.ts';
-import { choiceIconProps, imageFileProblem, MAX_IMAGE_BYTES, searchGlyphs } from './icon-picker.ts';
+import { SCYLLA_GLYPH_AVATAR } from '../../structs/glyph-avatar.struct.ts';
+import { glyphDataUri } from '../GlyphAvatar/glyph-avatar.ts';
+import {
+  choiceIconProps,
+  choiceKey,
+  imageFileProblem,
+  MAX_IMAGE_BYTES,
+  searchGlyphs,
+} from './icon-picker.ts';
 import { iconPickerMessages } from './icon-picker.messages.ts';
 
 const file = (type: string, size: number) => new File([new Uint8Array(size)], 'icon', { type });
@@ -52,5 +60,16 @@ describe('choiceIconProps', () => {
       icon: entityGlyph('bot'),
       color: 'info',
     });
+  });
+});
+
+describe('a glyph avatar as a choice', () => {
+  it('shows the SVG drawn in the browser, and changes its key with its look', () => {
+    const choice = { kind: 'avatar', avatar: SCYLLA_GLYPH_AVATAR } as const;
+    const turned = { kind: 'avatar', avatar: { ...SCYLLA_GLYPH_AVATAR, rotate: 15 } } as const;
+
+    expect(choiceIconProps(choice)).toEqual({ image: glyphDataUri(SCYLLA_GLYPH_AVATAR) });
+    expect(choiceKey(choice)).toMatch(/^avatar:/);
+    expect(choiceKey(turned)).not.toBe(choiceKey(choice));
   });
 });

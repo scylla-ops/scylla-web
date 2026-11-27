@@ -16,6 +16,9 @@ export type {
   QueryRetryPolicy,
   SecondSidebarLink,
   SecondSidebarSearch,
+  SecondSidebarSection,
+  SecondSidebarSectionAction,
+  SecondSidebarStatus,
   ShellContributions,
 } from './extension/contributions.struct.ts';
 

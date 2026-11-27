@@ -3,6 +3,7 @@
   import { can, Permission } from '@platform/authz';
   import { scyllaNavigate, contextStore } from '@platform/context';
   import { createQuery } from '@scylla/core-sdk';
+  import { fold, unfold } from '@scylla/ui';
   import { toRune } from '@scylla/ui/stores';
   import { t } from '@scylla/ui/i18n';
   import { appQueries } from '@base/features/apps/presentation/apps.queries.ts';
@@ -33,7 +34,11 @@
   the connection is unknown: the banner only points at the agents.
 -->
 {#snippet banner(children: Snippet)}
-  <div class="flex items-center gap-2.5 rounded-md border px-3 py-2 text-xs text-muted-foreground">
+  <div
+    class="flex items-center gap-2.5 rounded-md border px-3 py-2 text-xs text-muted-foreground"
+    in:unfold
+    out:fold
+  >
     <span class="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-warning"></span>
     {@render children()}
   </div>

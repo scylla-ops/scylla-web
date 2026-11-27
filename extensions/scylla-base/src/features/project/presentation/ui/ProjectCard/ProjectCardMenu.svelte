@@ -29,7 +29,7 @@
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
   import { projectMutations } from '../../project.queries.ts';
-  import EditProjectDialog from '../EditProjectDialog.svelte';
+  import EditProjectDialog from '../EditProjectDialog/EditProjectDialog.svelte';
   import ProjectIconDialog from '../ProjectIconDialog/ProjectIconDialog.svelte';
   import { getProjectLayout } from '../project-layout.context.ts';
   import NewGroupDialog from './NewGroupDialog.svelte';

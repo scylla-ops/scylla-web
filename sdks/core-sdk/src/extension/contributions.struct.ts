@@ -53,6 +53,46 @@ export interface SecondSidebarLink {
   entityIcon?: EntityIconProps;
   /** Apart from the links before it. By default, only the first link of a module is apart. */
   apart?: boolean;
+  /**
+   * The folding section of the link, e.g. a group of projects. The links of one section come one
+   * after the other; its title shows once, before the first of them. Unset: no section.
+   */
+  section?: SecondSidebarSection;
+  /** A small live mark at the end of the row, e.g. a job that runs. At most one per link. */
+  status?: SecondSidebarStatus;
+}
+
+/** A folding section of the links of a module in the second sidebar. */
+export interface SecondSidebarSection {
+  /** Unique in the links of the module, e.g. the id of a group. */
+  key: string;
+  title: string;
+  /** Before the title, e.g. a pin. Unset: a folder, in `color`. */
+  icon?: LucideIcon;
+  /** The color of the folder: a color of the theme (`chart-2`) or `#RRGGBB`. Unset: grey. */
+  color?: string;
+  /** The links of the section are hidden; the title shows their number. */
+  folded: boolean;
+  /** A click on the title folds or unfolds the section: the module saves the new state. */
+  onToggle: (folded: boolean) => void;
+  /**
+   * A "+" at the end of the title, e.g. a new project in this group. It shows on hover and on
+   * focus with a mouse, always on a touch screen. Unset: no "+".
+   */
+  action?: SecondSidebarSectionAction;
+}
+
+/** The "+" of a section of the second sidebar: it opens `href`. */
+export interface SecondSidebarSectionAction {
+  /** The accessible name and the tooltip, e.g. `New project in Deploys`. */
+  label: string;
+  href: string;
+}
+
+/** A small live mark of a link: a dot in the color of the tone, with its accessible name. */
+export interface SecondSidebarStatus {
+  tone: 'running' | 'failed';
+  label: string;
 }
 
 /** A search field above the links of the second sidebar. The module filters its own links. */
@@ -70,8 +110,11 @@ export interface SecondSidebarSearch {
 export interface ShellContributions {
   /** Below the sidebar links, e.g. the user menu. */
   sidebarFooter?: readonly Component[];
-  /** Above the sidebars, e.g. the logo of the product. The last extension wins. */
-  brand?: Component;
+  /**
+   * Above the sidebars, e.g. the logo of the product. The last extension wins. `collapsed`: only the
+   * 56 px rail column is there (no second sidebar), so the brand shows its mark, not its wordmark.
+   */
+  brand?: Component<{ collapsed: boolean }>;
   /** At the right end of the top bar, e.g. a context switcher. */
   topBarEnd?: readonly Component[];
   /** Rendered once over the shell, e.g. a dialog. */

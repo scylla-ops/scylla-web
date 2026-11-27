@@ -7,5 +7,6 @@ export function toDomain(group: ProjectGroup): ProjectGroupEntity {
     id: idValue(group.id),
     workspaceId: idValue(group.workspaceId),
     name: group.name,
+    ...(group.color && { color: group.color }),
   };
 }

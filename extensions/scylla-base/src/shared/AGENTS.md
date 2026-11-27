@@ -28,17 +28,20 @@ domain/structs/job-status.struct.ts  JobStatus, isActiveStatus, isFinishedStatus
 domain/structs/api-token.struct.ts   ApiToken, TokenLimits, TokenPreset, TokenExpiry, expiryStateOf:
                                      the API tokens of the apps and the personal tokens
 domain/structs/custom-icon.struct.ts CustomIcon, CustomIconChange: the icon that an admin gives
-                                     to a thing of a workspace (an agent)
+                                     to a thing of a workspace (an agent); `glyph` of an image
+                                     and the change `avatar`: a glyph avatar (an App only)
 domain/structs/agent-label.struct.ts AGENT_LABEL_PATTERN, MAX_AGENT_LABELS, agentLabelIssue,
                                      sameAgentLabels: the rule of a label of an agent, as the
                                      server checks it (`apps` and `pipeline` both use it)
 infrastructure/grpc/wrappers.ts      proto helpers, and `required`: the entity a response must carry
                                      (MALFORMED_RESPONSE when the server left it out)
 infrastructure/grpc/api-token.mapper.ts  apiTokenToDomain, limitsToProto, expiryToProto
-infrastructure/grpc/icon.mapper.ts   iconToDomain, iconChangeToProto: `scylla.common.v1.Icon`
+infrastructure/grpc/icon.mapper.ts   iconToDomain, iconChangeToProto, glyphAvatarToDomain,
+                                     glyphAvatarToProto: `scylla.common.v1.Icon`
 presentation/ui/index.ts             `@shared/presentation/ui`
   data-display/                      StatusBar, STATUS_ICONS / getStatusIcon,
                                      Identity, IdentityAvatar, identityKindOf, userName,
+                                     systemActorProfile (Scylla, with the Scylla head),
                                      userSecondaryLine, IdentityKind, UserIdentityProfile,
                                      AvatarLook (the photo, the color, the glyph of an App:
                                      IdentityAvatar shows them, the chosen color through CSS
@@ -46,13 +49,16 @@ presentation/ui/index.ts             `@shared/presentation/ui`
                                      ProviderMark, JobRunMark, FragmentIcon, VersionBadge (the
                                      library: pipeline and marketplace), AgentLabels (the labels
                                      of an agent, a pipeline or a job; the labels of the machine
-                                     in outline, after the others)
+                                     in outline, after the others), WorkspaceIcon (the icon of a
+                                     workspace in each place that names one; a caller gives
+                                     `imageUrl`, because shared cannot import platform)
   forms/                             TokenForm, ApiAccessCard, AgentLabelsField (a list of labels
                                      to change: add with Enter or Add, remove with the x of a
                                      label, the issue of `agentLabelIssue` under the field;
                                      `autofocus` in a dialog or a popover puts the caret in the
                                      field, not on the x of the first label)
 presentation/presenters/job-run.presenter.ts  JobRun, jobShortId: the job of a JobRunMark
+presentation/presenters/workspace-icon.presenter.ts  workspaceIconProps, the default glyph and color
 presentation/ui/layout/AuthLayout.svelte  the frame of the public pages; import it by path
 presentation/ui/layout/LogoMark/     LogoMark: the four dots of the mark, with a state (idle, waiting, lit)
 locales/                             the catalog of these files
@@ -144,8 +150,9 @@ user (a grant never outlives its user, so a holder that the page cannot look up 
 | `row` (the default) | 32 px | Two lines, for a table. |
 | `header` | 48 px | The `h1` of a detail page, with a badge: "You", the kind of a machine, else `@username`. The email of a person under it. |
 
-`IdentityAvatar` is the avatar alone, at 16 (one letter), 24 (a stack of avatars), 32, 48 or
-72 px (a card). `online` puts a dot on an agent. The prop type, `UserIdentityProfile`, is structural: `shared/` cannot import
+`IdentityAvatar` is the avatar alone, at 16 (one letter), 20 (a row of the command bar), 24 (a
+stack of avatars), 32, 48 or 72 px (a card). A new photo, new initials or a new glyph cross-fades
+with the old one, and a new color fades in CSS. `online` puts a dot on an agent. The prop type, `UserIdentityProfile`, is structural: `shared/` cannot import
 `features/user`, and a `UserSummary` or a `UserEntity` of that module fits it. An app gives its
 name as `displayName` and an empty `username`.
 

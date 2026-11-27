@@ -1,19 +1,24 @@
-import type { MessageDescriptor } from '@lingui/core';
 import BlocksIcon from '@lucide/svelte/icons/blocks';
 import Building2Icon from '@lucide/svelte/icons/building-2';
 import FileTextIcon from '@lucide/svelte/icons/file-text';
 import FolderIcon from '@lucide/svelte/icons/folder';
-import KeyRoundIcon from '@lucide/svelte/icons/key-round';
+import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
+import GitForkIcon from '@lucide/svelte/icons/git-fork';
+import LayersIcon from '@lucide/svelte/icons/layers';
+import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
+import LayoutListIcon from '@lucide/svelte/icons/layout-list';
+import LinkIcon from '@lucide/svelte/icons/link';
+import LockIcon from '@lucide/svelte/icons/lock';
 import PlayIcon from '@lucide/svelte/icons/play';
 import ServerIcon from '@lucide/svelte/icons/server';
 import ShieldCheckIcon from '@lucide/svelte/icons/shield-check';
 import UserRoundIcon from '@lucide/svelte/icons/user-round';
+import UsersIcon from '@lucide/svelte/icons/users';
 import WorkflowIcon from '@lucide/svelte/icons/workflow';
-import { Permission, type PermissionTarget } from '@platform/authz';
+import { Permission } from '@platform/authz';
 import { workspaceUrl } from '@platform/context';
 import type {
   ActionCommand,
-  AppNavLink,
   ChoiceCommand,
   CommandDefinition,
   CommandForm,
@@ -21,99 +26,39 @@ import type {
   CreateCommand,
   ToggleCommand,
 } from '@scylla/core-sdk';
-import type { LucideIcon } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
-import { prepareFuzzyText, type FuzzyFields } from '@scylla/ui/utils';
+import { prepareFuzzyText } from '@scylla/ui/utils';
+import { agentProfile } from '@base/features/apps';
+import { newProjectPath, projectIconProps } from '@base/features/project';
 import { roleName, type RoleEntity } from '@base/features/roles';
+import {
+  allWorkspacesHref,
+  ownerName,
+  workspaceCounts,
+  workspaceIconProps,
+  workspaceRoleLabel,
+} from '@base/features/workspace';
 import { commandBarMessages as messages } from '@base/shell/presentation/layout/messages/command-bar.messages.ts';
 import { layoutMessages } from '@base/shell/presentation/layout/messages/layout.messages.ts';
+import type { CommandRow, CommandWorkspace, Draft, RecentRow, RowsInput } from './command-row.ts';
+import { memberPlace, recentDraft, searchDrafts } from './command-search-rows.presenter.ts';
 
-export type CommandGroupId =
-  | 'pages'
-  | 'preferences'
-  | 'actions'
-  | 'projects'
-  | 'pipelines'
-  | 'machines'
-  | 'people'
-  | 'roles'
-  | 'secrets'
-  | 'workspaces';
-
-export type RowEffect =
-  | { kind: 'go'; href: string }
-  | { kind: 'form'; form: CommandForm }
-  | {
-      kind: 'change';
-      apply: () => void | Promise<void>;
-      undo?: () => void | Promise<void>;
-      /** The text of the toast. */
-      done: string;
-    }
-  | {
-      kind: 'confirm';
-      verb: string;
-      question: string;
-      detail?: string;
-      run: () => void | Promise<void>;
-    }
-  | { kind: 'act'; run: () => void | Promise<void> }
-  | { kind: 'run'; pipelineId: string; verb: string; question: string; detail: string }
-  | { kind: 'switch'; workspace: { id: string; name: string; slug: string } };
-
-export interface CommandRow {
-  /** Stable from a session to the next one: the list of the recent rows stores it. */
-  id: string;
-  group: CommandGroupId;
-  name: string;
-  type: string;
-  place?: string;
-  /** What Enter does. No verb: the row is the current value, and Enter does nothing. */
-  verb?: string;
-  /** The full text of what Enter does, for the footer and for a screen reader. */
-  sentence: string;
-  icon: LucideIcon;
-  effect: RowEffect;
-  /** `true`: the row acts on the current page. */
-  here?: boolean;
-  /** `run`: the row shows only when the text starts with a word that means to run. */
-  gate?: 'run';
-  projectId?: string;
-  fields: FuzzyFields;
-}
-
-export interface CommandSourcesData {
-  projects: readonly { id: string; name: string }[];
-  pipelines: readonly { id: string; name: string; projectId: string }[];
-  apps: readonly { id: string; name: string; runner: boolean }[];
-  members: readonly { actorId: string; actorKind: string; displayName: string; handle: string }[];
-  workspaceRoles: readonly RoleEntity[];
-  instanceRoles: readonly RoleEntity[];
-  secrets: readonly { name: string }[];
-  workspaces: readonly { id: string; name: string; slug: string }[];
-}
-
-export interface RowsInput extends CommandSourcesData {
-  links: readonly AppNavLink[];
-  commands: readonly CommandDefinition[];
-  slug?: string;
-  workspaceId: string | null;
-  project: { id: string | null; name: string | null };
-  /** The pipeline in the URL. */
-  pipelineId?: string;
-  can: (permission: Permission, target?: PermissionTarget) => boolean;
-  /** The text of a message in the other language. */
-  other: (message: MessageDescriptor | undefined) => string | undefined;
-}
-
-interface Draft extends Omit<CommandRow, 'sentence' | 'fields'> {
-  say: (label: string) => MessageDescriptor;
-  /** The id of the entity: the row with the same name, type and place shows its start. */
-  uid?: string;
-  keywords?: readonly (string | undefined)[];
-  /** Other words of the place, which do not show. */
-  searchPlace?: readonly (string | undefined)[];
-}
+export type {
+  CommandGroupId,
+  CommandJob,
+  CommandPackage,
+  CommandRow,
+  CommandRowActions,
+  CommandSecret,
+  CommandSourcesData,
+  CommandTrigger,
+  CommandUser,
+  CommandWorkspace,
+  RecentRow,
+  RowEffect,
+  RowLook,
+  RowsInput,
+} from './command-row.ts';
 
 const present = (texts: readonly (string | undefined | null)[]): string[] =>
   texts.filter((text): text is string => !!text);
@@ -350,101 +295,246 @@ const roleDrafts = (
     say: messages.sayRole,
   }));
 
-const entityDrafts = (input: RowsInput): Draft[] => {
-  const { slug, project, workspaceId } = input;
-  const workspaces = input.workspaces.map(
-    (workspace): Draft => ({
+/** A new project in each group, as the "+" of the group on the projects page. */
+const newProjectDrafts = ({ slug, workspaceId, groups, can }: RowsInput): Draft[] =>
+  slug && can(Permission.CREATE_PROJECT, { workspaceId: workspaceId ?? undefined })
+    ? groups.map(({ id, name }) => ({
+        id: `new-project-in:${id}`,
+        uid: id,
+        group: 'actions',
+        name: t(layoutMessages.newProjectIn(name)),
+        type: t(messages.typeAction),
+        verb: t(messages.verbCreate),
+        icon: FolderPlusIcon,
+        effect: { kind: 'go', href: workspaceUrl(slug, newProjectPath(id)) },
+        say: messages.sayForm,
+      }))
+    : [];
+
+/** A project shows its icon, and its group as its place, with the folder of the group. */
+const projectDrafts = ({ projects, groups }: RowsInput, slug: string): Draft[] =>
+  projects.map(({ id, name, icon, groupId }): Draft => {
+    const group = groupId ? groups.find(item => item.id === groupId) : undefined;
+    return {
+      id: `project:${id}`,
+      uid: id,
+      group: 'projects',
+      name,
+      type: t(messages.typeProject),
+      place: group?.name,
+      placeGlyph: group && { icon: FolderIcon, color: group.color },
+      verb: t(messages.verbGo),
+      icon: FolderIcon,
+      look: { kind: 'project', icon: projectIconProps(icon) },
+      iconKey: JSON.stringify(icon ?? null),
+      effect: { kind: 'go', href: workspaceUrl(slug, `projects/${id}`) },
+      projectId: id,
+      say: messages.sayProject,
+    };
+  });
+
+/** A group opens the projects page on it. It counts the projects of the lookup. */
+const groupDrafts = ({ groups, projects, can, workspaceId }: RowsInput, slug: string): Draft[] => {
+  if (!can(Permission.READ_WORKSPACE, { workspaceId: workspaceId ?? undefined })) return [];
+  return groups.map(({ id, name, color }): Draft => ({
+    id: `group:${id}`,
+    uid: id,
+    group: 'groups',
+    name,
+    type: t(messages.typeGroup),
+    facts: t(messages.projectCount(projects.filter(project => project.groupId === id).length)),
+    verb: t(messages.verbGo),
+    icon: FolderIcon,
+    iconColor: color,
+    iconKey: color ?? '',
+    effect: { kind: 'go', href: workspaceUrl(slug, `projects?group=${encodeURIComponent(id)}`) },
+    say: messages.sayGroup,
+  }));
+};
+
+const FRAGMENT_ICONS = { linked: LinkIcon, forked: GitForkIcon } as const;
+
+/** A fragment of the library, with the icon of the library: its own, linked or forked. */
+const fragmentDrafts = ({ fragments }: RowsInput, slug: string): Draft[] =>
+  fragments.map(({ id, name, tags, source }): Draft => ({
+    id: `fragment:${id}`,
+    uid: id,
+    group: 'fragments',
+    name,
+    type: t(messages.typeFragment),
+    place:
+      source && t(source.kind === 'linked' ? messages.fragmentLinked : messages.fragmentForked),
+    verb: t(messages.verbGo),
+    icon: source ? FRAGMENT_ICONS[source.kind] : LayersIcon,
+    effect: { kind: 'go', href: workspaceUrl(slug, `library/${id}`) },
+    say: messages.sayFragment,
+    keywords: tags,
+  }));
+
+/** The name of the creator of a dashboard: « You », else the member of the workspace. */
+const creatorOf = ({ selfId, members }: RowsInput, id: string | undefined): string | undefined => {
+  if (!id) return undefined;
+  if (id === selfId) return t(messages.you);
+  const member = members.find(item => item.actorId === id);
+  return member ? member.displayName || member.handle : undefined;
+};
+
+/** A dashboard is personal or shared with the workspace; a shared one names its creator. */
+const dashboardDrafts = (input: RowsInput, slug: string): Draft[] =>
+  (input.dashboards ?? []).map((dashboard): Draft => {
+    const shared = dashboard.visibility === 'workspace';
+    const creator = shared ? creatorOf(input, dashboard.createdBy) : undefined;
+    return {
+      id: `dashboard:${dashboard.id}`,
+      uid: dashboard.id,
+      group: 'dashboards',
+      name: dashboard.name,
+      type: t(messages.typeDashboard),
+      place: t(shared ? messages.dashboardShared : messages.dashboardPersonal),
+      placeGlyph: { icon: shared ? UsersIcon : LockIcon },
+      facts:
+        present([creator, dashboard.teamDefault ? t(messages.teamDefault) : undefined]).join(
+          ' · ',
+        ) || undefined,
+      verb: t(messages.verbGo),
+      icon: LayoutDashboardIcon,
+      effect: { kind: 'go', href: workspaceUrl(slug, dashboard.path) },
+      say: messages.sayDashboard,
+      searchPlace: [creator],
+    };
+  });
+
+/**
+ * The workspaces of the user, with the owner, the role and the counts. An instance admin also gets
+ * the workspaces of other users that the search finds, after its own, then the list of all.
+ */
+const workspaceDrafts = (input: RowsInput): Draft[] => {
+  const seesAll = input.can(Permission.LIST_ALL_WORKSPACES);
+  const draft = (workspace: CommandWorkspace, rank: number): Draft => {
+    const current = workspace.id === input.workspaceId;
+    const owner = workspace.owner && ownerName(workspace.owner);
+    const facts = present([
+      workspaceRoleLabel(workspace.role, seesAll),
+      ...workspaceCounts(workspace),
+    ]);
+    return {
       id: `workspace:${workspace.id}`,
-      uid: workspace.id,
       group: 'workspaces',
       name: workspace.name,
       type: t(messages.typeWorkspace),
-      verb: workspace.id === workspaceId ? undefined : t(messages.verbSwitch),
+      place: owner,
+      facts: facts.join(' · ') || undefined,
+      owner: workspace.owner,
+      rank,
+      verb: current ? undefined : t(messages.verbSwitch),
       icon: Building2Icon,
-      effect: { kind: 'switch', workspace },
-      say: workspace.id === workspaceId ? messages.sayCurrent : messages.saySwitch,
-    }),
-  );
+      look: { kind: 'workspace', icon: workspaceIconProps(workspace.icon) },
+      iconKey: JSON.stringify(workspace.icon ?? null),
+      effect: {
+        kind: 'switch',
+        workspace: { id: workspace.id, name: workspace.name, slug: workspace.slug },
+      },
+      say: current
+        ? messages.sayCurrent
+        : () =>
+            owner
+              ? messages.saySwitchOf(workspace.name, owner)
+              : messages.saySwitch(workspace.name),
+      keywords: [workspace.slug, workspace.owner?.username, workspace.owner?.email],
+    };
+  };
+
+  const own = input.workspaces.map(workspace => draft(workspace, 0));
+  if (!seesAll) return own;
+  const mine = new Set(input.workspaces.map(workspace => workspace.id));
+  const others = input.otherWorkspaces
+    .filter(workspace => !mine.has(workspace.id))
+    .map(workspace => draft(workspace, 1));
+  const all: Draft = {
+    id: 'workspaces:all',
+    group: 'workspaces',
+    name: t(messages.allWorkspaces),
+    type: t(messages.typePage),
+    verb: t(messages.verbGo),
+    icon: LayoutListIcon,
+    effect: { kind: 'go', href: allWorkspacesHref(input.search ?? '') },
+    rank: 2,
+    pinned: true,
+    say: () => messages.sayAllWorkspaces,
+    keywords: [input.other(messages.allWorkspaces)],
+  };
+  return [...own, ...others, all];
+};
+
+const entityDrafts = (input: RowsInput): Draft[] => {
+  const { slug } = input;
+  const workspaces = workspaceDrafts(input);
   if (!slug) return workspaces;
 
   return [
-    ...input.projects.map(
-      ({ id, name }): Draft => ({
-        id: `project:${id}`,
-        uid: id,
-        group: 'projects',
-        name,
-        type: t(messages.typeProject),
-        verb: t(messages.verbGo),
-        icon: FolderIcon,
-        effect: { kind: 'go', href: workspaceUrl(slug, `projects/${id}`) },
-        projectId: id,
-        say: messages.sayProject,
-      }),
-    ),
+    ...projectDrafts(input, slug),
+    ...groupDrafts(input, slug),
     ...pipelineDrafts(input),
-    ...input.apps.map(
-      ({ id, name, runner }): Draft => ({
-        id: `app:${id}`,
-        uid: id,
-        group: 'machines',
-        name,
-        type: t(runner ? messages.typeAgent : messages.typeApp),
-        verb: t(messages.verbGo),
-        icon: runner ? ServerIcon : BlocksIcon,
-        effect: { kind: 'go', href: workspaceUrl(slug, `${runner ? 'agents' : 'apps'}/${id}`) },
-        say: runner ? messages.sayAgent : messages.sayApp,
-      }),
-    ),
+    ...fragmentDrafts(input, slug),
+    ...dashboardDrafts(input, slug),
+    ...input.apps.map(({ id, name, runner, icon }): Draft => ({
+      id: `app:${id}`,
+      uid: id,
+      group: 'machines',
+      name,
+      type: t(runner ? messages.typeAgent : messages.typeApp),
+      verb: t(messages.verbGo),
+      icon: runner ? ServerIcon : BlocksIcon,
+      look: { kind: runner ? 'agent' : 'app', profile: agentProfile({ name, icon }) },
+      effect: { kind: 'go', href: workspaceUrl(slug, `${runner ? 'agents' : 'apps'}/${id}`) },
+      say: runner ? messages.sayAgent : messages.sayApp,
+    })),
     ...input.members
       .filter(member => member.actorKind === 'user')
-      .map(
-        ({ actorId, displayName, handle }): Draft => ({
-          id: `member:${actorId}`,
-          uid: actorId,
-          group: 'people',
-          name: displayName || handle,
-          type: t(messages.typeMember),
-          place: displayName ? handle : undefined,
-          verb: t(messages.verbGo),
-          icon: UserRoundIcon,
-          effect: { kind: 'go', href: workspaceUrl(slug, `access/members/${actorId}`) },
-          say: messages.sayMember,
-        }),
-      ),
+      .map(({ actorId, displayName, handle, avatarUrl, avatarColor, roles }): Draft => ({
+        id: `member:${actorId}`,
+        uid: actorId,
+        group: 'people',
+        name: displayName || handle,
+        type: t(messages.typeMember),
+        place: memberPlace(roles) ?? (displayName ? handle : undefined),
+        facts: input.workspaceName || undefined,
+        verb: t(messages.verbGo),
+        icon: UserRoundIcon,
+        look: {
+          kind: 'person',
+          profile: { displayName, username: handle, avatarUrl, avatarColor },
+          self: actorId === input.selfId,
+        },
+        effect: { kind: 'go', href: workspaceUrl(slug, `access/members/${actorId}`) },
+        say: messages.sayMember,
+        keywords: [displayName ? handle : undefined],
+      })),
     ...roleDrafts(input.workspaceRoles, 'access', slug),
     ...roleDrafts(input.instanceRoles, 'instance', slug),
-    ...input.secrets.flatMap(({ name }): Draft[] =>
-      project.id
-        ? [
-            {
-              id: `secret:${project.id}:${name}`,
-              group: 'secrets',
-              name,
-              type: t(messages.typeSecret),
-              place: project.name ?? undefined,
-              verb: t(messages.verbGo),
-              icon: KeyRoundIcon,
-              effect: { kind: 'go', href: workspaceUrl(slug, `projects/${project.id}/secrets`) },
-              projectId: project.id,
-              say: messages.saySecret,
-            },
-          ]
-        : [],
-    ),
+    ...searchDrafts(input, slug),
     ...workspaces,
   ];
 };
 
-const identityOf = (draft: Draft): string => `${draft.name}\n${draft.type}\n${draft.place ?? ''}`;
+const DASHBOARD_PAGE_ID = 'page:workspace/dashboard';
 
 /**
- * All that the bar can show. Two rows with the same name, type and place show the start of their
- * id: two rows must not read the same.
+ * With no dashboard on the server, the chip of the dashboards shows the page of the dashboard:
+ * the page creates the first one, the bar never does. The row keeps the id of the page, so a pick
+ * goes to the recent rows as the page.
  */
-export const buildCommandRows = (input: RowsInput): CommandRow[] => {
-  const drafts = [...pageDrafts(input), ...commandDrafts(input), ...entityDrafts(input)];
+const emptyDashboardDrafts = (input: RowsInput, pages: readonly Draft[]): Draft[] => {
+  const page = pages.find(draft => draft.id === DASHBOARD_PAGE_ID);
+  return page && input.dashboards?.length === 0
+    ? [{ ...page, group: 'dashboards', chipOnly: true }]
+    : [];
+};
 
+const identityOf = (draft: Draft): string => `${draft.name}\n${draft.type}\n${draft.place ?? ''}`;
+
+/** Two rows with the same name, type and place show the start of their id. */
+const finish = (drafts: readonly Draft[]): CommandRow[] => {
   const counts = new Map<string, number>();
   for (const draft of drafts) {
     counts.set(identityOf(draft), (counts.get(identityOf(draft)) ?? 0) + 1);
@@ -452,7 +542,8 @@ export const buildCommandRows = (input: RowsInput): CommandRow[] => {
 
   return drafts.map(({ say, uid, keywords = [], searchPlace = [], ...draft }) => {
     const repeated = (counts.get(identityOf({ say, uid, ...draft })) ?? 0) > 1;
-    const place = repeated && uid ? present([draft.place, uid.slice(0, 4)]).join(' · ') : draft.place;
+    const place =
+      repeated && uid ? present([draft.place, uid.slice(0, 4)]).join(' · ') : draft.place;
     const label = place ? `${draft.name} (${place})` : draft.name;
     return {
       ...draft,
@@ -466,3 +557,19 @@ export const buildCommandRows = (input: RowsInput): CommandRow[] => {
     };
   });
 };
+
+/** All that the bar can show. Two rows must not read the same. */
+export const buildCommandRows = (input: RowsInput): CommandRow[] => {
+  const pages = pageDrafts(input);
+  return finish([
+    ...pages,
+    ...commandDrafts(input),
+    ...newProjectDrafts(input),
+    ...entityDrafts(input),
+    ...emptyDashboardDrafts(input, pages),
+  ]);
+};
+
+/** The rows of the server search in the recent list, from what the list stored. */
+export const buildRecentRows = (recent: readonly RecentRow[]): CommandRow[] =>
+  finish(recent.map(recentDraft));

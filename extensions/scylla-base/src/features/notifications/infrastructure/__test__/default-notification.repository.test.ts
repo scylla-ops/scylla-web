@@ -14,6 +14,7 @@ const wire = (overrides: Partial<Notification> = {}): Notification => ({
   category: 'access',
   reason: 'subject',
   actorName: 'Sam',
+  actorKind: '',
   workspaceSlug: 'acme',
   workspaceName: 'Acme',
   projectName: '',
@@ -73,6 +74,30 @@ describe('toDomain', () => {
     expect(row.done).toBe(false);
     expect(row.workspaceId).toBeNull();
     expect(row.lastAt).toBe(ISO);
+  });
+
+  it('reads the icon of the workspace and the look of the actor', () => {
+    const person = toDomain(
+      wire({
+        actorKind: 'user',
+        actorAvatar: { imageId: { value: 'img-1' }, color: 'chart-3' },
+        workspaceIcon: {
+          kind: { oneofKind: 'glyph', glyph: { name: 'rocket', color: '#a1b2c3' } },
+        },
+      }),
+    );
+    const app = toDomain(
+      wire({
+        actorKind: 'app',
+        actorIcon: { kind: { oneofKind: 'glyph', glyph: { name: 'server', color: 'chart-2' } } },
+      }),
+    );
+
+    expect(person.actorKind).toBe('user');
+    expect(person.actorLook).toEqual({ avatarUrl: '/images/img-1', avatarColor: 'chart-3' });
+    expect(person.workspaceIcon).toEqual({ kind: 'glyph', name: 'rocket', color: '#a1b2c3' });
+    expect(app.actorLook).toEqual({ avatarGlyph: 'server', avatarColor: 'chart-2' });
+    expect(app.workspaceIcon).toBeUndefined();
   });
 
   it('reads a row with its times as read and done', () => {

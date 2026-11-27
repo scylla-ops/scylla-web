@@ -18,9 +18,11 @@ vi.mock('svelte-sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } })
 let teardown: Array<() => void> = [];
 let navigator: ReturnType<typeof installTestNavigator>;
 let create: ReturnType<typeof vi.fn>;
+let update: ReturnType<typeof vi.fn>;
 
 const setUp = (getMine: () => Promise<{ id: string; name: string; slug: string }[]>) => {
   create = vi.fn((name: string) => Promise.resolve({ id: 'org-9', name, slug: 'my-org' }));
+  update = vi.fn((id: string) => Promise.resolve({ id, name: 'My Org', slug: 'my-org' }));
   const cache = withQueryClient();
   const getMe = vi
     .fn()
@@ -28,7 +30,7 @@ const setUp = (getMine: () => Promise<{ id: string; name: string; slug: string }
   teardown = [
     cache.restore,
     withRegistry({
-      workspace: { workspaceRepository: { getMine, create } },
+      workspace: { workspaceRepository: { getMine, create, update } },
       user: { userRepository: { getMe } },
     }),
   ];
@@ -111,6 +113,27 @@ describe('WorkspaceGate', () => {
     await waitFor(() => expect(create).toHaveBeenCalledWith('My Org', 'my-org'));
     await waitFor(() =>
       expect(navigator.navigate).toHaveBeenCalledWith('/my-org/dashboard', undefined),
+    );
+  });
+
+  it('creates the first workspace with the icon chosen in its form', async () => {
+    holding([Permission.CREATE_WORKSPACE]);
+    setUp(() => Promise.resolve([]));
+    await screen.findByText('Welcome to Scylla!');
+    await focusSettled();
+    const user = userEvent.setup();
+
+    await user.click(screen.getByRole('button', { name: 'Change the icon' }));
+    await user.click(screen.getByRole('button', { name: 'Color 3' }));
+    await user.type(screen.getByLabelText('Workspace name'), 'My Org');
+    await user.click(screen.getByRole('button', { name: 'Create' }));
+
+    await waitFor(() =>
+      expect(update).toHaveBeenCalledWith('org-9', undefined, undefined, {
+        kind: 'glyph',
+        name: 'building',
+        color: 'chart-3',
+      }),
     );
   });
 

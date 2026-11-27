@@ -1,26 +1,31 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import FolderPlusIcon from '@lucide/svelte/icons/folder-plus';
-  import PencilIcon from '@lucide/svelte/icons/pencil';
   import { Button, Input } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { projectMessages } from '@base/features/project/presentation/messages/project.messages.ts';
+  import GroupColorButton from '../GroupColor/GroupColorButton.svelte';
 
   interface Props {
     /** The name of the group to rename. Unset: a new group. */
     initial?: string;
+    /** The color of the folder of the group to rename. */
+    initialColor?: string;
     busy: boolean;
-    onSubmit: (name: string) => void;
+    /** The name, and the color of the folder (unset: the default folder). */
+    onSubmit: (name: string, color: string | undefined) => void;
     onCancel: () => void;
   }
 
-  let { initial, busy, onSubmit, onCancel }: Props = $props();
+  let { initial, initialColor, busy, onSubmit, onCancel }: Props = $props();
 
-  // The field starts on the name of the group, then follows what the person types.
+  // The field starts on the name of the group, then follows what the person types. The folder
+  // starts on its color: a click on it opens the colors, in the same row as the name.
   let name = $state(untrack(() => initial) ?? '');
+  let color = $state(untrack(() => initialColor));
   const renames = $derived(initial !== undefined);
-  const Icon = $derived(renames ? PencilIcon : FolderPlusIcon);
-  const valid = $derived(name.trim().length > 0 && name.trim() !== initial);
+  const valid = $derived(
+    name.trim().length > 0 && (name.trim() !== initial || color !== initialColor),
+  );
 
   const focus = (input: HTMLInputElement) => {
     input.focus();
@@ -29,7 +34,7 @@
 
   const submit = (event: SubmitEvent) => {
     event.preventDefault();
-    if (valid && !busy) onSubmit(name);
+    if (valid && !busy) onSubmit(name, color);
   };
 
   // Escape here closes the row only, not the reorder mode.
@@ -41,7 +46,16 @@
 </script>
 
 <form class="flex min-h-8 flex-wrap items-center gap-2" onsubmit={submit} data-part="group-name-row">
-  <Icon class="size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+  <GroupColorButton
+    value={color}
+    onchange={next => (color = next)}
+    label={t(
+      renames
+        ? projectMessages.changeFolderColor(initial ?? '')
+        : projectMessages.folderColorOfNew,
+    )}
+    disabled={busy}
+  />
   <Input
     bind:value={name}
     maxlength={100}

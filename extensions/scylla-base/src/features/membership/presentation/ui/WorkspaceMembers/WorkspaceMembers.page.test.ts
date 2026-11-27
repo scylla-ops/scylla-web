@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { Permission, PermissionScope, permissionsStore } from '@platform/authz';
 import { contextStore } from '@platform/context';
 import type { MemberEntity, MemberRoleEntity } from '@base/features/access';
+import { installTestNavigator } from '@test/navigator.ts';
 import { findFloating, render, withQueryClient, withRegistry } from '@test/render.ts';
 import WorkspaceMembersPage from './WorkspaceMembers.page.svelte';
 
@@ -383,6 +384,68 @@ describe('WorkspaceMembersPage', () => {
       expect(
         within(dialog).queryByRole('checkbox', { name: 'Project editor' }),
       ).not.toBeInTheDocument();
+    });
+  });
+
+  describe('the empty list', () => {
+    const emptyState = async (title: string) =>
+      (await screen.findByText(title)).closest<HTMLElement>('[data-slot="empty-state"]')!;
+
+    beforeEach(() => {
+      listMembers.mockResolvedValue([member('user-1', 'Alice', [ownerRole])]);
+    });
+
+    it('offers "Add members" in an empty Apps tab, and it opens the chooser of an app', async () => {
+      render(WorkspaceMembersPage);
+      await screen.findByText('Alice');
+      await userEvent.click(screen.getByRole('radio', { name: 'Apps 0' }));
+
+      const empty = await emptyState('No app has a role in this workspace yet.');
+      await userEvent.click(within(empty).getByRole('button', { name: 'Add members' }));
+
+      expect(await screen.findByRole('combobox', { name: 'Member' })).toBeInTheDocument();
+    });
+
+    it('shows no "Add members" in the empty list to a person who may not add', async () => {
+      grant([Permission.LIST_WORKSPACE_MEMBERS, Permission.LIST_USERS]);
+      render(WorkspaceMembersPage);
+      await screen.findByText('Alice');
+      await userEvent.click(screen.getByRole('radio', { name: 'Apps 0' }));
+
+      const empty = await emptyState('No app has a role in this workspace yet.');
+      expect(within(empty).queryByRole('button')).not.toBeInTheDocument();
+    });
+
+    it('says that nobody matches a search, with no add action', async () => {
+      render(WorkspaceMembersPage);
+      await screen.findByText('Alice');
+
+      await userEvent.type(screen.getByRole('textbox', { name: 'Search members' }), 'zoe');
+
+      const empty = await emptyState('No member matches this search.');
+      expect(within(empty).queryByRole('button')).not.toBeInTheDocument();
+    });
+  });
+
+  describe('the add link of the search bar', () => {
+    let navigator: ReturnType<typeof installTestNavigator>;
+
+    afterEach(() => navigator.restore());
+
+    it('opens the add dialog with ?add', async () => {
+      navigator = installTestNavigator({ pathname: '/acme/access/members', search: '?add' });
+      render(WorkspaceMembersPage);
+
+      expect(await screen.findByRole('dialog', { name: 'Add members to Acme' })).toBeInTheDocument();
+    });
+
+    it('opens nothing with ?add for a person who may not add', async () => {
+      grant([Permission.LIST_WORKSPACE_MEMBERS, Permission.LIST_USERS]);
+      navigator = installTestNavigator({ pathname: '/acme/access/members', search: '?add' });
+      render(WorkspaceMembersPage);
+      await screen.findByText('Alice');
+
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
   });
 });

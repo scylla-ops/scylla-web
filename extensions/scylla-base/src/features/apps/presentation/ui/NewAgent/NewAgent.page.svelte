@@ -82,6 +82,8 @@
         <NameStep
           {workspaceId}
           bind:name={page.name}
+          bind:icon={page.icon}
+          canSetIcon={page.canSetIcon}
           bind:projectIds={page.projectIds}
           bind:someProjects={page.someProjects}
           canAdd={page.canAdd}

@@ -96,6 +96,20 @@ describe('DataTable', () => {
     expect(screen.getAllByRole('row')[1]).toHaveTextContent('deploy');
   });
 
+  it('fades in a row that comes after the first render, not the first rows', async () => {
+    const getRowId = (row: Datum) => row.id;
+    const { rerender } = render(DataTable, { columns, data, getRowId });
+    const animated = () =>
+      (vi.mocked(Element.prototype.animate).mock.contexts as Element[])
+        .filter(node => node.tagName === 'TR')
+        .map(node => node.textContent);
+    expect(animated()).toEqual([]);
+
+    await rerender({ columns, data: [{ id: 'p-3', name: 'lint', status: 'pending' }, ...data], getRowId });
+
+    expect(animated()).toEqual([expect.stringContaining('lint')]);
+  });
+
   it('puts the grid template on every row, header included', () => {
     render(DataTable, {
       columns: [

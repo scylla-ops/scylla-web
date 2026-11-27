@@ -12,6 +12,9 @@
   } from '../../primitives/index.ts';
   import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
+  import { enter } from '../../motion/enter.ts';
+  import { fold, unfold } from '../../motion/fold.ts';
+  import { reflow } from '../../motion/reflow.ts';
   import { dataTableMessages } from './data-table.messages.ts';
   import { createCompactContainer } from '../../state/compact-container.state.svelte.ts';
   import { setDataTableLayout } from './data-table-layout.ts';
@@ -89,7 +92,7 @@
 </script>
 
 {#snippet emptyState()}
-  <div class="flex h-28 items-center justify-center text-sm text-muted-foreground">
+  <div class="flex h-28 items-center justify-center text-sm text-muted-foreground" in:enter>
     {t(dataTableMessages.noResults)}
   </div>
 {/snippet}
@@ -154,14 +157,19 @@
   </div>
 {/snippet}
 
-<div {@attach layout.measure} class="h-full w-full">
+<!-- A table that replaces its skeleton fades in. A new row fades in by itself (`TableRow`). -->
+<div {@attach layout.measure} class="h-full w-full" in:enter>
   {#if layout.isCompact}
     <ul class="flex flex-col gap-2.5">
       {#each table.getRowModel().rows as row (row.id)}
-        <li class="flex flex-col">
+        <li class="flex flex-col" in:enter animate:reflow>
           {@render card(row)}
           {#if (isRowExpanded?.(row.original) ?? false) && expandedContent}
-            <div class="mx-2 -mt-2 overflow-hidden rounded-b-2xl border border-t-0 border-border/70 bg-muted/30 pt-2">
+            <div
+              class="mx-2 -mt-2 overflow-hidden rounded-b-2xl border border-t-0 border-border/70 bg-muted/30 pt-2"
+              in:unfold
+              out:fold
+            >
               {@render expandedContent(row)}
             </div>
           {/if}
@@ -237,7 +245,7 @@
             {#if (isRowExpanded?.(row.original) ?? false) && expandedContent}
               <TableRow role="row" class="grid grid-cols-[minmax(0,1fr)]">
                 <TableCell role="cell" class="min-w-0 overflow-hidden bg-muted/30 p-0">
-                  {@render expandedContent(row)}
+                  <div in:unfold out:fold>{@render expandedContent(row)}</div>
                 </TableCell>
               </TableRow>
             {/if}

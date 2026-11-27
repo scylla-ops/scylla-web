@@ -1,5 +1,6 @@
 <script lang="ts">
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
+  import { enter } from '../../motion/enter.ts';
   import { errorStateMessages } from './error-state.messages.ts';
 
   interface Props {
@@ -10,7 +11,7 @@
   let { title, message }: Props = $props();
 </script>
 
-<div class="flex h-full items-center justify-center">
+<div class="flex h-full items-center justify-center" in:enter>
   <div class="space-y-2 text-center">
     <h2 class="text-lg text-destructive">{title ?? t(errorStateMessages.title)}</h2>
     <p class="text-sm text-muted-foreground">{message ?? t(errorStateMessages.message)}</p>

@@ -15,8 +15,9 @@
   let { busy, onCancel, onDone }: Props = $props();
 </script>
 
-<!-- The toolbar of the reorder mode. Escape also cancels. -->
-<div class="flex min-h-8 items-center gap-3" data-part="project-reorder-bar">
+<!-- The toolbar of the reorder mode. Escape also cancels. It has the height of the other toolbar,
+     so that the swap of the two does not move the page. -->
+<div class="flex min-h-8.5 items-center gap-3" data-part="project-reorder-bar">
   <MoveIcon class="size-4 shrink-0 text-primary" aria-hidden="true" />
   <p class="min-w-0 flex-1 text-sm font-medium text-muted-foreground">
     {t(projectMessages.reorderHint)}

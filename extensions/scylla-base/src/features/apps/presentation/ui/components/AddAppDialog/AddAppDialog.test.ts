@@ -25,14 +25,17 @@ const limits = { preset: 'read_only', actions: [], projectIds: [] };
 
 let teardown: Array<() => void> = [];
 
-const setUp = () => {
+const setUp = (extra: Permission[] = []) => {
   permissionsStore.setState({
     permissions: {
       scopes: [
         {
           scope: PermissionScope.WORKSPACE,
           scopeId: 'ws-1',
-          access: { kind: 'restricted', permissions: [Permission.CREATE_APP, Permission.READ_APP] },
+          access: {
+            kind: 'restricted',
+            permissions: [Permission.CREATE_APP, Permission.READ_APP, ...extra],
+          },
         },
       ],
     },
@@ -44,6 +47,7 @@ const setUp = () => {
       accessGranted: true,
     }),
     grantRoles: vi.fn().mockResolvedValue(undefined),
+    setIcon: vi.fn().mockResolvedValue({ ...app, icon: { kind: 'glyph', name: 'key', color: 'chart-2' } }),
     createToken: vi.fn().mockResolvedValue({
       token: {
         id: 't-1',
@@ -112,6 +116,41 @@ afterEach(() => {
 });
 
 describe('AddAppDialog', () => {
+  it('gives the app the icon that an admin chose, just after its creation', async () => {
+    const { apps } = setUp([Permission.SET_APP_ICON]);
+    const user = userEvent.setup();
+    const dialog = await screen.findByRole('dialog');
+    await focusSettled();
+
+    const field = within(dialog).getByRole('group', { name: 'Icon' });
+    await user.click(within(field).getByRole('button', { name: 'Change the icon' }));
+    await user.click(within(dialog).getByRole('button', { name: 'key' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Color 2' }));
+    await user.type(within(dialog).getByLabelText('Name'), 'release-bot');
+    await user.click(within(dialog).getByRole('button', { name: 'Next' }));
+    await user.click(within(dialog).getByRole('button', { name: 'Next' }));
+    await user.type(await within(dialog).findByLabelText('Token name'), 'deploy-script');
+    await user.click(within(dialog).getByRole('button', { name: 'Create token' }));
+
+    await waitFor(() =>
+      expect(apps.setIcon).toHaveBeenCalledWith('app-1', {
+        kind: 'glyph',
+        name: 'key',
+        color: 'chart-2',
+      }),
+    );
+    expect(apps.setIcon.mock.invocationCallOrder[0]).toBeLessThan(
+      apps.createToken.mock.invocationCallOrder[0],
+    );
+  });
+
+  it('has no icon field for a user who may not change the icon of an app', async () => {
+    setUp();
+    const dialog = await screen.findByRole('dialog');
+
+    expect(within(dialog).queryByRole('group', { name: 'Icon' })).not.toBeInTheDocument();
+  });
+
   it('makes an app with a read-only API token and shows its secret once', async () => {
     const { apps } = setUp();
     const user = userEvent.setup();

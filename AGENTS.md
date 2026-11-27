@@ -762,7 +762,7 @@ shared test code of the workspace:
 
 | | |
 |---|---|
-| `test/setup.ts` | Runs before every file. Activates an empty `en` catalog, and stubs the browser APIs jsdom lacks (`ResizeObserver`, `Element.animate`, pointer capture, `scrollIntoView`, `scrollTo`, `matchMedia`, the canvas `getContext`). **Never re-stub these per file.** |
+| `test/setup.ts` | Runs before every file. Activates an empty `en` catalog, and stubs the browser APIs jsdom lacks (`ResizeObserver`, `Element.animate` and `getAnimations`, pointer capture, `scrollIntoView`, `scrollTo`, `matchMedia`, the canvas `getContext`). **Never re-stub these per file.** |
 | `test/render.ts` | `render`, `withRegistry` (stub DI registry), `withQueryClient` (fresh cache, `retry: false`), `focusSettled`, `textSnippet`, `findFloating` / `findTooltip`. |
 | `test/navigator.ts` | `installTestNavigator` — a fake navigator, for a test that navigates. |
 | `test/queries.ts` | `runQueryFn`, `runMutationFn`, `runOnSuccess`, `stubQuery`, `fakePollTimers`. |

@@ -1,12 +1,15 @@
 # The checks of scylla-web, run by the CI agent of the workspace Scylla Ops (scylla-ops/scylla-ci).
 # GitHub shows the result as the check run `scylla/ci`. The nodes run one after the other: the CI
-# agent has 4 CPUs and 8 GB, and the lint alone needs about 8 GB.
+# agent has 4 CPUs and 8 GB, and the lint alone needs about 8 GB. The label `linux` keeps these jobs
+# off the Windows agent of the workspace.
 version: 1
 name: CI
 on:
   push:
     branches: [main, "v*.*.*"]
   pull_request: {}
+agent:
+  labels: [linux]
 checkout:
   depth: 0
   submodules: true

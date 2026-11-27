@@ -13,8 +13,9 @@ The invitations to a workspace, by email (`scylla.workspaces.v1.InvitationServic
 ## What it does
 
 - `InviteDialog` sends an invitation with a fixed role of the workspace; `PendingInvitations`
-  lists the open ones, with resend (a cooldown: `RESEND_TOO_SOON`) and revoke. The members page
-  of `membership` loads both with `loadInviteDialog` and `loadPendingInvitations`.
+  lists the open ones, with resend (a cooldown: `RESEND_TOO_SOON`) and revoke. Each row shows who
+  sent it: the avatar of the members list (`accessQueries.members`, from the cache of the page).
+  The members page of `membership` loads both with `loadInviteDialog` and `loadPendingInvitations`.
 - The public page `accept-invitation` reads the token of the mail link from the fragment.
   Signed in: `AcceptInvitation`, then the workspace opens. Signed out: a link to the sign-in page
   that comes back here, and a link to the sign-up page with the invitation. It uses the frame of

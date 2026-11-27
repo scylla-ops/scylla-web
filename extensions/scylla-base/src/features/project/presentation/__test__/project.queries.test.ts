@@ -293,7 +293,7 @@ describe('the mutations', () => {
     await runMutationFn(projectMutations.update(), { projectId: 'project-9', name: 'renamed' });
     runOnSuccess(projectMutations.update(), project(), { projectId: 'project-9' });
 
-    expect(repository.update).toHaveBeenCalledWith('project-9', 'renamed', undefined);
+    expect(repository.update).toHaveBeenCalledWith('project-9', 'renamed', undefined, undefined);
     expect(toastSuccess).toHaveBeenCalledWith('Project updated');
     expect(invalidate).toHaveBeenCalledWith({
       queryKey: PROJECTS_QUERY_ROOT,

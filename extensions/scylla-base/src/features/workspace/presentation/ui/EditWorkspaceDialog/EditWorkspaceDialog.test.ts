@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { screen, waitFor } from '@testing-library/svelte';
+import { screen, waitFor, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { focusSettled, render, withQueryClient, withRegistry } from '@test/render.ts';
+import type { WorkspaceEntity } from '@base/features/workspace/domain/entities/workspace.entity.ts';
 import type { WorkspaceRepository } from '@base/features/workspace/domain/repository/workspace.repository.ts';
 import EditWorkspaceDialog from './EditWorkspaceDialog.svelte';
 
@@ -11,7 +12,7 @@ let teardown: Array<() => void> = [];
 let update: ReturnType<typeof vi.fn>;
 
 const setUp = (
-  workspace: { id: string; name: string; slug: string },
+  workspace: Pick<WorkspaceEntity, 'id' | 'name' | 'slug' | 'icon'>,
   setOpen: (open: boolean) => void = vi.fn(),
 ) => {
   update = vi.fn().mockResolvedValue({ ...workspace });
@@ -46,7 +47,7 @@ describe('EditWorkspaceDialog', () => {
     await user.type(screen.getByLabelText('Workspace name'), 'New Name');
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', 'New Name', undefined));
+    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', 'New Name', undefined, undefined));
   });
 
   it('a new address alone leaves the name as it is', async () => {
@@ -57,7 +58,7 @@ describe('EditWorkspaceDialog', () => {
     await user.type(screen.getByLabelText('Address'), 'new-address');
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', undefined, 'new-address'));
+    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', undefined, 'new-address', undefined));
   });
 
   it('closes with no call to the server when the two fields stay blank', async () => {
@@ -89,7 +90,44 @@ describe('EditWorkspaceDialog', () => {
     await user.type(screen.getByLabelText('Address'), '  new-desc  ');
     await user.click(screen.getByRole('button', { name: 'Save' }));
 
-    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', 'New Name', 'new-desc'));
+    await waitFor(() => expect(update).toHaveBeenCalledWith('org-9', 'New Name', 'new-desc', undefined));
     await waitFor(() => expect(setOpen).toHaveBeenCalledWith(false));
+  });
+
+  it('starts on the icon of the workspace, and saves a new icon alone', async () => {
+    const user = userEvent.setup();
+    setUp({
+      id: 'org-9',
+      name: 'Acme Corp',
+      slug: 'acme-corp',
+      icon: { kind: 'glyph', name: 'rocket', color: 'chart-3' },
+    });
+    await focusSettled();
+
+    const field = screen.getByRole('group', { name: 'Icon' });
+    expect(within(field).getByRole('button', { name: 'Reset' })).toBeEnabled();
+    await user.click(within(field).getByRole('button', { name: 'Change the icon' }));
+    await user.click(screen.getByRole('button', { name: 'Color 2' }));
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    await waitFor(() =>
+      expect(update).toHaveBeenCalledWith('org-9', undefined, undefined, {
+        kind: 'glyph',
+        name: 'rocket',
+        color: 'chart-2',
+      }),
+    );
+  });
+
+  it('sends nothing for a workspace that keeps the default icon', async () => {
+    const user = userEvent.setup();
+    setUp({ id: 'org-9', name: 'Acme Corp', slug: 'acme-corp' });
+    await focusSettled();
+    // No icon: Reset is off, and Save sends nothing.
+    const field = screen.getByRole('group', { name: 'Icon' });
+    expect(within(field).getByRole('button', { name: 'Reset' })).toBeDisabled();
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    expect(update).not.toHaveBeenCalled();
   });
 });

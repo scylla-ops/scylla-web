@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createQuery } from '@scylla/core-sdk';
-  import { ErrorState, FeatureHeader } from '@scylla/ui';
+  import { ErrorState, FeatureHeader, enter } from '@scylla/ui';
   import { Skeleton } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { extensionQueries } from '@base/features/extensions/presentation/extensions.queries.ts';
@@ -35,6 +35,7 @@
     {:else if extensions.length === 0}
       <p
         class="m-2 rounded-xl border border-dashed py-10 text-center text-sm text-muted-foreground"
+        in:enter
       >
         {t(extensionsMessages.noExtensions)}
       </p>

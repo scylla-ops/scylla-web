@@ -7,6 +7,7 @@
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import {
     ConfirmOperationAlertDialog,
+    EmptyState,
     ErrorState,
     FeatureHeader,
     ListSkeleton,
@@ -40,7 +41,6 @@
   import { endedJobs, sumOutcomes } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
   import type { AgentAccess } from '@base/features/apps/domain/structs/agent-access.struct.ts';
   import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
-  import EmptyList from '../EmptyList/EmptyList.svelte';
   import Sparkline from '../Sparkline/Sparkline.svelte';
   import AgentCard from './AgentCard.svelte';
   import AgentStatCards from './AgentStatCards.svelte';
@@ -150,12 +150,11 @@
   {:else if agents.isPending}
     <ListSkeleton rows={4} rowClass="h-16 w-full rounded-xl" />
   {:else if all.length === 0}
-    <EmptyList
+    <EmptyState
       icon={BotIcon}
       title={canCreate ? t(messages.firstTitle) : t(messages.emptyTitle)}
-      body={canCreate ? t(messages.firstBody) : t(messages.askAdmin)}
-      addLabel={t(messages.add)}
-      onAdd={canCreate ? addAgent : undefined}
+      description={canCreate ? t(messages.firstBody) : t(messages.askAdmin)}
+      action={canCreate ? { label: t(messages.add), onSelect: addAgent } : undefined}
     />
   {:else}
     {#if phone.current}

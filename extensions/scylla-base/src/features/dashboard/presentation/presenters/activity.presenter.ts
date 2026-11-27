@@ -1,9 +1,17 @@
 import type { ChartTone } from '@scylla/ui';
 import { t } from '@scylla/ui/i18n';
+import { agentProfile, type AppEntity } from '@base/features/apps';
 import type { ActivityEvent } from '@base/features/dashboard/domain/structs/activity.struct.ts';
 import { activityMessages as m } from '@base/features/dashboard/presentation/messages/activity.messages.ts';
 import { shortJobId } from '@base/features/dashboard/presentation/presenters/job-figures.presenter.ts';
 import { widgetMessages } from '@base/features/dashboard/presentation/messages/widgets.messages.ts';
+import {
+  identityKindOf,
+  systemActorProfile,
+  type AvatarLook,
+  type IdentityKind,
+  type UserIdentityProfile,
+} from '@shared/presentation/presenters/user-identity.presenter.ts';
 
 const statusText = (status: string): string => {
   if (status === 'completed') return t(widgetMessages.oneCompleted);
@@ -123,4 +131,58 @@ export const activityLine = (event: ActivityEvent): ActivityLine => {
     default:
       return { ...base, mark: person(event), title: event.actorName || event.area, detail: joined(event.kind, project) };
   }
+};
+
+/** The actor of a line, as it shows everywhere else: the photo of a person, the icon of an agent. */
+export interface ActivityLook {
+  kind: IdentityKind;
+  profile: UserIdentityProfile;
+  /** The person who reads the dashboard. */
+  self: boolean;
+}
+
+/** What the dashboard knows of the actors: each list is empty without its permission. */
+export interface ActivityActors {
+  agents: readonly Pick<AppEntity, 'id' | 'name' | 'icon'>[];
+  members: readonly ({
+    actorId: string;
+    actorKind: string;
+    runner: boolean;
+    displayName: string;
+    handle: string;
+  } & AvatarLook)[];
+  /** The account of the session. */
+  self?: { id: string } & UserIdentityProfile;
+}
+
+/**
+ * The avatar of the actor of a line: an agent is the subject of its events, a person is the actor.
+ * Undefined when the dashboard does not know the actor: the line keeps its initial.
+ */
+export const activityLook = (
+  event: ActivityEvent,
+  mark: ActivityMark,
+  actors: ActivityActors,
+): ActivityLook | undefined => {
+  if (mark.kind === 'agent') {
+    const agent = actors.agents.find(item => item.id === event.subjectId);
+    return agent && { kind: 'agent', profile: agentProfile(agent), self: false };
+  }
+  if (mark.kind !== 'person') return undefined;
+  // A change with no actor is a change of Scylla itself.
+  if (!event.actorId) return { kind: 'person', profile: systemActorProfile(), self: false };
+  if (event.actorId === actors.self?.id) return { kind: 'person', profile: actors.self, self: true };
+  const member = actors.members.find(item => item.actorId === event.actorId);
+  if (!member) return undefined;
+  return {
+    kind: identityKindOf(member),
+    profile: {
+      displayName: member.displayName,
+      username: member.handle,
+      avatarUrl: member.avatarUrl,
+      avatarColor: member.avatarColor,
+      avatarGlyph: member.avatarGlyph,
+    },
+    self: false,
+  };
 };

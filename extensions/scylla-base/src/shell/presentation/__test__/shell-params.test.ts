@@ -1,7 +1,12 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { setAppNavigator } from '@scylla/core-sdk';
 import { contextStore } from '@platform/context';
+import { goneProject } from '../router/gone-project.state.svelte.ts';
 import { breadcrumbParams, linkParams, shareHint } from '../shell-params.ts';
+
+const PROJECT_1 = '00000000-0000-4000-8000-0000000000a1';
+const PIPELINE_1 = '00000000-0000-4000-8000-0000000000c1';
+const PIPELINE_2 = '00000000-0000-4000-8000-0000000000c2';
 
 const inRoute = (params: Record<string, string>) =>
   setAppNavigator({
@@ -16,8 +21,8 @@ const inRoute = (params: Record<string, string>) =>
 beforeEach(() => {
   contextStore.setState({
     workspace: { id: 'org-1', name: 'Acme Corp', slug: null },
-    project: { id: 'project-1', name: 'Scylla' },
-    pipeline: { id: 'pipeline-1', name: 'Nightly' },
+    project: { id: PROJECT_1, name: 'Scylla' },
+    pipeline: { id: PIPELINE_1, name: 'Nightly' },
   });
 });
 
@@ -25,7 +30,7 @@ afterEach(() => setAppNavigator(null));
 
 describe('breadcrumbParams', () => {
   it('names the workspace, the project and the pipeline of the URL', () => {
-    inRoute({ pipelineId: 'pipeline-1' });
+    inRoute({ pipelineId: PIPELINE_1 });
 
     expect(breadcrumbParams()).toEqual({
       workspaceName: 'Acme Corp',
@@ -35,9 +40,9 @@ describe('breadcrumbParams', () => {
   });
 
   it('shows the pipeline id when the active pipeline is another one', () => {
-    inRoute({ pipelineId: 'pipeline-2' });
+    inRoute({ pipelineId: PIPELINE_2 });
 
-    expect(breadcrumbParams().pipelineName).toBe('pipeline-2');
+    expect(breadcrumbParams().pipelineName).toBe(PIPELINE_2);
   });
 });
 
@@ -50,6 +55,36 @@ describe('linkParams', () => {
     contextStore.setState({ workspace: { id: null, name: null, slug: null } });
 
     expect(linkParams()).toEqual({ workspaceSlug: undefined });
+  });
+});
+
+describe('a project that is gone', () => {
+  afterEach(() => goneProject.clear('gone-1'));
+
+  it('hides the project of the URL from the links and the crumbs', () => {
+    goneProject.mark('gone-1');
+    inRoute({ projectId: 'gone-1' });
+
+    expect(linkParams().projectId).toBe('');
+    expect(breadcrumbParams().projectId).toBe('');
+  });
+
+  it('leaves another project of the URL alone', () => {
+    goneProject.mark('gone-1');
+    inRoute({ projectId: PROJECT_1 });
+
+    expect(linkParams().projectId).toBeUndefined();
+    expect(breadcrumbParams().projectId).toBeUndefined();
+  });
+});
+
+describe('an id with a wrong form in the URL', () => {
+  it('hides its crumbs, whatever the kind of entity', () => {
+    inRoute({ jobId: 'nope', appId: '00000000-0000-4000-8000-0000000000a1' });
+
+    expect(breadcrumbParams().jobId).toBe('');
+    expect(breadcrumbParams().appId).toBeUndefined();
+    expect(linkParams().jobId).toBe('');
   });
 });
 

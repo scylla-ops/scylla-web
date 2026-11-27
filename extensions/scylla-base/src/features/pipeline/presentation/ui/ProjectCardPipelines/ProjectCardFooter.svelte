@@ -2,6 +2,7 @@
   import ClockIcon from '@lucide/svelte/icons/clock';
   import { createNow } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
+  import { cn } from '@scylla/ui/utils';
   import {
     formatCoarseDuration,
     formatUpcomingTime,
@@ -40,10 +41,16 @@
   });
 </script>
 
-<!-- At the bottom of the card: the job that runs, or the last job. -->
+<!-- At the bottom of the card: the job that runs, or the last job. A row has it at its end, a tile
+     under the name: no line above it. -->
 {#if text}
   <p
-    class="flex items-center gap-1.5 border-t pt-3 text-xs text-muted-foreground"
+    class={cn(
+      'flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground',
+      context.density === 'comfortable' && 'border-t pt-3',
+      context.density === 'compact' && 'border-t pt-2',
+      context.density === 'tiles' && 'justify-center',
+    )}
     data-part="project-last-job"
   >
     <ClockIcon class="size-3 shrink-0" aria-hidden="true" />

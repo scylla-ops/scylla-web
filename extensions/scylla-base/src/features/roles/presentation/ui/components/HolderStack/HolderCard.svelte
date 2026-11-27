@@ -11,18 +11,18 @@
     HolderCard,
     HolderCardRow,
   } from '@base/features/roles/presentation/presenters/holder-card.presenter.ts';
+  import { sessionUserId } from '@base/features/roles/presentation/roles.queries.ts';
 
   let { card }: { card: HolderCard } = $props();
+
+  /** The reader: its own row shows the avatar of the reader. */
+  const selfId = sessionUserId();
 
   const ROW = 'flex items-center justify-between gap-3 rounded-[4px] px-1.5 py-[5px]';
 </script>
 
 {#snippet line(row: HolderCardRow)}
-  <Identity
-    format="cell"
-    profile={{ displayName: row.displayName, username: row.handle }}
-    kind={row.kind}
-  />
+  <Identity format="cell" profile={row.profile} kind={row.kind} self={row.actorId === selfId} />
   <span class="flex max-w-[50%] shrink-0 items-center gap-1.5 text-xs text-muted-foreground">
     <span class="flex min-w-0 items-center gap-1">
       <row.scopeIcon class="size-3.5 shrink-0" aria-hidden="true" />

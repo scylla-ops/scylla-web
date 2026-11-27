@@ -54,7 +54,14 @@ presentation/
     admin-exit.state.svelte.ts          the way out of the administration: label and href
                                         (rememberWorkspacePage, from WorkspaceSync)
     project-links.state.svelte.ts       projectLinks: the projects of the workspace after "All projects"
-                                        (secondSidebarLinks); it reads them only while they show
+                                        (secondSidebarLinks), as the projects page shows them: the
+                                        pins, each group with its folder color, then no group, in
+                                        folding sections that share the closed sections of the page,
+                                        and the status of a project: a job that runs, else a last
+                                        job that failed. It reads them only while they show: 4
+                                        reads, none for each group or project. Each
+                                        group and « No group » has a "+" (a new project there) for
+                                        a person with CREATE_PROJECT
     whats-new.state.svelte.ts                 seen flags (reactive, key `whats-new-seen` of `platform/user-state`), markNavSeen
     ui/WorkspaceGate/                loading screen / first workspace / the pages
       FirstWorkspace.svelte          welcome screen when the user has no workspace
@@ -67,7 +74,7 @@ presentation/
     ui/CommandBar/                      the command bar: see "The command bar"
     ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
     ui/AdminBar/                        the bar of the administration (space.bar): the host, "Back to <workspace>"
-    ui/NavUser/                         who is signed in (userQueries.me), Account, Help & tours, Legal and privacy
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Make an avatar, Help & tours, Legal and privacy
                                         (a submenu of the documents that are on, no entry while none is on; on a
                                         phone it opens under its entry), Cookie settings
                                         (while one tracker needs consent), Instance administration, or
@@ -126,10 +133,16 @@ changes only for a new mount, a new section or a new part of the shell.
 ```
 CommandBar.svelte                the dialog
 CommandBarContent.svelte         the input, the chips, the rows, the status lines, the footer
+CommandRowIcon.svelte            the icon of a row: the entity icon, or a glyph in its color
+command-row.attachments.ts       the fade of a row that a new search shows
+command-row.ts                   the types of a row and of the inputs of the presenters
 command-sources.state.svelte.ts  the lists. Each list reads only with its permission, while the bar is open
+command-search.state.svelte.ts   the server search: jobs, triggers, secrets of each project, users, packages
 command-rows.presenter.ts        builds a CommandRow from each page, command and entity
+command-search-rows.presenter.ts the rows of the server search, their actions, the recent snapshots
 command-results.presenter.ts     prefixes, chips, groups, order, limits
 command-recent.ts                the recent rows of a workspace, in localStorage
+CommandSearchStatus.svelte       the small "Searching…" line of a section
 CommandConfirm.svelte            the confirmation in the bar
 RunPipelineConfirm.svelte        the same for a run
 ```
@@ -152,7 +165,58 @@ Rules:
   and checks the typing errors on the real labels in the two languages. Run it when you add a label.
 - A list of the bar uses `notifyOnChangeProps: 'all'`. TanStack tells only the changes of the fields that
   were read, and the bar reads the state of a list at the first key.
+- **The bar reads the cached lists of the features, never a list of its own.** The lists: the pages
+  (`navLinks()`), the commands, the projects (`projectQueries.lookup`), the project groups
+  (`projectGroupQueries.list`), the pipelines, the fragments of the library (`fragmentQueries.list`),
+  the dashboards (`dashboardQueries.list`), the apps and agents, the members, the roles, the secrets
+  of the open project (names only, never a value) and the workspaces. No list reads at each key: a
+  list that can be too big for the browser needs a server search, with a pause after the typing.
+- **Opening the bar never writes data.** A list of the bar only reads: with no dashboard on the
+  server, the bar creates none. The chip of the dashboards then shows the page of the dashboard
+  (`chipOnly`: the row shows under its chip only, with the id of the page), and the page creates
+  the first one.
+- **A row shows the visual of its entity**: the icon of a project (`look`), the folder color of a
+  group (`iconColor`), and a glyph before the place (`placeGlyph`): the folder of the group of a
+  project, the lock of a personal dashboard, the people of a shared one. `facts` comes after the place
+  and is not searched (the number of projects of a group, the creator of a shared dashboard).
+- A group goes to `projects?group=<id>`: the projects page opens the group, scrolls to it and flashes
+  its header (`features/project`). The section of the groups comes before the projects: the text of
+  a group also finds its projects (by their place), and the group must stay in the first rows. The
+  fragments show with the chip of the pipelines.
 - A form stays open after the bar closes, so `GlobalSearch` keeps it, not the bar.
+- A row of a person, an agent, an app or a project shows its `look`, as everywhere else: the photo or
+  the initials color (`IdentityAvatar`, solid for the reader), or the icon (`EntityIcon`), at 20 px.
+- « New project in <group> » is a row of each group of the projects, for a person with
+  `CREATE_PROJECT`: it opens `projects/new?group=<id>`. The groups read only for this person.
+- A workspace row shows the icon of the workspace (`look`, from `workspaceIconProps`), and the owner
+  (avatar and name) as its place, then the role of the user and the counts (`facts`). It never shows
+  a part of the id: two "Personal" differ by their owner. The footer says "Switch to Personal of
+  <owner>". `workspaceQueries.mine()` holds only the own workspaces. For a user with
+  `LIST_ALL_WORKSPACES`, `command-sources` asks the server for a few workspaces of other users with
+  the text of the bar, after a pause (`workspaceQueries.all`). `workspaceDrafts` puts them after the
+  own ones (`rank`), with the role "Instance admin", then the row "All workspaces…".
+- A `pinned` row shows with the results of its group, also when the text does not match it. It does
+  not show alone.
+- **The server search** (`command-search.state.svelte.ts`) finds the jobs (by the number `#<short id>`,
+  the branch, the pipeline or the project), the triggers, the secrets of each project (names only),
+  the users of the instance and the packages of the marketplace. It uses the list RPCs of the
+  features (`jobQueries.search`, `triggerQueries.search`, `secretQueries.search`, `userQueries.search`,
+  `marketplaceQueries.list`). It sends after a pause of 200 ms, with 2 characters or more (one is
+  enough for a job number in the tab of the jobs or after `#`). A new text stops the old call: the
+  queries pass their `signal` to the client. The old rows stay until the new ones come
+  (`placeholderData`), and the section shows `CommandSearchStatus` while it waits.
+- Each kind reads with the permission of its pages, and its tab shows only then (`available`): the
+  jobs with `LIST_JOBS_BY_WORKSPACE` and `LIST_PIPELINES_BY_WORKSPACE`, the triggers with
+  `MANAGE_TRIGGERS`, the secrets with `LIST_SECRETS` (the server gives only the projects that the
+  reader can read), the users with `canListUsers()`, the packages with `LIST_PIPELINES_BY_WORKSPACE`.
+  A tab with no text lists the newest rows of its kind. The server matched these rows: they show
+  also when the fuzzy match of the bar fails (`found`).
+- An action of a row comes just after its row (`follows`), and uses the confirmation of the bar:
+  "Rerun…" on a failed job (`CREATE_JOB`), "Disable…" on an enabled trigger (destructive), "Enable"
+  on a disabled one (not for a trigger of a pipeline file), "Copy" the name of a secret (never the
+  value).
+- The recent list keeps a snapshot of a job, a trigger, a secret, a user or a package
+  (`toRecentRow`): the bar has no list of these kinds with no text.
 
 ## The wrappers
 
@@ -167,6 +231,10 @@ Rules:
   the mount. A new name goes to the store with no navigation. A new slug of the active workspace
   opens the same page under the new slug. This starts from the list of the server, so it is not a
   store → URL sync.
+- The list holds only the workspaces of the person. `syncWorkspace` asks the server for a slug that
+  is not in it (`workspaceQueries.bySlug`) before it redirects: an instance admin opens the workspace
+  of another user with its URL. A URL with no workspace, like `/marketplace`, keeps its page with no
+  call.
 - **`WorkspaceSyncWrapper` renders its page only after the slug names a workspace of the person**
   (`matched` of `syncWorkspace`). A URL with no workspace, like `/marketplace`, reads its page as
   the slug. No page and no redirect of the mount runs for it, so `syncWorkspace` reads the URL that
@@ -214,7 +282,10 @@ Rules:
   the slug from `linkParams`, so it follows a change of workspace. With no active workspace it
   opens `/`, and `/` picks the workspace of the user.
 - `WorkspaceSelector` shows `WorkspaceList` from `features/workspace` and opens
-  `AddWorkspaceDialog`, both through the **loaders** of its barrel.
+  `AddWorkspaceDialog`, both through the **loaders** of its barrel. Its menu is wider (`w-72`) for a
+  user with `LIST_ALL_WORKSPACES`: the rows of the workspaces of other users show their owner. The
+  icon of the trigger comes from `createWorkspaceOf`: the workspace of another user that an admin
+  opens is not in `mine`.
 - `createShell()` is created once, in `WorkspaceGate`. It loads the workspaces of
   the user, and an effect calls `syncMyPermissions` (`features/roles`) when the active
   workspace or project changes. It is the only writer of the permissions store.

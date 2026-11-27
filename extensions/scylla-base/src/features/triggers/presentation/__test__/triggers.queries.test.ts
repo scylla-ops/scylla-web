@@ -50,6 +50,7 @@ let queryClient: QueryClient;
 beforeEach(() => {
   repository = {
     listByPipelineId: vi.fn().mockResolvedValue([trigger()]),
+    searchWorkspace: vi.fn().mockResolvedValue([]),
     getById: vi.fn().mockResolvedValue(trigger()),
     create: vi.fn().mockResolvedValue({ trigger: trigger() }),
     update: vi.fn().mockResolvedValue(trigger()),

@@ -16,16 +16,15 @@ import {
 import { projectGroupQueries } from '../project-group.queries.ts';
 import { closedSections, projectPins } from '../project-layout.user-state.ts';
 import { projectQueries } from '../project.queries.ts';
+import { batchesOf, nextBatchSize, type PageOrder } from '../presenters/project-list.presenter.ts';
 import {
-  batchesOf,
-  FIRST_CARDS,
-  MORE_CARDS,
-  nextBatchSize,
-  PHONE_FIRST_CARDS,
-  type PageOrder,
-} from '../presenters/project-list.presenter.ts';
+  firstCardsOf,
+  moreCardsOf,
+  type ProjectDensity,
+} from '../presenters/project-density.presenter.ts';
 import {
   applyMoves,
+  inGroupOrder,
   PINS,
   REORDER_LIMIT,
   searchSectionOf,
@@ -59,6 +58,10 @@ interface SectionsOptions {
   phone: () => boolean;
   /** The drops of the reorder mode; `null` out of the mode. */
   moves: () => readonly CardMove[] | null;
+  /** The order of the groups in the reorder mode; `null` out of the mode. */
+  groupOrder?: () => readonly string[] | null;
+  /** The density of a section: a denser section reads more cards in each batch. */
+  density?: (key: SectionKey) => ProjectDensity;
 }
 
 type SearchResult = {
@@ -66,6 +69,7 @@ type SearchResult = {
   isPending: boolean;
   isFetching: boolean;
   isError: boolean;
+  dataUpdatedAt: number;
 };
 
 /**
@@ -78,10 +82,23 @@ export const createProjectSections = (options: SectionsOptions) => {
   const groups = createQuery(() => projectGroupQueries.list(workspaceId));
   let pins = $state(projectPins.read(options.workspaceId()));
   let closed = $state(closedSections.read(options.workspaceId()));
+  // The sidebar folds the same sections and shows the same pins.
+  $effect(() =>
+    closedSections.onChange(() => {
+      closed = closedSections.read(workspaceId);
+    }),
+  );
+  $effect(() =>
+    projectPins.onChange(() => {
+      pins = projectPins.read(workspaceId);
+    }),
+  );
 
   const reordering = $derived(options.moves() !== null);
-  const groupList = $derived(groups.data ?? []);
-  const first = $derived(options.phone() ? PHONE_FIRST_CARDS : FIRST_CARDS);
+  const groupList = $derived(inGroupOrder(groups.data ?? [], options.groupOrder?.() ?? null));
+  const densityOf = (key: SectionKey): ProjectDensity => options.density?.(key) ?? 'comfortable';
+  const firstOf = (key: SectionKey) => firstCardsOf(densityOf(key), options.phone());
+  const moreOf = (key: SectionKey) => moreCardsOf(densityOf(key));
 
   // "Show more" counts its clicks for each section, for one order and one health.
   const searchKey = $derived(`${options.order()}\n${options.health()}`);
@@ -90,7 +107,7 @@ export const createProjectSections = (options: SectionsOptions) => {
     bySection: {},
   });
   const limitOf = (key: SectionKey) =>
-    first + (clicks.key === searchKey ? (clicks.bySection[key] ?? 0) : 0) * MORE_CARDS;
+    firstOf(key) + (clicks.key === searchKey ? (clicks.bySection[key] ?? 0) : 0) * moreOf(key);
 
   // The pins read no section: with no pin, the search would give each project.
   const readKeys = $derived<SectionKey[]>([
@@ -98,16 +115,11 @@ export const createProjectSections = (options: SectionsOptions) => {
     ...groupList.map(group => group.id),
     UNGROUPED,
   ]);
+  // A closed section reads its first cards too: its line of chips shows them, and it opens at once.
   const results = createQueries(() => ({
     queries: groups.data
       ? readKeys.map(key => {
-          const limit = reordering
-            ? REORDER_LIMIT
-            : key === PINS
-              ? MAX_PINS
-              : closed.includes(key)
-                ? 1
-                : limitOf(key);
+          const limit = reordering ? REORDER_LIMIT : key === PINS ? MAX_PINS : limitOf(key);
           return projectQueries.search({
             workspaceId,
             query: '',
@@ -123,11 +135,40 @@ export const createProjectSections = (options: SectionsOptions) => {
       : [],
   }));
   const all = $derived([...results] as SearchResult[]);
-  const resultOf = $derived(Object.fromEntries(readKeys.map((key, index) => [key, all[index]])));
+  // Each new read of a section is a new query with no data: the reorder mode reads all its cards,
+  // "Show more" reads more, and « Done » reads the first cards again. The `placeholderData` of the
+  // search keeps nothing across queries. Thus a section keeps its newest cards, for one order and
+  // one health, while a read loads: the page shows no skeleton and no old order again.
+  type Kept = { data: ProjectSearchResult; at: number };
+  let kept: { scope: string; byKey: Partial<Record<SectionKey, Kept>> } = { scope: '', byKey: {} };
+  const keptOf = (key: SectionKey, result: SearchResult | undefined): SearchResult | undefined => {
+    const scope = `${workspaceId}\n${searchKey}`;
+    if (kept.scope !== scope) kept = { scope, byKey: {} };
+    const last = kept.byKey[key];
+    if (!result || result.isError) return result;
+    if (result.data && (!last || result.dataUpdatedAt >= last.at)) {
+      kept.byKey[key] = { data: result.data, at: result.dataUpdatedAt };
+    }
+    // A read that loads again and has older cards than the kept ones does not show (« Done »).
+    const old = result.isFetching && result.dataUpdatedAt < (last?.at ?? 0);
+    if (!last || (result.data && !old)) return result;
+    return {
+      data: last.data,
+      dataUpdatedAt: last.at,
+      isPending: false,
+      isFetching: result.isFetching,
+      isError: false,
+    };
+  };
+  const resultOf = $derived(
+    Object.fromEntries(readKeys.map((key, index) => [key, keptOf(key, all[index])])),
+  );
 
   const byId: Record<string, ProjectEntity> = $derived(
     Object.fromEntries(
-      all.flatMap(result => result.data?.items ?? []).map(item => [item.id, item]),
+      Object.values(resultOf)
+        .flatMap(result => result?.data?.items ?? [])
+        .map(item => [item.id, item]),
     ),
   );
   const loadedIds = (key: SectionKey) =>
@@ -148,8 +189,10 @@ export const createProjectSections = (options: SectionsOptions) => {
   const viewOf = (key: SectionKey): SectionView => {
     const result = resultOf[key];
     const counts = result?.data?.counts;
-    const loaded = (orders[key] ?? []).filter(id => id in byId);
-    const shown = key === PINS && !reordering ? loaded.slice(0, limitOf(PINS)) : loaded;
+    const ids = orders[key] ?? [];
+    const loaded = ids.filter(id => id in byId);
+    // Out of the mode, the kept cards of the mode do not show over the first cards.
+    const shown = reordering ? loaded : loaded.slice(0, limitOf(key));
     const total =
       reordering || key === PINS
         ? loaded.length
@@ -163,8 +206,11 @@ export const createProjectSections = (options: SectionsOptions) => {
       total,
       counts,
       nextBatch:
-        reordering || shown.length >= total ? 0 : nextBatchSize(shown.length, total) || MORE_CARDS,
-      loading: !!result && !result.data,
+        reordering || shown.length >= total
+          ? 0
+          : nextBatchSize(shown.length, total, moreOf(key)) || moreOf(key),
+      // With no data yet, the section loads, unless the page has each of its cards: a new pin.
+      loading: !!result && !result.data && (ids.length === 0 || loaded.length < ids.length),
       busy: !!result?.isFetching,
       open: !closed.includes(key),
     };
@@ -187,7 +233,8 @@ export const createProjectSections = (options: SectionsOptions) => {
       sections.flatMap(section =>
         batchesOf(
           section.projects.map(project => project.id),
-          first,
+          firstOf(section.key),
+          moreOf(section.key),
         ).flatMap(batch => batch.map(id => [`${section.key}\n${id}`, batch] as const)),
       ),
     ),
@@ -203,8 +250,13 @@ export const createProjectSections = (options: SectionsOptions) => {
   };
 
   return {
+    /** The groups of the workspace, in the order of the page (of the reorder mode in it). */
     get groups() {
       return groupList;
+    },
+    /** The order of the groups on the server: « Done » compares the order of the page with it. */
+    get savedGroupIds(): string[] {
+      return (groups.data ?? []).map(group => group.id);
     },
     get sections() {
       return sections;

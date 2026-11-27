@@ -20,6 +20,35 @@ const baseUser = (overrides: Partial<User> = {}): User => ({
 });
 
 describe('grpcUser.toDomain', () => {
+  it('reads the options of a photo that the server drew as a glyph avatar', () => {
+    const user = grpcUser.toDomain(
+      baseUser({
+        avatar: {
+          imageId: { value: 'img-1' },
+          color: '',
+          glyphAvatar: {
+            shape: 'scylla',
+            glyph: { colors: ['#5d9972'], fill: 0, angle: 0 },
+            background: { colors: ['#ffffff'], fill: 0, angle: 0 },
+            flip: 0,
+            rotate: 0,
+            scale: 100,
+          },
+        },
+      }),
+    );
+
+    expect(user.avatarUrl).toBe('/images/img-1');
+    expect(user.glyphAvatar).toEqual({
+      shape: 'scylla',
+      glyph: { colors: ['#5d9972'], fill: 'solid', angle: 0 },
+      background: { colors: ['#ffffff'], fill: 'solid', angle: 0 },
+      flip: 'none',
+      rotate: 0,
+      scale: 100,
+    });
+  });
+
   it('unwraps the id, takes the handle as the username, and formats the time', () => {
     expect(grpcUser.toDomain(baseUser())).toEqual({
       id: 'user-1',
@@ -72,6 +101,17 @@ describe('grpcUser.toDomainList', () => {
       user,
       instanceRoles: [{ key: 'auditor', name: 'Auditor', builtin: false }],
       workspaces: ['acme'],
+      workspaceDetails: [
+        {
+          workspaceId: { value: 'ws-1' },
+          name: 'acme',
+          icon: {
+            kind: { oneofKind: 'glyph' as const, glyph: { name: 'rocket', color: 'chart-3' } },
+          },
+          owner: false,
+          ownerName: 'Grace Hopper',
+        },
+      ],
     });
     const result = grpcUser.toDomainList([
       entry(baseUser()),
@@ -81,6 +121,15 @@ describe('grpcUser.toDomainList', () => {
     expect(result.items).toHaveLength(2);
     expect(result.items[0]?.instanceRoles?.[0]?.name).toBe('Auditor');
     expect(result.items[0]?.workspaces).toEqual(['acme']);
+    expect(result.items[0]?.workspaceDetails).toEqual([
+      {
+        id: 'ws-1',
+        name: 'acme',
+        icon: { kind: 'glyph', name: 'rocket', color: 'chart-3' },
+        owner: false,
+        ownerName: 'Grace Hopper',
+      },
+    ]);
     expect(result.pagination).toMatchObject({ totalCount: 2, page: 1, totalPages: 1 });
   });
 });

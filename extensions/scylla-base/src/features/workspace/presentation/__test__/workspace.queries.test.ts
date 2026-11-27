@@ -17,8 +17,12 @@ import {
 } from '../workspace.queries.ts';
 
 const toastSuccess = vi.fn();
+const toastError = vi.fn();
 vi.mock('svelte-sonner', () => ({
-  toast: { success: (...args: unknown[]) => toastSuccess(...args) },
+  toast: {
+    success: (...args: unknown[]) => toastSuccess(...args),
+    error: (...args: unknown[]) => toastError(...args),
+  },
 }));
 
 const WORKSPACE_ID = 'org-1';
@@ -160,7 +164,7 @@ describe('workspaceMutations.update', () => {
     });
     runOnSuccess(workspaceMutations.update(), org(), { workspaceId: WORKSPACE_ID });
 
-    expect(repository.update).toHaveBeenCalledWith(WORKSPACE_ID, 'Renamed', undefined);
+    expect(repository.update).toHaveBeenCalledWith(WORKSPACE_ID, 'Renamed', undefined, undefined);
     expect(toastSuccess).toHaveBeenCalledWith('Workspace updated');
   });
 
@@ -203,6 +207,52 @@ describe('workspaceMutations.remove', () => {
 
     expect(repository.delete).toHaveBeenCalledWith(WORKSPACE_ID);
     expect(toastSuccess).toHaveBeenCalledWith('Workspace deleted');
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: WORKSPACES_QUERY_KEY() });
+  });
+});
+
+describe('workspaceMutations.create with an icon', () => {
+  const ICON = { kind: 'glyph' as const, name: 'rocket', color: '#E879F9' };
+
+  it('sends the icon in an update just after the create', async () => {
+    const repository = withRepository({
+      update: vi.fn().mockResolvedValue(org({ icon: { kind: 'glyph', name: 'rocket' } })),
+    });
+
+    const created = await runMutationFn(workspaceMutations.create(), { name: 'New Org', icon: ICON });
+
+    expect(repository.create).toHaveBeenCalledWith('New Org', undefined);
+    expect(repository.update).toHaveBeenCalledWith(WORKSPACE_ID, undefined, undefined, ICON);
+    expect(created.icon).toEqual({ kind: 'glyph', name: 'rocket' });
+  });
+
+  it('keeps the workspace and tells it when only the icon fails', async () => {
+    withRepository({
+      update: vi.fn().mockRejectedValue(new ScyllaError('too large', { code: 'INVALID_ARGUMENT' })),
+    });
+
+    const created = await runMutationFn(workspaceMutations.create(), { name: 'New Org', icon: ICON });
+
+    expect(created.id).toBe(WORKSPACE_ID);
+    expect(toastError).toHaveBeenCalledWith(
+      expect.stringContaining('The workspace is created, but its icon is not saved'),
+    );
+  });
+});
+
+describe('workspaceMutations.setIcon', () => {
+  it('sends the icon alone, toasts and invalidates the list', async () => {
+    const repository = withRepository();
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    const variables = { workspaceId: WORKSPACE_ID, icon: { kind: 'default' as const } };
+
+    await runMutationFn(workspaceMutations.setIcon(), variables);
+    runOnSuccess(workspaceMutations.setIcon(), org(), variables);
+
+    expect(repository.update).toHaveBeenCalledWith(WORKSPACE_ID, undefined, undefined, {
+      kind: 'default',
+    });
+    expect(toastSuccess).toHaveBeenCalledWith('Icon saved');
     expect(invalidate).toHaveBeenCalledWith({ queryKey: WORKSPACES_QUERY_KEY() });
   });
 });

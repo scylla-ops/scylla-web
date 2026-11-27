@@ -72,6 +72,37 @@ describe('DefaultProjectRepository.setIcon', () => {
   });
 });
 
+describe('DefaultProjectRepository.update', () => {
+  const project = { id: { value: 'p-1' }, workspaceId: { value: 'ws-1' }, name: 'web' };
+
+  it('sends the name, the description and the icon in one update', async () => {
+    const updateProject = vi.fn(() => unaryCall({ project }));
+    const repository = new DefaultProjectRepository({
+      updateProject,
+    } as unknown as IProjectServiceClient);
+
+    await repository.update('p-1', 'web', 'the site', { kind: 'default' });
+
+    expect(updateProject).toHaveBeenCalledWith({
+      projectId: { value: 'p-1' },
+      name: 'web',
+      description: 'the site',
+      icon: { kind: { oneofKind: undefined } },
+    });
+  });
+
+  it('does not send the icon when it does not change', async () => {
+    const updateProject = vi.fn(() => unaryCall({ project }));
+    const repository = new DefaultProjectRepository({
+      updateProject,
+    } as unknown as IProjectServiceClient);
+
+    await repository.update('p-1', 'web');
+
+    expect(updateProject).toHaveBeenCalledWith({ projectId: { value: 'p-1' }, name: 'web' });
+  });
+});
+
 describe('DefaultProjectRepository.getById', () => {
   const repositoryWith = (getProject: () => unknown) =>
     new DefaultProjectRepository({ getProject } as unknown as IProjectServiceClient);

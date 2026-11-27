@@ -34,8 +34,8 @@ export const userColumns = (cells: UserCells): DataTableColumn<UserEntity>[] => 
     id: 'workspaces',
     header: t(userMessages.workspaces),
     cell: ({ row }) => renderSnippet(cells.workspaces, row.original),
-    size: 180,
-    minSize: 120,
+    size: 260,
+    minSize: 160,
     meta: { align: 'left' },
   },
   {

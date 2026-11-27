@@ -11,7 +11,8 @@
     DropdownMenuSeparator,
     DropdownMenuTrigger,
   } from '@scylla/ui/primitives';
-  import { Identity } from '@shared/presentation/ui';
+  import { imageUrl } from '@platform/grpc';
+  import { Identity, WorkspaceIcon } from '@shared/presentation/ui';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { UserEntity } from '@base/features/user/domain/entities/user.entity.ts';
   import { userMessages } from '@base/features/user/presentation/messages/user.messages.ts';
@@ -24,9 +25,12 @@
     onChangeRoles: (user: UserEntity) => void;
     onDelete: (user: UserEntity) => void;
     onView: (user: UserEntity) => void;
+    /** The account of the session: its row shows the avatar of the reader. */
+    selfId?: string;
   }
 
-  let { data, canChangeRoles, canDelete, onChangeRoles, onDelete, onView }: Props = $props();
+  let { data, canChangeRoles, canDelete, onChangeRoles, onDelete, onView, selfId }: Props =
+    $props();
 
   const columns = $derived(
     userColumns({
@@ -40,7 +44,7 @@
 </script>
 
 {#snippet identityCell(user: UserEntity)}
-  <Identity profile={user} class="w-full" />
+  <Identity profile={user} self={user.id === selfId} class="w-full" />
 {/snippet}
 
 {#snippet rolesCell(user: UserEntity)}
@@ -56,7 +60,28 @@
 {/snippet}
 
 {#snippet workspacesCell(user: UserEntity)}
-  <span class="block truncate">{user.workspaces?.join(', ')}</span>
+  {#if user.workspaceDetails?.length}
+    <!-- One line for each workspace: its icon, its name, and who owns it. -->
+    <ul class="flex min-w-0 flex-col gap-1">
+      {#each user.workspaceDetails as workspace (workspace.id)}
+        <li data-part="user-workspace" class="flex min-w-0 items-center gap-1.5">
+          <WorkspaceIcon icon={workspace.icon} {imageUrl} size={16} />
+          <span class="truncate">{workspace.name}</span>
+          {#if workspace.owner}
+            <Badge variant="secondary" class="shrink-0 rounded-full px-1.5 py-0 text-[11px] font-medium">
+              {t(userMessages.workspaceOwner)}
+            </Badge>
+          {:else if workspace.ownerName}
+            <span class="min-w-0 shrink truncate text-xs text-muted-foreground">
+              {t(userMessages.ownedBy(workspace.ownerName))}
+            </span>
+          {/if}
+        </li>
+      {/each}
+    </ul>
+  {:else}
+    <span class="block truncate">{user.workspaces?.join(', ')}</span>
+  {/if}
 {/snippet}
 
 {#snippet lastSignInCell(user: UserEntity)}

@@ -16,7 +16,13 @@ export interface ProjectRepository {
   /** The first `limit` projects of a search, in its order, with the counts of all of them. */
   search: (search: ProjectSearch) => Promise<ProjectSearchResult>;
   create: (name: string, workspaceId: string, description?: string) => Promise<ProjectEntity>;
-  update: (projectId: string, name?: string, description?: string) => Promise<ProjectEntity>;
+  /** One `UpdateProject`: with an icon, the server deletes the old image of the project. */
+  update: (
+    projectId: string,
+    name?: string,
+    description?: string,
+    icon?: ProjectIconChange,
+  ) => Promise<ProjectEntity>;
   /** The server deletes the old image of the project. */
   setIcon: (projectId: string, icon: ProjectIconChange) => Promise<ProjectEntity>;
   delete: (projectId: string) => Promise<void>;

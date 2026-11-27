@@ -7,9 +7,16 @@
   import { IdentityAvatar, identityKindOf } from '@shared/presentation/ui';
   import type { RoleEntity } from '@base/features/roles/domain/entities/role.entity.ts';
   import { holderCount } from '@base/features/roles/presentation/messages/roles.messages.ts';
-  import { holderCard } from '@base/features/roles/presentation/presenters/holder-card.presenter.ts';
+  import {
+    holderCard,
+    holderProfile,
+  } from '@base/features/roles/presentation/presenters/holder-card.presenter.ts';
   import { holderStack } from '@base/features/roles/presentation/presenters/holder-stack.presenter.ts';
-  import { canSeePeople, roleQueries } from '@base/features/roles/presentation/roles.queries.ts';
+  import {
+    canSeePeople,
+    roleQueries,
+    sessionUserId,
+  } from '@base/features/roles/presentation/roles.queries.ts';
   import HolderCard from './HolderCard.svelte';
 
   interface Props {
@@ -30,6 +37,8 @@
     }),
   );
   const slug = activeWorkspaceSlug();
+  /** The reader: its own avatar shows as the reader. */
+  const selfId = sessionUserId();
   const pages = $derived(slug && canSeePeople(workspaceId) ? { slug, workspaceId } : undefined);
   const stack = $derived(holdersQuery.data ? holderStack(holdersQuery.data) : undefined);
   const card = $derived(holdersQuery.data ? holderCard(holdersQuery.data, pages) : undefined);
@@ -40,8 +49,9 @@
     <span data-slot="holder-stack" class="isolate flex items-center">
       {#each stack.shown as holder, index (holder.actorId)}
         <IdentityAvatar
-          profile={{ displayName: holder.displayName, username: holder.handle }}
+          profile={holderProfile(holder)}
           kind={identityKindOf(holder)}
+          self={holder.actorId === selfId}
           size={24}
           class={cn('ring-2 ring-card', index > 0 && '-ml-1.5', LAYERS[index])}
         />

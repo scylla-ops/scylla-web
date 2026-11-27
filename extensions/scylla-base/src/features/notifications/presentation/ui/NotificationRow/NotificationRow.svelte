@@ -8,12 +8,15 @@
   import { t } from '@scylla/ui/i18n';
   import { Button, Checkbox } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
+  import type { CustomIcon } from '@shared/domain/structs/custom-icon.struct.ts';
   import { getRelativeTime } from '@shared/utils/date-utils.ts';
   import type { NotificationEntity } from '../../../domain/entities/notification.entity.ts';
   import { notificationMessages as messages } from '../../messages/notifications.messages.ts';
   import { notificationMutations } from '../../notifications.queries.ts';
   import { viewOfRow } from '../../presenters/kind-views.ts';
+  import { rowMark } from '../../presenters/row-mark.presenter.ts';
   import InvitationBody from './InvitationBody.svelte';
+  import NotificationMark from './NotificationMark.svelte';
 
   interface Props {
     row: NotificationEntity;
@@ -27,6 +30,8 @@
     onToggleSelect?: () => void;
     /** On the full page: the row that the keys act on. */
     active?: boolean;
+    /** The workspaces of the reader: their icons for a row that comes with none. */
+    workspaces?: readonly { id: string; icon?: CustomIcon }[];
   }
 
   let {
@@ -37,10 +42,11 @@
     selected = false,
     onToggleSelect,
     active = false,
+    workspaces = [],
   }: Props = $props();
 
   const view = $derived(viewOfRow(row, slug));
-  const Icon = $derived(view.icon);
+  const mark = $derived(rowMark(row, workspaces));
   const markRead = createMutation(() => notificationMutations.markRead());
   const setDone = createMutation(() => notificationMutations.setDone());
 
@@ -62,10 +68,10 @@
   const title = $derived(cn('text-sm', !row.read && 'font-medium'));
 </script>
 
-<li data-testid="notification-row" data-active={active || undefined} class="flex items-start gap-2">
+<li data-testid="notification-row" data-active={active || undefined} class="flex items-center gap-2">
   {#if onToggleSelect}
     <Checkbox
-      class="mt-2.5 shrink-0"
+      class="shrink-0"
       checked={selected}
       onCheckedChange={onToggleSelect}
       aria-label={t(messages.select)}
@@ -73,18 +79,24 @@
   {/if}
   <div
     class={cn(
-      'group relative flex min-w-0 flex-1 gap-2 rounded-lg px-2 py-2 hover:bg-accent',
+      'group relative flex min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 hover:bg-accent',
       active && 'bg-accent ring-1 ring-ring',
     )}
   >
     <span
-      class={cn('mt-1.5 size-2 shrink-0 rounded-full', row.read ? 'bg-transparent' : 'bg-primary')}
+      class={cn('size-2 shrink-0 rounded-full', row.read ? 'bg-transparent' : 'bg-primary')}
       aria-hidden="true"
     ></span>
-    <Icon class="mt-0.5 size-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+    <NotificationMark {mark} icon={view.icon} surface={compact ? 'popover' : 'background'} />
     <div class="min-w-0 flex-1">
       {#if row.invitation && row.kind === 'invitation.received'}
-        <InvitationBody {row} invitation={row.invitation} {slug} {onNavigate} />
+        <InvitationBody
+          {row}
+          invitation={row.invitation}
+          workspaceIcon={mark.workspace?.icon}
+          {slug}
+          {onNavigate}
+        />
       {:else}
         {#if view.href}
           <a href={view.href} onclick={open} class={cn(title, STRETCHED)}>{view.text}</a>
@@ -107,7 +119,7 @@
       {/if}
     </div>
     <!-- With a mouse, the actions take the cell of the time. A touch has no hover: both show. -->
-    <div class="grid shrink-0 content-start justify-items-end gap-1 pointer-fine:*:col-start-1 pointer-fine:*:row-start-1">
+    <div class="grid shrink-0 content-center items-center justify-items-end gap-1 pointer-fine:*:col-start-1 pointer-fine:*:row-start-1">
       <time
         class="text-xs text-muted-foreground pointer-fine:group-focus-within:invisible pointer-fine:group-hover:invisible"
         datetime={row.lastAt}

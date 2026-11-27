@@ -2,6 +2,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import type { ITriggerServiceClient } from '@base/generated/scylla/pipelines/v1/trigger_service.client.ts';
 import { FireStatus, type Trigger } from '@base/generated/scylla/pipelines/v1/trigger.ts';
+import { JobStatus } from '@base/generated/scylla/pipelines/v1/job.ts';
+import { TriggerOrder } from '@base/generated/scylla/pipelines/v1/trigger_summary.ts';
 import { unaryCall } from '@test/grpc.ts';
 import { DefaultTriggersRepository } from '../default-triggers.repository.ts';
 
@@ -47,5 +49,52 @@ describe('DefaultTriggersRepository', () => {
     } as unknown as ITriggerServiceClient);
 
     await expect(repository.fireNow('a')).resolves.toBe('job-9');
+  });
+
+  it('finds the triggers of a workspace by a text, with their pipeline and project', async () => {
+    const listWorkspaceTriggers = vi.fn(() =>
+      unaryCall({
+        triggers: [
+          {
+            trigger: { ...trigger('nightly'), projectId: { value: 'project-1' } },
+            pipelineName: 'Build web',
+            projectName: 'web-api',
+            upcomingFires: [],
+            lastJobStatus: JobStatus.UNSPECIFIED,
+            failedFires: 0,
+            missedTimes: 0,
+          },
+        ],
+        page: { nextToken: '' },
+      }),
+    );
+    const repository = new DefaultTriggersRepository({
+      listWorkspaceTriggers,
+    } as unknown as ITriggerServiceClient);
+    const stop = new AbortController();
+
+    const found = await repository.searchWorkspace(
+      { workspaceId: 'org-1', text: ' night ', limit: 8 },
+      stop.signal,
+    );
+
+    expect(found).toEqual([
+      expect.objectContaining({
+        trigger: expect.objectContaining({ id: 'nightly', pipelineId: 'pipeline-1' }),
+        projectId: 'project-1',
+        pipelineName: 'Build web',
+        projectName: 'web-api',
+      }),
+    ]);
+    expect(listWorkspaceTriggers).toHaveBeenCalledWith(
+      expect.objectContaining({
+        workspaceId: { value: 'org-1' },
+        query: 'night',
+        enabledOnly: false,
+        order: TriggerOrder.UNSPECIFIED,
+        page: { size: 8, token: '' },
+      }),
+      { abort: stop.signal },
+    );
   });
 });

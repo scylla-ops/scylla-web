@@ -25,6 +25,8 @@ const setup = async (count: number) => {
     workspaceId: 'w-1',
     workspaceName: 'Acme',
     name: '',
+    icon: { kind: 'default' },
+    canSetIcon: false,
     workspaceRole: '',
     projectRoles: {},
   });

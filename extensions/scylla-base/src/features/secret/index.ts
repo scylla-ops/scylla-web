@@ -2,6 +2,7 @@ export type {
   SecretEntity,
   CreateSecretInput,
   UpdateSecretInput,
+  WorkspaceSecret,
 } from './domain/entities/secret.entity.ts';
 export {
   secretQueries,
