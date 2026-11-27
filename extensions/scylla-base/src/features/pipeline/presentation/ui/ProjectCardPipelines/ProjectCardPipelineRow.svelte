@@ -32,7 +32,7 @@
 
   const time = $derived.by(() => {
     switch (row.time?.kind) {
-      case 'running':
+      case 'live':
         return t(
           projectCardMessages.runningFor(
             formatCoarseDuration((now - Date.parse(row.time.since)) / 1000),

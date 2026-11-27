@@ -20,6 +20,7 @@
   import ColorSwatches from '../ColorSwatches/ColorSwatches.svelte';
   import { randomGlyphAvatar } from '../GlyphAvatar/glyph-avatar.ts';
   import GlyphAvatarEditor from '../GlyphAvatar/GlyphAvatarEditor.svelte';
+  import GlyphScrollArea from '../GlyphAvatar/GlyphScrollArea.svelte';
   import ChoicePreview from './ChoicePreview.svelte';
   import IconImageDrop from './IconImageDrop.svelte';
   import { choiceIconProps, searchGlyphs, type IconChoice } from './icon-picker.ts';
@@ -59,6 +60,11 @@
     class: className,
     bodyClass,
   }: Props = $props();
+
+  // A panel is a column that stays in the layout while it is hidden .
+  const PANEL = 'flex flex-col data-[state=inactive]:invisible';
+  // The `[hidden]` of a hidden panel is `!important` in the base layer: only an inline one beats it.
+  const PANEL_STYLE = 'display: flex !important';
 
   // svelte-ignore state_referenced_locally
   let tab = $state(value.kind === 'image' || value.kind === 'avatar' ? value.kind : 'icon');
@@ -148,7 +154,11 @@
       {/if}
     </TabsList>
 
-    <TabsContent value="icon" class={bodyClass}>
+    <!-- The panels share one cell: the box has the height of the tallest, whatever the width, so a
+         change of tab moves nothing. A hidden panel stays in the cell, `invisible` (no click, no
+         focus, not read). -->
+    <div class="grid flex-1 grid-cols-[minmax(0,1fr)] *:col-start-1 *:row-start-1">
+    <TabsContent value="icon" class={cn(PANEL, bodyClass)} style={PANEL_STYLE}>
       <!-- A change of tab fades the new content in. -->
       <div class="flex flex-col gap-4" in:fade={{ duration: motionDuration(150) }}>
         <div class="relative">
@@ -228,25 +238,29 @@
     </TabsContent>
 
     <!-- A column down to the zone: `h-full` does not resolve in a flex item with no set height. -->
-    <TabsContent value="image" class={cn('flex flex-1 flex-col', bodyClass)}>
+    <TabsContent value="image" class={cn(PANEL, bodyClass)} style={PANEL_STYLE}>
       <div class="flex min-h-0 flex-1 flex-col" in:fade={{ duration: motionDuration(150) }}>
         <IconImageDrop onfile={chooseImage} />
       </div>
     </TabsContent>
 
     {#if avatar}
-      <TabsContent value="avatar" class={bodyClass}>
-        <!-- The preview of the picker shows the avatar: the editor has no preview of its own. -->
-        <div in:fade={{ duration: motionDuration(150) }}>
-          <GlyphAvatarEditor
-            value={avatarStart}
-            onchange={next => onchange({ kind: 'avatar', avatar: next })}
-            preview={false}
-            square
-            {recent}
-          />
-        </div>
+      <TabsContent value="avatar" class={PANEL} style={PANEL_STYLE}>
+        <!-- The preview of the picker shows the avatar: the editor has no preview of its own. The
+             body scrolls with a fade and a chevron, so the colors below the shapes show. -->
+        <GlyphScrollArea class={bodyClass}>
+          <div in:fade={{ duration: motionDuration(150) }}>
+            <GlyphAvatarEditor
+              value={avatarStart}
+              onchange={next => onchange({ kind: 'avatar', avatar: next })}
+              preview={false}
+              square
+              {recent}
+            />
+          </div>
+        </GlyphScrollArea>
       </TabsContent>
     {/if}
+    </div>
   </Tabs>
 </div>

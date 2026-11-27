@@ -15,10 +15,6 @@
     UNGROUPED,
     type SectionKey,
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
-  import {
-    liftedStyle,
-    type Box,
-  } from '@base/features/project/presentation/presenters/sortable.presenter.ts';
   import { newProjectPath } from '@base/features/project/presentation/presenters/new-project.presenter.ts';
   import { projectPoints } from '../../project.points.ts';
   import { projectGroupMutations } from '../../project-group.queries.ts';
@@ -78,6 +74,7 @@
   const createGroup = createMutation(() => projectGroupMutations.create());
 
   const GRIP_HINT = 'project-group-grip-hint';
+  const KEYS_HINT = 'project-card-keys-hint';
   const SLOT_KEY = '\nslot';
 
   const pins = $derived(sections.sections.filter(section => section.key === PINS));
@@ -90,7 +87,9 @@
   // The pins stay first and « No group » last: only the groups move. A pointer drag shows a line
   // at the new place of the group; the line takes no height, so that no group moves before the drop.
   type GroupEntry = { kind: 'section'; section: SectionView } | { kind: 'slot' };
-  const pointerDrag = $derived(groups.drag && !groups.drag.keyboard ? groups.drag : null);
+  const pointerDrag = $derived(
+    groups.drag && !groups.drag.keyboard && groups.ghost.active ? groups.drag : null,
+  );
   const draggedSection = $derived(
     pointerDrag ? groupSections.find(section => section.key === pointerDrag.id) : undefined,
   );
@@ -106,17 +105,8 @@
       : [...list.slice(0, at), { kind: 'slot' }, ...list.slice(at)];
   });
   const keyOf = (entry: GroupEntry) => (entry.kind === 'slot' ? SLOT_KEY : entry.section.key);
-  // The copy of the dragged header has room around the header, which stays at its place in it. It
-  // is narrow, so that the line of the new place shows next to it.
-  const COPY_MAX_PX = 400;
-  const copyBox = (box: Box): Box => ({
-    left: box.left - 8,
-    top: box.top - 4,
-    width: Math.min(box.width + 16, COPY_MAX_PX),
-    height: box.height + 8,
-  });
   // With no pin, the pins take a drop over the toolbar during the drag of a card: no section moves.
-  const pinZone = $derived(!!reorder.drag && pins.length === 0);
+  const pinZone = $derived(!!reorder.drag && !reorder.drag.keyboard && pins.length === 0);
   const overPins = $derived(reorder.target?.to === PINS);
 
   // Once the page is idle, the data of the folded sections loads: opening one waits for nothing.
@@ -173,6 +163,8 @@
     reorderNews({
       drag: reorder.drag,
       target: reorder.target,
+      origin: reorder.origin,
+      refused: reorder.refused,
       ended: reorder.ended,
       idsOf: sections.idsOf,
       nameOf: sectionName,
@@ -193,6 +185,7 @@
     {densities}
     {phone}
     gripHintId={GRIP_HINT}
+    keysHintId={KEYS_HINT}
     last={section.key === lastKey}
     {headless}
     place={placeOf(section)}
@@ -203,7 +196,10 @@
 
 <!-- The space between the sections is in their padding: a section that folds ends with no jump. -->
 <div
-  class={cn('relative flex flex-col', (reorder.drag || pointerDrag) && 'cursor-grabbing select-none')}
+  class={cn(
+    'relative flex flex-col',
+    (reorder.ghost.active || groups.ghost.active) && 'cursor-grabbing select-none',
+  )}
   data-part="project-sections"
   {@attach dragCards(reorder, projectName)}
   {@attach dragGroups(groups, sectionName)}
@@ -297,8 +293,11 @@
   {#if pointerDrag && draggedSection}
     <!-- The copy of the dragged header follows the pointer over the page. -->
     <div
-      class="pointer-events-none rounded-lg bg-background px-2 py-1 shadow-2xl ring-2 ring-primary/60"
-      style={liftedStyle(copyBox(pointerDrag.box), groups.offset, groups.motion)}
+      class={cn(
+        'pointer-events-none rounded-lg bg-background px-2 py-1 ring-2 ring-primary/60',
+        groups.ghost.lifted ? 'shadow-2xl' : 'shadow-sm',
+      )}
+      style={groups.ghost.style}
       data-part="group-drag-overlay"
       aria-hidden="true"
       inert
@@ -319,5 +318,6 @@
   <p class="sr-only" aria-live="polite">{groupText}</p>
   {#if reorder.active}
     <p id={GRIP_HINT} class="sr-only">{t(projectMessages.groupGripHint)}</p>
+    <p id={KEYS_HINT} class="sr-only">{t(projectMessages.cardGripHint)}</p>
   {/if}
 </div>

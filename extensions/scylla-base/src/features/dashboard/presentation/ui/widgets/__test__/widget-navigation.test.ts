@@ -49,7 +49,7 @@ const summary = (overrides: Partial<PipelineSummary> = {}): PipelineSummary => (
   failed: 0,
   medianDuration: null,
   health: 'none',
-  active: false,
+  live: null,
   triggerKinds: [],
   nextFire: null,
   ...overrides,

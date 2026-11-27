@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import { untrack } from 'svelte';
   import { Button, Input, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
@@ -55,9 +56,7 @@
       />
     </div>
   </div>
-  {#if issueText}
-    <p role="alert" class="text-xs text-destructive">{issueText}</p>
-  {/if}
+  <FieldMessage role="alert" message={issueText} />
   <Button type="submit" size="sm" class="justify-self-end" disabled={!!issue}>
     {t(messages.apply)}
   </Button>

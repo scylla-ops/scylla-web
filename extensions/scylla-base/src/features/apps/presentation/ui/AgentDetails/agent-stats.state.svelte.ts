@@ -21,6 +21,10 @@ import {
   type PeriodChoice,
 } from '@base/features/apps/presentation/mappers/period-search.mapper.ts';
 import { appQueries } from '@base/features/apps/presentation/apps.queries.ts';
+import {
+  activityLevel,
+  type ActivityLevel,
+} from '@base/features/apps/presentation/presenters/agent-activity.presenter.ts';
 
 export interface AgentTimelineData {
   /** From the creation of the agent to today, at most a year. */
@@ -34,6 +38,8 @@ export interface AgentTimelineData {
 export interface AgentStatsView {
   /** `null` for an agent with no ended job: the chart then shows the last 30 days. */
   readonly timeline: AgentTimelineData | null;
+  /** How much the activity shows. While the timeline loads, the level of its days. */
+  readonly level: ActivityLevel;
   readonly period: StatsPeriod;
   readonly stats: AgentStats | undefined;
   readonly today: Day;
@@ -81,8 +87,12 @@ export const createAgentStats = (
       (!timelineQuery.data || endedJobs(timelineQuery.data.outcomes) > 0),
   );
 
+  const level = $derived(activityLevel(hasTimeline, bounds));
+
+  // With no timeline to move a window on, the chart shows each day since the agent joined.
   const period = $derived.by(() => {
     if (!hasTimeline) return recentPeriod(now);
+    if (level === 'line' || level === 'chart') return bounds;
     return typeof choice === 'object' ? clampPeriod(choice, bounds) : presetPeriod(choice, bounds);
   });
   const periodQuery = createQuery(() =>
@@ -104,6 +114,9 @@ export const createAgentStats = (
         stats: timelineQuery.data,
         preset: typeof choice === 'string' ? choice : null,
       };
+    },
+    get level() {
+      return level;
     },
     get period() {
       return period;

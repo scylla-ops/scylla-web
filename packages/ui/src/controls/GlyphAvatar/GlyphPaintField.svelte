@@ -41,7 +41,8 @@
 </script>
 
 {#snippet colors(index: number, labelId: string)}
-  <div class="flex flex-wrap items-center gap-2">
+  <!-- One row of equal cells: the white swatch and the others never wrap apart. -->
+  <div class={cn('grid items-center justify-items-center', white ? 'grid-cols-8' : 'grid-cols-7')}>
     {#if white}
       <button
         type="button"
@@ -59,6 +60,7 @@
       onchange={color => choose(index, color)}
       {recent}
       labelledby={labelId}
+      class="contents"
     />
   </div>
 {/snippet}

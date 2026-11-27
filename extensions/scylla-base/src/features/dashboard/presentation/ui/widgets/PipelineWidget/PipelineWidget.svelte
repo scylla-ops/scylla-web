@@ -41,14 +41,26 @@
     orphaned: messages.orphaned,
   } as const;
 
+  // The states of a job that runs or waits, as the server gives them.
+  const LIVE = {
+    running: messages.running,
+    pending: messages.pending,
+    awaiting_approval: messages.awaitingApproval,
+  } as const;
+
   const view = createPipelineWidget(() => widgets, () => period, () => target);
   const summary = $derived(view.summary);
   const row = $derived(view.row);
   const last = $derived(view.lastRun);
+  const live = $derived(view.liveRun);
+  // The line of the run: the job that runs or waits now, else the last run that ended.
+  const lineRun = $derived(live ?? last);
   const lastText = $derived(
-    last && last.status in OUTCOMES
-      ? t(messages.lastRun(last.shortId, t(OUTCOMES[last.status as keyof typeof OUTCOMES]), shortAgo(last.at)))
-      : t(messages.noRun),
+    live
+      ? t(messages.liveRun(live.shortId, t(LIVE[live.status as keyof typeof LIVE] ?? messages.pending), shortAgo(live.at)))
+      : last && last.status in OUTCOMES
+        ? t(messages.lastRun(last.shortId, t(OUTCOMES[last.status as keyof typeof OUTCOMES]), shortAgo(last.at)))
+        : t(messages.noRun),
   );
   const onText = $derived(row ? [t(messages.onTrigger(row.trigger)), last?.branch].filter(Boolean).join(' · ') : '');
   const ICONS = { passed: CheckIcon, failed: XIcon, running: LoaderIcon } as const;
@@ -57,10 +69,7 @@
 
 {#snippet header(meta: string, aside: Snippet)}
   <div class="flex h-6 min-w-0 shrink-0 items-center gap-2">
-    <Icon
-      aria-hidden="true"
-      class={cn('size-4 shrink-0', view.tone === 'failed' ? 'text-status-failed' : view.tone === 'passed' ? 'text-status-passed' : 'text-muted-foreground')}
-    />
+    <Icon aria-hidden="true" class={cn('size-4 shrink-0', view.toneText)} />
     <WidgetLink link={pipelineJobsLink(summary)} title={t(linkMessages.openJobs)} class="shrink-0 font-display text-[15px] font-medium">
       {summary?.name}
     </WidgetLink>
@@ -130,7 +139,7 @@
       {#if size === 'xs'}
         <div data-part="pipeline" class="flex min-w-0 flex-col gap-0.5">
           <span class="flex min-w-0 items-center gap-1.5">
-            <Icon aria-hidden="true" class={cn('size-3.5 shrink-0', view.tone === 'failed' ? 'text-status-failed' : 'text-status-passed')} />
+            <Icon aria-hidden="true" class={cn('size-3.5 shrink-0', view.toneText)} />
             <WidgetLink link={pipelineJobsLink(summary)} title={t(linkMessages.openJobs)} class="truncate text-sm font-medium">{summary.name}</WidgetLink>
           </span>
           <span class="truncate text-xs text-muted-foreground">{row.rate} · {t(messages.medianOf(row.median))}</span>
@@ -138,7 +147,7 @@
       {:else if size === 's'}
         <div data-part="pipeline" class="flex min-h-0 flex-1 flex-col gap-2">
           {@render header('', project)}
-          <WidgetLink link={last ? view.jobLink(last.id) : null} title={t(linkMessages.openJob)} class="truncate text-xs text-muted-foreground">
+          <WidgetLink link={lineRun ? view.jobLink(lineRun.id) : null} title={t(linkMessages.openJob)} class="truncate text-xs text-muted-foreground">
             {lastText}
           </WidgetLink>
           <p class="mt-auto flex items-baseline gap-2">

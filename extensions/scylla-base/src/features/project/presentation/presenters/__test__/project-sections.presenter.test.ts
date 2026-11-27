@@ -8,6 +8,7 @@ import {
   groupMovesToSave,
   groupTargetAt,
   inGroupOrder,
+  keyboardTargets,
   moveGroupTo,
   movesToSave,
   neighborsOf,
@@ -16,8 +17,10 @@ import {
   sectionHealth,
   slotPlace,
   stepGroup,
+  stepTarget,
   UNGROUPED,
-  type CardCell,
+  type DropTarget,
+  type KeyboardSection,
   type SectionZone,
 } from '../project-sections.presenter.ts';
 
@@ -80,135 +83,166 @@ const W = 400;
 const H = 300;
 const GAP = 16;
 const GRID_TOP = 44;
-const cell = (index: number, id?: string): CardCell => ({
-  id,
-  box: {
-    left: (index % 3) * (W + GAP),
-    top: GRID_TOP + Math.floor(index / 3) * (H + GAP),
-    width: W,
-    height: H,
-  },
-});
-/** A section at `top`, its header, and its grid with the free cell after the last cell. */
-const zone = (key: string, cells: CardCell[], top = 0): SectionZone => {
-  const down = ({ id, box }: CardCell): CardCell => ({ id, box: { ...box, top: box.top + top } });
-  const rows = Math.ceil((cells.length + 1) / 3);
+/**
+ * A section at `top`: its cells in the order of the grid, `null` for the slot of the dragged card,
+ * and the free cell after the last cell in its box.
+ */
+const zone = (key: string, places: (string | null)[], top = 0): SectionZone => {
+  const rows = Math.ceil((places.length + 1) / 3);
   return {
     key,
-    header: { left: 0, top, width: 1232, height: 32 },
-    body: { left: 0, top: top + 32, width: 1232, height: 12 + rows * (H + GAP) },
-    cells: cells.map(down),
-    after: down(cell(cells.length)).box,
+    box: { left: 0, top, width: 1232, height: GRID_TOP + rows * (H + GAP) },
+    open: true,
+    cells: places.flatMap((id, index) =>
+      id === null
+        ? []
+        : [
+            {
+              id,
+              box: {
+                left: (index % 3) * (W + GAP),
+                top: top + GRID_TOP + Math.floor(index / 3) * (H + GAP),
+                width: W,
+                height: H,
+              },
+            },
+          ],
+    ),
+    columns: 3,
   };
 };
-const any = () => true;
-/** The center of the dragged card: the pointer holds the card at `grab`. */
-const centerOf = (pointer: { x: number; y: number }, grab: { x: number; y: number }) => ({
-  x: pointer.x - grab.x + W / 2,
-  y: pointer.y - grab.y + H / 2,
+/** A folded section: its header and its line of chips. */
+const folded = (key: string, top: number): SectionZone => ({
+  key,
+  box: { left: 0, top, width: 1232, height: 80 },
+  open: false,
+  cells: [],
+  columns: 3,
 });
-const GRABS = [
-  ['the left edge', 10],
-  ['the center', W / 2],
-  ['the right edge', W - 10],
-] as const;
+const any = () => true;
+const last = (to: string): DropTarget => ({ to, header: false });
 
 describe('the target of a dragged card', () => {
-  // « test », then the slot of « live-test », which the person drags.
-  const row = [zone(UNGROUPED, [cell(0, 'test'), cell(1)])];
-  const start = row[0].cells[1].box;
+  // The pins at 0 px (360 px high), « No group » at 500 px, with the slot of the dragged card.
+  const page = [zone(PINS, ['p']), zone(UNGROUPED, ['x', null, 'y'], 500)];
 
-  it.each(GRABS)(
-    'takes the place of the card before when it covers half of it, held at %s',
-    (_, x) => {
-      const grab = { x, y: 40 };
-      const at = (dx: number) => {
-        const pointer = { x: start.left + grab.x + dx, y: start.top + grab.y };
-        return cardTargetAt(row, centerOf(pointer, grab), pointer, any)?.beforeId;
-      };
-
-      expect(at(-W)).toBe('test');
-      expect(at(-(W + GAP) / 2 - 4)).toBe('test');
-      expect(at(-(W + GAP) / 2 + 4)).toBeUndefined();
-      expect(at(-150)).toBeUndefined();
-    },
-  );
-
-  it('moves the slot when the card covers a neighbor, also with the pointer over the slot', () => {
-    // Held at its right edge, the card covers « test », and the pointer is still on the slot.
-    const grab = { x: W - 10, y: 40 };
-    const pointer = { x: start.left + 40, y: start.top + 40 };
-
-    expect(cardTargetAt(row, centerOf(pointer, grab), pointer, any)).toEqual({
-      to: UNGROUPED,
-      beforeId: 'test',
+  it('takes the pins as soon as the pointer is over them, wherever the person took the card', () => {
+    // Near the bottom of the pins, and just under them: the card can be much lower.
+    expect(cardTargetAt(page, { x: 300, y: 350 }, any, last(UNGROUPED)).target).toEqual({
+      to: PINS,
+      beforeId: undefined,
       header: false,
     });
+    expect(cardTargetAt(page, { x: 600, y: 380 }, any, last(UNGROUPED)).over).toBe(PINS);
+    // Over the top of « p »: before it.
+    expect(cardTargetAt(page, { x: 100, y: 60 }, any, null).target?.beforeId).toBe('p');
   });
 
-  // a b c / d [the slot of « e »], which the person drags.
-  const rows = [zone('g-1', [cell(0, 'a'), cell(1, 'b'), cell(2, 'c'), cell(3, 'd'), cell(4)])];
-  const e = rows[0].cells[4].box;
-
-  it.each(GRABS)('follows the card on two rows and over the gaps, held at %s', (_, x) => {
-    const grab = { x, y: 200 };
-    const at = (dx: number, dy: number) => {
-      const pointer = { x: e.left + grab.x + dx, y: e.top + grab.y + dy };
-      return cardTargetAt(rows, centerOf(pointer, grab), pointer, any)?.beforeId;
-    };
-
-    expect(at(0, -(H + GAP))).toBe('b');
-    expect(at(W + GAP, -(H + GAP))).toBe('c');
-    // Over the gap between « d » and the slot, a little nearer « d ».
-    expect(at(-(W + GAP) / 2 - 2, 0)).toBe('d');
-    expect(at(-(W + GAP) / 2 + 2, 0)).toBeUndefined();
-    // The free cell after the last one: last.
-    expect(at(W + GAP, 0)).toBeUndefined();
-  });
-
-  it('puts the card last in a section when its center is on the header', () => {
-    const page = [zone(PINS, [cell(0, 'p')]), zone(UNGROUPED, [cell(0, 'x'), cell(1, 'y')], 500)];
-
-    expect(cardTargetAt(page, { x: 600, y: 516 }, { x: 900, y: 300 }, any)).toEqual({
-      to: UNGROUPED,
-      header: true,
+  it('takes a section in a margin around it, and nothing far from each section', () => {
+    // 20 px over « No group », 120 px under the pins.
+    expect(cardTargetAt(page, { x: 200, y: 480 }, any, null).over).toBe(UNGROUPED);
+    expect(cardTargetAt(page, { x: 200, y: 3000 }, any, null)).toEqual({
+      over: null,
+      target: null,
     });
   });
 
-  it('lets the pointer choose the section only when the center of the card is in none', () => {
-    const page = [zone(PINS, [cell(0, 'p')]), zone(UNGROUPED, [cell(0, 'x'), cell(1, 'y')], 500)];
+  it('keeps the section of the slot on the line between two sections', () => {
+    const near = [zone(PINS, ['p']), zone(UNGROUPED, ['x'], 368)];
+    // 2 px under the pins and 6 px over « No group ».
+    const point = { x: 200, y: 362 };
 
-    // The center is under the pins, in no section: the pointer is in « No group ».
-    expect(cardTargetAt(page, { x: 200, y: 480 }, { x: 200, y: 700 }, any)).toEqual({
-      to: UNGROUPED,
-      beforeId: 'x',
-      header: false,
+    expect(cardTargetAt(near, point, any, null).over).toBe(PINS);
+    expect(cardTargetAt(near, point, any, last(UNGROUPED)).over).toBe(UNGROUPED);
+  });
+
+  it('puts the card before a card when the pointer is on the first half of it', () => {
+    // « test », then the slot of « live-test », which comes from another section.
+    const row = [zone(UNGROUPED, ['test', null])];
+
+    expect(cardTargetAt(row, { x: 0.45 * W, y: 100 }, any, null).target?.beforeId).toBe('test');
+    expect(cardTargetAt(row, { x: 0.55 * W, y: 100 }, any, null).target?.beforeId).toBeUndefined();
+  });
+
+  it('moves the slot back only when the pointer passes three quarters of a card', () => {
+    // a b c / d [the slot of « e »]: the slot is last.
+    const before = [zone('g-1', ['a', 'b', 'c', 'd', null])];
+    const at = (x: number, y = GRID_TOP + H + GAP + 100) =>
+      cardTargetAt(before, { x, y }, any, last('g-1')).target?.beforeId;
+
+    expect(at(0.3 * W)).toBeUndefined();
+    expect(at(0.2 * W)).toBe('d');
+    // On the first row, over « b »: before it.
+    expect(at(W + GAP + 0.2 * W, GRID_TOP + 100)).toBe('b');
+
+    // a b c / [the slot] d: the slot is before « d ».
+    const after = [zone('g-1', ['a', 'b', 'c', null, 'd'])];
+    const slot: DropTarget = { to: 'g-1', beforeId: 'd', header: false };
+    const on = (x: number) =>
+      cardTargetAt(after, { x, y: GRID_TOP + H + GAP + 100 }, any, slot).target?.beforeId;
+
+    expect(on(W + GAP + 0.6 * W)).toBe('d');
+    expect(on(W + GAP + 0.8 * W)).toBeUndefined();
+  });
+
+  it('puts the card last in a section that shows no card, also over its header', () => {
+    const closed = [zone(PINS, ['p']), folded('g-2', 400)];
+
+    expect(cardTargetAt(closed, { x: 900, y: 410 }, any, null)).toEqual({
+      over: 'g-2',
+      target: { to: 'g-2', header: true },
     });
-    // The center is in the pins: the pointer in « No group » does not count.
-    expect(cardTargetAt(page, { x: 200, y: 200 }, { x: 200, y: 700 }, any)?.to).toBe(PINS);
-    expect(cardTargetAt(page, { x: 200, y: 2000 }, { x: 200, y: 2000 }, any)).toBeNull();
   });
 
-  it('skips a section that takes no drop of the card', () => {
-    const page = [zone(PINS, [cell(0, 'p')]), zone('g-1', [cell(0, 'x')], 500)];
-    const onlyPins = (key: string) => key === PINS;
-
-    expect(cardTargetAt(page, { x: 200, y: 700 }, { x: 200, y: 700 }, onlyPins)).toBeNull();
-  });
-
-  it('puts the card last in an empty section', () => {
-    const empty: SectionZone = {
-      key: 'g-2',
-      header: { left: 0, top: 0, width: 1232, height: 32 },
-      body: { left: 0, top: 32, width: 1232, height: 80 },
-      cells: [],
-    };
-
-    expect(cardTargetAt([empty], { x: 600, y: 70 }, { x: 600, y: 70 }, any)).toEqual({
+  it('puts the card last in an open section with no card', () => {
+    expect(cardTargetAt([zone('g-2', [])], { x: 600, y: 100 }, any, null).target).toEqual({
       to: 'g-2',
       beforeId: undefined,
       header: false,
     });
+  });
+
+  it('tells the section under the pointer that takes no drop of the card, with no target', () => {
+    const onlyPins = (key: string) => key === PINS;
+
+    expect(cardTargetAt(page, { x: 200, y: 700 }, onlyPins, null)).toEqual({
+      over: UNGROUPED,
+      target: null,
+    });
+  });
+});
+
+describe('the keyboard places of a card', () => {
+  const sections: KeyboardSection[] = [
+    { key: PINS, open: true, ids: ['p'] },
+    { key: 'g-1', open: false, ids: ['a'] },
+    { key: UNGROUPED, open: true, ids: ['b', 'c'] },
+  ];
+  const noPins = (key: string) => key !== PINS;
+  const targets = keyboardTargets(sections, 'b', noPins);
+
+  it('gives each place of each open section, and one place in a folded section', () => {
+    expect(targets).toEqual([
+      { to: 'g-1', header: true },
+      { to: UNGROUPED, beforeId: 'c', header: false },
+      { to: UNGROUPED, header: false },
+    ]);
+  });
+
+  it('moves one place back or on, also into the next section, and stops at each end', () => {
+    const origin: DropTarget = { to: UNGROUPED, beforeId: 'c', header: false };
+
+    expect(stepTarget(targets, origin, -1)).toEqual({ to: 'g-1', header: true });
+    expect(stepTarget(targets, { to: 'g-1', header: true }, -1)).toEqual({
+      to: 'g-1',
+      header: true,
+    });
+    expect(stepTarget(targets, origin, 1)).toEqual({ to: UNGROUPED, header: false });
+    expect(stepTarget(targets, { to: UNGROUPED, header: false }, 1)).toEqual({
+      to: UNGROUPED,
+      header: false,
+    });
+    expect(stepTarget(targets, { to: PINS, header: false }, 1)).toEqual(targets[0]);
   });
 });
 
@@ -219,12 +253,16 @@ describe('the sections', () => {
     expect(searchSectionOf(PINS)).toBeUndefined();
   });
 
-  it('shows the failures first, then the jobs that run, else no health', () => {
-    const counts = { total: 4, failed: 1, running: 2, pipelines: 6 };
+  it('shows the failures first, then the jobs that run, then the jobs that wait, else no health', () => {
+    const counts = { total: 4, failed: 1, running: 2, pending: 3, pipelines: 6 };
 
     expect(sectionHealth(counts)).toEqual({ kind: 'failed', count: 1 });
     expect(sectionHealth({ ...counts, failed: 0 })).toEqual({ kind: 'running', count: 2 });
-    expect(sectionHealth({ ...counts, failed: 0, running: 0 })).toBeUndefined();
+    expect(sectionHealth({ ...counts, failed: 0, running: 0 })).toEqual({
+      kind: 'pending',
+      count: 3,
+    });
+    expect(sectionHealth({ ...counts, failed: 0, running: 0, pending: 0 })).toBeUndefined();
   });
 });
 
@@ -274,7 +312,7 @@ describe('the order of the groups', () => {
     expect(groupMovesToSave(['a', 'b'], ['x', 'b', 'a'])).toEqual([{ groupId: 'b', position: 0 }]);
   });
 
-  it('puts the line between the two groups nearest to the center of the dragged header', () => {
+  it('puts the line before the first group whose middle the pointer has not passed', () => {
     // Three groups of 100 px; « b » is dragged and stays in its place.
     const cells = [groupCell(0, 'a'), groupCell(1, 'b'), groupCell(2, 'c')];
 
@@ -300,5 +338,16 @@ describe('the order of the groups', () => {
 
     expect(groupTargetAt(cells, 'c', 380)).toEqual({ beforeId: 'b' });
     expect(groupTargetAt(cells, 'c', 420)).toEqual({ beforeId: undefined });
+  });
+
+  it('moves the line back only when the pointer passes three quarters of a group', () => {
+    const cells = [groupCell(0, 'a'), groupCell(1, 'b'), groupCell(2, 'c')];
+
+    // The line is after « a », the place of « c »: back before « a » only over its first quarter.
+    expect(groupTargetAt(cells, 'c', 40, { beforeId: 'b' })).toEqual({ beforeId: 'b' });
+    expect(groupTargetAt(cells, 'c', 20, { beforeId: 'b' })).toEqual({ beforeId: 'a' });
+    // The line is before « a »: after it only past its third quarter.
+    expect(groupTargetAt(cells, 'c', 60, { beforeId: 'a' })).toEqual({ beforeId: 'a' });
+    expect(groupTargetAt(cells, 'c', 80, { beforeId: 'a' })).toEqual({ beforeId: 'b' });
   });
 });

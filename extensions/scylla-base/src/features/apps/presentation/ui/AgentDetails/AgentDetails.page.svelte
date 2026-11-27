@@ -1,210 +1,185 @@
 <script lang="ts">
-  import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
-  import { can, Permission } from '@platform/authz';
-  import { contextStore, scyllaNavigate } from '@platform/context';
-  import { createMutation, createQuery } from '@scylla/core-sdk';
-  import { ConfirmOperationAlertDialog, ErrorState } from '@scylla/ui';
-  import { Skeleton } from '@scylla/ui/primitives';
-  import { toRune } from '@scylla/ui/stores';
+  import ActivityIcon from '@lucide/svelte/icons/activity';
+  import LayoutDashboardIcon from '@lucide/svelte/icons/layout-dashboard';
+  import ListChecksIcon from '@lucide/svelte/icons/list-checks';
+  import ServerIcon from '@lucide/svelte/icons/server';
+  import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
+  import { scyllaNavigate } from '@platform/context';
+  import { ConfirmOperationAlertDialog, ErrorState, type LucideIcon } from '@scylla/ui';
+  import {
+    Skeleton,
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+  } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
-  import { formatDay } from '@shared/utils/date-utils.ts';
-  import { appStateOf } from '@base/features/apps/domain/entities/app.entity.ts';
-  import { hasNoActiveKey } from '@base/features/apps/domain/structs/agent-list.struct.ts';
-  import { appMutations, appQueries } from '@base/features/apps/presentation/apps.queries.ts';
+  import type { MessageDescriptor } from '@lingui/core';
   import { setAppCrumbName } from '@base/features/apps/presentation/app-crumb.state.svelte.ts';
-  import AgentHeader from './AgentHeader.svelte';
-  import AgentStatsRow from './AgentStatsRow.svelte';
-  import AgentTimeline from './AgentTimeline/AgentTimeline.svelte';
-  import JobsPerDayCard from './JobsPerDayCard/JobsPerDayCard.svelte';
-  import AgentMachineCard from './AgentMachineCard/AgentMachineCard.svelte';
-  import AgentRecentJobsCard from './AgentRecentJobsCard.svelte';
-  import AgentAccessCard from './AgentAccessCard.svelte';
-  import AgentLabelsCard from './AgentLabelsCard.svelte';
-  import AppIconCard from '../components/AppIconCard/AppIconCard.svelte';
-  import AgentKeysCard from './AgentKeysCard.svelte';
-  import AgentConnectCard from './AgentConnectCard.svelte';
-  import AgentDangerZone from './AgentDangerZone.svelte';
   import { agentPageMessages as messages } from '@base/features/apps/presentation/messages/agent-page.messages.ts';
-  import { createAgentStats } from './agent-stats.state.svelte.ts';
+  import { agentsListMessages } from '@base/features/apps/presentation/messages/agents-list.messages.ts';
+  import AppIconDialog from '../components/AppIconCard/AppIconDialog.svelte';
+  import DeleteAppDialog from '../components/DeleteAppDialog/DeleteAppDialog.svelte';
+  import DisabledBanner from '../components/DisabledBanner.svelte';
+  import AgentActivity from './AgentActivity/AgentActivity.svelte';
+  import AgentHeader from './AgentHeader.svelte';
+  import AgentJobs from './AgentJobs/AgentJobs.svelte';
+  import AgentMachine from './AgentMachine/AgentMachine.svelte';
+  import AgentOverview from './AgentOverview/AgentOverview.svelte';
+  import AgentSettings from './AgentSettings/AgentSettings.svelte';
+  import { createAgentPage } from './agent-page.state.svelte.ts';
+  import type { AgentTab } from './agent-tab.state.svelte.ts';
 
   let { appId = '' }: { appId?: string } = $props();
 
-  const context = toRune(contextStore);
-  const workspaceId = $derived(context().workspace.id ?? '');
-  const workspaceName = $derived(context().workspace.name ?? '');
-  const target = $derived({ workspaceId });
+  const page = createAgentPage(() => appId);
+  const agent = $derived(page.agent);
 
-  const canManage = $derived(can(Permission.DELETE_APP, target));
-  const canReadAccess = $derived(can(Permission.LIST_WORKSPACE_MEMBERS, target));
-  const canChangeAccess = $derived(
-    can(Permission.MANAGE_WORKSPACE_GRANTS, target) && can(Permission.MANAGE_PROJECT_GRANTS, target),
-  );
-  const canReadJobs = $derived(can(Permission.LIST_JOBS_BY_WORKSPACE, target));
-  const canReadStats = $derived(can(Permission.READ_APP_STATS, target));
-  const canSetLabels = $derived(can(Permission.SET_APP_LABELS, target));
-  const canSetIcon = $derived(can(Permission.SET_APP_ICON, target));
-
-  const details = createQuery(() => appQueries.byId(appId, workspaceId));
-  const jobs = createQuery(() => appQueries.jobs(workspaceId, appId, canReadJobs));
-  const access = createQuery(() =>
-    appQueries.agentAccess(workspaceId, appId ? [appId] : [], canReadAccess),
-  );
-
-  const disable = createMutation(() => appMutations.disable());
-  const enable = createMutation(() => appMutations.enable());
-
-  const agent = $derived(details.data?.app);
   $effect(() => {
     setAppCrumbName(agent?.name || undefined);
     return () => setAppCrumbName(undefined);
   });
-  const never = $derived(!!agent && appStateOf(agent) === 'never' && !agent.disabledAt);
 
-  const userId = localStorage.getItem('userId') ?? '';
-  const created = $derived(!!userId && agent?.createdBy === userId);
-  const canNewCode = $derived(created || can(Permission.CREATE_JOIN_CODE, target));
-  const canRename = $derived(created || can(Permission.RENAME_APP_KEY, target));
-  const canRevoke = $derived(created || can(Permission.REVOKE_APP_KEY, target));
+  const TABS: Record<AgentTab, { label: MessageDescriptor; icon: LucideIcon }> = {
+    overview: { label: messages.overviewTab, icon: LayoutDashboardIcon },
+    jobs: { label: messages.jobsTab, icon: ListChecksIcon },
+    activity: { label: messages.activityTab, icon: ActivityIcon },
+    settings: { label: messages.settingsTab, icon: SlidersHorizontalIcon },
+    machine: { label: messages.machine, icon: ServerIcon },
+  };
 
-  const stats = createAgentStats(() => ({ appId, workspaceId, agent }));
-
-  let disabling = $state(false);
-  let iconOpen = $state(false);
-
-  /** A new join code on the page of a new agent, at its install step. */
-  const connect = () => scyllaNavigate.goToWorkspaceRoute(`/agents/${appId}/connect`);
+  /** The next step of an agent with no job: connect it, give it access, or run a pipeline. */
+  const emptyAction = $derived(
+    page.never && page.canNewCode
+      ? { label: t(agentsListMessages.finishSetup), onSelect: page.connect }
+      : page.access?.kind === 'none' && page.canChangeAccess
+        ? { label: t(messages.giveAccess), onSelect: () => page.tab.select('settings') }
+        : {
+            label: t(messages.openProjects),
+            onSelect: () => scyllaNavigate.goToWorkspaceRoute('/projects'),
+          },
+  );
 </script>
 
-{#if details.isError}
-  <ErrorState message={details.error?.message} />
+{#if page.details.isError}
+  <ErrorState message={page.details.error?.message} />
 {:else if !agent}
-  <div class="flex flex-col gap-4" aria-busy="true">
-    <Skeleton class="h-12 w-72" />
-    <Skeleton class="h-24 w-full rounded-xl" />
-    <div class="grid gap-4 lg:grid-cols-3">
-      <Skeleton class="h-64 w-full rounded-xl lg:col-span-2" />
+  <div class="mx-auto flex w-full max-w-5xl flex-col gap-6" aria-busy="true">
+    <div class="flex items-center gap-4">
+      <Skeleton class="size-12 rounded-xl" />
+      <div class="flex flex-col gap-2">
+        <Skeleton class="h-7 w-56" />
+        <Skeleton class="h-4 w-72" />
+      </div>
+    </div>
+    <Skeleton class="h-8 w-full rounded-lg sm:w-[30rem]" />
+    <div class="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <Skeleton class="h-64 w-full rounded-xl" />
       <Skeleton class="h-64 w-full rounded-xl" />
     </div>
   </div>
 {:else}
-  <div class="flex flex-col gap-6 pb-20" data-tour="agent-details">
+  <!--
+    One column of at most 64 rem, centered. The header and the tabs stay at their place when the
+    tab changes: only the content under them changes, and it fades in.
+  -->
+  <div class="mx-auto flex w-full max-w-5xl flex-col gap-6 pb-20" data-tour="agent-details">
     <AgentHeader
       {agent}
-      noActiveKey={hasNoActiveKey(details.data?.keys ?? [])}
-      onDisable={canManage ? () => (disabling = true) : undefined}
-      onEnable={canManage ? () => enable.mutate(agent.id) : undefined}
-      enabling={enable.isPending}
-      onChangeIcon={canSetIcon ? () => (iconOpen = true) : undefined}
+      noActiveKey={page.noActiveKey}
+      onChangeIcon={page.canSetIcon ? () => page.openIcon() : undefined}
+      onConnect={page.canNewCode ? page.connect : undefined}
+      onDisable={page.canManage ? () => (page.disabling = true) : undefined}
+      onEnable={page.canManage ? page.enable : undefined}
+      onDelete={page.canManage ? () => (page.deleting = true) : undefined}
     />
 
     {#if agent.disabledAt}
-      <div
-        class="flex items-center gap-3 rounded-xl border border-warning/60 bg-warning/10 p-4"
-        role="status"
-      >
-        <TriangleAlertIcon class="size-4 shrink-0 text-warning" aria-hidden="true" />
-        <div class="flex flex-col gap-1">
-          <p class="text-sm font-medium">{t(messages.disabledSince(formatDay(agent.disabledAt)))}</p>
-          <p class="text-xs text-muted-foreground">{t(messages.disabledBody)}</p>
-        </div>
-      </div>
-    {/if}
-
-    {#if never && canNewCode}
-      <AgentConnectCard onConnect={connect} />
-    {:else}
-      <!-- The stats need their own permission: a reader of the apps can miss it. -->
-      {#if canReadStats}
-        {#if stats.timeline?.stats}
-          <AgentTimeline
-            bounds={stats.timeline.bounds}
-            stats={stats.timeline.stats}
-            period={stats.period}
-            preset={stats.timeline.preset}
-            today={stats.today}
-            disabled={stats.disabled}
-            onChoose={stats.choose}
-          />
-        {:else if stats.timeline}
-          <Skeleton class="h-[134px] w-full rounded-xl" />
-        {/if}
-        <AgentStatsRow
-          stats={stats.stats}
-          lastRunAt={jobs.data?.[0]?.createdAt}
-          period={stats.period}
-          today={stats.today}
-        />
-      {/if}
-      <div class="grid gap-4 lg:grid-cols-3">
-        <div class="lg:col-span-2">
-          {#if canReadStats}
-            <JobsPerDayCard
-              stats={stats.stats}
-              period={stats.period}
-              today={stats.today}
-              joined={stats.joined}
-              disabled={stats.disabled}
-              never={stats.never}
-              withTimeline={!!stats.timeline}
-            />
-          {/if}
-        </div>
-        <AgentMachineCard {agent} />
-      </div>
-    {/if}
-
-    <div class="grid gap-4 lg:grid-cols-3">
-      <div class="lg:col-span-2">
-        {#if canReadJobs}
-          <AgentRecentJobsCard {workspaceId} jobs={jobs.data} />
-        {/if}
-      </div>
-      <!-- The access card fills the height that the labels card leaves. -->
-      <div class="flex flex-col gap-4">
-        {#if canReadAccess}
-          <div class="min-h-0 flex-1">
-            <AgentAccessCard
-              agentId={agent.id}
-              {workspaceId}
-              {workspaceName}
-              access={access.data?.get(agent.id)}
-              canChange={canChangeAccess}
-            />
-          </div>
-        {/if}
-        <AgentLabelsCard {agent} canChange={canSetLabels} />
-        {#if canSetIcon}
-          <AppIconCard app={agent} bind:open={iconOpen} />
-        {/if}
-      </div>
-    </div>
-
-    <AgentKeysCard
-      agentId={agent.id}
-      keys={details.data?.keys ?? []}
-      onNewCode={canNewCode && !agent.disabledAt ? connect : undefined}
-      {canRename}
-      {canRevoke}
-      tourAnchor={!never || !canNewCode}
-    />
-
-    {#if canManage}
-      <AgentDangerZone
-        agentId={agent.id}
-        agentName={agent.name}
-        os={agent.host?.os}
-        onDeleted={() => scyllaNavigate.goToWorkspaceRoute('/agents')}
+      <DisabledBanner
+        disabledAt={agent.disabledAt}
+        body={t(messages.disabledBody)}
+        onEnable={page.canManage ? page.enable : undefined}
+        enabling={page.isEnabling}
       />
     {/if}
+
+    <Tabs value={page.tab.current} onValueChange={page.tab.select} class="gap-4">
+      <TabsList class="h-9 w-full sm:w-fit" aria-label={t(messages.tabsLabel)}>
+        {#each page.tabs as tab (tab)}
+          {@const Icon = TABS[tab].icon}
+          <TabsTrigger value={tab} class="px-1.5 max-sm:text-[13px] sm:px-3">
+            <Icon class="max-sm:hidden" aria-hidden="true" />
+            {t(TABS[tab].label)}
+          </TabsTrigger>
+        {/each}
+      </TabsList>
+      <TabsContent value="overview">
+        {#if page.tab.current === 'overview'}
+          <AgentOverview {page} {emptyAction} />
+        {/if}
+      </TabsContent>
+      {#if page.canReadJobs}
+        <TabsContent value="jobs">
+          {#if page.tab.current === 'jobs'}
+            <AgentJobs
+              workspaceId={page.workspaceId}
+              appId={agent.id}
+              stats={page.stats.timeline?.stats}
+              running={agent.runningJobs}
+              {emptyAction}
+            />
+          {/if}
+        </TabsContent>
+      {/if}
+      {#if page.canReadStats}
+        <TabsContent value="activity">
+          {#if page.tab.current === 'activity'}
+            <AgentActivity
+              stats={page.stats}
+              lastRunAt={page.recentJobs?.[0]?.createdAt}
+              onShowJobs={() => page.tab.select('jobs')}
+              {emptyAction}
+            />
+          {/if}
+        </TabsContent>
+      {/if}
+      <TabsContent value="settings">
+        {#if page.tab.current === 'settings'}
+          <AgentSettings {page} />
+        {/if}
+      </TabsContent>
+      <TabsContent value="machine">
+        {#if page.tab.current === 'machine'}
+          <AgentMachine {page} />
+        {/if}
+      </TabsContent>
+    </Tabs>
   </div>
 
+  {#if page.canSetIcon}
+    <AppIconDialog
+      app={agent}
+      open={page.iconOpen}
+      onOpenChange={open => (page.iconOpen = open)}
+      avatar={page.iconAvatar}
+    />
+  {/if}
+
+  <DeleteAppDialog
+    open={page.deleting}
+    onOpenChange={open => (page.deleting = open)}
+    appId={agent.id}
+    appName={agent.name}
+    onDeleted={() => scyllaNavigate.goToWorkspaceRoute('/agents')}
+  />
+
   <ConfirmOperationAlertDialog
-    open={disabling}
-    onOpenChange={open => (disabling = open)}
+    open={page.disabling}
+    onOpenChange={open => (page.disabling = open)}
     title={t(messages.disableTitle(agent.name))}
     description={t(messages.disableBody)}
     continueLabel={t(messages.disable)}
-    isLoading={disable.isPending}
-    onContinue={() => disable.mutate(agent.id, { onSuccess: () => (disabling = false) })}
+    isLoading={page.isDisabling}
+    onContinue={page.confirmDisable}
   />
 {/if}

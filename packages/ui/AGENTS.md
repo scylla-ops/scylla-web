@@ -24,6 +24,7 @@ the stores, i18n rendering and the theme tokens. **No business meaning.**
 | `@scylla/ui/stores` | `createStore`, `toRune`, `selectionStore`, the theme store |
 | `@scylla/ui/i18n` | `t`, `activeLocale`, `intlLocale` (the locale for `Intl`, `en` before the first activation), `formatNumber` (a decimal, a percent or a large number in the language of the UI), `setAppLocale` (writes nothing in the browser), `chooseAppLocale` (the choice of the person: it writes `scylla-locale`), `registerCatalogs`, `readCatalogs` (the messages of a locale, not activated), `plainMessage` |
 | `@scylla/ui/utils` | `cn`, `toast`, `copyToClipboard` (writes, then toasts the result, with an optional second line), `matchesSearch` (case and accents do not count), `fuzzyMatch`, `prepareFuzzyText`, `prepareFuzzyQuery`, `normalizeText` (a search with typing errors) |
+| `@scylla/ui/dnd` | the drag and drop of the app: `dragWithPointer`, `dragWithKeys`, `createDragGhost`, `pulseDrop`, the geometry (`zoneAt`, `insertIndex`, `edgeScroll`, `layoutBox`) and the motion of a drag. See "Drag and drop" |
 | `@scylla/ui/structs` | `PaginationParams`, `PaginationInfo`, `PaginatedList`, `GlyphAvatar` and its constants (`GLYPH_SHAPES`, `SCYLLA_GLYPH_AVATAR`, `glyphAvatarKey`) — plain shapes, the only part a `domain/` may import |
 | `@scylla/ui/styles.css` | Tailwind, the theme tokens, the `@source` of every package — imported once, by `apps/web` |
 | `@scylla/ui/assets/*` | the logos |
@@ -56,6 +57,9 @@ src/
                            its height between two parts (morph), reflow (the move of the items
                            of a list), swap (a cross-fade of a value), a count that rolls, the
                            slide of a second screen
+  dnd/                     `@scylla/ui/dnd`: the drag and drop (the pointer and the keyboard, the
+                           ghost that lifts, follows and settles, the zones and the places, the
+                           pulse of a drop). Not in `@scylla/ui`: a node test of a presenter imports it
   editor/                  renderCodeMirror (an attachment), the CodeMirror theme (`flush`: no
                            frame, for an editor that fills a pane with its own borders)
   icon.ts                  LucideIcon (the prop type of an icon)
@@ -116,6 +120,7 @@ they use the language of the browser or no language.
 | An item of a dense grid: a smaller card | `CompactCard` (`title`, `icon`, `badge`, `subtitle`, `actions`, `footer`, `selected`, `interactive`): the icon, the title and the actions on one line, centered, then the footer. The cards of a row have the same height |
 | An item of a list, one row each | `ListRow` (`title`, `icon`, `badge`, `subtitle`, `meta`, `actions`, `stacked`, `selected`, `interactive`): 48 px, each part centered on one line. `stacked` (a phone) puts the subtitle and `meta` on a second line, and the icon and the actions stay centered on the row |
 | A small tile of an overview (the health of each item) | `Tile` (`title`, `icon`, `status`, `actions`, `selected`, `interactive`): the icon, the title and the status centered on both axes; `actions` in the top right corner |
+| Drag an item to another place (cards, sections, widgets) | `@scylla/ui/dnd`: `dragWithPointer` on the root of the items, `dragWithKeys` on each handle, `createDragGhost` in the state of the drag. Never a native drag, never pointer listeners of your own. See "Drag and drop" |
 | The place where a dragged item goes | `DropSlot` (`shape`: `card`, `row`, `header` or `tile`, from `DROP_SLOT_SHAPES`; `children`: a text, centered). Give it the shape of the item, so that the grid does not jump. With no text it is `aria-hidden`: a live region says the place |
 | « New … » as the last item of a grid or a list | `GhostItem` (`label`, `shape`: `card`, `row` or `tile`, from `GHOST_ITEM_SHAPES`; `icon`, `Plus` by default; `href` for a link, else `onclick`): a dashed item, its content centered on both axes |
 | A small item in a line: a name with its icon, or "+N" | `Chip` (`icon` snippet, `variant`: `default` or `more`, the button attributes): 28 px, rounded, the content centered |
@@ -219,6 +224,8 @@ kind of element has the same motion everywhere. Use these presets, never a new d
 | A number that changes | `createCountRoll(() => count)` (`rollIn`, `rollOut`, `pulse`) | 370 ms spring in, 220 ms out |
 | A value that takes the place of another, as an icon | `swapIn` and `swapOut` | 240 ms spring in, 120 ms out |
 | A modal (dialog, alert dialog, sheet) and its backdrop | `MODAL_TIMING_CLASS` (`dialog/dialog-variants.ts`) | 200 ms ease out in, 150 ms ease in out |
+| A dragged item: the lift, the follow of the pointer, the flight into its slot or back | `createDragGhost()` of `@scylla/ui/dnd` (`ghost.style` on the item) | lift 200 ms, settle 220 ms spring |
+| The place that got a dropped item | `pulseDrop(element)` of `@scylla/ui/dnd` (one ring of `--primary`) | 450 ms |
 | A second screen that comes over the main one, and goes back (`ScreenStack`) | `in:screenIn` and `out:screenOut` on the second screen (a slide from the end side and a fade), `SCREEN_BEHIND_CLASS` and `SCREEN_AWAY_CLASS` on the main one (a quarter of its width to the start, and a fade) | 220 ms ease out, the two together |
 
 - **No motion at the first paint.** A Svelte transition is local: it plays when its own block
@@ -246,6 +253,39 @@ kind of element has the same motion everywhere. Use these presets, never a new d
 - `swapIn` and `swapOut` need the two values in one grid cell (`grid` on the parent,
   `col-start-1 row-start-1` on the child) in a `{#key}`, so the place keeps its size. So does the
   count roll.
+
+### Drag and drop: `@scylla/ui/dnd`
+
+One drag for the whole app. The projects page (the cards, the groups, the pins) and the dashboard
+editor (the widgets, the kinds of the palette) use it. A new drag uses it too.
+
+- **`dragWithPointer(() => options)`** is an attachment on the root of the items. `pick(target)`
+  gives the item of a press, or null. A mouse or a pen starts the drag after 5 px
+  (`DRAG_SLOP_PX`), a finger after a hold of 250 ms (`TOUCH_HOLD_MS`), so that a click stays a
+  click and a quick move of a finger scrolls the page. Then `start(item, at, from)`, `move(at)`
+  for each move (and for a scroll under the pointer), and `end(drop)`: `true` on a release,
+  `false` on Escape, a lost pointer or a lost window. Near the top and the bottom of the
+  scroller, the page scrolls, faster near the edge. The click after a drop does nothing.
+- **`dragWithKeys(() => options)`** is an attachment on the handle of an item: Space or Enter
+  lifts, the arrow keys step (`step(-1 | 1)`), Space drops, Escape cancels, and a focus that
+  leaves drops. Give the handle `aria-describedby` with the keys, and say each place in a live
+  region.
+- **`createDragGhost()`** is the lifted item. `lift(box, taken, at)` keeps the point where the
+  person took it; the item grows to 1.03, gets a larger shadow and leans up to 2° with the speed
+  of the pointer, then goes back to 0. `follow(at)` moves it on a light spring (about 1 frame
+  late). `reshape(size)` gives it the shape of a slot of another size. `settle(box)` flies it
+  into its slot (220 ms, a spring), `back()` flies it to where it was taken. Put `ghost.style` on
+  the item (`position: fixed`). A reduced motion has no lean, no spring and no flight.
+- **The pointer decides, never the center of the item.** `zoneAt(zones, point)` gives the zone
+  under the pointer: the whole box of a section and a margin of 24 px around it. A box under the
+  pointer takes the drop at once, also next to the zone of the slot; in a gap, the zone of the
+  slot keeps its margin. `insertIndex(items, point, { current, columns })` gives
+  the place: the middle of each item, with a hysteresis of 25 % around the slot, so the slot does
+  not swing. A list compares the height; a grid finds the row, then compares the width.
+- **Measure the places with `layoutBox(element)`**: the box where its positioned parent puts an
+  element, with no transform. An item that slides (`animate:reflow`) does not move a place.
+- **A drop at the place of the item does nothing**: no change, no "moved" feedback. A drop at a
+  new place sends the item into its slot, then `pulseDrop` rings the place once.
 
 ### Layout shifts: the UI stays still on a click
 

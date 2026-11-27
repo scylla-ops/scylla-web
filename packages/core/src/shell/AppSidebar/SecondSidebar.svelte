@@ -17,6 +17,7 @@
     MORPH_BOX_CLASS,
     morphHeight,
     motionDuration,
+    overscrollGlow,
     prefersReducedMotion,
     StatusShape,
     swapIn,
@@ -191,6 +192,7 @@
             'relative flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-2',
             untitled && !search && 'pt-2',
           )}
+          {@attach overscrollGlow({ edges: 'bottom', size: 'sidebar' })}
         >
           {#if search?.empty}
             <li class="px-2 py-3 text-center text-sm text-muted-foreground">{search.empty}</li>

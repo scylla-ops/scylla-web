@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import BotIcon from '@lucide/svelte/icons/bot';
   import ChevronLeftIcon from '@lucide/svelte/icons/chevron-left';
   import UserRoundIcon from '@lucide/svelte/icons/user-round';
@@ -261,9 +262,7 @@
             }}
             onblur={() => (nameError = nameUsed(name))}
           />
-          {#if nameError}
-            <p class="text-xs text-destructive">{t(nameTaken)}</p>
-          {/if}
+          <FieldMessage message={nameError && t(nameTaken)} />
         </div>
 
         <div class="flex flex-col gap-2">

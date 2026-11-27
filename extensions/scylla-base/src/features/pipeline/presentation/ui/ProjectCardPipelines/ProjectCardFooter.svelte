@@ -10,6 +10,7 @@
   } from '@shared/utils/date-utils.ts';
   import type { ProjectCardContext } from '@base/features/project';
   import { projectCardMessages } from '../../messages/project-card.messages.ts';
+  import { liveFooterMessage } from '../../presenters/project-card.presenter.ts';
   import { createProjectCardPipelines } from './project-card-pipelines.state.svelte.ts';
 
   interface Props {
@@ -25,9 +26,9 @@
   const text = $derived.by(() => {
     const footer = card.pipelines.footer;
     switch (footer?.kind) {
-      case 'running': {
-        const seconds = (now.value - Date.parse(footer.since)) / 1000;
-        return t(projectCardMessages.jobRunningFor(formatCoarseDuration(seconds)));
+      case 'live': {
+        const duration = formatCoarseDuration((now.value - Date.parse(footer.since)) / 1000);
+        return t(liveFooterMessage(footer.status)(duration));
       }
       case 'last':
         return t(projectCardMessages.lastJob(getRelativeTime(footer.at, now.value)));

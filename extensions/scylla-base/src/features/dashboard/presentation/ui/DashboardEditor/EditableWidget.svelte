@@ -4,6 +4,8 @@
   import MinusIcon from '@lucide/svelte/icons/minus';
   import SlidersHorizontalIcon from '@lucide/svelte/icons/sliders-horizontal';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
+  import { tick } from 'svelte';
+  import { dragWithKeys, pulseDrop } from '@scylla/ui/dnd';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
   import type { LayoutWidget } from '@base/features/dashboard/domain/structs/dashboard-layout.struct.ts';
@@ -23,11 +25,13 @@
   interface Props {
     item: LayoutWidget;
     title: string;
+    /** The id of the text that tells the keys of the handle. */
+    keysHintId?: string;
     onOpenData: () => void;
     children: Snippet;
   }
 
-  let { item, title, onOpenData, children }: Props = $props();
+  let { item, title, keysHintId, onOpenData, children }: Props = $props();
 
   let frame = $state<HTMLElement | null>(null);
   let resizing = $state<{
@@ -59,6 +63,20 @@
   );
   const sizes = $derived(DATA[item.data].sizes);
   const selected = $derived(dashboardEditor.selected === item.id);
+  // The keyboard holds the widget: it moves in the grid with the arrow keys.
+  const isHeld = () => {
+    const drag = dashboardEditor.drag;
+    return drag?.from === 'grid' && !!drag.keyboard && drag.id === item.id;
+  };
+  const held = $derived(isHeld());
+
+  /** The widget moved in the grid: the focus stays on its handle. */
+  const handleOf = (id: string) =>
+    document.querySelector<HTMLElement>(`[data-widget="${id}"] [data-part="widget-handle"]`);
+  const keepFocus = async (id: string) => {
+    await tick();
+    handleOf(id)?.focus();
+  };
 
   /** The left of the cell of the widget in the grid, without the transform of a move in progress. */
   const leftInGrid = (): number | null => {
@@ -127,9 +145,11 @@
   data-slot="editable-widget"
   data-selected={selected || undefined}
   data-resizing={resizing ? true : undefined}
+  data-held={held || undefined}
   style={liveBox ? `--live-width: ${liveBox.width}px; --live-height: ${liveBox.height}px` : undefined}
   class={cn(
-    'group/edit relative size-full [&>[data-slot=widget]]:pointer-events-none [&>[data-slot=widget]]:size-full',
+    'group/edit relative size-full transition-transform duration-200 ease-out motion-reduce:transition-none [&>[data-slot=widget]]:pointer-events-none [&>[data-slot=widget]]:size-full',
+    held && 'z-20 scale-[1.02] [&>[data-slot=widget]]:shadow-lg',
     resizing &&
       '[&>[data-slot=widget]]:absolute [&>[data-slot=widget]]:top-0 [&>[data-slot=widget]]:left-0 [&>[data-slot=widget]]:z-10 [&>[data-slot=widget]]:h-(--live-height) [&>[data-slot=widget]]:w-(--live-width) [&>[data-slot=widget]]:bg-background [&>[data-slot=widget]]:shadow-xl',
   )}
@@ -148,7 +168,7 @@
     aria-hidden="true"
     class={cn(
       'pointer-events-none absolute inset-0 rounded-2xl ring-inset',
-      selected ? 'ring-2 ring-primary' : 'ring-1 ring-transparent group-hover/edit:ring-primary/40',
+      selected || held ? 'ring-2 ring-primary' : 'ring-1 ring-transparent group-hover/edit:ring-primary/40',
     )}
   ></span>
 
@@ -167,26 +187,35 @@
 
   <button
     type="button"
-    class="absolute -top-2 left-1/2 z-10 flex h-4 w-8 -translate-x-1/2 cursor-grab touch-none items-center justify-center rounded-full border border-border bg-background text-muted-foreground active:cursor-grabbing"
+    class={cn(
+      'absolute -top-2 left-1/2 z-10 flex h-4 w-8 -translate-x-1/2 cursor-grab touch-none items-center justify-center rounded-full border border-border bg-background text-muted-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary active:cursor-grabbing',
+      held && 'border-primary bg-primary text-primary-foreground',
+    )}
     aria-label={t(messages.move(title))}
+    aria-describedby={keysHintId}
+    aria-pressed={held}
     title={t(messages.move(title))}
-    onpointerdown={event => {
-      if (event.button !== 0) return;
-      event.preventDefault();
-      const box = frame?.getBoundingClientRect();
-      dashboardEditor.press(
-        {
-          from: 'grid',
-          id: item.id,
-          data: item.data,
-          size,
-          label: title,
-          grab: { x: event.clientX - (box?.left ?? 0), y: event.clientY - (box?.top ?? 0) },
-        },
-        event.clientX,
-        event.clientY,
-      );
-    }}
+    data-part="widget-handle"
+    data-label={title}
+    {@attach dragWithKeys(() => ({
+      lifted: isHeld,
+      pick: () => dashboardEditor.lift(item.id, title),
+      step: delta => {
+        dashboardEditor.step(delta);
+        void keepFocus(item.id);
+      },
+      drop: () => {
+        const id = dashboardEditor.drop();
+        if (!id) return;
+        void keepFocus(id).then(() =>
+          pulseDrop(document.querySelector(`[data-widget="${id}"] [data-slot="widget"]`)),
+        );
+      },
+      cancel: () => {
+        dashboardEditor.restore();
+        void keepFocus(item.id);
+      },
+    }))}
   >
     <GripHorizontalIcon class="size-3" aria-hidden="true" />
   </button>

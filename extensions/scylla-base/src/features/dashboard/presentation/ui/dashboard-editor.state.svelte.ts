@@ -1,3 +1,4 @@
+import { createDragGhost } from '@scylla/ui/dnd';
 import {
   addWidget,
   changeWidget,
@@ -11,19 +12,19 @@ import { anchoredIndex, packGrid } from '@base/features/dashboard/presentation/p
 import { cellsOf, shownSize } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
 
 /** What the user drags: a widget of the grid, or a kind of the palette. */
-export type DragSource = (
-  | { from: 'grid'; id: string }
-  | { from: 'palette' }
-) & {
+export type DragSource = ({ from: 'grid'; id: string } | { from: 'palette' }) & {
   data: WidgetData;
   size: LayoutSize;
   label: string;
-  /** Where the pointer holds the ghost, from its top left corner, in px. */
-  grab: { x: number; y: number };
+  /** The keyboard holds the widget: it moves in the grid, with no ghost. */
+  keyboard?: boolean;
 };
 
-/** A drag starts once the pointer moved this far with the button down: less is a click. */
-const DRAG_THRESHOLD_PX = 4;
+/** The end of the last drag, for the live region. `at`: the new index; null: no move. */
+export interface DragEnd {
+  label: string;
+  at: number | null;
+}
 
 interface Draft {
   dashboardId: string;
@@ -34,12 +35,14 @@ interface Draft {
 let draft = $state.raw<Draft | null>(null);
 let selected = $state<string | null>(null);
 let drag = $state.raw<DragSource | null>(null);
-let pressed = $state.raw<{ source: DragSource; x: number; y: number } | null>(null);
-let pointer = $state.raw<{ x: number; y: number } | null>(null);
 let over = $state<number | null>(null);
+let settling = $state(false);
+let ended = $state.raw<DragEnd | null>(null);
+// The index of the dragged widget before the drag; null for a kind of the palette.
+let origin: number | null = null;
 let live = $state.raw<{ id: string; size: LayoutSize; at: number } | null>(null);
 let columns = $state(8);
-let dropped = false;
+const ghost = createDragGhost();
 
 const newId = (): string => crypto.randomUUID().slice(0, 8);
 
@@ -47,6 +50,16 @@ const change = (next: readonly LayoutWidget[]) => {
   if (!draft) return;
   draft = { ...draft, widgets: next, history: [...draft.history, draft.widgets] };
 };
+
+const endDrag = (at: number | null) => {
+  if (drag) ended = { label: drag.label, at };
+  drag = null;
+  over = null;
+  origin = null;
+  settling = false;
+};
+
+const moved = () => !!drag && over !== null && (drag.from === 'palette' || over !== origin);
 
 /**
  * The edit mode of the dashboard: a draft of the widgets that the page and the panel share. A
@@ -84,10 +97,9 @@ export const dashboardEditor = {
     live = null;
     draft = null;
     selected = null;
-    drag = null;
-    pressed = null;
-    pointer = null;
-    over = null;
+    ghost.end();
+    endDrag(null);
+    ended = null;
   },
   undo: () => {
     if (!draft || draft.history.length === 0) return;
@@ -124,30 +136,44 @@ export const dashboardEditor = {
     change(addWidget(widgets, copy, index + 1));
     selected = copy.id;
   },
-  /** The pointer of an active drag, for the label that follows it. */
-  get pointer() {
-    return pointer;
+  /** The lifted widget of a pointer drag: it follows the pointer, then flies into its slot. */
+  get ghost() {
+    return ghost;
   },
-  /** The button went down on a handle or a kind: a move past the threshold starts the drag. */
-  press: (source: DragSource, x: number, y: number) => {
-    pressed = { source, x, y };
+  /** The drag goes to a new place: a drop there moves the widget, or adds the kind. */
+  get moved() {
+    return moved();
   },
-  /** Starts the drag once the pointer moved past the threshold, then follows the pointer. */
-  move: (x: number, y: number) => {
-    if (!drag && pressed) {
-      if (Math.hypot(x - pressed.x, y - pressed.y) < DRAG_THRESHOLD_PX) return;
-      drag = pressed.source;
-      const source = drag;
-      over = source.from === 'grid' ? (draft?.widgets.findIndex(item => item.id === source.id) ?? null) : null;
-    }
-    if (drag) pointer = { x, y };
+  /** The ghost flies into its slot: the place does not change anymore. */
+  get settling() {
+    return settling;
+  },
+  get ended(): DragEnd | null {
+    return ended;
+  },
+  /** A pointer drag takes a widget of the grid or a kind of the palette. */
+  pick: (source: DragSource) => {
+    if (!draft || drag) return;
+    drag = source;
+    origin = source.from === 'grid' ? draft.widgets.findIndex(item => item.id === source.id) : null;
+    over = origin;
+    settling = false;
+    ended = null;
   },
   /**
    * Where the drag lands: an index in the widgets without the dragged one (a move), or in all the
    * widgets (a kind of the palette). The page shows the widgets in this order while it drags.
    */
   setOver: (at: number | null) => {
-    if (drag) over = at;
+    if (drag && !drag.keyboard && !settling) over = at;
+  },
+  /** Escape, a lost pointer or a drop out of the grid: the slot goes back to the place of the widget. */
+  cancel: () => {
+    if (drag && !settling) over = origin;
+  },
+  /** The ghost flies into its slot: the place stays. */
+  settle: () => {
+    if (drag) settling = true;
   },
   /** The size of a widget while its corner is dragged: the grid shows it at once. */
   get liveResize() {
@@ -178,41 +204,40 @@ export const dashboardEditor = {
   cancelResize: () => {
     live = null;
   },
-  /** Ends a press. Returns `true` when it was a drag: the click that follows does nothing. */
-  release: (): boolean => {
-    const dragged = drag !== null;
-    pressed = null;
-    pointer = null;
-    if (dragged) dashboardEditor.drop();
-    dropped = dragged;
-    return dragged;
-  },
-  /** The dragged widget goes to the index of `over`: the widgets from there move down. */
-  drop: () => {
+  /**
+   * The drag ends: the dragged widget goes to the index of `over` (the widgets from there move
+   * down), or the kind is added there. Gives the id of the widget that moved or came, else null.
+   */
+  drop: (): string | null => {
     const source = drag;
     const at = over;
-    drag = null;
-    over = null;
-    if (!source || at === null || !draft) return;
-    if (source.from === 'palette') {
-      dashboardEditor.add(source.data, source.size, at);
-      return;
+    if (!source || at === null || !draft || !moved()) {
+      endDrag(null);
+      return null;
     }
-    const from = draft.widgets.findIndex(item => item.id === source.id);
-    if (from < 0 || from === Math.min(at, draft.widgets.length - 1)) return;
+    endDrag(at);
+    if (source.from === 'palette') return dashboardEditor.add(source.data, source.size, at);
     change(moveWidget(draft.widgets, source.id, at));
+    return source.id;
   },
-  /** `true` once after a drag: the click that ends it does nothing. */
-  takeDropClick: (): boolean => {
-    const was = dropped;
-    dropped = false;
-    return was;
+  /** Space on the handle of a widget: the arrow keys then move it in the grid. */
+  lift: (id: string, label: string) => {
+    const index = draft?.widgets.findIndex(item => item.id === id) ?? -1;
+    const widget = draft?.widgets[index];
+    if (!widget || drag) return;
+    drag = { from: 'grid', id, data: widget.data, size: widget.size, label, keyboard: true };
+    origin = index;
+    over = index;
+    ended = null;
   },
-  /** Escape, or the pointer went away: nothing moves. */
-  cancelDrag: () => {
-    drag = null;
-    pressed = null;
-    pointer = null;
-    over = null;
+  /** An arrow key: the widget goes one place back or on; the first and the last place stay. */
+  step: (delta: -1 | 1) => {
+    if (!drag?.keyboard || over === null || !draft) return;
+    over = Math.max(0, Math.min(over + delta, draft.widgets.length - 1));
+  },
+  /** Escape: the widget goes back to its place, with no change. */
+  restore: () => {
+    if (!drag?.keyboard) return;
+    endDrag(null);
   },
 };

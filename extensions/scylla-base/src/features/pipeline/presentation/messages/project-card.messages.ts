@@ -11,6 +11,8 @@ export const projectCardMessages = {
   createPipeline: msg`Create a pipeline`,
   lastJob: (ago: string) => msg`Last job ${ago}`,
   jobRunningFor: (duration: string) => msg`Job running for ${duration}`,
+  jobPendingFor: (duration: string) => msg`Job pending for ${duration}`,
+  jobAwaitingApprovalFor: (duration: string) => msg`Job waiting for approval for ${duration}`,
   nextJob: (time: string) => msg`Next job ${time}`,
   noJob: msg`No job yet`,
   openJobs: (name: string) => msg`Open the jobs of ${name}`,

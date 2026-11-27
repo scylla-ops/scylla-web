@@ -51,6 +51,21 @@
     defaultValue: { name: 'Ada', email: 'ada', plan: 'pro', token: item.defaultValue }[item.id],
   }));
 
+  const LONG = `${'A long line that goes on and on, '.repeat(20)}
+Second paragraph.`;
+
+  const DESCRIPTION: readonly FormItem<'description'>[] = [
+    {
+      id: 'description',
+      type: FormItemType.Textarea,
+      label: 'Description',
+      placeholder: 'Add a description...',
+      defaultValue: LONG,
+      maxLength: 1024,
+      optional: true,
+    },
+  ];
+
   const DISABLED: readonly FormItem<Ids>[] = ITEMS.map(item => ({ ...item, disabled: true }));
 
   const { Story } = defineMeta({ title: 'Forms/ScyllaForm', component: ScyllaForm });
@@ -70,6 +85,9 @@
         autofocus={false}
         class="w-full"
       />
+    </Specimen>
+    <Specimen label="text area: grows, drags, counter near the limit" class="w-full">
+      <ScyllaForm items={DESCRIPTION} onSubmit={() => {}} buttonLabel="Save" autofocus={false} class="w-full" />
     </Specimen>
     <Specimen label="pending" class="w-full">
       <ScyllaForm items={FILLED} onSubmit={() => {}} isPending buttonLabel="Invite" autofocus={false} class="w-full" />

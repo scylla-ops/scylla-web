@@ -4,7 +4,6 @@ import {
   daysForPixels,
   labelShift,
   spanOf,
-  stripColumns,
   timelineStrip,
   windowBox,
 } from '../agent-timeline.presenter.ts';
@@ -44,7 +43,7 @@ describe('timelineStrip', () => {
       '2026-10-01',
       '2026-11-01',
     ]);
-    expect(strip.months[0].at).toBeCloseTo(19 / 120);
+    expect(strip.months[0].at).toBeCloseTo(18 / 119);
   });
 
   it('drops a month name that would overlap the first day or today', () => {
@@ -57,7 +56,8 @@ describe('timelineStrip', () => {
       }).months.map(mark => mark.day);
 
     expect(months('2026-07-31', 1080)).toEqual(['2026-09-01', '2026-10-01', '2026-11-01']);
-    expect(months('2026-10-29', 1080)).toEqual([]);
+    expect(months('2026-10-29', 1080)).toEqual(['2026-11-01']);
+    expect(months('2026-10-29', 200)).toEqual([]);
     expect(months('2026-10-29', 0)).toEqual([]);
     expect(months('2026-07-14', 400)).toEqual(['2026-09-01', '2026-10-01']);
   });
@@ -72,7 +72,7 @@ describe('timelineStrip', () => {
 });
 
 describe('a strip with few days', () => {
-  it('keeps the bars of the design, and puts the days at the end', () => {
+  it('fills the width with the days, whatever the width of the strip', () => {
     const strip = timelineStrip({
       bounds: { from: '2026-11-07', to: '2026-11-09' },
       days: [at('2026-11-08', 44)],
@@ -80,10 +80,12 @@ describe('a strip with few days', () => {
       width: 1080,
     });
 
-    expect(strip.columns).toBe(120);
+    expect(strip.columns).toBe(3);
     expect(strip.days.map(day => day.total)).toEqual([0, 44, 0]);
-    expect(strip.disabled).toEqual({ left: 119 / 120, width: 1 / 120 });
-    expect(stripColumns(BOUNDS, 400)).toBe(119);
+    expect(strip.disabled).toEqual({ left: 2 / 3, width: 1 / 3 });
+    expect(timelineStrip({ bounds: BOUNDS, days: [], disabled: null, width: 400 }).columns).toBe(
+      119,
+    );
   });
 
   it('labels only today on the first day of the agent', () => {

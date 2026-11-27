@@ -406,6 +406,7 @@ describe('DefaultPipelineRepository', () => {
       failed: 0,
       lastEndedStatus: 0,
       active: false,
+      liveStatus: 0,
       triggerKinds: [],
     });
     const listPipelineSummaries = vi

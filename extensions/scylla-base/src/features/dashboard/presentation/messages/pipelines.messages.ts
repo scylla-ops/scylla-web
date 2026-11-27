@@ -8,6 +8,7 @@ export const pipelinesMessages = {
   green: msg({ context: 'pipelines', message: 'green' }),
   red: msg({ context: 'pipelines', message: 'red' }),
   runningNow: msg({ context: 'pipelines', message: 'running now' }),
+  pendingNow: msg({ context: 'pipelines', message: 'pending now' }),
   pipeline: msg({ context: 'pipelines', message: 'Pipeline' }),
   lastRuns: (count: number) => msg({ context: 'pipelines', message: `Last ${count} runs` }),
   success: msg({ context: 'pipelines', message: 'Success' }),

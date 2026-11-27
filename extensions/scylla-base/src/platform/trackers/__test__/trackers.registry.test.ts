@@ -25,8 +25,6 @@ const USERS: Record<string, string> = {
   'apps/web/index.html': 'scylla-theme',
   'extensions/scylla-base/src/shell/presentation/layout/user-preferences.ts': 'scylla-theme',
   'extensions/scylla-base/src/features/access/presentation/access.queries.ts': 'userId',
-  'extensions/scylla-base/src/features/apps/presentation/ui/AgentDetails/AgentDetails.page.svelte':
-    'userId',
   'extensions/scylla-base/src/features/apps/presentation/ui/NewAgent/new-agent.state.svelte.ts':
     'userId',
   'extensions/scylla-base/src/features/onboarding/presentation/ui/OnboardingTour/onboarding-tour.state.svelte.ts':

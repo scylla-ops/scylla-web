@@ -15,9 +15,8 @@ import {
 
 const NO_JOB: JobOutcomes = { completed: 0, failed: 0, cancelled: 0, orphaned: 0 };
 
-/** The widest bar of the strip and the gap after it, in pixels, as in the design. */
-const BAR_PX = 7;
-const BAR_GAP_PX = 2;
+/** The width of a day before the strip is measured, in pixels. */
+const DAY_PX = 9;
 
 /** A month name nearer than this to the first day or to "Today" overlaps it. */
 const LABEL_ROOM_PX = 64;
@@ -46,10 +45,7 @@ export interface StripSpan {
 
 export interface TimelineStrip {
   days: StripDay[];
-  /**
-   * The columns of the strip, one for each day. A strip with few days has empty columns before
-   * its first day, so that its bars are not wider than in the design.
-   */
+  /** The columns of the strip, one for each day: the days fill the width. */
   columns: number;
   /** The most jobs of one day. */
   peak: number;
@@ -67,10 +63,6 @@ export interface TimelineStripInput {
   /** The width of the strip in pixels, 0 before it is measured. */
   width: number;
 }
-
-/** The columns of a strip of `width` pixels for the days of the bounds. */
-export const stripColumns = (bounds: StatsPeriod, width: number): number =>
-  Math.max(periodDays(bounds), Math.floor((width + BAR_GAP_PX) / (BAR_PX + BAR_GAP_PX)));
 
 /** The days of a period on a strip of `columns` columns, which ends with the days of the bounds. */
 export const spanOf = (period: StatsPeriod, bounds: StatsPeriod, columns: number): StripSpan => ({
@@ -101,7 +93,7 @@ export const labelShift = (box: StripSpan, width: number): string => {
 
 const monthsOf = (bounds: StatsPeriod, columns: number, width: number): StripMark[] => {
   const count = periodDays(bounds);
-  const room = LABEL_ROOM_PX / (width > 0 ? width / columns : BAR_PX + BAR_GAP_PX);
+  const room = LABEL_ROOM_PX / (width > 0 ? width / columns : DAY_PX);
   return Array.from({ length: count }, (_, index) => ({ index, day: addDays(bounds.from, index) }))
     .filter(({ index, day }) => day.endsWith('-01') && index >= room && count - index >= room)
     .map(({ index, day }) => ({ day, at: (columns - count + index) / columns }));
@@ -114,7 +106,7 @@ export const timelineStrip = ({
   disabled,
   width,
 }: TimelineStripInput): TimelineStrip => {
-  const columns = stripColumns(bounds, width);
+  const columns = periodDays(bounds);
   const byDay = new Map(days.map(entry => [dayOf(entry.day), entry.outcomes]));
   const stripDays = Array.from({ length: periodDays(bounds) }, (_, index) => {
     const day = addDays(bounds.from, index);

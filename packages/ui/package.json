@@ -11,6 +11,7 @@
     "./i18n": "./src/i18n/index.ts",
     "./utils": "./src/utils/index.ts",
     "./structs": "./src/structs/index.ts",
+    "./dnd": "./src/dnd/index.ts",
     "./styles.css": "./src/styles.css",
     "./assets/*": "./src/assets/*"
   },

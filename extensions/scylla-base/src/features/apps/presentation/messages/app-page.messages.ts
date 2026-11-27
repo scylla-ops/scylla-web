@@ -46,4 +46,5 @@ export const appPageMessages = {
   dangerTitle: msg`Delete this app`,
   dangerBody: msg`Its credentials and roles go. Calls with its tokens fail at once.`,
   deleteApp: msg`Delete app`,
+  deleteAppMenu: msg`Delete the app…`,
 };

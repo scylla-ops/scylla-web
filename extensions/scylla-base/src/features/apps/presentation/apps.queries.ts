@@ -5,7 +5,12 @@ import { toast } from '@scylla/ui/utils';
 import type { CustomIconChange } from '@shared/domain/structs/custom-icon.struct.ts';
 import { ScyllaError } from '@shared/utils/scylla-error.ts';
 import type { AppsModule } from '../apps.module.ts';
-import type { AppDetails, CreatedApp } from '../domain/entities/app.entity.ts';
+import type {
+  AppDetails,
+  AppJobPage,
+  AppJobsQuery,
+  CreatedApp,
+} from '../domain/entities/app.entity.ts';
 import { appsMessages } from './messages/apps.messages.ts';
 import { appRolesOf } from '@base/features/apps/domain/structs/app-list.struct.ts';
 import { agentAccessOf, type RunnerChange } from '../domain/structs/agent-access.struct.ts';
@@ -148,6 +153,28 @@ export const appQueries = {
       queryKey: APP_JOBS_QUERY_KEY(appId),
       queryFn: () => repository().listJobs(workspaceId, appId, RECENT_JOBS),
       enabled: enabled && !!workspaceId && !!appId,
+    }),
+
+  /**
+   * The newest jobs of an agent that match a query. A longer list asks again for all its jobs, and
+   * keeps the shorter list on the screen until they come.
+   */
+  jobPage: (workspaceId: string, appId: string, query: AppJobsQuery, enabled = true) =>
+    queryOptions({
+      queryKey: [
+        ...APPS_QUERY_ROOT,
+        'jobs',
+        'page',
+        query.limit,
+        [...(query.statuses ?? [])],
+        query.text?.trim() ?? '',
+        appId,
+      ] as const,
+      queryFn: () => repository().listJobPage(workspaceId, appId, query),
+      enabled: enabled && !!workspaceId && !!appId,
+      placeholderData: (previous: AppJobPage | undefined) => previous,
+      // A running job ends on its own.
+      refetchInterval: 15_000,
     }),
 
   /** The 30 days of each agent with a job in them, by agent. */

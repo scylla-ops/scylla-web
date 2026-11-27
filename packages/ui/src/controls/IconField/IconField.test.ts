@@ -5,12 +5,12 @@ import { focusSettled, render } from '@test/render.ts';
 import IconFieldFixture from './IconField.fixture.svelte';
 import IconFieldDialogFixture from './IconFieldDialog.fixture.svelte';
 
-const field = () => screen.getByRole('group', { name: 'Icon' });
+const field = () => screen.getByRole('group', { name: 'Icon', hidden: true });
 const change = () => within(field()).getByRole('button', { name: 'Change the icon' });
 const editor = () => screen.getByRole('region', { name: 'Icon' });
 const back = () => within(editor()).getByRole('button', { name: 'Back' });
 /** The main screen: `inert` while the editor shows. */
-const mainScreen = () => document.querySelector('[data-screen="main"] > div') as HTMLElement;
+const mainScreen = () => document.querySelector('[data-screen="main"]') as HTMLElement;
 
 describe('IconField', () => {
   it('shows the default icon, large and centered, with Reset off', () => {
@@ -34,7 +34,7 @@ describe('IconField', () => {
     expect(back()).toHaveFocus();
     expect(mainScreen().inert).toBe(true);
     // The field keeps the preview and Reset: the editor does not show them a second time.
-    expect(screen.getAllByRole('button', { name: 'Reset' })).toHaveLength(1);
+    expect(screen.getAllByRole('button', { name: 'Reset', hidden: true })).toHaveLength(1);
   });
 
   it('gives each choice to its owner and submits no form', async () => {

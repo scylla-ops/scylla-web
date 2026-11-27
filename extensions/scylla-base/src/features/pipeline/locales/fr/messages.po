@@ -1089,9 +1089,17 @@ msgstr "Il est public : d'autres espaces de travail le lient. Dépréciez plut�
 msgid "Its push, pull request and tag triggers stay, but they start no run until an admin allows them again."
 msgstr "Ses déclencheurs push, pull request et tag restent, mais ils ne lancent aucune exécution jusqu'à ce qu'un admin les autorise de nouveau."
 
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:14
+msgid "Job pending for {duration}"
+msgstr "Job en attente depuis {duration}"
+
 #: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:13
 msgid "Job running for {duration}"
 msgstr "Job en cours depuis {duration}"
+
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:15
+msgid "Job waiting for approval for {duration}"
+msgstr "Job en attente d'approbation depuis {duration}"
 
 #: extensions/scylla-base/src/features/pipeline/pipeline.module.ts:112
 msgid "Jobs"
@@ -1298,7 +1306,7 @@ msgstr "Nouvelle version publiée"
 msgid "next {time}"
 msgstr "prochain {time}"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:14
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:16
 msgid "Next job {time}"
 msgstr "Prochain job {time}"
 
@@ -1322,7 +1330,7 @@ msgstr "Aucun fragment de la marketplace pour l'instant. Parcourez la marketplac
 msgid "No input link"
 msgstr "Aucun lien en entrée"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:15
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:17
 msgid "No job yet"
 msgstr "Aucun job pour l'instant"
 
@@ -1484,7 +1492,7 @@ msgstr "Ouvrir dans la bibliothèque"
 msgid "Open nodes"
 msgstr "Nœuds ouverts"
 
-#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:16
+#: extensions/scylla-base/src/features/pipeline/presentation/messages/project-card.messages.ts:18
 msgid "Open the jobs of {name}"
 msgstr "Ouvrir les jobs de {name}"
 

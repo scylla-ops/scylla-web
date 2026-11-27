@@ -30,7 +30,7 @@ const PROJECTS_ITEM = 'projects';
 
 /** Each project of the workspace: the repository reads each page. */
 const ALL_PROJECTS = Number.MAX_SAFE_INTEGER;
-/** The projects with a job that runs: a page of the server. */
+/** The projects with a job that runs, and the projects with a job that waits: a page each. */
 const RUNNING_PROJECTS = 100;
 /** The projects with a last job that failed: a page of the server. */
 const FAILED_PROJECTS = 100;
@@ -39,9 +39,10 @@ const FAILED_PROJECTS = 100;
  * The projects of the active workspace, after "All projects", as the projects page shows them:
  * the pins of the person, then each group in its order with its folder, then the projects with no
  * group. With no pin and no group, one list with no section. A section folds as on the page: the
- * two share the closed sections of the person. A project with a job that runs, or else with a last
- * job that failed, has the shape of that status. It reads only while the projects show: the
- * projects in their order, their groups, the running ones and the failed ones (one read each).
+ * two share the closed sections of the person. A project with a job that runs, else with a job
+ * that waits, else with a last job that failed, has the shape of that status. It reads only while
+ * the projects show: the projects in their order, their groups, the running ones, the pending ones
+ * and the failed ones (one read each).
  * A person who can create a project has a "+" on each group and on « No group »: a new project
  * there.
  */
@@ -53,7 +54,7 @@ export const projectLinks = (
   const open = $derived(shown() === PROJECTS_ITEM);
   const enabled = $derived(open && canListProjects(workspaceId));
 
-  const searchOf = (health: 'all' | 'running' | 'failed', limit: number) =>
+  const searchOf = (health: 'all' | 'running' | 'pending' | 'failed', limit: number) =>
     projectQueries.search({ workspaceId, query: '', order: 'position', health, limit });
   // The order of the page changes with a write, which refreshes the projects: no timer.
   const projects = createQuery(() => ({
@@ -62,6 +63,7 @@ export const projectLinks = (
     refetchInterval: false as const,
   }));
   const running = createQuery(() => ({ ...searchOf('running', RUNNING_PROJECTS), enabled }));
+  const pending = createQuery(() => ({ ...searchOf('pending', RUNNING_PROJECTS), enabled }));
   const failed = createQuery(() => ({ ...searchOf('failed', FAILED_PROJECTS), enabled }));
   const groups = createQuery(() => ({ ...projectGroupQueries.list(workspaceId), enabled }));
 
@@ -99,10 +101,12 @@ export const projectLinks = (
     if (!open || !slug) return [];
     const items = projects.data?.items ?? [];
     const runningIds = running.data?.items.map(project => project.id) ?? [];
+    const pendingIds = pending.data?.items.map(project => project.id) ?? [];
     const failedIds = failed.data?.items.map(project => project.id) ?? [];
-    // A job that runs is the newer news: it hides the failure until it ends.
+    // A job that runs or waits is the newer news: it hides the failure until it ends.
     const statusOf = (id: string): SecondSidebarStatus | undefined => {
       if (runningIds.includes(id)) return { tone: 'running', label: t(layoutMessages.jobRuns) };
+      if (pendingIds.includes(id)) return { tone: 'pending', label: t(layoutMessages.jobWaits) };
       if (failedIds.includes(id)) return { tone: 'failed', label: t(layoutMessages.lastJobFailed) };
       return undefined;
     };

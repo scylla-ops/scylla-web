@@ -4,7 +4,7 @@ import { screen, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { findTooltip, render } from '@test/render.ts';
 import type { AgentStats } from '@base/features/apps/domain/structs/agent-stats.struct.ts';
-import JobsPerDayCard from './JobsPerDayCard.svelte';
+import JobsPerDay from './JobsPerDay.svelte';
 
 const TODAY = '2026-11-09';
 const LAST_30 = { from: '2026-10-11', to: TODAY };
@@ -32,8 +32,8 @@ const stats = (days: AgentStats['days']): AgentStats => ({
   days,
 });
 
-const card = (props: Partial<ComponentProps<typeof JobsPerDayCard>> = {}) =>
-  render(JobsPerDayCard, {
+const card = (props: Partial<ComponentProps<typeof JobsPerDay>> = {}) =>
+  render(JobsPerDay, {
     stats: stats([{ day: `${TODAY}T00:00:00.000Z`, outcomes: ends(9, 1) }]),
     period: LAST_30,
     today: TODAY,
@@ -48,7 +48,7 @@ const bars = () => [
   ...screen.getByRole('img').querySelectorAll<HTMLElement>('[data-slot="tooltip-trigger"]'),
 ];
 
-describe('JobsPerDayCard', () => {
+describe('JobsPerDay', () => {
   it('keeps a bar for each day, also with no job, and sums up the period', () => {
     card();
 

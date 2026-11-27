@@ -349,6 +349,12 @@ the page.
 
 ## Rules that bite here
 
+- **The state of a pipeline is the state of the server.** `PipelineSummary.live` is the state of
+  its jobs that run or wait (`running`, else `pending`, else `awaiting_approval`), from the proto
+  field `live_status`. Never read the deprecated `active`: the server fills it only for the old
+  clients, and it does not tell a job that runs from a job that waits. A row, a footer and a
+  widget show this state with its own shape (`toStatusState`) and its own text. A job that waits
+  is pending, never running. Never make a state from `startedAt` or from another job.
 - **The pipelines of a project card come from `widget-injections/project-card/`.** It fills the
   zones `cardBadge`, `cardBody` and `cardFooter` of `project`. Each part runs
   `pipelineQueries.ofProjects` with the `batch` of its card: the cards of a batch make one call.

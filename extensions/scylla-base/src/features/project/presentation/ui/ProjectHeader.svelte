@@ -53,7 +53,7 @@
 {#snippet countsLine()}
   {#if counts}
     <p class="text-sm text-muted-foreground" data-part="project-counts">
-      {t(projectMessages.counts(counts.pipelines, counts.failed, counts.running))}
+      {t(projectMessages.counts(counts.pipelines, counts.failed, counts.running, counts.pending))}
     </p>
   {/if}
 {/snippet}

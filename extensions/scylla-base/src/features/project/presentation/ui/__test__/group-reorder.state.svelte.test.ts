@@ -73,56 +73,73 @@ describe('createGroupReorder with the keyboard', () => {
 });
 
 describe('createGroupReorder with a pointer', () => {
-  /** « b » taken 20 px from the left of its header, with « c » after it. */
+  /** « b » taken by its handle, with « c » after it. */
   const picked = () => {
     const groups = started();
-    groups.pick({ id: 'b', name: 'B', box: BOX, grab: { x: 20, y: 10 } }, 'c');
+    groups.pick({ id: 'b', name: 'B', box: BOX }, 'c');
     return groups;
   };
 
-  it('shows the slot at the place of the header, and moves the header with the pointer', () => {
+  it('shows no line at the place of the group, and keeps the groups in their place', () => {
     const groups = picked();
 
     expect(groups.target).toEqual({ beforeId: 'c' });
-    expect(groups.offset).toEqual({ x: 0, y: 0 });
-
-    groups.follow({ x: 30, y: 210 });
-
-    expect(groups.offset).toEqual({ x: 10, y: -200 });
+    expect(groups.moved).toBe(false);
     expect(newsOf(groups)).toBe('“B”: place 2 of 3 in the groups');
+
+    groups.hover({ beforeId: 'a' });
+
+    expect(groups.moved).toBe(true);
+    expect(groups.order).toEqual(['a', 'b', 'c']);
+    expect(newsOf(groups)).toBe('“B”: place 1 of 3 in the groups');
   });
 
-  it('keeps the place of the slot at the drop', () => {
+  it('moves the group to the line at the drop, then ends the drag when the copy is on the header', () => {
     const groups = picked();
     groups.hover({ beforeId: 'a' });
-    groups.settle({ x: 0, y: 0 });
 
-    expect(groups.motion).toBe('settle');
-    expect(groups.offset).toEqual({ x: 0, y: -400 });
-
-    groups.drop();
-
+    expect(groups.drop()).toBe(true);
     expect(groups.order).toEqual(['b', 'a', 'c']);
+    expect(groups.settling).toBe(true);
+    expect(groups.moved).toBe(false);
+
+    // The line does not come back while the copy flies.
+    groups.hover({ beforeId: 'c' });
+    expect(groups.target).toBeNull();
+
+    groups.finish(true);
+
+    expect(groups.drag).toBeNull();
     expect(newsOf(groups)).toBe('“B” is now at place 1 of 3 in the groups');
   });
 
-  it('sends the slot back with Escape, and keeps the order', () => {
+  it('sends the line back with Escape, and keeps the order', () => {
     const groups = picked();
     groups.hover({});
     groups.cancel();
 
     expect(groups.target).toEqual({ beforeId: 'c' });
+    expect(groups.drop()).toBe(false);
 
-    groups.release();
+    groups.finish(false);
 
     expect(groups.order).toEqual(['a', 'b', 'c']);
     expect(newsOf(groups)).toBe('“B” is back at its place');
   });
 
+  it('keeps the order for a drop at the place of the group', () => {
+    const groups = picked();
+    groups.hover({ beforeId: 'a' });
+    groups.hover({ beforeId: 'c' });
+
+    expect(groups.drop()).toBe(false);
+    expect(groups.order).toEqual(['a', 'b', 'c']);
+  });
+
   it('lifts one group at a time', () => {
     const groups = picked();
     groups.lift('a', 'A');
-    groups.pick({ id: 'c', name: 'C', box: BOX, grab: { x: 0, y: 0 } });
+    groups.pick({ id: 'c', name: 'C', box: BOX });
 
     expect(groups.drag?.id).toBe('b');
   });

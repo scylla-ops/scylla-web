@@ -2,7 +2,13 @@
 import { describe, it, expect } from 'vitest';
 import type { JobEntity } from '@base/features/jobs';
 import type { PipelineSummary } from '@base/features/pipeline';
-import { lastRunOf, pipelineTone, stageChips } from '../pipeline-widget.presenter.ts';
+import {
+  lastRunOf,
+  liveRunOf,
+  pipelineTone,
+  stageChips,
+  toneTextClass,
+} from '../pipeline-widget.presenter.ts';
 
 const summary = (overrides: Partial<PipelineSummary> = {}): PipelineSummary => ({
   id: 'p1',
@@ -17,7 +23,7 @@ const summary = (overrides: Partial<PipelineSummary> = {}): PipelineSummary => (
   failed: 3,
   medianDuration: 190,
   health: 'red',
-  active: false,
+  live: null,
   triggerKinds: ['push'],
   nextFire: null,
   ...overrides,
@@ -35,10 +41,31 @@ describe('the widget of one pipeline', () => {
     expect(lastRunOf(summary({ recent: [] }))).toBeNull();
   });
 
-  it('shows a pipeline that runs as running, else the end of its last run', () => {
+  it('shows a pipeline in the state of its jobs that run or wait, else the end of its last run', () => {
     expect(pipelineTone(summary())).toBe('failed');
-    expect(pipelineTone(summary({ active: true }))).toBe('running');
+    expect(pipelineTone(summary({ live: 'running' }))).toBe('running');
+    expect(pipelineTone(summary({ live: 'pending' }))).toBe('queued');
+    expect(pipelineTone(summary({ live: 'awaiting_approval' }))).toBe('queued');
     expect(pipelineTone(summary({ recent: [] }))).toBe('muted');
+  });
+
+  it('tells the job that runs or waits now, not the last run that ended', () => {
+    expect(liveRunOf(summary({ live: 'running' }))).toEqual({
+      id: 'job-00000running',
+      shortId: '0running',
+      status: 'running',
+      at: '2026-11-20T09:00:00Z',
+      branch: 'main',
+    });
+    expect(liveRunOf(summary())).toBeNull();
+    expect(liveRunOf(summary({ live: 'pending' }))).toBeNull();
+  });
+
+  it('colors the icon of a pipeline in its tone', () => {
+    expect(toneTextClass('running')).toBe('text-status-running');
+    expect(toneTextClass('queued')).toBe('text-status-queued');
+    expect(toneTextClass('failed')).toBe('text-status-failed');
+    expect(toneTextClass('muted')).toBe('text-muted-foreground');
   });
 
   it('gives a chip for each node of the job, in its order', () => {

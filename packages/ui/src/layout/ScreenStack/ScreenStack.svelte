@@ -67,8 +67,15 @@
   )}
   {@attach followScreenHeight(() => stack.screen)}
 >
-  <div data-screen="main" class={cn(SCREEN_BEHIND_CLASS, screen && SCREEN_AWAY_CLASS)}>
-    <div inert={!!screen} class={mainClass}>
+  <!-- The whole cell is inert while a second screen shows: it stays in the grid at `opacity-0`,
+       and must neither take a click, nor a focus, nor be read. -->
+  <div
+    data-screen="main"
+    inert={!!screen}
+    aria-hidden={screen ? 'true' : undefined}
+    class={cn(SCREEN_BEHIND_CLASS, screen && SCREEN_AWAY_CLASS, screen && 'pointer-events-none')}
+  >
+    <div class={mainClass}>
       {@render children()}
     </div>
   </div>

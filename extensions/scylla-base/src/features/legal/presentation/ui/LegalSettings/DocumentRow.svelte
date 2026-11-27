@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import FileTextIcon from '@lucide/svelte/icons/file-text';
   import { StableLabel } from '@scylla/ui';
   import { t } from '@scylla/ui/i18n';
@@ -134,9 +135,10 @@
             {disabled}
             oninput={event => set('url', event.currentTarget.value)}
           />
-          {#if !valid && draft.url.trim() !== ''}
-            <p id={`${id}-url-error`} class="text-xs text-destructive">{t(messages.urlInvalid)}</p>
-          {/if}
+          <FieldMessage
+            id={`${id}-url-error`}
+            message={!valid && draft.url.trim() !== '' && t(messages.urlInvalid)}
+          />
         </div>
       {:else}
         <div class="flex flex-col gap-2 sm:col-span-2">

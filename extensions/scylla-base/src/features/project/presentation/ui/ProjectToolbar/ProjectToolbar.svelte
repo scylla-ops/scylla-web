@@ -110,6 +110,12 @@
       count: phone ? undefined : counts?.running,
       dot: { color: 'text-warning' },
     },
+    {
+      value: 'pending',
+      label: t(projectMessages.healthPending),
+      count: phone ? undefined : counts?.pending,
+      dot: { color: 'text-status-queued' },
+    },
   ]);
 
   const sortedBy = $derived(t(ORDER_LABELS[order].trigger));

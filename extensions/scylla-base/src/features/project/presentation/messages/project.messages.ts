@@ -47,8 +47,8 @@ export const projectMessages = {
   iconNotSaved: (reason: string) =>
     msg`The project is created, but its icon is not saved: ${reason}`,
   cancel: msg`Cancel`,
-  counts: (pipelines: number, failed: number, running: number) =>
-    msg`${plural(pipelines, { one: '# pipeline', other: '# pipelines' })} · ${failed} failing · ${running} running`,
+  counts: (pipelines: number, failed: number, running: number, pending: number) =>
+    msg`${plural(pipelines, { one: '# pipeline', other: '# pipelines' })} · ${failed} failing · ${running} running · ${pending} pending`,
   searchLabel: msg`Search the projects`,
   searchPlaceholder: msg`Search a project, a repository, a pipeline…`,
   searchPlaceholderShort: msg`Search a project, a repository…`,
@@ -56,6 +56,7 @@ export const projectMessages = {
   healthAll: msg`All`,
   healthFailed: msg`Failing`,
   healthRunning: msg`Running`,
+  healthPending: msg`Pending`,
   sortLabel: msg`Sort the projects`,
   sortName: msg`Name (A → Z)`,
   sortLastJob: msg`Last job`,
@@ -79,6 +80,7 @@ export const projectMessages = {
     msg`No project matches “${query}”. The search reads the name, the description, the repository and the pipeline names.`,
   noFailing: msg`No project is failing.`,
   noRunning: msg`No project is running.`,
+  noPending: msg`No project has a pending job.`,
   emptyTitle: msg`No project yet`,
   emptyBody: msg`A project holds pipelines, their secrets and their members.`,
   showMore: (count: number) => msg`Show ${count} more`,
@@ -102,6 +104,7 @@ export const projectMessages = {
   movedTo: (group: string) => msg`Moved to ${group}`,
   sectionFailing: (count: number) => msg`${count} failing`,
   sectionRunning: (count: number) => msg`${count} running`,
+  sectionPending: (count: number) => msg`${count} pending`,
   newGroup: msg`New group`,
   newGroupMenu: msg`New group…`,
   newGroupDescription: msg`The project moves into the new group.`,
@@ -131,6 +134,7 @@ export const projectMessages = {
   alreadyPinned: msg`Already pinned`,
   alreadyIn: (group: string) => msg`Already in ${group}`,
   alreadyPinnedDrop: (project: string) => msg`“${project}” is already pinned`,
+  alreadyInDrop: (project: string, group: string) => msg`“${project}” is already in ${group}`,
   newProjectIn: (group: string) => msg`New project in ${group}`,
   newProjectHere: msg`New project here`,
   newProjectNoGroup: msg`New project with no group`,
@@ -153,6 +157,11 @@ export const projectMessages = {
     msg`“${project}” is now at place ${place} of ${count} in ${section}`,
   droppedInto: (project: string, section: string) => msg`“${project}” is now in ${section}`,
   dragCancelled: (project: string) => msg`“${project}” is back at its place`,
+  cardPicked: (project: string, place: number, count: number, section: string) =>
+    msg`“${project}” is picked up, at place ${place} of ${count} in ${section}`,
+  cardLifted: (project: string, place: number, count: number, section: string) =>
+    msg`“${project}” is lifted, at place ${place} of ${count} in ${section}. The arrow keys move it, Space drops it, and Escape cancels.`,
+  cardGripHint: msg`Space lifts the card. The arrow keys move it, also to another section, Space drops it, and Escape cancels.`,
 
   moveGroup: (group: string) => msg`Move the group ${group}`,
   groupGripHint: msg`Space lifts the group. The arrow keys move it, Space drops it, and Escape cancels.`,

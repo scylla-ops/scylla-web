@@ -11,6 +11,7 @@ export * from './motion/enter.ts';
 export * from './motion/enter.attachments.ts';
 export * from './motion/fold.ts';
 export * from './motion/morph-height.attachments.ts';
+export * from './motion/overscroll.attachments.ts';
 export * from './motion/page-transition.ts';
 export * from './motion/reduced-motion.ts';
 export * from './motion/reflow.ts';

@@ -1,20 +1,24 @@
+import { createDragGhost, type Box } from '@scylla/ui/dnd';
 import {
+  keyboardTargets,
   PINS,
+  sameTarget,
+  stepTarget,
   type CardMove,
   type DropTarget,
+  type KeyboardSection,
   type SectionKey,
 } from '../presenters/project-sections.presenter.ts';
-import type { Box, LiftedMotion, Point } from '../presenters/sortable.presenter.ts';
 
 /** The card that moves, and the section where it was. */
 interface Drag {
   id: string;
   name: string;
   from: SectionKey;
-  /** The box of the card when the person took it: the card leaves the grid there. */
+  /** The keyboard holds the card: it stays in its place, and the slot shows its new place. */
+  keyboard: boolean;
+  /** The box of the card when the person took it: a slot of its density has its height. */
   box: Box;
-  /** The point where the person took the card, from its top left corner. */
-  grab: Point;
 }
 
 /** The end of the last drag, for the live region. `to`: the section of the drop; null: no drop. */
@@ -24,60 +28,63 @@ interface DragEnd {
   to: SectionKey | null;
 }
 
-const sameTarget = (a: DropTarget | null, b: DropTarget | null) =>
-  a?.to === b?.to && a?.beforeId === b?.beforeId;
+export interface ProjectReorderOptions {
+  isPinned?: (id: string) => boolean;
+  /** The section of a card out of the pins: its group, or « No group ». */
+  homeOf?: (id: string) => SectionKey | undefined;
+  /** The sections of the page in their order, for the arrow keys. */
+  layout?: () => readonly KeyboardSection[];
+}
 
 /**
  * The reorder mode of the projects page. The drops stay on the page until « Done » saves them;
  * « Cancel » or Escape forgets them. A pinned card in the pins moves only in the pins.
  *
- * A drag: `pick` lifts the card, `follow` moves it with the pointer, `hover` moves the slot,
- * `settle` sends the card to its slot, then `drop` keeps the place. `cancel` sends the slot back
- * to the place of the card, and `release` ends the drag with no drop.
+ * A pointer drag: `pick` takes the card, and `ghost` lifts it and follows the pointer; `aim` gives
+ * the section under the pointer and the place of the slot; `settle` keeps that place while the card
+ * flies into its slot, then `drop` keeps the place. `cancel` sends the slot back to the place of the
+ * card, and `release` ends the drag with no drop. The keyboard: `pick` with `keyboard`, `step`, then
+ * `drop` or `cancel` and `release`.
  */
-export const createProjectReorder = (isPinned: (id: string) => boolean = () => false) => {
+export const createProjectReorder = ({
+  isPinned = () => false,
+  homeOf = () => undefined,
+  layout = () => [],
+}: ProjectReorderOptions = {}) => {
   let moves = $state<CardMove[] | null>(null);
   let drag = $state<Drag | null>(null);
-  let pointer = $state<Point>({ x: 0, y: 0 });
   let settling = $state(false);
-  let vanishing = $state(false);
   let target = $state<DropTarget | null>(null);
-  let origin: DropTarget | null = null;
+  let origin = $state<DropTarget | null>(null);
   let ended = $state<DragEnd | null>(null);
-  // The pins when the drag goes over them with a card that they have already.
+  // The section under the card that has it already: the pins of a pinned card, the group of a
+  // card of the pins. It says so, and takes no drop.
   let refused = $state<SectionKey | null>(null);
-  // The size of a cell of the section under the card, when its density is not the density of the
-  // section of the card: the card takes its shape.
-  let shape = $state<Pick<Box, 'width' | 'height'> | null>(null);
-
-  /** The point where the person took the card, in its shape of now. */
-  const grabOf = (card: Drag): Point =>
-    shape
-      ? {
-          x: (card.grab.x * shape.width) / Math.max(card.box.width, 1),
-          y: (card.grab.y * shape.height) / Math.max(card.box.height, 1),
-        }
-      : card.grab;
+  const ghost = createDragGhost();
 
   // A pinned card has its place in the pins: the pins take no new drop of it from another section.
   const pinnedNow = (id: string) =>
     isPinned(id) || !!moves?.some(move => move.to === PINS && move.id === id);
+  const homeNow = (id: string) =>
+    moves?.filter(move => move.id === id && move.to !== PINS).at(-1)?.to ?? homeOf(id);
   const accepts = (to: SectionKey) =>
     !!drag &&
     (drag.from !== PINS || to === PINS) &&
     !(to === PINS && drag.from !== PINS && pinnedNow(drag.id));
-  const clear = () => {
+  const has = (key: SectionKey) =>
+    !!drag &&
+    !accepts(key) &&
+    (key === PINS ? pinnedNow(drag.id) : drag.from === PINS && homeNow(drag.id) === key);
+  const point = (next: DropTarget | null) => {
+    if (!sameTarget(next, target)) target = next;
+  };
+  const end = (to: SectionKey | null) => {
+    if (drag) ended = { id: drag.id, name: drag.name, to };
     drag = null;
     target = null;
     origin = null;
     refused = null;
     settling = false;
-    vanishing = false;
-    shape = null;
-  };
-  const end = (to: SectionKey | null) => {
-    if (drag) ended = { id: drag.id, name: drag.name, to };
-    clear();
   };
 
   return {
@@ -91,42 +98,28 @@ export const createProjectReorder = (isPinned: (id: string) => boolean = () => f
     get drag(): Readonly<Drag> | null {
       return drag;
     },
+    /** The lifted card: it follows the pointer, then flies into its slot. */
+    get ghost() {
+      return ghost;
+    },
     get target(): Readonly<DropTarget> | null {
       return target;
     },
-    /** How far the dragged card is from its box. */
-    get offset(): Point {
-      if (!drag) return { x: 0, y: 0 };
-      const grab = grabOf(drag);
-      return { x: pointer.x - grab.x - drag.box.left, y: pointer.y - grab.y - drag.box.top };
+    /** The place of the card when the drag started. */
+    get origin(): Readonly<DropTarget> | null {
+      return origin;
     },
-    /** The box of the dragged card where it left its grid, in the shape of the section under it. */
-    get box(): Box {
-      if (!drag) return { left: 0, top: 0, width: 0, height: 0 };
-      return shape ? { ...drag.box, ...shape } : drag.box;
+    /** The drag goes to a new place: a drop there moves the card. */
+    get moved() {
+      return !!drag && !!target && accepts(target.to) && !sameTarget(target, origin);
     },
-    /** The point where the person took the card, in its shape of now. */
-    get grab(): Point {
-      return drag ? grabOf(drag) : { x: 0, y: 0 };
-    },
-    /** The dragged card goes to its slot: it does not follow the pointer anymore. */
+    /** The card flies into its slot: the place does not change anymore. */
     get settling() {
       return settling;
     },
-    /** The card follows the pointer, settles in its slot, or vanishes into a closed section. */
-    get motion(): LiftedMotion {
-      if (!settling) return 'follow';
-      return vanishing ? 'vanish' : 'settle';
-    },
-    /** The section that shows « Already pinned » for the dragged card, or null. */
+    /** The section under the card that has it already, and says « Already … », or null. */
     get refused(): SectionKey | null {
       return refused;
-    },
-    /** The drag is over the pins with a pinned card: the slot goes back to the card. */
-    refuse(to: SectionKey | null) {
-      if (!drag || settling) return;
-      refused = to;
-      if (to) target = origin;
     },
     get ended(): Readonly<DragEnd> | null {
       return ended;
@@ -138,56 +131,53 @@ export const createProjectReorder = (isPinned: (id: string) => boolean = () => f
     stop() {
       moves = null;
       ended = null;
-      clear();
+      ghost.end();
+      end(null);
+      ended = null;
     },
     accepts,
     /** `nextId`: the card after it, so that the slot first shows at its own place. */
-    pick(card: Drag, nextId?: string) {
-      drag = card;
-      pointer = { x: card.box.left + card.grab.x, y: card.box.top + card.grab.y };
-      settling = false;
+    pick(card: Omit<Drag, 'keyboard'>, nextId?: string, keyboard = false) {
+      if (!moves || drag) return;
+      drag = { ...card, keyboard };
       origin = { to: card.from, beforeId: nextId, header: false };
       target = origin;
+      refused = null;
+      settling = false;
       ended = null;
     },
-    follow(point: Point) {
-      if (drag && !settling) pointer = point;
+    /**
+     * The pointer is over `over`, and the card goes to `next` there. Out of each section, and over
+     * a section that takes no drop of the card, the slot goes back to the place of the card.
+     */
+    aim(over: SectionKey | null, next: DropTarget | null) {
+      if (!drag || drag.keyboard || settling) return;
+      refused = over !== null && has(over) ? over : null;
+      point(next && accepts(next.to) ? next : origin);
     },
-    /** Gives `false` when the section takes no drop of this card. */
-    hover(to: SectionKey, beforeId?: string, header = false): boolean {
-      if (!accepts(to)) return false;
-      if (settling) return true;
-      if (target?.to !== to || target.beforeId !== beforeId || target.header !== header) {
-        target = { to, beforeId, header };
-      }
-      return true;
+    /** An arrow key: the slot goes one place back or on, also into the next section. */
+    step(delta: -1 | 1) {
+      if (!drag?.keyboard || !target) return;
+      point(stepTarget(keyboardTargets(layout(), drag.id, accepts), target, delta));
     },
     /** The slot goes back to the place of the card before the drag. */
     cancel() {
-      if (drag && !settling) target = origin;
-    },
-    /** The top left corner of the card goes to `to`: its slot, or the header with `vanish`. */
-    settle(to: Point, vanish = false) {
-      if (!drag) return;
-      settling = true;
-      vanishing = vanish;
-      const grab = grabOf(drag);
-      pointer = { x: to.x + grab.x, y: to.y + grab.y };
-    },
-    /**
-     * The card takes the size of a cell of the section under it, a section of another density;
-     * `null` gives it its own size again.
-     */
-    reshape(size: Pick<Box, 'width' | 'height'> | null) {
       if (!drag || settling) return;
-      if (size?.width === shape?.width && size?.height === shape?.height) return;
-      shape = size;
+      refused = null;
+      point(origin);
+    },
+    /** The card flies into its slot: the place stays. */
+    settle() {
+      if (drag) settling = true;
     },
     drop() {
+      const to = target?.to ?? null;
       if (drag && target && moves && accepts(target.to) && !sameTarget(target, origin)) {
         moves = [...moves, { id: drag.id, to: target.to, beforeId: target.beforeId }];
+        end(to);
+        return;
       }
-      end(target?.to ?? null);
+      end(null);
     },
     /** The drag ends with no drop: the card stays at its place. */
     release() {

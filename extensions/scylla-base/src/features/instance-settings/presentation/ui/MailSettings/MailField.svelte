@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import type { Snippet } from 'svelte';
   import { Label } from '@scylla/ui/primitives';
 
@@ -27,9 +28,7 @@
     {@render badge?.()}
   </div>
   {@render children(describedBy)}
-  {#if error}
-    <p id={`${id}-error`} class="text-xs text-destructive">{error}</p>
-  {/if}
+  <FieldMessage id={`${id}-error`} message={error} />
   {#if hint}
     <p id={`${id}-hint`} class="text-xs text-muted-foreground">{hint}</p>
   {/if}
