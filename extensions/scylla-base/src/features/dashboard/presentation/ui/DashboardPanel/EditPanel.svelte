@@ -12,9 +12,12 @@
   import {
     DATA,
     searchKinds,
-    type KindEntry,
   } from '@base/features/dashboard/presentation/presenters/widget-catalog.presenter.ts';
-  import { dashboardEditor } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
+  import {
+    dashboardEditor,
+    type DragSource,
+  } from '@base/features/dashboard/presentation/ui/dashboard-editor.state.svelte.ts';
+  import { dragKinds } from '@base/features/dashboard/presentation/ui/widget-drag.attachments.ts';
   import { dashboardView } from '@base/features/dashboard/presentation/ui/dashboard-view.state.svelte.ts';
   import { createDashboards } from '@base/features/dashboard/presentation/ui/dashboards.state.svelte.ts';
   import KindThumb from '../DashboardEditor/KindThumb.svelte';
@@ -38,16 +41,13 @@
     dashboardEditor.stop();
   };
 
-  const press = (event: PointerEvent, item: KindEntry) => {
-    const data = item.data[0];
-    if (!data || event.button !== 0) return;
-    dashboardEditor.press(
-      { from: 'palette', data, size: DATA[data].sizes[0], label: t(item.title), grab: { x: 32, y: 24 } },
-      event.clientX,
-      event.clientY,
-    );
+  /** The widget that a kind adds: its first data, at its first size. */
+  const sourceOf = (kind: string): DragSource | null => {
+    const item = kinds.find(entry => entry.kind === kind);
+    const data = item?.data[0];
+    if (!item || !data) return null;
+    return { from: 'palette', data, size: DATA[data].sizes[0], label: t(item.title) };
   };
-
 </script>
 
 <div class="flex shrink-0 flex-col justify-center px-4 pt-4 pb-3">
@@ -64,7 +64,7 @@
   </label>
 </div>
 
-<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-3">
+<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-3" {@attach dragKinds(sourceOf)}>
   {#each groups as group (group.title.id)}
     {#if group.items.length > 0}
       <p class="px-2 pt-4 pb-2 text-xs text-muted-foreground">{t(group.title)}</p>
@@ -80,10 +80,9 @@
                 'group/kind relative flex w-full items-center gap-3 rounded-lg border border-transparent p-1 text-left text-sm',
                 ready ? 'cursor-grab touch-none hover:border-primary/50 hover:bg-background' : 'opacity-45',
               )}
-              onpointerdown={event => press(event, item)}
-              onclick={() => {
-                if (!dashboardEditor.takeDropClick()) dashboardView.openAdd(item.kind);
-              }}
+              data-part="widget-kind"
+              data-kind={item.kind}
+              onclick={() => dashboardView.openAdd(item.kind)}
             >
               <KindThumb kind={item.kind} />
               <span class="min-w-0 flex-1 truncate">{t(item.title)}</span>

@@ -30,6 +30,16 @@ export const editorMessages = {
   dropHere: msg`Drop here`,
   dropHint: (size: string) => msg`${size} · neighbours move down`,
   addOrDrop: msg`Add a widget, or drop one here`,
+  moveKeysHint: msg`Space lifts the widget. The arrow keys move it, Space drops it, and Escape cancels.`,
+  widgetPicked: (title: string, place: number, count: number) =>
+    msg`“${title}” is picked up, at place ${place} of ${count}`,
+  widgetLifted: (title: string, place: number, count: number) =>
+    msg`“${title}” is lifted, at place ${place} of ${count}. The arrow keys move it, Space drops it, and Escape cancels.`,
+  widgetPlace: (title: string, place: number, count: number) =>
+    msg`“${title}”: place ${place} of ${count}`,
+  widgetDropped: (title: string, place: number, count: number) =>
+    msg`“${title}” is now at place ${place} of ${count}`,
+  widgetBack: (title: string) => msg`“${title}” is back at its place`,
   emptyDashboard: msg`This dashboard has no widget yet.`,
   emptyDashboardHint: msg`Select Edit dashboard, then drag a kind from the list.`,
 

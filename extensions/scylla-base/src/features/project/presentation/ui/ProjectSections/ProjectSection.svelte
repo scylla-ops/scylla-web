@@ -51,6 +51,8 @@
     phone: boolean;
     /** The id of the text that tells the keys of the handle of a group. */
     gripHintId: string;
+    /** The id of the text that tells the keys of a card. */
+    keysHintId: string;
     /** The only section of the page: its cards show with no header. */
     headless: boolean;
     /** The last section of the page: no space under it. */
@@ -72,6 +74,7 @@
     densities,
     phone,
     gripHintId,
+    keysHintId,
     headless,
     last,
     place,
@@ -108,17 +111,22 @@
   };
 
   const drag = $derived(reorder.drag);
+  // The section has the card already: it says so, as the menus of a card do.
+  const already = $derived(!!drag && reorder.refused === section.key);
   const dropText = $derived(
-    drag && reorder.refused === section.key
-      ? t(projectMessages.alreadyPinnedDrop(drag.name))
+    drag && already
+      ? t(section.key === PINS ? projectMessages.alreadyPinned : projectMessages.alreadyIn(name))
       : drag && reorder.target?.header && reorder.target.to === section.key
-      ? t(
-          section.key === PINS
-            ? projectMessages.releaseToPin(drag.name)
-            : projectMessages.releaseInto(drag.name, name),
-        )
-      : undefined,
+        ? t(
+            section.key === PINS
+              ? projectMessages.releaseToPin(drag.name)
+              : projectMessages.releaseInto(drag.name, name),
+          )
+        : undefined,
   );
+  // The section takes the card at a new place: a quiet frame around it, out of the flow.
+  const receiving = $derived(reorder.moved && reorder.target?.to === section.key);
+  const shown = $derived(section.open || headless);
 
   // A closed section opens when the dragged card stays on its header: the card can then go to a
   // place in it. A drop on the header puts the card last.
@@ -211,13 +219,23 @@
 
 <!-- The space between the sections is in their padding: a section that folds ends with no jump. -->
 <section
-  class={cn('flex flex-col', !last && 'pb-4')}
+  class={cn('relative flex flex-col', !last && 'pb-4')}
   data-section={section.key}
   data-density={density}
+  data-open={shown || undefined}
   aria-label={name}
   in:unfold
   out:fold
 >
+  <div
+    class={cn(
+      'pointer-events-none absolute -inset-x-2 -top-1 rounded-xl bg-primary/[0.03] ring-1 ring-primary/25 transition-opacity duration-150 motion-reduce:transition-none',
+      last ? '-bottom-1' : 'bottom-3',
+      receiving ? 'opacity-100' : 'opacity-0',
+    )}
+    data-part="project-section-target"
+    aria-hidden="true"
+  ></div>
   {#if !headless}
     <!-- The header unfolds when the reorder mode shows the pins over the cards with no group. -->
     <div in:unfold out:fold>
@@ -239,6 +257,7 @@
           open={section.open}
           counts={section.counts}
           {dropText}
+          dropState={already ? 'already' : 'release'}
           {actions}
           {menu}
           onToggle={toggle}
@@ -250,7 +269,7 @@
   <!-- The cards and the line of chips take the place of each other in one box, which moves its
        height once. The space under the header is in the padding of each part: no jump. -->
   <div class={MORPH_BOX_CLASS} data-part="project-section-body" {@attach morphHeight}>
-    {#if section.open || headless}
+    {#if shown}
       <div class={cn('flex flex-col gap-3', !headless && 'pt-3')} in:enter out:exit>
         {#if section.loading}
           <ListSkeleton
@@ -260,6 +279,7 @@
           />
         {:else}
           <SectionGrid
+            {keysHintId}
             {section}
             {sections}
             {reorder}
@@ -285,6 +305,9 @@
     {:else if folded}
       <div class="pt-2" in:enter out:exit>
         <FoldedPreview
+          dropName={drag && reorder.target?.header && reorder.target.to === section.key
+            ? drag.name
+            : undefined}
           projects={section.projects}
           total={section.total}
           {name}

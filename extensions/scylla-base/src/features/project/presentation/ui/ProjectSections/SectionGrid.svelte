@@ -15,14 +15,15 @@
   } from '@base/features/project/presentation/presenters/project-density.presenter.ts';
   import {
     PINS,
+    sameTarget,
     UNGROUPED,
   } from '@base/features/project/presentation/presenters/project-sections.presenter.ts';
-  import { liftedStyle } from '@base/features/project/presentation/presenters/sortable.presenter.ts';
   import ProjectItem from '../ProjectCard/ProjectItem.svelte';
   import type { ProjectDensityState } from '../project-density.state.svelte.ts';
   import type { ProjectReorderState } from '../project-reorder.state.svelte.ts';
   import type { ProjectSectionsState, SectionView } from '../project-sections.state.svelte.ts';
   import { arrive, foldZone, leave } from '../reorder.transition.ts';
+  import { dragCardWithKeys } from './card-drag.attachments.ts';
   import { flipDensity } from './density-flip.effect.svelte.ts';
   import { revealCard, staggerCards } from './section-open.attachments.ts';
 
@@ -40,6 +41,8 @@
     /** The card that a chip of the folded section opened: the page scrolls to it. */
     reveal?: string | null;
     onRevealed?: () => void;
+    /** The id of the text that tells the keys of a card in the reorder mode. */
+    keysHintId?: string;
   }
 
   let {
@@ -52,17 +55,27 @@
     stagger = false,
     reveal = null,
     onRevealed = () => {},
+    keysHintId,
   }: Props = $props();
 
   const ZONE =
     'flex items-center justify-center gap-2 rounded-xl border border-dashed px-6 text-center text-muted-foreground';
   const SLOT_KEY = '\nslot';
 
-  type Entry = { kind: 'card'; project: ProjectEntity; lifted: boolean } | { kind: 'slot' };
+  // `lifted`: a pointer drags the card over the page. `held`: the keyboard holds it in its place.
+  type Entry =
+    | { kind: 'card'; project: ProjectEntity; lifted: boolean; held: boolean }
+    | { kind: 'slot' };
 
   const density = $derived(densities.of(section.key));
   const drag = $derived(reorder.drag);
-  const target = $derived(reorder.target?.to === section.key ? reorder.target : null);
+  // The keyboard holds the card in its place: the slot shows only at a new place.
+  const target = $derived(
+    reorder.target?.to === section.key &&
+      !(drag?.keyboard && sameTarget(reorder.target, reorder.origin))
+      ? reorder.target
+      : null,
+  );
   // The dragged card takes the shape of the section under it.
   const liftedDensity = $derived<ProjectDensity>(
     reorder.target && !reorder.target.header ? densities.of(reorder.target.to) : density,
@@ -73,11 +86,10 @@
   );
   // The dragged card stays in its grid, out of the flow: it follows the pointer over the page.
   const entries = $derived.by((): Entry[] => {
-    const cards: Entry[] = section.projects.map(project => ({
-      kind: 'card',
-      project,
-      lifted: drag?.from === section.key && drag.id === project.id,
-    }));
+    const cards: Entry[] = section.projects.map(project => {
+      const dragged = drag?.from === section.key && drag.id === project.id;
+      return { kind: 'card', project, lifted: dragged && !drag.keyboard, held: dragged && drag.keyboard };
+    });
     if (!target) return cards;
     const at = cards.findIndex(
       entry => entry.kind === 'card' && entry.project.id === target.beforeId,
@@ -91,6 +103,10 @@
   const ghost = $derived(!!newProjectHref && section.key !== PINS);
   const OFF = 'opacity-40';
   const keyOf = (entry: Entry) => (entry.kind === 'slot' ? SLOT_KEY : entry.project.id);
+  const nextOf = (id: string) => {
+    const index = section.projects.findIndex(project => project.id === id);
+    return index < 0 ? undefined : section.projects[index + 1]?.id;
+  };
   const flip = flipDensity(() => density);
 </script>
 
@@ -145,21 +161,28 @@
   {@attach stagger && staggerCards}
 >
   {#each entries as entry (keyOf(entry))}
-    <!-- In the reorder mode, the whole card is the handle: its parts take no click. -->
+    <!-- In the reorder mode, the whole card is the handle: its parts take no click. It is a focus
+      stop for the drag with the keyboard. -->
+    <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
       class={cn(
         'h-full',
         entry.kind === 'card' &&
           reorder.active &&
-          'cursor-grab touch-manipulation select-none [-webkit-touch-callout:none] *:pointer-events-none',
+          'cursor-grab touch-manipulation rounded-xl outline-none select-none [-webkit-touch-callout:none] focus-visible:ring-[3px] focus-visible:ring-ring/50 *:pointer-events-none',
         entry.kind === 'card' &&
           entry.lifted &&
-          'cursor-grabbing overflow-hidden rounded-xl shadow-2xl ring-2 ring-primary/60',
+          'cursor-grabbing overflow-hidden ring-2 ring-primary/60',
+        entry.kind === 'card' && entry.lifted && (reorder.ghost.lifted ? 'shadow-2xl' : 'shadow-sm'),
+        entry.kind === 'card' &&
+          entry.held &&
+          'scale-[1.02] shadow-xl ring-2 ring-primary/60 transition-transform duration-150 focus-visible:ring-primary/60 motion-reduce:scale-100 motion-reduce:transition-none',
       )}
-      style={entry.kind === 'card' && entry.lifted && drag
-        ? liftedStyle(reorder.box, reorder.offset, reorder.motion)
-        : undefined}
+      style={entry.kind === 'card' && entry.lifted ? reorder.ghost.style || undefined : undefined}
       role="listitem"
+      tabindex={entry.kind === 'card' && reorder.active ? 0 : undefined}
+      aria-label={entry.kind === 'card' && reorder.active ? entry.project.name : undefined}
+      aria-describedby={entry.kind === 'card' && reorder.active ? keysHintId : undefined}
       data-card={entry.kind === 'card' ? entry.project.id : undefined}
       data-part={entry.kind === 'slot' ? 'project-drop-slot' : undefined}
       animate:reflow={{ still: entry.kind === 'card' && entry.lifted }}
@@ -169,6 +192,14 @@
         fade: !!reorder.drag,
       }}
       {@attach entry.kind === 'card' && entry.project.id === reveal && revealCard(onRevealed)}
+      {@attach entry.kind === 'card' &&
+        reorder.active &&
+        dragCardWithKeys(reorder, () => ({
+          id: entry.project.id,
+          name: entry.project.name,
+          section: section.key,
+          nextId: nextOf(entry.project.id),
+        }))}
     >
       {#if entry.kind === 'card'}
         <ProjectItem

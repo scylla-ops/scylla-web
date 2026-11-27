@@ -10,7 +10,7 @@ import type {
 } from '@base/features/project/domain/structs/project-search.struct.ts';
 import { t } from '@scylla/ui/i18n';
 import { projectMessages } from '../messages/project.messages.ts';
-import { nearestCell, type Box, type Point } from './sortable.presenter.ts';
+import { insertIndex, zoneAt, type Box, type Point } from '@scylla/ui/dnd';
 
 /** The key of a section of the page: `pins`, `ungrouped`, or the id of a group. */
 export type SectionKey = string;
@@ -83,81 +83,106 @@ export const neighborsOf = (
   return { previous: ids[index - 1], next: ids[index + 1] };
 };
 
-/** Where a dragged card goes: before a card of a section, or last. `header`: on the header. */
+/**
+ * Where a dragged card goes: before a card of a section, or last. `header`: into a section that
+ * shows no card (folded, or the zone of the pins over the toolbar), last.
+ */
 export interface DropTarget {
   to: SectionKey;
   beforeId?: string;
   header: boolean;
 }
 
-/** A cell of a grid in the reorder mode: a card, or the slot (no id). */
-export interface CardCell {
-  id?: string;
-  box: Box;
-}
+export const sameTarget = (a: DropTarget | null, b: DropTarget | null): boolean =>
+  a?.to === b?.to && a?.beforeId === b?.beforeId && !!a?.header === !!b?.header;
 
 /** A section of the page as the drag measures it, in the viewport. */
 export interface SectionZone {
   key: SectionKey;
-  /** None when the page shows the cards with no header. */
-  header?: Box;
-  /** Under the header: the grid or the empty zone. None when the section is closed. */
-  body?: Box;
-  /** The cards and the slot, in their order, without the dragged card. */
-  cells: readonly CardCell[];
-  /** The free cell after the last one: a drop there puts the card last. */
-  after?: Box | null;
+  /** The whole section: its header, its cards and the gaps between them. */
+  box: Box;
+  /** It shows its cards: a drop goes between them. Else a drop puts the card last. */
+  open: boolean;
+  /** The cards without the dragged one, where the grid places them, in their order. */
+  cells: readonly { id: string; box: Box }[];
+  /** The columns of the grid. */
+  columns: number;
 }
 
-const spans = (box: Box | undefined, y: number) =>
-  !!box && y >= box.top && y <= box.top + box.height;
+/** The section under the pointer, and the place of the card in it when the section takes it. */
+export interface CardAim {
+  over: SectionKey | null;
+  target: DropTarget | null;
+}
 
 /**
- * The slot goes to the cell nearest to the center of the dragged card: it takes the place of a
- * card when the dragged card covers more than half of it.
- */
-const placeIn = (zone: SectionZone, center: Point): DropTarget => ({
-  to: zone.key,
-  beforeId: beforeIdAt(zone.cells, zone.after ?? null, center) ?? undefined,
-  header: false,
-});
-
-/**
- * The item before which the slot goes: the cell nearest to the center of the dragged item, the
- * slot (no id) included. A cell after the slot takes the slot after it: the index of a box in the
- * cells is the index of the id after it in the ids with no slot. `undefined`: last. Null: no cell.
- */
-const beforeIdAt = (
-  cells: readonly CardCell[],
-  after: Box | null,
-  center: Point,
-): string | undefined | null => {
-  const ids = cells.flatMap(cell => (cell.id ? [cell.id] : []));
-  const boxes = cells.map(cell => cell.box);
-  const index = nearestCell(after ? [...boxes, after] : boxes, center);
-  return index < 0 ? null : ids[index];
-};
-
-/**
- * Where the dragged card goes. The center of the card decides, wherever the person took it; the
- * pointer decides only out of each section. A header takes the card last in its section. Only the
- * height chooses the section: the sections take the whole width. Null out of each section that
- * takes the card: the slot stays where it is.
+ * Where the dragged card goes. The pointer decides, wherever the person took the card: a section
+ * takes it over its whole box (header, cards, gaps) and a margin around it (`zoneAt`). In an open
+ * section, the place comes from the pointer against the middle of each card, with a hysteresis
+ * (`insertIndex`), so that the slot does not swing. A section that shows no card takes it last.
+ * `target` is null out of each section, and over a section that takes no drop of the card.
  */
 export const cardTargetAt = (
   zones: readonly SectionZone[],
-  center: Point,
   pointer: Point,
   accepts: (key: SectionKey) => boolean,
-): DropTarget | null => {
-  const open = zones.filter(zone => accepts(zone.key));
-  for (const { y } of [center, pointer]) {
-    const header = open.find(zone => spans(zone.header, y));
-    if (header) return { to: header.key, header: true };
-    const body = open.find(zone => spans(zone.body, y));
-    if (body) return placeIn(body, center);
-  }
-  return null;
+  current: DropTarget | null,
+): CardAim => {
+  const over = zoneAt(zones, pointer, { current: current?.to ?? null });
+  const zone = zones.find(item => item.key === over);
+  if (!zone || !accepts(zone.key)) return { over, target: null };
+  if (!zone.open) return { over, target: { to: zone.key, header: true } };
+  const ids = zone.cells.map(cell => cell.id);
+  const now =
+    current?.to === zone.key && !current.header
+      ? current.beforeId
+        ? ids.indexOf(current.beforeId)
+        : ids.length
+      : -1;
+  const index = insertIndex(
+    zone.cells.map(cell => cell.box),
+    pointer,
+    { current: now < 0 ? null : now, columns: zone.columns },
+  );
+  return { over, target: { to: zone.key, beforeId: ids[index], header: false } };
+};
+
+/** A section for the keyboard: it shows its cards (`open`), and their ids in their order. */
+export interface KeyboardSection {
+  key: SectionKey;
+  open: boolean;
+  ids: readonly string[];
+}
+
+/**
+ * The places of a card that the keyboard moves, in the order of the page: each place in each open
+ * section that takes the card, and one place, last, in a section that shows no card.
+ */
+export const keyboardTargets = (
+  sections: readonly KeyboardSection[],
+  dragId: string,
+  accepts: (key: SectionKey) => boolean,
+): DropTarget[] =>
+  sections
+    .filter(section => accepts(section.key))
+    .flatMap((section): DropTarget[] => {
+      if (!section.open) return [{ to: section.key, header: true }];
+      const others = section.ids.filter(id => id !== dragId);
+      return [
+        ...others.map(id => ({ to: section.key, beforeId: id, header: false })),
+        { to: section.key, header: false },
+      ];
+    });
+
+/** The place one step from `current`: the first or the last place stays where it is. */
+export const stepTarget = (
+  targets: readonly DropTarget[],
+  current: DropTarget,
+  delta: -1 | 1,
+): DropTarget => {
+  const index = targets.findIndex(target => sameTarget(target, current));
+  if (index < 0) return targets[0] ?? current;
+  return targets[index + delta] ?? current;
 };
 
 /** The place of a slot in the cards of a section, from 1, and the count with the dragged card. */
@@ -173,16 +198,38 @@ export const slotPlace = (
 
 /** What the reorder mode tells a screen reader about a drag. */
 export interface ReorderNewsInput {
-  drag: { id: string; name: string } | null;
+  drag: { id: string; name: string; keyboard?: boolean } | null;
   target: DropTarget | null;
+  /** The place of the card when the drag started. */
+  origin?: DropTarget | null;
+  /** The section under the card that has it already. */
+  refused?: SectionKey | null;
   /** The end of the last drag. `to`: the section of the drop; null: no drop. */
   ended: { id: string; name: string; to: SectionKey | null } | null;
   idsOf: (key: SectionKey) => readonly string[];
   nameOf: (key: SectionKey) => string;
 }
 
-/** The text of the live region of the reorder mode: the place of the slot, then of the drop. */
-export const reorderNews = ({ drag, target, ended, idsOf, nameOf }: ReorderNewsInput): string => {
+/**
+ * The text of the live region of the reorder mode: the lift, the place of the slot, a section that
+ * has the card already, then the drop or the cancel.
+ */
+export const reorderNews = ({
+  drag,
+  target,
+  origin = null,
+  refused = null,
+  ended,
+  idsOf,
+  nameOf,
+}: ReorderNewsInput): string => {
+  if (drag && refused) {
+    return t(
+      refused === PINS
+        ? projectMessages.alreadyPinnedDrop(drag.name)
+        : projectMessages.alreadyInDrop(drag.name, nameOf(refused)),
+    );
+  }
   if (drag && target) {
     const section = nameOf(target.to);
     if (target.header) {
@@ -193,6 +240,13 @@ export const reorderNews = ({ drag, target, ended, idsOf, nameOf }: ReorderNewsI
       );
     }
     const { place, count } = slotPlace(idsOf(target.to), drag.id, target.beforeId);
+    if (sameTarget(target, origin)) {
+      return t(
+        drag.keyboard
+          ? projectMessages.cardLifted(drag.name, place, count, section)
+          : projectMessages.cardPicked(drag.name, place, count, section),
+      );
+    }
     return t(projectMessages.slotPlace(drag.name, place, count, section));
   }
   if (!ended) return '';
@@ -235,26 +289,30 @@ export interface GroupCell {
 }
 
 /**
- * Where a dragged group goes: the line between two groups that is nearest to the center of the
- * dragged header (`y`). The groups stay in their place during the drag, the dragged one too: the
- * line just before it or just after it is its own place. The pins stay first and « No group »
- * last: they are not cells. Null with no cell.
+ * Where a dragged group goes: the line before the first group whose middle is under the pointer
+ * (`y`), with a hysteresis around each middle (`insertIndex`). The groups stay in their place during
+ * the drag, the dragged one too: it is not a place. The pins stay first and « No group » last: they
+ * are not cells. Null with no cell.
  */
 export const groupTargetAt = (
   cells: readonly GroupCell[],
   dragId: string,
   y: number,
+  current: GroupTarget | null = null,
 ): GroupTarget | null => {
-  const last = cells.at(-1);
-  if (!last) return null;
-  const lines = [...cells.map(cell => cell.top), last.bottom];
-  const nearest = lines.reduce(
-    (best, line, index) => (Math.abs(line - y) < Math.abs(lines[best] - y) ? index : best),
-    0,
+  if (cells.length === 0) return null;
+  const others = cells.filter(cell => cell.id !== dragId);
+  const now = current
+    ? current.beforeId
+      ? others.findIndex(cell => cell.id === current.beforeId)
+      : others.length
+    : -1;
+  const index = insertIndex(
+    others.map(cell => ({ left: 0, top: cell.top, width: 1, height: cell.bottom - cell.top })),
+    { x: 0, y },
+    { current: now < 0 ? null : now },
   );
-  // Before the dragged group is its own place: before the group after it.
-  const at = cells[nearest]?.id === dragId ? nearest + 1 : nearest;
-  return { beforeId: cells[at]?.id };
+  return { beforeId: others[index]?.id };
 };
 
 /** The groups in the order of the reorder mode; a group that the mode does not know comes last. */
@@ -324,9 +382,11 @@ export interface GroupNewsInput {
 /** The text of the live region for the groups: the lift, each place, then the drop or the cancel. */
 export const groupNews = ({ drag, order, target, stepped, ended }: GroupNewsInput): string => {
   if (drag) {
-    const { place, count } = drag.keyboard
-      ? { place: order.indexOf(drag.id) + 1, count: order.length }
-      : slotPlace(order, drag.id, target?.beforeId);
+    // The keyboard moves the group in the order; after a drop, the order has the new place.
+    const { place, count } =
+      drag.keyboard || !target
+        ? { place: order.indexOf(drag.id) + 1, count: order.length }
+        : slotPlace(order, drag.id, target.beforeId);
     return t(
       drag.keyboard && !stepped
         ? projectMessages.groupLifted(drag.name, place, count)

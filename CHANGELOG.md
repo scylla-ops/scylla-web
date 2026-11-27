@@ -230,6 +230,10 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   widget shows the job that runs or waits, not the last ended job, so it does not show "orphaned"
   for a pipeline that runs.
 - Glyph avatar scroll area now keeps hidden descendants inside it.
+- Projects page, reorder mode: a dragged card goes into "Pinned" or into a group as soon as the
+  pointer is over it, also a folded or empty group. The card follows the pointer, the other cards
+  move aside, and a drop on a section that already has the card says so. The dashboard editor uses
+  the same drag, and the keyboard can move a card or a widget (Space, arrow keys, Escape).
 
 ## [0.7.2] - 2026-11-25
 

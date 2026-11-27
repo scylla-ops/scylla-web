@@ -1,20 +1,18 @@
+import { createDragGhost, type Box } from '@scylla/ui/dnd';
 import { placeBefore } from '@base/features/project/domain/structs/project-layout.struct.ts';
 import {
   moveGroupTo,
   stepGroup,
   type GroupTarget,
 } from '../presenters/project-sections.presenter.ts';
-import type { Box, LiftedMotion, Point } from '../presenters/sortable.presenter.ts';
 
-/** The group that moves. A pointer drag lifts its header; the keyboard moves it in its place. */
+/** The group that moves. A pointer drag lifts a copy of its header; the keyboard moves it in place. */
 interface GroupDrag {
   id: string;
   name: string;
   keyboard: boolean;
-  /** The box of the header when the person took it: its copy leaves the page there. */
+  /** The box of the header when the person took it. */
   box: Box;
-  /** The point where the person took the header, from its top left corner. */
-  grab: Point;
 }
 
 /** The end of the last drag, for the live region. */
@@ -30,15 +28,15 @@ const NOWHERE: Box = { left: 0, top: 0, width: 0, height: 0 };
  * The order of the groups in the reorder mode. It stays on the page until « Done » saves it;
  * « Cancel » forgets it. The pins stay first and « No group » last: they are not in the order.
  *
- * A pointer drag: `pick` takes the header, `follow` moves its copy, `hover` moves the line between
- * two groups, then `drop` puts the group there; `cancel` and `settle` send the copy back to the
- * header, and `release` ends the drag. The groups stay in their place until the drop.
- * The keyboard: `lift`, `step` up or down, then `place` or `restore`.
+ * A pointer drag: `pick` takes the header, and `ghost` lifts its copy; `hover` moves the line
+ * between two groups; `drop` puts the group there (or keeps it) while the copy flies to the
+ * header, then `finish` ends the drag. `cancel` sends the line back to the place of the group. The
+ * groups stay in their place until the drop. The keyboard: `lift`, `step` up or down, then `place`
+ * or `restore`.
  */
 export const createGroupReorder = () => {
   let order = $state<string[] | null>(null);
   let drag = $state<GroupDrag | null>(null);
-  let pointer = $state<Point>({ x: 0, y: 0 });
   let settling = $state(false);
   let target = $state<GroupTarget | null>(null);
   let stepped = $state(false);
@@ -46,6 +44,7 @@ export const createGroupReorder = () => {
   let origin: GroupTarget | null = null;
   // The order at the lift: Escape gives it back.
   let lifted: string[] = [];
+  const ghost = createDragGhost();
 
   const end = (dropped: boolean) => {
     if (drag) ended = { id: drag.id, name: drag.name, dropped };
@@ -67,23 +66,21 @@ export const createGroupReorder = () => {
     get drag(): Readonly<GroupDrag> | null {
       return drag;
     },
+    /** The copy of the header of a pointer drag: it follows the pointer, then flies to the header. */
+    get ghost() {
+      return ghost;
+    },
     /** The place of a pointer drag: the line between two groups. */
     get target(): Readonly<GroupTarget> | null {
       return target;
     },
     /** A pointer drag has a new place for the group: the line shows. */
     get moved() {
-      return !!drag && !drag.keyboard && !!target && target.beforeId !== origin?.beforeId;
+      return (
+        !!drag && !drag.keyboard && !settling && !!target && target.beforeId !== origin?.beforeId
+      );
     },
-    /** How far the copy of the dragged header is from its box. */
-    get offset(): Point {
-      return drag && !drag.keyboard
-        ? { x: pointer.x - drag.grab.x - drag.box.left, y: pointer.y - drag.grab.y - drag.box.top }
-        : { x: 0, y: 0 };
-    },
-    get motion(): LiftedMotion {
-      return settling ? 'settle' : 'follow';
-    },
+    /** The copy flies to the header after the drop. */
     get settling() {
       return settling;
     },
@@ -99,22 +96,19 @@ export const createGroupReorder = () => {
       ended = null;
     },
     stop() {
+      ghost.end();
       end(false);
       order = null;
       ended = null;
     },
     /** `nextId`: the group after it, its own place: the line shows once the place changes. */
-    pick(group: { id: string; name: string; box: Box; grab: Point }, nextId?: string) {
+    pick(group: { id: string; name: string; box: Box }, nextId?: string) {
       if (!order || drag) return;
       drag = { ...group, keyboard: false };
-      pointer = { x: group.box.left + group.grab.x, y: group.box.top + group.grab.y };
       settling = false;
       origin = { beforeId: nextId };
       target = origin;
       ended = null;
-    },
-    follow(point: Point) {
-      if (drag && !drag.keyboard && !settling) pointer = point;
     },
     hover(next: GroupTarget) {
       if (!drag || drag.keyboard || settling) return;
@@ -124,26 +118,26 @@ export const createGroupReorder = () => {
     cancel() {
       if (drag && !settling) target = origin;
     },
-    /** The top left corner of the copy of the header goes to `to`. */
-    settle(to: Point) {
-      if (!drag || drag.keyboard) return;
+    /**
+     * The release: the group goes to the line, when the line is at a new place. The copy then flies
+     * to the header; `finish` ends the drag. Gives whether the group moved.
+     */
+    drop(): boolean {
+      if (!drag || drag.keyboard || !order) return false;
+      const moved = !settling && !!target && target.beforeId !== origin?.beforeId;
+      if (moved) order = placeBefore(order, drag.id, target?.beforeId);
       settling = true;
-      pointer = { x: to.x + drag.grab.x, y: to.y + drag.grab.y };
+      target = null;
+      return moved;
     },
-    drop() {
-      if (drag && !drag.keyboard && target && order && target.beforeId !== origin?.beforeId) {
-        order = placeBefore(order, drag.id, target.beforeId);
-      }
-      end(true);
-    },
-    /** The drag ends with no drop: the group stays at its place. */
-    release() {
-      end(false);
+    /** The copy is on the header: the drag ends. */
+    finish(dropped: boolean) {
+      end(dropped);
     },
     /** Space on the handle of a group: the arrow keys then move it. */
     lift(id: string, name: string) {
       if (!order || drag) return;
-      drag = { id, name, keyboard: true, box: NOWHERE, grab: { x: 0, y: 0 } };
+      drag = { id, name, keyboard: true, box: NOWHERE };
       lifted = [...order];
       stepped = false;
       ended = null;

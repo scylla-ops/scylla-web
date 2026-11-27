@@ -103,6 +103,11 @@ presentation/
   presenters/dashboard-paths.presenter.ts  `dashboard` or `dashboards/<id>`
   ui/dashboards.state.svelte.ts         the set and its changes (create, rename, default, delete)
   ui/dashboard-editor.state.svelte.ts   the edit mode: the draft, the undo, the selection, the drag
+                                        (its place, its ghost, the keyboard)
+  ui/widget-drag.attachments.ts         the pointer drag of the widgets (`dragWidgets`) and of the
+                                        kinds of the palette (`dragKinds`): the place under the
+                                        pointer, the flight into the slot, the pulse
+  presenters/widget-drag.presenter.ts   the text of the live region of a drag
   ui/DashboardPanel/                    ViewPanel (dashboards, period, scope, Edit dashboard) and
                                         EditPanel (the palette, the changes, Cancel, Save layout)
   ui/Dashboard/MobileBar.svelte         the controls of the page on a phone
@@ -298,6 +303,15 @@ a widget), `1527:8165` (widget data), `1529:8782` (layouts), `1529:9001` (new la
 - **A widget in the grid** has Remove (top left), a handle to drag it (top), a corner to resize
   it, and a toolbar when selected: the sizes, Data (the drawer), Duplicate, Delete. A drag shows
   "Drop here" where the widget lands; the grid packs the rest (`grid-flow-row-dense`).
+- **The drag of a widget and of a kind is the one of `@scylla/ui/dnd`** (`widget-drag.attachments.ts`),
+  as on the projects page. The widget lifts and follows the pointer; "Drop here" has the size of
+  the widget, and the other widgets slide out of its way (`reflow`). The place comes from the
+  pointer over the cells of the layout without the dragged widget (`placedIndexAt`), and a new
+  place waits 120 ms under the pointer, so the grid does not swing. A drop flies the widget into
+  "Drop here", then it pulses. Escape, a drop out of the grid or at its own place sends it back
+  with no change; a kind goes back into the palette. The keyboard: Space on the handle lifts the
+  widget, the arrow keys move it one place, Space drops it, Escape gives it back; a live region
+  says each place. The resize corner does not change.
 - **A widget shows only the sizes of `DATA[data].sizes`.** The toolbar and the dialogs disable
   the others. A stored size that the widget cannot show becomes its first size.
 - **A new dashboard** starts from a template (Calm, Bento, Blank) or a copy of the open one,

@@ -127,15 +127,14 @@ presentation/
   presenters/project-list.presenter.ts   the batches of cards, the orders of the page, the
                                      parameters of the URL
   presenters/project-sections.presenter.ts   the section keys, applyMoves, movesToSave, the
-                                     target of a dragged card (cardTargetAt), the texts of a drag;
+                                     target of a dragged card (cardTargetAt), its places for the
+                                     keyboard (keyboardTargets, stepTarget), the texts of a drag;
                                      the order of the groups (groupTargetAt, stepGroup,
                                      groupMovesToSave, groupNews)
   presenters/project-density.presenter.ts    the densities, the choice of a person and its
                                      rules, the grid, the slot, the ghost and the batches of each
   presenters/new-project.presenter.ts   `?group=` of `projects/new` and of its steps
   presenters/folded-preview.presenter.ts   how many chips of a folded section fit before "+N"
-  presenters/sortable.presenter.ts   the drag of a grid: the nearest cell, the free cell after the
-                                     last one, the scroll at the edges, the style of the lifted item
   ui/Project.page.svelte             picks the workspace, or says there is none
   ui/ProjectList.svelte              keyed on the workspace — that is the page reset
   ui/project-list.state.svelte.ts    createProjectList: the search, the health and the order in
@@ -143,7 +142,8 @@ presentation/
   ui/project-sections.state.svelte.ts   createProjectSections: one search for each section, the
                                      pins, the closed sections, "Show more" for each section
   ui/project-reorder.state.svelte.ts    createProjectReorder: the drops of the reorder mode, the
-                                     dragged card, its slot, its settle, its shape in another density
+                                     dragged card, its slot, its ghost (`createDragGhost`), its
+                                     keyboard places, the section that has the card already
   ui/group-reorder.state.svelte.ts   createGroupReorder: the order of the groups in the reorder
                                      mode, the dragged group, its new place, the keyboard path
   ui/project-density.state.svelte.ts createProjectDensity: the density of the page and of each
@@ -329,15 +329,27 @@ choice card links to it by its path only.
   group takes the place of its "+"; the ghost card and « New project » of an empty group stay,
   turned off; a folded section keeps its line of chips. The mode adds no section: with no pin,
   the pins take a drop in a zone over the toolbar during the drag of a card only, and the pins show
-  after that drop. A dragged card over a header draws a frame around it, out of the flow.
-- **The drag uses pointer events, not the native drag.** The real card follows the pointer
-  (`position: fixed`); it stays in its grid, so that it keeps its pointer capture. The slot goes to
-  the cell nearest to the center of the card, wherever the person took it: the center chooses the
-  section first, the pointer only when the center is in none. A finger holds still for 250 ms
-  before a drag, so that a quick move scrolls the page. Escape sends the card back. The live region
-  of the sections says each place, and « Move up » and « Move down » stay the keyboard way.
+  after that drop. The section that takes the dragged card shows a light frame around it, out of
+  the flow.
+- **The drag is the one of `@scylla/ui/dnd`.** A pointer drags a card (`dragCards`,
+  `card-drag.attachments.ts`): the card lifts and follows the pointer, a slot of its size stays in
+  the grid. **The pointer chooses the place, wherever the person took the card**: a section takes
+  the card over its whole box (header, cards, gaps) and 24 px around it, and the slot goes before
+  the first card whose middle the pointer has not passed, with a hysteresis of 25 %
+  (`cardTargetAt`). A folded section (or the zone of the pins) takes the card last, also over its
+  header, and shows the slot at the end of its line of chips; after 600 ms over it, it opens. A finger
+  holds still for 250 ms before a drag, so that a quick move scrolls the page. The keyboard: each
+  card is a focus stop in the mode; Space lifts it, the arrow keys move its slot (also into the
+  next section, `keyboardTargets`), Space drops it and Escape cancels. The live region of the
+  sections says each place.
+- **A section that has the card already says so, and takes no drop**, as the menus of a card:
+  the pins for a pinned card ("Already pinned"), the group of a card dragged from the pins
+  ("Already in Deploys"). Its header shows a check and the text, the live region says it, and a
+  drop there sends the card back with an info toast. A drop at the place of the card, or out of
+  each section, sends it back with no change.
 - **Each move of the mode has a short transition**, and none with a reduced motion: the other
-  cards slide (`reflow` of `@scylla/ui`), the card settles on its slot, a card that changes its
+  cards slide (`reflow` of `@scylla/ui`), the card flies into its slot and the section that got it
+  pulses once (`pulseDrop`), a card that changes its
   section slides from its old place, the controls of the toolbar cross-fade, the slot and the drop
   zones fade. The grid of a section stays with no card, for these transitions.
 - **A section keeps its newest cards while a new read of it loads** (the reorder mode, "Show more",
@@ -373,10 +385,10 @@ choice card links to it by its path only.
 - **The reorder mode also moves the groups.** In the mode, each group header has a handle in the
   place of its "+" (the pins and « No group » have none: they stay first and last). A pointer
   drags a copy of the header; the sections stay as they are, the dragged group dimmed in its
-  place, and a line that takes no height shows the place between the two groups nearest to the
-  center of the copy (`groupTargetAt`). A drop moves the group there: the groups slide to their
-  new places in one move, and the copy fades. Escape, or a drop at its own place, sends the copy
-  back to the header. The keyboard: Space on the handle lifts the group, the arrow
+  place, and a line that takes no height shows the place before the first group whose middle the
+  pointer has not passed, with a hysteresis of 25 % (`groupTargetAt`). A drop moves the group
+  there: the groups slide to their new places in one move, the copy flies to the header and the
+  header pulses once. Escape, or a drop at its own place, sends the copy back to the header. The keyboard: Space on the handle lifts the group, the arrow
   keys move it, Space drops it and Escape gives it back; a live region says each place. « Move
   up » and « Move down » of the group menu change the order of the mode too. « Done » sends one
   `UpdateProjectGroup` with its new `position` for each group that is not at its place

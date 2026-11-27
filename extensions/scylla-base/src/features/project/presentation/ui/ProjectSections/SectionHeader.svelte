@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import CheckIcon from '@lucide/svelte/icons/check';
   import ChevronDownIcon from '@lucide/svelte/icons/chevron-down';
   import ChevronRightIcon from '@lucide/svelte/icons/chevron-right';
   import FolderIcon from '@lucide/svelte/icons/folder';
@@ -27,6 +28,8 @@
     counts?: ProjectCounts;
     /** A dragged card is over the header: the text of the drop. */
     dropText?: string;
+    /** `already`: the section has the dragged card, and takes no drop of it. */
+    dropState?: 'release' | 'already';
     /** The small actions before the menu, e.g. a new project in this group. */
     actions?: Snippet;
     menu?: Snippet;
@@ -42,6 +45,7 @@
     open,
     counts,
     dropText,
+    dropState = 'release',
     actions,
     menu,
     onToggle,
@@ -57,6 +61,7 @@
     'group/header relative flex min-h-8 items-center gap-3 rounded-lg',
     "before:pointer-events-none before:absolute before:-inset-x-2 before:-inset-y-1 before:rounded-lg before:border-[1.5px] before:border-primary before:bg-primary/8 before:opacity-0 before:transition-opacity before:duration-150 before:content-[''] motion-reduce:before:transition-none",
     dropText && 'before:opacity-100',
+    dropText && dropState === 'already' && 'before:border-border before:bg-muted/60',
   )}
   data-part="project-section-header"
   role="group"
@@ -100,7 +105,17 @@
     {/if}
   </div>
   {#if dropText}
-    <span class="shrink-0 text-sm font-medium text-primary" in:reorderIn>{dropText}</span>
+    <span
+      class={cn(
+        'flex shrink-0 items-center gap-1.5 text-sm font-medium',
+        dropState === 'already' ? 'text-muted-foreground' : 'text-primary',
+      )}
+      data-part="section-drop-text"
+      in:reorderIn
+    >
+      {#if dropState === 'already'}<CheckIcon class="size-4 shrink-0" aria-hidden="true" />{/if}
+      {dropText}
+    </span>
   {:else if actions || menu}
     <div class="flex shrink-0 items-center gap-1">
       {@render actions?.()}

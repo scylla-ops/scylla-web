@@ -134,6 +134,7 @@ export const projectMessages = {
   alreadyPinned: msg`Already pinned`,
   alreadyIn: (group: string) => msg`Already in ${group}`,
   alreadyPinnedDrop: (project: string) => msg`“${project}” is already pinned`,
+  alreadyInDrop: (project: string, group: string) => msg`“${project}” is already in ${group}`,
   newProjectIn: (group: string) => msg`New project in ${group}`,
   newProjectHere: msg`New project here`,
   newProjectNoGroup: msg`New project with no group`,
@@ -156,6 +157,11 @@ export const projectMessages = {
     msg`“${project}” is now at place ${place} of ${count} in ${section}`,
   droppedInto: (project: string, section: string) => msg`“${project}” is now in ${section}`,
   dragCancelled: (project: string) => msg`“${project}” is back at its place`,
+  cardPicked: (project: string, place: number, count: number, section: string) =>
+    msg`“${project}” is picked up, at place ${place} of ${count} in ${section}`,
+  cardLifted: (project: string, place: number, count: number, section: string) =>
+    msg`“${project}” is lifted, at place ${place} of ${count} in ${section}. The arrow keys move it, Space drops it, and Escape cancels.`,
+  cardGripHint: msg`Space lifts the card. The arrow keys move it, also to another section, Space drops it, and Escape cancels.`,
 
   moveGroup: (group: string) => msg`Move the group ${group}`,
   groupGripHint: msg`Space lifts the group. The arrow keys move it, Space drops it, and Escape cancels.`,
