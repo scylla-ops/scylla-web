@@ -33,6 +33,10 @@ msgstr "{name} reçoit ces rôles sur tout le serveur : {roles}. Le changement 
 msgid "{name} has no instance role. The change is live at once."
 msgstr "{name} n'a aucun rôle d'instance. Le changement a un effet immédiat."
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:26
+msgid "A figure in the colors you choose"
+msgstr "Une figure dans les couleurs de votre choix"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:45
 msgid "A handle that other people see."
 msgstr "Un identifiant que les autres personnes voient."
@@ -136,6 +140,10 @@ msgstr "Apparence"
 msgid "auto os device"
 msgstr "auto appareil"
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:15
+msgid "Avatar"
+msgstr "Avatar"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:77
 msgid "Back to your account"
 msgstr "Retour à votre compte"
@@ -173,7 +181,7 @@ msgstr "Changer le mot de passe"
 msgid "Change your email"
 msgstr "Changer votre e-mail"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:19
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:25
 msgid "Change your photo"
 msgstr "Changer votre photo"
 
@@ -314,7 +322,7 @@ msgstr "ex. john.doe"
 msgid "Edit"
 msgstr "Modifier"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:22
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:28
 msgid "Edit the avatar"
 msgstr "Modifier l'avatar"
 
@@ -394,6 +402,14 @@ msgstr "Identité dissociée"
 msgid "If no other account uses {email}, a link is on its way there."
 msgstr "Si aucun autre compte n'utilise {email}, un lien y est envoyé."
 
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:16
+msgid "Image"
+msgstr "Image"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:14
+msgid "Initials"
+msgstr "Initiales"
+
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:65
 msgid "Instance admin"
 msgstr "Admin de l'instance"
@@ -409,6 +425,10 @@ msgstr "Les rôles d'instance agissent sur tout le serveur. {name} garde ses rô
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:25
 msgid "Instance roles of {name}"
 msgstr "Rôles d'instance de {name}"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:13
+msgid "Kind of profile photo"
+msgstr "Type de photo de profil"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:116
 msgid "Last active {time}"
@@ -451,7 +471,7 @@ msgstr "Associer {provider}"
 msgid "Linked {date}"
 msgstr "Associée le {date}"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:21
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:27
 msgid "Make an avatar"
 msgstr "Créer un avatar"
 
@@ -540,10 +560,6 @@ msgstr "Ouvrir"
 msgid "Open a workspace, then Access › Members. An app never gets an instance role: an app always belongs to one workspace."
 msgstr "Ouvrez un espace de travail, puis Accès › Membres. Une app ne reçoit jamais de rôle d'instance : une app appartient toujours à un espace de travail."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:20
-msgid "Or a glyph avatar: a figure in the colors you choose"
-msgstr "Ou un avatar glyphe : une figure dans les couleurs de votre choix"
-
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:16
 msgid "Owner"
 msgstr "Propriétaire"
@@ -589,9 +605,9 @@ msgstr "Les tokens personnels sont désactivés dans cet espace de travail"
 msgid "Personal tokens are turned off on this server"
 msgstr "Les tokens personnels sont désactivés sur ce serveur"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:9
-msgid "PNG, JPEG or WebP · 1 MB max · cropped to a square (256 × 256)"
-msgstr "PNG, JPEG ou WebP · 1 Mo max · recadrée en carré (256 × 256)"
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:8
+msgid "PNG, JPEG or WebP · 1 MB max · 256 × 256"
+msgstr "PNG, JPEG ou WebP · 1 Mo max · 256 × 256"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:13
 msgid "Preparing your file"
@@ -641,15 +657,11 @@ msgstr "Lire la politique de confidentialité"
 msgid "Remove instance admin"
 msgstr "Retirer l'admin de l'instance"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:8
-msgid "Remove the image"
-msgstr "Retirer l'image"
-
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:16
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:22
 msgid "Replace"
 msgstr "Remplacer"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:13
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:19
 msgid "Replace your profile photo?"
 msgstr "Remplacer votre photo de profil ?"
 
@@ -746,7 +758,7 @@ msgstr "Conditions générales d'utilisation"
 msgid "Terms of service · version {version}"
 msgstr "Conditions générales d'utilisation · version {version}"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:18
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:24
 msgid "The {provider} photo could not be imported. Try again later."
 msgstr "Impossible d'importer la photo {provider}. Réessayez plus tard."
 
@@ -883,9 +895,17 @@ msgstr "Dissocier"
 msgid "Upload an image"
 msgstr "Importer une image"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:11
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:17
 msgid "Use my {provider} photo"
 msgstr "Utiliser ma photo {provider}"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:10
+msgid "Use my initials"
+msgstr "Utiliser mes initiales"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:11
+msgid "Use your initials instead?"
+msgstr "Utiliser vos initiales à la place ?"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:4
 #: extensions/scylla-base/src/features/user/user.module.ts:51
@@ -934,10 +954,6 @@ msgstr "Ce que cette application garde dans votre navigateur, et pourquoi."
 msgid "With an instance role"
 msgstr "Avec un rôle d'instance"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:10
-msgid "Without an image: your initials, on the color you choose"
-msgstr "Sans image : vos initiales, sur la couleur choisie"
-
 #: extensions/scylla-base/src/features/user/presentation/messages/user.messages.ts:23
 msgid "Workspace roles are given in each workspace"
 msgstr "Les rôles d'espace de travail se donnent dans chaque espace de travail"
@@ -962,11 +978,11 @@ msgstr "Vous n'avez pas la permission de supprimer des utilisateurs."
 msgid "You sign in with a provider. Set a password to also sign in with your email. This signs out your other sessions."
 msgstr "Vous vous connectez avec un fournisseur. Définissez un mot de passe pour vous connecter aussi avec votre e-mail. Cela déconnecte vos autres sessions."
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:12
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:18
 msgid "Your {provider} photo is your profile photo"
 msgstr "Votre photo {provider} est désormais votre photo de profil"
 
-#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:15
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:21
 msgid "Your {provider} photo replaces the current photo. The current photo is deleted."
 msgstr "Votre photo {provider} remplace la photo actuelle, qui sera supprimée."
 
@@ -981,6 +997,14 @@ msgstr "Votre e-mail est maintenant {email}."
 #: extensions/scylla-base/src/features/user/presentation/messages/privacy.messages.ts:16
 msgid "Your file is ready"
 msgstr "Votre fichier est prêt"
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:12
+msgid "Your image is deleted. You cannot get it back."
+msgstr "Votre image est supprimée. Vous ne pourrez pas la récupérer."
+
+#: extensions/scylla-base/src/features/user/presentation/messages/avatar.messages.ts:9
+msgid "Your initials, on the color you choose"
+msgstr "Vos initiales, sur la couleur de votre choix"
 
 #: extensions/scylla-base/src/features/user/presentation/messages/personal-tokens.messages.ts:29
 msgid "Your new token"

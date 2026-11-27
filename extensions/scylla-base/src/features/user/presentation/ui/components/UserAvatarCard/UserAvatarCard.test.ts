@@ -62,10 +62,15 @@ afterEach(() => {
 /** The picker of the free color opens in a floating layer, which jsdom does not lay out. */
 const hexField = () => screen.findByLabelText<HTMLInputElement>('Hex color');
 
+/** A segment only shows the options of its source. */
+const show = (source: 'Initials' | 'Avatar' | 'Image') =>
+  userEvent.click(screen.getByRole('radio', { name: source }));
+
 describe('UserAvatarCard', () => {
   it('uploads a photo, and refuses a file that the server would refuse', async () => {
     const repository = setUp();
     const user = userEvent.setup({ applyAccept: false });
+    await show('Image');
     const input = document.querySelector<HTMLInputElement>('input[type="file"]')!;
 
     await user.upload(input, new File(['<svg/>'], 'a.svg', { type: 'image/svg+xml' }));
@@ -78,19 +83,64 @@ describe('UserAvatarCard', () => {
     expect(repository.updateAvatar).toHaveBeenCalledOnce();
   });
 
-  it('removes the photo', async () => {
+  it('shows only the options of one source, the one in use first', async () => {
+    setUp({ ...me, avatarUrl: '/images/img-1' });
+
+    expect(screen.getByRole('radio', { name: 'Image' })).toBeChecked();
+    expect(screen.getByRole('button', { name: 'Upload an image' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Main color' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Make an avatar' })).toBeNull();
+    await show('Initials');
+    expect(screen.getByRole('button', { name: 'Main color' })).toBeVisible();
+    expect(screen.queryByRole('button', { name: 'Upload an image' })).toBeNull();
+  });
+
+  it('changes nothing when a segment is chosen', async () => {
+    const repository = setUp({ ...me, avatarUrl: '/images/img-1' });
+
+    await show('Initials');
+    await show('Avatar');
+
+    expect(repository.updateAvatar).not.toHaveBeenCalled();
+  });
+
+  it('asks before the initials replace an uploaded image, then removes it', async () => {
     const repository = setUp({ ...me, avatarUrl: '/images/img-1' });
     const user = userEvent.setup();
 
-    await user.click(screen.getByRole('button', { name: 'Remove the image' }));
+    await show('Initials');
+    await user.click(screen.getByRole('button', { name: 'Use my initials' }));
+    const dialog = await screen.findByRole('alertdialog');
+    expect(dialog).toHaveTextContent('Your image is deleted');
+    expect(repository.updateAvatar).not.toHaveBeenCalled();
+    await user.click(within(dialog).getByRole('button', { name: 'Use my initials' }));
 
     await waitFor(() => expect(repository.updateAvatar).toHaveBeenCalledWith({ image: null }));
   });
 
-  it('has no photo to remove when the user has none', () => {
+  it('puts the initials back at once over a glyph avatar, with the chosen color', async () => {
+    const repository = setUp({
+      ...me,
+      avatarUrl: '/images/img-3',
+      glyphAvatar: seededGlyphAvatar('user-1'),
+    });
+    const user = userEvent.setup();
+
+    await show('Initials');
+    await user.click(screen.getByRole('button', { name: 'Color 2' }));
+    expect(repository.updateAvatar).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Use my initials' }));
+
+    expect(screen.queryByRole('alertdialog')).toBeNull();
+    await waitFor(() =>
+      expect(repository.updateAvatar).toHaveBeenCalledWith({ image: null, color: 'chart-2' }),
+    );
+  });
+
+  it('has no initials to use when the initials are in use', () => {
     setUp();
 
-    expect(screen.getByRole('button', { name: 'Remove the image' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Use my initials' })).toBeDisabled();
   });
 
   it('sends the chosen color, and the main color as the default color', async () => {
@@ -118,6 +168,7 @@ describe('UserAvatarCard', () => {
 
   it('offers the photo of each linked provider that gave one', async () => {
     setUp();
+    await show('Image');
 
     expect(await screen.findByRole('button', { name: 'Use my GitHub photo' })).toBeEnabled();
     expect(screen.queryByRole('button', { name: 'Use my Corp SSO photo' })).toBeNull();
@@ -127,6 +178,7 @@ describe('UserAvatarCard', () => {
     const repository = setUp();
     const user = userEvent.setup();
 
+    await show('Image');
     await user.click(await screen.findByRole('button', { name: 'Use my GitHub photo' }));
 
     await waitFor(() => expect(repository.importAvatar).toHaveBeenCalledWith('github', '42'));
@@ -155,6 +207,7 @@ describe('UserAvatarCard', () => {
     repository.importAvatar.mockRejectedValue(new Error('PICTURE_UNAVAILABLE'));
     const user = userEvent.setup();
 
+    await show('Image');
     await user.click(await screen.findByRole('button', { name: 'Use my GitHub photo' }));
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
@@ -185,7 +238,7 @@ describe('UserAvatarCard', () => {
     await user.type(field, 'BA4C43');
 
     // The initials show the color at once, and the server gets only the last color.
-    const preview = document.querySelectorAll<HTMLElement>('[data-kind="self"]')[1];
+    const preview = document.querySelector<HTMLElement>('[data-slot="avatar-preview"] [data-kind="self"]')!;
     expect(preview.style.getPropertyValue('--avatar-tile')).toBe('#BA4C43');
     await waitFor(() => expect(repository.updateAvatar).toHaveBeenCalledWith({ color: '#BA4C43' }));
     expect(repository.updateAvatar).toHaveBeenCalledOnce();
@@ -204,7 +257,7 @@ describe('UserAvatarCard', () => {
 
     expect(navigator.navigate).toHaveBeenCalledWith('/acme/account/profile', undefined);
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Upload an image' })).toHaveFocus(),
+      expect(screen.getByRole('radio', { name: 'Initials' })).toHaveFocus(),
     );
     expect(Element.prototype.scrollIntoView).toHaveBeenCalled();
     expect(photoFocus.pending).toBe(false);
@@ -215,6 +268,7 @@ describe('the glyph avatar of the profile card', () => {
   it('saves the avatar of the editor as the photo', async () => {
     const repository = setUp();
 
+    await show('Avatar');
     await userEvent.click(screen.getByRole('button', { name: 'Make an avatar' }));
     const dialog = await screen.findByRole('dialog', { name: 'Make an avatar' });
     await userEvent.click(within(dialog).getByRole('button', { name: 'Save the avatar' }));

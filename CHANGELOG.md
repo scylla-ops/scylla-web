@@ -218,6 +218,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   no longer moves the fields below.
 - The description of a project is now a text area. It grows with the text, you can drag its bottom
   edge, and a counter shows near the limit.
+- The profile photo card shows one preview and one kind of photo at a time: choose Initials, Avatar
+  or Image, then see only the options of that kind.
 
 ## [0.7.2] - 2026-11-25
 

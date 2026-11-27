@@ -137,9 +137,9 @@ describe('AccountPage', () => {
     await user.keyboard('{Enter}');
 
     const dialog = await screen.findByRole('dialog', { name: 'Profile photo' });
-    expect(within(dialog).getByRole('button', { name: 'Upload an image' })).toBeInTheDocument();
-    expect(within(dialog).getByRole('button', { name: 'Remove the image' })).toBeInTheDocument();
     expect(within(dialog).getByRole('button', { name: 'Free color' })).toBeInTheDocument();
+    await user.click(within(dialog).getByRole('radio', { name: 'Image' }));
+    expect(within(dialog).getByRole('button', { name: 'Upload an image' })).toBeInTheDocument();
   });
 
   it('shows no role badge for a user who is not an instance admin', async () => {
