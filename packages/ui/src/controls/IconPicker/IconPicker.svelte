@@ -139,7 +139,7 @@
     </div>
   {/if}
 
-  <Tabs bind:value={tab} class="flex flex-col gap-4">
+  <Tabs bind:value={tab} class="flex flex-1 flex-col gap-4">
     <TabsList class="w-full">
       <TabsTrigger value="icon"><PaletteIcon aria-hidden="true" />{t(m.iconTab)}</TabsTrigger>
       <TabsTrigger value="image"><UploadIcon aria-hidden="true" />{t(m.imageTab)}</TabsTrigger>
@@ -224,8 +224,8 @@
       </div>
     </TabsContent>
 
-    <TabsContent value="image" class={bodyClass}>
-      <div in:fade={{ duration: motionDuration(150) }}>
+    <TabsContent value="image" class={cn('flex-1', bodyClass)}>
+      <div class="flex h-full flex-col" in:fade={{ duration: motionDuration(150) }}>
         <IconImageDrop onfile={chooseImage} />
       </div>
     </TabsContent>

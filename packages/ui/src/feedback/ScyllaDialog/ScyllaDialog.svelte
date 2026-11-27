@@ -83,6 +83,10 @@
       (held || dismissible === false) && '[&>button]:hidden',
       held && '[&_[data-dialog-dismiss]]:hidden',
       'translate-y-0 content-start',
+      // A stable dialog is a column: the body takes the free height, so the footer stays at the
+      // bottom, and the buttons keep one place in every state.
+      stable !== undefined &&
+        'flex flex-col [&>[data-slot=icon-picker]]:flex-1 [&_[data-slot=dialog-footer]]:mt-auto',
       // The actions stay in view when the body scrolls.
       '[&_[data-slot=dialog-footer]]:sticky [&_[data-slot=dialog-footer]]:bottom-[-1.5rem] [&_[data-slot=dialog-footer]]:-mb-6 [&_[data-slot=dialog-footer]]:bg-card [&_[data-slot=dialog-footer]]:pb-6 [&_[data-slot=dialog-footer]]:pt-2',
       className,

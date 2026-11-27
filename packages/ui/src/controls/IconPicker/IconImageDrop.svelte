@@ -36,7 +36,7 @@
   aria-label={t(m.imageTab)}
   data-over={over ? '' : undefined}
   class={cn(
-    'flex h-[158px] w-full flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-7 text-center transition-colors',
+    'flex min-h-[158px] w-full flex-1 flex-col items-center justify-center gap-2 rounded-xl border border-dashed px-4 py-7 text-center transition-colors',
     over && 'border-primary bg-primary/8',
     problem && !over && 'border-destructive',
   )}

@@ -24,6 +24,14 @@ describe('ScyllaDialog', () => {
     expect(minHeight).toContain('37rem');
   });
 
+  it('is a column that pushes its footer to the bottom when it is stable', () => {
+    render(ScyllaDialog, { stable: 37 });
+
+    const { className } = screen.getByRole('dialog');
+    expect(className).toContain('flex-col');
+    expect(className).toContain('[&_[data-slot=dialog-footer]]:mt-auto');
+  });
+
   it('takes no Escape while the dialogs are held, and hides its close button', async () => {
     render(ScyllaDialog);
     dialogHoldStore.setState({ held: true });
