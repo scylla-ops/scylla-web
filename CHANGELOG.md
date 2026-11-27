@@ -155,6 +155,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   avatar of the person who acted. On a phone, the sidebar sheet shows the links of the modules, for
   example the projects. In the projects of the sidebar, a project with a failed last job shows a
   failed status, and a folded group keeps a mark for a project that runs or failed.
+- The search palette no longer cuts its left edge when many filter chips show. The chip row now
+  scrolls in its own box.
 
 ## [0.7.2] - 2026-11-25
 
