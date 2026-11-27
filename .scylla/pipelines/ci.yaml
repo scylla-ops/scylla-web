@@ -6,7 +6,7 @@ version: 1
 name: CI
 on:
   push:
-    branches: [main, "v*.*.*"]
+    branches: [main]
   pull_request: {}
 agent:
   labels: [linux]
@@ -56,9 +56,9 @@ nodes:
     script: |
       set -eu
       . /usr/local/lib/scylla-ci/env.sh
-      # The coverage thresholds apply to the pushes of main and of the version branches. The
-      # coverage makes the tests slower, and the whole suite runs on one agent: the CPU-heavy
-      # tests (the command bar on the real labels) need more than the default 5 s.
+      # The coverage thresholds apply to the pushes of main. The coverage makes the tests slower,
+      # and the whole suite runs on one agent: the CPU-heavy tests (the command bar on the real
+      # labels) need more than the default 5 s.
       if [ "${SCYLLA_EVENT:-}" = pull_request ]; then
         pnpm exec vitest run --maxWorkers=3 --reporter=dot
       else
