@@ -181,6 +181,7 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   tabs no longer move under the pointer.
 - Opening a folded project group no longer waits for the network: the page reads the pipelines of
   the folded groups in advance, so the group opens in one motion.
+- A form error no longer moves the fields below it: each field keeps one line for its message.
 
 ## [0.7.2] - 2026-11-25
 

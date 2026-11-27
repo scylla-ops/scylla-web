@@ -12,9 +12,10 @@
     SelectTrigger,
     SelectValue,
   } from '../../primitives/index.ts';
+  import { cn } from '../../utils/index.ts';
   import { t } from '../../i18n/lingui.adapter.svelte.ts';
   import PasswordInput from '../../controls/PasswordInput/PasswordInput.svelte';
-  import { fold, unfold } from '../../motion/fold.ts';
+  import { enter, exit } from '../../motion/enter.ts';
   import { createFormState } from '../form.state.svelte.ts';
   import { FormItemType, type FormItem, type FormValues } from '../scylla-form.struct.ts';
 
@@ -56,7 +57,7 @@
   };
 
   const describedBy = (item: FormItem<TId>, error: string | undefined): string | undefined =>
-    [item.description && `${item.id}-description`, error && `${item.id}-error`]
+    [!error && item.description && `${item.id}-description`, error && `${item.id}-error`]
       .filter(Boolean)
       .join(' ') || undefined;
 
@@ -68,8 +69,12 @@
 
 <!-- `novalidate`: the form checks its values itself, with translated messages. -->
 <form novalidate onsubmit={handleSubmit} class="space-y-4">
-  <FieldGroup class={className}>
-    {@render leading?.()}
+  <FieldGroup class={cn('gap-2', className)}>
+    <!-- Each field reserves the line of its message, so the gap of a group is that line (16 px) and
+         the gap of 4 px under the control less than the gap between fields (28 px). -->
+    {#if leading}
+      <div class="pb-5">{@render leading()}</div>
+    {/if}
     {#each items as item, index (item.id)}
       {@const error = errorOf(item.id)}
       <Field class="gap-1">
@@ -132,17 +137,34 @@
           </Select>
         {/if}
 
-        {#if item.description}
-          <p id="{item.id}-description" class="text-xs text-muted-foreground">
-            {item.description}
-          </p>
-        {/if}
-        {#if error}
-          <p id="{item.id}-error" class="text-xs text-destructive" in:unfold out:fold>{error}</p>
-        {/if}
+        <!-- The line of the message is always there: an error never moves the fields below. The
+             description and the error share it. -->
+        <div class="grid min-h-4 text-xs leading-4" data-slot="field-message">
+          {#if error}
+            <p
+              id="{item.id}-error"
+              class="col-start-1 row-start-1 text-destructive"
+              in:enter
+              out:exit
+            >
+              {error}
+            </p>
+          {:else if item.description}
+            <p
+              id="{item.id}-description"
+              class="col-start-1 row-start-1 text-muted-foreground"
+              in:enter
+              out:exit
+            >
+              {item.description}
+            </p>
+          {/if}
+        </div>
       </Field>
     {/each}
-    {@render trailing?.()}
+    {#if trailing}
+      <div class="pt-5">{@render trailing()}</div>
+    {/if}
   </FieldGroup>
 
   {#if footer}
