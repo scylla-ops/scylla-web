@@ -17,6 +17,9 @@
 
   // Nothing has run: a hollow dashed ring, not a pattern of dots (it read as a drag grip).
   const waiting = $derived(shapeFormOf(state) === 'queued');
+  // A job that waits (`pending`) is not a pipeline that never ran (`idle`): its ring is in the
+  // queued tone, drawn with shorter dashes that turn slowly. Reduced motion: the dashes stand still.
+  const queuedNow = $derived(state === 'pending');
 </script>
 
 <!--
@@ -39,9 +42,13 @@
     viewBox="0 0 100 100"
     data-slot="status-shape-ring"
     class={cn(
-      'absolute inset-0 size-full text-muted-foreground transition-opacity duration-300 motion-reduce:transition-none',
+      'absolute inset-0 size-full transition-opacity duration-300 motion-reduce:transition-none',
+      queuedNow
+        ? 'text-status-queued animate-[scylla-spin_6s_linear_infinite] motion-reduce:animate-none'
+        : 'text-muted-foreground',
       waiting ? 'opacity-100' : 'opacity-0',
     )}
+    data-waiting={queuedNow ? 'true' : undefined}
   >
     <circle
       cx="50"
@@ -50,7 +57,7 @@
       fill="none"
       stroke="currentColor"
       stroke-width="9"
-      stroke-dasharray="11 8.48"
+      stroke-dasharray={queuedNow ? '6 5.4' : '11 8.48'}
     />
   </svg>
   <canvas

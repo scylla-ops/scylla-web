@@ -55,7 +55,7 @@
   defaultGlyph={defaults.glyph}
   defaultColor={defaults.color}
   avatar
-  bodyClass="relative -mx-1 h-[18.5rem] flex-none overflow-y-auto px-1"
+  bodyClass="relative -mx-1 h-[19.25rem] flex-none overflow-y-auto px-1"
 />
 <DialogFooter>
   <Button variant="outline" data-dialog-dismiss onclick={close}>

@@ -2,7 +2,7 @@
   import CheckIcon from '@lucide/svelte/icons/check';
   import GripVerticalIcon from '@lucide/svelte/icons/grip-vertical';
   import XIcon from '@lucide/svelte/icons/x';
-  import type { LucideIcon } from '@scylla/ui';
+  import { overscrollGlow, type LucideIcon } from '@scylla/ui';
   import SearchIcon from '@lucide/svelte/icons/search';
   import Undo2Icon from '@lucide/svelte/icons/undo-2';
   import { Input } from '@scylla/ui/primitives';
@@ -64,7 +64,11 @@
   </label>
 </div>
 
-<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-3" {@attach dragKinds(sourceOf)}>
+<div
+  class="relative flex min-h-0 flex-1 flex-col overflow-y-auto px-2 pb-3"
+  {@attach dragKinds(sourceOf)}
+  {@attach overscrollGlow({ edges: 'bottom', size: 'sidebar' })}
+>
   {#each groups as group (group.title.id)}
     {#if group.items.length > 0}
       <p class="px-2 pt-4 pb-2 text-xs text-muted-foreground">{t(group.title)}</p>

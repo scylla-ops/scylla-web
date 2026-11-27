@@ -15,7 +15,7 @@
   } from '@scylla/ui/primitives';
   import { createNow } from '@scylla/ui/state';
   import { t } from '@scylla/ui/i18n';
-  import { formatDuration, getRelativeTime } from '@shared/utils/date-utils.ts';
+  import { formatCoarseDuration, formatDuration, getRelativeTime } from '@shared/utils/date-utils.ts';
   import { toStatusState } from '@shared/utils/job-status.utils.ts';
   import { getStatusConfig } from '@shared/utils/status-config.ts';
   import type {
@@ -24,6 +24,7 @@
   } from '@base/features/pipeline/domain/entities/pipeline.entity.ts';
   import { fileMessages } from '@base/features/pipeline/presentation/messages/file.messages.ts';
   import { pipelineMessages } from '@base/features/pipeline/presentation/messages/pipeline.messages.ts';
+  import { liveFooterMessage } from '@base/features/pipeline/presentation/presenters/project-card.presenter.ts';
   import type { RowNote } from '@base/features/pipeline/presentation/presenters/pipeline-file.presenter.ts';
   import {
     jobDuration,
@@ -51,8 +52,11 @@
 
   const lastJob = $derived(history?.jobs[0]);
   const isRunning = $derived(lastJob?.status === 'running');
-  // The clock of a running job moves each second, and stops when it finishes.
-  const now = createNow(() => isRunning);
+  // A job that waits for an agent or for an approval: the line under the name says so.
+  const isWaiting = $derived(lastJob?.status === 'pending' || lastJob?.status === 'awaiting_approval');
+  // The clock of a running job moves each second, and stops when it finishes. A waiting job counts
+  // its time too.
+  const now = createNow(() => isRunning || isWaiting);
   const statusLabel = $derived(
     lastJob ? t(getStatusConfig(lastJob.status).label) : t(pipelineMessages.noRunYet),
   );
@@ -121,6 +125,14 @@
             <span class="max-w-full truncate text-xs text-muted-foreground">
               {statusLabel} ·
               <span class="text-foreground">{formatDuration(jobDuration(lastJob, now.value) ?? 0)}</span>
+            </span>
+          {:else if lastJob && isWaiting}
+            <span class="max-w-full truncate text-xs text-muted-foreground" data-part="pipeline-waiting">
+              {t(
+                liveFooterMessage(lastJob.status)(
+                  formatCoarseDuration((now.value - Date.parse(lastJob.startedAt ?? lastJob.createdAt)) / 1000),
+                ),
+              )}
             </span>
           {:else if lastJob}
             <span class="max-w-full truncate text-xs text-muted-foreground">
