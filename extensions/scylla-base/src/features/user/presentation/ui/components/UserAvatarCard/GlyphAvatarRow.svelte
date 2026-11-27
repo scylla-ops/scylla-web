@@ -14,7 +14,7 @@
   interface Props {
     /** The account of the session. */
     user: UserEntity;
-    /** The editor: the account menu and the command palette open it too (`openGlyphAvatar`). */
+    /** The editor: the command palette opens it too (`openGlyphAvatar`). */
     open?: boolean;
     disabled?: boolean;
   }

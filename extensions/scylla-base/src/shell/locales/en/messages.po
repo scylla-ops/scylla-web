@@ -474,10 +474,6 @@ msgstr "Linked"
 msgid "Machines"
 msgstr "Machines"
 
-#: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:33
-msgid "Make an avatar"
-msgstr "Make an avatar"
-
 #: extensions/scylla-base/src/shell/whats-new.ts:74
 msgid "Make it yours"
 msgstr "Make it yours"

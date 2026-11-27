@@ -30,7 +30,6 @@ export const layoutMessages = {
   create: msg`Create`,
   account: msg`Account`,
   changePhoto: msg`Change your photo`,
-  makeAvatar: msg`Make an avatar`,
   notifications: msg`Notifications`,
   signOut: msg`Sign out`,
   signedInAs: (name: string) => msg`Signed in as ${name}`,

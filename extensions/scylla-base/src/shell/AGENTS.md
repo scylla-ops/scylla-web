@@ -74,7 +74,7 @@ presentation/
     ui/CommandBar/                      the command bar: see "The command bar"
     ui/NotificationsMenu/               the bell of the top bar: the badge and the popover. The panel is in features/notifications
     ui/AdminBar/                        the bar of the administration (space.bar): the host, "Back to <workspace>"
-    ui/NavUser/                         who is signed in (userQueries.me), Account, Make an avatar, Help & tours, Legal and privacy
+    ui/NavUser/                         who is signed in (userQueries.me), Account, Help & tours, Legal and privacy
                                         (a submenu of the documents that are on, no entry while none is on; on a
                                         phone it opens under its entry), Cookie settings
                                         (while one tracker needs consent), Instance administration, or

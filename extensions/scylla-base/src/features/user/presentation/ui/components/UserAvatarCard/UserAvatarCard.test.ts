@@ -234,7 +234,7 @@ describe('the glyph avatar of the profile card', () => {
     expect(within(dialog).getByRole('button', { name: 'Reset' })).toBeDisabled();
   });
 
-  it('opens the editor from the account menu and the command palette', async () => {
+  it('opens the editor from the command palette', async () => {
     const navigator = installTestNavigator();
     contextStore.setState({ workspace: { id: 'org-1', name: 'Acme', slug: 'acme' } });
     teardown.push(navigator.restore);

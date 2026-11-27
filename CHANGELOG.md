@@ -87,6 +87,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   smoother interface. The Projects link of the sidebar shows a "New" badge until you open it.
 - The search bar shows five filters (Pages, Actions, Projects, Library, Team and infra). A filter
   with no result hides while you type.
+- The account menu no longer shows "Make an avatar". The editor stays on Account > Profile, in the
+  icon picker and in the command palette.
 
 ### Fixed
 
