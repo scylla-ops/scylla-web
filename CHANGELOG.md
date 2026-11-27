@@ -239,6 +239,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   agent; the app page has the same menu. The Jobs tab filters the jobs by state, searches them and
   shows 10 more at each click. The Activity tab shows less for an agent with few days or no job.
 - The Dashboard side panel now shows the end-of-scroll glow, like the other second sidebars.
+- The Color row of the Icon tab in the agent and app icon dialog shows in full, with no second
+  scroll bar.
 
 ## [0.7.2] - 2026-11-25
 

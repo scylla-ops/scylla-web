@@ -14,6 +14,8 @@
   let fallback = $state<IconChoice>({ kind: 'default' });
   let project = $state<IconChoice>({ kind: 'glyph', name: 'rocket', color: 'chart-2' });
   let open = $state(true);
+  let agent = $state<IconChoice>({ kind: 'default' });
+  let agentOpen = $state(true);
 </script>
 
 <Story name="Cases" asChild>
@@ -50,6 +52,33 @@
     <DialogFooter>
       <Button variant="outline" data-dialog-dismiss onclick={() => (open = false)}>Cancel</Button>
       <Button onclick={() => (open = false)}>Save</Button>
+    </DialogFooter>
+  </ScyllaDialog>
+</Story>
+
+<!-- As the icon of an App or an agent: three tabs, each panel of one fixed height that holds the
+     whole Icon tab (the Color row is whole) and scrolls the Avatar tab. -->
+<Story name="In a stable dialog with avatars" asChild>
+  <div class="p-4"><Button variant="outline" onclick={() => (agentOpen = true)}>Open again</Button></div>
+  <ScyllaDialog
+    open={agentOpen}
+    onOpenChange={next => (agentOpen = next)}
+    title="Agent icon"
+    description="Choose a glyph and a color, an image or an avatar."
+    stable={38}
+    class="sm:max-w-lg"
+  >
+    <IconPicker
+      value={agent}
+      onchange={choice => (agent = choice)}
+      title="agent"
+      recent={RECENT}
+      avatar
+      bodyClass="relative -mx-1 h-[19.25rem] flex-none overflow-y-auto px-1"
+    />
+    <DialogFooter>
+      <Button variant="outline" data-dialog-dismiss onclick={() => (agentOpen = false)}>Cancel</Button>
+      <Button onclick={() => (agentOpen = false)}>Save</Button>
     </DialogFooter>
   </ScyllaDialog>
 </Story>
