@@ -231,9 +231,10 @@ describe('WhatsNewDialog autoplay', () => {
     await screen.findAllByRole('tab');
     expect(selected()).toBe('0.7.3');
 
+    // The shortest tab lasts 4.4 s: steps of 500 ms keep the test fast on a slow CI agent.
     const seen = [selected()];
-    for (let i = 0; i < 1000 && seen.length < 6; i += 1) {
-      await advance(50);
+    for (let i = 0; i < 100 && seen.length < 6; i += 1) {
+      await advance(500);
       if (selected() !== seen[seen.length - 1]) seen.push(selected());
     }
     expect(seen).toEqual(['0.7.3', '0.7.2', '0.7.1', '0.7.0', '0.7.3', '0.7.2']);
