@@ -199,6 +199,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   second screen that slides in, with a Back button and the chosen icon next to its title. In a
   dialog, the dialog keeps its size and Escape goes back first. The colors of the icon picker are
   centered, and the drop zone of the Image tab fills the tab.
+- The What's new tour plays faster, starts again 1.8 seconds after you stop, and loops until you
+  close the dialog.
 
 ## [0.7.2] - 2026-11-25
 
