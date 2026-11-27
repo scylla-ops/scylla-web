@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { screen, waitFor, act, fireEvent } from '@testing-library/svelte';
+import { screen, waitFor, act, fireEvent, within } from '@testing-library/svelte';
 import userEvent from '@testing-library/user-event';
 import { render } from '@test/render.ts';
 import { WHATS_NEW } from '@base/shell/whats-new.ts';
@@ -39,6 +39,22 @@ describe('WhatsNewDialog', () => {
     expect(tabs[0]).toHaveAttribute('aria-selected', 'true');
     expect(screen.getByText('A new Projects page')).toBeInTheDocument();
     expect(screen.getByText('A new look')).not.toBeVisible();
+  });
+
+  it('shows the main features of 0.7.3 in its tab, in order', async () => {
+    render(WhatsNewDialog);
+
+    const panel = (await screen.findAllByRole('tabpanel'))[0];
+    const titles = within(panel)
+      .getAllByRole('heading', { level: 4 })
+      .map(heading => heading.textContent);
+    expect(titles).toEqual([
+      'A new Projects page',
+      'Make it yours',
+      'Ctrl K finds even more',
+      'A smoother interface',
+    ]);
+    expect(within(panel).queryByText('A clearer command bar')).not.toBeInTheDocument();
   });
 
   it('scrolls the tab panel, not the dialog, so the tab list stays in view', async () => {

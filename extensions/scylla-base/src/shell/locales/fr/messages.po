@@ -53,27 +53,27 @@ msgstr "↑ ↓ déplacer · Entrée ouvrir · Tab filtrer · Échap fermer"
 msgid "> actions · / pages · # projects, pipelines and jobs · @ members"
 msgstr "> actions · / pages · # projets, pipelines et jobs · @ membres"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:129
+#: extensions/scylla-base/src/shell/whats-new.ts:147
 msgid "A button in the top bar now copies the page link in one click."
 msgstr "Un bouton dans la barre du haut copie désormais le lien de la page en un clic."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:112
+#: extensions/scylla-base/src/shell/whats-new.ts:130
 msgid "A clearer command bar"
 msgstr "Une barre de commandes plus claire"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:162
+#: extensions/scylla-base/src/shell/whats-new.ts:180
 msgid "A command bar"
 msgstr "Une barre de commandes"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:73
-msgid "A glyph in any color or your own image for each project, a profile photo, and an icon for your agents."
-msgstr "Un pictogramme de n'importe quelle couleur ou votre propre image pour chaque projet, une photo de profil et une icône pour vos agents."
+#: extensions/scylla-base/src/shell/whats-new.ts:75
+msgid "A glyph in any color or your own image for your projects, workspaces, agents and apps. And for you: a profile photo, imported from GitHub in one click, or an avatar you design yourself, Scylla head included."
+msgstr "Un pictogramme de la couleur de votre choix ou votre propre image pour vos projets, espaces de travail, agents et apps. Et pour vous : une photo de profil, reprise de GitHub en un clic, ou un avatar que vous composez vous-même, tête de Scylla comprise."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:19
 msgid "A job runs"
 msgstr "Un job est en cours"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:144
+#: extensions/scylla-base/src/shell/whats-new.ts:162
 msgid "A library of fragments"
 msgstr "Une bibliothèque de fragments"
 
@@ -81,21 +81,25 @@ msgstr "Une bibliothèque de fragments"
 msgid "A new job starts now."
 msgstr "Un nouveau job démarre maintenant."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:96
+#: extensions/scylla-base/src/shell/whats-new.ts:114
 msgid "A new log viewer"
 msgstr "Un nouveau viewer de logs"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:195
+#: extensions/scylla-base/src/shell/whats-new.ts:213
 msgid "A new look"
 msgstr "Un nouveau look"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:63
+#: extensions/scylla-base/src/shell/whats-new.ts:65
 msgid "A new Projects page"
 msgstr "Une nouvelle page Projets"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:196
+#: extensions/scylla-base/src/shell/whats-new.ts:214
 msgid "A resizable double sidebar, new colors and fonts. Your theme and language now follow you on all your devices."
 msgstr "Double barre latérale redimensionnable, nouvelles couleurs et polices. Votre thème et votre langue vous suivent désormais sur tous vos appareils."
+
+#: extensions/scylla-base/src/shell/whats-new.ts:90
+msgid "A smoother interface"
+msgstr "Une interface plus fluide"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/layout.messages.ts:7
 msgid "Access"
@@ -130,11 +134,11 @@ msgstr "Tous"
 msgid "All workspaces…"
 msgstr "Tous les espaces de travail…"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:171
+#: extensions/scylla-base/src/shell/whats-new.ts:189
 msgid "All your notifications behind the bell: accept an invitation in one click and follow the failed runs of your workspace."
 msgstr "Toutes vos notifications derrière la cloche : acceptez une invitation en un clic et suivez les exécutions en échec de votre espace de travail."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:170
+#: extensions/scylla-base/src/shell/whats-new.ts:188
 msgid "An inbox"
 msgstr "Une boîte de réception"
 
@@ -142,7 +146,7 @@ msgstr "Une boîte de réception"
 msgid "App"
 msgstr "App"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:179
+#: extensions/scylla-base/src/shell/whats-new.ts:197
 msgid "Apps and agents"
 msgstr "Apps et agents"
 
@@ -170,23 +174,23 @@ msgstr "Annuler"
 msgid "Change your photo"
 msgstr "Changer votre photo"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:121
+#: extensions/scylla-base/src/shell/whats-new.ts:139
 msgid "Click a pipeline, a run or an agent in a widget to open its page."
 msgstr "Cliquez sur une pipeline, une exécution ou un agent dans un widget pour ouvrir directement sa page."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:89
+#: extensions/scylla-base/src/shell/whats-new.ts:107
 msgid "Click the start node of a pipeline to see, add and edit its triggers."
 msgstr "Cliquez sur le nœud de départ d'une pipeline pour voir, ajouter et modifier ses déclencheurs."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:97
+#: extensions/scylla-base/src/shell/whats-new.ts:115
 msgid "Colors, search, jump to errors, link to a line, full screen and live follow."
 msgstr "Couleurs, recherche, saut direct aux erreurs, lien vers une ligne, plein écran et suivi en direct."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:136
+#: extensions/scylla-base/src/shell/whats-new.ts:154
 msgid "Conditions in your pipelines"
 msgstr "Des conditions dans vos pipelines"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:180
+#: extensions/scylla-base/src/shell/whats-new.ts:198
 msgid "Connect an agent in three steps. For your apps, pick the access type: token, CI identity or key pair, and see their last use at a glance."
 msgstr "Connectez un agent en trois étapes. Pour vos apps, choisissez le type d'accès : token, identité CI ou paire de clés, avec leur dernière utilisation en un coup d'œil."
 
@@ -214,11 +218,15 @@ msgstr "Créer un espace de travail"
 msgid "Create…"
 msgstr "Créer…"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:163
+#: extensions/scylla-base/src/shell/whats-new.ts:82
+msgid "Ctrl K finds even more"
+msgstr "Ctrl K trouve encore plus"
+
+#: extensions/scylla-base/src/shell/whats-new.ts:181
 msgid "Ctrl K finds everything: pages, projects, pipelines, agents or people, even with a typo. Run a pipeline or switch theme without leaving the keyboard."
 msgstr "Ctrl K pour tout retrouver : pages, projets, pipelines, agents ou personnes, même avec une faute de frappe. Lancez aussi une pipeline ou changez de thème sans lâcher le clavier."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:113
+#: extensions/scylla-base/src/shell/whats-new.ts:131
 msgid "Ctrl K now highlights what matches your search, and a short tour shows you how to use it."
 msgstr "Ctrl K surligne désormais ce qui correspond à votre recherche, et une courte visite vous montre comment l'utiliser."
 
@@ -234,9 +242,13 @@ msgstr "Tableau de bord"
 msgid "Dashboards"
 msgstr "Tableaux de bord"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:120
+#: extensions/scylla-base/src/shell/whats-new.ts:138
 msgid "Dashboards you can click"
 msgstr "Des tableaux de bord cliquables"
+
+#: extensions/scylla-base/src/shell/whats-new.ts:91
+msgid "Dialogs, tabs, lists and sections now open and close smoothly. Nothing jumps under your click anymore, and a dialog keeps its size from one tab to the next. Prefer less motion? Scylla follows your system setting."
+msgstr "Fenêtres, onglets, listes et sections s'ouvrent et se ferment désormais en douceur. Plus rien ne saute sous votre clic, et une fenêtre garde sa taille d'un onglet à l'autre. Vous préférez moins d'animations ? Scylla suit le réglage de votre système."
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:102
 msgid "Disable {name}"
@@ -264,7 +276,7 @@ msgctxt "user"
 msgid "Disabled"
 msgstr "Désactivé"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:154
+#: extensions/scylla-base/src/shell/whats-new.ts:172
 msgid "Discover fragments published by other teams and add them to your library: linked to follow their updates, or copied to edit freely."
 msgstr "Découvrez les fragments publiés par d'autres équipes et ajoutez-les à votre bibliothèque : liés pour suivre leurs mises à jour, ou copiés pour les modifier librement."
 
@@ -317,7 +329,7 @@ msgstr "Français"
 msgid "french language"
 msgstr "français langue"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:187
+#: extensions/scylla-base/src/shell/whats-new.ts:205
 msgid "GitHub and GitLab"
 msgstr "GitHub et GitLab"
 
@@ -434,11 +446,11 @@ msgstr "Job"
 msgid "Jobs"
 msgstr "Jobs"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:105
+#: extensions/scylla-base/src/shell/whats-new.ts:123
 msgid "Label your agents and choose where each pipeline runs. A waiting job now tells you why."
 msgstr "Étiquetez vos agents et choisissez où tourne chaque pipeline. Un job en attente vous dit désormais pourquoi."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:104
+#: extensions/scylla-base/src/shell/whats-new.ts:122
 msgid "Labels for your agents"
 msgstr "Des étiquettes pour vos agents"
 
@@ -450,7 +462,7 @@ msgstr "Langue"
 msgid "Library"
 msgstr "Bibliothèque"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:188
+#: extensions/scylla-base/src/shell/whats-new.ts:206
 msgid "Link a repository to your project, run a pipeline straight from a file of the repository, and export your pipelines as TOML, YAML or JSON."
 msgstr "Liez un dépôt à votre projet, lancez une pipeline directement depuis un fichier du dépôt, et exportez vos pipelines en TOML, YAML ou JSON."
 
@@ -466,9 +478,9 @@ msgstr "Machines"
 msgid "Make an avatar"
 msgstr "Créer un avatar"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:72
+#: extensions/scylla-base/src/shell/whats-new.ts:74
 msgid "Make it yours"
-msgstr "Des icônes à votre image"
+msgstr "Scylla à votre image"
 
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:40
 msgid "Member"
@@ -600,6 +612,10 @@ msgstr "Préférences"
 msgid "Project"
 msgstr "Projet"
 
+#: extensions/scylla-base/src/shell/whats-new.ts:83
+msgid "Project groups, dashboards, fragments, jobs, triggers, secrets and members: you now find them all from the keyboard. Rerun a failed job or turn off a trigger right from the bar."
+msgstr "Groupes de projets, tableaux de bord, fragments, jobs, déclencheurs, secrets et membres : tout se retrouve désormais au clavier. Relancez un job en échec ou désactivez un déclencheur sans quitter la barre."
+
 #: extensions/scylla-base/src/shell/presentation/layout/messages/command-bar.messages.ts:121
 msgid "Project scope"
 msgstr "Portée du projet"
@@ -672,7 +688,7 @@ msgstr "Lancer la pipeline {name} : vous confirmez à l'étape suivante."
 msgid "Run…"
 msgstr "Lancer…"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:80
+#: extensions/scylla-base/src/shell/whats-new.ts:98
 msgid "Scylla pipelines and file pipelines, together"
 msgstr "Pipelines Scylla et pipelines fichier, ensemble"
 
@@ -708,7 +724,7 @@ msgstr "Sélectionner un espace de travail"
 msgid "Service unavailable, we'll be right back."
 msgstr "Service indisponible, nous revenons tout de suite."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:128
+#: extensions/scylla-base/src/shell/whats-new.ts:146
 msgid "Share any page"
 msgstr "Partagez n'importe quelle page"
 
@@ -753,7 +769,7 @@ msgstr "Par défaut pour l'équipe"
 msgid "The last job failed"
 msgstr "Le dernier job a échoué"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:153
+#: extensions/scylla-base/src/shell/whats-new.ts:171
 msgid "The marketplace"
 msgstr "La marketplace"
 
@@ -789,7 +805,7 @@ msgstr "Déclencheur"
 msgid "Triggers"
 msgstr "Déclencheurs"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:88
+#: extensions/scylla-base/src/shell/whats-new.ts:106
 msgid "Triggers from the start node"
 msgstr "Les déclencheurs depuis le nœud de départ"
 
@@ -801,7 +817,7 @@ msgstr "Essayez une recherche"
 msgid "Try again"
 msgstr "Réessayer"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:145
+#: extensions/scylla-base/src/shell/whats-new.ts:163
 msgid "Turn a group of nodes into a fragment and reuse it in every pipeline of your workspace. Updates are offered, never forced."
 msgstr "Transformez un groupe de nœuds en fragment et réutilisez-le dans toutes les pipelines de votre espace de travail. Les mises à jour vous sont proposées, jamais imposées."
 
@@ -858,7 +874,7 @@ msgstr "Nouveautés"
 msgid "What's new in Scylla {0}"
 msgstr "Nouveautés de Scylla {0}"
 
-#: extensions/scylla-base/src/shell/whats-new.ts:137
+#: extensions/scylla-base/src/shell/whats-new.ts:155
 msgid "With the If, Switch and Merge nodes, a pipeline now takes a different path based on a value or the result of a node. Errors can have their own path too."
 msgstr "Avec les nœuds Si, Switch et Fusion, une pipeline prend désormais un chemin différent selon une valeur ou le résultat d'un nœud. Les erreurs peuvent aussi avoir leur propre chemin."
 
@@ -884,10 +900,10 @@ msgstr "Vous n'êtes membre d'aucun espace de travail. Demandez à un administra
 msgid "You are still signed in. This page tries again by itself."
 msgstr "Vous êtes toujours connecté. Cette page réessaie toute seule."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:64
-msgid "Your projects as cards with their pipelines, plus search, shared groups, pins and a Reorder mode."
-msgstr "Vos projets en cartes avec leurs pipelines, une recherche, des groupes partagés, des épingles et un mode Réorganiser."
+#: extensions/scylla-base/src/shell/whats-new.ts:66
+msgid "Your projects as cards with their pipelines, with search, filters and sort. Put them in colored groups, pin your favorites, drag them into your own order and pick a display: cards, list or tiles. Your groups also show in the sidebar."
+msgstr "Vos projets en cartes avec leurs pipelines, une recherche, des filtres et des tris. Rangez-les dans des groupes colorés, épinglez vos favoris, réorganisez-les par glisser-déposer et choisissez l'affichage : cartes, liste ou tuiles. Vos groupes s'affichent aussi dans la barre latérale."
 
-#: extensions/scylla-base/src/shell/whats-new.ts:81
+#: extensions/scylla-base/src/shell/whats-new.ts:99
 msgid "Your Scylla pipelines and file pipelines can now live side by side in one project, each with its badge. If an admin allows it, a Scylla pipeline can also start on a push, a PR or a tag."
 msgstr "Vos pipelines Scylla et vos pipelines fichier peuvent désormais coexister dans un même projet, chacune avec son badge. Si un admin l'autorise, une pipeline Scylla peut aussi démarrer sur un push, une PR ou un tag."
