@@ -222,6 +222,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   edge, and a counter shows near the limit.
 - The profile photo card shows one preview and one kind of photo at a time: choose Initials, Avatar
   or Image, then see only the options of that kind.
+- The avatar editor uses the full dialog: colors are under the preview, shapes are smaller, and a
+  fade shows when more content is below.
 
 ## [0.7.2] - 2026-11-25
 

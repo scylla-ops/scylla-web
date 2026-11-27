@@ -27,7 +27,7 @@
   data-slot="glyph-shape-grid"
   role="group"
   aria-labelledby={labelledby}
-  class="grid grid-cols-6 gap-1.5"
+  class="grid grid-cols-6 gap-1.5 sm:grid-cols-8"
 >
   {#each GLYPH_SHAPES as shape, index (shape)}
     {@const selected = shape === avatar.shape}

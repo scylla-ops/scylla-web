@@ -20,6 +20,7 @@
   import ColorSwatches from '../ColorSwatches/ColorSwatches.svelte';
   import { randomGlyphAvatar } from '../GlyphAvatar/glyph-avatar.ts';
   import GlyphAvatarEditor from '../GlyphAvatar/GlyphAvatarEditor.svelte';
+  import GlyphScrollArea from '../GlyphAvatar/GlyphScrollArea.svelte';
   import ChoicePreview from './ChoicePreview.svelte';
   import IconImageDrop from './IconImageDrop.svelte';
   import { choiceIconProps, searchGlyphs, type IconChoice } from './icon-picker.ts';
@@ -244,17 +245,20 @@
     </TabsContent>
 
     {#if avatar}
-      <TabsContent value="avatar" class={cn(PANEL, bodyClass)} style={PANEL_STYLE}>
-        <!-- The preview of the picker shows the avatar: the editor has no preview of its own. -->
-        <div in:fade={{ duration: motionDuration(150) }}>
-          <GlyphAvatarEditor
-            value={avatarStart}
-            onchange={next => onchange({ kind: 'avatar', avatar: next })}
-            preview={false}
-            square
-            {recent}
-          />
-        </div>
+      <TabsContent value="avatar" class={PANEL} style={PANEL_STYLE}>
+        <!-- The preview of the picker shows the avatar: the editor has no preview of its own. The
+             body scrolls with a fade and a chevron, so the colors below the shapes show. -->
+        <GlyphScrollArea class={bodyClass}>
+          <div in:fade={{ duration: motionDuration(150) }}>
+            <GlyphAvatarEditor
+              value={avatarStart}
+              onchange={next => onchange({ kind: 'avatar', avatar: next })}
+              preview={false}
+              square
+              {recent}
+            />
+          </div>
+        </GlyphScrollArea>
       </TabsContent>
     {/if}
     </div>
