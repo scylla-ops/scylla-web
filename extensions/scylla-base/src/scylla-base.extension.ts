@@ -10,7 +10,7 @@ import { ProjectCardRepositoryWidgetInjection } from './features/integrations/wi
 @Extension({
   id: 'scylla-base',
   name: 'Scylla',
-  version: '0.7.2',
+  version: '0.7.3',
   modules: [ShellModule, ...modules],
   widgetInjections: {
     PipelineTriggersWidgetInjection,
