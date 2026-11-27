@@ -11,6 +11,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-11-27
+
 ### Added
 
 - A Mail page in the administration of the server (Admin > Mail, after Settings) sets the SMTP relay
@@ -75,8 +77,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   header are larger.
 - Glyph avatars (DiceBear "Glyphs", CC BY 4.0). An editor with a large preview gives the 35 shapes
   and the Scylla head, the colors of the figure and of the background (solid, linear or radial), and
-  mirror, rotation and size. A person opens it from the profile photo card, the account menu or the
-  command palette, and the icon picker of an agent or an app has an Avatar tab. Activity shows the
+  mirror, rotation and size. A person opens it from the profile photo card or the command palette,
+  and the icon picker of an agent or an app has an Avatar tab. Activity shows the
   Scylla head for a change that Scylla made. The account page shows the credit of the style.
 - What's new: click an item to open its page or start its action, such as the command bar.
 - A soft light halo shows behind the content when you push past the end of a page, a second sidebar
@@ -90,8 +92,6 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   smoother interface. The Projects link of the sidebar shows a "New" badge until you open it.
 - The search bar shows five filters (Pages, Actions, Projects, Library, Team and infra). A filter
   with no result hides while you type.
-- The account menu no longer shows "Make an avatar". The editor stays on Account > Profile, in the
-  icon picker and in the command palette.
 
 ### Fixed
 
@@ -721,7 +721,8 @@ Changed.
 - The tab title shows the version of the app. It said 0.4: the title now comes from the
   version of `apps/web/package.json`.
 
-[Unreleased]: https://github.com/scylla-ops/scylla-web/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/scylla-ops/scylla-web/compare/v0.7.3...HEAD
+[0.7.3]: https://github.com/scylla-ops/scylla-web/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/scylla-ops/scylla-web/compare/v0.7.1...v0.7.2
 [0.7.1]: https://github.com/scylla-ops/scylla-web/compare/v0.7.0...v0.7.1
 [0.7.0]: https://github.com/scylla-ops/scylla-web/compare/v0.6.0...v0.7.0
