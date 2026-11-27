@@ -209,6 +209,8 @@ An entry marked **Breaking** changes what a host repo or an extension imports
   second screen that slides in, with a Back button and the chosen icon next to its title. In a
   dialog, the dialog keeps its size and Escape goes back first. The colors of the icon picker are
   centered, and the drop zone of the Image tab fills the tab.
+- Each field error in the forms of the app (mail settings, triggers, pipeline editor, roles, GitLab
+  token, and others) now slides in and out like the other errors, and the fields below move with it.
 
 ## [0.7.2] - 2026-11-25
 

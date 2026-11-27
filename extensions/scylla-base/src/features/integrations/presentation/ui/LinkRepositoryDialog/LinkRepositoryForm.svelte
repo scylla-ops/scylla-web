@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
   import { ListSkeleton } from '@scylla/ui';
   import { Button, buttonVariants, DialogFooter } from '@scylla/ui/primitives';
@@ -81,9 +82,7 @@
       {/if}
     </p>
 
-    {#if form.error}
-      <p role="alert" class="text-sm text-destructive">{form.error}</p>
-    {/if}
+    <FieldMessage role="alert" size="sm" message={form.error} />
   {/if}
 
   <DialogFooter>

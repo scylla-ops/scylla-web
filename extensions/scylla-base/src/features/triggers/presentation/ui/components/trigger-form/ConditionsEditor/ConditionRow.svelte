@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import Trash2Icon from '@lucide/svelte/icons/trash-2';
   import {
     Button,
@@ -59,14 +60,6 @@
   };
 </script>
 
-{#snippet errorLine(errorId: string, text: string)}
-  <!-- The spacer puts the error under the field, after the menu. -->
-  <div class="flex items-center gap-2">
-    <span class="w-28 shrink-0" aria-hidden="true"></span>
-    <p id={errorId} class="text-xs text-destructive">{text}</p>
-  </div>
-{/snippet}
-
 <div class="flex items-center gap-2">
   <div class="flex min-w-0 flex-1 flex-col gap-2">
     <div class="flex items-center gap-2">
@@ -101,9 +94,8 @@
         class="min-w-0 flex-1 font-mono"
       />
     </div>
-    {#if fieldError}
-      {@render errorLine(`${id}-field-error`, fieldError)}
-    {/if}
+    <!-- The margin puts the error under the field, after the menu. -->
+    <FieldMessage id={`${id}-field-error`} class="ml-30" message={fieldError} />
 
     <div class="flex items-center gap-2">
       <Select
@@ -150,9 +142,7 @@
         />
       {/if}
     </div>
-    {#if valueError}
-      {@render errorLine(`${id}-value-error`, valueError)}
-    {/if}
+    <FieldMessage id={`${id}-value-error`} class="ml-30" message={valueError} />
   </div>
 
   <Button

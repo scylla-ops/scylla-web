@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import { Input, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { MAX_RETRIES, MAX_TIMEOUT_SECONDS, type NodeDraft } from './node-draft.state.svelte.ts';
@@ -27,11 +28,7 @@
       aria-invalid={draft.timeoutInvalid}
       aria-describedby={draft.timeoutInvalid ? `${uid}-timeout-error` : undefined}
     />
-    {#if draft.timeoutInvalid}
-      <p id="{uid}-timeout-error" class="text-xs text-destructive">
-        {t(nodeMessages.timeoutRange)}
-      </p>
-    {/if}
+    <FieldMessage id="{uid}-timeout-error" message={draft.timeoutInvalid && t(nodeMessages.timeoutRange)} />
   </div>
   <div class="flex flex-col gap-2">
     <Label for="{uid}-retries">{t(nodeMessages.retries)}</Label>
@@ -45,10 +42,6 @@
       aria-invalid={draft.retriesInvalid}
       aria-describedby={draft.retriesInvalid ? `${uid}-retries-error` : undefined}
     />
-    {#if draft.retriesInvalid}
-      <p id="{uid}-retries-error" class="text-xs text-destructive">
-        {t(nodeMessages.retriesRange)}
-      </p>
-    {/if}
+    <FieldMessage id="{uid}-retries-error" message={draft.retriesInvalid && t(nodeMessages.retriesRange)} />
   </div>
 </div>

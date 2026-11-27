@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import type { MessageDescriptor } from '@lingui/core';
   import ArchiveIcon from '@lucide/svelte/icons/archive';
   import DownloadIcon from '@lucide/svelte/icons/download';
@@ -91,9 +92,7 @@
   {/if}
   <ScyllaForm {items} {isPending} onSubmit={values => onConfirm(values.password ?? '')}>
     {#snippet footer({ isValid, isPending: pending })}
-      {#if refusal}
-        <p role="alert" class="text-sm text-destructive">{refusal}</p>
-      {/if}
+      <FieldMessage role="alert" size="sm" message={refusal} />
       <DialogFooter>
         <Button
           type="button"

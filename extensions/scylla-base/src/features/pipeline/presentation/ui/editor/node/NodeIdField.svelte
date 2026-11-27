@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import { Button } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import { cn } from '@scylla/ui/utils';
@@ -37,9 +38,7 @@
     />
   </label>
   {#if draft.idIssue}
-    <p id="{uid}-issue" class="mt-1 text-xs text-destructive">
-      {nodeIdIssueText(draft.idIssue)}
-    </p>
+    <FieldMessage id="{uid}-issue" class="mt-1" message={nodeIdIssueText(draft.idIssue)} />
     {#if draft.suggestedId}
       {@const suggestion = draft.suggestedId}
       <!-- A long id is cut: the whole id is in its tooltip and in the name of the button. -->

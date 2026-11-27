@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import { Checkbox, Label } from '@scylla/ui/primitives';
   import { t } from '@scylla/ui/i18n';
   import type { VcsProvider } from '@base/features/integrations';
@@ -79,9 +80,7 @@
         )}
       {/each}
     </div>
-    {#if source.events.length === 0}
-      <p class="text-xs text-destructive">{t(triggersMessages.chooseAnEvent)}</p>
-    {/if}
+    <FieldMessage message={source.events.length === 0 && t(triggersMessages.chooseAnEvent)} />
   </fieldset>
   {@render check(
     'trigger-pull-request-drafts',

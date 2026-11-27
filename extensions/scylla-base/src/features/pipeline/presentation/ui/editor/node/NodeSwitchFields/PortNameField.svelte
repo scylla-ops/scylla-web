@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import { Input } from '@scylla/ui/primitives';
   import { cn } from '@scylla/ui/utils';
   import { switchPortIssueText } from '@base/features/pipeline/presentation/presenters/node-issue.presenter.ts';
@@ -40,7 +41,5 @@
     onblur={commit}
     onkeydown={event => event.key === 'Enter' && event.currentTarget.blur()}
   />
-  {#if issue}
-    <p id="{uid}-issue" class="text-xs text-destructive">{issue}</p>
-  {/if}
+  <FieldMessage id="{uid}-issue" message={issue} />
 </div>

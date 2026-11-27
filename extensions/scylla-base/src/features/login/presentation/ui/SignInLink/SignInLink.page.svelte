@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import { createMutation, createQuery } from '@scylla/core-sdk';
   import { Button } from '@scylla/ui/primitives';
   import { FormItemType, ScyllaForm, ScyllaLoadingScreen, type FormItem } from '@scylla/ui';
@@ -83,11 +84,12 @@
       onSubmit={values => link.mutate(values.password)}
     >
       {#snippet footer({ isValid, isPending })}
-        {#if link.error}
-          <p role="alert" class="text-center text-sm text-destructive">
-            {ScyllaError.from(link.error).userMessage()}
-          </p>
-        {/if}
+        <FieldMessage
+          role="alert"
+          size="sm"
+          class="text-center"
+          message={link.error && ScyllaError.from(link.error).userMessage()}
+        />
         <Button type="submit" class="mt-2 w-full" disabled={!isValid || isPending}>
           {t(m.submit(pending.data?.providerName ?? ''))}
         </Button>

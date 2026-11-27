@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { FieldMessage } from '@scylla/ui';
   import ExternalLinkIcon from '@lucide/svelte/icons/external-link';
   import { PasswordInput } from '@scylla/ui';
   import {
@@ -107,9 +108,8 @@
       aria-describedby={`${fieldId}-hint`}
       bind:value={form.token}
     />
-    {#if form.error}
-      <p id={`${fieldId}-hint`} role="alert" class="text-xs text-destructive">{form.error}</p>
-    {:else}
+    <FieldMessage id={`${fieldId}-hint`} role="alert" message={form.error} />
+    {#if !form.error}
       <p id={`${fieldId}-hint`} class="text-xs text-muted-foreground">{t(messages.tokenHint)}</p>
     {/if}
   </div>
